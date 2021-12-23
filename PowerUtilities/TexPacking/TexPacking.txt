@@ -1,0 +1,10 @@
+----------------------------------
+TexPacking
+----------------------------------
+1 TexPacking
+	Select textures or textures's folder.
+	click PackingTools/TexPacking.
+
+2 Adjust Meshes's Material offset&scale.
+	Select TexPackingManifest.asset + target models
+	Click PackingTools/AdjustMeshesMaterial.
