@@ -13,10 +13,12 @@ namespace PowerUtilities.Scenes.Tools
         public Vector2 rotation = new Vector2(0,359);
         public Transform target;
         public LayerMask colliderLayers = 1;
+
+        public Transform minTr, maxTr;
     }
     public class PlacementWindow : EditorWindow
     {
-        const string ROOT_PATH = "Game/Editor工具";
+        const string ROOT_PATH = "PowerUtilities/TransformTools";
         const string helpStr = @"
 Hierarchy中对选中节点的子节点进行
 随机缩放
@@ -39,22 +41,38 @@ Hierarchy中对选中节点的子节点进行
             Repaint();
         }
 
+        public static void RandomDistribution(Transform[] trs,Vector3 min,Vector3 max)
+        {
+            foreach (var tr in trs)
+            {
+                tr.position = RandomTools.Range(min,max);
+            }
+        }
+
         public void OnGUI()
         {
             EditorGUILayout.HelpBox(helpStr, MessageType.Info);
 
-            var target = Selection.activeTransform;
-            if (!target)
-            {
-                EditorGUILayout.HelpBox("Hierarchy先选中一个节点", MessageType.Warning);
-                return;
-            }
-
-            info.target = target;
-
             EditorGUITools.BeginVerticalBox(() =>
             {
-                EditorGUILayout.ObjectField("Target : ", target, typeof(Transform), true);
+
+                EditorGUITools.BeginHorizontalBox(() => {
+                    info.target = (Transform)EditorGUILayout.ObjectField("Target: ", info.target, typeof(Transform), true);
+                    if (GUILayout.Button("this"))
+                    {
+                        info.target = Selection.activeTransform;
+                    }
+                });
+
+                EditorGUITools.BeginVerticalBox(()=> {
+                    info.minTr = (Transform)EditorGUILayout.ObjectField("Min:",info.minTr,typeof(Transform),true); 
+                    info.maxTr = (Transform)EditorGUILayout.ObjectField("Max:", info.maxTr, typeof(Transform), true);
+
+                    if (info.minTr && info.maxTr && GUILayout.Button("框内随机放置"))
+                    {
+                        RandomDistribution(info.target.GetComponentsInChildren<Transform>(),info.minTr.position,info.maxTr.position);
+                    }
+                });
 
                 EditorGUITools.BeginVerticalBox(() =>
                 {
@@ -91,6 +109,32 @@ Hierarchy中对选中节点的子节点进行
                 });
             });
 
+        }
+
+        private void OnFocus()
+        {
+            SceneView.duringSceneGui -= OnDrawScene;
+            SceneView.duringSceneGui += OnDrawScene;
+        }
+
+        private void OnDestroy()
+        {
+            SceneView.duringSceneGui -= OnDrawScene;
+        }
+
+        void OnDrawScene(SceneView scene)
+        {
+
+            if (info.minTr && info.maxTr)
+            {
+                var min = info.minTr.position;
+                var max = info.maxTr.position;
+                var size = (max - min);
+
+                var center = size*0.5f + min;
+                Handles.DrawWireCube(center,size);
+                
+            }
         }
 
         private void PutOnLand(Transform tr)

@@ -40,6 +40,13 @@ namespace PowerUtilities
                 drawAction();
             EditorGUILayout.EndVertical();
         }
+        public static void BeginHorizontalBox(Action drawAction, string style = "Box")
+        {
+            EditorGUILayout.BeginHorizontal(style);
+            if (drawAction != null)
+                drawAction();
+            EditorGUILayout.EndHorizontal();
+        }
 
         public static int LayerMaskField(string label, int layers)
         {
