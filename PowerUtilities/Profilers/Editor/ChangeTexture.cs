@@ -2,7 +2,6 @@
 {
 #if UNITY_EDITOR
     using UnityEditor;
-#endif
     using UnityEngine;
     using System.Collections;
     using System.IO;
@@ -170,4 +169,5 @@
             return texRGB;
         }
     }
+#endif
 }

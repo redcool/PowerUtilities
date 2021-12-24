@@ -123,6 +123,7 @@
             }
         }
 
+#if UNITY_EDITOR
         public void RecordLightmapInfos()
         {
             if (!rootGo)
@@ -131,15 +132,14 @@
             renderers = rootGo.GetComponentsInChildren<MeshRenderer>();
             if (renderers != null && renderers.Length > 0)
             {
-#if UNITY_EDITOR
                 renderers = renderers.Where
                     (item => GameObjectUtility.AreStaticEditorFlagsSet(item.gameObject,
                         StaticEditorFlags.ContributeGI))
                     .ToArray();
-#endif
                 RecordLightmapInfos(renderers, out lightmapUVs, out lightmapIds);
             }
         }
+#endif
 
         public void ApplyLightmapInfos()
         {

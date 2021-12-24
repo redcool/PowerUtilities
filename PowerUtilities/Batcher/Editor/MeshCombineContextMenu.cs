@@ -1,5 +1,6 @@
 ﻿namespace PowerUtilities
 {
+#if UNITY_EDITOR
     using System.Collections;
     using System.Collections.Generic;
     using UnityEditor;
@@ -60,4 +61,5 @@
             EditorUtility.DisplayDialog("统计", "顶点数 : " + count, "ok");
         }
     }
+#endif
 }

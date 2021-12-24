@@ -146,10 +146,10 @@
             go.AddComponent<MeshRenderer>().sharedMaterial = mat;
         }
     }
-#endif
     public class TestTerrain : MonoBehaviour
     {
         public Material mat;
     }
 
+#endif
 }
