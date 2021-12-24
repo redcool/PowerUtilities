@@ -44,7 +44,7 @@
                 inst.terrains = inst.GetComponentsInChildren<Terrain>();
             }
 
-            if (inst.terrains != null && GUILayout.Button(REALIGN_TERRAIN))
+            if (inst.terrains != null && inst.terrains.Length >0 && GUILayout.Button(REALIGN_TERRAIN))
             {
                 RealignTerrains(inst.terrains, inst.countInRow, inst.terrainSize);
             }

@@ -15,7 +15,7 @@ namespace PowerUtilities
 {
     public enum TextureResolution
     {
-        x32 = 32, x64 = 64, x128 = 128, x256 = 256, x512 = 512, x1024 = 1024, x2048 = 2048, x4096 = 4096
+        x32 = 32, x64 = 64, x128 = 128, x256 = 256, x512 = 512, x1024 = 1024, x2048 = 2048, x4096 = 4096,x8192,x16384
     }
 
     public static class Texture2DEx
@@ -136,5 +136,21 @@ namespace PowerUtilities
             var colors = Enumerable.Repeat(c, tex.height).ToArray();
             tex.SetPixels(columnId, 0, 1, tex.height, colors);
         }
+
+        /// <summary>
+        /// blit from src , write to (destX,destY),(blockWidth,blockHeight)
+        /// </summary>
+        /// <param name="tex"></param>
+        /// <param name="src"></param>
+        /// <param name="destX"></param>
+        /// <param name="destY"></param>
+        /// <param name="blockWidth"></param>
+        /// <param name="blockHeight"></param>
+        public static void BlitFrom(this Texture2D tex,Texture src,int destX=0,int destY=0,int blockWidth=-1,int blockHeight=-1)
+        {
+            GraphicsEx.Blit(src, tex,destX,destY,blockWidth,blockHeight);
+        }
+
+        
     }
 }

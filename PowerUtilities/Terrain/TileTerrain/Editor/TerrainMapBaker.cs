@@ -7,12 +7,12 @@
     using UnityEditor;
     using UnityEngine;
 
-    public class TerrainMapExtractor
+    public class TerrainMapBaker
     {
-        const string PATH_FORMAT = "Assets/TileTerrain/{0}_blend.png";
+        const string PATH_FORMAT = "Assets/TileTerrain/{0}_baseMap.png";
 
-        [MenuItem(TileTerrainWindow.ROOT_PATH + "/ExtractAlphaMap")]
-        static void ExtractBlendMap()
+        [MenuItem(TileTerrainWindow.ROOT_PATH + "/BakeTerrainBaseMap")]
+        static void BakeTerrainBaseMap()
         {
             var t = Terrain.activeTerrain;
             if (t)
@@ -21,6 +21,8 @@
                 PathTools.CreateAbsFolderPath(path);
                 TerrainTools.ExtractAlphaMapToPNG(t, path);
                 AssetDatabase.Refresh();
+
+                EditorGUIUtility.PingObject(AssetDatabase.LoadAssetAtPath<Object>(path));
             }
             else
             {

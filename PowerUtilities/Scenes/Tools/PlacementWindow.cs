@@ -5,7 +5,6 @@ using UnityEngine;
 using System;
 using UnityEditor;
 using Random = UnityEngine.Random;
-using UnityEditorInternal;
 
 namespace PowerUtilities.Scenes.Tools
 {
