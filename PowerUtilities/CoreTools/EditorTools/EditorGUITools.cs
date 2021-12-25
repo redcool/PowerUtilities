@@ -101,6 +101,41 @@ namespace PowerUtilities
             GUI.contentColor = lastContentColor;
             GUI.color = lastColor;
         }
+
+        public static List<int> MultiSelectionGrid(GUIContent[] contents, bool[] toggles, int xCount, GUIStyle rowStyle = null, GUIStyle columnStyle = null)
+        {
+            var selectedIds = new List<int>();
+
+            var itemIndex = 0;
+            var itemWidth = (Screen.width - 175) / xCount;
+
+            var rows = contents.Length / xCount;
+            if (contents.Length % xCount != 0)
+                rows++;
+
+            GUILayout.BeginVertical(columnStyle);
+            for (int x = 0; x < rows; x++)
+            {
+
+
+                GUILayout.BeginHorizontal(rowStyle);
+                for (int y = 0; y < xCount; y++)
+                {
+                    if (itemIndex >= contents.Length)
+                        break;
+
+                    toggles[itemIndex] = GUILayout.Toggle(toggles[itemIndex], contents[itemIndex], "Button", GUILayout.Width(itemWidth));
+                    if (toggles[itemIndex])
+                        selectedIds.Add(itemIndex);
+
+                    itemIndex++;
+                }
+                GUILayout.EndHorizontal();
+
+            }
+            GUILayout.EndVertical();
+            return selectedIds;
+        }
     }
 }
 #endif
