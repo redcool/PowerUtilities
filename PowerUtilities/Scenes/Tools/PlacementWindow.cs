@@ -15,6 +15,7 @@ namespace PowerUtilities.Scenes.Tools
         public LayerMask colliderLayers = 1;
 
         public Transform minTr, maxTr;
+        public float rayMaxHeight = 500;
     }
     public class PlacementWindow : EditorWindow
     {
@@ -68,10 +69,14 @@ Hierarchy中对选中节点的子节点进行
                     info.minTr = (Transform)EditorGUILayout.ObjectField("Min:",info.minTr,typeof(Transform),true); 
                     info.maxTr = (Transform)EditorGUILayout.ObjectField("Max:", info.maxTr, typeof(Transform), true);
 
-                    if (info.minTr && info.maxTr && GUILayout.Button("框内随机放置"))
+                    EditorGUI.BeginDisabledGroup(!info.target || !info.minTr || !info.maxTr);
+
+                    if (GUILayout.Button("框内随机放置"))
                     {
                         RandomDistribution(info.target.GetComponentsInChildren<Transform>(),info.minTr.position,info.maxTr.position);
                     }
+                    EditorGUI.EndDisabledGroup();
+
                 });
 
                 EditorGUITools.BeginVerticalBox(() =>
@@ -101,6 +106,7 @@ Hierarchy中对选中节点的子节点进行
                 EditorGUITools.BeginVerticalBox(() =>
                 {
                     info.colliderLayers = EditorGUITools.LayerMaskField("Collide Layer:", info.colliderLayers);
+                    info.rayMaxHeight = EditorGUILayout.FloatField("Ray Max Height:", info.rayMaxHeight);
 
                     if (GUILayout.Button("放置到地面"))
                     {
@@ -141,7 +147,7 @@ Hierarchy中对选中节点的子节点进行
         {
             Func<Vector3, Vector3> GetCollidePoint = (pos) =>
             {
-                var ray = new Ray(pos + new Vector3(0, 1, 0), Vector3.down);
+                var ray = new Ray(pos, Vector3.down);
 
                 RaycastHit hit;
                 if (Physics.Raycast(ray, out hit, float.MaxValue,info.colliderLayers))
@@ -160,7 +166,7 @@ Hierarchy中对选中节点的子节点进行
                 if (c)
                     c.enabled = false;
 
-                var pos = GetCollidePoint(item.position);
+                var pos = GetCollidePoint(item.position + new Vector3(0, info.rayMaxHeight,0));
                 item.position = pos;
 
                 if (c)
