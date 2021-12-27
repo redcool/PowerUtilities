@@ -54,10 +54,12 @@ Hierarchy中对选中节点的子节点进行
         {
             EditorGUILayout.HelpBox(helpStr, MessageType.Info);
 
+
             EditorGUITools.BeginVerticalBox(() =>
             {
 
-                EditorGUITools.BeginHorizontalBox(() => {
+                EditorGUITools.BeginHorizontalBox(() =>
+                {
                     info.target = (Transform)EditorGUILayout.ObjectField("Target: ", info.target, typeof(Transform), true);
                     if (GUILayout.Button("this"))
                     {
@@ -65,24 +67,27 @@ Hierarchy中对选中节点的子节点进行
                     }
                 });
 
-                EditorGUITools.BeginVerticalBox(()=> {
-                    info.minTr = (Transform)EditorGUILayout.ObjectField("Min:",info.minTr,typeof(Transform),true); 
+                EditorGUITools.BeginVerticalBox(() =>
+                {
+                    info.minTr = (Transform)EditorGUILayout.ObjectField("Min:", info.minTr, typeof(Transform), true);
                     info.maxTr = (Transform)EditorGUILayout.ObjectField("Max:", info.maxTr, typeof(Transform), true);
 
-                    EditorGUI.BeginDisabledGroup(!info.target || !info.minTr || !info.maxTr);
 
+                    EditorGUI.BeginDisabledGroup(!info.target || !info.minTr || !info.maxTr);
                     if (GUILayout.Button("框内随机放置"))
                     {
-                        RandomDistribution(info.target.GetComponentsInChildren<Transform>(),info.minTr.position,info.maxTr.position);
+                        RandomDistribution(info.target.GetComponentsInChildren<Transform>(), info.minTr.position, info.maxTr.position);
                     }
-                    EditorGUI.EndDisabledGroup();
 
+                    EditorGUI.EndDisabledGroup();
                 });
+
+                EditorGUI.BeginDisabledGroup(!info.target);
 
                 EditorGUITools.BeginVerticalBox(() =>
                 {
-                    //EditorGUIUtility.labelWidth = 100;
-                    info.scale.x = EditorGUILayout.FloatField("min scale:", info.scale.x);
+                        //EditorGUIUtility.labelWidth = 100;
+                        info.scale.x = EditorGUILayout.FloatField("min scale:", info.scale.x);
                     info.scale.y = EditorGUILayout.FloatField("max scale:", info.scale.y);
                     if (GUILayout.Button("随机缩放"))
                     {
@@ -113,6 +118,8 @@ Hierarchy中对选中节点的子节点进行
                         PutOnLand(info.target);
                     }
                 });
+
+                EditorGUI.EndDisabledGroup();
             });
 
         }
