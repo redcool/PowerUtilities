@@ -2,6 +2,7 @@
 namespace PowerUtilities
 {
     using System;
+    using System.Linq;
     using System.Collections;
     using System.Collections.Generic;
     using UnityEditor;
@@ -10,7 +11,7 @@ namespace PowerUtilities
 
     public static class EditorGUITools
     {
-        public static Color darkGray = new Color(0.2f,0.3f,0.4f);
+        public static Color darkGray = new Color(0.2f, 0.3f, 0.4f);
         public static void DrawPreview(Texture tex)
         {
             var rect = GUILayoutUtility.GetRect(100, 100, "Box");
@@ -33,7 +34,7 @@ namespace PowerUtilities
             EditorGUIUtility.labelWidth = lastLabelWidth;
         }
 
-        public static void BeginVerticalBox(Action drawAction,string style="Box")
+        public static void BeginVerticalBox(Action drawAction, string style = "Box")
         {
             EditorGUILayout.BeginVertical(style);
             if (drawAction != null)
@@ -60,7 +61,7 @@ namespace PowerUtilities
             DrawFoldContent(ref foldInfo, drawContentAction, GUI.contentColor);
         }
 
-        public static void DrawFoldContent(ref (string title, bool fold) foldInfo, Action drawContentAction, Color titleColor, float space=1)
+        public static void DrawFoldContent(ref (string title, bool fold) foldInfo, Action drawContentAction, Color titleColor, float space = 1)
         {
             var lastColor = GUI.contentColor;
             GUI.contentColor = titleColor;
@@ -70,7 +71,7 @@ namespace PowerUtilities
 
             // draw title button bar
             EditorGUILayout.BeginVertical("Button");
-            foldInfo.fold = EditorGUILayout.Foldout(foldInfo.fold, foldInfo.title,true);
+            foldInfo.fold = EditorGUILayout.Foldout(foldInfo.fold, foldInfo.title, true);
             EditorGUILayout.Space(space);
             EditorGUILayout.EndVertical();
 
@@ -86,7 +87,7 @@ namespace PowerUtilities
             }
         }
 
-        public static void DrawColorUI(Action drawAction,Color contentColor,Color color)
+        public static void DrawColorUI(Action drawAction, Color contentColor, Color color)
         {
             if (drawAction == null)
                 return;
@@ -102,22 +103,26 @@ namespace PowerUtilities
             GUI.color = lastColor;
         }
 
-        public static List<int> MultiSelectionGrid(GUIContent[] contents, bool[] toggles, int xCount, GUIStyle rowStyle = null, GUIStyle columnStyle = null)
+        public static void MultiSelectionGrid(GUIContent[] contents, bool[] toggles, List<int> selectedIds, int xCount, GUIStyle rowStyle = null, GUIStyle columnStyle = null)
         {
-            var selectedIds = new List<int>();
+            // check styles
+            rowStyle = rowStyle == null ? "" : rowStyle;
+            columnStyle = columnStyle == null ? "" : columnStyle;
 
-            var itemIndex = 0;
-            var itemWidth = (Screen.width - 175) / xCount;
+            selectedIds.Clear();
 
+            //calc rows
             var rows = contents.Length / xCount;
             if (contents.Length % xCount != 0)
                 rows++;
 
+            // item
+            var itemIndex = 0;
+            var itemWidth = (Screen.width - 40 -2*xCount) / xCount ; // guess inspector's width
+
             GUILayout.BeginVertical(columnStyle);
             for (int x = 0; x < rows; x++)
             {
-
-
                 GUILayout.BeginHorizontal(rowStyle);
                 for (int y = 0; y < xCount; y++)
                 {
@@ -134,7 +139,12 @@ namespace PowerUtilities
 
             }
             GUILayout.EndVertical();
-            return selectedIds;
+        }
+
+        public static void MultiSelectionGrid(string[] contents, bool[] toggles, List<int> selectedIds, int xCount, GUIStyle rowStyle = null, GUIStyle columnStyle = null)
+        {
+            var guiContents = contents.Select(str => new GUIContent(str)).ToArray();
+            MultiSelectionGrid(guiContents, toggles, selectedIds, xCount, rowStyle, columnStyle);
         }
     }
 }
