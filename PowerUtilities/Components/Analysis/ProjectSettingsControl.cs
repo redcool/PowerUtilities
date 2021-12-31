@@ -10,6 +10,9 @@ namespace PowerUtilities
         public Text fpsText;
 
         public int masterTextureMipmap = 0;
+
+        int frameCount;
+        float curSeconds;
         // Start is called before the first frame update
         void Start()
         {
@@ -27,7 +30,15 @@ namespace PowerUtilities
             if (!fpsText)
                 return;
 
-            fpsText.text = (1f / Time.deltaTime).ToString("f2");
+            //fpsText.text = (1f / Time.smoothDeltaTime).ToString("f2");
+            frameCount++;
+
+            if((Time.time - curSeconds) > 1)
+            {
+                fpsText.text = frameCount.ToString("f2");
+                curSeconds = Time.time;
+                frameCount = 0;
+            }
         }
 
         public void ToggleShadow()
@@ -46,6 +57,18 @@ namespace PowerUtilities
         public void ToggleShadowMaskMode()
         {
             QualitySettings.shadowmaskMode = QualitySettings.shadowmaskMode == ShadowmaskMode.DistanceShadowmask ? ShadowmaskMode.Shadowmask : ShadowmaskMode.DistanceShadowmask;
+        }
+
+        public void ToggleKeyword(string key)
+        {
+            if (Shader.IsKeywordEnabled(key))
+            {
+                Shader.DisableKeyword(key);
+            }
+            else
+            {
+                Shader.EnableKeyword(key);
+            }
         }
     }
 }

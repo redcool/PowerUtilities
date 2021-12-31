@@ -190,6 +190,7 @@
                     block.SetTexture("unity_Lightmap", lightmaps[groupInfo.lightmapId]);
                     block.SetVectorArray("_LightmapST", lightmapSTs.ToArray());
                     block.SetInt("_DrawInstanced", 1);
+                    
                 }
             }
         }
