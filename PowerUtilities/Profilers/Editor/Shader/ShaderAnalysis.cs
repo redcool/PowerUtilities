@@ -138,8 +138,8 @@
         */
         public static IEnumerable<ShaderMaterials> GetShaderInfos(params string[] folders)
         {
-            var shaders = EditorTools.FindAssetsInProjectByType<Shader>(folders);
-            var mats = EditorTools.FindAssetsInProjectByType<Material>();
+            var shaders = AssetDatabaseTools.FindAssetsInProjectByType<Shader>(folders);
+            var mats = AssetDatabaseTools.FindAssetsInProjectByType<Material>();
 
             var q = shaders.Select(shader => new ShaderMaterials
             {
@@ -155,7 +155,7 @@
             if (!shader)
                 return null;
 
-            var mats = EditorTools.FindAssetsInProjectByType<Material>();
+            var mats = AssetDatabaseTools.FindAssetsInProjectByType<Material>();
             return mats.Where(mat => mat.shader == shader);
         }
     }

@@ -87,7 +87,7 @@
 
         List<GameObject> GetItemsUseMaterial(Material mat)
         {
-            return EditorTools.FindAssetsInProject<GameObject>("t:Prefab").Where(go =>
+            return AssetDatabaseTools.FindAssetsInProject<GameObject>("t:Prefab").Where(go =>
             {
                 var r = go.GetComponent<Renderer>();
                 return r && r.sharedMaterials.Contains(mat);

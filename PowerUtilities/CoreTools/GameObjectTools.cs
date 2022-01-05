@@ -13,7 +13,7 @@
         /// <param name="tr"></param>
         /// <param name="root"></param>
         /// <returns>path string or ""</returns>
-        public static string GetTransformPath(this Transform tr, Transform root = null)
+        public static string GetHierarchyPath(this Transform tr, Transform root = null,string separator="/")
         {
             if (!tr)
                 return "";
@@ -26,11 +26,11 @@
 
             while (true)
             {
-                sb.Insert(0, "/");
                 tr = tr.parent;
                 if (tr == null || tr == root)
                     break;
 
+                sb.Insert(0, separator);
                 sb.Insert(0, tr.name);
             }
             return sb.ToString();
