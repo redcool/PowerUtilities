@@ -7,7 +7,7 @@
 
     public class ExportAssetBundle : MonoBehaviour
     {
-        public const string ASSET_BUNDLE_UTILS = "AssetBundleUtils";
+        public const string ASSET_BUNDLE_UTILS = "PowerUtilities/AssetBundleUtils";
         [MenuItem(ASSET_BUNDLE_UTILS + "/BuildBundles")]
         static void Init()
         {

@@ -11,7 +11,7 @@
 
     public class MeshCombineContextMenu : MonoBehaviour
     {
-        public const string ROOT_PATH = "Game/网格工具";
+        public const string ROOT_PATH = "PowerUtilities/网格工具";
 
         [MenuItem(ROOT_PATH + "/合并选择的网格")]
         static void CombineSelected()
