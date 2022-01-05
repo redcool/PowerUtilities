@@ -12,7 +12,7 @@ namespace PowerUtilities
     using UnityEditor.SceneManagement;
     using UnityEngine;
 
-    //[CustomEditor(typeof(DrawChildrenInstanced))]
+    [CustomEditor(typeof(DrawChildrenInstanced))]
     public class DrawChildrenInstancedEditor : Editor
     {
         SerializedObject drawInfoSerailizedObject;
