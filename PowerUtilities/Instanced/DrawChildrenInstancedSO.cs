@@ -31,9 +31,10 @@ namespace PowerUtilities
             if (forceRefresh)
             {
                 forceRefresh = false;
+
                 CullInstances(1 - culledRatio);
+                UpdateGroupListMaterial(LightmapSettings.lightmaps.Length > 0);
             }
-            DrawGroupList();
         }
 
         /// <summary>
@@ -62,6 +63,12 @@ namespace PowerUtilities
                 if (culledLevelId <= 2)
                     CullInstances(1 - culledRatio);
             }
+        }
+
+        public void Clear()
+        {
+            meshGroupDict.Clear();
+            groupList.Clear();
         }
 
         public void DestroyOrHiddenChildren(bool destroyGameObject)

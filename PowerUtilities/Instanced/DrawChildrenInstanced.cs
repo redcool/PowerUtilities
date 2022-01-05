@@ -69,7 +69,7 @@
             Profiler.BeginSample("Draw Children Instanced");
             if (drawInfoSO)
             {
-                drawInfoSO.UpdateGroupListMaterial(LightmapSettings.lightmaps.Length != 0);
+                drawInfoSO.Update();
                 drawInfoSO.DrawGroupList();
             }
             Profiler.EndSample();

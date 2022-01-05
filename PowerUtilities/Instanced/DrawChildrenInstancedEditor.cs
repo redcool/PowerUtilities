@@ -58,9 +58,11 @@ namespace PowerUtilities
             {
                 if (inst.drawInfoSO.destroyGameObjectWhenCannotUse)
                 {
-                    //if (EditorUtility.DisplayDialog("Warning", "烘焙后不可编辑,继续吗?", "ok"))
+                    inst.drawInfoSO.Clear();
+                    inst.drawInfoSO.SetupChildren(inst.gameObject, inst.GetLevelId());
+                    if (inst.drawInfoSO.destroyGameObjectWhenCannotUse && !EditorUtility.DisplayDialog("Warning", "删除所有的子节点吗?","no","ok"))
                     {
-                        inst.drawInfoSO.SetupChildren(inst.gameObject, inst.GetLevelId());
+                        inst.drawInfoSO.DestroyOrHiddenChildren(true);
                     }
                 }
             }
@@ -79,6 +81,7 @@ namespace PowerUtilities
             EditorGUILayout.PropertyField(drawInfoSerailizedObject.FindProperty("enableLightmap"));
             EditorGUILayout.PropertyField(drawInfoSerailizedObject.FindProperty("destroyGameObjectWhenCannotUse"));
             EditorGUILayout.PropertyField(drawInfoSerailizedObject.FindProperty("culledUnderLevel2"));
+            EditorGUILayout.PropertyField(drawInfoSerailizedObject.FindProperty("culledRatio"));
             EditorGUILayout.PropertyField(drawInfoSerailizedObject.FindProperty("forceRefresh"));
             EditorGUILayout.PropertyField(drawInfoSerailizedObject.FindProperty("groupList"));
             GUILayout.EndVertical();
