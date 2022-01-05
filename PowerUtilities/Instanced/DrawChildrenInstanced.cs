@@ -39,12 +39,13 @@
             }
 
             //not run in editor
-            if(Application.isPlaying)
+            if (Application.isPlaying)
             {
                 if (!drawInfoSO)
                 {
-                    CreateNewProfile(out drawInfoSO);
+                    drawInfoSO = ScriptableObject.CreateInstance<DrawChildrenInstancedSO>();
                 }
+                SetupProfile(drawInfoSO);
             }
 
             if (OnStarted != null)
@@ -53,9 +54,8 @@
             }
         }
 
-        void CreateNewProfile(out DrawChildrenInstancedSO drawInfoSO)
+        void SetupProfile(DrawChildrenInstancedSO drawInfoSO)
         {
-            drawInfoSO = ScriptableObject.CreateInstance<DrawChildrenInstancedSO>();
             drawInfoSO.name = gameObject.name;
 
             drawInfoSO.enableLightmap = LightmapSettings.lightmaps.Length != 0;

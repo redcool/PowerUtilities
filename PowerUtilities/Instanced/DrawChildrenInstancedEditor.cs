@@ -46,7 +46,7 @@ namespace PowerUtilities
 
             drawInfoSerailizedObject.Update();
 
-            DrawProfileUI();
+            DrawProfileUI(inst);
 
             var isApplied = drawInfoSerailizedObject.ApplyModifiedProperties();
             if (isApplied)
@@ -56,15 +56,13 @@ namespace PowerUtilities
 
             if (GUILayout.Button("Bake Children Gos"))
             {
-                if (inst.drawInfoSO.destroyGameObjectWhenCannotUse)
+                inst.drawInfoSO.Clear();
+                inst.drawInfoSO.SetupChildren(inst.gameObject, inst.GetLevelId());
+                if (inst.drawInfoSO.destroyGameObjectWhenCannotUse && !EditorUtility.DisplayDialog("Warning", "删除所有的子节点吗?", "no", "ok"))
                 {
-                    inst.drawInfoSO.Clear();
-                    inst.drawInfoSO.SetupChildren(inst.gameObject, inst.GetLevelId());
-                    if (inst.drawInfoSO.destroyGameObjectWhenCannotUse && !EditorUtility.DisplayDialog("Warning", "删除所有的子节点吗?","no","ok"))
-                    {
-                        inst.drawInfoSO.DestroyOrHiddenChildren(true);
-                    }
+                    inst.drawInfoSO.DestroyOrHiddenChildren(true);
                 }
+                AssetDatabase.Refresh();
             }
         }
 
@@ -74,16 +72,16 @@ namespace PowerUtilities
 
         }
 
-        private void DrawProfileUI()
+        private void DrawProfileUI(DrawChildrenInstanced inst)
         {
             GUILayout.BeginVertical("Box");
-            EditorGUILayout.PropertyField(drawInfoSerailizedObject.FindProperty("lightmaps"));
-            EditorGUILayout.PropertyField(drawInfoSerailizedObject.FindProperty("enableLightmap"));
-            EditorGUILayout.PropertyField(drawInfoSerailizedObject.FindProperty("destroyGameObjectWhenCannotUse"));
-            EditorGUILayout.PropertyField(drawInfoSerailizedObject.FindProperty("culledUnderLevel2"));
-            EditorGUILayout.PropertyField(drawInfoSerailizedObject.FindProperty("culledRatio"));
-            EditorGUILayout.PropertyField(drawInfoSerailizedObject.FindProperty("forceRefresh"));
-            EditorGUILayout.PropertyField(drawInfoSerailizedObject.FindProperty("groupList"));
+            EditorGUILayout.PropertyField(drawInfoSerailizedObject.FindProperty(nameof(inst.drawInfoSO.lightmaps)));
+            EditorGUILayout.PropertyField(drawInfoSerailizedObject.FindProperty(nameof(inst.drawInfoSO.enableLightmap)));
+            EditorGUILayout.PropertyField(drawInfoSerailizedObject.FindProperty(nameof(inst.drawInfoSO.destroyGameObjectWhenCannotUse)));
+            EditorGUILayout.PropertyField(drawInfoSerailizedObject.FindProperty(nameof(inst.drawInfoSO.culledUnderLevel2)));
+            EditorGUILayout.PropertyField(drawInfoSerailizedObject.FindProperty(nameof(inst.drawInfoSO.culledRatio)));
+            EditorGUILayout.PropertyField(drawInfoSerailizedObject.FindProperty(nameof(inst.drawInfoSO.forceRefresh)));
+            EditorGUILayout.PropertyField(drawInfoSerailizedObject.FindProperty(nameof(inst.drawInfoSO.groupList)));
             GUILayout.EndVertical();
         }
 
