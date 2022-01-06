@@ -17,12 +17,6 @@ namespace PowerUtilities
     {
         public List<Vector4> lightmapCoords = new List<Vector4>();
     }
-    //[Serializable]
-    //public class InstancedMaterialBlockPropertyGroup
-    //{
-    //    public int lightmapIndex;
-    //    public 
-    //}
 
     /// <summary>
     /// 对instancing的物体,按1023个进行分组.
