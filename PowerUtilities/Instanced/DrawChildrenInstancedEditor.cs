@@ -20,9 +20,7 @@ namespace PowerUtilities
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
-
             var inst = target as DrawChildrenInstanced;
-
 
             if (!inst.drawInfoSO)
             {
@@ -30,16 +28,17 @@ namespace PowerUtilities
                 var sceneFolder = AssetDatabaseTools.CreateFolderSameNameAsScene();
                 var soName = inst.transform.GetHierarchyPath(null, "_");
                 var soPath = $"{sceneFolder}/{soName}.asset";
-                LoadFromFile(inst, soPath);
+                inst.drawInfoSO = AssetDatabase.LoadAssetAtPath<DrawChildrenInstancedSO>(soPath);
 
                 //2 create a new profile
-                if (!inst.drawInfoSO)
+                if (!inst.drawInfoSO && GUILayout.Button("Create New Profile"))
                 {
-                    inst.drawInfoSO = ScriptableObject.CreateInstance<DrawChildrenInstancedSO>();
-                    inst.drawInfoSO.name = soName;
-                    inst.drawInfoSO = SaveAndGetSO(inst.drawInfoSO, soPath);
+                    inst.drawInfoSO = CreateNewProfile(soName, soPath);
                 }
             }
+
+            if (!inst.drawInfoSO)
+                return;
 
             if (drawInfoSerailizedObject == null)
                 drawInfoSerailizedObject = new SerializedObject(inst.drawInfoSO);
@@ -66,11 +65,13 @@ namespace PowerUtilities
             }
         }
 
-        private static void LoadFromFile(DrawChildrenInstanced inst, string soPath)
+        static DrawChildrenInstancedSO CreateNewProfile(string soName, string soPath)
         {
-            inst.drawInfoSO = AssetDatabase.LoadAssetAtPath<DrawChildrenInstancedSO>(soPath);
-
+            var profile = CreateInstance<DrawChildrenInstancedSO>();
+            profile.name = soName;
+            return SaveAndGetSO(profile, soPath);
         }
+
 
         private void DrawProfileUI(DrawChildrenInstanced inst)
         {
@@ -83,6 +84,14 @@ namespace PowerUtilities
             EditorGUILayout.PropertyField(drawInfoSerailizedObject.FindProperty(nameof(inst.drawInfoSO.forceRefresh)));
             EditorGUILayout.PropertyField(drawInfoSerailizedObject.FindProperty(nameof(inst.drawInfoSO.groupList)));
             GUILayout.EndVertical();
+        }
+
+        private static void DrawProfileField(DrawChildrenInstanced inst)
+        {
+            GUILayout.BeginHorizontal("Box");
+            EditorGUILayout.PrefixLabel(nameof(inst.drawInfoSO));
+            inst.drawInfoSO  = (DrawChildrenInstancedSO)EditorGUILayout.ObjectField(inst.drawInfoSO, typeof(DrawChildrenInstancedSO),false); ;
+            GUILayout.EndHorizontal();
         }
 
         // save to xx.unity's folder,name is inst's name
