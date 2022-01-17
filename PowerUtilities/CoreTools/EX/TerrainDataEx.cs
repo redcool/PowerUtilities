@@ -40,7 +40,7 @@ namespace PowerUtilities
             td.SetHeights(0, 0, heights);
         }
 
-        static Material GetBlitHeightmapMaterial()
+        public static Material GetBlitHeightmapMaterial()
         {
             //return new Material(Shader.Find("Hidden/TerrainTools/HeightBlit"));
             return new Material(Shader.Find("Hidden/Terrain/BlitTextureToHeightmap"));

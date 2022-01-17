@@ -14,7 +14,7 @@ namespace PowerUtilities
         /// </summary>
         /// <param name="src"></param>
         /// <param name="dest"></param>
-        public static void Blit(Texture src, Texture2D dest, int destX = 0, int destY = 0, int destBlockWidth = -1, int destBlockHeight = -1)
+        public static void Blit(Texture src, Texture2D dest,Material mat, int destX = 0, int destY = 0, int destBlockWidth = -1, int destBlockHeight = -1)
         {
             if (!src || !dest)
                 return;
@@ -24,7 +24,12 @@ namespace PowerUtilities
 
             var rt = RenderTexture.GetTemporary(width, height, 0);
 
-            Graphics.Blit(src, rt);
+            if (!mat)
+                Graphics.Blit(src, rt);
+            else
+            {
+                Graphics.Blit(src, rt, mat);
+            }
 
             //Graphics.SetRenderTarget(rt);
             dest.ReadPixels(new Rect(0, 0, width, height), destX, destY);

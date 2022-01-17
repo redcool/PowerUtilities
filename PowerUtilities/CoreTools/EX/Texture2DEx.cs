@@ -146,9 +146,9 @@ namespace PowerUtilities
         /// <param name="destY"></param>
         /// <param name="blockWidth"></param>
         /// <param name="blockHeight"></param>
-        public static void BlitFrom(this Texture2D tex,Texture src,int destX=0,int destY=0,int blockWidth=-1,int blockHeight=-1)
+        public static void BlitFrom(this Texture2D tex,Texture src,int destX=0,int destY=0,int blockWidth=-1,int blockHeight=-1, Material mat = null)
         {
-            GraphicsEx.Blit(src, tex,destX,destY,blockWidth,blockHeight);
+            GraphicsEx.Blit(src, tex, mat, destX, destY, blockWidth, blockHeight);
         }
 
         
