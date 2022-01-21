@@ -23,7 +23,7 @@
     /// ]
     /// 
     /// </summary>
-    [ExecuteInEditMode]
+    //[ExecuteInEditMode]
     public class DrawChildrenInstanced : MonoBehaviour
     {
         public DrawChildrenInstancedSO drawInfoSO;
@@ -43,9 +43,8 @@
             {
                 if (!drawInfoSO)
                 {
-                    drawInfoSO = ScriptableObject.CreateInstance<DrawChildrenInstancedSO>();
+                    drawInfoSO = CreateNewProfile(gameObject.name);
                 }
-                SetupProfile(drawInfoSO);
             }
 
             if (OnStarted != null)
@@ -54,14 +53,15 @@
             }
         }
 
-        void SetupProfile(DrawChildrenInstancedSO drawInfoSO)
+        DrawChildrenInstancedSO CreateNewProfile(string name)
         {
+            var drawInfoSO = ScriptableObject.CreateInstance<DrawChildrenInstancedSO>();
             drawInfoSO.name = gameObject.name;
-
             drawInfoSO.enableLightmap = LightmapSettings.lightmaps.Length != 0;
 
             drawInfoSO.SetupChildren(gameObject, GetLevelId());
             drawInfoSO.DestroyOrHiddenChildren(drawInfoSO.destroyGameObjectWhenCannotUse);
+            return drawInfoSO;
         }
 
         void Update()

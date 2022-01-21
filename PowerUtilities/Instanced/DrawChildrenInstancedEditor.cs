@@ -24,16 +24,20 @@ namespace PowerUtilities
 
             if (!inst.drawInfoSO)
             {
-                // 1 find exist profile
                 var sceneFolder = AssetDatabaseTools.CreateFolderSameNameAsScene();
                 var soName = inst.transform.GetHierarchyPath(null, "_");
                 var soPath = $"{sceneFolder}/{soName}.asset";
-                inst.drawInfoSO = AssetDatabase.LoadAssetAtPath<DrawChildrenInstancedSO>(soPath);
+                // 1 find exist profile
+                var existProfile = AssetDatabase.LoadAssetAtPath<DrawChildrenInstancedSO>(soPath);
+                if (existProfile && GUILayout.Button($"Found Exist Profile,use it ?"))
+                {
+                    inst.drawInfoSO = AssetDatabase.LoadAssetAtPath<DrawChildrenInstancedSO>(soPath);
+                }
 
                 //2 create a new profile
-                if (!inst.drawInfoSO && GUILayout.Button("Create New Profile"))
+                if (GUILayout.Button("Create New Profile"))
                 {
-                    inst.drawInfoSO = CreateNewProfile(soName, soPath);
+                    inst.drawInfoSO = CreateNewProfile(inst,soName, soPath,existProfile);
                 }
             }
 
@@ -61,16 +65,25 @@ namespace PowerUtilities
                 {
                     inst.drawInfoSO.DestroyOrHiddenChildren(true);
                 }
+                EditorUtility.SetDirty(inst.drawInfoSO);
+                AssetDatabase.SaveAssets();
                 AssetDatabase.Refresh();
             }
         }
 
-        static DrawChildrenInstancedSO CreateNewProfile(string soName, string soPath)
+        static DrawChildrenInstancedSO CreateNewProfile(DrawChildrenInstanced inst,string soName, string soPath,bool isExist)
         {
+            if(isExist && !EditorUtility.DisplayDialog("Waring","found exist profile ,create new of use exist profile?","new","use exist"))
+            {
+                inst.drawInfoSO = AssetDatabase.LoadAssetAtPath<DrawChildrenInstancedSO>(soPath);
+                return inst.drawInfoSO;
+            }
+
             var profile = CreateInstance<DrawChildrenInstancedSO>();
             profile.name = soName;
-            return SaveAndGetSO(profile, soPath);
+            return SaveAndGetSO(profile, soPath,isExist);
         }
+
 
 
         private void DrawProfileUI(DrawChildrenInstanced inst)
@@ -95,9 +108,10 @@ namespace PowerUtilities
         }
 
         // save to xx.unity's folder,name is inst's name
-        private static DrawChildrenInstancedSO SaveAndGetSO(DrawChildrenInstancedSO drawInfoSO,string soPath)
+        private static DrawChildrenInstancedSO SaveAndGetSO(DrawChildrenInstancedSO drawInfoSO,string soPath,bool isExist)
         {
-            AssetDatabase.DeleteAsset(soPath);
+            if(isExist)
+                AssetDatabase.DeleteAsset(soPath);
 
             AssetDatabase.CreateAsset(drawInfoSO, soPath);
             return AssetDatabase.LoadAssetAtPath<DrawChildrenInstancedSO>(soPath);
