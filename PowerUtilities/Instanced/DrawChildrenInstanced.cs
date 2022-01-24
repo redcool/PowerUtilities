@@ -23,7 +23,7 @@
     /// ]
     /// 
     /// </summary>
-    //[ExecuteInEditMode]
+    [ExecuteInEditMode]
     public class DrawChildrenInstanced : MonoBehaviour
     {
         public DrawChildrenInstancedSO drawInfoSO;
