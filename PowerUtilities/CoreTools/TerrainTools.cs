@@ -28,34 +28,34 @@
             File.WriteAllBytes(path, tex.EncodeToPNG());
         }
 
-        public static Texture2D GetBlendSplatMap(Terrain terrain)
+        public static Texture2D GetBlendSplatMap(Terrain terrain,int baseMapSize=1024)
         {
             var td = terrain.terrainData;
+            var maps = td.GetAlphamaps(0, 0, td.alphamapWidth, td.alphamapHeight);
 
-            var w = td.alphamapWidth;
-            var h = td.alphamapHeight;
-            var maps = td.GetAlphamaps(0, 0, w, h);
+            var nx = 1f / baseMapSize;
+            var ny = 1f / baseMapSize;
 
-            var nx = 1f / w;
-            var ny = 1f / h;
-
-            var tex = new Texture2D(w, h, TextureFormat.RGBA32, true);
-            for (int x = 0; x < w; x++)
+            var tex = new Texture2D(baseMapSize, baseMapSize, TextureFormat.RGBA32, true);
+            for (int x = 0; x < tex.width; x++)
             {
-                for (int y = 0; y < h; y++)
+                for (int y = 0; y < tex.height; y++)
                 {
+                    int alphaMapCoordX = (int)( ((float)x / tex.width) * td.alphamapWidth);
+                    int alphaMapCoordY = (int)( ((float)y / tex.height) * td.alphamapHeight);  
+
                     var finalColor = new Color();
 
                     for (int z = 0; z < td.alphamapLayers; z++)
                     {
-                        var alpha = maps[y, x, z];
+                        var alpha = maps[alphaMapCoordY, alphaMapCoordX, z];
                         var layer = td.terrainLayers[z];
                         var tile = new Vector2(td.size.x, td.size.z) / layer.tileSize;
 
                         var diff = layer.diffuseTexture;
 
-                        var u = x * nx * tile.x;
-                        var v = y * ny * tile.y;
+                        var u = x * nx * tile.x ;
+                        var v = y * ny * tile.y ;
 
                         //var px = Mathf.FloorToInt(u * diff.width);
                         //var py = Mathf.FloorToInt(v * diff.height);

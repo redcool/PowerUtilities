@@ -9,28 +9,33 @@
 
     public class TerrainMapBaker
     {
-        const string PATH_FORMAT = "Assets/TileTerrain/{0}_baseMap.png";
+        const string DIR = "Assets/TerrainBaseMaps";
+        const string PATH_FORMAT = DIR+"/{0}_baseMap.png";
 
-        [MenuItem(TileTerrainWindow.ROOT_PATH + "/BakeTerrainBaseMap")]
-        static void BakeTerrainBaseMap()
+        [MenuItem(TileTerrainWindow.ROOT_PATH + "/BakeTerrainsBaseMap")]
+        static void StartBake()
         {
-            var t = Terrain.activeTerrain;
-            if (t)
-            {
-                var path = string.Format(PATH_FORMAT, t.name);
-                PathTools.CreateAbsFolderPath(path);
-                TerrainTools.ExtractAlphaMapToPNG(t, path);
-                AssetDatabase.Refresh();
+            PathTools.CreateAbsFolderPath(DIR);
 
-                EditorGUIUtility.PingObject(AssetDatabase.LoadAssetAtPath<Object>(path));
-            }
-            else
-            {
-                Debug.LogError("select a Terrain first.");
-            }
+            var trs = SelectionTools.GetSelectedComponents<Terrain>();
+            trs.ForEach(t => { 
+                BakeBaseMap(t);
+            });
+            EditorGUIUtility.PingObject(AssetDatabase.LoadAssetAtPath<Object>(DIR));
         }
 
 
+        static void BakeBaseMap(Terrain t)
+        {
+            if (t == null)
+                return;
+            var path = string.Format(PATH_FORMAT, t.name);
+            PathTools.CreateAbsFolderPath(path);
+            TerrainTools.ExtractAlphaMapToPNG(t, path);
+            AssetDatabase.Refresh();
+
+            
+        }
     }
 #endif
 }
