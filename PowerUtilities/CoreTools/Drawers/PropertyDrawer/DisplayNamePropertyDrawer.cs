@@ -31,8 +31,7 @@ namespace PowerUtilities
             }
         }
     }
-
-    [AttributeUsage(AttributeTargets.Field)]
+#endif
     public class DisplayName : PropertyAttribute
     {
         public string Value;
@@ -47,5 +46,5 @@ namespace PowerUtilities
             return Value;
         }
     }
-#endif
+
 }
