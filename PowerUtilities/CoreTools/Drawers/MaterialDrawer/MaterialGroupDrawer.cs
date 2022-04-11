@@ -17,7 +17,7 @@ namespace PowerUtilities
     /// [Group(group2)]_Value2("value2", float) = 1
     /// [Group(group2)]_Value3("value3", float) = 1
     /// </summary>
-    public class Group : MaterialPropertyDrawer
+    public class MaterialGroupDrawer : MaterialPropertyDrawer
     {
         static Dictionary<string, bool> groupDict = new Dictionary<string, bool>();
         string groupName;
@@ -25,10 +25,10 @@ namespace PowerUtilities
         bool isGroupLabel;
 
         public static Dictionary<string, bool> GroupDict => groupDict;
-        public Group() : this("DefaultGroup", "",""){}
-        public Group(string groupName) : this(groupName, "",""){}
-        public Group(string groupName, string groupLabel) :this(groupName,groupLabel,""){ }
-        public Group(string groupName, string groupLabel,string keyword)
+        public MaterialGroupDrawer() : this("DefaultGroup", "",""){}
+        public MaterialGroupDrawer(string groupName) : this(groupName, "",""){}
+        public MaterialGroupDrawer(string groupName, string groupLabel) :this(groupName,groupLabel,""){ }
+        public MaterialGroupDrawer(string groupName, string groupLabel,string keyword)
         {
             this.groupName = groupName;
             this.keyword = keyword;
