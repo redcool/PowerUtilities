@@ -13,7 +13,7 @@ namespace PowerUtilities
     {
         string groupName;
         string keyword;
-        public GroupToggleDrawer() : this(GroupDrawer.DEFAULT_GROUP_NAME, "") { }
+        public GroupToggleDrawer() : this(MaterialGroupTools.DEFAULT_GROUP_NAME, "") { }
         public GroupToggleDrawer(string groupName):this(groupName,""){}
         public GroupToggleDrawer(string groupName, string keyword)
         {
@@ -23,11 +23,11 @@ namespace PowerUtilities
 
         public override float GetPropertyHeight(MaterialProperty prop, string label, MaterialEditor editor)
         {
-            return GroupDrawer.IsGroupOn(groupName) ? EditorGUIUtility.singleLineHeight : 0;
+            return MaterialGroupTools.IsGroupOn(groupName) ? EditorGUIUtility.singleLineHeight : 0;
         }
         public override void OnGUI(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
         {
-            if (!GroupDrawer.IsGroupOn(groupName))
+            if (!MaterialGroupTools.IsGroupOn(groupName))
                 return;
 
 

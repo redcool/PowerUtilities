@@ -32,7 +32,7 @@ namespace PowerUtilities
         public override float GetPropertyHeight(MaterialProperty prop, string label, MaterialEditor editor)
         {
             return 24;
-            return string.IsNullOrEmpty(groupName) || GroupDrawer.IsGroupOn(groupName) ? 24 : 0;
+            //return string.IsNullOrEmpty(groupName) || MaterialGroupTools.IsGroupOn(groupName) ? 24 : 0;
         }
     }
 }

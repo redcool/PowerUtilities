@@ -20,7 +20,7 @@ namespace PowerUtilities {
         string groupName;
         bool isKeyword;
         Dictionary<string, int> keywordValueDict = new Dictionary<string, int>();
-        public GroupEnumDrawer() : this(GroupDrawer.DEFAULT_GROUP_NAME, "","") { }
+        public GroupEnumDrawer() : this(MaterialGroupTools.DEFAULT_GROUP_NAME, "","") { }
         public GroupEnumDrawer(string groupName,string enumName):this(groupName,enumName,""){}
         public GroupEnumDrawer(string groupName, string keywordString,string keyword)
         {
@@ -60,14 +60,14 @@ namespace PowerUtilities {
 
         public override float GetPropertyHeight(MaterialProperty prop, string label, MaterialEditor editor)
         {
-            if (GroupDrawer.IsGroupOn(groupName))
+            if (MaterialGroupTools.IsGroupOn(groupName))
                 return base.GetPropertyHeight(prop, label, editor);
             return 0;
         }
 
         public override void OnGUI(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
         {
-            if (!GroupDrawer.IsGroupOn(groupName))
+            if (!MaterialGroupTools.IsGroupOn(groupName))
                 return;
 
             EditorGUI.indentLevel++;

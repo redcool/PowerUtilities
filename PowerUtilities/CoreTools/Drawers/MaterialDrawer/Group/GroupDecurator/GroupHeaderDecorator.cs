@@ -19,7 +19,7 @@ namespace PowerUtilities
 
         public override void OnGUI(Rect position, MaterialProperty prop, string label, MaterialEditor editor)
         {
-            if(!GroupDrawer.IsGroupOn(groupName))
+            if(!MaterialGroupTools.IsGroupOn(groupName))
                 return;
 
             var indentLevel = string.IsNullOrEmpty(groupName) ? 0 : 1;
@@ -33,7 +33,7 @@ namespace PowerUtilities
         }
         public override float GetPropertyHeight(MaterialProperty prop, string label, MaterialEditor editor)
         {
-            return GroupDrawer.IsGroupOn(groupName) ? 24 : 0;
+            return MaterialGroupTools.IsGroupOn(groupName) ? 24 : 0;
         }
     }
 }
