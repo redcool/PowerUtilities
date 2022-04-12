@@ -15,10 +15,11 @@ Shader "Unlit/GroupDrawDemo"
 
 
         [GroupHeader(group1,b)]
-        // show Enum
+        // show Enum with keyword
         [GroupEnum(group1, _kEYA _KEYB,true)]_GroupKeywordEnum("_GroupKeywordEnum",int) = 0
+        // show Enum, space is splitter 
         [GroupEnum(group1,A 0 B 1)]_GroupEnum("_GroupEnum",int) = 0
-
+        [GroupEnum(group1,UnityEngine.Rendering.BlendMode)]_GroupEnumBlend("_GroupEnumBlend",int) = 0
 
         [Group(group2)]
         [GroupItem(group2)]_MainTex2 ("Texture2", 2D) = "white" {}

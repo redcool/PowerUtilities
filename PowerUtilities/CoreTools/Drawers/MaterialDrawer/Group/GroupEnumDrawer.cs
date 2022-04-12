@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEditor;
 using System.Linq;
 using System;
+using System.Reflection;
 
 namespace PowerUtilities {
     /// <summary>
@@ -37,9 +38,31 @@ namespace PowerUtilities {
             }
         }
 
-        private void ParseEnum(string keywordString)
+        private void ParseEnum(string enumName)
         {
-             
+            var dlls = AppDomain.CurrentDomain.GetAssemblies();
+            string[] names = null;
+
+            //foreach (var d in dlls)
+            //{
+            //    if (d.FullName.StartsWith("UnityEngine,"))
+            //    {
+            //        var t = d.GetType(enumName);
+            //        names = Enum.GetNames(t);
+            //        break;
+            //    }
+            //}
+
+            var enumType = TypeCache.GetTypesDerivedFrom(typeof(Enum)).Where(t => t.FullName == enumName).FirstOrDefault();
+            if(enumType != null)
+            {
+                names = Enum.GetNames(enumType);
+            }
+
+            foreach (var name in names)
+            {
+                keywordValueDict.Add(name, 0);
+            }
         }
 
         private void ParseKeyValuePairs(string keywordString)
