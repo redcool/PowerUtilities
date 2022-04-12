@@ -8,6 +8,9 @@ namespace PowerUtilities
     using System.Linq;
 
     /// <summary>
+    /// Material's Group Attribute
+    /// 
+    /// 
     /// like this:
     /// [Group(group1,true)]_On("On",float) = 0
     /// [Group(group1)] _Value0("value0", float) = 1
@@ -17,18 +20,19 @@ namespace PowerUtilities
     /// [Group(group2)]_Value2("value2", float) = 1
     /// [Group(group2)]_Value3("value3", float) = 1
     /// </summary>
-    public class MaterialGroupDrawer : MaterialPropertyDrawer
+    public class GroupDrawer : MaterialPropertyDrawer
     {
+        public const string DEFAULT_GROUP_NAME = "DefaultGroup";
+
         static Dictionary<string, bool> groupDict = new Dictionary<string, bool>();
         string groupName;
         string keyword;
         bool isGroupLabel;
 
-        public static Dictionary<string, bool> GroupDict => groupDict;
-        public MaterialGroupDrawer() : this("DefaultGroup", "",""){}
-        public MaterialGroupDrawer(string groupName) : this(groupName, "",""){}
-        public MaterialGroupDrawer(string groupName, string groupLabel) :this(groupName,groupLabel,""){ }
-        public MaterialGroupDrawer(string groupName, string groupLabel,string keyword)
+        public GroupDrawer() : this(DEFAULT_GROUP_NAME, "",""){}
+        public GroupDrawer(string groupName) : this(groupName, "",""){}
+        public GroupDrawer(string groupName, string groupLabel) :this(groupName,groupLabel,""){ }
+        public GroupDrawer(string groupName, string groupLabel,string keyword)
         {
             this.groupName = groupName;
             this.keyword = keyword;
@@ -42,11 +46,12 @@ namespace PowerUtilities
         public override float GetPropertyHeight(MaterialProperty prop, string label, MaterialEditor editor)
         {
             if (isGroupLabel)
-                return base.GetPropertyHeight(prop, label, editor);
-            if (GroupDict[groupName])
+                return EditorGUIUtility.singleLineHeight;
+
+            if (IsGroupOn(groupName))
             {
-                var baseHeight = base.GetPropertyHeight(prop, label, editor);
-                if(prop.type == MaterialProperty.PropType.Texture)
+                var baseHeight = EditorGUIUtility.singleLineHeight;
+                if (prop.type == MaterialProperty.PropType.Texture)
                 {
                     baseHeight *= 4;
                 }
@@ -72,10 +77,10 @@ namespace PowerUtilities
 
         private void DrawContent(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
         {
-            if (!GroupDict.ContainsKey(groupName))
+            if (!groupDict.ContainsKey(groupName))
                 return;
 
-            if (GroupDict[groupName])
+            if (groupDict[groupName])
             {
                 editor.DefaultShaderProperty(position, prop, label.text);
             }
@@ -94,17 +99,20 @@ namespace PowerUtilities
 
                 // keyword
                 var isKeywordOn = groupDict[groupName];
-                var mats = prop.targets.Select(t => (Material)t);
-                foreach (var mat in mats)
-                {
-                    if (isKeywordOn)
-                        mat.EnableKeyword(keyword);
-                    else
-                        mat.DisableKeyword(keyword);
-                }
+                MaterialPropertyDrawerTools.SetKeyword(prop, keyword,isKeywordOn);
             }
         }
+
+        public static bool IsGroupOn(string groupName)
+        {
+            if(string.IsNullOrEmpty(groupName) || !groupDict.ContainsKey(groupName))
+                return false;
+            return groupDict[groupName];
+        }
+
     }
+
+
 
 }
 #endif
