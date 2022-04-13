@@ -14,7 +14,7 @@ namespace PowerUtilities
     /// </summary>
     public static class MaterialPropertyDrawerTools
     {
-
+        
         public static void SetKeyword(MaterialProperty prop, string keyword, bool isKeywordOn)
         {
             var mats = prop.targets.Select(t => (Material)t);

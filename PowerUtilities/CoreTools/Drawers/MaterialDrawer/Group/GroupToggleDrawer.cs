@@ -23,7 +23,7 @@ namespace PowerUtilities
 
         public override float GetPropertyHeight(MaterialProperty prop, string label, MaterialEditor editor)
         {
-            return MaterialGroupTools.IsGroupOn(groupName) ? EditorGUIUtility.singleLineHeight : 0;
+            return MaterialGroupTools.IsGroupOn(groupName) ? MaterialGroupTools.BASE_LINE_HEIGHT : -4;
         }
         public override void OnGUI(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
         {

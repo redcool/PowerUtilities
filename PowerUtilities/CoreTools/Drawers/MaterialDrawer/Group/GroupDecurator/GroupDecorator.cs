@@ -25,7 +25,7 @@ namespace PowerUtilities
 
         public override float GetPropertyHeight(MaterialProperty prop, string label, MaterialEditor editor)
         {
-            return EditorGUIUtility.singleLineHeight;
+            return 18;
         }
 
         public override void OnGUI(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
