@@ -23,17 +23,17 @@ namespace PowerUtilities {
         Dictionary<string, int> keywordValueDict = new Dictionary<string, int>();
         public GroupEnumDrawer() : this(MaterialGroupTools.DEFAULT_GROUP_NAME, "","") { }
         public GroupEnumDrawer(string groupName,string enumName):this(groupName,enumName,""){}
-        public GroupEnumDrawer(string groupName, string keywordString,string keyword)
+        public GroupEnumDrawer(string groupName, string enumName,string keyword)
         {
             this.groupName = groupName;
             isKeyword = !string.IsNullOrEmpty(keyword);
 
-            if (!string.IsNullOrEmpty(keywordString))
+            if (!string.IsNullOrEmpty(enumName))
             {
-                if (keywordString.Contains(KEY_VALUE_SPLITTER))
-                    ParseKeyValuePairs(keywordString);
+                if (enumName.Contains(KEY_VALUE_SPLITTER))
+                    ParseKeyValuePairs(enumName);
                 else
-                    ParseEnum(keywordString);
+                    ParseEnum(enumName);
 
             }
         }
