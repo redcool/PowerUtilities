@@ -1,10 +1,13 @@
-using UnityEngine;
-
-public static class MathTools
+namespace PowerUtilities
 {
-    public static float Frac(float v)
+    using UnityEngine;
+
+    public static class MathTools
     {
-        var n = Mathf.Abs(v);
-        return n - Mathf.Floor(n);
+        public static float Frac(float v)
+        {
+            var n = Mathf.Abs(v);
+            return n - Mathf.Floor(n);
+        }
     }
 }
