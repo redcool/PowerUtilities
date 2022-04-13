@@ -7,21 +7,24 @@ using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 
-/// <summary>
-/// editor MaterialPropertyDrawer's Tools
-/// </summary>
-public static class MaterialPropertyDrawerTools
+namespace PowerUtilities
 {
-
-    public static void SetKeyword(MaterialProperty prop, string keyword, bool isKeywordOn)
+    /// <summary>
+    /// editor MaterialPropertyDrawer's Tools
+    /// </summary>
+    public static class MaterialPropertyDrawerTools
     {
-        var mats = prop.targets.Select(t => (Material)t);
-        foreach (var mat in mats)
+        
+        public static void SetKeyword(MaterialProperty prop, string keyword, bool isKeywordOn)
         {
-            if (isKeywordOn)
-                mat.EnableKeyword(keyword);
-            else
-                mat.DisableKeyword(keyword);
+            var mats = prop.targets.Select(t => (Material)t);
+            foreach (var mat in mats)
+            {
+                if (isKeywordOn)
+                    mat.EnableKeyword(keyword);
+                else
+                    mat.DisableKeyword(keyword);
+            }
         }
     }
 }

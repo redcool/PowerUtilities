@@ -7,35 +7,38 @@ using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 
-/// <summary>
-/// Draw a group 
-/// </summary>
-public class GroupDecorator : MaterialPropertyDrawer
+namespace PowerUtilities
 {
-    string groupName;
-
-    public GroupDecorator(string groupName)
+    /// <summary>
+    /// Draw a group 
+    /// </summary>
+    public class GroupDecorator : MaterialPropertyDrawer
     {
-        this.groupName = groupName;
+        string groupName;
 
-        MaterialGroupTools.GroupDict[groupName] = EditorPrefs.GetBool(groupName, false);
-    }
-
-    public override float GetPropertyHeight(MaterialProperty prop, string label, MaterialEditor editor)
-    {
-        return 18;
-    }
-
-    public override void OnGUI(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
-    {
-        EditorGUI.BeginChangeCheck();
-        MaterialGroupTools.GroupDict[groupName] = EditorGUI.BeginFoldoutHeaderGroup(position, MaterialGroupTools.GroupDict[groupName], groupName);
-        EditorGUI.EndFoldoutHeaderGroup();
-
-        if (EditorGUI.EndChangeCheck())
+        public GroupDecorator(string groupName)
         {
-            // write to register
-            EditorPrefs.SetBool(groupName, MaterialGroupTools.GroupDict[groupName]);
+            this.groupName = groupName;
+
+            MaterialGroupTools.GroupDict[groupName] = EditorPrefs.GetBool(groupName, false);
+        }
+
+        public override float GetPropertyHeight(MaterialProperty prop, string label, MaterialEditor editor)
+        {
+            return 18;
+        }
+
+        public override void OnGUI(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
+        {
+            EditorGUI.BeginChangeCheck();  
+            MaterialGroupTools.GroupDict[groupName] = EditorGUI.BeginFoldoutHeaderGroup(position, MaterialGroupTools.GroupDict[groupName], groupName);
+            EditorGUI.EndFoldoutHeaderGroup();
+
+            if (EditorGUI.EndChangeCheck())
+            {
+                // write to register
+                EditorPrefs.SetBool(groupName, MaterialGroupTools.GroupDict[groupName]);
+            }
         }
     }
 }

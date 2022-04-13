@@ -1,4 +1,6 @@
 #if UNITY_EDITOR
+namespace PowerUtilities
+{
     using UnityEditor;
     using UnityEngine;
 
@@ -33,4 +35,5 @@
             //return string.IsNullOrEmpty(groupName) || MaterialGroupTools.IsGroupOn(groupName) ? 24 : 0;
         }
     }
+}
 #endif
