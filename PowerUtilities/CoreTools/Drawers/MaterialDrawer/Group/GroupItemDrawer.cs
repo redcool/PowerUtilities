@@ -1,50 +1,48 @@
 #if UNITY_EDITOR
-namespace PowerUtilities
-{
+
     using System.Collections;
     using System.Collections.Generic;
     using UnityEditor;
     using UnityEngine;
     using System.Linq;
 
-    /// <summary>
-    /// Material's Group Item Attribute
-    /// </summary>
-    public class GroupItemDrawer : MaterialPropertyDrawer
+/// <summary>
+/// Material's Group Item Attribute
+/// </summary>
+public class GroupItemDrawer : MaterialPropertyDrawer
+{
+    string groupName;
+
+    public GroupItemDrawer(string groupName)
     {
-        string groupName;
+        this.groupName = groupName;
+    }
 
-        public GroupItemDrawer(string groupName)
+    public override float GetPropertyHeight(MaterialProperty prop, string label, MaterialEditor editor)
+    {
+        if (MaterialGroupTools.IsGroupOn(groupName))
         {
-            this.groupName = groupName;
-        }
-
-        public override float GetPropertyHeight(MaterialProperty prop, string label, MaterialEditor editor)
-        {
-            if (MaterialGroupTools.IsGroupOn(groupName))
+            var baseHeight = MaterialGroupTools.BASE_LINE_HEIGHT;
+            if (prop.type == MaterialProperty.PropType.Texture)
             {
-                var baseHeight = MaterialGroupTools.BASE_LINE_HEIGHT;
-                if (prop.type == MaterialProperty.PropType.Texture)
-                {
-                    baseHeight *= 4;
-                }
-                return baseHeight;
+                baseHeight *= 4;
             }
-
-            return -1;
+            return baseHeight;
         }
 
-        public override void OnGUI(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
+        return -1;
+    }
+
+    public override void OnGUI(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
+    {
+        if (MaterialGroupTools.IsGroupOn(groupName))
         {
-            if (MaterialGroupTools.IsGroupOn(groupName))
-            {
-                EditorGUI.indentLevel++;
-                editor.DefaultShaderProperty(position, prop, label.text);
-                EditorGUI.indentLevel--;
-            }
+            EditorGUI.indentLevel++;
+            editor.DefaultShaderProperty(position, prop, label.text);
+            EditorGUI.indentLevel--;
         }
-
     }
 
 }
+
 #endif
