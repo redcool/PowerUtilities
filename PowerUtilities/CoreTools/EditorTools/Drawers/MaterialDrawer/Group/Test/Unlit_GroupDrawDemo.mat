@@ -18,7 +18,24 @@ Material:
   disabledShaderPasses: []
   m_SavedProperties:
     serializedVersion: 3
-    m_TexEnvs: []
-    m_Floats: []
-    m_Colors: []
+    m_TexEnvs:
+    - _MainTex1:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex2:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - _FloatVlaue: 0.1
+    - _FloatVlaue2: 0.1
+    - _FloatVlaue3: 0.1
+    - _GroupEnum: 0
+    - _GroupEnumBlend: 0
+    - _GroupKeywordEnum: 0
+    - _ToggleNoKeyword: 1
+    - _ToggleWithKeyword: 1
+    m_Colors:
+    - _Vector: {r: 0.072000004, g: 0.5, b: 0.51600003, a: 0.217}
   m_BuildTextureStacks: []

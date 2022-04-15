@@ -24,6 +24,7 @@ Shader "Unlit/GroupDrawDemo"
 
         [Group(group2)]
         [GroupItem(group2)]_MainTex2 ("Texture2", 2D) = "white" {}
+        [GroupVectorSlider(a b c d,0_0.3 0.1_0.5 0_0.6 0_0.7)]_Vector("_Vector",vector) = (1,1,1,1)
 
         //         [Group(group3)]
         // [GroupItem(group3)]_MainTex3 ("Texture2", 2D) = "white" {}
