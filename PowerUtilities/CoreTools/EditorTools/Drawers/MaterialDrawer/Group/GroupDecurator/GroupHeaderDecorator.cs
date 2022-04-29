@@ -15,7 +15,10 @@ namespace PowerUtilities
         {
             this.header = $"--------{header}--------";
         }
-
+        public override float GetPropertyHeight(MaterialProperty prop, string label, MaterialEditor editor)
+        {
+            return MaterialGroupTools.IsGroupOn(GroupName) ? 18 : -1;
+        }
         public override void DrawGroupUI(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
         {
             position = EditorGUI.IndentedRect(position);
