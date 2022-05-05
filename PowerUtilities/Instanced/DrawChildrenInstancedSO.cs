@@ -14,8 +14,7 @@ namespace PowerUtilities
     {
         public Texture2D[] lightmaps;
         public bool enableLightmap = true;
-        public bool destroyGameObjectWhenCannotUse = true;
-        public bool culledUnderLevel2 = true;
+        public bool destroyGameObjectsWhenBaked = true;
 
         [Header("销毁概率")]
         [Range(0, 1)] public float culledRatio = 0.5f;
@@ -33,16 +32,19 @@ namespace PowerUtilities
                 forceRefresh = false;
 
                 CullInstances(1 - culledRatio);
-                UpdateGroupListMaterial(LightmapSettings.lightmaps.Length > 0);
+                UpdateGroupListMaterial(IsLightMapEnabled());
             }
         }
 
+        public bool IsLightMapEnabled()
+        {
+            return enableLightmap && lightmaps != null && lightmaps.Length > 0;
+        }
         /// <summary>
         /// 
         /// </summary>
         /// <param name="rootGo"></param>
-        /// <param name="culledLevelId">1 is low,2 is medium,4 is highest</param>
-        public void SetupChildren(GameObject rootGo,int culledLevelId)
+        public void SetupChildren(GameObject rootGo)
         {
             renders = rootGo.GetComponentsInChildren<MeshRenderer>(true);
             if (renders.Length == 0)
@@ -52,16 +54,9 @@ namespace PowerUtilities
             groupList.AddRange(meshGroupDict.Values);
 
             // lightmaps handle
-            if (lightmaps != null && lightmaps.Length > 0)
+            if (IsLightMapEnabled())
             {
                 SetupGroupLightmapInfo();
-            }
-
-            //culled by device level
-            if (culledUnderLevel2)
-            {
-                if (culledLevelId <= 2)
-                    CullInstances(1 - culledRatio);
             }
         }
 
@@ -137,11 +132,6 @@ namespace PowerUtilities
                 info.mesh = filter.sharedMesh;
                 info.mat = r.sharedMaterial;
                 info.mat.enableInstancing = true;
-
-                if (enableLightmap)
-                    info.mat.EnableKeyword("LIGHTMAP_ON");
-                else
-                    info.mat.DisableKeyword("LIGHTMAP_ON");
 
                 meshGroupDict.Add(filter.sharedMesh, info);
             }

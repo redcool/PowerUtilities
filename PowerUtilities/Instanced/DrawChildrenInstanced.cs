@@ -57,10 +57,9 @@
         {
             var drawInfoSO = ScriptableObject.CreateInstance<DrawChildrenInstancedSO>();
             drawInfoSO.name = gameObject.name;
-            drawInfoSO.enableLightmap = LightmapSettings.lightmaps.Length != 0;
 
-            drawInfoSO.SetupChildren(gameObject, GetLevelId());
-            drawInfoSO.DestroyOrHiddenChildren(drawInfoSO.destroyGameObjectWhenCannotUse);
+            drawInfoSO.SetupChildren(gameObject);
+            drawInfoSO.DestroyOrHiddenChildren(drawInfoSO.destroyGameObjectsWhenBaked);
             return drawInfoSO;
         }
 
@@ -80,19 +79,12 @@
             OnStarted = null;
         }
 
-        /// <summary>
-        /// low => high = [0,1,2,3] 
-        /// </summary>
-        /// <returns></returns>
-        public int GetLevelId()
-        {
-            var levelId = 2;
-            return levelId;
-        }
 
         public bool CheckDeviceSupport()
         {
             return SystemInfo.supportsInstancing;
         }
+
+
     }
 }

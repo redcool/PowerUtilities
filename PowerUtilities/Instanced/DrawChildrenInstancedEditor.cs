@@ -54,14 +54,14 @@ namespace PowerUtilities
             var isApplied = drawInfoSerailizedObject.ApplyModifiedProperties();
             if (isApplied)
             {
-                inst.drawInfoSO.UpdateGroupListMaterial(inst.drawInfoSO.enableLightmap);
+                inst.drawInfoSO.UpdateGroupListMaterial(inst.drawInfoSO.IsLightMapEnabled());
             }
 
             if (GUILayout.Button("Bake Children Gos"))
             {
                 inst.drawInfoSO.Clear();
-                inst.drawInfoSO.SetupChildren(inst.gameObject, inst.GetLevelId());
-                if (inst.drawInfoSO.destroyGameObjectWhenCannotUse && !EditorUtility.DisplayDialog("Warning", "删除所有的子节点吗?", "no", "ok"))
+                inst.drawInfoSO.SetupChildren(inst.gameObject);
+                if (inst.drawInfoSO.destroyGameObjectsWhenBaked && EditorUtility.DisplayDialog("Warning", "删除所有的子节点吗?", "yes"))
                 {
                     inst.drawInfoSO.DestroyOrHiddenChildren(true);
                 }
@@ -91,8 +91,8 @@ namespace PowerUtilities
             GUILayout.BeginVertical("Box");
             EditorGUILayout.PropertyField(drawInfoSerailizedObject.FindProperty(nameof(inst.drawInfoSO.lightmaps)));
             EditorGUILayout.PropertyField(drawInfoSerailizedObject.FindProperty(nameof(inst.drawInfoSO.enableLightmap)));
-            EditorGUILayout.PropertyField(drawInfoSerailizedObject.FindProperty(nameof(inst.drawInfoSO.destroyGameObjectWhenCannotUse)));
-            EditorGUILayout.PropertyField(drawInfoSerailizedObject.FindProperty(nameof(inst.drawInfoSO.culledUnderLevel2)));
+            EditorGUILayout.PropertyField(drawInfoSerailizedObject.FindProperty(nameof(inst.drawInfoSO.destroyGameObjectsWhenBaked)));
+
             EditorGUILayout.PropertyField(drawInfoSerailizedObject.FindProperty(nameof(inst.drawInfoSO.culledRatio)));
             EditorGUILayout.PropertyField(drawInfoSerailizedObject.FindProperty(nameof(inst.drawInfoSO.forceRefresh)));
             EditorGUILayout.PropertyField(drawInfoSerailizedObject.FindProperty(nameof(inst.drawInfoSO.groupList)));
