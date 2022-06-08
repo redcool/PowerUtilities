@@ -10,26 +10,18 @@ namespace GameUtilsFramework
     {
         public Vector2 movement;
         public Vector2 look;
-        public bool isSprint,
+        public bool isSprint,isRolling,
             LB, LT, RB, RT
             ;
 
-        public float movementLength;
-        public void OnMovement(InputValue v)
-        {
-            movement = v.Get<Vector2>();
-            movementLength = movement.magnitude;
-        }
+        public float MovementLength =>  movement.magnitude;
+        public void OnMovement(InputValue v) => movement = v.Get<Vector2>();
 
-        public void OnLook(InputValue v)
-        {
-            look = v.Get<Vector2>();
-        }
+        public void OnLook(InputValue v) => look = v.Get<Vector2>(); 
 
-        public void OnSprint(InputValue v)
-        {
-            isSprint = v.isPressed;
-        }
+        public void OnSprint(InputValue v) => isSprint = v.isPressed;
+
+        public void OnRoll(InputValue v) => isRolling = v.isPressed;
 
         public void OnLB(InputValue v) => LB = v.isPressed;
         public void OnLT(InputValue v) => LT = v.isPressed;
