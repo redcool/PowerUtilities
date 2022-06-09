@@ -29,7 +29,7 @@
                     "id": "af902a0a-0fcf-42c6-8aaa-8957bd67a94c",
                     "expectedControlType": "",
                     "processors": "",
-                    "interactions": "",
+                    "interactions": "Hold",
                     "initialStateCheck": true
                 },
                 {
@@ -63,28 +63,28 @@
                     "name": "LT",
                     "type": "PassThrough",
                     "id": "61b3c5fc-a1c3-4900-9035-77651a4620b7",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
                 },
                 {
                     "name": "Lock",
-                    "type": "PassThrough",
+                    "type": "Value",
                     "id": "dfe8e5c0-1e31-4f82-a357-13752af341cd",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
-                    "initialStateCheck": false
+                    "initialStateCheck": true
                 },
                 {
                     "name": "Roll",
-                    "type": "Value",
+                    "type": "PassThrough",
                     "id": "4370824e-327a-4309-bd64-cf0dfd3ecd03",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": true
+                    "interactions": "Press(pressPoint=0.5)",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
