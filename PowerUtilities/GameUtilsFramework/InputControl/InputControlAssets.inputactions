@@ -83,7 +83,16 @@
                     "id": "4370824e-327a-4309-bd64-cf0dfd3ecd03",
                     "expectedControlType": "",
                     "processors": "",
-                    "interactions": "Press(pressPoint=0.5)",
+                    "interactions": "Tap",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Jump",
+                    "type": "Button",
+                    "id": "8b354e18-3376-4353-a823-63bef5a2b3f7",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
                     "initialStateCheck": false
                 }
             ],
@@ -289,7 +298,7 @@
                 {
                     "name": "",
                     "id": "bf3a9c57-a902-49f8-aa82-7184c67db2c8",
-                    "path": "<Keyboard>/f",
+                    "path": "<Keyboard>/q",
                     "interactions": "",
                     "processors": "",
                     "groups": "KeyboardMouse",
@@ -316,6 +325,17 @@
                     "processors": "",
                     "groups": "KeyboardMouse",
                     "action": "Roll",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "95cea8e5-01e2-4517-bd30-261dbc2c0e8b",
+                    "path": "<Keyboard>/f",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Jump",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
