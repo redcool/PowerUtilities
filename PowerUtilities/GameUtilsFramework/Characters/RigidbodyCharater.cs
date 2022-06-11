@@ -22,20 +22,13 @@ namespace GameUtilsFramework
         [Tooltip("less than will do projection on collide plane")]
         [Range(0.5f,1f)]public float projectionOnPlaneRate = 0.9f;
 
-        [Tooltip("less than will decide is on ground")]
-        [Range(0.02f, 1)] public float groundClearance = 0.1f;
-
         [Header("Collide")]
         [Tooltip("raycast from rigid.position + collidePosOffset")]
         public float collidePosOffset = 0.5f;
+        [Min(0.1f)] public float collideRadius = 0.45f; // should less than collidePosOffset
+        public float collideDistance = 0.1f;
+        public Vector3 collideDir = Vector3.down;
 
-        [Tooltip("sphere radius to check,great than collideMinDistance will do sphere Check")]
-        [Min(0.1f)] public float sphereCheckRadius = 0.5f;
-
-        [Header("Sweep Ray")]
-        public Vector3 rayDir = Vector3.down;
-        public float rayLength = 0.5f;
-        //public float rayRadius = 0.2f;
 
         [Header("Gravity")]
         public float gravity = -18;
@@ -74,38 +67,14 @@ namespace GameUtilsFramework
 
 
             // raycast downward
-            if (Physics.Raycast(origin, rayDir, out var hit, rayLength, groundLayer))
-            {
-                //add a little up offset
-                if (hit.distance <= Mathf.Abs(collidePosOffset) + groundClearance)
-                {
-                    isGrounded = true;
-                }
-                else
-                {
-                    isGrounded = Physics.CheckSphere(origin, sphereCheckRadius, groundLayer);
-                }
+            isGrounded = Physics.SphereCast(origin, collideRadius, collideDir, out var hit, collideDistance, groundLayer);
 
-            }
-
-            Debug.DrawRay(origin, rayDir * rayLength, Color.green);
-            //if (Physics.SphereCast(origin, rayRadius, rayDir, out var hit, rayLength,groundLayer))
-            //{
-            //    isGrounded = true;
-            //}
+            Debug.DrawRay(origin, collideDir * collideDistance, Color.green);
 
             if (isGrounded)
             {
                 if (Vector3.Dot(hit.normal, Vector3.up) < projectionOnPlaneRate)
                     moveDir = Vector3.ProjectOnPlane(moveDir, hit.normal);
-
-                if (isJump)
-                {
-                    isJump = false;
-
-                    vecY = jumpHeight ;
-                    moveDir.y = vecY;
-                }
 
                 if (vecY < 0)
                 {
@@ -115,12 +84,19 @@ namespace GameUtilsFramework
                 inAirTime = 0;
             }
 
+            if (isJump)
+            {
+                isJump = false;
+
+                vecY = jumpHeight;
+                moveDir.y = vecY;
+            }
+
             if (!isGrounded)
             {
                 vecY += gravity * Time.fixedDeltaTime;
                 inAirTime += Time.fixedDeltaTime;
             }
-
 
             rigid.velocity = moveDir;
         }
