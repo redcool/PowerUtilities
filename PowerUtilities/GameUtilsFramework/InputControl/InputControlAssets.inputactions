@@ -63,7 +63,7 @@
                     "name": "LT",
                     "type": "PassThrough",
                     "id": "61b3c5fc-a1c3-4900-9035-77651a4620b7",
-                    "expectedControlType": "",
+                    "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -264,8 +264,8 @@
                 },
                 {
                     "name": "",
-                    "id": "61c93ebd-f291-4c48-be4a-f263f87c0d1b",
-                    "path": "<Keyboard>/t",
+                    "id": "76d6eae5-5e61-4112-a2f3-f04ed06b65e9",
+                    "path": "<Mouse>/rightButton",
                     "interactions": "",
                     "processors": "",
                     "groups": "KeyboardMouse",
@@ -275,8 +275,8 @@
                 },
                 {
                     "name": "",
-                    "id": "c325793c-9fad-4b1a-9e4e-e16b007df11d",
-                    "path": "<Keyboard>/r",
+                    "id": "13c69833-757a-4fe7-baf9-dc571eb6a4b0",
+                    "path": "<Mouse>/leftButton",
                     "interactions": "",
                     "processors": "",
                     "groups": "KeyboardMouse",
