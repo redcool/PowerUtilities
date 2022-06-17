@@ -9,6 +9,7 @@
     {
         /// <summary>
         /// Get object's path from root to tr.
+        /// Dont not include root
         /// </summary>
         /// <param name="tr"></param>
         /// <param name="root"></param>
@@ -27,7 +28,27 @@
             while (true)
             {
                 tr = tr.parent;
-                if (tr == null || tr == root)
+                if (!tr || tr == root)
+                    break;
+
+                sb.Insert(0, separator);
+                sb.Insert(0, tr.name);
+            }
+            return sb.ToString();
+        }
+
+        public static string GetHierarchyPath(this Transform tr, string rootTrName , string separator = "/")
+        {
+            if (!tr)
+                return "";
+
+            var sb = new StringBuilder();
+            sb.Append(tr.name);
+
+            while (true)
+            {
+                tr = tr.parent;
+                if (!tr || tr.name == rootTrName)
                     break;
 
                 sb.Insert(0, separator);
