@@ -11,12 +11,19 @@ namespace BoxSoul
         {
             Enter,Update,Exit
         }
+        public enum ValueType
+        {
+            Bool,Int,Float,Trigger
+        }
+
         public string stateName;
-        public bool value;
-        public bool isTrigger;
+        public bool boolValue;
+        public float floatValue;
 
         [Header("When")]
         public When when;
+
+        public ValueType valueType;
 
     }
     public class SetStateVariables : StateMachineBehaviour
@@ -44,13 +51,25 @@ namespace BoxSoul
                 if (kv.when != when)
                     continue;
 
-                if (kv.isTrigger)
-                    if (kv.value)
+                // set value by type
+
+                if (kv.valueType == StateKeyValue.ValueType.Trigger)
+                {
+                    if (kv.boolValue)
                         animator.SetTrigger(kv.stateName);
                     else
                         animator.ResetTrigger(kv.stateName);
+                }
+                else if (kv.valueType == StateKeyValue.ValueType.Int)
+                {
+                    animator.SetInteger(kv.stateName, (int)kv.floatValue);
+                }
+                else if (kv.valueType == StateKeyValue.ValueType.Float)
+                {
+                    animator.SetFloat(kv.stateName, kv.floatValue);
+                }
                 else
-                    animator.SetBool(kv.stateName, kv.value);
+                    animator.SetBool(kv.stateName, kv.boolValue);
             }
         }
 

@@ -10,7 +10,7 @@ namespace GameUtilsFramework
     {
         public Vector2 movement;
         public Vector2 look;
-        public bool isSprint,isRolling,isJump,
+        public bool isSprint,isRolling,isJump,tryLock,
             LB, LT, RB, RT
             ;
 
@@ -28,6 +28,7 @@ namespace GameUtilsFramework
         public void OnLT(InputValue v) => LT = v.isPressed;
         public void OnRB(InputValue v) => RB = v.isPressed;
         public void OnRT(InputValue v) => RT = v.isPressed;
+        public void OnTryLock(InputValue v) => tryLock = v.isPressed;
 
 
         public bool IsButtonTriggeredAndReset(ref bool buttonId)
