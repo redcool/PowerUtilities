@@ -27,7 +27,7 @@ namespace GameUtilsFramework
     {
         public string rootBoneName = "Root";
         public CharacterPart part;
-        public SkinnedMeshRenderer skinned;
+        [HideInInspector]public SkinnedMeshRenderer skinned;
         public SkinnedBonesData skinData;
 
         /// <summary>

@@ -13,6 +13,13 @@ namespace PowerUtilities
         {
             return Selection.gameObjects.Select(go => go.GetComponent<T>()).Where(t => t).ToArray();
         }
+
+        public static T[] GetSelectedChildrenComponents<T>(bool includeInactive=false) where T : Component
+        {
+            return Selection.gameObjects.
+                SelectMany(go => go.GetComponentsInChildren<T>(includeInactive), (go, comp) => comp)
+                .ToArray();
+        }
     }
 }
 #endif
