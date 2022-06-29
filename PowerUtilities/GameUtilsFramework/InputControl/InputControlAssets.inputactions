@@ -103,6 +103,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "ActionHolding",
+                    "type": "Value",
+                    "id": "6221ac42-426d-46bb-895f-c935160beef3",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
                 }
             ],
             "bindings": [
@@ -367,6 +376,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "TryLock",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "600363d6-d416-4aea-993f-0ccbf6e513fa",
+                    "path": "<Keyboard>/e",
+                    "interactions": "Hold",
+                    "processors": "",
+                    "groups": "KeyboardMouse",
+                    "action": "ActionHolding",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

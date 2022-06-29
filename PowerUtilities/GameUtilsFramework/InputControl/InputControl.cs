@@ -10,7 +10,7 @@ namespace GameUtilsFramework
     {
         public Vector2 movement;
         public Vector2 look;
-        public bool isSprint,isRolling,isJump,tryLock,
+        public bool isSprint,isRolling,isJump,tryLock,isActionHolding,
             LB, LT, RB, RT
             ;
 
@@ -30,6 +30,8 @@ namespace GameUtilsFramework
         public void OnRT(InputValue v) => RT = v.isPressed;
         public void OnTryLock(InputValue v) => tryLock = v.isPressed;
 
+        public void OnActionHolding(InputValue v)=> isActionHolding = v.isPressed;
+
 
         public bool IsButtonTriggeredAndReset(ref bool buttonId)
         {
@@ -37,6 +39,14 @@ namespace GameUtilsFramework
             buttonId = false;
             return t;
         }
+
+        public bool IsLeftHandAttack() => !isActionHolding && RT;
+        public bool IsRightHandAttack() => !isActionHolding && RB;
+        public void ResetLeftHandAttack() => RT = false;
+        public void ResetRightHandAttack() => RB = false;
+
+        public bool IsHoldLeftWeapon() => isActionHolding && RT;
+        public bool IsHoldRightWeapon() => isActionHolding && RB;
     }
 
 }
