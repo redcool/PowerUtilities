@@ -1,0 +1,17 @@
+{
+    "name": "PowerGameUtilsFramework",
+    "rootNamespace": "",
+    "references": [
+        "GUID:4d7978c8e91b36c4898b68b93a664cc7",
+        "GUID:75469ad4d38634e559750d17036d5f7c"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
