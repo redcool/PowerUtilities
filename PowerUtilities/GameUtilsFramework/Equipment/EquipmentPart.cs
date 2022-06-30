@@ -68,7 +68,7 @@ namespace GameUtilsFramework
 #if UNITY_EDITOR
             GameObject.DestroyImmediate(skinned.gameObject);
 #else
-            GameObject.Destroy(equipPart.skinned.gameObject);
+            GameObject.Destroy(skinned.gameObject);
 #endif
         }
     }

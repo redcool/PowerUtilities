@@ -1,10 +1,8 @@
 {
-    "name": "PowerUtilities",
-    "rootNamespace": "PowerUtilities",
+    "name": "PowerEditorUtilities",
+    "rootNamespace": "",
     "references": [
-        "GUID:75469ad4d38634e559750d17036d5f7c",
-        "GUID:5a5cc6c9cee917248a0beb2ae4b4170f",
-        "GUID:4ccd971c6cf07f04ea3f16f8ae112570"
+        "GUID:5a5cc6c9cee917248a0beb2ae4b4170f"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
