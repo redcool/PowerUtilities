@@ -1,10 +1,27 @@
+namespace GameUtilsFramework
+{
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
-namespace GameUtilsFramework
-{
+#if !UNITY_INPUT_SYSTEM_ENABLE_UI
+//using UnityEngine.InputSystem;
+    public class InputValue
+    {
+
+        ////TODO: add automatic conversions
+        public TValue Get<TValue>()
+            where TValue : struct
+        {
+            return default(TValue);
+        }
+
+        ////TODO: proper message if value type isn't right
+        public bool isPressed => false;
+
+    }
+#endif
+
 
     public class InputControl : MonoBehaviour
     {
