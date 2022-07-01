@@ -11,6 +11,8 @@ namespace BoxSouls
         public UnityEvent onOpenDamageTrigger;
         public UnityEvent onCloseDamageTrigger;
 
+        public UnityEvent<bool> onPutBackWeapon;
+
         Animator anim;
         // Start is called before the first frame update
         void Start()
@@ -36,5 +38,11 @@ namespace BoxSouls
         {
             anim.SetBool(varName, false);
         }
+
+        public void OnPutBackWeapon(int handId)
+        {
+            onPutBackWeapon?.Invoke(handId==0);
+        }
+
     }
 }
