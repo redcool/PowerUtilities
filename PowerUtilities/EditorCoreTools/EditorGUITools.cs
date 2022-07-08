@@ -128,7 +128,8 @@ namespace PowerUtilities
 
             // item
             var itemIndex = 0;
-            var itemWidth = (Screen.width - 40 -2*xCount) / xCount ; // guess inspector's width
+            var inspectorWidth = EditorGUIUtility.currentViewWidth;
+            var itemWidth = (inspectorWidth - 4*xCount -40) / xCount ; // guess inspector's width
             var hasChanged = false;
 
             GUILayout.BeginVertical(columnStyle);
