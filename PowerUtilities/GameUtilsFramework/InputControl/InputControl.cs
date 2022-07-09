@@ -4,8 +4,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-#if !UNITY_INPUT_SYSTEM_ENABLE_UI
-//using UnityEngine.InputSystem;
+#if INPUT_SYSTEM_ENABLED
+    using UnityEngine.InputSystem;
+#else
     public class InputValue
     {
 

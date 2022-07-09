@@ -19,7 +19,9 @@ namespace GameUtilsFramework
         {
             var playerSettings = Resources.FindObjectsOfTypeAll<PlayerSettings>().First();
             var playerSettingObject = new SerializedObject(playerSettings);
-            var inputSystemEnabled = playerSettingObject.FindProperty("enableNativePlatformBackendsForNewInputSystem").boolValue;
+
+            var activeInputHandlerSP = playerSettingObject.FindProperty("activeInputHandler");
+            var inputSystemEnabled = activeInputHandlerSP.intValue>0;
             var buildTargetGroup = EditorUserBuildSettings.selectedBuildTargetGroup;
 
             var scriptDefines = PlayerSettings.GetScriptingDefineSymbolsForGroup(buildTargetGroup);
