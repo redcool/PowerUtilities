@@ -1,4 +1,4 @@
-﻿#if UNITY_EDITOR && NGUI
+﻿#if UNITY_EDITOR && USE_NGUI
 namespace PowerUtilities
 {
     using System.Collections;
@@ -90,7 +90,7 @@ namespace PowerUtilities
         /// <param name="assetPaths"></param>
         public static void UpdateAtlasInPath(params string[] assetPaths)
         {
-            var items = EditorTools.FindComponentFromAssets<UIAtlas>("t:GameObject", assetPaths);
+            var items = AssetDatabaseTools.FindComponentFromAssets<UIAtlas>("t:GameObject", assetPaths);
 
             UpdateAtlases(items);
         }
@@ -110,7 +110,7 @@ namespace PowerUtilities
         /// <param name="assetPaths"></param>
         public static void SplitSelectedTexutes(params string[] assetPaths)
         {
-            var items = EditorTools.FindAssetsInProject<Texture2D>("t:Texture2D", assetPaths);
+            var items = AssetDatabaseTools.FindAssetsInProject<Texture2D>("t:Texture2D", assetPaths);
             SplitTextures(items);
         }
 
