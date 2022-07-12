@@ -242,8 +242,16 @@ namespace PowerUtilities
             tabSelectedIds.Clear();
             EditorPrefTools.GetList(GetMaterialSelectionIdKey(materialEditor.target.name), ref tabSelectedIds, ",", (idStr) => Convert.ToInt32(idStr));
 
-            foreach (var selectedId in tabSelectedIds)
+            for (int i = 0; i < tabSelectedIds.Count; i++)
             {
+                var selectedId = tabSelectedIds[i];
+
+                if (selectedId >= tabToggles.Length)
+                {
+                    selectedId = 0;
+                    tabSelectedIds[i] = 0;
+                }
+
                 tabToggles[selectedId] = true;
             }
 
