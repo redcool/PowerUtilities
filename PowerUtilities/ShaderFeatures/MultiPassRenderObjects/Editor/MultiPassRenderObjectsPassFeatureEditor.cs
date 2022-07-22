@@ -80,12 +80,18 @@ namespace UnityEditor.Experimental.Rendering.Universal
 
         private List<SerializedObject> m_properties = new List<SerializedObject>();
 
-        static bool FilterRenderPassEvent(int evt) =>
-            // Return all events higher or equal than before rendering prepasses
-            evt >= (int) RenderPassEvent.BeforeRenderingPrePasses &&
-            // filter obsolete events
-            typeof(RenderPassEvent).GetField(Enum.GetName(typeof(RenderPassEvent), evt))?.GetCustomAttribute(typeof(ObsoleteAttribute)) == null;
-
+		static bool FilterRenderPassEvent(int evt)
+		{
+#if UNITY_2020
+			var prepassId = RenderPassEvent.BeforeRenderingPrepasses;
+#elif UNITY_2021
+            var prepassId = RenderPassEvent.BeforeRenderingPrePasses;
+#endif
+			// Return all events higher or equal than before rendering prepasses
+			return evt >= (int)prepassId &&
+			// filter obsolete events
+			typeof(RenderPassEvent).GetField(Enum.GetName(typeof(RenderPassEvent), evt))?.GetCustomAttribute(typeof(ObsoleteAttribute)) == null;
+		}
         // Return all render pass event names that match filterRenderPassEvent
         private GUIContent[] m_EventOptionNames = Enum.GetValues(typeof(RenderPassEvent)).Cast<int>()
             .Where(FilterRenderPassEvent)
