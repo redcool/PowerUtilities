@@ -8,6 +8,7 @@ using UnityEngine;
 using UnityEditor;
 using Object = UnityEngine.Object;
 using UnityEngine.SceneManagement;
+using System.IO;
 
 namespace PowerUtilities
 {
@@ -86,7 +87,7 @@ namespace PowerUtilities
         }
 
         /// <summary>
-        /// 
+        /// Create new folder,return path string
         /// </summary>
         /// <param name="parentFolder"></param>
         /// <param name="subFolder"></param>
@@ -95,6 +96,19 @@ namespace PowerUtilities
         {
             var guid = AssetDatabase.CreateFolder(parentFolder, subFolder);
             return AssetDatabase.GUIDToAssetPath(guid);
+        }
+
+        public static string[] GetSelectedFolders()
+        {
+            return Selection.objects.Select(item =>
+            {
+                var path = AssetDatabase.GetAssetPath(item);
+                var isFolder = AssetDatabase.IsValidFolder(path);
+                if (!isFolder)
+                    path = Path.GetDirectoryName(path);
+
+                return path;
+            }).ToArray();
         }
     }
 }
