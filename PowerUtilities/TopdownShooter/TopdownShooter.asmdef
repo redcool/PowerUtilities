@@ -1,0 +1,18 @@
+{
+    "name": "TopdownShooter",
+    "rootNamespace": "",
+    "references": [
+        "GUID:75469ad4d38634e559750d17036d5f7c",
+        "GUID:4d7978c8e91b36c4898b68b93a664cc7",
+        "GUID:fa4b8ca72f33fc44eb52c1a91b2db75d"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
