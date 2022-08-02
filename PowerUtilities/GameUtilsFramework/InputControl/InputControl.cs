@@ -27,7 +27,7 @@ using UnityEngine;
     public class InputControl : MonoBehaviour
     {
         public Vector2 movement;
-        public Vector2 look;
+        public Vector2 look, topdownLook;
         public bool isSprint,isRolling,isJump,tryLock,isActionHolding,
             LB, LT, RB, RT
             ;
@@ -35,7 +35,8 @@ using UnityEngine;
         public float MovementLength =>  movement.magnitude;
         public void OnMovement(InputValue v) => movement = v.Get<Vector2>();
 
-        public void OnLook(InputValue v) => look = v.Get<Vector2>(); 
+        public void OnLook(InputValue v) => look = v.Get<Vector2>();
+        public void OnTopdownLook(InputValue v) => topdownLook = v.Get<Vector2>();
 
         public void OnSprint(InputValue v) => isSprint = v.isPressed;
 

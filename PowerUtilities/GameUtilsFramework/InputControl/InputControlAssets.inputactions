@@ -112,6 +112,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "TopdownLook",
+                    "type": "Value",
+                    "id": "6b69025b-12ce-46f8-8bb4-22928bae51a6",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
                 }
             ],
             "bindings": [
@@ -387,6 +396,17 @@
                     "processors": "",
                     "groups": "KeyboardMouse",
                     "action": "ActionHolding",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "4018fd99-e0a5-46a2-8f86-95d868bba4b0",
+                    "path": "<Mouse>/position",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "KeyboardMouse",
+                    "action": "TopdownLook",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

@@ -24,7 +24,7 @@ namespace TopdownShooter
         Camera cam;
         Animator anim;
 
-        TopdownPlayerInput playerInput;
+        InputControl playerInput;
 
 
         float bulletLastTime;
@@ -32,7 +32,7 @@ namespace TopdownShooter
         // Start is called before the first frame update
         void Start()
         {
-            playerInput = GetComponent<TopdownPlayerInput>();
+            playerInput = GetComponent<InputControl>();
             cam = Camera.main;
             anim = GetComponent<Animator>();
         }
@@ -115,7 +115,7 @@ namespace TopdownShooter
         private Vector3 MouseAim()
         {
             var dir = transform.forward;
-            var ray = cam.ScreenPointToRay(playerInput.look);
+            var ray = cam.ScreenPointToRay(playerInput.topdownLook);
             if (Physics.Raycast(ray, out var hit))
             {
                 var pos = hit.point;
@@ -131,7 +131,7 @@ namespace TopdownShooter
 
         void UpdateFire()
         {
-            var canShoot = playerInput.fire && (Time.time - bulletLastTime) > shootInterval;
+            var canShoot = playerInput.IsRightHandAttack() && (Time.time - bulletLastTime) > shootInterval;
             anim.SetBool("IsFire", canShoot);
 
             var fireLayerId = anim.GetLayerIndex("Fire");
