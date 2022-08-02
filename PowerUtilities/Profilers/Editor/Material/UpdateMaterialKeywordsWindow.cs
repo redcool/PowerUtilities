@@ -44,10 +44,17 @@ namespace PowerUtilities
             });
 
 
+            EditorGUILayout.LabelField("Update materials keywords by material toggle.");
             if (GUILayout.Button("Check keywords"))
             {
                 var result = CheckKeywords(shaderObj, toggleTypeString);
                 Debug.Log(result);
+            }
+
+            EditorGUILayout.LabelField("Clear keywords reference target shader.");
+            if(GUILayout.Button("Clear Materials Keywords"))
+            {
+                ClearKeywords(shaderObj);
             }
             GUILayout.EndVertical();
         }
@@ -57,11 +64,7 @@ namespace PowerUtilities
         private static string CheckKeywords(Shader shader,string toggleTypeString)
         {
             var propKeywordList = shader.GetShaderPropsHasKeyword(toggleTypeString);
-
-
-            var paths = AssetDatabaseTools.GetSelectedFolders();
-            var mats = AssetDatabaseTools.FindAssetsInProject<Material>("t:Material", paths);
-            mats = mats.Where(mat => mat.shader == shader).ToArray();
+            Material[] mats = GetMaterialsRefShader(shader);
             var result = new StringBuilder();
 
             foreach (var mat in mats)
@@ -82,10 +85,26 @@ namespace PowerUtilities
                     }
                 }
             }
+            result.Insert(0, $"len:{mats.Length}\n");
             return result.ToString();
         }
 
+        private static Material[] GetMaterialsRefShader(Shader shader)
+        {
+            var paths = AssetDatabaseTools.GetSelectedFolders();
+            var mats = AssetDatabaseTools.FindAssetsInProject<Material>("t:Material", paths);
+            mats = mats.Where(mat => mat.shader == shader).ToArray();
+            return mats;
+        }
 
+        static void ClearKeywords(Shader shader)
+        {
+            Material[] mats = GetMaterialsRefShader(shader);
+            foreach (var mat in mats)
+            {
+                mat.shaderKeywords=null;
+            }
+        }
     }
 }
 #endif
