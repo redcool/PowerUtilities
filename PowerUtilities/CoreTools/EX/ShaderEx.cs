@@ -29,17 +29,16 @@ namespace PowerUtilities
                     .Where(pa => pa.StartsWith(toggleTypeName)) //like [GroupToggle(_,KEY1)]
                     .FirstOrDefault();
 
-                if (propAttr != null)
-                {
-                    var match = getKeywordRegex.Match(propAttr);
-                    if (!match.Success)
-                        continue;
+                if (propAttr == null)
+                    continue;
 
-                    var keywordGroup = match.Groups[1];
+                var match = getKeywordRegex.Match(propAttr);
+                if (!match.Success)
+                    continue;
 
-                    list.Add((shader.GetPropertyName(i), keywordGroup.Value));
-                }
+                var keywordGroup = match.Groups[1];
 
+                list.Add((shader.GetPropertyName(i), keywordGroup.Value));
             }
             return list;
         }
