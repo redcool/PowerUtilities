@@ -6,12 +6,19 @@ using UnityEngine.Events;
 
 namespace BoxSouls
 {
+    /// <summary>
+    /// Receive animation events
+    /// put on Animator node
+    /// 
+    /// add event Receiver by inspector
+    /// </summary>
     public class AnimationEventReceiver : MonoBehaviour
     {
+        public bool AutoFindPlayerControl = false;
+
         public UnityEvent onOpenDamageTrigger;
         public UnityEvent onCloseDamageTrigger;
-
-        public UnityEvent<bool> onPutBackWeapon;
+        public UnityEvent onPutBackWeapon;
 
         Animator anim;
         // Start is called before the first frame update
@@ -39,9 +46,9 @@ namespace BoxSouls
             anim.SetBool(varName, false);
         }
 
-        public void OnPutBackWeapon(int handId)
+        public void OnPutBackWeapon()
         {
-            onPutBackWeapon?.Invoke(handId==0);
+            onPutBackWeapon?.Invoke();
         }
 
     }
