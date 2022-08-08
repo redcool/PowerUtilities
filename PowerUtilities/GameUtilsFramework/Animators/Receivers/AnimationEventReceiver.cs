@@ -14,8 +14,6 @@ namespace BoxSouls
     /// </summary>
     public class AnimationEventReceiver : MonoBehaviour
     {
-        public bool AutoFindPlayerControl = false;
-
         public UnityEvent onOpenDamageTrigger;
         public UnityEvent onCloseDamageTrigger;
         public UnityEvent onPutBackWeapon;
