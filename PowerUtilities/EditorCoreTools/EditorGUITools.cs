@@ -18,11 +18,13 @@ namespace PowerUtilities
             EditorGUI.DrawPreviewTexture(rect, tex);
         }
 
+
         public static void DrawSplitter(float w, float h)
         {
             GUILayout.Box("", GUILayout.Height(h), GUILayout.Width(w));
         }
 
+        #region Normal UI,Label
         public static void DrawFixedWidthLabel(float width, Action drawAction)
         {
             if (drawAction == null)
@@ -34,20 +36,64 @@ namespace PowerUtilities
             EditorGUIUtility.labelWidth = lastLabelWidth;
         }
 
+        public static void DrawColorLabel(string label, Color color)
+        {
+            var c = GUI.color;
+            GUI.color = color;
+            EditorGUILayout.LabelField(label);
+            GUI.color = c;
+        }
+
+        public static void DrawColorUI(Action drawAction, Color contentColor, Color color)
+        {
+            if (drawAction == null)
+                return;
+
+            var lastContentColor = GUI.contentColor;
+            var lastColor = GUI.color;
+
+            GUI.contentColor = contentColor;
+            GUI.color = color;
+            drawAction();
+
+            GUI.contentColor = lastContentColor;
+            GUI.color = lastColor;
+        }
+
+        #endregion
+
+        #region Box And Group
+
         public static void BeginVerticalBox(Action drawAction, string style = "Box")
         {
+            if (drawAction == null)
+                return;
+
             EditorGUILayout.BeginVertical(style);
-            if (drawAction != null)
                 drawAction();
             EditorGUILayout.EndVertical();
         }
         public static void BeginHorizontalBox(Action drawAction, string style = "Box")
         {
+            if (drawAction == null)
+                return;
+
             EditorGUILayout.BeginHorizontal(style);
-            if (drawAction != null)
                 drawAction();
             EditorGUILayout.EndHorizontal();
         }
+
+        public static void BeginDisableGroup(bool isDisabled, Action drawAction)
+        {
+            if (drawAction == null)
+                return;
+
+            EditorGUI.BeginDisabledGroup(isDisabled);
+            drawAction();
+            EditorGUI.EndDisabledGroup();
+        }
+
+        #endregion
 
         public static int LayerMaskField(string label, int layers)
         {
@@ -56,6 +102,8 @@ namespace PowerUtilities
             return InternalEditorUtility.ConcatenatedLayersMaskToLayerMask(tempLayers);
         }
 
+
+        #region Foldout
         public static void DrawFoldContent(ref (string title, bool fold) foldInfo, Action drawContentAction)
         {
             DrawFoldContent(ref foldInfo, drawContentAction, GUI.contentColor);
@@ -87,21 +135,9 @@ namespace PowerUtilities
             }
         }
 
-        public static void DrawColorUI(Action drawAction, Color contentColor, Color color)
-        {
-            if (drawAction == null)
-                return;
+        #endregion
 
-            var lastContentColor = GUI.contentColor;
-            var lastColor = GUI.color;
-
-            GUI.contentColor = contentColor;
-            GUI.color = color;
-            drawAction();
-
-            GUI.contentColor = lastContentColor;
-            GUI.color = lastColor;
-        }
+        #region Additional Controls
 
         /// <summary>
         /// 
@@ -195,6 +231,8 @@ namespace PowerUtilities
             var guiContents = contents.Select(str => new GUIContent(str)).ToArray();
             return MultiSelectionGrid(guiContents, toggles, selectedIds, xCount, rowStyle, columnStyle);
         }
+
+        #endregion
     }
 }
 #endif

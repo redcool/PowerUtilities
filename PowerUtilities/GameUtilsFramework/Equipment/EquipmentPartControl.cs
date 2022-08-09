@@ -12,22 +12,54 @@ using UnityEditor;
 [CustomEditor(typeof(EquipmentPartControl))]
 public class EquipmentPartChangeEditor : Editor
 {
+    public (string ,bool) showEquipPartFold=(nameof(showEquipPartFold),false);
+
+
+    void DrawEquipParts(EquipmentPartControl inst)
+    {
+
+    }
+
     public override void OnInspectorGUI()
     {
         base.OnInspectorGUI();
 
-        if (GUILayout.Button("Equip Part"))
+        var inst = (EquipmentPartControl)target;
+
+        EditorGUITools.BeginVerticalBox(() =>
         {
-            var partControl = (EquipmentPartControl)target;
-            partControl.ChangePart(partControl.overridePart);
-        }
+            if (!inst.boneRoot)
+            {
+                EditorGUITools.DrawColorLabel("* Need assign Bone Root.", Color.red);
+            }
+
+            EditorGUITools.BeginDisableGroup(!inst.boneRoot, () =>
+            {
+                if (GUILayout.Button("Equip Part"))
+                {
+                    inst.ChangePart(inst.overridePart);
+                }
+
+            });
+
+            EditorGUITools.DrawFoldContent(ref showEquipPartFold, () =>
+            {
+                foreach (var item in inst.partDict)
+                {
+                    EditorGUILayout.PrefixLabel(item.Key.ToString());
+                    EditorGUILayout.ObjectField(item.Value.skinned, typeof(SkinnedMeshRenderer),true);
+                }
+            });
+
+        });
+
     }
 }
 #endif
 
 public class EquipmentPartControl : MonoBehaviour
 {
-    Dictionary<CharacterPart, EquipmentPart> partDict = new Dictionary<CharacterPart, EquipmentPart>();
+    public Dictionary<CharacterPart, EquipmentPart> partDict = new Dictionary<CharacterPart, EquipmentPart>();
 
     public Transform boneRoot;
 

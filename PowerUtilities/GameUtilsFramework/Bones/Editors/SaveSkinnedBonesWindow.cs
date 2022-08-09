@@ -8,19 +8,27 @@ namespace GameUtilsFramework
 
 #if UNITY_EDITOR
     using UnityEditor;
+
+    /// <summary>
+    /// 
+    /// </summary>
     public class SaveSkinnedBonesWindow : EditorWindow
     {
-        public new string name = nameof(SaveSkinnedBonesWindow);
+
+        string helpStr = @"
+            Make SkinnedMeshRenderers in Hierarchy to EquipPart
+        ";
+
         string rootBoneName = "Root";
         string savePath = "Assets/SkinnedParts";
 
-        public const string PATH = "PowerUtilities/SkinnedMesh/Save SkinnedBones Window";
+        public const string MENU_PATH = "PowerUtilities/SkinnedMesh";
 
-        [MenuItem(PATH)]
+        [MenuItem(MENU_PATH+"/Save SkinnedBones Window")]
         static void Init()
         {
             var win = EditorWindow.GetWindow<SaveSkinnedBonesWindow>();
-            win.name = nameof(SaveSkinnedBonesWindow);
+            win.titleContent = new GUIContent(nameof(SaveSkinnedBonesWindow));
             win.Show();
         }
         
@@ -58,25 +66,44 @@ namespace GameUtilsFramework
 
         private void OnGUI()
         {
-            EditorGUILayout.HelpBox("Select SkinnedMeshRenderers in Hierarchy ", MessageType.Info);
+
+            EditorGUILayout.HelpBox(helpStr, MessageType.Info);
 
             GUILayout.BeginVertical("Box");
 
             rootBoneName = EditorGUILayout.TextField(nameof(rootBoneName),rootBoneName);
             savePath = EditorGUILayout.TextField(nameof(savePath), savePath);
 
-            if (GUILayout.Button("Save selection Skinneds"))
+            if(Selection.count == 0)
             {
-                var length = Save();
-
-                if (length == 0)
-                {
-                    EditorUtility.DisplayDialog("Warning!", "nothing selected ", "ok");
-                }
+                EditorGUITools.DrawColorLabel("* Select SkinnedMeshRenderers in Hierarchy",Color.red);
             }
+
+            EditorGUITools.BeginDisableGroup(Selection.count==0, () => {
+                if (GUILayout.Button("Save selection Skinneds"))
+                {
+                    var length = Save();
+
+                    if (length == 0)
+                    {
+                        EditorUtility.DisplayDialog("Warning!", "nothing selected ", "ok");
+                    }
+                }
+                if (GUILayout.Button("Attack EquipPartControl to RootNode?"))
+                {
+                    var rootGo = Selection.activeGameObject.transform.root.gameObject;
+                    GameObjectTools.GetOrAddComponent<EquipmentPartControl>(rootGo);
+                    Selection.activeGameObject = rootGo;
+                }
+            });
+
             GUILayout.EndVertical();
         }
 
+        private void OnSelectionChange()
+        {
+            Repaint();
+        }
     }
 
 #endif
