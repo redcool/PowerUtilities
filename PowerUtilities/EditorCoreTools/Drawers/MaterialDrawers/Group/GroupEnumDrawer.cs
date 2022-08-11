@@ -85,14 +85,15 @@ namespace PowerUtilities {
         public override void DrawGroupUI(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
         {
             EditorGUI.BeginChangeCheck();
-            var index = (int)prop.floatValue;
+            var matPropValue = (int)prop.floatValue;
+            var index = keywordValueDict.Values.FindIndex(val => val == matPropValue);
 
             var keys = keywordValueDict.Keys.ToArray();
             index = EditorGUI.Popup(position,label.text, index, keys);
 
             if (EditorGUI.EndChangeCheck())
             {
-                prop.floatValue = index;
+                prop.floatValue = keywordValueDict[keys[index]];
 
                 if (isKeyword)
                 {
