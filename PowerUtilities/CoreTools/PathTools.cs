@@ -9,7 +9,7 @@
     public static class PathTools
     {
 
-        public static string GetAssetDir(string assetPath,params object[] combineStrings)
+        public static string GetAssetDir(string assetPath,params string[] combineStrings)
         {
             if (string.IsNullOrEmpty(assetPath))
                 return "";
