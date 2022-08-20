@@ -1,5 +1,4 @@
-﻿#if UNITY_EDITOR
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -30,4 +29,3 @@ namespace PowerUtilities
         public static int GroupIndentLevel(string groupName) => IsDefaultGroup(groupName) ? 0 : 1;
     }
 }
-#endif

@@ -5,18 +5,18 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace PowerUtilities
+namespace PowerUtilities.Drawers
 {
 #if UNITY_EDITOR
     using UnityEditor;
 
-    [CustomPropertyDrawer(typeof(DisplayName))]
+    [CustomPropertyDrawer(typeof(DisplayNameAttribute))]
     public class DisplayNameDrawer : PropertyDrawer
     {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             //base.OnGUI(position, property, label);
-            var attr = attribute as DisplayName;
+            var attr = attribute as DisplayNameAttribute;
             var ranges = fieldInfo.GetCustomAttributes(typeof(RangeAttribute), true);
 
             label.text = attr.Value;
@@ -32,11 +32,11 @@ namespace PowerUtilities
         }
     }
 #endif
-    public class DisplayName : PropertyAttribute
+    public class DisplayNameAttribute : PropertyAttribute
     {
         public string Value;
 
-        public DisplayName(string value)
+        public DisplayNameAttribute(string value)
         {
             this.Value = value;
         }

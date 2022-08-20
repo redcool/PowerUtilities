@@ -12,17 +12,17 @@ namespace PowerUtilities
     /// <summary>
     /// check material keyworks
     /// </summary>
-    public class UpdateMaterialKeywordsWindow : EditorWindow
+    public class SyncMaterialKeywordsWindow : EditorWindow
     {
 
         Shader shaderObj;
         string toggleTypeString = "GroupToggle";
         
 
-        [MenuItem(MaterialAnalysisWindow.MENU_PATH+"/CheckMaterialKeywords")]
+        [MenuItem(MaterialAnalysisWindow.MENU_PATH+"/SyncMaterialKeywords")]
         static void Init()
         {
-            var win = GetWindow<UpdateMaterialKeywordsWindow>();
+            var win = GetWindow<SyncMaterialKeywordsWindow>();
             win.Show();
 
         }
