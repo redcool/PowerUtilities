@@ -43,10 +43,10 @@ namespace GameUtilsFramework
             return GetCurrentStateInfo(anim,layerName).IsName(stateName);
         }
 
-        public static void PlayAnimSetBool(this Animator anim,string stateName, string varName, bool varValue)
+        public static void PlayAnimSetBool(this Animator anim,string stateName, string varName, bool varValue,float transitionDuraion=0.2f)
         {
             anim.SetBool(varName, varValue);
-            anim.CrossFade(stateName, 0.2f);
+            anim.CrossFade(stateName, transitionDuraion);
         }
     }
 }
