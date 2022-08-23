@@ -20,9 +20,12 @@ namespace PowerUtilities
         /// * = *
         /// </summary>
         static Regex kvRegex = new Regex(@"\s*=\s*");
-        public const string I18N_PROFILE_PATH = "Profiles/i18n.txt";
-        public const string LAYOUT_PROFILE_PATH = "Profiles/Layout.txt";
-        public const string COLOR_PROFILE_PATH = "Profiles/Colors.txt";
+        public const string 
+            I18N_PROFILE_PATH = "Profiles/i18n.txt",
+            LAYOUT_PROFILE_PATH = "Profiles/Layout.txt",
+            COLOR_PROFILE_PATH = "Profiles/Colors.txt",
+            PROP_HELP_PROFILE_PATH = "Profiles/PropHelps.txt"
+            ;
 
         /// <summary>
         /// 从configPath开始找configFileName文件,一直找到Assets目录
@@ -104,13 +107,21 @@ namespace PowerUtilities
 
         public static string Text(Dictionary<string,string> dict,string str)
         {
-            string text = str;
-            if (dict.ContainsKey(str))
-                text = dict[str];
+            if(dict.TryGetValue(str,out var text))
+            {
+                return text;
+            }
 
-            return text;
+            return str;
         }
 
+        public static GUIContent GetContent(Dictionary<string,string> nameDict,Dictionary<string,string> propHelpDict,string propName)
+        {
+            var text = Text(nameDict, propName);
+            var tooltips = "";
+            propHelpDict.TryGetValue(propName, out tooltips);
+            return new GUIContent(text, tooltips);
+        }
     }
 }
 #endif

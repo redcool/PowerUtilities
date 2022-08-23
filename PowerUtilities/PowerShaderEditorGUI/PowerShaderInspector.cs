@@ -90,6 +90,7 @@ namespace PowerUtilities
         Dictionary<string, MaterialProperty> propDict;
         Dictionary<string, string> propNameTextDict;
         Dictionary<string, string> colorTextDict;
+        Dictionary<string, string> propHelpDict;
 
         bool isFirstRunOnGUI = true;
         string helpStr;
@@ -193,7 +194,7 @@ namespace PowerUtilities
                 //show color
                 GUI.contentColor = contentColor;
                 var prop = propDict[propName];
-                materialEditor.ShaderProperty(prop, ConfigTool.Text(propNameTextDict, prop.name));
+                materialEditor.ShaderProperty(prop, ConfigTool.GetContent(propNameTextDict,propHelpDict, prop.name),0);
 
                 GUI.contentColor = defaultContentColor;
 
@@ -296,6 +297,7 @@ namespace PowerUtilities
             tabToggles = new bool[tabNamesInConfig.Length];
 
             colorTextDict = ConfigTool.ReadConfig(shaderFilePath, ConfigTool.COLOR_PROFILE_PATH);
+            propHelpDict = ConfigTool.ReadConfig(shaderFilePath, ConfigTool.PROP_HELP_PROFILE_PATH);
         }
 
         private void SetupLayout(string shaderFilePath)
