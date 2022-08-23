@@ -175,8 +175,8 @@ namespace PowerUtilities
             EditorGUILayout.HelpBox(tabName, MessageType.Info, true);
 
             MaterialCodeProps.Instance.Clear();
-            // contents
 
+            // contents
             foreach (var propName in propNames)
             {
                 MaterialCodeProps.Instance.InitMaterialCodeVars(propName);
@@ -194,19 +194,24 @@ namespace PowerUtilities
                 //show color
                 GUI.contentColor = contentColor;
                 var prop = propDict[propName];
-                materialEditor.ShaderProperty(prop, ConfigTool.GetContent(propNameTextDict,propHelpDict, prop.name),0);
+
+                MaterialEditorEx.ShaderProperty(materialEditor, prop, ConfigTool.GetContent(propNameTextDict, propHelpDict, prop.name));
+                //materialEditor.ShaderProperty(prop, ConfigTool.GetContent(propNameTextDict, propHelpDict, prop.name));
 
                 GUI.contentColor = defaultContentColor;
 
                 if (OnDrawProperty != null)
                     OnDrawProperty(prop, mat);
             }
-            // blend 
+
+            // draw additional options 
             if (IsTargetShader(mat))
             {
+                //draw preset blend mode
                 if (MaterialCodeProps.Instance.hasPresetBlendMode)
                     DrawBlendMode(mat);
 
+                //draw render queue
                 if (MaterialCodeProps.Instance.hasRenderQueue)
                 {
                     // render queue, instanced, double sided gi

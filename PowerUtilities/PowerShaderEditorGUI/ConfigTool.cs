@@ -105,14 +105,14 @@ namespace PowerUtilities
             return propDict;
         }
 
-        public static string Text(Dictionary<string,string> dict,string str)
+        public static string Text(Dictionary<string,string> dict,string propName)
         {
-            if(dict.TryGetValue(str,out var text))
+            if(dict.TryGetValue(propName,out var text))
             {
                 return text;
             }
 
-            return str;
+            return propName;
         }
 
         public static GUIContent GetContent(Dictionary<string,string> nameDict,Dictionary<string,string> propHelpDict,string propName)
