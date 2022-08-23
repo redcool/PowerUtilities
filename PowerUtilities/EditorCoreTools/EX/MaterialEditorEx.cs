@@ -38,6 +38,12 @@ namespace PowerUtilities
 
         #endregion
 
+        /// <summary>
+        /// this version handle property [Vector,Texture] tooltips
+        /// </summary>
+        /// <param name="editor"></param>
+        /// <param name="prop"></param>
+        /// <param name="label"></param>
         public static void ShaderProperty(this MaterialEditor editor, MaterialProperty prop, GUIContent label)
         {
             switch (prop.type)
