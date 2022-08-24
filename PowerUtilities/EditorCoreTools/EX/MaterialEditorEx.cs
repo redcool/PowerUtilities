@@ -90,17 +90,7 @@ namespace PowerUtilities
             return propertyDrawerGetter.GetValue(handlerInst) != null;
         }
 
-        /// <summary>
-        /// this version handle property [Vector,Texture] tooltips
-        /// 
-        /// applyMaterialPropertyDraw set true, MaterialPropertyDraw call will dead loop,unity crash,
-        /// 
-        /// </summary>
-        /// <param name="editor"></param>
-        /// <param name="prop"></param>
-        /// <param name="label"></param>
-        /// <param name="label"></param>
-        /// <param name="applyMaterialPropertyDraw">true, MaterialPropertyDraw call will dead loop,unity crash</param>
+
         public static void ShaderProperty(this MaterialEditor editor, MaterialProperty prop, GUIContent label, int indent = 0)
         {
             var position = GetPropertyRect(editor, prop, label, false);
@@ -108,6 +98,16 @@ namespace PowerUtilities
             ShaderProperty(editor, position, prop, label, indent, true);
         }
 
+        /// <summary>
+        /// <para>this version handle property [Vector,Texture] tooltips</para>
+        /// <para>MaterialPropertyDraw set applyMaterialPropertyDraw to false, otherwise will dead loop,unity crash </para>
+        /// 
+        /// </summary>
+        /// <param name="editor"></param>
+        /// <param name="prop"></param>
+        /// <param name="label"></param>
+        /// <param name="indent"></param>
+        /// <param name="applyMaterialPropertyDraw">true, MaterialPropertyDraw call will dead loop,unity crash</param>
         public static void ShaderProperty(this MaterialEditor editor,Rect position, MaterialProperty prop, GUIContent label, int indent = 0, bool applyMaterialPropertyDraw = true)
         {
             EditorGUI.indentLevel+=indent;
