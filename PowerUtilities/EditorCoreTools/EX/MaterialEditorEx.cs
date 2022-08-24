@@ -10,6 +10,12 @@ namespace PowerUtilities
     using UnityEditor;
     using UnityEngine;
 
+    /// <summary>
+    /// Handle MaterialEditor draw [Vector,Texture] cannot have tooltips.
+    /// call MaterialEditorEx.ShaderProperty in custom ShaderGUI
+    /// 
+    /// call VectorProperty ,TextureProperty,DefaultShaderPropertyInternal in MaterialPropertyDrawer
+    /// </summary>
     public static class MaterialEditorEx
     {
 
@@ -32,19 +38,30 @@ namespace PowerUtilities
             typeof(MaterialEditor).GetMethod("DefaultShaderPropertyInternal", BindingFlags.Instance|BindingFlags.NonPublic, null,
                 new[] { typeof(MaterialProperty), typeof(GUIContent) }, null)
             );
-        public static void DefaultShaderPropertyInternal(MaterialEditor editor, MaterialProperty prop, GUIContent label)
+        static Lazy<MethodInfo> lazyDefaultShaderPropertyInternal3 = new Lazy<MethodInfo>(() =>
+            typeof(MaterialEditor).GetMethod("DefaultShaderPropertyInternal", BindingFlags.Instance|BindingFlags.NonPublic, null,
+                new[] {typeof(Rect), typeof(MaterialProperty), typeof(GUIContent) }, null)
+            );
+        public static void DefaultShaderPropertyInternal(this MaterialEditor editor, MaterialProperty prop, GUIContent label)
             => lazyDefaultShaderPropertyInternal.Value.Invoke(editor, new object[] { prop, label });
+        public static void DefaultShaderPropertyInternal(this MaterialEditor editor,Rect position, MaterialProperty prop, GUIContent label)
+            => lazyDefaultShaderPropertyInternal3.Value.Invoke(editor, new object[] { position,prop, label });
 
 
         #endregion
 
         /// <summary>
         /// this version handle property [Vector,Texture] tooltips
+        /// 
+        /// applyMaterialPropertyDraw set true, MaterialPropertyDraw call will dead loop,unity crash,
+        /// 
         /// </summary>
         /// <param name="editor"></param>
         /// <param name="prop"></param>
         /// <param name="label"></param>
-        public static void ShaderProperty(this MaterialEditor editor, MaterialProperty prop, GUIContent label, int indent = 0)
+        /// <param name="label"></param>
+        /// <param name="applyMaterialPropertyDraw">true, MaterialPropertyDraw call will dead loop,unity crash</param>
+        public static void ShaderProperty(this MaterialEditor editor, MaterialProperty prop, GUIContent label, int indent = 0,bool applyMaterialPropertyDraw=true)
         {
             EditorGUI.indentLevel+=indent;
             switch (prop.type)
@@ -56,7 +73,35 @@ namespace PowerUtilities
                     TextureProperty(editor, prop, label);
                     break;
                 default:
-                    editor.ShaderProperty(prop, label);
+                    {
+                        if (applyMaterialPropertyDraw)
+                            editor.ShaderProperty(prop, label);
+                        else
+                            DefaultShaderPropertyInternal(editor, prop, label);
+                    }
+                    break;
+            }
+            EditorGUI.indentLevel-=indent;
+        }
+
+        public static void ShaderProperty(this MaterialEditor editor,Rect position, MaterialProperty prop, GUIContent label, int indent = 0, bool applyMaterialPropertyDraw = true)
+        {
+            EditorGUI.indentLevel+=indent;
+            switch (prop.type)
+            {
+                case MaterialProperty.PropType.Vector:
+                    VectorProperty(editor, position, prop, label);
+                    break;
+                case MaterialProperty.PropType.Texture:
+                    TextureProperty(editor, position, prop, label);
+                    break;
+                default:
+                    {
+                        if (applyMaterialPropertyDraw)
+                            editor.ShaderProperty(position,prop, label);
+                        else
+                            DefaultShaderPropertyInternal(editor, position, prop, label);
+                    }
                     break;
             }
             EditorGUI.indentLevel-=indent;
@@ -88,6 +133,11 @@ namespace PowerUtilities
         public static Texture TextureProperty(this MaterialEditor editor, MaterialProperty prop, GUIContent label)
         {
             var position = GetPropertyRect(editor, prop, label, true);
+            bool scaleOffset = (prop.flags & MaterialProperty.PropFlags.NoScaleOffset) == 0;
+            return TextureProperty(editor, position, prop, label);
+        }
+        public static Texture TextureProperty(this MaterialEditor editor,Rect position, MaterialProperty prop, GUIContent label)
+        {
             bool scaleOffset = (prop.flags & MaterialProperty.PropFlags.NoScaleOffset) == 0;
             return editor.TextureProperty(position, prop, label.text, label.tooltip, scaleOffset);
         }

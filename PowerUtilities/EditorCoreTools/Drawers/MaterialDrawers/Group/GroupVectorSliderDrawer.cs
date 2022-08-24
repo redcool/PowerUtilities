@@ -34,7 +34,8 @@ namespace PowerUtilities
         /// vector3 slider 1 :[GroupVectorSlider(group1,Dir(xyz) intensity, 0_1)] _Vector("_Vector2", vector) = (1,0.1,0,1)
         /// </summary>
         /// <param name="headerString"></param>
-        public GroupVectorSliderDrawer(string groupName,string headerString,string rangeString) : base(groupName)
+        public GroupVectorSliderDrawer(string groupName, string headerString, string rangeString) : this(groupName, headerString,rangeString, "") { }
+        public GroupVectorSliderDrawer(string groupName,string headerString,string rangeString,string tooltip) : base(groupName,tooltip)
         {
             if (!string.IsNullOrEmpty(headerString))
             {
@@ -125,7 +126,7 @@ namespace PowerUtilities
             pos.y += LINE_HEIGHT;
             pos.width = position.width;
             EditorGUIUtility.labelWidth = MaterialGroupTools.BASE_LABLE_WIDTH;
-            value[3] = MaterialPropertyDrawerTools.DrawRemapSlider(pos, ranges[0],sliderHeader, value[3]);
+            value[3] = EditorGUITools.DrawRemapSlider(pos, ranges[0], new GUIContent(sliderHeader), value[3]);
         }
 
         private void Draw4Sliders(Rect position, ref Vector4 value)
@@ -133,7 +134,7 @@ namespace PowerUtilities
             var pos = new Rect(position.x, position.y, position.width, 18);
             for (int i = 0; i < headers.Length; i++)
             {
-                value[i] = MaterialPropertyDrawerTools.DrawRemapSlider(pos,ranges[i],headers[i], value[i]);
+                value[i] = EditorGUITools.DrawRemapSlider(pos,ranges[i], new GUIContent(headers[i]), value[i]);
                 pos.y += LINE_HEIGHT;
 
             }

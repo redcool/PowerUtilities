@@ -15,7 +15,8 @@ namespace PowerUtilities
     /// </summary>
     public class GroupSliderDrawer : BaseGroupItemDrawer
     {
-        public GroupSliderDrawer(string groupName) : base(groupName) { }
+        public GroupSliderDrawer(string groupName) : this(groupName,null) { }
+        public GroupSliderDrawer(string groupName,string tooltip) : base(groupName,tooltip) { }
 
         public override void DrawGroupUI(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
         {
@@ -28,7 +29,7 @@ namespace PowerUtilities
 
             EditorGUI.BeginChangeCheck();
             var value = prop.floatValue;
-            value = MaterialPropertyDrawerTools.DrawRemapSlider(position, prop.rangeLimits, label.text, value);
+            value = EditorGUITools.DrawRemapSlider(position, prop.rangeLimits, label, value);
             if (EditorGUI.EndChangeCheck())
             {
                 prop.floatValue = value;

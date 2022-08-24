@@ -15,7 +15,8 @@ namespace PowerUtilities
         string keyword;
         public GroupToggleDrawer() : this("", "") { }
         public GroupToggleDrawer(string groupName):this(groupName,""){}
-        public GroupToggleDrawer(string groupName, string keyword) : base(groupName)
+        public GroupToggleDrawer(string groupName,string keyword) : this(groupName, keyword, "") { }
+        public GroupToggleDrawer(string groupName, string keyword,string tooltip) : base(groupName,tooltip)
         {
             this.keyword = keyword;
         }

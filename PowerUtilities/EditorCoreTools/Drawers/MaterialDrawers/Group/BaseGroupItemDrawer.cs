@@ -14,6 +14,7 @@ namespace PowerUtilities
     public abstract class BaseGroupItemDrawer : MaterialPropertyDrawer
     {
         string groupName;
+        string tooltip;
 
         public string GroupName
         {
@@ -21,9 +22,10 @@ namespace PowerUtilities
             set { groupName = value; }
         }
 
-        public BaseGroupItemDrawer(string groupName)
+        public BaseGroupItemDrawer(string groupName,string tooltip)
         {
             this.groupName = groupName;
+            this.tooltip = tooltip;
         }
 
         public override float GetPropertyHeight(MaterialProperty prop, string label, MaterialEditor editor)
@@ -46,6 +48,7 @@ namespace PowerUtilities
             if (!MaterialGroupTools.IsGroupOn(groupName))
                 return;
 
+            label.tooltip = tooltip;
             var lastLabelWidth = EditorGUIUtility.labelWidth;
 
             EditorGUI.indentLevel += MaterialGroupTools.GroupIndentLevel(GroupName);

@@ -60,6 +60,12 @@ namespace PowerUtilities
             GUI.color = lastColor;
         }
 
+        public static float DrawRemapSlider(Rect position, Vector2 range, GUIContent label, float value)
+        {
+            float v = EditorGUI.Slider(position, label, Mathf.InverseLerp(range.x, range.y, value), 0, 1);
+            return Mathf.Lerp(range.x, range.y, v);
+        }
+
         #endregion
 
         #region Box And Group

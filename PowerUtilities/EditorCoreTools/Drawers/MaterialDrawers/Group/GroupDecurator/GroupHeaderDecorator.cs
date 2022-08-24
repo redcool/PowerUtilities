@@ -9,11 +9,13 @@ namespace PowerUtilities
 
     public class GroupHeaderDecorator : BaseGroupItemDrawer
     {
-        string header;
-        public GroupHeaderDecorator(string header):this("",header) { }
-        public GroupHeaderDecorator(string groupName, string header):base(groupName)
+        GUIContent headerContent;
+        public GroupHeaderDecorator(string header) : this("", header) { }
+        public GroupHeaderDecorator(string groupName, string header) : this(groupName, header, "") { }
+        public GroupHeaderDecorator(string groupName, string header, string tooltip) : base(groupName, tooltip)
         {
-            this.header = $"--------{header}--------";
+            var text = $"--------{header}--------";
+            headerContent = new GUIContent(text, tooltip);
         }
         public override float GetPropertyHeight(MaterialProperty prop, string label, MaterialEditor editor)
         {
@@ -22,7 +24,7 @@ namespace PowerUtilities
         public override void DrawGroupUI(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
         {
             position = EditorGUI.IndentedRect(position);
-            EditorGUI.DropShadowLabel(position, header, EditorStyles.boldLabel);
+            EditorGUI.DropShadowLabel(position, headerContent, EditorStyles.boldLabel);
         }
     }
 }

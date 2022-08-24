@@ -21,10 +21,11 @@ namespace PowerUtilities {
         public const char KEY_VALUE_SPLITTER = ' '; // space char
         bool isKeyword;
         Dictionary<string, int> keywordValueDict = new Dictionary<string, int>();
-        public GroupEnumDrawer() : this("", "","") { }
-        public GroupEnumDrawer(string enumName ): this("",enumName) { }
-        public GroupEnumDrawer(string groupName,string enumName):this(groupName,enumName,""){}
-        public GroupEnumDrawer(string groupName, string enumName,string keyword) : base(groupName)
+        //public GroupEnumDrawer() : this("", "","") { }
+        //public GroupEnumDrawer(string enumName) : this("", enumName) { }
+        public GroupEnumDrawer(string groupName, string enumName) : this(groupName, enumName, "","") { }
+        public GroupEnumDrawer(string groupName, string enumName, string keyword) : this(groupName, enumName, keyword, "") { }
+        public GroupEnumDrawer(string groupName, string enumName,string keyword,string tooltip) : base(groupName,tooltip)
         {
             isKeyword = !string.IsNullOrEmpty(keyword);
 
@@ -88,18 +89,18 @@ namespace PowerUtilities {
             var matPropValue = (int)prop.floatValue;
             var index = keywordValueDict.Values.FindIndex(val => val == matPropValue);
 
-            var keys = keywordValueDict.Keys.ToArray();
-            index = EditorGUI.Popup(position,label.text, index, keys);
+            var displayOptions = keywordValueDict.Keys.Select(item=>new GUIContent(item)).ToArray();
+            index = EditorGUI.Popup(position,label, index, displayOptions);
 
             if (EditorGUI.EndChangeCheck())
             {
-                prop.floatValue = keywordValueDict[keys[index]];
+                prop.floatValue = keywordValueDict[displayOptions[index].text];
 
                 if (isKeyword)
                 {
-                    for (int i = 0; i < keys.Length; i++)
+                    for (int i = 0; i < displayOptions.Length; i++)
                     {
-                        MaterialPropertyDrawerTools.SetKeyword(prop, keys[i], i == index);
+                        MaterialPropertyDrawerTools.SetKeyword(prop, displayOptions[i].text, i == index);
                     }
                 }
             }
