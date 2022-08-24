@@ -1,4 +1,4 @@
-﻿namespace PowerUtilities.Drawers
+﻿namespace PowerUtilities
 {
     using UnityEngine;
 

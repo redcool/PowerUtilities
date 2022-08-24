@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace PowerUtilities.Drawers
+namespace PowerUtilities
 {
 #if UNITY_EDITOR
     using UnityEditor;
