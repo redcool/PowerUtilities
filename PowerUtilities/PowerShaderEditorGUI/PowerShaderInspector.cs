@@ -184,24 +184,7 @@ namespace PowerUtilities
                 if (!propDict.ContainsKey(propName))
                     continue;
 
-                // found color
-                var contentColor = defaultContentColor;
-                string colorString;
-                if (colorTextDict.TryGetValue(propName, out colorString))
-                {
-                    ColorUtility.TryParseHtmlString(colorString, out contentColor);
-                }
-                //show color
-                GUI.contentColor = contentColor;
-                var prop = propDict[propName];
-
-                MaterialEditorEx.ShaderProperty(materialEditor, prop, ConfigTool.GetContent(propNameTextDict, propHelpDict, prop.name));
-                //materialEditor.ShaderProperty(prop, ConfigTool.GetContent(propNameTextDict, propHelpDict, prop.name));
-
-                GUI.contentColor = defaultContentColor;
-
-                if (OnDrawProperty != null)
-                    OnDrawProperty(prop, mat);
+                DrawProperty(materialEditor, mat, propName);
             }
 
             // draw additional options 
@@ -221,6 +204,28 @@ namespace PowerUtilities
 
             if (OnDrawPropertyFinish != null)
                 OnDrawPropertyFinish(propDict, mat);
+        }
+
+        private void DrawProperty(MaterialEditor materialEditor, Material mat, string propName)
+        {
+            // found color
+            var contentColor = defaultContentColor;
+            string colorString;
+            if (colorTextDict.TryGetValue(propName, out colorString))
+            {
+                ColorUtility.TryParseHtmlString(colorString, out contentColor);
+            }
+            //show color
+            GUI.contentColor = contentColor;
+            var prop = propDict[propName];
+
+            MaterialEditorEx.ShaderProperty(materialEditor, prop, ConfigTool.GetContent(propNameTextDict, propHelpDict, prop.name));
+            //materialEditor.ShaderProperty(prop, ConfigTool.GetContent(propNameTextDict, propHelpDict, prop.name));
+
+            GUI.contentColor = defaultContentColor;
+
+            if (OnDrawProperty != null)
+                OnDrawProperty(prop, mat);
         }
 
         void DrawPageDetails(MaterialEditor materialEditor, Material mat)

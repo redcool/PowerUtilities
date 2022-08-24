@@ -9,6 +9,8 @@ namespace PowerUtilities
     using System.Threading.Tasks;
     using UnityEditor;
     using UnityEngine;
+    using UnityEngine.UIElements;
+    using static Codice.CM.Common.BranchExplorerData;
 
     /// <summary>
     /// Handle MaterialEditor draw [Vector,Texture] cannot have tooltips.
@@ -50,6 +52,44 @@ namespace PowerUtilities
 
         #endregion
 
+
+        public static bool DrawMaterialAttribute(this MaterialEditor editor, ref Rect position, MaterialProperty prop, GUIContent label)
+        {
+            /** ( draw material attribute ) original version
+            MaterialPropertyHandler handler = MaterialPropertyHandler.GetHandler(((Material)base.target).shader, prop.name);
+            if (handler != null)
+            {
+                handler.OnGUI(ref position, prop, (label.text != null) ? label : new GUIContent(prop.displayName), this);
+                if (handler.propertyDrawer != null)
+                {
+                    return;
+                }
+            }
+            */
+
+            var coreModule = AppDomain.CurrentDomain.GetAssemblies().Where(item => item.FullName.Contains("UnityEditor.CoreModule")).FirstOrDefault();
+            if (coreModule == null)
+                return false;
+
+            var handlerType = coreModule.GetType("UnityEditor.MaterialPropertyHandler");
+            // get handler
+            var GetHandleFunc = handlerType.GetMethod("GetHandler", BindingFlags.Static| BindingFlags.NonPublic, null, new[] { typeof(Shader), typeof(string) }, null);
+            var handlerInst = GetHandleFunc.Invoke(null, new object[] { ((Material)editor.target).shader, prop.name });
+            if (handlerInst == null)
+                return false;
+            // call OnGUI
+            var onGUIFunc = handlerType.GetMethod("OnGUI");
+            var paramObjs = new object[] { position, prop, (label.text != null) ? label : new GUIContent(prop.displayName), editor };
+            onGUIFunc.Invoke(handlerInst, paramObjs);
+
+            //get result
+            position = (Rect)paramObjs[0];
+
+            // check propertyDrawer
+            var propertyDrawerGetter = handlerType.GetProperty("propertyDrawer");
+            return propertyDrawerGetter.GetValue(handlerInst) != null;
+        }
+
         /// <summary>
         /// this version handle property [Vector,Texture] tooltips
         /// 
@@ -61,50 +101,44 @@ namespace PowerUtilities
         /// <param name="label"></param>
         /// <param name="label"></param>
         /// <param name="applyMaterialPropertyDraw">true, MaterialPropertyDraw call will dead loop,unity crash</param>
-        public static void ShaderProperty(this MaterialEditor editor, MaterialProperty prop, GUIContent label, int indent = 0,bool applyMaterialPropertyDraw=true)
+        public static void ShaderProperty(this MaterialEditor editor, MaterialProperty prop, GUIContent label, int indent = 0)
         {
-            EditorGUI.indentLevel+=indent;
-            switch (prop.type)
-            {
-                case MaterialProperty.PropType.Vector:
-                    VectorProperty(editor, prop, label);
-                    break;
-                case MaterialProperty.PropType.Texture:
-                    TextureProperty(editor, prop, label);
-                    break;
-                default:
-                    {
-                        if (applyMaterialPropertyDraw)
-                            editor.ShaderProperty(prop, label);
-                        else
-                            DefaultShaderPropertyInternal(editor, prop, label);
-                    }
-                    break;
-            }
-            EditorGUI.indentLevel-=indent;
+            var position = GetPropertyRect(editor, prop, label, false);
+
+            ShaderProperty(editor, position, prop, label, indent, true);
         }
 
         public static void ShaderProperty(this MaterialEditor editor,Rect position, MaterialProperty prop, GUIContent label, int indent = 0, bool applyMaterialPropertyDraw = true)
         {
             EditorGUI.indentLevel+=indent;
-            switch (prop.type)
-            {
-                case MaterialProperty.PropType.Vector:
-                    VectorProperty(editor, position, prop, label);
-                    break;
-                case MaterialProperty.PropType.Texture:
-                    TextureProperty(editor, position, prop, label);
-                    break;
-                default:
-                    {
-                        if (applyMaterialPropertyDraw)
-                            editor.ShaderProperty(position,prop, label);
-                        else
-                            DefaultShaderPropertyInternal(editor, position, prop, label);
-                    }
-                    break;
-            }
+            DrawShaderProperty();
             EditorGUI.indentLevel-=indent;
+
+            void DrawShaderProperty()
+            {
+
+                if (applyMaterialPropertyDraw)
+                {
+                    var needReturn = DrawMaterialAttribute(editor, ref position, prop, label);
+                    if (needReturn)
+                        return;
+                }
+
+                switch (prop.type)
+                {
+                    case MaterialProperty.PropType.Vector:
+                        VectorProperty(editor, position, prop, label);
+                        break;
+
+                    case MaterialProperty.PropType.Texture:
+                        TextureProperty(editor, position, prop, label);
+                        break;
+
+                    default:
+                        DefaultShaderPropertyInternal(editor, position, prop, label);
+                        break;
+                }
+            }
         }
 
         public static Vector4 VectorProperty(this MaterialEditor editor, MaterialProperty prop, GUIContent label)

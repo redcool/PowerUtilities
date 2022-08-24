@@ -33,10 +33,11 @@ Material:
     - _GroupEnum: 0
     - _GroupEnumBlend: 0
     - _GroupKeywordEnum: 0
-    - _GroupSlider: 0.2
+    - _GroupSlider: 0.27560002
     - _ToggleNoKeyword: 1
     - _ToggleWithKeyword: 1
     m_Colors:
     - _Vector: {r: 1, g: 1, b: 1, a: 1}
     - _Vector2: {r: 1, g: 0.1, b: 0, a: 1}
+    - _Vector3: {r: 0.221, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []
