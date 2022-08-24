@@ -44,8 +44,9 @@ namespace PowerUtilities
         /// <param name="editor"></param>
         /// <param name="prop"></param>
         /// <param name="label"></param>
-        public static void ShaderProperty(this MaterialEditor editor, MaterialProperty prop, GUIContent label)
+        public static void ShaderProperty(this MaterialEditor editor, MaterialProperty prop, GUIContent label, int indent = 0)
         {
+            EditorGUI.indentLevel+=indent;
             switch (prop.type)
             {
                 case MaterialProperty.PropType.Vector:
@@ -58,6 +59,7 @@ namespace PowerUtilities
                     editor.ShaderProperty(prop, label);
                     break;
             }
+            EditorGUI.indentLevel-=indent;
         }
 
         public static Vector4 VectorProperty(this MaterialEditor editor, MaterialProperty prop, GUIContent label)

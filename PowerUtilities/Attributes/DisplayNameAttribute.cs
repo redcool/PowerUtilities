@@ -19,7 +19,9 @@ namespace PowerUtilities
             var attr = attribute as DisplayNameAttribute;
             var ranges = fieldInfo.GetCustomAttributes(typeof(RangeAttribute), true);
 
-            label.text = attr.Value;
+            label.text = attr.name;
+            label.tooltip = attr.tooltip;
+
             if (ranges.Length > 0)
             {
                 var range = ranges[0] as RangeAttribute;
@@ -32,18 +34,24 @@ namespace PowerUtilities
         }
     }
 #endif
+
+    /// <summary>
+    /// Replace property name in editor gui
+    /// </summary>
     public class DisplayNameAttribute : PropertyAttribute
     {
-        public string Value;
+        public string name;
+        public string tooltip;
 
-        public DisplayNameAttribute(string value)
+        public DisplayNameAttribute(string name, string tooltip=null)
         {
-            this.Value = value;
+            this.name = name;
+            this.tooltip=tooltip;
         }
 
         public override string ToString()
         {
-            return Value;
+            return name;
         }
     }
 

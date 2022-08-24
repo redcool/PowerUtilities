@@ -1,13 +1,8 @@
-﻿namespace PowerUtilities.Drawers
+﻿namespace PowerUtilities
 {
     using UnityEngine;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 #if UNITY_EDITOR
-using UnityEditor;
+    using UnityEditor;
 
     [CustomPropertyDrawer(typeof(EditorGroupAttribute))]
     public class EditorGroupDrawer : PropertyDrawer
@@ -53,11 +48,28 @@ using UnityEditor;
 
             EditorGUI.indentLevel++;
 
-            EditorGUILayout.PropertyField(property,new GUIContent(property.displayName));
+            EditorGUILayout.PropertyField(property, new GUIContent(property.displayName));
             EditorGUI.indentLevel--;
         }
     }
 #endif
 
+    /// <summary>
+    /// Show toogle group in inspector gui
+    /// 
+    /// [EditorGroup("Fog",true)] public bool _IsGlobalFogOn;
+    /// [EditorGroup("Fog")][Range(0, 1)] public float _GlobalFogIntensity = 1;
+    /// </summary>
+    public class EditorGroupAttribute : PropertyAttribute
+    {
+        public string groupName;
+        public bool isHeader;
+
+        public EditorGroupAttribute(string groupName, bool isHeader = false)
+        {
+            this.isHeader = isHeader;
+            this.groupName=groupName;
+        }
+    }
 
 }
