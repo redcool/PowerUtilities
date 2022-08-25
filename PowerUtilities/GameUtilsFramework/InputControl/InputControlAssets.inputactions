@@ -372,7 +372,7 @@
                     "path": "<Mouse>/middleButton",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "KeyboardMouse",
                     "action": "TryLock",
                     "isComposite": false,
                     "isPartOfComposite": false
