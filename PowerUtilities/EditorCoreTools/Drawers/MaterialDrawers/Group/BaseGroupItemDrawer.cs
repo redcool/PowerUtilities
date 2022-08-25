@@ -32,15 +32,11 @@ namespace PowerUtilities
         {
             if (MaterialGroupTools.IsGroupOn(groupName))
             {
-                var baseHeight = MaterialGroupTools.BASE_LINE_HEIGHT;
-                if (prop.type == MaterialProperty.PropType.Texture)
-                {
-                    baseHeight *= 4;
-                }
+                var baseHeight = MaterialEditor.GetDefaultPropertyHeight(prop);
                 return baseHeight;
             }
-
-            return -1;
+            
+            return -2;
         }
 
         public override void OnGUI(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)

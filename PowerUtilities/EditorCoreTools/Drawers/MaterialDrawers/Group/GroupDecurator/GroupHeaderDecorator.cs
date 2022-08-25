@@ -6,7 +6,10 @@ using UnityEngine;
 
 namespace PowerUtilities
 {
-
+    /// <summary>
+    /// Show a header
+    /// suffix Decorator can overlap multiple, XXXDraw only last one
+    /// </summary>
     public class GroupHeaderDecorator : BaseGroupItemDrawer
     {
         GUIContent headerContent;
@@ -14,17 +17,21 @@ namespace PowerUtilities
         public GroupHeaderDecorator(string groupName, string header) : this(groupName, header, "") { }
         public GroupHeaderDecorator(string groupName, string header, string tooltip) : base(groupName, tooltip)
         {
-            var text = $"--------{header}--------";
-            headerContent = new GUIContent(text, tooltip);
+            var text = $"-------- <size=14>{header}</size> --------";
+            headerContent = new GUIContent(text,tooltip);
         }
         public override float GetPropertyHeight(MaterialProperty prop, string label, MaterialEditor editor)
         {
-            return MaterialGroupTools.IsGroupOn(GroupName) ? 18 : -1;
+            return MaterialGroupTools.IsGroupOn(GroupName) ? 18 : 0;
         }
         public override void DrawGroupUI(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
         {
             position = EditorGUI.IndentedRect(position);
-            EditorGUI.DropShadowLabel(position, headerContent, EditorStyles.boldLabel);
+
+            var style = EditorStyles.boldLabel;
+            style.richText = true;
+
+            EditorGUI.DropShadowLabel(position, headerContent, style);
         }
     }
 }

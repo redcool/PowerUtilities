@@ -2,10 +2,23 @@ Shader "Unlit/GroupDrawDemo"
 {
     Properties
     {
-        //show a new Group
+        [Group(group0)]
+        [GroupHeader(group0,header0,header0 helps)]
+        [GroupHeader(group0,header0,header0 helps)]
+        [GroupHeader(group0,header0,header0 helps)]
+        [GroupItem(group0,_FloatVlaue0 helps)]
+        _FloatVlaue0("_FloatVlaue0",range(0,1)) = 0.1
+        [GroupItem(group0,_FloatVlaue0 helps)]_FloatVlaue0_1("_FloatVlaue0_1",range(0,1)) = 0.1
+        [GroupItem(group0,_FloatVlaue0 helps)]_FloatVlaue0_2("_FloatVlaue0_1",range(0,1)) = 0.1
+        [GroupItem(group0,_FloatVlaue0 helps)]_FloatVlaue0_3("_FloatVlaue0_1",range(0,1)) = 0.1
+        [GroupItem(group0,_FloatVlaue0 helps)]_FloatVlaue0_4("_FloatVlaue0_1",range(0,1)) = 0.1
+        [GroupItem(group0,_FloatVlaue0 helps)]_FloatVlaue0_5("_FloatVlaue0_1",range(0,1)) = 0.1
+        [GroupItem(group0,_FloatVlaue0 helps)]_FloatVlaue0_6("_FloatVlaue0_1",range(0,1)) = 0.1
+[GroupItem(group0,_MainTex0 helps)]_MainTex0 ("Texture0", 2D) = "white" {}
+        // //show a new Group
         [Group(group1)]
         [GroupItem(group1,_MainTex1 helps)]_MainTex1 ("Texture1", 2D) = "white" {}
-        // show group item
+        // // show group item
         [GroupItem(group1,_FloatVlaue1 helps)]_FloatVlaue("_FloatVlaue1",range(0,1)) = 0.1
         // remap slider
         [GroupSlider(group1,_GroupSlider helps)]_GroupSlider("_GroupSlider",range(0.1,0.5)) = 0.2
@@ -14,9 +27,9 @@ Shader "Unlit/GroupDrawDemo"
         [GroupToggle(group1)]_ToggleNoKeyword("_ToggleNoKeyword",int) = 1
         [GroupToggle(group1,_Ker,_ToggleWithKeyword helps)]_ToggleWithKeyword("_ToggleWithKeyword",int) = 1
         //header
-        [GroupHeader(,header1,header1 helps)]
+        [GroupHeader(group1,header1,header1 helps)]
         // show Enum with keyword
-        [GroupEnum( ,_kEYA _KEYB,true,_GroupKeywordEnum helps)]_GroupKeywordEnum("_GroupKeywordEnum",int) = 0
+        [GroupEnum(group1 ,_kEYA _KEYB,true,_GroupKeywordEnum helps)]_GroupKeywordEnum("_GroupKeywordEnum",int) = 0
         // // show Enum, space is splitter 
         [GroupEnum(group1,A 0 B 1)]_GroupEnum("_GroupEnum",int) = 0
         [GroupEnum(group1,UnityEngine.Rendering.BlendMode)]_GroupEnumBlend("_GroupEnumBlend",int) = 0

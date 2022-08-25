@@ -33,7 +33,7 @@ namespace PowerUtilities
 
                 if (!string.IsNullOrEmpty(keyword))
                 {
-                    MaterialPropertyDrawerTools.SetKeyword(prop, keyword, isOn);
+                    MaterialPropertyTools.SetKeyword(prop, keyword, isOn);
                 }
             }
         }

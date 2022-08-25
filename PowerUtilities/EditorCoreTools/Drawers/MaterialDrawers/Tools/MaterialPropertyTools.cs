@@ -9,10 +9,8 @@ using UnityEngine;
 
 namespace PowerUtilities
 {
-    /// <summary>
-    /// editor MaterialPropertyDrawer's Tools
-    /// </summary>
-    public static class MaterialPropertyDrawerTools
+
+    public static class MaterialPropertyTools
     {
         
         public static void SetKeyword(MaterialProperty prop, string keyword, bool isKeywordOn)

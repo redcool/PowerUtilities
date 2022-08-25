@@ -100,7 +100,7 @@ namespace PowerUtilities {
                 {
                     for (int i = 0; i < displayOptions.Length; i++)
                     {
-                        MaterialPropertyDrawerTools.SetKeyword(prop, displayOptions[i].text, i == index);
+                        MaterialPropertyTools.SetKeyword(prop, displayOptions[i].text, i == index);
                     }
                 }
             }
