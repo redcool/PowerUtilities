@@ -4,14 +4,14 @@
 #if UNITY_EDITOR
     using UnityEditor;
 
-    [CustomPropertyDrawer(typeof(EditorGroupAttribute))]
-    public class EditorGroupDrawer : PropertyDrawer
+    [CustomPropertyDrawer(typeof(EditorGroupLayoutAttribute))]
+    public class EditorGroupLayoutDrawer : PropertyDrawer
     {
         (string groupName, bool isOn) groupInfo;
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
-            var groupAttr = attribute as EditorGroupAttribute;
+            var groupAttr = attribute as EditorGroupLayoutAttribute;
             if (groupAttr.isHeader)
             {
                 return 4;
@@ -26,7 +26,7 @@
         }
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            var groupAttr = attribute as EditorGroupAttribute;
+            var groupAttr = attribute as EditorGroupLayoutAttribute;
 
             groupInfo.groupName = groupAttr.groupName;
             groupInfo.isOn = MaterialGroupTools.IsGroupOn(groupAttr.groupName);
@@ -60,12 +60,12 @@
     /// [EditorGroup("Fog",true)] public bool _IsGlobalFogOn;
     /// [EditorGroup("Fog")][Range(0, 1)] public float _GlobalFogIntensity = 1;
     /// </summary>
-    public class EditorGroupAttribute : PropertyAttribute
+    public class EditorGroupLayoutAttribute : PropertyAttribute
     {
         public string groupName;
         public bool isHeader;
 
-        public EditorGroupAttribute(string groupName, bool isHeader = false)
+        public EditorGroupLayoutAttribute(string groupName, bool isHeader = false)
         {
             this.isHeader = isHeader;
             this.groupName=groupName;
