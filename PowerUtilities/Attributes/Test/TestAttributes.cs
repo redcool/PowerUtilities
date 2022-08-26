@@ -8,18 +8,21 @@ namespace PowerUtilities
 {
     public class TestAttributes : MonoBehaviour
     {
-        [DisplayName("一个滑块","slider helps")]
-        [Range(0,1)]
-        public float propA;
-
-
         [Flags]
         public enum PropEnum { a,b,c};
+
+
+        [EditorGroup("Group1", true)]
+        public bool Group1On;
+
+        [EditorGroup("Group1")]
         [EnumFlags]
         public PropEnum propEnum;
 
-        [EditorGroupLayout("Fog", true)]
-        public bool _IsGlobalFogOn;
+        [EditorGroup("Group1")]
+        [DisplayName("一个滑块", "slider helps")]
+        [Range(0, 1)]
+        public float propA;
     }
 }
 #endif
