@@ -2,15 +2,10 @@
 namespace PowerUtilities
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
-    using System.Text;
-    using System.Threading.Tasks;
     using UnityEditor;
     using UnityEngine;
-    using UnityEngine.UIElements;
-    using static Codice.CM.Common.BranchExplorerData;
 
     /// <summary>
     /// Handle MaterialEditor draw [Vector,Texture] cannot have tooltips.
