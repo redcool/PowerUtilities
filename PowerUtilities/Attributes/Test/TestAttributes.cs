@@ -18,11 +18,8 @@ namespace PowerUtilities
         [EnumFlags]
         public PropEnum propEnum;
 
-        //[EditorGroup("group1",true)]
-        //public bool group1;
-
-        //[EditorGroup("group1")]
-        //public int num2;
+        [EditorGroupLayout("Fog", true)]
+        public bool _IsGlobalFogOn;
     }
 }
 #endif
