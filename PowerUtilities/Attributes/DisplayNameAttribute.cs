@@ -38,6 +38,7 @@ namespace PowerUtilities
     /// <summary>
     /// Replace property name in editor gui
     /// </summary>
+    [AttributeUsage(AttributeTargets.Field)]
     public class DisplayNameAttribute : PropertyAttribute
     {
         public string name;

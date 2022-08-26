@@ -6,6 +6,7 @@
 
 #if UNITY_EDITOR
     using UnityEditor;
+    using System;
 
     [CustomPropertyDrawer(typeof(EnumFlagsAttribute))]
     public class EnumFlagsAttributeDrawer : PropertyDrawer
@@ -17,7 +18,7 @@
     }
 
 #endif
-
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Enum)]
     public class EnumFlagsAttribute : PropertyAttribute
     {
     }
