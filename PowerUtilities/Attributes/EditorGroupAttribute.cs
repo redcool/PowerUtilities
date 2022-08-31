@@ -1,9 +1,9 @@
 ﻿namespace PowerUtilities
 {
+    using System;
     using UnityEngine;
 #if UNITY_EDITOR
     using UnityEditor;
-    using System;
 
     [CustomPropertyDrawer(typeof(EditorGroupAttribute))]
     public class EditorGroupDrawer : PropertyDrawer
