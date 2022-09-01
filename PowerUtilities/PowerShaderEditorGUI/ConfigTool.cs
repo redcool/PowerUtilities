@@ -24,7 +24,7 @@ namespace PowerUtilities
             I18N_PROFILE_PATH = "Profiles/i18n.txt",
             LAYOUT_PROFILE_PATH = "Profiles/Layout.txt",
             COLOR_PROFILE_PATH = "Profiles/Colors.txt",
-            PROP_HELP_PROFILE_PATH = "Profiles/PropHelps.txt"
+            PROP_HELP_PROFILE_PATH = "Profiles/Helps.txt"
             ;
 
         /// <summary>
