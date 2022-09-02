@@ -44,7 +44,9 @@ namespace PowerUtilities
             if (!MaterialGroupTools.IsGroupOn(groupName))
                 return;
 
-            label.tooltip = tooltip;
+            if(!string.IsNullOrEmpty(tooltip))
+                label.tooltip = tooltip;
+
             var lastLabelWidth = EditorGUIUtility.labelWidth;
 
             EditorGUI.indentLevel += MaterialGroupTools.GroupIndentLevel(GroupName);
