@@ -27,5 +27,14 @@ namespace PowerUtilities
         public static bool IsDefaultGroup(string groupName) => string.IsNullOrEmpty(groupName) || groupName == DEFAULT_GROUP_NAME || !GroupDict.ContainsKey(groupName);
 
         public static int GroupIndentLevel(string groupName) => IsDefaultGroup(groupName) ? 0 : 1;
+
+
+        public static void SetState(string groupName, bool isOn)
+        {
+            if (!GroupDict.ContainsKey(groupName))
+                GroupDict.Add(groupName, isOn);
+            else
+                GroupDict[groupName] = isOn;
+        }
     }
 }
