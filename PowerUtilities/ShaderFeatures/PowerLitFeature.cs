@@ -92,7 +92,7 @@ namespace PowerUtilities
         }
 
 
-        public static void SendParams(CommandBuffer cmd, PowerURPLitFeatures.Settings settings,ref RenderingData renderingData)
+        public static void SendParams(CommandBuffer cmd, PowerLitFeature.Settings settings,ref RenderingData renderingData)
         {
             var asset = UniversalRenderPipeline.asset;
             var mainLightCastShadows = renderingData.shadowData.supportsMainLightShadows;
@@ -114,7 +114,7 @@ namespace PowerUtilities
     }
 
 
-    public class PowerURPLitFeatures : ScriptableRendererFeature
+    public class PowerLitFeature : ScriptableRendererFeature
     {
 
         [Serializable]
@@ -139,7 +139,7 @@ namespace PowerUtilities
 
         }
 
-        class PowerURPLitUpdateParamsPass : ScriptableRenderPass
+        class PowerLitUpdateParamsPass : ScriptableRenderPass
         {
             public Settings settings;
 
@@ -158,13 +158,13 @@ namespace PowerUtilities
             }
         }
         public Settings settings = new Settings();
-        PowerURPLitUpdateParamsPass pass;
+        PowerLitUpdateParamsPass pass;
 
 
         /// <inheritdoc/>
         public override void Create()
         {
-            pass = new PowerURPLitUpdateParamsPass();
+            pass = new PowerLitUpdateParamsPass();
             pass.settings = settings;
         }
 
