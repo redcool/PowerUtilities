@@ -13,15 +13,12 @@ namespace PowerUtilities
     /// </summary>
     public abstract class BaseGroupItemDrawer : MaterialPropertyDrawer
     {
-        string groupName;
+        public static float MIN_LINE_HEIGHT = -2;
+        public static float LINE_HEIGHT = EditorGUIUtility.singleLineHeight;
+
         string tooltip;
 
-        public string GroupName
-        {
-            get { return groupName; }
-            set { groupName = value; }
-        }
-
+        public string groupName;
         public BaseGroupItemDrawer(string groupName,string tooltip)
         {
             this.groupName = groupName;
@@ -36,7 +33,7 @@ namespace PowerUtilities
                 return baseHeight;
             }
             
-            return -2;
+            return MIN_LINE_HEIGHT;
         }
 
         public override void OnGUI(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
@@ -48,9 +45,9 @@ namespace PowerUtilities
                 label.tooltip = tooltip;
 
             var lastLabelWidth = EditorGUIUtility.labelWidth;
-
-            EditorGUI.indentLevel += MaterialGroupTools.GroupIndentLevel(GroupName);
-            DrawGroupUI(position,prop,label,editor);
+            EditorGUI.indentLevel += MaterialGroupTools.GroupIndentLevel(groupName);
+            EditorGUI.DrawRect(position, Color.green*0.07f);
+            DrawGroupUI(position, prop, label, editor);
             EditorGUI.indentLevel -= MaterialGroupTools.GroupIndentLevel(groupName);
             EditorGUIUtility.labelWidth = lastLabelWidth;
         }

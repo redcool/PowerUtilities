@@ -17,14 +17,7 @@ namespace PowerUtilities
 
         public override void DrawGroupUI(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
         {
-            //var shader = ((Material)editor.target).shader;
-            //var propId = shader.FindPropertyIndex(prop.name);
-            //var attrs = shader.GetPropertyAttributes(propId);
 
-            //foreach (var item in attrs)
-            //{
-            //    Debug.Log(item);
-            //}
             MaterialEditorEx.ShaderProperty(editor, position, prop, label, 0, false);
         }
 

@@ -17,8 +17,6 @@ namespace PowerUtilities
         const char RANGE_SPLITTER = '_';
         readonly string[] strings_XYZ = new string[] { "X","Y","Z"};
 
-        float LINE_HEIGHT => MaterialGroupTools.BASE_LINE_HEIGHT;
-
         string[] headers;
         Vector2[] ranges;
 
@@ -60,9 +58,10 @@ namespace PowerUtilities
 
         public override float GetPropertyHeight(MaterialProperty prop, string label, MaterialEditor editor)
         {
-            if (MaterialGroupTools.IsGroupOn(GroupName))
+            if (MaterialGroupTools.IsGroupOn(groupName))
                 return (headers.Length + 1) * LINE_HEIGHT;
-            return -1;
+
+            return MIN_LINE_HEIGHT;
         }
 
         public override void DrawGroupUI(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)

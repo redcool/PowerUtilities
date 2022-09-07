@@ -22,7 +22,7 @@ namespace PowerUtilities
         }
         public override float GetPropertyHeight(MaterialProperty prop, string label, MaterialEditor editor)
         {
-            return MaterialGroupTools.IsGroupOn(GroupName) ? 18 : 0;
+            return MaterialGroupTools.IsGroupOn(groupName) ? LINE_HEIGHT : 0;
         }
         public override void DrawGroupUI(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
         {
