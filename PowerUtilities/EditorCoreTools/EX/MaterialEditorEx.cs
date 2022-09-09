@@ -44,6 +44,9 @@ namespace PowerUtilities
         public static void DefaultShaderPropertyInternal(this MaterialEditor editor,Rect position, MaterialProperty prop, GUIContent label)
             => lazyDefaultShaderPropertyInternal3.Value.Invoke(editor, new object[] { position,prop, label });
 
+        static Lazy<Assembly> lazyCoreModule = new Lazy<Assembly>(() =>
+            AppDomain.CurrentDomain.GetAssemblies().Where(item => item.FullName.Contains("UnityEditor.CoreModule")).FirstOrDefault()
+        );
 
         #endregion
 
@@ -61,8 +64,8 @@ namespace PowerUtilities
                 }
             }
             */
-
-            var coreModule = AppDomain.CurrentDomain.GetAssemblies().Where(item => item.FullName.Contains("UnityEditor.CoreModule")).FirstOrDefault();
+            
+            var coreModule = lazyCoreModule.Value;
             if (coreModule == null)
                 return false;
 
