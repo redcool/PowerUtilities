@@ -110,6 +110,7 @@ namespace PowerUtilities.Features
                 filterSettings.layerMask = -1;
             }
 #endif
+
             //cmd.SetRenderTarget(gammaTexId);
             context.DrawRenderers(renderingData.cullResults, ref drawSettings, ref filterSettings, ref renderStateBlock);
 

@@ -16,6 +16,7 @@ namespace PowerUtilities.Features
             public LayerMask layerMask;
 
             public StencilStateData stencilStateData;
+
         }
         public Settings settings;
 
