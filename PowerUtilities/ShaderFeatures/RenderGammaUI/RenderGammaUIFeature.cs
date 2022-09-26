@@ -28,11 +28,25 @@ namespace PowerUtilities.Features
 
         }
 
+        public static bool IsUICamera(ref CameraData cameraData)
+        {
+            var isUICamera = QualitySettings.activeColorSpace == ColorSpace.Linear &&
+                cameraData.renderType == CameraRenderType.Overlay &&
+                (cameraData.camera.cullingMask & LayerMask.GetMask("UI")) >= 1
+                ;
+            var isSceneCamera = cameraData.isSceneViewCamera;
+
+            return isUICamera || isSceneCamera;
+        }
+
         // Here you can inject one or multiple render passes in the renderer.
         // This method is called when setting up the renderer once per-camera.
         public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
         {
             ref var cameraData = ref renderingData.cameraData;
+            if (!IsUICamera(ref cameraData))
+                return;
+
             if ((cameraData.camera.cullingMask & settings.layerMask) == 0)
                 return;
 

@@ -41,11 +41,6 @@ namespace PowerUtilities.Features
                 renderStateBlock.mask = RenderStateMask.Stencil;
             }
         }
-        public void Setup(int gammaTexId)
-        {
-            this.gammaTexId = gammaTexId;
-            isGammaTexCreated = true;
-        }
 
         void SetColorSpace(CommandBuffer cmd, ColorSpaceTransform trans)
         {
@@ -68,10 +63,13 @@ namespace PowerUtilities.Features
             }
         }
 
+
+
         public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
         {
             ref var cameraData = ref renderingData.cameraData;
-            var camera = cameraData.camera;
+
+            RenderTargetIdentifier sourceId = gammaTexId;
 
             context.ExecuteCommandBuffer(cmd);
             cmd.Clear();
@@ -94,6 +92,20 @@ namespace PowerUtilities.Features
                 cmd.Blit(colorHandleId, gammaTexId, blitMat);
                 context.ExecuteCommandBuffer(cmd);
                 cmd.Clear();
+#if UNITY_ANDROID
+                //blit one more time
+                if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLES3)
+                {
+                    sourceId = colorHandleId;
+                    SetColorSpace(cmd, ColorSpaceTransform.None);
+                    cmd.SetGlobalTexture(_SOURCE_TEX_ID, gammaTexId);
+                    cmd.SetRenderTarget(colorHandleId);
+                    cmd.Blit(gammaTexId, colorHandleId, blitMat);
+                    context.ExecuteCommandBuffer(cmd);
+                    cmd.Clear();
+                }
+#endif
+
             }
 
             //--------------------- 2 draw ui
@@ -111,7 +123,6 @@ namespace PowerUtilities.Features
             }
 #endif
 
-            //cmd.SetRenderTarget(gammaTexId);
             context.DrawRenderers(renderingData.cullResults, ref drawSettings, ref filterSettings, ref renderStateBlock);
 
             context.ExecuteCommandBuffer(cmd);
@@ -122,8 +133,8 @@ namespace PowerUtilities.Features
             SetColorSpace(cmd, ColorSpaceTransform.SRGBToLinear);
 
             //RenderingUtils.Blit(cmd, gammaTexId, BuiltinRenderTextureType.CameraTarget,blitMat);
-            cmd.SetGlobalTexture(_SOURCE_TEX_ID, gammaTexId);
-            cmd.Blit(gammaTexId, BuiltinRenderTextureType.CameraTarget, blitMat);
+            cmd.SetGlobalTexture(_SOURCE_TEX_ID, sourceId);
+            cmd.Blit(BuiltinRenderTextureType.CurrentActive, BuiltinRenderTextureType.CameraTarget, blitMat);
             // need.
             context.ExecuteCommandBuffer(cmd);
             cmd.Clear();
