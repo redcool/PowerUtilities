@@ -5,7 +5,6 @@ using UnityEngine;
 using UnityEditor;
 using System.Linq;
 using System;
-using System.Reflection;
 
 namespace PowerUtilities {
     /// <summary>
@@ -55,14 +54,14 @@ namespace PowerUtilities {
             //}
 
             var enumType = TypeCache.GetTypesDerivedFrom(typeof(Enum)).Where(t => t.FullName == enumName).FirstOrDefault();
-            if(enumType != null)
-            {
-                names = Enum.GetNames(enumType);
-            }
+            if (enumType == null)
+                return;
+
+            names = Enum.GetNames(enumType);
 
             foreach (var name in names)
             {
-                keywordValueDict.Add(name, 0);
+                keywordValueDict.Add(name, (int)Enum.Parse(enumType,name));
             }
         }
 
@@ -78,7 +77,7 @@ namespace PowerUtilities {
                 if (!isKeyword)
                     keywordValueDict[items[i * 2]] = Convert.ToInt32(items[i * 2 + 1]); // put [k,v]
                 else
-                    keywordValueDict[items[i]] = 0; // put k
+                    keywordValueDict[items[i]] = i; // put k
             }
         }
 
