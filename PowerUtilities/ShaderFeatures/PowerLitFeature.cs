@@ -71,23 +71,23 @@ namespace PowerUtilities
         //const string ADDITIONAL_LIGHT_MODE_ID = "_AdditionalLightMode";
 
         public static readonly int _MainLightMode,
-            _AdditionalLightMode,
-            _MainLightShadowCascadeOn,
-            _LightmapOn,
-            _Shadows_ShadowMaskOn,
-            _MainLightShadowOn,
-            _DistanceShadowMaskOn,
+            //_AdditionalLightMode,
+            //_MainLightShadowCascadeOn,
+            //_LightmapOn,
+            //_Shadows_ShadowMaskOn,
+            //_MainLightShadowOn,
+            //_DistanceShadowMaskOn,
             _LightmapParams
             ;
         static PowerLitShaderVariables()
         {
-            _MainLightMode = Shader.PropertyToID("_MainLightMode");
-            _AdditionalLightMode = Shader.PropertyToID("_AdditionalLightMode");
-            _MainLightShadowCascadeOn = Shader.PropertyToID("_MainLightShadowCascadeOn");
-            _LightmapOn = Shader.PropertyToID("_LightmapOn");
-            _Shadows_ShadowMaskOn = Shader.PropertyToID("_Shadows_ShadowMaskOn");
-            _MainLightShadowOn = Shader.PropertyToID("_MainLightShadowOn");
-            _DistanceShadowMaskOn = Shader.PropertyToID(nameof(_DistanceShadowMaskOn));
+            //_MainLightMode = Shader.PropertyToID("_MainLightMode");
+            //_AdditionalLightMode = Shader.PropertyToID("_AdditionalLightMode");
+            //_MainLightShadowCascadeOn = Shader.PropertyToID("_MainLightShadowCascadeOn");
+            //_LightmapOn = Shader.PropertyToID("_LightmapOn");
+            //_Shadows_ShadowMaskOn = Shader.PropertyToID("_Shadows_ShadowMaskOn");
+            //_MainLightShadowOn = Shader.PropertyToID("_MainLightShadowOn");
+            //_DistanceShadowMaskOn = Shader.PropertyToID(nameof(_DistanceShadowMaskOn));
             _LightmapParams = Shader.PropertyToID(nameof(_LightmapParams));
         }
 
@@ -98,14 +98,14 @@ namespace PowerUtilities
             var mainLightCastShadows = renderingData.shadowData.supportsMainLightShadows;
             
 
-            cmd.SetGlobalInt(_MainLightShadowCascadeOn, asset.shadowCascadeCount > 1 ? 1 : 0);
-            cmd.SetGlobalInt(_LightmapOn, settings._LightmapOn ? 1 : 0);
-            cmd.SetGlobalInt(_Shadows_ShadowMaskOn, settings._Shadows_ShadowMaskOn ? 1 : 0);
-            cmd.SetGlobalInt(_MainLightShadowOn, mainLightCastShadows ? 1 : 0);
-            cmd.SetGlobalInt(_MainLightMode, (int)asset.mainLightRenderingMode);
-            cmd.SetGlobalInt(_AdditionalLightMode, (int)asset.additionalLightsRenderingMode);
+            //cmd.SetGlobalInt(_MainLightShadowCascadeOn, asset.shadowCascadeCount > 1 ? 1 : 0);
+            //cmd.SetGlobalInt(_LightmapOn, settings._LightmapOn ? 1 : 0);
+            //cmd.SetGlobalInt(_Shadows_ShadowMaskOn, settings._Shadows_ShadowMaskOn ? 1 : 0);
+            //cmd.SetGlobalInt(_MainLightShadowOn, mainLightCastShadows ? 1 : 0);
+            //cmd.SetGlobalInt(_MainLightMode, (int)asset.mainLightRenderingMode);
+            //cmd.SetGlobalInt(_AdditionalLightMode, (int)asset.additionalLightsRenderingMode);
 
-            cmd.SetGlobalFloat(_DistanceShadowMaskOn, QualitySettings.shadowmaskMode == ShadowmaskMode.DistanceShadowmask ? 1 : 0);
+            //cmd.SetGlobalFloat(_DistanceShadowMaskOn, QualitySettings.shadowmaskMode == ShadowmaskMode.DistanceShadowmask ? 1 : 0);
             cmd.SetGlobalVector(_LightmapParams, new Vector4(settings._LightmapSH,
                 settings._LightmapSaturate,
                 settings._LightmapIntensity,
@@ -118,7 +118,7 @@ namespace PowerUtilities
     {
 
         [Serializable]
-        public struct Settings
+        public class Settings
         {
             //public bool isActive;
             //[Header("Main Light Shadow")]
@@ -126,13 +126,13 @@ namespace PowerUtilities
             //[NonSerialized] public bool _MainLightShadowCascadeOn;
             //[NonSerialized] public bool _AdditionalVertexLightOn;
 
-            [Tooltip("enable shadowMask ?")] public bool _Shadows_ShadowMaskOn;
+            //[Tooltip("enable shadowMask ?")] public bool _Shadows_ShadowMaskOn;
 
             [Header("GI")]
-            [Tooltip("enabled lightmap ?")] public bool _LightmapOn;
-            [Tooltip("blend Lightmap SH")][Range(0,1)] public float _LightmapSH;
-            [Tooltip("strength lightmap saturate")][Range(0,1)] public float _LightmapSaturate;
-            [Tooltip("strength lightmap intensity")] [Range(1,4)]public float _LightmapIntensity;
+            //[Tooltip("enabled lightmap ?")] public bool _LightmapOn;
+            [Tooltip("blend Lightmap SH")][Range(0,1)] public float _LightmapSH=0.5f;
+            [Tooltip("strength lightmap saturate")][Range(0,1)] public float _LightmapSaturate=1;
+            [Tooltip("strength lightmap intensity")] [Range(1,4)]public float _LightmapIntensity=1;
             
             [Header("Drp Adpater")]
             public bool updateDRPShaderVarables;
