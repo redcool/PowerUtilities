@@ -11,8 +11,8 @@ namespace PowerUtilities.Features
     }
     public class RenderUIPass : ScriptableRenderPass
     {
-        int GAMMA_TEX_ID = Shader.PropertyToID("_FULLSIZE_GAMMA_TEX");
-        int _SOURCE_TEX_ID = Shader.PropertyToID("_SourceTex");
+        static int GAMMA_TEX_ID = Shader.PropertyToID("_GammaTex");
+        static int _SOURCE_TEX_ID = Shader.PropertyToID("_SourceTex");
 
         const string _LINEAR_TO_SRGB_CONVERSION = nameof(_LINEAR_TO_SRGB_CONVERSION);
         const string _SRGB_TO_LINEAR_CONVERSION = nameof(_SRGB_TO_LINEAR_CONVERSION);
@@ -29,6 +29,7 @@ namespace PowerUtilities.Features
         public RenderUIPass(RenderTargetIdentifier handleId, Material blitMat, LayerMask layerMask, StencilState stencilState,int stencilRefValue)
         {
             colorHandleId = handleId;
+
             this.blitMat = blitMat;
             this.layerMask=layerMask;
             gammaTexId = GAMMA_TEX_ID;
@@ -63,20 +64,35 @@ namespace PowerUtilities.Features
             }
         }
 
+        void Blit(CommandBuffer cmd,
+                    RenderTargetIdentifier source,
+                    RenderTargetIdentifier destination,
+                    Material material,
+                    int passIndex = 0,
+                    RenderBufferLoadAction colorLoadAction = RenderBufferLoadAction.Load,
+                    RenderBufferStoreAction colorStoreAction = RenderBufferStoreAction.Store,
+                    RenderBufferLoadAction depthLoadAction = RenderBufferLoadAction.Load,
+                    RenderBufferStoreAction depthStoreAction = RenderBufferStoreAction.Store)
+        {
+            cmd.SetGlobalTexture(_SOURCE_TEX_ID, source);
+            cmd.SetRenderTarget(destination, colorLoadAction, colorStoreAction, depthLoadAction, depthStoreAction);
+            cmd.Blit(source, BuiltinRenderTextureType.CurrentActive, material, passIndex);
 
+        }
 
         public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
         {
             ref var cameraData = ref renderingData.cameraData;
 
             RenderTargetIdentifier sourceId = gammaTexId;
+            var depthHandleId = "_CameraDepthAttachment";
 
             context.ExecuteCommandBuffer(cmd);
             cmd.Clear();
 
             cmd.BeginSample(nameof(RenderUIPass));
 
-            //if (!isGammaTexCreated)
+            //if (false)
             {
                 var desc = cameraData.cameraTargetDescriptor;
                 desc.width = cameraData.camera.pixelWidth;
@@ -87,57 +103,68 @@ namespace PowerUtilities.Features
                 blitMat.shaderKeywords=null;
                 SetColorSpace(cmd, ColorSpaceTransform.LinearToSRGB);
 
-                //RenderingUtils.Blit(cmd, colorHandleId, gammaTexId, blitMat);
+                //Blit(cmd, colorHandleId, gammaTexId, blitMat);
                 cmd.SetGlobalTexture(_SOURCE_TEX_ID, colorHandleId);
-                cmd.Blit(colorHandleId, gammaTexId, blitMat);
-                context.ExecuteCommandBuffer(cmd);
-                cmd.Clear();
+                cmd.SetRenderTarget(gammaTexId);
+                cmd.Blit(BuiltinRenderTextureType.None, gammaTexId, blitMat);
+
 #if UNITY_ANDROID
-                //blit one more time
+                //blit one more time otherwise show nothing
                 if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLES3)
                 {
-                    sourceId = colorHandleId;
                     SetColorSpace(cmd, ColorSpaceTransform.None);
+
+                    //Blit(cmd, gammaTexId, colorHandleId, blitMat);
                     cmd.SetGlobalTexture(_SOURCE_TEX_ID, gammaTexId);
                     cmd.SetRenderTarget(colorHandleId);
-                    cmd.Blit(gammaTexId, colorHandleId, blitMat);
+                    cmd.Blit(BuiltinRenderTextureType.None, colorHandleId, blitMat);
+                }
+#endif
+                context.ExecuteCommandBuffer(cmd);
+                cmd.Clear();
+            }
+
+
+
+            //--------------------- 2 draw ui
+            {
+                var sortFlags = SortingCriteria.CommonTransparent;
+
+                var drawSettings = CreateDrawingSettings(new List<ShaderTagId>{
+                new ShaderTagId("SRPDefaultUnlit"), new ShaderTagId("UniversalForward"), new ShaderTagId("UniversalForwardOnly"), new ShaderTagId("LightweightForward")
+                }, ref renderingData, sortFlags);
+                var filterSettings = new FilteringSettings(RenderQueueRange.transparent, layerMask);
+#if UNITY_EDITOR
+                // When rendering the preview camera, we want the layer mask to be forced to Everything
+                if (renderingData.cameraData.isPreviewCamera)
+                {
+                    filterSettings.layerMask = -1;
+                }
+#endif
+
+#if UNITY_ANDROID
+                // reset depth buffer(depthHandle), otherwise stencil missing
+                if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLES3)
+                {
+                    cmd.SetRenderTarget(colorHandleId, RenderBufferLoadAction.Load, RenderBufferStoreAction.Store,
+                     depthHandleId, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store);
+
                     context.ExecuteCommandBuffer(cmd);
                     cmd.Clear();
                 }
 #endif
-
+                context.DrawRenderers(renderingData.cullResults, ref drawSettings, ref filterSettings, ref renderStateBlock);
             }
 
-            //--------------------- 2 draw ui
-            var sortFlags = SortingCriteria.CommonTransparent;
 
-            var drawSettings = CreateDrawingSettings(new List<ShaderTagId>{
-                new ShaderTagId("SRPDefaultUnlit"), new ShaderTagId("UniversalForward"), new ShaderTagId("UniversalForwardOnly"), new ShaderTagId("LightweightForward")
-                }, ref renderingData, sortFlags);
-            var filterSettings = new FilteringSettings(RenderQueueRange.transparent, layerMask);
-#if UNITY_EDITOR
-            // When rendering the preview camera, we want the layer mask to be forced to Everything
-            if (renderingData.cameraData.isPreviewCamera)
+
+            //--------------------- 3 to colorTarget
+            //if (false)
             {
-                filterSettings.layerMask = -1;
+                SetColorSpace(cmd, ColorSpaceTransform.SRGBToLinear);
+
+                Blit(cmd, BuiltinRenderTextureType.CurrentActive, BuiltinRenderTextureType.CameraTarget, blitMat);
             }
-#endif
-
-            context.DrawRenderers(renderingData.cullResults, ref drawSettings, ref filterSettings, ref renderStateBlock);
-
-            context.ExecuteCommandBuffer(cmd);
-            cmd.Clear();
-
-
-            //--------------------- 3 to framebuffer
-            SetColorSpace(cmd, ColorSpaceTransform.SRGBToLinear);
-
-            //RenderingUtils.Blit(cmd, gammaTexId, BuiltinRenderTextureType.CameraTarget,blitMat);
-            cmd.SetGlobalTexture(_SOURCE_TEX_ID, sourceId);
-            cmd.Blit(BuiltinRenderTextureType.CurrentActive, BuiltinRenderTextureType.CameraTarget, blitMat);
-            // need.
-            context.ExecuteCommandBuffer(cmd);
-            cmd.Clear();
 
             //------------- end
             cmd.ReleaseTemporaryRT(gammaTexId);
