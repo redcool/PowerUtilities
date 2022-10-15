@@ -17,7 +17,6 @@ namespace PowerUtilities.Features
         const string _LINEAR_TO_SRGB_CONVERSION = nameof(_LINEAR_TO_SRGB_CONVERSION);
         const string _SRGB_TO_LINEAR_CONVERSION = nameof(_SRGB_TO_LINEAR_CONVERSION);
 
-        RenderTargetIdentifier colorHandleId;
         Material blitMat;
         LayerMask layerMask;
 
@@ -26,10 +25,8 @@ namespace PowerUtilities.Features
         RenderStateBlock renderStateBlock; // stencil
 
         CommandBuffer cmd = new CommandBuffer { name=nameof(RenderUIPass) };
-        public RenderUIPass(RenderTargetIdentifier handleId, Material blitMat, LayerMask layerMask, StencilState stencilState,int stencilRefValue)
+        public RenderUIPass(Material blitMat, LayerMask layerMask, StencilState stencilState,int stencilRefValue)
         {
-            colorHandleId = handleId;
-
             this.blitMat = blitMat;
             this.layerMask=layerMask;
             gammaTexId = GAMMA_TEX_ID;
@@ -84,11 +81,19 @@ namespace PowerUtilities.Features
         {
             ref var cameraData = ref renderingData.cameraData;
 
-            RenderTargetIdentifier sourceId = gammaTexId;
+            /** =============================================
+             * 
+             * hacking, use target name direct, when urp upgrade this will not work maybe.
+             * 
+             * =============================================
+             * **/
             var depthHandleId = "_CameraDepthAttachment";
+            var colorHandleId = "_CameraColorAttachmentA";
 
-            context.ExecuteCommandBuffer(cmd);
-            cmd.Clear();
+            if (renderingData.postProcessingEnabled)
+            {
+                colorHandleId = "_CameraColorAttachmentB";
+            }
 
             cmd.BeginSample(nameof(RenderUIPass));
 

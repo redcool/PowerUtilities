@@ -59,7 +59,7 @@ namespace PowerUtilities.Features
                 stencilState.SetZFailOperation(settings.stencilStateData.zFailOperation);
                 stencilState.enabled = settings.stencilStateData.overrideStencilState;
 
-                uiPass = new RenderUIPass(renderer.cameraColorTarget, settings.blitMat,
+                uiPass = new RenderUIPass(settings.blitMat,
                     settings.layerMask, stencilState, settings.stencilStateData.stencilReference);
             }
             uiPass.renderPassEvent =settings.passEvent+settings.passEventOffset;
