@@ -154,10 +154,14 @@ namespace PowerUtilities.Features
                     cmd.SetRenderTarget(colorHandleId, RenderBufferLoadAction.Load, RenderBufferStoreAction.Store,
                      depthHandleId, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store);
 
+                    // to srgb again
+                    SetColorSpace(cmd, ColorSpaceTransform.LinearToSRGB);
+
                     context.ExecuteCommandBuffer(cmd);
                     cmd.Clear();
                 }
 #endif
+
                 context.DrawRenderers(renderingData.cullResults, ref drawSettings, ref filterSettings, ref renderStateBlock);
             }
 
