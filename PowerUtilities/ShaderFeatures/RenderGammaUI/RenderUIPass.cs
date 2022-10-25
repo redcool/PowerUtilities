@@ -87,10 +87,18 @@ namespace PowerUtilities.Features
         {
             ref var cameraData = ref renderingData.cameraData;
 
+#if UNITY_EDITOR
+            if (cameraData.isSceneViewCamera)
+            {
+                DrawRenderers(ref context, ref renderingData, 2,2);
+                return;
+            }
+#endif
+
             cmd.BeginSample(nameof(RenderUIPass));
 
             int colorHandleId,depthHandleId;
-            SetupTargetTex(renderingData, cameraData, out colorHandleId,out depthHandleId);
+            SetupTargetTex(ref renderingData, ref cameraData, out colorHandleId,out depthHandleId);
 
             //---------------------  1 to gamma tex
             BlitToGammaTarget(ref context,ref cameraData, colorHandleId,depthHandleId);
@@ -115,16 +123,6 @@ namespace PowerUtilities.Features
 
             context.ExecuteCommandBuffer(cmd);
             cmd.Clear();
-        }
-
-        void SetupMSAA(ref CameraData cameraData)
-        {
-            if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLES3)
-            {
-                cmd.DisableShaderKeyword(ShaderKeywordStrings.DepthMsaa2);
-                cmd.DisableShaderKeyword(ShaderKeywordStrings.DepthMsaa4);
-                cmd.DisableShaderKeyword(ShaderKeywordStrings.DepthMsaa8);
-            }
         }
 
         void BlitToGammaTarget(ref ScriptableRenderContext context,ref CameraData cameraData, int colorHandleId,int depthHandleId)
@@ -188,7 +186,7 @@ namespace PowerUtilities.Features
             context.DrawRenderers(renderingData.cullResults, ref drawSettings, ref filterSettings, ref renderStateBlock);
         }
 
-        private void SetupTargetTex(RenderingData renderingData, CameraData cameraData, out int colorHandleId,out int depthHandleId)
+        private void SetupTargetTex(ref RenderingData renderingData, ref CameraData cameraData, out int colorHandleId,out int depthHandleId)
         {
             /** =============================================
              * 
