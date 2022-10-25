@@ -13,10 +13,17 @@ namespace PowerUtilities.Features
             public Material blitMat;
             public RenderPassEvent passEvent = RenderPassEvent.AfterRendering;
             public int passEventOffset = 10;
-            public LayerMask layerMask;
+            public LayerMask layerMask = 32;
+
+            [Tooltip("create other full size texture,when RenderingScale < 1, rendering objects in fullscreen")]
+            public bool createFullsizeGammaTex;
 
             public StencilStateData stencilStateData;
+            [Tooltip("Define ui camera use this tag, otherwise will check automatic(1 linear space,2 overlay camera,3 camera cullingMask is UI)")]
+            public string cameraTag;
 
+            [Header("Editor Options")]
+            public bool reset;
         }
         public Settings settings;
 
@@ -28,12 +35,22 @@ namespace PowerUtilities.Features
 
         }
 
-        public static bool IsUICamera(ref CameraData cameraData)
+        public static bool IsUICamera(ref CameraData cameraData,string cameraTag)
         {
-            var isUICamera = QualitySettings.activeColorSpace == ColorSpace.Linear &&
-                cameraData.renderType == CameraRenderType.Overlay &&
-                (cameraData.camera.cullingMask & LayerMask.GetMask("UI")) >= 1
-                ;
+            var isUICamera = false;
+
+            if (string.IsNullOrEmpty(cameraTag))
+            {
+                isUICamera = QualitySettings.activeColorSpace == ColorSpace.Linear &&
+                    cameraData.renderType == CameraRenderType.Overlay &&
+                    (cameraData.camera.cullingMask & LayerMask.GetMask("UI")) >= 1
+                    ;
+            }
+            else
+            {
+                isUICamera = cameraData.camera.CompareTag(cameraTag);
+            }
+
             var isSceneCamera = cameraData.isSceneViewCamera;
 
             return isUICamera || isSceneCamera;
@@ -43,15 +60,20 @@ namespace PowerUtilities.Features
         // This method is called when setting up the renderer once per-camera.
         public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
         {
+            if (!settings.blitMat)
+                return;
+
             ref var cameraData = ref renderingData.cameraData;
-            if (!IsUICamera(ref cameraData))
+            if (!IsUICamera(ref cameraData,settings.cameraTag))
                 return;
 
             if ((cameraData.camera.cullingMask & settings.layerMask) == 0)
                 return;
 
-            if (uiPass == null)
+            if (uiPass == null || settings.reset)
             {
+                settings.reset = false;
+
                 var stencilState = new StencilState();
                 stencilState.SetCompareFunction(settings.stencilStateData.stencilCompareFunction);
                 stencilState.SetFailOperation(settings.stencilStateData.failOperation);
@@ -63,6 +85,7 @@ namespace PowerUtilities.Features
                     settings.layerMask, stencilState, settings.stencilStateData.stencilReference);
             }
             uiPass.renderPassEvent =settings.passEvent+settings.passEventOffset;
+            uiPass.createFullsizeTex = settings.createFullsizeGammaTex;
 
             renderer.EnqueuePass(uiPass);
         }
