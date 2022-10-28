@@ -1,4 +1,4 @@
-using PowerUtilities;
+锘縰sing PowerUtilities;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,7 +8,7 @@ using UnityEditor;
 [CustomEditor(typeof(SyncMaterialProperties))]
 public class SyncMaterialPropertiesEditor : PowerEditor<SyncMaterialProperties>
 {
-    string helpStr = "同步当前renderer的材质属性给其他的renderer";
+    string helpStr = "鍚屾褰撳墠renderer鐨勬潗璐ㄥ睘鎬х粰鍏朵粬鐨剅enderer";
     public override void DrawInspectorUI(SyncMaterialProperties inst)
     {
 
