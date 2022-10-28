@@ -11,15 +11,16 @@ namespace PowerUtilities
     /// helper CustomEditor
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class PowerEditor<T> : Editor where T : class
+    public abstract class PowerEditor<T> : Editor where T : class
     {
-        public bool showDefaultUI;
+
+        public void DrawDefaultGUI()
+        {
+            base.OnInspectorGUI();
+        }
 
         public override void OnInspectorGUI()
         {
-            if (showDefaultUI)
-                base.OnInspectorGUI();
-
             var inst = target as T;
             serializedObject.UpdateIfRequiredOrScript();
             DrawInspectorUI(inst);
@@ -27,10 +28,7 @@ namespace PowerUtilities
             serializedObject.ApplyModifiedProperties();
         }
 
-        public virtual void DrawInspectorUI(T inst)
-        {
-
-        }
+        public abstract void DrawInspectorUI(T inst);
     }
 }
 #endif
