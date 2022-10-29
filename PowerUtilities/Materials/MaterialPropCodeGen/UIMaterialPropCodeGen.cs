@@ -18,7 +18,7 @@ public class UIMaterialPropCodeGen
 
     static HashSet<string> propNameSet = new HashSet<string>();
 
-    [MenuItem(MENU_ROOT+"/CreateUIMaterialCode")]
+    [MenuItem(MENU_ROOT+"/CreateUIMaterialCode(from hierarchy ui)")]
     static void Init()
     {
         var graphs = SelectionTools.GetSelectedComponents<MaskableGraphic>();
@@ -30,10 +30,22 @@ public class UIMaterialPropCodeGen
         }
     }
 
+    [MenuItem(MENU_ROOT+"/CreateUIMaterialCode(from Asset Shader)")]
+    static void Init2()
+    {
+        var shader = Selection.GetFiltered<Shader>(SelectionMode.Assets);
+
+        foreach (var item in shader)
+        {
+            Analysis(item);
+        }
+    }
+
     static void Analysis(Shader shader)
     {
         var fieldSb = new StringBuilder();
-        var methodSb = new StringBuilder();
+        var updateMatMethodSb = new StringBuilder();
+        var updateBlockMethodSb = new StringBuilder();
 
         var propCount = shader.GetPropertyCount();
         for (int i = 0; i < propCount; i++)
@@ -42,18 +54,27 @@ public class UIMaterialPropCodeGen
             var propType = shader.GetPropertyType(i);
             var propDefaultValue = GetDefaultValue(i, propType, shader);
 
-            AnalysisProp(propType, propName,propDefaultValue, fieldSb, methodSb);
+            AnalysisProp(propType, propName,propDefaultValue, fieldSb, updateMatMethodSb, updateBlockMethodSb);
         }
 
         PathTools.CreateAbsFolderPath(PATH);
 
         var className = shader.name.Replace('/','_');
-        var codeStr = string.Format(CodeTemplate.codeString, className, fieldSb.ToString(), methodSb.ToString());
+        var codeStr = string.Format(CodeTemplate.codeString, 
+            className, 
+            fieldSb.ToString(),
+            updateMatMethodSb.ToString(),
+            updateBlockMethodSb.ToString()
+            );
 
         var path = $"{PathTools.GetAssetAbsPath(PATH)}/{className}.cs";
         File.WriteAllText(path, codeStr);
 
         propNameSet.Clear();
+        fieldSb.Clear();
+        updateMatMethodSb.Clear();
+        updateBlockMethodSb.Clear();
+
         AssetDatabase.Refresh();
     }
 
@@ -71,7 +92,8 @@ public class UIMaterialPropCodeGen
         _ => $"{shader.GetPropertyDefaultFloatValue(id)}f"
     };
 
-    public static void AnalysisProp(ShaderPropertyType type, string propName, string propValue, StringBuilder fieldSB, StringBuilder methodSB)
+    public static void AnalysisProp(ShaderPropertyType type, string propName, string propValue, StringBuilder fieldSb, StringBuilder updateMatSb,StringBuilder updateBlockSB
+        )
     {
         //Check repeatted propName
         if (propNameSet.Contains(propName))
@@ -83,15 +105,15 @@ public class UIMaterialPropCodeGen
         var varTypeName = GetVarableType(type);
         var setMethodName = GetSetMethodName(type);
 
-        fieldSB.Append($"public {varTypeName} {propName} = {propValue};\n");
+        fieldSb.Append($"public {varTypeName} {propName} = {propValue};\n");
 
         var textureCondition = "";
         if (type == ShaderPropertyType.Texture)
         {
             textureCondition = $"if({propName}!=null)";
         }
-        methodSB.Append($"{textureCondition} mat.Set{setMethodName}(\"{propName}\", {propName});\n");
-
+        updateMatSb.Append($"{textureCondition} mat.Set{setMethodName}(\"{propName}\", {propName});\n");
+        updateBlockSB.Append($"{textureCondition} block.Set{setMethodName}(\"{propName}\", {propName});\n");
     }
 
     public static string GetVarableType(ShaderPropertyType type) => type switch
@@ -127,33 +149,70 @@ namespace PowerUtilities
     [ExecuteInEditMode]
     public class {0} : MonoBehaviour
     {{
+        // props
         {1}
 
-        Material mat;
-        MaskableGraphic graph;
+        [Header(""UI Graphs"")]
+        public Graphic[] graphs;
+        public bool useGraphMaterialInstance;
+
+        [Header(""Renderers"")]
+        public Renderer[] renderers;
+        
+        static MaterialPropertyBlock rendererBlock;
 
         private void Start()
         {{
-            graph = GetComponent<MaskableGraphic>();
-            if(graph)
-                mat = graph.material;
+            if (graphs == null || graphs.Length == 0)
+            {{
+                graphs = MaterialPropCodeGenTools.InitCollection<MaskableGraphic>(gameObject);
+            }}
+
+            if(renderers == null || renderers.Length == 0)
+            {{
+                renderers = MaterialPropCodeGenTools.InitCollection<Renderer>(gameObject);
+            }}
+
+            enabled = (renderers != null && renderers.Length>0) ||
+                (graphs != null && graphs.Length>0);
+
+            if (useGraphMaterialInstance)
+                graphs.ForEach(graph => graph.material = Instantiate(graph.material));
         }}
 
         private void Update()
         {{
-            if(!mat)
-            {{
-                enabled=false;
-                return;
-            }}
+            if(rendererBlock == null)
+                rendererBlock= new MaterialPropertyBlock();
 
-            UpdateMaterial();
-            graph.SetMaterialDirty();
+            MaterialPropCodeGenTools.UpdateComponentsMaterial(graphs, (graph,id) => {{
+                UpdateMaterial(graph.material);
+                graph.SetMaterialDirty();
+            }});
+            MaterialPropCodeGenTools.UpdateComponentsMaterial(renderers, (render,id) => {{
+                rendererBlock.Clear();
+                render.GetPropertyBlock(rendererBlock);
+                UpdateBlock(rendererBlock);
+                render.SetPropertyBlock(rendererBlock);
+            }});
+        }}
+        private void OnDestroy()
+        {{
+            rendererBlock =null;
         }}
 
-        void UpdateMaterial()
+        void UpdateMaterial(Material mat)
         {{
+            if(!mat) 
+                return;
             {2}
+        }}
+
+        void UpdateBlock(MaterialPropertyBlock block)
+        {{
+            if (block == null)
+                return;
+            {3}
         }}
     }}
 }}
