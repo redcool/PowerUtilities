@@ -71,7 +71,7 @@ public class UIMaterialPropCodeGen
         _ => $"{shader.GetPropertyDefaultFloatValue(id)}f"
     };
 
-    public static void AnalysisProp(ShaderPropertyType type, string propName,string propValue, StringBuilder fieldSB, StringBuilder methodSB)
+    public static void AnalysisProp(ShaderPropertyType type, string propName, string propValue, StringBuilder fieldSB, StringBuilder methodSB)
     {
         //Check repeatted propName
         if (propNameSet.Contains(propName))
@@ -84,8 +84,13 @@ public class UIMaterialPropCodeGen
         var setMethodName = GetSetMethodName(type);
 
         fieldSB.Append($"public {varTypeName} {propName} = {propValue};\n");
-        methodSB.Append($"mat.Set{setMethodName}(\"{propName}\", {propName});\n");
 
+        var textureCondition = "";
+        if (type == ShaderPropertyType.Texture)
+        {
+            textureCondition = $"if({propName}!=null)";
+        }
+        methodSB.Append($"{textureCondition} mat.Set{setMethodName}(\"{propName}\", {propName});\n");
 
     }
 
