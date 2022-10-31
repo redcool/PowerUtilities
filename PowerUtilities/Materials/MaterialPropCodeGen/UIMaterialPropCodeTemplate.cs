@@ -25,12 +25,14 @@ namespace PowerUtilities
         {
             if (graphs == null || graphs.Length == 0)
             {
-                graphs = MaterialPropCodeGenTools.InitCollection<Graphic>(gameObject);
+                if (gameObject.TryGetComponent<Graphic>(out var comp))
+                    graphs =  new[] { comp };
             }
 
-            if(renderers == null || renderers.Length == 0)
+            if (renderers == null || renderers.Length == 0)
             {
-                renderers = MaterialPropCodeGenTools.InitCollection<Renderer>(gameObject);
+                if (gameObject.TryGetComponent<Renderer>(out var comp))
+                    renderers =  new[] { comp };
             }
 
             enabled = (renderers != null && renderers.Length>0) ||

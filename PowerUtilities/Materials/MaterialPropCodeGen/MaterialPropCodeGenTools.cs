@@ -8,20 +8,6 @@ namespace PowerUtilities
 {
     public static class MaterialPropCodeGenTools 
     {
-        public static T[] InitCollection<T>(GameObject go) where T : Component
-        {
-            if (!go)
-                return default(T[]);
-
-            var results = default(T[]);
-            var comp = go.GetComponent<T>();
-            if (comp)
-            {
-                results = new T[1];
-                results[0] = comp;
-            }
-            return results;
-        }
 
         public static void UpdateComponentsMaterial<T>(T[] comps, Action<T,int> onAction) where T : Component
         {

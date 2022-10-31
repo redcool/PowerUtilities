@@ -92,7 +92,10 @@ public class UIMaterialPropCodeGen
         _ => $"{shader.GetPropertyDefaultFloatValue(id)}f"
     };
 
-    public static void AnalysisProp(ShaderPropertyType type, string propName, string propValue, StringBuilder fieldSb, StringBuilder updateMatSb,StringBuilder updateBlockSB
+    public static void AnalysisProp(ShaderPropertyType type, string propName, string propValue,
+        StringBuilder fieldSb,
+        StringBuilder updateMatSb,
+        StringBuilder updateBlockSB
         )
     {
         //Check repeatted propName
@@ -136,8 +139,6 @@ public class UIMaterialPropCodeGen
 
 static class CodeTemplate
 {
-    public const string fieldStatement = @"public {0} {1}";
-    public const string setMethodStatment = @"mat.Set{0}(""{1}"",{2})";
     public const string codeString = @"
 using System.Collections;
 using System.Collections.Generic;
@@ -165,12 +166,14 @@ namespace PowerUtilities
         {{
             if (graphs == null || graphs.Length == 0)
             {{
-                graphs = MaterialPropCodeGenTools.InitCollection<MaskableGraphic>(gameObject);
+                if (gameObject.TryGetComponent<Graphic>(out var comp))
+                    graphs = new []{{comp}};
             }}
 
             if(renderers == null || renderers.Length == 0)
             {{
-                renderers = MaterialPropCodeGenTools.InitCollection<Renderer>(gameObject);
+                if (gameObject.TryGetComponent<Renderer>(out var comp))
+                    renderers = new []{{comp}};
             }}
 
             enabled = (renderers != null && renderers.Length>0) ||
