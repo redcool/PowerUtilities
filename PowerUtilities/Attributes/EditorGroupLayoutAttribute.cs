@@ -55,7 +55,7 @@
 #endif
 
     /// <summary>
-    /// Show toogle group in inspector gui
+    /// Show toggle group in inspector gui
     /// 
     /// [EditorGroup("Fog",true)] public bool _IsGlobalFogOn;
     /// [EditorGroup("Fog")][Range(0, 1)] public float _GlobalFogIntensity = 1;
