@@ -5,6 +5,8 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using System.Linq;
 using System;
+using UnityEngine.UI;
+using Codice.Client.BaseCommands;
 
 namespace PowerUtilities
 {
@@ -22,20 +24,33 @@ namespace PowerUtilities
 
     /// <summary>
     /// 管理材质上代码绘制的属性
+    /// 这是属性需要定义在Layout.txt里,通过代码来控制材质的状态.
     /// </summary>
     public class MaterialCodeProps {
-        public const string _PresetBlendMode = "_PresetBlendMode",
-            _RenderQueue = "_RenderQueue";
-
-        public bool hasPresetBlendMode,
-            hasRenderQueue;
-
-        public void Clear()
+        public enum CodePropNames
         {
-            hasPresetBlendMode = hasRenderQueue = false;
+            _PresetBlendMode,
+            _RenderQueue,
+            _ToggleGroups
         }
 
-        private MaterialCodeProps() { }
+        Dictionary<string, bool> materialCodePropDict = new Dictionary<string, bool>();
+        public void Clear()
+        {
+            var keys = materialCodePropDict.Keys.ToList();
+            foreach (var item in keys)
+            {
+                materialCodePropDict[item] = false;
+            }
+        }
+
+        private MaterialCodeProps() {
+            var names = Enum.GetNames(typeof(CodePropNames));
+            foreach (var item in names)
+            {
+                materialCodePropDict[item]=false;
+            }
+        }
         private static MaterialCodeProps instance;
 
         public static MaterialCodeProps Instance
@@ -50,11 +65,17 @@ namespace PowerUtilities
 
         public void InitMaterialCodeVars(string propName)
         {
-            switch (propName)
+            if (materialCodePropDict.ContainsKey(propName))
             {
-                case _PresetBlendMode: instance.hasPresetBlendMode = true; break;
-                case _RenderQueue: instance.hasRenderQueue = true; break;
+                materialCodePropDict[propName] = true;
             }
+        }
+
+        public bool IsPropExists(CodePropNames propName)
+        {
+            var key = propName.ToString();
+            materialCodePropDict.TryGetValue(key, out var isExist);
+            return isExist;
         }
     }
 
@@ -103,7 +124,12 @@ namespace PowerUtilities
         int toolbarCount = 5;
 
         Color defaultContentColor;
+        bool isAllGroupsOpen;
 
+        static PowerShaderInspector()
+        {
+            MaterialGroupTools.SetStateAll(true);
+        }
 
         public PowerShaderInspector()
         {
@@ -116,6 +142,7 @@ namespace PowerUtilities
                 {PresetBlendMode.MultiColor,new []{ BlendMode.DstColor,BlendMode.Zero} },
                 {PresetBlendMode.MultiColor_2X,new []{ BlendMode.DstColor,BlendMode.SrcColor} },
             };
+
         }
 
         public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] properties)
@@ -157,8 +184,6 @@ namespace PowerUtilities
             EditorGUILayout.EndVertical();
         }
 
-
-
         /// <summary>
         /// draw properties
         /// </summary>
@@ -191,14 +216,20 @@ namespace PowerUtilities
             if (IsTargetShader(mat))
             {
                 //draw preset blend mode
-                if (MaterialCodeProps.Instance.hasPresetBlendMode)
+                if (MaterialCodeProps.Instance.IsPropExists(MaterialCodeProps.CodePropNames._PresetBlendMode))
                     DrawBlendMode(mat);
 
                 //draw render queue
-                if (MaterialCodeProps.Instance.hasRenderQueue)
+                if (MaterialCodeProps.Instance.IsPropExists(MaterialCodeProps.CodePropNames._RenderQueue))
                 {
                     // render queue, instanced, double sided gi
                     DrawMaterialProps(mat);
+                }
+
+                //draw toggle groups
+                if (MaterialCodeProps.Instance.IsPropExists(MaterialCodeProps.CodePropNames._ToggleGroups))
+                {
+                    DrawToggleGroups(mat);
                 }
             }
 
@@ -308,6 +339,8 @@ namespace PowerUtilities
 
             colorTextDict = ConfigTool.ReadConfig(shaderFilePath, ConfigTool.COLOR_PROFILE_PATH);
             propHelpDict = ConfigTool.ReadConfig(shaderFilePath, ConfigTool.PROP_HELP_PROFILE_PATH);
+
+            
         }
 
         private void SetupLayout(string shaderFilePath)
@@ -335,21 +368,47 @@ namespace PowerUtilities
             }
         }
 
-        void DrawBlendMode(Material mat)
+        void DrawField(Material mat, string header, Action onGUI, Action<Material> onGUIChanged=null)
         {
             EditorGUI.BeginChangeCheck();
             GUILayout.BeginVertical();
             EditorGUILayout.Space(10);
-            GUILayout.Label("Alpha Blend", EditorStyles.boldLabel);
-            presetBlendMode = (PresetBlendMode)EditorGUILayout.EnumPopup(ConfigTool.Text(propNameTextDict, "PresetBlendMode"), presetBlendMode);
+            GUILayout.Label(header, EditorStyles.boldLabel);
+            if (onGUI != null)
+                onGUI();
+
             GUILayout.EndVertical();
             if (EditorGUI.EndChangeCheck())
             {
-                var blendModes = blendModeDict[presetBlendMode];
+                if (onGUIChanged != null)
+                    onGUIChanged(mat);
+            }
+        }
 
+        void DrawBlendMode(Material mat)
+        {
+            DrawField(mat, "Alpha Blend", () => { 
+                presetBlendMode = (PresetBlendMode)EditorGUILayout.EnumPopup(ConfigTool.Text(propNameTextDict, "PresetBlendMode"), presetBlendMode);
+            }, mat =>
+            {
+                var blendModes = blendModeDict[presetBlendMode];
                 mat.SetFloat(SRC_MODE, (int)blendModes[0]);
                 mat.SetFloat(DST_MODE, (int)blendModes[1]);
-            }
+            });
+
+            //EditorGUI.BeginChangeCheck();
+            //GUILayout.BeginVertical();
+            //EditorGUILayout.Space(10);
+            //GUILayout.Label("Alpha Blend", EditorStyles.boldLabel);
+            //presetBlendMode = (PresetBlendMode)EditorGUILayout.EnumPopup(ConfigTool.Text(propNameTextDict, "PresetBlendMode"), presetBlendMode);
+            //GUILayout.EndVertical();
+            //if (EditorGUI.EndChangeCheck())
+            //{
+            //    var blendModes = blendModeDict[presetBlendMode];
+
+            //    mat.SetFloat(SRC_MODE, (int)blendModes[0]);
+            //    mat.SetFloat(DST_MODE, (int)blendModes[1]);
+            //}
         }
 
         void DrawMaterialProps(Material mat)
@@ -364,6 +423,15 @@ namespace PowerUtilities
             materialEditor.DoubleSidedGIField();
 
             GUILayout.EndVertical();
+        }
+
+        void DrawToggleGroups(Material mat)
+        {
+            DrawField(mat, "Toggle Groups", () => {
+                isAllGroupsOpen = EditorGUILayout.Toggle(ConfigTool.Text(propNameTextDict, "_ToggleGroups"), isAllGroupsOpen);
+            }, mat => { 
+                MaterialGroupTools.SetStateAll(isAllGroupsOpen);
+            });
         }
 
         PresetBlendMode GetPresetBlendMode(BlendMode srcMode, BlendMode dstMode)

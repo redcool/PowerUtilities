@@ -31,10 +31,16 @@ namespace PowerUtilities
 
         public static void SetState(string groupName, bool isOn)
         {
-            if (!GroupDict.ContainsKey(groupName))
-                GroupDict.Add(groupName, isOn);
-            else
-                GroupDict[groupName] = isOn;
+            GroupDict[groupName] = isOn;
+        }
+
+        public static void SetStateAll(bool isOn)
+        {
+            var keys = groupDict.Keys.ToArray();
+            foreach (var item in keys)
+            {
+                groupDict[item] = isOn;
+            }
         }
     }
 }

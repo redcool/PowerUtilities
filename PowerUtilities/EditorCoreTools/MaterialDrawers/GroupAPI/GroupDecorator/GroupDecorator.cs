@@ -22,7 +22,7 @@ namespace PowerUtilities
         {
             this.groupName = groupName;
 
-            MaterialGroupTools.GroupDict[groupName] = EditorPrefs.GetBool(groupName, false);
+            MaterialGroupTools.SetState(groupName, EditorPrefs.GetBool(groupName, false));
         }
 
         public override float GetPropertyHeight(MaterialProperty prop, string label, MaterialEditor editor)
@@ -32,7 +32,7 @@ namespace PowerUtilities
 
         public override void OnGUI(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
         {
-            EditorGUI.BeginChangeCheck();  
+            EditorGUI.BeginChangeCheck();
             MaterialGroupTools.GroupDict[groupName] = EditorGUI.BeginFoldoutHeaderGroup(position, MaterialGroupTools.GroupDict[groupName], groupName);
             EditorGUI.EndFoldoutHeaderGroup();
 

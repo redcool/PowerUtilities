@@ -20,8 +20,10 @@ Shader "Unlit/GroupDrawDemo"
         [GroupItem(group0,_FloatVlaue0 helps)]_FloatVlaue0_6("_FloatVlaue0_1",range(0,1)) = 0.1
 [GroupItem(group0,_MainTex0 helps)]_MainTex0 ("Texture0", 2D) = "white" {}
         // //show a new Group
+        _MainTex1 ("Texture1", 2D) = "white" {}
         [Group(group1)]
-        [GroupItem(group1,_MainTex1 helps)]_MainTex1 ("Texture1", 2D) = "white" {}
+        [GroupToggle(group1)]_ToggleNoKeyword1("_ToggleNoKeyword",int) = 1
+        // [GroupItem(group1,_MainTex1 helps)]
         // // show group item
         [GroupItem(group1,_FloatVlaue1 helps)]_FloatVlaue("_FloatVlaue1",range(0,1)) = 0.1
         // remap slider
