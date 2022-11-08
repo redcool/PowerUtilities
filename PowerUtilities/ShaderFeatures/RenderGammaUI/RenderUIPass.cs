@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
@@ -125,13 +126,13 @@ namespace PowerUtilities.Features
             cmd.Clear();
         }
 
-        void BlitToGammaTarget(ref ScriptableRenderContext context,ref CameraData cameraData, int colorHandleId,int depthHandleId)
+        void BlitToGammaTarget(ref ScriptableRenderContext context,ref CameraData cameraData,int colorHandleId,int depthHandleId)
         {
             blitMat.shaderKeywords=null;
             SetColorSpace(cmd, ColorSpaceTransform.LinearToSRGB);
 
             //Blit(cmd, colorHandleId, gammaTexId, blitMat);
-            cmd.SetGlobalTexture(_SourceTex, _CameraOpaqueTexture);
+            cmd.SetGlobalTexture(_SourceTex, _CameraOpaqueTexture); // _CameraOpaqueTexture is _CameraColorAttachmentA or _CameraColorAttachmentB
             cmd.SetRenderTarget(colorHandleId);
 
             if (createFullsizeTex)
@@ -186,6 +187,13 @@ namespace PowerUtilities.Features
             context.DrawRenderers(renderingData.cullResults, ref drawSettings, ref filterSettings, ref renderStateBlock);
         }
 
+        bool AnyCameraHasPostProcessing()
+        {
+            return Camera.allCameras.
+                Select(c => c.GetComponent<UniversalAdditionalCameraData>()).
+                Any(cd => cd.renderPostProcessing);
+        }
+
         private void SetupTargetTex(ref RenderingData renderingData, ref CameraData cameraData, out int colorHandleId,out int depthHandleId)
         {
             /** =============================================
@@ -194,13 +202,9 @@ namespace PowerUtilities.Features
              * 
              * =============================================
              * **/
-            colorHandleId = _CameraColorAttachmentA;
             depthHandleId = _CameraDepthAttachment;
 
-            if (renderingData.postProcessingEnabled)
-            {
-                colorHandleId = _CameraColorAttachmentB;
-            }
+            colorHandleId = AnyCameraHasPostProcessing() && renderingData.postProcessingEnabled ? _CameraColorAttachmentA : _CameraColorAttachmentB;
 
             if (createFullsizeTex)
             {
