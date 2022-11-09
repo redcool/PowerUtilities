@@ -5,8 +5,6 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using System.Linq;
 using System;
-using UnityEngine.UI;
-using Codice.Client.BaseCommands;
 
 namespace PowerUtilities
 {
