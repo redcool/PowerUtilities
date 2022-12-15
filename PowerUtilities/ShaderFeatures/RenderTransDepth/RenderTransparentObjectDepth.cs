@@ -19,6 +19,7 @@ namespace PowerUtilities
                 filterSettings.layerMask = settings.layerMask;
 
                 var cmd = CommandBufferPool.Get();
+                cmd.BeginSample(nameof(RenderTransparentObjectDepth));
                 Execute(context, cmd);
 
                 cmd.SetRenderTarget("_CameraDepthTexture");
@@ -27,6 +28,7 @@ namespace PowerUtilities
                 context.DrawRenderers(renderingData.cullResults, ref drawSettings, ref filterSettings);
 
                 cmd.SetRenderTarget("_CameraColorAttachmentA");
+                cmd.EndSample(nameof(RenderTransparentObjectDepth));
                 Execute(context, cmd);
 
                 CommandBufferPool.Release(cmd);

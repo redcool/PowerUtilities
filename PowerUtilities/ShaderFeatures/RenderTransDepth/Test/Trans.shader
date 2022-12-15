@@ -54,7 +54,7 @@ Shader "Unlit/Trans"
         Pass
         {
             Tags{"LightMode"="DepthOnly"}
-            // colorMask 0
+            colorMask 0
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
