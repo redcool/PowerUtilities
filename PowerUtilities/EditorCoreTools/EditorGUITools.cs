@@ -239,6 +239,23 @@ namespace PowerUtilities
         }
 
         #endregion
+
+        public static void DrawPropertyEditor(SerializedProperty settingsProp, ref bool isSettingsFoldout)
+        {
+            EditorGUI.indentLevel++;
+            EditorGUILayout.BeginVertical("Box");
+            {
+                isSettingsFoldout = EditorGUILayout.Foldout(isSettingsFoldout, settingsProp.displayName,true);
+                if (isSettingsFoldout)
+                {
+
+                    var settingsEditor = Editor.CreateEditor(settingsProp.objectReferenceValue);
+                    settingsEditor.DrawDefaultInspector();
+                }
+            }
+            EditorGUILayout.EndVertical();
+            EditorGUI.indentLevel--;
+        }
     }
 }
 #endif
