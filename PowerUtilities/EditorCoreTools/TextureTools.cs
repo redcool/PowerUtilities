@@ -84,6 +84,8 @@ namespace PowerUtilities
             return textureList;
         }
 
+        public static bool IsNeedCreateTexture(Texture t, int targetWidth, int targetHeight) => !(t && t.width == targetWidth && t.height == targetHeight);
+
     }
 }
 #endif
