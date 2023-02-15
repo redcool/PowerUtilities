@@ -7,10 +7,10 @@ using System.Linq;
 
 namespace PowerUtilities
 {
-    [ExecuteInEditMode]
+    //[ExecuteInEditMode]
     public class UIMaterialPropCodeTemplate : MonoBehaviour
     {
-        public Color color;
+        public Color color = Color.white;
 
         [Header("UI Graphs")]
         public Graphic[] graphs;
@@ -35,11 +35,19 @@ namespace PowerUtilities
                     renderers =  new[] { comp };
             }
 
-            enabled = (renderers != null && renderers.Length>0) ||
-                (graphs != null && graphs.Length>0);
+            var isRenderersValid = (renderers != null && renderers.Length>0);
+            var isGraphsValid = (graphs != null && graphs.Length>0);
+            enabled = isRenderersValid || isGraphsValid;
 
             if (useGraphMaterialInstance)
                 graphs.ForEach(graph => graph.material = Instantiate(graph.material));
+
+            if (enabled)
+            {
+                var firstMat = isRenderersValid ? renderers[0].sharedMaterial : graphs[0].material;
+                if (firstMat)
+                    ReadFirstMaterial(firstMat);
+            }
         }
 
         private void Update()
@@ -62,6 +70,16 @@ namespace PowerUtilities
         private void OnDestroy()
         {
             rendererBlock =null;
+        }
+        private void Reset()
+        {
+            if(Application.isEditor)
+                Start();
+        }
+
+        void ReadFirstMaterial(Material mat)
+        {
+            color= mat.color;
         }
 
         void UpdateMaterial(Material mat)
