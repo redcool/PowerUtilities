@@ -11,6 +11,7 @@ namespace PowerUtilities
 
     public static class EditorGUITools
     {
+
         public static Color darkGray = new Color(0.2f, 0.3f, 0.4f);
         public static void DrawPreview(Texture tex)
         {
@@ -230,12 +231,49 @@ namespace PowerUtilities
             }
         }
 
-
-
         public static bool MultiSelectionGrid(string[] contents, bool[] toggles, List<int> selectedIds, int xCount, GUIStyle rowStyle = null, GUIStyle columnStyle = null)
         {
             var guiContents = contents.Select(str => new GUIContent(str)).ToArray();
             return MultiSelectionGrid(guiContents, toggles, selectedIds, xCount, rowStyle, columnStyle);
+        }
+
+        /// <summary>
+        /// Draw Header with (toggle, fold)
+        /// like:
+        ///     (bool isCheck, bool isFold) foldInfo = (false, false);
+        ///     EditorGUITools.ToggleFoldoutHeader(position, ref foldInfo.isFold, ref foldInfo.isCheck, groupName);
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="isFolded"></param>
+        /// <param name="isChecked"></param>
+        /// <param name="label"></param>
+        public static void ToggleFoldoutHeader(Rect position,ref bool isFolded,ref bool isChecked,string label)
+        {
+            //var lineRect = new Rect(position.x, position.y, position.width, 24);
+            
+            GUI.Box(position, label, EditorStylesEx.ShurikenModuleTitle);
+
+            var checkRect = new Rect(position.x, position.y+2, 16, position.height);
+            var e = Event.current;
+            if(e.type == EventType.Repaint)
+            {
+                EditorStylesEx.ShurikenCheckMark.Draw(checkRect, "", true, true, isChecked, false);
+
+            }
+            if (e.type == EventType.MouseDown)
+            {
+                if (checkRect.Contains(e.mousePosition))
+                {
+                    isChecked = !isChecked;
+                    e.Use();
+                }
+                else if (position.Contains(e.mousePosition))
+                {
+                    isFolded = !isFolded;
+                    e.Use();
+                }
+
+            }
         }
 
         #endregion
