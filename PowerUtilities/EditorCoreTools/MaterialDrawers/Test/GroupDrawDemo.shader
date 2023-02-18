@@ -4,26 +4,18 @@ Shader "Unlit/GroupDrawDemo"
     {
         [Tooltip(show float value)]
         Test_FloatVlaue("_FloatVlaue0",range(0,1)) = 0.1
-        [Group(group0)]
-        [GroupHeader(group0,header0,header0 helps)]
-        [GroupHeader(group0,header0,header0 helps)]
+        
+        [Group(group0,group0 helps)]
         [GroupHeader(group0,header0,header0 helps)]
 
         [GroupItem(group0,_FloatVlaue0 helps)]
         _FloatVlaue0("_FloatVlaue0",range(0,1)) = 0.1
 
         [GroupItem(group0,_FloatVlaue0 helps)]_FloatVlaue0_1("_FloatVlaue0_1",range(0,1)) = 0.1
-        [GroupItem(group0,_FloatVlaue0 helps)]_FloatVlaue0_2("_FloatVlaue0_1",range(0,1)) = 0.1
-        [GroupItem(group0,_FloatVlaue0 helps)]_FloatVlaue0_3("_FloatVlaue0_1",range(0,1)) = 0.1
-        [GroupItem(group0,_FloatVlaue0 helps)]_FloatVlaue0_4("_FloatVlaue0_1",range(0,1)) = 0.1
-        [GroupItem(group0,_FloatVlaue0 helps)]_FloatVlaue0_5("_FloatVlaue0_1",range(0,1)) = 0.1
-        [GroupItem(group0,_FloatVlaue0 helps)]_FloatVlaue0_6("_FloatVlaue0_1",range(0,1)) = 0.1
 [GroupItem(group0,_MainTex0 helps)]_MainTex0 ("Texture0", 2D) = "white" {}
         // //show a new Group
-        _MainTex1 ("Texture1", 2D) = "white" {}
         [Group(group1)]
-        [GroupToggle(group1)]_ToggleNoKeyword1("_ToggleNoKeyword",int) = 1
-        // [GroupItem(group1,_MainTex1 helps)]
+        [GroupItem(group1,_MainTex1 helps)]_MainTex1 ("Texture1", 2D) = "white" {}
         // // show group item
         [GroupItem(group1,_FloatVlaue1 helps)]_FloatVlaue("_FloatVlaue1",range(0,1)) = 0.1
         // remap slider

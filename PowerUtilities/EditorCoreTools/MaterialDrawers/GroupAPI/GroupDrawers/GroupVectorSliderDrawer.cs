@@ -7,6 +7,8 @@ namespace PowerUtilities
     using UnityEditor;
     using UnityEngine;
     using System.Linq;
+    using System.Text.RegularExpressions;
+
     /// <summary>
     /// Material's vector property ui
     /// 
@@ -14,11 +16,11 @@ namespace PowerUtilities
     public class GroupVectorSliderDrawer : BaseGroupItemDrawer
     {
         const char ITEM_SPLITTER = ' ';
-        const char RANGE_SPLITTER = '_';
         readonly string[] strings_XYZ = new string[] { "X","Y","Z"};
 
         string[] headers;
         Vector2[] ranges;
+
         /// <summary>
         /// null : default, remap float,
         /// float : float slider
@@ -32,10 +34,21 @@ namespace PowerUtilities
         /// headerString 
         ///     4slider : a b c d, [space] is splitter
         ///     vector3 slider1 : VectorSlider(vname sname ,0_1)
-        /// rangeString like 0_1 0_1 ,[space][_] is splitter
+        /// rangeString like m1_1 0_1 ,[space][_] is splitter, m1: -1
         /// 
-        /// sliders 4 : [GroupVectorSlider(group1, a b c d, 0_1 1_2 0_1 0_2)] _Vector("_Vector", vector) = (1,1,1,1)
-        /// vector3 slider 1 :[GroupVectorSlider(group1,Dir(xyz) intensity, 0_1)] _Vector("_Vector2", vector) = (1,0.1,0,1)
+        /// tooltip : helps
+        /// 
+        /// Demos:
+        /// 
+        /// sliders 4 : 
+        /// *(headers length == ranges length)
+        /// [GroupVectorSlider(group1, a b c d, 0_1 1_2 0_1 0_2)] _Vector("_Vector", vector) = (1,1,1,1)
+        /// 
+        /// vector3 slider 1 :
+        /// * (headers length ==2 && ranges length == 1)
+        /// [GroupVectorSlider(group1,Dir(xyz) intensity, 0_1)] _Vector("_Vector2", vector) = (1,0.1,0,1)
+        /// 
+        /// 2 int sliders:
         /// [GroupVectorSlider(SheetAnimation,RowCount ColumnCount,1_16 1_16,,int)]_MainTexSheet("_MainTexSheet",vector)=(1,1,1,1)
         /// </summary>
         /// <param name="headerString"></param>
@@ -47,23 +60,18 @@ namespace PowerUtilities
             {
                 headers = headerString.Split(ITEM_SPLITTER);
             }
-            if (!string.IsNullOrEmpty(rangeString))
-            {
-                var rangeItems = rangeString.Split(new[] {ITEM_SPLITTER, RANGE_SPLITTER }, StringSplitOptions.RemoveEmptyEntries);
-                if (rangeItems.Length > 1)
-                {
-                    var halfLen = rangeItems.Length / 2;
-                    ranges = new Vector2[halfLen];
-                    for (int i = 0; i < halfLen; i++)
-                    {
-                        ranges[i] = new Vector2(Convert.ToSingle(rangeItems[i * 2]), Convert.ToSingle(rangeItems[i * 2 + 1]));
-                    }
-                }
-                else
-                    ranges[0] = new Vector2(Convert.ToSingle(rangeItems[0]),0);
-            }
+            InitRanges(rangeString);
             this.sliderStyleFormat = sliderStyleFormat;
         }
+
+        private void InitRanges(string rangeString)
+        {
+            if (string.IsNullOrEmpty(rangeString))
+                return;
+            
+            ranges = GroupAPITools.TranslateRangeStr(rangeString);
+        }
+        
 
         public override float GetPropertyHeight(MaterialProperty prop, string label, MaterialEditor editor)
         {
@@ -94,10 +102,10 @@ namespace PowerUtilities
             position.y += LINE_HEIGHT;
             position.height -= LINE_HEIGHT;
 
-            if (ranges.Length == 1) // draw vector and float
+            if (IsVector3Slider1()) // draw vector and float
                 DrawVector3Slider1(position, ref value);
             else // draw 4 float
-                Draw4Sliders(position, ref value);
+                DrawSliders(position, ref value);
 
             EditorGUI.indentLevel--;
 
@@ -105,6 +113,11 @@ namespace PowerUtilities
             {
                 prop.vectorValue = value;
             }
+        }
+
+        private bool IsVector3Slider1()
+        {
+            return headers.Length == 2 && ranges.Length == 1;
         }
 
         private void DrawVector3Slider1(Rect position, ref Vector4 value)
@@ -135,27 +148,32 @@ namespace PowerUtilities
             value[3] = EditorGUITools.DrawRemapSlider(pos, ranges[0], new GUIContent(sliderHeader), value[3]);
         }
 
-        private void Draw4Sliders(Rect position, ref Vector4 value)
+        private void DrawSliders(Rect position, ref Vector4 value)
         {
             var pos = new Rect(position.x, position.y, position.width, 18);
             for (int i = 0; i < headers.Length; i++)
             {
-                if (string.IsNullOrEmpty(sliderStyleFormat))
-                {
-                    value[i] = EditorGUITools.DrawRemapSlider(pos, ranges[i], new GUIContent(headers[i]), value[i]);
-                }
-                else
-                {
-                    value[i] = EditorGUI.Slider(pos, new GUIContent(headers[i]), value[i], ranges[i].x, ranges[i].y);
-                }
-                if(sliderStyleFormat == "int")
-                {
-                    value[i] = (int)value[i];
-                }
+                DrawSlider(ref value, pos, i);
 
                 pos.y += LINE_HEIGHT;
 
             }
+        }
+
+        private void DrawSlider(ref Vector4 value, Rect pos, int i)
+        {
+            if (string.IsNullOrEmpty(sliderStyleFormat))
+            {
+                value[i] = EditorGUITools.DrawRemapSlider(pos, ranges[i], new GUIContent(headers[i]), value[i]);
+                return;
+            }
+
+            if (sliderStyleFormat == "int")
+            {
+                value[i] = (int)value[i];
+            }
+
+            value[i] = EditorGUI.Slider(pos, new GUIContent(headers[i]), value[i], ranges[i].x, ranges[i].y);
         }
     }
 }

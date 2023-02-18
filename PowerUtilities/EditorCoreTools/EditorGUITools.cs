@@ -11,8 +11,16 @@ namespace PowerUtilities
 
     public static class EditorGUITools
     {
-
         public static Color darkGray = new Color(0.2f, 0.3f, 0.4f);
+
+        static GUIContent tempContent = new GUIContent();
+        public static GUIContent TempContent(string str,string tooltip)
+        {
+            tempContent.text = str;
+            tempContent.tooltip = tooltip;
+            return tempContent;
+        }
+
         public static void DrawPreview(Texture tex)
         {
             var rect = GUILayoutUtility.GetRect(100, 100, "Box");

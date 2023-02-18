@@ -17,9 +17,12 @@ namespace PowerUtilities
     public class GroupDecorator : MaterialPropertyDrawer
     {
         string groupName;
+        string tooltip;
 
-        public GroupDecorator(string groupName)
+        public GroupDecorator(string groupName) : this(groupName, "") { }
+        public GroupDecorator(string groupName,string tooltip)
         {
+            this.tooltip = tooltip;
             this.groupName = groupName;
 
             MaterialGroupTools.SetState(groupName, EditorPrefs.GetBool(groupName, false));
@@ -33,7 +36,7 @@ namespace PowerUtilities
         public override void OnGUI(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
         {
             EditorGUI.BeginChangeCheck();
-            MaterialGroupTools.GroupDict[groupName] = EditorGUI.BeginFoldoutHeaderGroup(position, MaterialGroupTools.GroupDict[groupName], groupName);
+            MaterialGroupTools.GroupDict[groupName] = EditorGUI.BeginFoldoutHeaderGroup(position, MaterialGroupTools.GroupDict[groupName], EditorGUITools.TempContent(groupName, tooltip));
             EditorGUI.EndFoldoutHeaderGroup();
 
             if (EditorGUI.EndChangeCheck())
