@@ -41,15 +41,20 @@ namespace PowerUtilities
             if (!MaterialGroupTools.IsGroupOn(groupName))
                 return;
 
-            if(!string.IsNullOrEmpty(tooltip))
-                label.tooltip = tooltip;
+            var isDisabled = MaterialGroupTools.IsGroupDisabled(groupName);
+            EditorGUI.BeginDisabledGroup(isDisabled);
+            {
+                if (!string.IsNullOrEmpty(tooltip))
+                    label.tooltip = tooltip;
 
-            var lastLabelWidth = EditorGUIUtility.labelWidth;
-            EditorGUI.indentLevel += MaterialGroupTools.GroupIndentLevel(groupName);
-            EditorGUI.DrawRect(position, Color.green*0.07f);
-            DrawGroupUI(position, prop, label, editor);
-            EditorGUI.indentLevel -= MaterialGroupTools.GroupIndentLevel(groupName);
-            EditorGUIUtility.labelWidth = lastLabelWidth;
+                var lastLabelWidth = EditorGUIUtility.labelWidth;
+                EditorGUI.indentLevel += MaterialGroupTools.GroupIndentLevel(groupName);
+                EditorGUI.DrawRect(position, Color.green*0.07f);
+                DrawGroupUI(position, prop, label, editor);
+                EditorGUI.indentLevel -= MaterialGroupTools.GroupIndentLevel(groupName);
+                EditorGUIUtility.labelWidth = lastLabelWidth;
+            }
+            EditorGUI.EndDisabledGroup();
         }
 
         public abstract void DrawGroupUI(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor);

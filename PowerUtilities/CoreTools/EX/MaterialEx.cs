@@ -23,5 +23,14 @@ namespace PowerUtilities
             else
                 mat.DisableKeyword(keyword);
         }
+
+        public static void SetKeywords(this Material mat,string[] keywords, bool isOn)
+        {
+            if(keywords== null || keywords.Length == 0) return;
+            foreach (var item in keywords)
+            {
+                SetKeyword(mat,item,isOn);
+            }
+        }
     }
 }

@@ -255,7 +255,7 @@ namespace PowerUtilities
         /// <param name="isFolded"></param>
         /// <param name="isChecked"></param>
         /// <param name="label"></param>
-        public static void ToggleFoldoutHeader(Rect position,ref bool isFolded,ref bool isChecked,string label)
+        public static void ToggleFoldoutHeader(Rect position,GUIContent label,ref bool isFolded,ref bool isChecked)
         {
             //var lineRect = new Rect(position.x, position.y, position.width, 24);
             
@@ -273,11 +273,13 @@ namespace PowerUtilities
                 if (checkRect.Contains(e.mousePosition))
                 {
                     isChecked = !isChecked;
+                    GUI.changed = true;
                     e.Use();
                 }
                 else if (position.Contains(e.mousePosition))
                 {
                     isFolded = !isFolded;
+                    GUI.changed = true;
                     e.Use();
                 }
 

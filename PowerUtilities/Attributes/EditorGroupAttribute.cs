@@ -55,7 +55,7 @@
             //EditorGUI.DrawRect(position, Color.gray);
 
                 //groupInfo.isOn = EditorGUI.Foldout(position, groupInfo.isOn, groupInfo.groupName, true, EditorStyles.foldoutHeader);
-                MaterialGroupTools.GroupDict[groupInfo.groupName] = groupInfo.isOn;
+                MaterialGroupTools.SetState(groupInfo.groupName, groupInfo.isOn);
                 position.y += LINE_HEIGHT;
             }
 

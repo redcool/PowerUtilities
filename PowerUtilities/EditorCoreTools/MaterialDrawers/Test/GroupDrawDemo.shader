@@ -5,7 +5,7 @@ Shader "Unlit/GroupDrawDemo"
         [Tooltip(show float value)]
         Test_FloatVlaue("_FloatVlaue0",range(0,1)) = 0.1
         
-        [Group(group0,group0 helps)]
+        [Group(group0,group0 helps,false,_KEY1 _KEY2)]
         [GroupHeader(group0,header0,header0 helps)]
 
         [GroupItem(group0,_FloatVlaue0 helps)]

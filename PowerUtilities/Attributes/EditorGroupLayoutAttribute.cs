@@ -39,7 +39,7 @@
 
                 });
                 //groupInfo.isOn = EditorGUILayout.Foldout(groupInfo.isOn, groupInfo.groupName);
-                MaterialGroupTools.GroupDict[groupInfo.groupName] = groupInfo.isOn;
+                MaterialGroupTools.SetState(groupInfo.groupName, groupInfo.isOn);
             }
 
             //draw contents

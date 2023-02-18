@@ -43,5 +43,19 @@ namespace PowerUtilities
             return list;
         }
 
+        public static void SetKeywords(string[] keywords, bool isOn)
+        {
+            if (keywords== null || keywords.Length == 0) return;
+            foreach (var item in keywords)
+            {
+                if (Shader.IsKeywordEnabled(item) == isOn)
+                    continue;
+
+                if (isOn)
+                    Shader.EnableKeyword(item);
+                else
+                    Shader.DisableKeyword(item);
+            }
+        }
     }
 }

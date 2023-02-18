@@ -27,6 +27,17 @@ namespace PowerUtilities
                 list.Add(onTransferType(item));
             }
         }
+
+        public static void Set(string key,object obj) {
+            var objStr = JsonUtility.ToJson(obj);
+            EditorPrefs.SetString(key, objStr);
+        }
+
+        public static T Get<T>(string key)
+        {
+            var objStr = EditorPrefs.GetString(key, null);
+            return JsonUtility.FromJson<T>(objStr);
+        }
     }
 }
 
