@@ -28,7 +28,7 @@ namespace PowerUtilities
 
         public GroupDecorator(string groupName) : this(groupName, "") { }
         public GroupDecorator(string groupName, string tooltip):this(groupName, tooltip, null) { }
-        public GroupDecorator(string groupName, string tooltip,string checkedMark) : this(groupName, tooltip, checkedMark, null) { }
+        public GroupDecorator(string groupName, string tooltip,string updateProp) : this(groupName, tooltip, updateProp, null) { }
         public GroupDecorator(string groupName, string tooltip, string updateProp, string keywordsWhenChecked)
         {
             this.tooltip = tooltip;

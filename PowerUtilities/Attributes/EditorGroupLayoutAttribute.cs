@@ -31,6 +31,7 @@
             groupInfo.groupName = groupAttr.groupName;
             groupInfo.isOn = MaterialGroupTools.IsGroupOn(groupAttr.groupName);
 
+            
             //draw header
             if (groupAttr.isHeader)
             {
@@ -55,7 +56,7 @@
 #endif
 
     /// <summary>
-    /// Show toggle group in inspector gui
+    /// Show toggle group in inspector gui (GUILaout, CustomEditor)
     /// 
     /// [EditorGroup("Fog",true)] public bool _IsGlobalFogOn;
     /// [EditorGroup("Fog")][Range(0, 1)] public float _GlobalFogIntensity = 1;

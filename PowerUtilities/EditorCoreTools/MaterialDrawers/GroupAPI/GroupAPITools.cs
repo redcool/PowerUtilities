@@ -22,7 +22,8 @@ namespace PowerUtilities
             if (string.IsNullOrEmpty(rangeString))
                 throw new ArgumentNullException(nameof(rangeString));
 
-            const string pattern = @"([a-zA-Z]?)(\d+\.?\d*)";
+            // a12.34_10 0_1.23 0_1 m0.2_1
+            const string pattern = @"([a-zA-Z]?)(\.?\d+\.?\d*)";
             var ms = Regex.Matches(rangeString, pattern);
             
             var count = ms.Count/2;

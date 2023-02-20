@@ -49,7 +49,8 @@
                 if (groupInfo.isOn)
                     position.height -= LINE_HEIGHT;
 
-
+                //EditorGUI.DrawRect(position, Color.red);
+                //GUI.Box(position, EditorGUITools.TempContent("",""),EditorStylesEx.ShurikenModuleBg);
                 groupInfo.isOn = EditorGUI.BeginFoldoutHeaderGroup(position, groupInfo.isOn, groupInfo.groupName);
                 EditorGUI.EndFoldoutHeaderGroup();
             //EditorGUI.DrawRect(position, Color.gray);
@@ -71,7 +72,7 @@
 #endif
 
     /// <summary>
-    /// Show toogle group in inspector gui
+    /// Show toogle group in inspector gui( fields )
     /// 
     /// [EditorGroup("Fog",true)] public bool _IsGlobalFogOn;
     /// [EditorGroup("Fog")][Range(0, 1)] public float _GlobalFogIntensity = 1;

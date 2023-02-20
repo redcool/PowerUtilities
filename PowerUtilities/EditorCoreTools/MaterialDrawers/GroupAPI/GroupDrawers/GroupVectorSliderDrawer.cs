@@ -42,7 +42,7 @@ namespace PowerUtilities
         /// 
         /// sliders 4 : 
         /// *(headers length == ranges length)
-        /// [GroupVectorSlider(group1, a b c d, 0_1 1_2 0_1 0_2)] _Vector("_Vector", vector) = (1,1,1,1)
+        /// [GroupVectorSlider(group1, a b c d, 0_1 1_2 0_1 0_m2)] _Vector("_Vector", vector) = (1,1,1,1)
         /// 
         /// vector3 slider 1 :
         /// * (headers length ==2 && ranges length == 1)

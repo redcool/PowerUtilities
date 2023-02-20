@@ -21,6 +21,7 @@ namespace PowerUtilities
 
             label.text = attr.name;
             label.tooltip = attr.tooltip;
+            label.image = attr.tex;
 
             if (ranges.Length > 0)
             {
@@ -43,11 +44,16 @@ namespace PowerUtilities
     {
         public string name;
         public string tooltip;
+        public Texture tex;
 
-        public DisplayNameAttribute(string name, string tooltip=null)
+        public DisplayNameAttribute(string name, string tooltip = null, string texPath = null)
         {
             this.name = name;
             this.tooltip=tooltip;
+#if UNITY_EDITOR
+            if (!string.IsNullOrEmpty(texPath))
+                tex = AssetDatabase.LoadAssetAtPath<Texture>(texPath);
+#endif
         }
 
         public override string ToString()

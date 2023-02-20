@@ -33,7 +33,7 @@ Shader "Unlit/GroupDrawDemo"
         [GroupEnum(group1,UnityEngine.Rendering.BlendMode)]_GroupEnumBlend("_GroupEnumBlend",int) = 0
 
         // vector slider
-        [GroupVectorSlider(group1,a b c d,0_1 1_2 0_1 0_2)] _Vector("_Vector",vector) = (1,1,1,1)
+        [GroupVectorSlider(group1,a b c d,0_1 1_2 0_1 0_m.2,helps,float)] _Vector("_Vector",vector) = (1,1,1,1)
         [GroupVectorSlider(group1,Dir(xyz) intensity, 0_1)]_Vector2("_Vector2", vector) = (1,0.1,0,1)
         [GroupVectorSlider(group1,a b,0_1 1_2,_Vector3 helps)] _Vector3("_Vector3",vector) = (1,1,1,1)
 

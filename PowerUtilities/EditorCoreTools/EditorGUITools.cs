@@ -14,7 +14,7 @@ namespace PowerUtilities
         public static Color darkGray = new Color(0.2f, 0.3f, 0.4f);
 
         static GUIContent tempContent = new GUIContent();
-        public static GUIContent TempContent(string str,string tooltip)
+        public static GUIContent TempContent(string str,string tooltip="")
         {
             tempContent.text = str;
             tempContent.tooltip = tooltip;
@@ -119,6 +119,11 @@ namespace PowerUtilities
 
 
         #region Foldout
+        /// <summary>
+        /// draw fold header, using in GUILayout 
+        /// </summary>
+        /// <param name="foldInfo"></param>
+        /// <param name="drawContentAction"></param>
         public static void DrawFoldContent(ref (string title, bool fold) foldInfo, Action drawContentAction)
         {
             DrawFoldContent(ref foldInfo, drawContentAction, GUI.contentColor);

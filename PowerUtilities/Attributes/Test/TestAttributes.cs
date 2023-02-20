@@ -20,7 +20,7 @@ namespace PowerUtilities
         public PropEnum propEnum;
 
         [EditorGroup("Group1")]
-        [DisplayName("一个滑块", "slider helps")]
+        [DisplayName("一个滑块", "slider helps","Assets/Gizmos/img1.png")]
         [Range(0, 1)]
         public float propA;
     }
