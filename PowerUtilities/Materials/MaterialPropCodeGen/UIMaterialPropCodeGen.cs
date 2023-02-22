@@ -51,11 +51,12 @@ public class UIMaterialPropCodeGen
         var propCount = shader.GetPropertyCount();
         for (int i = 0; i < propCount; i++)
         {
+            var flags = shader.GetPropertyFlags(i);
             var propName = shader.GetPropertyName(i);
             var propType = shader.GetPropertyType(i);
             var propDefaultValue = GetDefaultValue(i, propType, shader);
 
-            AnalysisProp(propType, propName,propDefaultValue,
+            AnalysisProp(flags,propType, propName,propDefaultValue,
                 fieldSb, updateMatMethodSb, updateBlockMethodSb,readMatSb);
         }
 
@@ -95,7 +96,7 @@ public class UIMaterialPropCodeGen
         _ => $"{shader.GetPropertyDefaultFloatValue(id)}f"
     };
 
-    public static void AnalysisProp(ShaderPropertyType type, string propName, string propValue,
+    public static void AnalysisProp(ShaderPropertyFlags flags,ShaderPropertyType type, string propName, string propValue,
         StringBuilder fieldSb,
         StringBuilder updateMatSb,
         StringBuilder updateBlockSB,
@@ -112,8 +113,9 @@ public class UIMaterialPropCodeGen
         var varTypeName = GetVarableType(type);
         var setMethodName = GetSetMethodName(type);
 
-        //demo : public Color color = shaderDefaultValue
-        fieldSb.Append($"public {varTypeName} {propName} = {propValue};\n");
+        var varDecorator = GetVarDecorator(propName,flags);
+        //demo : [ColorUsage(true,true)] public Color color = shaderDefaultValue
+        fieldSb.AppendLine($"{varDecorator} public {varTypeName} {propName} = {propValue};");
 
         var textureCondition = "";
         if (type == ShaderPropertyType.Texture)
@@ -122,11 +124,22 @@ public class UIMaterialPropCodeGen
         }
 
         //demo : mat.SetColor("_Color",color);
-        updateMatSb.Append($"{textureCondition} mat.Set{setMethodName}(\"{propName}\", {propName});\n");
-        updateBlockSB.Append($"{textureCondition} block.Set{setMethodName}(\"{propName}\", {propName});\n");
+        updateMatSb.AppendLine($"{textureCondition} mat.Set{setMethodName}(\"{propName}\", {propName});");
+        updateBlockSB.AppendLine($"{textureCondition} block.Set{setMethodName}(\"{propName}\", {propName});");
 
         // demo: color = mat.GetColor("_Color");
-        readMatSb.Append($"{propName} = mat.Get{setMethodName}(\"{propName}\");\n");
+        readMatSb.AppendLine($"{propName} = mat.Get{setMethodName}(\"{propName}\");");
+    }
+
+    private static string GetVarDecorator(string propName,ShaderPropertyFlags flags)
+    {
+        var sb = new StringBuilder();
+        if ((flags & ShaderPropertyFlags.HDR) > 0)
+        {
+            sb.Append("[ColorUsage(true,true)]");
+        }
+
+        return sb.ToString();
     }
 
     public static string GetVarableType(ShaderPropertyType type) => type switch
