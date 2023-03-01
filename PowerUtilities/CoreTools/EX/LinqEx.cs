@@ -10,11 +10,21 @@
     {
         public static void ForEach<T>(this IEnumerable<T> q, Action<T> act)
         {
-            if (act == null)
+            if (q == null || act == null)
                 return;
 
             foreach (var item in q)
                 act(item);
+        }
+
+        public static void ForEach<T>(this IEnumerable<T> q, Action<T, int> act)
+        {
+            if (q == null || act == null)
+                return;
+
+            var id = 0;
+            foreach (var item in q)
+                act(item, id++);
         }
 
         public static int FindIndex<T>(this IEnumerable<T> q,Func<T,bool> predication)

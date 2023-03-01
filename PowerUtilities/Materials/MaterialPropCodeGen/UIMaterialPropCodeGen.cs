@@ -22,7 +22,7 @@ public class UIMaterialPropCodeGen
     static void Init()
     {
         var graphs = SelectionTools.GetSelectedComponents<MaskableGraphic>();
-            
+
         foreach (var item in graphs)
         {
             var mat = item.material;
@@ -51,19 +51,25 @@ public class UIMaterialPropCodeGen
         var propCount = shader.GetPropertyCount();
         for (int i = 0; i < propCount; i++)
         {
-            var flags = shader.GetPropertyFlags(i);
+            var propFlags = shader.GetPropertyFlags(i);
+
+            if (!IsValidFlags(propFlags))
+            {
+                continue;
+            }
+
             var propName = shader.GetPropertyName(i);
             var propType = shader.GetPropertyType(i);
             var propDefaultValue = GetDefaultValue(i, propType, shader);
 
-            AnalysisProp(flags,propType, propName,propDefaultValue,
-                fieldSb, updateMatMethodSb, updateBlockMethodSb,readMatSb);
+            AnalysisProp(propFlags, propType, propName, propDefaultValue,
+                fieldSb, updateMatMethodSb, updateBlockMethodSb, readMatSb);
         }
 
         PathTools.CreateAbsFolderPath(PATH);
 
-        var className = shader.name.Replace('/','_');
-        var codeStr = string.Format(CodeTemplate.codeString,
+        var className = shader.name.Replace('/', '_');
+        var codeStr = string.Format(CODE_TEMPLATE,
             className,
             fieldSb.ToString(),
             updateMatMethodSb.ToString(),
@@ -82,12 +88,17 @@ public class UIMaterialPropCodeGen
         AssetDatabase.Refresh();
     }
 
+    private static bool IsValidFlags(ShaderPropertyFlags flags)
+    {
+        return (ShaderPropertyFlags.HideInInspector & flags) == 0;
+    }
+
     public static string FormatVector(Vector4 v)
     {
         return $"({v.x}f,{v.y}f,{v.z}f,{v.w}f)";
     }
 
-    public static string GetDefaultValue(int id, ShaderPropertyType type,Shader shader) => type switch
+    public static string GetDefaultValue(int id, ShaderPropertyType type, Shader shader) => type switch
     {
         //ShaderPropertyType.Texture => $"Texture2D.{shader.GetPropertyTextureDefaultName(id)}Texture",
         ShaderPropertyType.Texture => $"null",
@@ -96,7 +107,7 @@ public class UIMaterialPropCodeGen
         _ => $"{shader.GetPropertyDefaultFloatValue(id)}f"
     };
 
-    public static void AnalysisProp(ShaderPropertyFlags flags,ShaderPropertyType type, string propName, string propValue,
+    public static void AnalysisProp(ShaderPropertyFlags flags, ShaderPropertyType type, string propName, string propValue,
         StringBuilder fieldSb,
         StringBuilder updateMatSb,
         StringBuilder updateBlockSB,
@@ -113,7 +124,7 @@ public class UIMaterialPropCodeGen
         var varTypeName = GetVarableType(type);
         var setMethodName = GetSetMethodName(type);
 
-        var varDecorator = GetVarDecorator(propName,flags);
+        var varDecorator = GetVarDecorator(propName, flags);
         //demo : [ColorUsage(true,true)] public Color color = shaderDefaultValue
         fieldSb.AppendLine($"{varDecorator} public {varTypeName} {propName} = {propValue};");
 
@@ -131,7 +142,7 @@ public class UIMaterialPropCodeGen
         readMatSb.AppendLine($"{propName} = mat.Get{setMethodName}(\"{propName}\");");
     }
 
-    private static string GetVarDecorator(string propName,ShaderPropertyFlags flags)
+    private static string GetVarDecorator(string propName, ShaderPropertyFlags flags)
     {
         var sb = new StringBuilder();
         if ((flags & ShaderPropertyFlags.HDR) > 0)
@@ -158,103 +169,32 @@ public class UIMaterialPropCodeGen
         _ => Enum.GetName(typeof(ShaderPropertyType), type)
     };
 
-}
-
-static class CodeTemplate
-{
-    public const string codeString = @"
-using System.Collections;
-using System.Collections.Generic;
+    public const string CODE_TEMPLATE = @"
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace PowerUtilities
 {{
     [ExecuteInEditMode]
-    public class {0} : MonoBehaviour
+    public class {0} : BaseUIMaterialPropUpdater
     {{
         // props
         {1}
 
-        [Header(""UI Graphs"")]
-        public Graphic[] graphs;
-        public bool useGraphMaterialInstance;
-
-        [Header(""Renderers"")]
-        public Renderer[] renderers;
-        
-        static MaterialPropertyBlock rendererBlock;
-
-        private void Start()
+        public override void ReadFirstMaterial(Material mat)
         {{
-            if (graphs == null || graphs.Length == 0)
-            {{
-                if (gameObject.TryGetComponent<Graphic>(out var comp))
-                    graphs = new []{{comp}};
-            }}
-
-            if(renderers == null || renderers.Length == 0)
-            {{
-                if (gameObject.TryGetComponent<Renderer>(out var comp))
-                    renderers = new []{{comp}};
-            }}
-
-            var isRenderersValid = (renderers != null && renderers.Length>0);
-            var isGraphsValid = (graphs != null && graphs.Length>0);
-            enabled = isRenderersValid || isGraphsValid;
-
-            if (useGraphMaterialInstance && Application.isPlaying)
-                graphs.ForEach(graph => graph.material = Instantiate(graph.material));
-
-            if (enabled)
-            {{
-                var firstMat = isRenderersValid ? renderers[0].sharedMaterial : graphs[0].material;
-                if (firstMat)
-                    ReadFirstMaterial(firstMat);
-            }}
-        }}
-
-        private void Update()
-        {{
-            if(rendererBlock == null)
-                rendererBlock= new MaterialPropertyBlock();
-
-            MaterialPropCodeGenTools.UpdateComponentsMaterial(graphs, (graph,id) => {{
-                UpdateMaterial(graph.material);
-                graph.SetMaterialDirty();
-            }});
-            MaterialPropCodeGenTools.UpdateComponentsMaterial(renderers, (render,id) => {{
-                rendererBlock.Clear();
-                render.GetPropertyBlock(rendererBlock);
-                UpdateBlock(rendererBlock);
-                render.SetPropertyBlock(rendererBlock);
-            }});
-        }}
-
-        private void OnDestroy()
-        {{
-            rendererBlock =null;
-        }}
-        
-        private void Reset()
-        {{
-            if(Application.isEditor)
-                Start();
-        }}
-
-        void ReadFirstMaterial(Material mat)
-        {{
+            if (!mat)
+                return;
             {4}
         }}
 
-        void UpdateMaterial(Material mat)
+        public override void UpdateMaterial(Material mat)
         {{
             if(!mat) 
                 return;
             {2}
         }}
 
-        void UpdateBlock(MaterialPropertyBlock block)
+        public override void UpdateBlock(MaterialPropertyBlock block)
         {{
             if (block == null)
                 return;
