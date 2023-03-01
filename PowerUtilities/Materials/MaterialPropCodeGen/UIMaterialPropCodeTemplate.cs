@@ -39,7 +39,7 @@ namespace PowerUtilities
             var isGraphsValid = (graphs != null && graphs.Length>0);
             enabled = isRenderersValid || isGraphsValid;
 
-            if (useGraphMaterialInstance)
+            if (useGraphMaterialInstance && Application.isPlaying)
                 graphs.ForEach(graph => graph.material = Instantiate(graph.material));
 
             if (enabled)
