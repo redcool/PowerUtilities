@@ -41,7 +41,9 @@ namespace PowerUtilities
             where T : Object
         {
             var paths = AssetDatabase.FindAssets(filter, searchInFolders);
-            var q = paths.Select(pathStr => AssetDatabase.LoadAssetAtPath<T>(AssetDatabase.GUIDToAssetPath(pathStr)));
+
+            var q = paths.Select(pathStr => AssetDatabase.LoadAssetAtPath<T>(AssetDatabase.GUIDToAssetPath(pathStr)))
+                .Where(item => item);
             return q.ToArray();
         }
 
