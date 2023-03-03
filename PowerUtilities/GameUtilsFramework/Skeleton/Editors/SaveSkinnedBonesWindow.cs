@@ -89,7 +89,7 @@ namespace GameUtilsFramework
                         EditorUtility.DisplayDialog("Warning!", "nothing selected ", "ok");
                     }
                 }
-                if (GUILayout.Button("Attack EquipPartControl to RootNode?"))
+                if (GUILayout.Button("Attach EquipPartControl to RootNode?"))
                 {
                     var rootGo = Selection.activeGameObject.transform.root.gameObject;
                     GameObjectTools.GetOrAddComponent<EquipmentPartControl>(rootGo);

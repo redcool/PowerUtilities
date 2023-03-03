@@ -98,6 +98,28 @@ namespace PowerUtilities
             EditorGUILayout.EndHorizontal();
         }
 
+        public static T BeginVerticalBox<T>(Func<T> drawAction, string style = "Box")
+        {
+            if (drawAction == null)
+                return default;
+
+            EditorGUILayout.BeginVertical(style);
+            var result = drawAction();
+            EditorGUILayout.EndVertical();
+            return result;
+        }
+
+        public static T BeginHorizontalBox<T>(Func<T> drawAction, string style = "Box")
+        {
+            if (drawAction == null)
+                return default;
+
+            EditorGUILayout.BeginHorizontal(style);
+            var result = drawAction();
+            EditorGUILayout.EndHorizontal();
+            return result;
+        }
+
         public static void BeginDisableGroup(bool isDisabled, Action drawAction)
         {
             if (drawAction == null)
@@ -308,6 +330,15 @@ namespace PowerUtilities
             }
             EditorGUILayout.EndVertical();
             EditorGUI.indentLevel--;
+        }
+
+        public static string LabelTextField(GUIContent label,string defaultText="")
+        {
+            return BeginHorizontalBox<string>(() =>
+            {
+                EditorGUILayout.LabelField(label, EditorStyles.boldLabel);
+                return EditorGUILayout.TextField(defaultText);
+            });
         }
     }
 }

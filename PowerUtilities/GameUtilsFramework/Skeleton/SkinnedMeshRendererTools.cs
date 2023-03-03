@@ -44,5 +44,7 @@ namespace GameUtilsFramework
             }
             skinned.bones = bones;
         }
+
+        //public static 
     }
 }

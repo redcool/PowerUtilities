@@ -53,6 +53,10 @@ namespace GameUtilsFramework
         public void Equip(Transform parentTr,EquipmentPart overridePart,Transform newBoneRoot)
         {
             var data = overridePart.skinData;
+            if(data == null)
+            {
+                throw new InvalidOperationException("Skin data is null");
+            }
             var overrideSkinned = Object.Instantiate(data.skinnedPrefab);
             overrideSkinned.rootBone = newBoneRoot.Find(data.rootBonePath);
             overrideSkinned.ReassignBones(overridePart.skinData.bonesPath,newBoneRoot);
