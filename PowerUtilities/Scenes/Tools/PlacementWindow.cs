@@ -60,7 +60,7 @@ Hierarchy中对选中节点的子节点进行
 
                 EditorGUITools.BeginHorizontalBox(() =>
                 {
-                    info.target = (Transform)EditorGUILayout.ObjectField("Target: ", info.target, typeof(Transform), true);
+                    info.target = (Transform)EditorGUILayout.ObjectField("Root: ", info.target, typeof(Transform), true);
                     if (GUILayout.Button("this"))
                     {
                         info.target = Selection.activeTransform;
