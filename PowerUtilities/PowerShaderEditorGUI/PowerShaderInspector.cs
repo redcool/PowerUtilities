@@ -29,7 +29,8 @@ namespace PowerUtilities
         {
             _PresetBlendMode,
             _RenderQueue,
-            _ToggleGroups
+            _ToggleGroups,
+            _BakedEmission,
         }
 
         Dictionary<string, bool> materialCodePropDict = new Dictionary<string, bool>();
@@ -229,6 +230,8 @@ namespace PowerUtilities
                 {
                     DrawToggleGroups(mat);
                 }
+                if (MaterialCodeProps.Instance.IsPropExists(MaterialCodeProps.CodePropNames._BakedEmission))
+                    DrawBakedEmission();
             }
 
             if (OnDrawPropertyFinish != null)
@@ -430,6 +433,19 @@ namespace PowerUtilities
             }, mat => { 
                 MaterialGroupTools.SetStateAll(isAllGroupsOpen);
             });
+        }
+
+        void DrawBakedEmission()
+        {
+            EditorGUI.BeginChangeCheck();
+            //GUILayout.Label("Material ", EditorStyles.boldLabel);
+            materialEditor.LightmapEmissionProperty();
+            if (EditorGUI.EndChangeCheck())
+            {
+                foreach(Material mat in materialEditor.targets)
+                    mat.globalIlluminationFlags &= ~MaterialGlobalIlluminationFlags.EmissiveIsBlack;
+
+            }
         }
 
         PresetBlendMode GetPresetBlendMode(BlendMode srcMode, BlendMode dstMode)
