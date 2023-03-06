@@ -31,57 +31,76 @@ namespace GameUtilsFramework
     [CustomPropertyDrawer(typeof(SkeletonSyncInfo))]
     public class SkeletonSyncInfoDrawer : PropertyDrawer
     {
+        int LINE_HEIGHT = 18;
+        int ITEM_WIDTH = 200;
+        int INDENT = 0;
+        int TITLE_LINE_COUNT = 2;
+
+        Vector2 scrollPos;
+
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             var boneTrs = property.FindPropertyRelative(nameof(SkeletonSyncInfo.boneTrs));
             var offsets = property.FindPropertyRelative(nameof(SkeletonSyncInfo.offsets));
             var targetBones = property.FindPropertyRelative(nameof(SkeletonSyncInfo.targetBoneTrs));
+            var depths = property.FindPropertyRelative(nameof(SkeletonSyncInfo.boneDepths));
 
             var startPos = position;
-            startPos.height = 18;
-            //startPos.y += 18;
+            startPos.height = LINE_HEIGHT;
+            //startPos.y += LINE_HEIGHT;
 
             var sizeProp = boneTrs.FindPropertyRelative("Array.size");
 
-            boneTrs.isExpanded = EditorGUI.BeginFoldoutHeaderGroup(startPos,boneTrs.isExpanded,label);
-
+            boneTrs.isExpanded = EditorGUI.BeginFoldoutHeaderGroup(startPos, boneTrs.isExpanded, label);
+            var viewRect = new Rect(0, 0, EditorGUIUtility.currentViewWidth, 100);
             if (boneTrs.isExpanded)
             {
-                startPos.y += 18;
-                EditorGUI.PropertyField(startPos, sizeProp);
-
-                startPos.width = 200;
-                startPos.y += 18;
-                EditorGUI.LabelField(startPos, "Bone");
-                startPos.x += 200;
-                EditorGUI.LabelField(startPos, "TargetBone");
-                startPos.x += 200;
-                EditorGUI.LabelField(startPos, "Offset");
-
-                EditorGUI.indentLevel+=2;
-
-                for (int i = 0; i < boneTrs.arraySize; i++)
+                //scrollPos = GUI.BeginScrollView(position, scrollPos, viewRect);
                 {
-                    startPos.x = 0;
-                    startPos.y += 18;
-                    //GUILayout.BeginHorizontal();
-                    var boneTrProp = boneTrs.GetArrayElementAtIndex(i);
-                    EditorGUI.ObjectField(startPos, boneTrProp.objectReferenceValue,typeof(Transform),true);
+                    startPos.y += LINE_HEIGHT;
+                    EditorGUI.PropertyField(startPos, sizeProp);
 
-                    startPos.x += 200;
-                    var targetBoneProp = targetBones.GetArrayElementAtIndex(i);
+                    startPos.width = ITEM_WIDTH;
+                    startPos.y += LINE_HEIGHT;
+                    EditorGUI.LabelField(startPos, "Bone");
+                    startPos.x += ITEM_WIDTH;
+                    EditorGUI.LabelField(startPos, "TargetBone");
+                    startPos.x += ITEM_WIDTH;
+                    EditorGUI.LabelField(startPos, "Offset");
 
-                    targetBoneProp.objectReferenceValue = EditorGUI.ObjectField(startPos, targetBoneProp.objectReferenceValue, typeof(Transform), true);
-                    //EditorGUI.PropertyField(startPos, targetBoneProp.FindPropertyRelative("data"));
+                    EditorGUI.indentLevel+=INDENT;
+                    for (int i = 0; i < boneTrs.arraySize; i++)
+                    {
+                        var boneDepth = depths.GetArrayElementAtIndex(i).intValue;
+                        //--------- bone
+                        //EditorGUI.indentLevel += boneDepth;
 
-                    startPos.x += 200;
-                    var offsetProp = offsets.GetArrayElementAtIndex(i);
-                     EditorGUI.Vector4Field(startPos, "", offsetProp.vector4Value);
-                    //EditorGUI.PropertyField(startPos, offsetProp);
-                    //GUILayout.EndHorizontal();
-                    
+                        startPos.x = 0;
+                        startPos.y += LINE_HEIGHT;
+                        EditorGUI.LabelField(startPos, i.ToString());
+
+                        startPos.x +=40;
+                        //GUILayout.BeginHorizontal();
+                        var boneTrProp = boneTrs.GetArrayElementAtIndex(i);
+                        boneTrProp.objectReferenceValue = EditorGUI.ObjectField(startPos, boneTrProp.objectReferenceValue, typeof(Transform), true);
+
+                        startPos.x += ITEM_WIDTH;
+                        var targetBoneProp = targetBones.GetArrayElementAtIndex(i);
+                        targetBoneProp.objectReferenceValue = EditorGUI.ObjectField(startPos, targetBoneProp.objectReferenceValue, typeof(Transform), true);
+                        //EditorGUI.PropertyField(startPos, targetBoneProp.FindPropertyRelative("data"));
+                        //EditorGUI.indentLevel -= boneDepth;
+                        //--------- offset
+                        startPos.x += ITEM_WIDTH;
+                        var offsetProp = offsets.GetArrayElementAtIndex(i);
+                        offsetProp.vector3Value = EditorGUI.Vector3Field(startPos, "", offsetProp.vector3Value);
+                        //EditorGUI.PropertyField(startPos, offsetProp);
+                        //GUILayout.EndHorizontal();
+
+
+                    }
+                    EditorGUI.indentLevel -=INDENT;
                 }
-                EditorGUI.indentLevel -=2;
+                //GUI.EndScrollView();
             }
             EditorGUI.EndFoldoutHeaderGroup();
         }
@@ -90,10 +109,10 @@ namespace GameUtilsFramework
 
             var boneTrs = property.FindPropertyRelative("boneTrs");
             var size = 1;
-            if(boneTrs.isExpanded)
-                size += boneTrs.arraySize+1;
+            if (boneTrs.isExpanded)
+                size += boneTrs.arraySize+TITLE_LINE_COUNT;
 
-            return size * 18;
+            return size * LINE_HEIGHT;
         }
     }
 #endif
