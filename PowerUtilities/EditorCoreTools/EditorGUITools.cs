@@ -47,12 +47,19 @@ namespace PowerUtilities
 
         public static void DrawColorLabel(string label, Color color)
         {
+            //var c = GUI.color;
+            //GUI.color = color;
+            //EditorGUILayout.LabelField(label);
+            //GUI.color = c;
+            DrawColorLabel(EditorGUILayout.GetControlRect(), TempContent(label), color);
+        }
+        public static void DrawColorLabel(Rect position,GUIContent label, Color color)
+        {
             var c = GUI.color;
             GUI.color = color;
-            EditorGUILayout.LabelField(label);
+            EditorGUI.LabelField(position, label);
             GUI.color = c;
         }
-
         public static void DrawColorUI(Action drawAction, Color contentColor, Color color)
         {
             if (drawAction == null)
