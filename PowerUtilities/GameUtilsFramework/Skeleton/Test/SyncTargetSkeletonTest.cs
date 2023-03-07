@@ -97,7 +97,7 @@ namespace PowerUtilities
 
         public void Start()
         {
-            //RecordSkeleton(skinned, targetSkinned,out bonesOffset,out bindposePostions);
+            //MappingSkeleton(skinned, targetSkinned,out bonesOffset,out bindposePostions);
             //offset = b.position - b.root.position - (a.position-a.root.position);
         }
 

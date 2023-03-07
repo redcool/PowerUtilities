@@ -19,10 +19,15 @@ namespace GameUtilsFramework
             //EditorGUILayout.SelectableLabel(helpStr);
             DrawDefaultGUI();
             GUILayout.BeginVertical("Box");
-            if (GUILayout.Button("Record Target Skeleton"))
+            GUILayout.Label("Options");
+            if (GUILayout.Button("Auto Mapping Skeleton"))
             {
-                //inst.info = SkeletonSync.RecordSkeleton(inst.skinned, inst.targetSkinned,inst.rootBone,inst.targetRootBone);
-                inst.info  = SkeletonSync.RecordSkeleton(inst.rootBone, inst.targetRootBone);
+                //inst.info = SkeletonSync.MappingSkeleton(inst.skinned, inst.targetSkinned,inst.rootBone,inst.targetRootBone);
+                inst.info  = SkeletonSync.MappingSkeleton(inst.rootBone, inst.targetRootBone);
+            }
+            if (GUILayout.Button("Restore Skeleton from info"))
+            {
+                SkeletonSync.ReassignSkeleton(inst.rootBone, inst.info);
             }
             GUILayout.EndVertical();
         }
@@ -36,7 +41,6 @@ namespace GameUtilsFramework
         int INDENT = 0;
         int TITLE_LINE_COUNT = 2;
 
-        Vector2 scrollPos;
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
@@ -44,6 +48,7 @@ namespace GameUtilsFramework
             var offsets = property.FindPropertyRelative(nameof(SkeletonSyncInfo.offsets));
             var targetBones = property.FindPropertyRelative(nameof(SkeletonSyncInfo.targetBoneTrs));
             var depths = property.FindPropertyRelative(nameof(SkeletonSyncInfo.boneDepths));
+            var targetBonePaths = property.FindPropertyRelative(nameof(SkeletonSyncInfo.targetBonePaths));
 
             var startPos = position;
             startPos.height = LINE_HEIGHT;
@@ -55,48 +60,15 @@ namespace GameUtilsFramework
             var viewRect = new Rect(0, 0, EditorGUIUtility.currentViewWidth, 100);
             if (boneTrs.isExpanded)
             {
+                GUI.Box(position,"");
                 //scrollPos = GUI.BeginScrollView(position, scrollPos, viewRect);
                 {
-                    startPos.y += LINE_HEIGHT;
-                    EditorGUI.PropertyField(startPos, sizeProp);
-
-                    startPos.width = ITEM_WIDTH;
-                    startPos.y += LINE_HEIGHT;
-                    EditorGUI.LabelField(startPos, "Bone");
-                    startPos.x += ITEM_WIDTH;
-                    EditorGUI.LabelField(startPos, "TargetBone");
-                    startPos.x += ITEM_WIDTH;
-                    EditorGUI.LabelField(startPos, "Offset");
+                    DrawInfoHeader(ref startPos, sizeProp);
 
                     EditorGUI.indentLevel+=INDENT;
                     for (int i = 0; i < boneTrs.arraySize; i++)
                     {
-                        var boneDepth = depths.GetArrayElementAtIndex(i).intValue;
-                        //--------- bone
-                        //EditorGUI.indentLevel += boneDepth;
-
-                        startPos.x = 0;
-                        startPos.y += LINE_HEIGHT;
-                        EditorGUI.LabelField(startPos, i.ToString());
-
-                        startPos.x +=40;
-                        //GUILayout.BeginHorizontal();
-                        var boneTrProp = boneTrs.GetArrayElementAtIndex(i);
-                        boneTrProp.objectReferenceValue = EditorGUI.ObjectField(startPos, boneTrProp.objectReferenceValue, typeof(Transform), true);
-
-                        startPos.x += ITEM_WIDTH;
-                        var targetBoneProp = targetBones.GetArrayElementAtIndex(i);
-                        targetBoneProp.objectReferenceValue = EditorGUI.ObjectField(startPos, targetBoneProp.objectReferenceValue, typeof(Transform), true);
-                        //EditorGUI.PropertyField(startPos, targetBoneProp.FindPropertyRelative("data"));
-                        //EditorGUI.indentLevel -= boneDepth;
-                        //--------- offset
-                        startPos.x += ITEM_WIDTH;
-                        var offsetProp = offsets.GetArrayElementAtIndex(i);
-                        offsetProp.vector3Value = EditorGUI.Vector3Field(startPos, "", offsetProp.vector3Value);
-                        //EditorGUI.PropertyField(startPos, offsetProp);
-                        //GUILayout.EndHorizontal();
-
-
+                        DrawInfoItem(ref startPos, boneTrs, targetBones, depths, targetBonePaths, i);
                     }
                     EditorGUI.indentLevel -=INDENT;
                 }
@@ -104,10 +76,62 @@ namespace GameUtilsFramework
             }
             EditorGUI.EndFoldoutHeaderGroup();
         }
+
+        private void DrawInfoItem(ref Rect startPos,
+            SerializedProperty boneTrs, SerializedProperty targetBones, SerializedProperty depths,
+            SerializedProperty targetBonePaths,int i)
+        {
+            var boneDepth = depths.GetArrayElementAtIndex(i).intValue;
+            var boneTrProp = boneTrs.GetArrayElementAtIndex(i);
+            var targetBoneProp = targetBones.GetArrayElementAtIndex(i);
+            var targetBonePath = targetBonePaths.GetArrayElementAtIndex(i);
+
+            //EditorGUI.indentLevel += boneDepth;
+            // bone id
+            startPos.x = 0;
+            startPos.y += LINE_HEIGHT;
+            EditorGUI.LabelField(startPos, i.ToString());
+            var bgColor = targetBoneProp.objectReferenceValue ? GUI.color : Color.yellow;
+            EditorGUITools.DrawColorLabel(startPos, EditorGUITools.TempContent(i.ToString()), bgColor);
+            // bone
+            startPos.x +=40;
+            EditorGUI.ObjectField(startPos, boneTrProp.objectReferenceValue, typeof(Transform), true);
+
+            // target bone
+            EditorGUI.BeginChangeCheck();
+            startPos.x += ITEM_WIDTH;
+            targetBoneProp.objectReferenceValue = EditorGUI.ObjectField(startPos, targetBoneProp.objectReferenceValue, typeof(Transform), true);
+            if (EditorGUI.EndChangeCheck() && targetBoneProp.objectReferenceValue!=null)
+            {
+                Transform boneTr = (Transform)targetBoneProp.objectReferenceValue;
+                var targetRootBone = ((SkeletonSync)targetBoneProp.serializedObject.targetObject).targetRootBone;
+                targetBonePath.stringValue = boneTr.GetHierarchyPath(targetRootBone.name);
+            }
+
+            //--------- offset
+            startPos.x += ITEM_WIDTH;
+            //var offsetProp = offsets.GetArrayElementAtIndex(i);
+            //offsetProp.vector3Value = EditorGUI.Vector3Field(startPos, "", offsetProp.vector3Value);
+            EditorGUI.LabelField(startPos, targetBonePath.stringValue);
+        }
+
+        void DrawInfoHeader(ref Rect startPos, SerializedProperty sizeProp)
+        {
+            startPos.y += LINE_HEIGHT;
+            EditorGUI.PropertyField(startPos, sizeProp);
+
+            startPos.width = ITEM_WIDTH;
+            startPos.y += LINE_HEIGHT;
+            EditorGUI.LabelField(startPos, "Bone");
+            startPos.x += ITEM_WIDTH;
+            EditorGUI.LabelField(startPos, "TargetBone");
+            startPos.x += ITEM_WIDTH;
+            EditorGUI.LabelField(startPos, "Offset");
+        }
+
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
-
-            var boneTrs = property.FindPropertyRelative("boneTrs");
+            var boneTrs = property.FindPropertyRelative(nameof(SkeletonSyncInfo.boneTrs));
             var size = 1;
             if (boneTrs.isExpanded)
                 size += boneTrs.arraySize+TITLE_LINE_COUNT;
@@ -137,9 +161,11 @@ namespace GameUtilsFramework
         {
             public Transform[] boneTrs;
             public Vector3[] offsets;
-            public Transform[] targetBoneTrs;
             public string[] bonePaths;
             public int[] boneDepths;
+
+            public Transform[] targetBoneTrs;
+            public string[] targetBonePaths;
 
             public SkeletonSyncInfo(int boneLength)
             {
@@ -148,11 +174,12 @@ namespace GameUtilsFramework
                 targetBoneTrs = new Transform[boneLength];
                 bonePaths = new string[boneLength];
                 boneDepths = new int[boneLength];
+                targetBonePaths = new string[boneLength];
             }
         }
 
 
-        public static SkeletonSyncInfo RecordSkeleton(Transform rootBone,Transform targetRootBone)
+        public static SkeletonSyncInfo MappingSkeleton(Transform rootBone,Transform targetRootBone)
         {
             if (!rootBone || !targetRootBone)
                 throw new ArgumentNullException("rootBone is null");
@@ -185,7 +212,11 @@ namespace GameUtilsFramework
                 // find bone by name
                 if (!targetBone)
                 {
-                    targetBonesDict.TryGetValue(curBone.name, out targetBone);
+                    if(targetBonesDict.TryGetValue(curBone.name, out targetBone))
+                    {
+                        targetBonesDict[curBone.name] = targetBone;
+                        targetBonePath = targetBone.GetHierarchyPath(targetRootBone);
+                    }
                 }
                 if (!targetBone)
                 {
@@ -200,6 +231,7 @@ namespace GameUtilsFramework
                 }
                 info.boneTrs[i] = curBone;
                 info.targetBoneTrs[i] = targetBone;
+                info.targetBonePaths[i] = targetBonePath;
                 info.bonePaths[i] = curBonePath;
                 info.boneDepths[i] = curBonePath.Count(c => c == '/');
             }
@@ -207,10 +239,22 @@ namespace GameUtilsFramework
             return info;
         }
 
+        public static void ReassignSkeleton(Transform rootBone,SkeletonSyncInfo info)
+        {
+            if (!rootBone || info == null)
+                return;
+
+            for (int i = 0; i < info.bonePaths.Length; i++)
+            {
+                var bonePath = info.bonePaths[i];
+                info.boneTrs[i] = rootBone.Find(bonePath);
+            }
+        }
+
         public void Start()
         {
             if (info == null || info.boneTrs == null)
-                info = RecordSkeleton(rootBone, targetRootBone);
+                info = MappingSkeleton(rootBone, targetRootBone);
         }
 
         void LateUpdate()
