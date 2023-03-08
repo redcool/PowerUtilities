@@ -68,6 +68,12 @@ namespace GameUtilsFramework
                     EditorGUI.indentLevel+=INDENT;
                     for (int i = 0; i < boneTrs.arraySize; i++)
                     {
+                        if (i>= targetBonePaths.arraySize)
+                        {
+                            EditorGUI.LabelField(startPos, "Skeleton Info not complete inited");
+                            break;
+                        }
+
                         DrawInfoItem(ref startPos, boneTrs, targetBones, depths, targetBonePaths, i);
                     }
                     EditorGUI.indentLevel -=INDENT;
@@ -81,6 +87,7 @@ namespace GameUtilsFramework
             SerializedProperty boneTrs, SerializedProperty targetBones, SerializedProperty depths,
             SerializedProperty targetBonePaths,int i)
         {
+
             var boneDepth = depths.GetArrayElementAtIndex(i).intValue;
             var boneTrProp = boneTrs.GetArrayElementAtIndex(i);
             var targetBoneProp = targetBones.GetArrayElementAtIndex(i);
@@ -264,7 +271,7 @@ namespace GameUtilsFramework
 
             info.boneTrs.ForEach((boneTr, i) =>
             {
-                if (info.targetBoneTrs[i])
+                if (boneTr && info.targetBoneTrs[i])
                 {
                     boneTr.rotation = info.targetBoneTrs[i].rotation;
                     if (info.boneDepths[i] < syncPositionMinBoneDepth)
