@@ -39,8 +39,11 @@
 
         public static string GetHierarchyPath(this Transform tr, string rootTrName , string separator = "/")
         {
-            if (!tr)
+            if (!tr || string.IsNullOrEmpty(rootTrName))
                 return "";
+
+            if (tr.name == rootTrName)
+                return rootTrName;
 
             var sb = new StringBuilder();
             sb.Append(tr.name);
