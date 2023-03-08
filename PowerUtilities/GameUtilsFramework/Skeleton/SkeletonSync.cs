@@ -3,11 +3,11 @@ namespace GameUtilsFramework
     using UnityEngine;
     using System;
     using PowerUtilities;
+    using System.Linq;
+    using System.Collections.Generic;
 #if UNITY_EDITOR
     using UnityEditor;
     using static GameUtilsFramework.SkeletonSync;
-    using System.Linq;
-    using System.Collections.Generic;
 
     [CustomEditor(typeof(SkeletonSync))]
     public class SyncSkeletonEditor : PowerEditor<SkeletonSync>
