@@ -1,10 +1,6 @@
-﻿using Codice.Client.BaseCommands.CheckIn;
+﻿#if UNITY_EDITOR
 using PowerUtilities;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 
@@ -87,3 +83,4 @@ namespace GameUtilsFramework
         }
     }
 }
+#endif
