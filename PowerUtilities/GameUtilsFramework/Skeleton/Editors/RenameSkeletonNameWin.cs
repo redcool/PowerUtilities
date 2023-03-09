@@ -3,6 +3,7 @@ using PowerUtilities;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 namespace GameUtilsFramework {
@@ -14,7 +15,7 @@ namespace GameUtilsFramework {
 
         (string, bool) renameInfo = ("Replace Names:",true);
 
-        [MenuItem(SaveSkinnedBonesWindow.MENU_PATH+"/RenameSkeletonNameWin")]
+        [MenuItem(SaveSkinnedBonesWindow.MENU_PATH+"/Rename Skeleton Name Win")]
         static void OpenWindow()
         {
             var win = GetWindow<RenameSkeletonNameWin>();
@@ -46,8 +47,12 @@ namespace GameUtilsFramework {
             if (string.IsNullOrEmpty(findStr) || string.IsNullOrEmpty(replaceStr))
                 return;
 
-            var trs = go.GetComponentsInChildren<Transform>();
-            trs.ForEach(t => { 
+            var gos = go.GetComponentsInChildren<Transform>()
+                .Select(tr => tr.gameObject)
+                .ToArray();
+
+            Undo.RecordObjects(gos, "Before Rename "+replaceStr);
+            gos.ForEach(t => { 
                 t.name = t.name.Replace(findStr, replaceStr);
             });
         }

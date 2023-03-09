@@ -1,4 +1,5 @@
-﻿using PowerUtilities;
+﻿using Codice.Client.BaseCommands.CheckIn;
+using PowerUtilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -65,20 +66,19 @@ namespace GameUtilsFramework
 
             var indent = EditorGUI.indentLevel;
             scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition);
+
+            Undo.RecordObject(skinned, "Before change "+skinned.name);
             for (int i = 0; i < skinned.bones.Length; i++)
             {
                 var boneTr = bones[i];
 
                 EditorGUI.indentLevel = boneDepths[i];
 
-                EditorGUILayout.BeginHorizontal();
-
+                EditorGUITools.BeginHorizontalBox(() =>
                 {
-                    GUILayout.Label(i.ToString(),GUILayout.Width(20));
+                    GUILayout.Label(i.ToString(), GUILayout.Width(20));
                     bones[i] = (Transform)EditorGUILayout.ObjectField(boneTr, typeof(Transform), true);
-                }
-                GUILayout.EndHorizontal();
-//);
+                });
             }
             EditorGUILayout.EndScrollView();
             EditorGUI.indentLevel = indent;
