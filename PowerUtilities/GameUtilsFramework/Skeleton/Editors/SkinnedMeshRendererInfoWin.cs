@@ -30,17 +30,20 @@ namespace GameUtilsFramework
             });
             if (EditorGUI.EndChangeCheck() || bonePaths == null)
             {
-                InitBoneInfos();
+                InitBoneInfos(skinned,out bonePaths,out boneDepths);
             }
 
             if (!skinned)
                 return;
-            
-            DrawBoneInfos();
+
+            DrawBoneInfos(skinned, bonePaths, boneDepths, ref scrollPosition);
         }
 
-        private void InitBoneInfos()
+        public static void InitBoneInfos(SkinnedMeshRenderer skinned, out string[] bonePaths,out int[] boneDepths)
         {
+            bonePaths = null;
+            boneDepths = null;
+
             if (!skinned)
                 return;
 
@@ -54,7 +57,7 @@ namespace GameUtilsFramework
             }
         }
 
-        private void DrawBoneInfos()
+        public static void DrawBoneInfos(SkinnedMeshRenderer skinned,string[] bonePaths,int[] boneDepths,ref Vector2 scrollPosition)
         {
             EditorGUILayout.HelpBox($"{skinned} bones {skinned.bones.Length}", MessageType.Info);
 

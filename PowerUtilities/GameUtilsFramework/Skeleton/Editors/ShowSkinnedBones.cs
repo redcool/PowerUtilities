@@ -16,29 +16,25 @@ namespace GameUtilsFramework
             base.OnInspectorGUI();
 
             var inst = (ShowSkinnedBones)target;
-            if (!inst.skinnedMeshRenderer)
+            if (!inst.skinned)
             {
-                inst.skinnedMeshRenderer = inst.GetComponent<SkinnedMeshRenderer>();
+                inst.skinned = inst.GetComponent<SkinnedMeshRenderer>();
 
-                if (!inst.skinnedMeshRenderer)
+                if (!inst.skinned)
+                {
+                    EditorGUILayout.LabelField("SkinnedMeshRenderer not found.");
                     return;
-            }
-            EditorGUILayout.LabelField(inst.skinnedMeshRenderer.name + " bones :");
-
-            scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition);
-
-            foreach (var item in inst.skinnedMeshRenderer.bones)
-            {
-                EditorGUILayout.ObjectField(item, typeof(Transform), true);
+                }
             }
 
-            EditorGUILayout.EndScrollView();
+            SkinnedMeshRendererInfoWin.InitBoneInfos(inst.skinned,out var bonePaths,out var boneDepths);
+            SkinnedMeshRendererInfoWin.DrawBoneInfos(inst.skinned,bonePaths,boneDepths,ref scrollPosition);
         }
     }
 #endif
 
     public class ShowSkinnedBones : MonoBehaviour
     {
-        public SkinnedMeshRenderer skinnedMeshRenderer;
+        public SkinnedMeshRenderer skinned;
     }
 }
