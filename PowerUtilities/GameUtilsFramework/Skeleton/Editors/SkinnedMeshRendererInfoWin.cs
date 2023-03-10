@@ -1,9 +1,6 @@
-﻿using PowerUtilities;
-using System;
-using System.Collections.Generic;
+﻿#if UNITY_EDITOR
+using PowerUtilities;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 
@@ -33,17 +30,20 @@ namespace GameUtilsFramework
             });
             if (EditorGUI.EndChangeCheck() || bonePaths == null)
             {
-                InitBoneInfos();
+                InitBoneInfos(skinned,out bonePaths,out boneDepths);
             }
 
             if (!skinned)
                 return;
-            
-            DrawBoneInfos();
+
+            DrawBoneInfos(skinned, bonePaths, boneDepths, ref scrollPosition);
         }
 
-        private void InitBoneInfos()
+        public static void InitBoneInfos(SkinnedMeshRenderer skinned, out string[] bonePaths,out int[] boneDepths)
         {
+            bonePaths = null;
+            boneDepths = null;
+
             if (!skinned)
                 return;
 
@@ -57,7 +57,7 @@ namespace GameUtilsFramework
             }
         }
 
-        private void DrawBoneInfos()
+        public static void DrawBoneInfos(SkinnedMeshRenderer skinned,string[] bonePaths,int[] boneDepths,ref Vector2 scrollPosition)
         {
             EditorGUILayout.HelpBox($"{skinned} bones {skinned.bones.Length}", MessageType.Info);
 
@@ -65,20 +65,19 @@ namespace GameUtilsFramework
 
             var indent = EditorGUI.indentLevel;
             scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition);
+
+            Undo.RecordObject(skinned, "Before change "+skinned.name);
             for (int i = 0; i < skinned.bones.Length; i++)
             {
                 var boneTr = bones[i];
 
                 EditorGUI.indentLevel = boneDepths[i];
 
-                EditorGUILayout.BeginHorizontal();
-
+                EditorGUITools.BeginHorizontalBox(() =>
                 {
-                    GUILayout.Label(i.ToString(),GUILayout.Width(20));
+                    GUILayout.Label(i.ToString(), GUILayout.Width(20));
                     bones[i] = (Transform)EditorGUILayout.ObjectField(boneTr, typeof(Transform), true);
-                }
-                GUILayout.EndHorizontal();
-//);
+                });
             }
             EditorGUILayout.EndScrollView();
             EditorGUI.indentLevel = indent;
@@ -87,3 +86,4 @@ namespace GameUtilsFramework
         }
     }
 }
+#endif
