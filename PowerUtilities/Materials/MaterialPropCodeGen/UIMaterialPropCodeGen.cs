@@ -155,7 +155,9 @@ public class UIMaterialPropCodeGen
 
     public static string GetVarableType(ShaderPropertyType type) => type switch
     {
+#if UNITY_2021
         ShaderPropertyType.Int => "int",
+#endif
         ShaderPropertyType.Range => "float",
         ShaderPropertyType.Float => "float",
         ShaderPropertyType.Texture => "Texture",
