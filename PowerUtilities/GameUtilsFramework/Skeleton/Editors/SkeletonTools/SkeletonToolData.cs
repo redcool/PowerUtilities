@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Permissions;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -16,6 +17,10 @@ namespace GameUtilsFramework
         public GameObject skeletonObj;
         public bool isShowHierarchy=true;
         public bool isKeepChildren = true;
+
+        ///
+        public bool isStartRecordChildren;
+        public bool isUpdateChildren;
     }
 }
 #endif
