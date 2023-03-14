@@ -11,10 +11,10 @@ using System.Linq;
 namespace GameUtilsFramework
 {
 
-    public class SkeletonTools
+    public class SkeletonSceneViewTool
     {
-        static SkeletonToolData skeletonToolData = null;
-        public static SkeletonToolData SkeletonToolData
+        static SkeletonSceneViewToolData skeletonToolData = null;
+        public static SkeletonSceneViewToolData SkeletonToolData
         {
             get
             {
@@ -105,13 +105,13 @@ namespace GameUtilsFramework
             }
         }
 
-        private static void DrawToolbar(SkeletonToolData data)
+        private static void DrawToolbar(SkeletonSceneViewToolData data)
         {
             var toolbarWidth = data.enable ? EditorGUIUtility.currentViewWidth - 200 : 120;
             GUILayout.BeginArea(new Rect(50, 0, toolbarWidth, 24));
             GUILayout.BeginHorizontal(EditorStylesEx.ShurikenModuleBg);
             {
-                data.enable = EditorGUILayout.ToggleLeft(nameof(SkeletonTools), data.enable);
+                data.enable = EditorGUILayout.ToggleLeft(nameof(SkeletonSceneViewTool), data.enable);
                 if (data.enable)
                 {
                     data.skeletonObj = EditorGUILayout.ObjectField(data.skeletonObj, typeof(GameObject), true) as GameObject;
@@ -123,19 +123,19 @@ namespace GameUtilsFramework
             GUILayout.EndArea();
         }
 
-        private static void LoadDefaultSkeletonData(ref SkeletonToolData data)
+        private static void LoadDefaultSkeletonData(ref SkeletonSceneViewToolData data)
         {
             if (data)
                 return;
 
             const string PATH = "Assets/PowerUtilities/SkeletonData.asset";
-            var items = AssetDatabaseTools.FindAssetsInProject<SkeletonToolData>("SkeletonData");
+            var items = AssetDatabaseTools.FindAssetsInProject<SkeletonSceneViewToolData>("SkeletonData");
             if (items.Length == 0)
             {
                 PathTools.CreateAbsFolderPath(PATH);
                 AssetDatabase.Refresh();
 
-                data = ScriptableObject.CreateInstance<SkeletonToolData>();
+                data = ScriptableObject.CreateInstance<SkeletonSceneViewToolData>();
                 AssetDatabase.CreateAsset(data, PATH);
             }
             else
@@ -146,7 +146,7 @@ namespace GameUtilsFramework
 
 
 
-        private static void DrawSkeletonHierarchy(SkeletonToolData data)
+        private static void DrawSkeletonHierarchy(SkeletonSceneViewToolData data)
         {
             if (!data.skeletonObj || !data.isShowHierarchy)
                 return;
@@ -157,7 +157,7 @@ namespace GameUtilsFramework
             DrawJoints(data);
         }
 
-        private static void DrawJoints(SkeletonToolData data)
+        private static void DrawJoints(SkeletonSceneViewToolData data)
         {
             var trs = data.skeletonObj.GetComponentsInChildren<Transform>();
             for (int i = 0; i < trs.Length; i++)
@@ -171,7 +171,7 @@ namespace GameUtilsFramework
             }
         }
 
-        private static void FindSkeletonLines(SkeletonToolData data,List<Vector3> skeletonLinesList)
+        private static void FindSkeletonLines(SkeletonSceneViewToolData data,List<Vector3> skeletonLinesList)
         {
             //if (data.isUpdateChildren || skeletonLinesList.Count == 0)
             {

@@ -14,7 +14,7 @@ namespace GameUtilsFramework
         int[] boneDepths;
 
 
-        [MenuItem(SaveSkinnedBonesWindow.MENU_PATH+"/Skinned Mesh Renderer Bones Info")]
+        [MenuItem(SaveSkinnedBonesWindow.MENU_PATH+"/Tools/Skinned Mesh Renderer Bones Info")]
         static void ShowWin()
         {
             GetWindow<SkinnedMeshRendererInfoWin>().Show();

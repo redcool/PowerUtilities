@@ -12,11 +12,12 @@ namespace GameUtilsFramework
     [CustomEditor(typeof(SkeletonSync))]
     public class SyncSkeletonEditor : PowerEditor<SkeletonSync>
     {
-        const string helpStr = "Sync TargetSkinned to Skinned";
+        const string helpStr = "Drive RootBone(Skeleton) by TargetRootBone(Skeleton)";
 
         public override void DrawInspectorUI(SkeletonSync inst)
         {
-            //EditorGUILayout.SelectableLabel(helpStr);
+            EditorGUILayout.HelpBox(helpStr, MessageType.Info);
+
             DrawDefaultGUI();
             GUILayout.BeginVertical("Box");
             GUILayout.Label("Options");
@@ -147,7 +148,7 @@ namespace GameUtilsFramework
         }
     }
 #endif
-
+   
     public class SkeletonSync : MonoBehaviour
     {
         [Header("Reference Skeleton")]

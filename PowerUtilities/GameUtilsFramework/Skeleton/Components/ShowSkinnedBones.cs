@@ -32,7 +32,7 @@ namespace GameUtilsFramework
         }
     }
 #endif
-
+    [AddComponentMenu("")]
     public class ShowSkinnedBones : MonoBehaviour
     {
         public SkinnedMeshRenderer skinned;

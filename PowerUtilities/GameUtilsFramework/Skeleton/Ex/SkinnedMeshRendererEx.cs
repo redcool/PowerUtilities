@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace GameUtilsFramework
 {
-    public static class SkinnedMeshRendererTools
+    public static class SkinnedMeshRendererEx
     {
         public static void RetargetBones(this SkinnedMeshRenderer skinned,string lastRootBoneName, Transform newRootBone)
         {

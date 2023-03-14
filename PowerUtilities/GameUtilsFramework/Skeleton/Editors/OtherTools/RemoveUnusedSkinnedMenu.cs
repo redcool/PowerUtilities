@@ -10,7 +10,7 @@ namespace GameUtilsFramework
 
     public class RemoveUnusedSkinnedMenu
     {
-        [MenuItem(SaveSkinnedBonesWindow.MENU_PATH+"/RemoveUnusedSkinnedMesh(Hierchy_Project)")]
+        [MenuItem(SaveSkinnedBonesWindow.MENU_PATH+"/Tools/RemoveUnusedSkinnedMesh(Hierchy_Project)")]
         static void RemoveSkinneds()
         {
             //if(!EditorUtility.DisplayDialog("waring","delete unused skinnedMeshs", "ok"))

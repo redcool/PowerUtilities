@@ -15,7 +15,7 @@ namespace GameUtilsFramework {
 
         (string, bool) renameInfo = ("Replace Names:",true);
 
-        [MenuItem(SaveSkinnedBonesWindow.MENU_PATH+"/Rename Skeleton Name Win")]
+        [MenuItem(SaveSkinnedBonesWindow.MENU_PATH+"/Tools/Rename Skeleton Name Win")]
         static void OpenWindow()
         {
             var win = GetWindow<RenameSkeletonNameWin>();

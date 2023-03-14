@@ -11,7 +11,7 @@ using Object = UnityEngine.Object;
 namespace GameUtilsFramework
 {
     [Serializable]
-    public class SkeletonToolData : ScriptableObject
+    public class SkeletonSceneViewToolData : ScriptableObject
     {
         public bool enable;
         public GameObject skeletonObj;

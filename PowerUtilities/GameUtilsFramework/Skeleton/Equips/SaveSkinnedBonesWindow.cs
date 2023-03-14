@@ -24,7 +24,7 @@ namespace GameUtilsFramework
 
         public const string MENU_PATH = "PowerUtilities/SkinnedMesh";
 
-        [MenuItem(MENU_PATH+"/Save SkinnedBones Window")]
+        [MenuItem(MENU_PATH+"/Equips/Save SkinnedBones Window")]
         static void Init()
         {
             var win = EditorWindow.GetWindow<SaveSkinnedBonesWindow>();
