@@ -15,8 +15,13 @@ namespace GameUtilsFramework
     {
         public bool enable;
         public GameObject skeletonObj;
+        public SkinnedMeshRenderer skinned;
         public bool isShowHierarchy=true;
-        public bool isKeepChildren = true;
+        public bool isKeepChildren = false;
+        public bool isShowWeights;
+
+        public Material weightMat;
+        public Color weightColor = Color.white;
 
         ///
         public bool isStartRecordChildren;

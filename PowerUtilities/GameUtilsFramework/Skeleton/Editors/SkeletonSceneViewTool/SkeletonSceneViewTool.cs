@@ -7,6 +7,7 @@ using PowerUtilities;
 using System;
 using Object = UnityEngine.Object;
 using System.Linq;
+using PlasticPipe.PlasticProtocol.Server;
 
 namespace GameUtilsFramework
 {
@@ -34,6 +35,11 @@ namespace GameUtilsFramework
         /// </summary>
         static List<Vector3> skeletonLinesList = new List<Vector3>();
 
+        /// <summary>
+        /// draw bone weights
+        /// </summary>
+        static Mesh snapshotMesh = new Mesh();
+
         [InitializeOnLoadMethod]
         static void Init()
         {
@@ -46,6 +52,7 @@ namespace GameUtilsFramework
 
         private static void EditorApplication_hierarchyChanged()
         {
+
         }
 
         private static void ReverseChildrenPos()
@@ -66,6 +73,14 @@ namespace GameUtilsFramework
 
         private static void SceneView_duringSceneGui(SceneView view)
         {
+            TryFindSkinned();
+            
+            if (SkeletonToolData.enable)
+            {
+                if (SkeletonToolData.isShowWeights)
+                    DrawWeights(SkeletonToolData);
+            }
+
             Handles.BeginGUI();
             DrawToolbar(SkeletonToolData);
 
@@ -80,10 +95,22 @@ namespace GameUtilsFramework
 
                 RecordSelectedTransform(ref lastSelectedInfos);
                 ReverseChildrenPos();
+
             }
 
             Handles.EndGUI();
 
+
+        }
+
+        static void TryFindSkinned()
+        {
+            if (Selection.activeGameObject)
+            {
+                var skinned = Selection.activeGameObject.GetComponent<SkinnedMeshRenderer>();
+                if (skinned)
+                    SkeletonToolData.skinned =skinned;
+            }
         }
 
         private static void RecordSelectedTransform(ref (Transform, Vector3)[] childrenInfo)
@@ -111,12 +138,15 @@ namespace GameUtilsFramework
             GUILayout.BeginArea(new Rect(50, 0, toolbarWidth, 24));
             GUILayout.BeginHorizontal(EditorStylesEx.ShurikenModuleBg);
             {
-                data.enable = EditorGUILayout.ToggleLeft(nameof(SkeletonSceneViewTool), data.enable);
+                data.enable = GUILayout.Toggle(data.enable, "SkeletonTool");
                 if (data.enable)
                 {
-                    data.skeletonObj = EditorGUILayout.ObjectField(data.skeletonObj, typeof(GameObject), true) as GameObject;
-                    data.isShowHierarchy = EditorGUILayout.Toggle("Show Hierarchy", data.isShowHierarchy);
-                    data.isKeepChildren = EditorGUILayout.Toggle("Keep Children", data.isKeepChildren);
+                    //data.skeletonObj = EditorGUILayout.ObjectField(data.skeletonObj, typeof(GameObject), true) as GameObject;
+                    EditorGUILayout.ObjectField(data.skinned, typeof(SkinnedMeshRenderer), true);
+
+                    data.isShowWeights = GUILayout.Toggle(data.isShowWeights, "Show Weights");
+                    data.isShowHierarchy = GUILayout.Toggle(data.isShowHierarchy, "Show Hierarchy");
+                    data.isKeepChildren = GUILayout.Toggle(data.isKeepChildren, "Keep Children");
                 }
             }
             GUILayout.EndHorizontal();
@@ -142,29 +172,51 @@ namespace GameUtilsFramework
             {
                 data = items[0];
             }
+            if (!data.weightMat)
+            {
+                data.weightMat = new Material(Shader.Find("Hidden/PowerUtilities/Unlit/ShowVertexColor"));
+            }
         }
-
-
 
         private static void DrawSkeletonHierarchy(SkeletonSceneViewToolData data)
         {
-            if (!data.skeletonObj || !data.isShowHierarchy)
+            if (!data.isShowHierarchy)
                 return;
 
+            if (data.skinned)
+            {
+                data.skinned.bones.ForEach(b => {
+                    if (b.parent && data.skinned.bones.Contains(b.parent)){
+                        var p1 = HandleUtility.WorldToGUIPoint(b.position);
+                        var p2 = HandleUtility.WorldToGUIPoint(b.parent.position);
+                        Handles.DrawLine(p1,p2,3);
+                    }
+                }
+                );
+                DrawJoints(data.skinned.bones);
+            }
+
+            /* 
+            if (!data.skeletonObj || !data.isShowHierarchy)
+                return;
             FindSkeletonLines(data, skeletonLinesList);
             Handles.DrawLines(skeletonLinesList.ToArray());
-
             DrawJoints(data);
+            */
         }
-
         private static void DrawJoints(SkeletonSceneViewToolData data)
         {
             var trs = data.skeletonObj.GetComponentsInChildren<Transform>();
+            DrawJoints(trs);
+        }
+        private static void DrawJoints(Transform[] trs)
+        {
             for (int i = 0; i < trs.Length; i++)
             {
                 var tr = trs[i];
                 var pos = HandleUtility.WorldToGUIPoint(tr.position);
-                if (GUI.Button(new Rect(pos.x - 5, pos.y - 5, 10, 10), "1"))
+                GUI.contentColor = Color.blue;
+                if (GUI.Button(new Rect(pos.x - 5, pos.y - 5, 10, 10), ""))
                 {
                     Selection.activeTransform = tr;
                 }
@@ -197,6 +249,48 @@ namespace GameUtilsFramework
                 FindPositions(child, posList);
             }
         }
+
+        static void DrawWeights(SkeletonSceneViewToolData data)
+        {
+            var boneTr = Selection.activeTransform;
+            if (!data.skinned || !boneTr)
+                return;
+
+            var skinTr = data.skinned.transform;
+
+            var weights = data.skinned.sharedMesh.boneWeights;
+            var bones = data.skinned.bones;
+            var boneId = bones.FindIndex(tr => tr == boneTr);
+
+            data.skinned.BakeMesh(snapshotMesh);
+
+            Color[] colors = GetVertexWeightColor(data, weights, boneId);
+            snapshotMesh.colors = colors;
+
+            data.weightMat.SetPass(0);
+            Graphics.DrawMeshNow(snapshotMesh, skinTr.position, skinTr.rotation);
+        }
+
+        private static Color[] GetVertexWeightColor(SkeletonSceneViewToolData data, BoneWeight[] weights, int boneId)
+        {
+            var colors = new Color[weights.Length];
+            for (int i = 0; i< weights.Length; i++)
+            {
+                var boneWeight = weights[i];
+                var c = data.weightColor;
+                c.a = 0;
+
+                c.a += boneWeight.boneIndex0 == boneId ? boneWeight.weight0 : 0;
+                c.a += boneWeight.boneIndex1 == boneId ? boneWeight.weight1 : 0;
+                c.a += boneWeight.boneIndex2 == boneId ? boneWeight.weight2 : 0;
+                c.a += boneWeight.boneIndex3 == boneId ? boneWeight.weight3 : 0;
+
+                colors[i]  =c;
+            }
+
+            return colors;
+        }
+
     }
 }
 #endif
