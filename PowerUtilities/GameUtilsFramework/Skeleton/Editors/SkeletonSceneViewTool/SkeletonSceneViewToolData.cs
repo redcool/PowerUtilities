@@ -19,13 +19,19 @@ namespace GameUtilsFramework
         public bool isShowHierarchy=true;
         public bool isKeepChildren = false;
         public bool isShowWeights;
+        public List<Vector3> bonesScreenPosList = new List<Vector3>();
 
         public Material weightMat;
         public Color weightColor = Color.white;
 
         ///
-        public bool isStartRecordChildren;
-        public bool isUpdateChildren;
+        public bool isSceneViewMouseDown;
+        public bool isSceneViewMouseDrag;
+        public bool isSceneViewMouseUp;
+
+        /// rect selection
+        public bool isRectSelectionStart;
+        public Rect selectionRect;
     }
 }
 #endif

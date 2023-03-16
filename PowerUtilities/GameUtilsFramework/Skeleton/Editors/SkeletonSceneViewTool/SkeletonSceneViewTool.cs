@@ -7,6 +7,7 @@ using PowerUtilities;
 using System;
 using Object = UnityEngine.Object;
 using System.Linq;
+using PlasticGui;
 
 namespace GameUtilsFramework
 {
@@ -58,7 +59,7 @@ namespace GameUtilsFramework
         {
             var tr = Selection.activeTransform;
             if (!tr || 
-                SkeletonToolData.isUpdateChildren || 
+                SkeletonToolData.isSceneViewMouseDrag || 
                 !skeletonToolData.isKeepChildren ||
                 lastSelectedInfos == null)
 
@@ -72,34 +73,91 @@ namespace GameUtilsFramework
 
         private static void SceneView_duringSceneGui(SceneView view)
         {
+            var e = Event.current;
+
+                SetupMouseStates(e, ref SkeletonToolData.isSceneViewMouseDown, ref SkeletonToolData.isSceneViewMouseDrag, ref SkeletonToolData.isSceneViewMouseUp);
+                SetupSelectionRect(e);
+
             TryFindSkinned();
-            
+            SetupBonesScreenPos();
+
             if (SkeletonToolData.enable)
             {
                 if (SkeletonToolData.isShowWeights)
                     DrawWeights(SkeletonToolData);
             }
 
+            DrawGUI();
+        }
+
+        private static void DrawGUI()
+        {
             Handles.BeginGUI();
             DrawToolbar(SkeletonToolData);
 
+
             if (SkeletonToolData.enable)
             {
-                var e = Event.current;
-
-                SkeletonToolData.isStartRecordChildren = e.type == EventType.MouseDown && e.isMouse;
-                SkeletonToolData.isUpdateChildren = (e.type == EventType.MouseDrag);
 
                 DrawSkeletonHierarchy(SkeletonToolData);
 
                 RecordSelectedTransform(ref lastSelectedInfos);
                 ReverseChildrenPos();
 
+                TryRectSelect();
             }
 
             Handles.EndGUI();
+        }
 
+        static void SetupSelectionRect(Event e)
+        {
+            if(SkeletonToolData.isSceneViewMouseDown && Selection.activeObject == null)
+            {
+                SkeletonToolData.isRectSelectionStart = true;
+                SkeletonToolData.selectionRect = new Rect(e.mousePosition.x,e.mousePosition.y,1,1);
+            }
+            if (SkeletonToolData.isSceneViewMouseUp)
+            {
+                SkeletonToolData.isRectSelectionStart = false;
+            }
 
+            if (SkeletonToolData.isSceneViewMouseDrag)
+            {
+                var lastRect = SkeletonToolData.selectionRect;
+                var width = Mathf.Abs(e.mousePosition.x - lastRect.x);
+                var height = Mathf.Abs(e.mousePosition.y - lastRect.y);
+                var x = e.mousePosition.x < lastRect.x ? e.mousePosition.x : lastRect.x;
+                var y = e.mousePosition.y < lastRect.y ? e.mousePosition.y : lastRect.y;
+                SkeletonToolData.selectionRect = new Rect(x, y, width, height);
+
+            }
+        }
+
+        static void TryRectSelect()
+        {
+            if (!SkeletonToolData.isRectSelectionStart)
+                return;
+
+            var lastRect = SkeletonToolData.selectionRect;
+            var selectedIds = new List<int>();
+            for (int i = 0; i < skeletonLinesList.Count; i++)
+            {
+                var pos = skeletonLinesList[i];
+                if (lastRect.Contains(pos))
+                {
+                    selectedIds.Add(i);
+                }
+            }
+            if(selectedIds.Count > 0)
+                Selection.objects = selectedIds.Select(id => skeletonToolData.skinned.bones[id]).ToArray();
+        }
+
+        static void SetupMouseStates(Event e, ref bool isMouseDown, ref bool isMouseMove, ref bool isMouseUp)
+        {
+            isMouseDown = e.type == EventType.MouseDown;
+            isMouseMove = (e.type == EventType.MouseDrag);
+            isMouseUp = e.type == EventType.MouseUp;
         }
 
         static void TryFindSkinned()
@@ -112,9 +170,21 @@ namespace GameUtilsFramework
             }
         }
 
+        static void SetupBonesScreenPos()
+        {
+            if (SkeletonToolData.skinned)
+            {
+                SkeletonToolData.bonesScreenPosList.Clear();
+                foreach (var boneTr in SkeletonToolData.skinned.bones)
+                {
+                    SkeletonToolData.bonesScreenPosList.Add(HandleUtility.WorldToGUIPoint(boneTr.position));
+                }
+            }
+        }
+
         private static void RecordSelectedTransform(ref (Transform, Vector3)[] childrenInfo)
         {
-            if (SkeletonToolData.isStartRecordChildren)
+            if (SkeletonToolData.isSceneViewMouseDown)
             {
                 var trs = Selection.transforms;
                 var list = new List<(Transform, Vector3)>();
@@ -173,7 +243,11 @@ namespace GameUtilsFramework
             }
             if (!data.weightMat)
             {
-                data.weightMat = new Material(Shader.Find("Hidden/PowerUtilities/Unlit/ShowVertexColor"));
+                var shader = Shader.Find("Hidden/PowerUtilities/Unlit/ShowVertexColor");
+                data.weightMat = new Material(shader);
+
+                if (!shader)
+                    throw new Exception("Hidden/PowerUtilities/Unlit/ShowVertexColor not found");
             }
         }
 
@@ -213,8 +287,8 @@ namespace GameUtilsFramework
             for (int i = 0; i < trs.Length; i++)
             {
                 var tr = trs[i];
-                var pos = HandleUtility.WorldToGUIPoint(tr.position);
-                GUI.contentColor = Color.blue;
+                var pos = SkeletonToolData.bonesScreenPosList[i];
+                
                 if (GUI.Button(new Rect(pos.x - 5, pos.y - 5, 10, 10), ""))
                 {
                     Selection.activeTransform = tr;
@@ -224,7 +298,7 @@ namespace GameUtilsFramework
 
         private static void FindSkeletonLines(SkeletonSceneViewToolData data,List<Vector3> skeletonLinesList)
         {
-            //if (data.isUpdateChildren || skeletonLinesList.Count == 0)
+            //if (data.isSceneViewMouseDrag || skeletonLinesList.Count == 0)
             {
                 skeletonLinesList.Clear();
                 FindPositions(data.skeletonObj.transform, skeletonLinesList);
@@ -260,6 +334,9 @@ namespace GameUtilsFramework
             var weights = data.skinned.sharedMesh.boneWeights;
             var bones = data.skinned.bones;
             var boneId = bones.FindIndex(tr => tr == boneTr);
+
+            if (!snapshotMesh) 
+                snapshotMesh = new Mesh();
 
             data.skinned.BakeMesh(snapshotMesh);
 
