@@ -7,7 +7,6 @@ using PowerUtilities;
 using System;
 using Object = UnityEngine.Object;
 using System.Linq;
-using PlasticGui;
 
 namespace GameUtilsFramework
 {
