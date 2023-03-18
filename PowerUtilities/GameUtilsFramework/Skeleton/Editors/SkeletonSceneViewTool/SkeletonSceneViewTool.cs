@@ -190,7 +190,7 @@ namespace GameUtilsFramework
                 foreach (var tr in trs)
                 {
                     var q = tr.GetComponentsInChildren<Transform>()
-                    .SkipWhile(t => t== tr)
+                    .Where(t => t != tr)
                     .Select(tr => (tr, tr.position));
 
                     list.AddRange(q);

@@ -197,7 +197,7 @@ namespace GameUtilsFramework
             var targetRootBoneName = targetRootBone.name;
 
             var curBonePaths = rootBone.GetComponentsInChildren<Transform>()
-                .SkipWhile(tr => tr == rootBone)
+                .Where(tr => tr != rootBone)
                 .Select(tr=>tr.GetHierarchyPath(rootBone))
                 .ToArray();
 
