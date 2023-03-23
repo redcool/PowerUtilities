@@ -11,6 +11,12 @@ namespace PowerUtilities
 {
     public static class GroupAPITools
     {
+
+        public enum SliderType
+        {
+            remap, @float, @int
+        }
+
         /// <summary>
         /// Translate "a12.34_10 0_1.23 0_1 0_1" to Vector2[]
         /// </summary>
@@ -45,6 +51,7 @@ namespace PowerUtilities
                 num *= -1;
             return num;
         }
+
     }
 }
 #endif

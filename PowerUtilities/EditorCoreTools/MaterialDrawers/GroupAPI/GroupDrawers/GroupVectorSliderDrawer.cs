@@ -26,7 +26,7 @@ namespace PowerUtilities
         /// float : float slider
         /// int : int slider
         /// </summary>
-        string sliderStyleFormat;
+        GroupAPITools.SliderType sliderType;
 
         //public GroupVectorSliderDrawer(string headerString) : this("",headerString, "") { }
         public GroupVectorSliderDrawer(string headerString,string rangeString) : this("", headerString, rangeString) { }
@@ -61,7 +61,7 @@ namespace PowerUtilities
                 headers = headerString.Split(ITEM_SPLITTER);
             }
             InitRanges(rangeString);
-            this.sliderStyleFormat = sliderStyleFormat;
+            Enum.TryParse(sliderStyleFormat, out sliderType);
         }
 
         private void InitRanges(string rangeString)
@@ -162,13 +162,13 @@ namespace PowerUtilities
 
         private void DrawSlider(ref Vector4 value, Rect pos, int i)
         {
-            if (string.IsNullOrEmpty(sliderStyleFormat))
+            if (sliderType == GroupAPITools.SliderType.remap)
             {
                 value[i] = EditorGUITools.DrawRemapSlider(pos, ranges[i], new GUIContent(headers[i]), value[i]);
                 return;
             }
 
-            if (sliderStyleFormat == "int")
+            if (sliderType == GroupAPITools.SliderType.@int)
             {
                 value[i] = (int)value[i];
             }

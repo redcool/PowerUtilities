@@ -11,7 +11,7 @@ Shader "Unlit/GroupDrawDemo"
         [GroupItem(group0,_FloatVlaue0 helps)]
         _FloatVlaue0("_FloatVlaue0",range(0,1)) = 0.1
 
-        [GroupItem(group0,_FloatVlaue0 helps)]_FloatVlaue0_1("_FloatVlaue0_1",range(0,1)) = 0.1
+        [GroupSlider(group0,_FloatVlaue0 helps)]_FloatVlaue0_1("_FloatVlaue0_1",range(0,1)) = 0.1
 [GroupItem(group0,_MainTex0 helps)]_MainTex0 ("Texture0", 2D) = "white" {}
         // //show a new Group
         [Group(group1)]
