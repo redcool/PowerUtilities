@@ -87,7 +87,11 @@ public class UIMaterialPropCodeGen
 
         AssetDatabase.Refresh();
     }
-
+    /// <summary>
+    /// filter material property by flags
+    /// </summary>
+    /// <param name="flags"></param>
+    /// <returns></returns>
     private static bool IsValidFlags(ShaderPropertyFlags flags)
     {
         return (ShaderPropertyFlags.HideInInspector & flags) == 0;
@@ -155,7 +159,7 @@ public class UIMaterialPropCodeGen
 
     public static string GetVarableType(ShaderPropertyType type) => type switch
     {
-#if UNITY_2021
+#if UNITY_2021_1_OR_NEWER
         ShaderPropertyType.Int => "int",
 #endif
         ShaderPropertyType.Range => "float",
