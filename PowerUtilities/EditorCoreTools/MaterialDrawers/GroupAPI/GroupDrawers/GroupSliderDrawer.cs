@@ -7,8 +7,6 @@ namespace PowerUtilities
     using UnityEditor;
     using System.Linq;
     using System;
-    using Codice.Client.BaseCommands;
-    using UnityEditor.Experimental.GraphView;
 
     /// <summary>
     /// Draw a ramap slider in (or not in) group .
