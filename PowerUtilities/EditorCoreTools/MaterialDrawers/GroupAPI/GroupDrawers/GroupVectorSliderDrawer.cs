@@ -25,6 +25,7 @@ namespace PowerUtilities
         /// null : default, remap float,
         /// float : float slider
         /// int : int slider
+        /// field : float field
         /// </summary>
         GroupAPITools.SliderType sliderType;
 
@@ -162,9 +163,15 @@ namespace PowerUtilities
 
         private void DrawSlider(ref Vector4 value, Rect pos, int i)
         {
+            if(sliderType == GroupAPITools.SliderType.field)
+            {
+                value[i] = EditorGUI.FloatField(pos,EditorGUITools.TempContent(headers[i]), value[i]);
+                return;
+            }
+
             if (sliderType == GroupAPITools.SliderType.remap)
             {
-                value[i] = EditorGUITools.DrawRemapSlider(pos, ranges[i], new GUIContent(headers[i]), value[i]);
+                value[i] = EditorGUITools.DrawRemapSlider(pos, ranges[i], EditorGUITools.TempContent(headers[i]), value[i]);
                 return;
             }
 

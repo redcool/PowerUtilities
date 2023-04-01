@@ -14,7 +14,7 @@ namespace PowerUtilities
 
         public enum SliderType
         {
-            remap, @float, @int
+            remap, @float, @int,field
         }
 
         /// <summary>
