@@ -1,0 +1,172 @@
+#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+#pragma kernel CSClear
+#pragma kernel CSHash
+#pragma kernel CSResolve
+
+#define THREAD_X 8
+#define THREAD_Y 8
+#define THREAD_Z 1
+
+#pragma multi_compile _ _BLUR_SAMPLES 
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+RWTexture2D<float4> _ScreenSpacePlanarReflectionTexture;
+RWTexture2D<float> _ReflectionHeightBuffer;
+
+RWTexture2D<uint> _HashResult;
+
+SamplerState sampler_point_clamp;
+TEXTURE2D(_CameraOpaqueTexture);
+TEXTURE2D(_CameraDepthTexture);
+
+float4 _Plane; // xyz:plane direction, w : - dot(plane location, plane direction)
+float4 _TexSize; //x:width,height,1/width,1/height
+float4 _Stretch; //x:camera forward.z, stretch threshold,stretch intensity,isApplyStretch
+
+int _FixedHole;
+
+
+void ApplyStretch(inout float2 reflectUV,float distance){
+	// stretch 
+	float heightStretch = distance;
+	float angleStretch = saturate(-_Stretch.x);
+	float screensStretch = saturate(abs(reflectUV.x * 2 -1) - _Stretch.y);
+	reflectUV.x *= 1 + heightStretch * angleStretch * screensStretch * _Stretch.z;
+}
+
+float4 BlurSample(uint2 id){
+	const int2 offsets[9] = {
+		int2(-1,-1), int2(-1,0), int2(-1,1),
+		int2(0,-1), int2(0,0), int2(0,1),
+		int2(1,-1), int2(1,0), int2(1,1)
+	};
+	const float weights[9] = {0.125,0.0625,0.125,0.0625,0.25,0.125,0.0625,0.125,0.0625};
+	float4 c = 0;
+	float2 uv = id.xy * _TexSize.zw;
+	[unroll]
+	for(int i=0;i<9;i++){
+		// c += LOAD_TEXTURE2D(_CameraOpaqueTexture,id.xy + offsets[i]) * weights[i];
+		c += SAMPLE_TEXTURE2D_LOD(_CameraOpaqueTexture,sampler_point_clamp,uv.xy + offsets[i] * _TexSize.zw,0) * weights[i];
+	}
+
+	return c;
+}
+
+
+uint GetHash(uint2 id,bool isFixedHole){
+	uint hash = _HashResult[id.xy];
+	if(! isFixedHole)
+		return hash;
+
+	if(hash == 0xffffffff)
+		hash = _HashResult[id.xy+uint2(-1,-1)];
+	if(hash == 0xffffffff)
+		hash = _HashResult[id.xy+uint2(-1,1)];
+	if(hash == 0xffffffff)
+		hash = _HashResult[id.xy+uint2(1,-1)];
+	if(hash == 0xffffffff)
+		hash = _HashResult[id.xy+uint2(1,1)];
+	return hash;
+}
+
+[numthreads(THREAD_X,THREAD_Y,THREAD_Z)]
+void CSMain(uint3 id:SV_DispatchThreadID){
+
+	if(any(id.xy > uint2(_TexSize.xy)))
+		return;
+	
+	float2 uv = id.xy * _TexSize.zw;
+
+	float depth = LOAD_TEXTURE2D(_CameraDepthTexture,id.xy);
+	float3 wpos = ComputeWorldSpacePosition(uv,depth,UNITY_MATRIX_I_VP);
+	float distance = dot(wpos,_Plane.xyz) + _Plane.w;
+	if(distance < 0.001)
+		return;
+	
+	float3 reflectPosWS = wpos - _Plane.xyz * distance * 2;
+	float4 reflectPosCS = TransformWorldToHClip(reflectPosWS);
+	float2 reflectUV = reflectPosCS.xy/reflectPosCS.w * 0.5 + 0.5;
+	if(all(reflectUV >= 0) && all(reflectUV <= 1))
+	{
+		if(_Stretch.w)
+			ApplyStretch(reflectUV,distance);
+
+		#if UNITY_UV_STARTS_AT_TOP
+			reflectUV.y = 1 - reflectUV.y;
+		#endif
+
+		uint2 location = uint2(reflectUV * _TexSize.xy);
+
+        if(wpos.y < _ReflectionHeightBuffer[location])
+        {
+            _ReflectionHeightBuffer[location] = wpos.y;
+			_ScreenSpacePlanarReflectionTexture[location] = LOAD_TEXTURE2D(_CameraOpaqueTexture,id.xy);
+        }
+
+	}
+}
+
+[numthreads(THREAD_X,THREAD_Y,THREAD_Z)]
+void CSClear(uint3 id:SV_DispatchThreadID){
+	if(any(id.xy > uint2(_TexSize.xy)))
+		return;
+    _ScreenSpacePlanarReflectionTexture[id.xy] = 0;
+    _ReflectionHeightBuffer[id.xy] = HALF_MAX;
+	_HashResult[id.xy] = 0xffffffff;
+}
+
+
+[numthreads(THREAD_X,THREAD_Y,THREAD_Z)]
+void CSHash(uint3 id:SV_DispatchThreadID){
+	if(any(id.xy > uint2(_TexSize.xy)))
+		return;
+	
+	float2 uv = id.xy * _TexSize.zw;
+
+	float depth = _CameraDepthTexture.Load(int3(id.xy,0));
+	// float depth = SAMPLE_TEXTURE2D_LOD(_CameraDepthTexture,sampler_point_clamp,uv,0);
+	float3 wpos = ComputeWorldSpacePosition(uv,depth,UNITY_MATRIX_I_VP);
+	float distance = dot(wpos,_Plane.xyz) + _Plane.w;
+	if(distance < 0.001)
+		return;
+	
+	float3 reflectPosWS = wpos - _Plane.xyz * distance * 2;
+	float4 reflectPosCS = TransformWorldToHClip(reflectPosWS);
+	float2 reflectUV = reflectPosCS.xy/reflectPosCS.w * 0.5 + 0.5;
+	if(all(reflectUV >= 0) && all(reflectUV <= 1))
+	{
+		if(_Stretch.w)
+			ApplyStretch(reflectUV,distance);
+		
+		#if UNITY_UV_STARTS_AT_TOP
+			reflectUV.y = 1 - reflectUV.y;
+		#endif
+
+		uint2 location = uint2(reflectUV * _TexSize.xy);
+        
+		uint hash = (id.y<<16)|(id.x & 0xffff);
+
+		uint _;
+		InterlockedMin(_HashResult[location],hash,_);
+	}
+}
+
+
+
+[numthreads(THREAD_X,THREAD_Y,THREAD_Z)]
+void CSResolve(uint3 id:SV_DispatchThreadID){
+	if(any(id.xy > uint2(_TexSize.xy)))
+		return;
+	// uint hash = (_HashResult[id.xy]);
+	uint hash = GetHash(id.xy,_FixedHole);
+	if(hash < 0xffffffff){
+		float2 pos = float2(hash&0xffff,hash>>16);
+		float2 uv = pos*_TexSize.zw;
+
+		_ScreenSpacePlanarReflectionTexture[id.xy] = LOAD_TEXTURE2D(_CameraOpaqueTexture,pos);
+	}
+}
