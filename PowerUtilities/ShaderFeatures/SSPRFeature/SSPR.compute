@@ -56,21 +56,12 @@ float4 BlurSample(uint2 id){
 	return c;
 }
 
-
-uint GetHash(uint2 id,bool isFixedHole){
-	uint hash = _HashResult[id.xy];
-	if(! isFixedHole)
-		return hash;
-
-	if(hash == 0xffffffff)
-		hash = _HashResult[id.xy+uint2(-1,-1)];
-	if(hash == 0xffffffff)
-		hash = _HashResult[id.xy+uint2(-1,1)];
-	if(hash == 0xffffffff)
-		hash = _HashResult[id.xy+uint2(1,-1)];
-	if(hash == 0xffffffff)
-		hash = _HashResult[id.xy+uint2(1,1)];
-	return hash;
+float LoadDepth(uint2 id){
+	float depth = _CameraDepthTexture[id.xy].x;
+	#if ! defined(UNITY_REVERSED_Z)
+		depth = depth * 2 - 1;
+	#endif
+	return depth;
 }
 
 [numthreads(THREAD_X,THREAD_Y,THREAD_Z)]
@@ -80,8 +71,8 @@ void CSMain(uint3 id:SV_DispatchThreadID){
 		return;
 	
 	float2 uv = id.xy * _TexSize.zw;
+	float depth = LoadDepth(id.xy);
 
-	float depth = LOAD_TEXTURE2D(_CameraDepthTexture,id.xy);
 	float3 wpos = ComputeWorldSpacePosition(uv,depth,UNITY_MATRIX_I_VP);
 	float distance = dot(wpos,_Plane.xyz) + _Plane.w;
 	if(distance < 0.001)
@@ -104,7 +95,7 @@ void CSMain(uint3 id:SV_DispatchThreadID){
         if(wpos.y < _ReflectionHeightBuffer[location])
         {
             _ReflectionHeightBuffer[location] = wpos.y;
-			_ScreenSpacePlanarReflectionTexture[location] = LOAD_TEXTURE2D(_CameraOpaqueTexture,id.xy);
+			_ScreenSpacePlanarReflectionTexture[location] = _CameraOpaqueTexture[id.xy];
         }
 
 	}
@@ -127,7 +118,7 @@ void CSHash(uint3 id:SV_DispatchThreadID){
 	
 	float2 uv = id.xy * _TexSize.zw;
 
-	float depth = _CameraDepthTexture.Load(int3(id.xy,0));
+	float depth = LoadDepth(id.xy);
 	// float depth = SAMPLE_TEXTURE2D_LOD(_CameraDepthTexture,sampler_point_clamp,uv,0);
 	float3 wpos = ComputeWorldSpacePosition(uv,depth,UNITY_MATRIX_I_VP);
 	float distance = dot(wpos,_Plane.xyz) + _Plane.w;
@@ -156,17 +147,37 @@ void CSHash(uint3 id:SV_DispatchThreadID){
 }
 
 
+uint GetHash4Corners(uint2 id,uint hash){
+	// const uint2 offsets[4] = {-1,-1, -1,1, 1,-1, 1,1};
+	// for(int i=0;i<4;i++){
+	// 	hash = min(_HashResult[id.xy + offsets[i]],hash);
+	// }
+	// return hash;
+
+	if(hash == 0xffffffff)
+		hash = _HashResult[id.xy+uint2(-1,-1)];
+	if(hash == 0xffffffff)
+		hash = _HashResult[id.xy+uint2(-1,1)];
+	if(hash == 0xffffffff)
+		hash = _HashResult[id.xy+uint2(1,-1)];
+	if(hash == 0xffffffff)
+		hash = _HashResult[id.xy+uint2(1,1)];
+	return hash;
+}
 
 [numthreads(THREAD_X,THREAD_Y,THREAD_Z)]
 void CSResolve(uint3 id:SV_DispatchThreadID){
 	if(any(id.xy > uint2(_TexSize.xy)))
 		return;
-	// uint hash = (_HashResult[id.xy]);
-	uint hash = GetHash(id.xy,_FixedHole);
+	
+	uint hash = (_HashResult[id.xy]);
+	if(_FixedHole)
+		hash = GetHash4Corners(id.xy,hash);
+
 	if(hash < 0xffffffff){
 		float2 pos = float2(hash&0xffff,hash>>16);
 		float2 uv = pos*_TexSize.zw;
 
-		_ScreenSpacePlanarReflectionTexture[id.xy] = LOAD_TEXTURE2D(_CameraOpaqueTexture,pos);
+		_ScreenSpacePlanarReflectionTexture[id.xy] = _CameraOpaqueTexture[pos];
 	}
 }
