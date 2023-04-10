@@ -34,8 +34,10 @@ namespace PowerUtilities
 
             [Header("Key Options")]
             public RunMode runMode;
-            public bool isApplyBlur;
             public bool isFixedHoleInHashMode;
+
+            [Range(0,2)]public int downSamples;
+            public bool isApplyBlur;
 
             [Header("Stretch Options")]
             public bool isApplyStretch;
@@ -63,7 +65,10 @@ namespace PowerUtilities
             const int THREAD_X = 8, THREAD_Y = 8, THREAD_Z = 1;
 
             Material hashResolveMat;
-            int _BlurTmpTex = Shader.PropertyToID(nameof(_BlurTmpTex));
+            int _BlurReflectTex = Shader.PropertyToID(nameof(_BlurReflectTex));
+
+            int GetWidth(int width) => width >> settings.downSamples;
+            int GetHeight(int height) => height>> settings.downSamples;
 
             public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
             {
@@ -86,8 +91,8 @@ namespace PowerUtilities
 
                 var plane = settings.planeRotation * Vector3.up;
 
-                var width = desc.width;
-                var height = desc.height;
+                var width = GetWidth(desc.width);
+                var height = GetHeight(desc.height);
                 var texSize = new Vector4(width, height, 1f / width, 1f / height);
 
                 cmd.SetComputeVectorParam(cs, _TexSize, texSize);
@@ -103,6 +108,9 @@ namespace PowerUtilities
                     Mathf.CeilToInt(height / (float)THREAD_Y));
 
                 // clear
+                cmd.SetComputeTextureParam(cs, csClear, _ScreenSpacePlanarReflectionTexture, _ScreenSpacePlanarReflectionTexture);
+                cmd.SetComputeTextureParam(cs, csClear, _ReflectionHeightBuffer, _ReflectionHeightBuffer);
+                cmd.SetComputeTextureParam(cs, csClear, _HashResult, _HashResult);
                 cmd.DispatchCompute(cs, csClear, threads.x, threads.y, 1);
 
                 //main
@@ -173,8 +181,8 @@ namespace PowerUtilities
 
             private void ApplyBlur(CommandBuffer cmd)
             {
-                cmd.Blit(_ScreenSpacePlanarReflectionTexture, _BlurTmpTex, hashResolveMat, 1);
-                cmd.Blit(_BlurTmpTex, _ScreenSpacePlanarReflectionTexture, hashResolveMat, 1);
+                cmd.Blit(_ScreenSpacePlanarReflectionTexture, _BlurReflectTex, hashResolveMat, 1);
+                cmd.SetGlobalTexture(_ScreenSpacePlanarReflectionTexture, _BlurReflectTex);
             }
 
             private static void WaitDispatchCS(ComputeShader cs, int csId, CommandBuffer cmd, Vector2Int threads, bool needFence = false)
@@ -196,13 +204,20 @@ namespace PowerUtilities
 
             public override void Configure(CommandBuffer cmd, RenderTextureDescriptor desc)
             {
+                if (!string.IsNullOrEmpty(settings.reflectionTextureName) && settings.reflectionTextureName != nameof(_ScreenSpacePlanarReflectionTexture))
+                {
+                    _ScreenSpacePlanarReflectionTexture = Shader.PropertyToID(settings.reflectionTextureName);
+                }
+
+                desc.width = GetWidth(desc.width);
+                desc.height = GetHeight(desc.height);
                 desc.msaaSamples = 1;
                 desc.enableRandomWrite = true;
                 desc.colorFormat = RenderTextureFormat.Default;
 
                 cmd.GetTemporaryRT(_ScreenSpacePlanarReflectionTexture, desc, FilterMode.Bilinear);
 
-                desc.colorFormat = RenderTextureFormat.RHalf;
+                desc.colorFormat = RenderTextureFormat.RFloat;
                 cmd.GetTemporaryRT(_ReflectionHeightBuffer, desc);
 
                 desc.colorFormat = RenderTextureFormat.RInt;
@@ -210,15 +225,11 @@ namespace PowerUtilities
 
                 if (settings.isApplyBlur)
                 {
-                    var width = desc.width >> 1;
-                    var height = desc.height >> 1;
-                    cmd.GetTemporaryRT(_BlurTmpTex, width, height, 0, FilterMode.Bilinear);
+                    var width = desc.width >> (settings.downSamples ==0 ? 1 : settings.downSamples);
+                    var height = desc.height >>  (settings.downSamples ==0 ? 1 : settings.downSamples);
+                    cmd.GetTemporaryRT(_BlurReflectTex, width, height, 0, FilterMode.Bilinear);
                 }
 
-                if (!string.IsNullOrEmpty(settings.reflectionTextureName))
-                {
-                    _ScreenSpacePlanarReflectionTexture = Shader.PropertyToID(settings.reflectionTextureName);
-                }
             }
 
             public override void FrameCleanup(CommandBuffer cmd)
@@ -230,7 +241,7 @@ namespace PowerUtilities
 
                 if (settings.isApplyBlur)
                 {
-                    cmd.ReleaseTemporaryRT(_BlurTmpTex);
+                    cmd.ReleaseTemporaryRT(_BlurReflectTex);
                 }
             }
         }
