@@ -81,7 +81,7 @@ namespace PowerUtilities
                 var csHash = cs.FindKernel("CSHash");
                 var csResolve = cs.FindKernel("CSResolve");
 
-                var cmd = CommandBufferPool.Get();
+                var cmd = CommandBufferPool.Get(nameof(SSPRFeature));
 
                 ExecuteCommand(context, cmd);
 
@@ -94,6 +94,9 @@ namespace PowerUtilities
                 var width = GetWidth(desc.width);
                 var height = GetHeight(desc.height);
                 var texSize = new Vector4(width, height, 1f / width, 1f / height);
+
+                if (!hashResolveMat)
+                    hashResolveMat = new Material(Shader.Find("Hidden/HashResolve"));
 
                 cmd.SetComputeVectorParam(cs, _TexSize, texSize);
                 cmd.SetComputeVectorParam(cs, _Plane, new Vector4(plane.x, plane.y, plane.z, -Vector3.Dot(settings.planeLocation, plane)));
@@ -173,8 +176,7 @@ namespace PowerUtilities
 
             private void BlitResolveHash(CommandBuffer cmd, ScriptableRenderer renderer)
             {
-                if (!hashResolveMat)
-                    hashResolveMat = new Material(Shader.Find("Hidden/HashResolve"));
+
                 cmd.SetGlobalTexture(_CameraOpaqueTexture, renderer.cameraColorTarget);
                 cmd.Blit(_HashResult, _ScreenSpacePlanarReflectionTexture, hashResolveMat, 0); // no blur
             }

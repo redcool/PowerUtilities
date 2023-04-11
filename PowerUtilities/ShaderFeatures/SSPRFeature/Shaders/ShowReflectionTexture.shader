@@ -2,6 +2,8 @@ Shader "Unlit/ShowReflectionTexture"
 {
     Properties
     {
+        _Smoothness("_Smoothness",range(0,1)) = 0
+        _IBL("ibl",cube) = ""{}
     }
     SubShader
     {
@@ -20,23 +22,36 @@ Shader "Unlit/ShowReflectionTexture"
             {
                 float4 vertex : POSITION;
                 float2 uv : TEXCOORD0;
+                float3 normal:NORMAL;
             };
 
             struct v2f
             {
                 float2 uv : TEXCOORD0;
                 float4 vertex : SV_POSITION;
+                float3 normal:TEXCOORD1;
+                float3 worldPos:TEXCOORD2;
             };
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
             sampler2D _ScreenSpacePlanarReflectionTexture;
+
             float4 _ScaledScreenParams;
+            float _Smoothness;
+            
+            samplerCUBE _IBL;
+            float4 _IBL_HDR;
+
             v2f vert (appdata v)
             {
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
-// o.vertex = float4(v.vertex.xyz*2,1);
+                float3 n = UnityObjectToWorldNormal(v.normal);
+                float3 worldPos = mul(unity_ObjectToWorld,v.vertex);
+                o.worldPos = worldPos;
+                o.normal = n;
+
                 return o;
             }
 
@@ -60,7 +75,14 @@ Shader "Unlit/ShowReflectionTexture"
                 #endif
                 // return float4(suv,0,0);
                 // sample the texture
-                return tex2D(_ScreenSpacePlanarReflectionTexture, suv);
+                float4 sspr = tex2D(_ScreenSpacePlanarReflectionTexture, suv);
+// return sspr;
+                float r = 1  - _Smoothness;
+                float lod = (1.7-0.7*r)*6*r;
+                float3 reflectDir = reflect(normalize(i.worldPos - _WorldSpaceCameraPos),i.normal);
+                float3 cubeCol = DecodeHDR(texCUBElod(_IBL,float4(reflectDir,lod)),_IBL_HDR);
+               
+                return lerp(cubeCol,sspr.xyz,sspr.w).xyzx;
                 // return BlurSample(i.vertex.xy);
             }
             ENDCG

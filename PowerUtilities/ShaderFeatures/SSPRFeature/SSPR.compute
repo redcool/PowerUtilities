@@ -63,6 +63,7 @@ float LoadDepth(uint2 id){
 	#endif
 	return depth;
 }
+
 float LoadDepth(float2 uv){
 	float depth = SAMPLE_TEXTURE2D_LOD(_CameraDepthTexture,sampler_point_clamp,uv,0).x;
 	#if ! defined(UNITY_REVERSED_Z)
@@ -73,7 +74,6 @@ float LoadDepth(float2 uv){
 
 [numthreads(THREAD_X,THREAD_Y,THREAD_Z)]
 void CSMain(uint3 id:SV_DispatchThreadID){
-
 	if(any(id.xy > uint2(_TexSize.xy)))
 		return;
 	
@@ -81,6 +81,7 @@ void CSMain(uint3 id:SV_DispatchThreadID){
 	float depth = LoadDepth(uv);
 
 	float3 wpos = ComputeWorldSpacePosition(uv,depth,UNITY_MATRIX_I_VP);
+
 	float distance = dot(wpos,_Plane.xyz) + _Plane.w;
 	if(distance < 0.001)
 		return;
@@ -102,12 +103,8 @@ void CSMain(uint3 id:SV_DispatchThreadID){
         if(wpos.y < _ReflectionHeightBuffer[location])
         {
             _ReflectionHeightBuffer[location] = wpos.y;
-			_ScreenSpacePlanarReflectionTexture[location] = SAMPLE_TEXTURE2D_LOD(_CameraOpaqueTexture,sampler_point_clamp,uv,0);
-			// _ScreenSpacePlanarReflectionTexture[location] = BlurSample(id);
+			_ScreenSpacePlanarReflectionTexture[location] = _CameraOpaqueTexture[id.xy];
         }
-
-	}
-}
 
 [numthreads(THREAD_X,THREAD_Y,THREAD_Z)]
 void CSClear(uint3 id:SV_DispatchThreadID){
@@ -115,6 +112,7 @@ void CSClear(uint3 id:SV_DispatchThreadID){
 		return;
     _ScreenSpacePlanarReflectionTexture[id.xy] = 0;
     _ReflectionHeightBuffer[id.xy] = HALF_MAX;
+	
 	_HashResult[id.xy] = 0xffffffff;
 }
 
@@ -127,12 +125,12 @@ void CSHash(uint3 id:SV_DispatchThreadID){
 	float2 uv = id.xy * _TexSize.zw;
 
 	float depth = LoadDepth(uv);
-	// float depth = SAMPLE_TEXTURE2D_LOD(_CameraDepthTexture,sampler_point_clamp,uv,0);
 	float3 wpos = ComputeWorldSpacePosition(uv,depth,UNITY_MATRIX_I_VP);
+
 	float distance = dot(wpos,_Plane.xyz) + _Plane.w;
 	if(distance < 0.001)
 		return;
-	
+
 	float3 reflectPosWS = wpos - _Plane.xyz * distance * 2;
 	float4 reflectPosCS = TransformWorldToHClip(reflectPosWS);
 	float2 reflectUV = reflectPosCS.xy/reflectPosCS.w * 0.5 + 0.5;
@@ -187,6 +185,5 @@ void CSResolve(uint3 id:SV_DispatchThreadID){
 		float2 uv = pos*_TexSize.zw;
 
 		_ScreenSpacePlanarReflectionTexture[id.xy] = SAMPLE_TEXTURE2D_LOD(_CameraOpaqueTexture,sampler_point_clamp,uv,0);
-		// _ScreenSpacePlanarReflectionTexture[id.xy] = BlurSample(pos.xy);
 	}
 }
