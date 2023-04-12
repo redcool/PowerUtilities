@@ -35,7 +35,7 @@ Shader "Unlit/ShowReflectionTexture"
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
-            sampler2D _ScreenSpacePlanarReflectionTexture;
+            sampler2D _ReflectionTexture;
 
             float4 _ScaledScreenParams;
             float _Smoothness;
@@ -45,7 +45,7 @@ Shader "Unlit/ShowReflectionTexture"
 
             v2f vert (appdata v)
             {
-                v2f o;
+                v2f o = (v2f)0;
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 float3 n = UnityObjectToWorldNormal(v.normal);
                 float3 worldPos = mul(unity_ObjectToWorld,v.vertex);
@@ -59,10 +59,10 @@ Shader "Unlit/ShowReflectionTexture"
                 const int2 offsets[4] = {-1,-1,-1,1, 1,1, 1,-1};
                 float2 suv = pos / _ScaledScreenParams.xy;
                 
-                half4 c = tex2D(_ScreenSpacePlanarReflectionTexture, suv);
+                half4 c = tex2D(_ReflectionTexture, suv);
                 for(int i=0;i<4;i++){
                     suv = (pos + offsets[i])/_ScaledScreenParams.xy;
-                    c+= tex2D(_ScreenSpacePlanarReflectionTexture, suv);
+                    c+= tex2D(_ReflectionTexture, suv);
                 }
                 return c*0.2;
             }
@@ -75,7 +75,7 @@ Shader "Unlit/ShowReflectionTexture"
                 #endif
                 // return float4(suv,0,0);
                 // sample the texture
-                float4 sspr = tex2D(_ScreenSpacePlanarReflectionTexture, suv);
+                float4 sspr = tex2D(_ReflectionTexture, suv);
 // return sspr;
                 float r = 1  - _Smoothness;
                 float lod = (1.7-0.7*r)*6*r;

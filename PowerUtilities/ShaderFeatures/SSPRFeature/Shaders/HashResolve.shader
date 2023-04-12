@@ -46,9 +46,10 @@ Shader "Hidden/HashResolve"
 
             half4 Load(float2 screenPos){
                 uint hash = LOAD_TEXTURE2D(_MainTex, screenPos);
+                half4 c = 0;
                 if(hash < 0xffffffff){
                     float2 pos = float2(hash & 0xffff,hash >> 16);
-                    return LOAD_TEXTURE2D(_CameraOpaqueTexture,pos);
+                    c = LOAD_TEXTURE2D(_CameraOpaqueTexture,pos);
 
                     // float2 uv = pos /_CameraOpaqueTexture_TexelSize.xy;
                     // return SAMPLE_TEXTURE2D(_CameraOpaqueTexture,sampler_CameraOpaqueTexture,uv);
@@ -60,7 +61,7 @@ Shader "Hidden/HashResolve"
                     // c+= LOAD_TEXTURE2D(_CameraOpaqueTexture,pos+int2(1,-1));
                     // return c*0.25;
                 }
-                return 0;
+                return c;
             }
 
             half4 frag (v2f i) : SV_Target

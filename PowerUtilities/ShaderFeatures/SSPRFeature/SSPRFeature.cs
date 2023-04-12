@@ -1,4 +1,6 @@
 using System;
+using System.Threading;
+using UnityEditor.Rendering;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
@@ -26,14 +28,16 @@ namespace PowerUtilities
         public class Settings
         {
             public ComputeShader ssprCS;
+            public Material hashResolveMat;
 
             [Header("Options")]
-            public string reflectionTextureName = "_ScreenSpacePlanarReflectionTexture";
-            public Vector3 planeLocation = Vector3.zero;
+            public string reflectionTextureName = "_ReflectionTexture";
+            public Vector3 planeLocation = new Vector3(0,0.01f,0);
             public Quaternion planeRotation = Quaternion.identity;
 
             [Header("Key Options")]
             public RunMode runMode;
+            public bool runModeAuto = true;
             public bool isFixedHoleInHashMode;
 
             [Range(0,2)]public int downSamples;
@@ -43,8 +47,10 @@ namespace PowerUtilities
             public bool isApplyStretch;
             public float stretchThreshold = 0.95f, stretchIntensity = 1;
         }
-        class CustomRenderPass : ScriptableRenderPass
+        class SSPRPass : ScriptableRenderPass
         {
+            const int THREAD_X = 8, THREAD_Y = 8, THREAD_Z = 1;
+
             public Settings settings;
 
             int _TexSize = Shader.PropertyToID(nameof(_TexSize));
@@ -54,36 +60,46 @@ namespace PowerUtilities
             int _CameraOpaqueTexture = Shader.PropertyToID(nameof(_CameraOpaqueTexture));
             int _CameraColorAttachmentA = Shader.PropertyToID(nameof(_CameraColorAttachmentA));
             int _CameraDepthTexture = Shader.PropertyToID(nameof(_CameraDepthTexture));
-            int _ScreenSpacePlanarReflectionTexture = Shader.PropertyToID(nameof(_ScreenSpacePlanarReflectionTexture));
+            int _ReflectionTexture = Shader.PropertyToID(nameof(_ReflectionTexture));
             int _ReflectionHeightBuffer = Shader.PropertyToID(nameof(_ReflectionHeightBuffer));
 
             // hash mode
             int _HashResult = Shader.PropertyToID(nameof(_HashResult));
             // states
             int _FixedHole = Shader.PropertyToID(nameof(_FixedHole));
-
-            const int THREAD_X = 8, THREAD_Y = 8, THREAD_Z = 1;
-
-            Material hashResolveMat;
             int _BlurReflectTex = Shader.PropertyToID(nameof(_BlurReflectTex));
+            int _RunMode = Shader.PropertyToID(nameof(_RunMode));
 
             int GetWidth(int width) => width >> settings.downSamples;
             int GetHeight(int height) => height>> settings.downSamples;
 
+            bool CanRunHashPass()
+            {
+#if UNITY_EDITOR
+                return true;
+#else
+                if(SystemInfo.graphicsDeviceType == GraphicsDeviceType.Direct3D11 
+                    || SystemInfo.graphicsDeviceType == GraphicsDeviceType.Direct3D12
+                    || SystemInfo.graphicsDeviceType == GraphicsDeviceType.Metal
+                    )
+                    return true;
+
+                //if (SystemInfo.SupportsRenderTextureFormat(RenderTextureFormat.RInt))
+                //    return true;
+
+                return false;
+#endif
+            }
+
             public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
             {
                 var cs = settings.ssprCS;
-                if (!cs)
+                if (!cs || !SystemInfo.supportsComputeShaders)
                     return;
-
-                var csMain = cs.FindKernel("CSMain");
-                var csClear = cs.FindKernel("CSClear");
-                var csHash = cs.FindKernel("CSHash");
-                var csResolve = cs.FindKernel("CSResolve");
 
                 var cmd = CommandBufferPool.Get(nameof(SSPRFeature));
 
-                ExecuteCommand(context, cmd);
+                //ExecuteCommand(context, cmd);
 
                 ref var cameraData = ref renderingData.cameraData;
                 var renderer = cameraData.renderer;
@@ -95,9 +111,9 @@ namespace PowerUtilities
                 var height = GetHeight(desc.height);
                 var texSize = new Vector4(width, height, 1f / width, 1f / height);
 
-                if (!hashResolveMat)
-                    hashResolveMat = new Material(Shader.Find("Hidden/HashResolve"));
+                TryUpdateRunMode();
 
+                // bind cs vars
                 cmd.SetComputeVectorParam(cs, _TexSize, texSize);
                 cmd.SetComputeVectorParam(cs, _Plane, new Vector4(plane.x, plane.y, plane.z, -Vector3.Dot(settings.planeLocation, plane)));
                 cmd.SetComputeVectorParam(cs, _Stretch, new Vector4(cameraData.camera.transform.forward.z,
@@ -106,47 +122,33 @@ namespace PowerUtilities
                     settings.isApplyStretch ? 1 : 0));
 
                 cmd.SetComputeIntParam(cs, _FixedHole, settings.isFixedHoleInHashMode ? 1 : 0);
+                cmd.SetComputeIntParam(cs, _RunMode, (int)settings.runMode);
 
                 var threads = new Vector2Int(Mathf.CeilToInt(width / (float)THREAD_X),
                     Mathf.CeilToInt(height / (float)THREAD_Y));
-
-                // clear
-                cmd.SetComputeTextureParam(cs, csClear, _ScreenSpacePlanarReflectionTexture, _ScreenSpacePlanarReflectionTexture);
-                cmd.SetComputeTextureParam(cs, csClear, _ReflectionHeightBuffer, _ReflectionHeightBuffer);
-                cmd.SetComputeTextureParam(cs, csClear, _HashResult, _HashResult);
-                cmd.DispatchCompute(cs, csClear, threads.x, threads.y, 1);
-
-                //main
-                cmd.SetComputeTextureParam(cs, csMain, _ScreenSpacePlanarReflectionTexture, _ScreenSpacePlanarReflectionTexture);
-                cmd.SetComputeTextureParam(cs, csMain, _ReflectionHeightBuffer, _ReflectionHeightBuffer);
-
-                cmd.SetComputeTextureParam(cs, csMain, _CameraDepthTexture, _CameraDepthTexture);
-                cmd.SetComputeTextureParam(cs, csMain, _CameraOpaqueTexture, renderer.cameraColorTarget);
-                cmd.SetComputeTextureParam(cs, csMain, _HashResult, _HashResult);
 
 
                 switch (settings.runMode)
                 {
                     case RunMode.CS_PASS_1:
-                        // main 1
-                        WaitDispatchCS(cs, csMain, cmd, threads);
-                        break;
                     case RunMode.CS_PASS_2:
-                        // main 1
-                        WaitDispatchCS(cs, csMain, cmd, threads);
-                        //main 2, reduce flickers
-                        WaitDispatchCS(cs, csMain, cmd, threads);
+                        CSClear(cs, cmd, threads);
+                        CSMain(cs, cmd, threads, renderer);
+
                         break;
 
                     case RunMode.Hash:
                         // for (pc ,console),2 ssprCS pass
-                        HashPass(cs, csHash, csResolve, cmd, renderer, threads);
+                        HashPass(cs, cmd, renderer, threads);
                         //blit resolve hash
                         //BlitResolveHash(cmd, renderer);
 
                         break;
 
                 }
+
+                if (!settings.hashResolveMat)
+                    settings.isApplyBlur = false;
 
                 if (settings.isApplyBlur)
                 {
@@ -157,34 +159,76 @@ namespace PowerUtilities
                 CommandBufferPool.Release(cmd);
             }
 
-            void HashPass(ComputeShader cs, int csHash, int csResolve, CommandBuffer cmd, ScriptableRenderer renderer, Vector2Int threads)
+            private void TryUpdateRunMode()
             {
+                if (settings.runModeAuto)
+                {
+                    settings.runMode = CanRunHashPass() ? RunMode.Hash : RunMode.CS_PASS_2;
+                }
+                else
+                {
+                    if (settings.runMode == RunMode.Hash && !CanRunHashPass())
+                    {
+                        settings.runMode = RunMode.CS_PASS_2;
+                    }
+                }
+            }
+
+            private void CSMain(ComputeShader cs, CommandBuffer cmd,Vector2Int threads, ScriptableRenderer renderer)
+            {
+                var csMain = cs.FindKernel("CSMain"); 
+                cmd.SetComputeTextureParam(cs, csMain, _ReflectionTexture, _ReflectionTexture);
+                cmd.SetComputeTextureParam(cs, csMain, _ReflectionHeightBuffer, _ReflectionHeightBuffer);
+
+                cmd.SetComputeTextureParam(cs, csMain, _CameraDepthTexture, _CameraDepthTexture);
+                cmd.SetComputeTextureParam(cs, csMain, _CameraOpaqueTexture, renderer.cameraColorTarget);
+                //// main 1
+                WaitDispatchCS(cs, csMain, cmd, threads);
+                ////main 2, reduce flickers
+                WaitDispatchCS(cs, csMain, cmd, threads);
+            }
+
+            void CSClear(ComputeShader cs, CommandBuffer cmd, Vector2Int threads)
+            {
+                var csClear = cs.FindKernel("CSClear");
+                cmd.SetComputeTextureParam(cs, csClear, _ReflectionTexture, _ReflectionTexture);
+                cmd.SetComputeTextureParam(cs, csClear, _ReflectionHeightBuffer, _ReflectionHeightBuffer);
+                cmd.DispatchCompute(cs, csClear, threads.x, threads.y, 1);
+                //WaitDispatchCS(cs, csClear, cmd, threads);
+            }
+
+            void HashPass(ComputeShader cs, CommandBuffer cmd, ScriptableRenderer renderer, Vector2Int threads)
+            {
+                var csHashClear = cs.FindKernel("CSHashClear");
+                cmd.SetComputeTextureParam(cs, csHashClear, _HashResult, _HashResult);
+                cmd.SetComputeTextureParam(cs, csHashClear, _ReflectionTexture, _ReflectionTexture);
+                WaitDispatchCS(cs, csHashClear, cmd, threads);
+
                 // hash
-                cmd.SetComputeTextureParam(cs, csHash, _ReflectionHeightBuffer, _ReflectionHeightBuffer);
+                var csHash = cs.FindKernel("CSHash");
                 cmd.SetComputeTextureParam(cs, csHash, _CameraDepthTexture, _CameraDepthTexture);
                 cmd.SetComputeTextureParam(cs, csHash, _HashResult, _HashResult);
 
                 WaitDispatchCS(cs, csHash, cmd, threads);
 
                 //resolve 
-
+                var csResolve = cs.FindKernel("CSResolve");
                 cmd.SetComputeTextureParam(cs, csResolve, _HashResult, _HashResult);
-                cmd.SetComputeTextureParam(cs, csResolve, _ScreenSpacePlanarReflectionTexture, _ScreenSpacePlanarReflectionTexture);
+                cmd.SetComputeTextureParam(cs, csResolve, _ReflectionTexture, _ReflectionTexture);
                 cmd.SetComputeTextureParam(cs, csResolve, _CameraOpaqueTexture, renderer.cameraColorTarget);
                 WaitDispatchCS(cs, csResolve, cmd, threads);
             }
 
             private void BlitResolveHash(CommandBuffer cmd, ScriptableRenderer renderer)
             {
-
                 cmd.SetGlobalTexture(_CameraOpaqueTexture, renderer.cameraColorTarget);
-                cmd.Blit(_HashResult, _ScreenSpacePlanarReflectionTexture, hashResolveMat, 0); // no blur
+                cmd.Blit(_HashResult, _ReflectionTexture, settings.hashResolveMat, 0); // no blur
             }
 
             private void ApplyBlur(CommandBuffer cmd)
             {
-                cmd.Blit(_ScreenSpacePlanarReflectionTexture, _BlurReflectTex, hashResolveMat, 1);
-                cmd.SetGlobalTexture(_ScreenSpacePlanarReflectionTexture, _BlurReflectTex);
+                cmd.Blit(_ReflectionTexture, _BlurReflectTex, settings.hashResolveMat, 1);
+                cmd.SetGlobalTexture(_ReflectionTexture, _BlurReflectTex);
             }
 
             private static void WaitDispatchCS(ComputeShader cs, int csId, CommandBuffer cmd, Vector2Int threads, bool needFence = false)
@@ -206,24 +250,25 @@ namespace PowerUtilities
 
             public override void Configure(CommandBuffer cmd, RenderTextureDescriptor desc)
             {
-                if (!string.IsNullOrEmpty(settings.reflectionTextureName) && settings.reflectionTextureName != nameof(_ScreenSpacePlanarReflectionTexture))
+                if (!string.IsNullOrEmpty(settings.reflectionTextureName) && settings.reflectionTextureName != nameof(_ReflectionTexture))
                 {
-                    _ScreenSpacePlanarReflectionTexture = Shader.PropertyToID(settings.reflectionTextureName);
+                    _ReflectionTexture = Shader.PropertyToID(settings.reflectionTextureName);
                 }
 
+                desc.sRGB = false; // great importance
                 desc.width = GetWidth(desc.width);
                 desc.height = GetHeight(desc.height);
                 desc.msaaSamples = 1;
                 desc.enableRandomWrite = true;
                 desc.colorFormat = RenderTextureFormat.Default;
 
-                cmd.GetTemporaryRT(_ScreenSpacePlanarReflectionTexture, desc, FilterMode.Bilinear);
-
-                desc.colorFormat = RenderTextureFormat.RFloat;
-                cmd.GetTemporaryRT(_ReflectionHeightBuffer, desc);
+                cmd.GetTemporaryRT(_ReflectionTexture, desc, FilterMode.Bilinear);
 
                 desc.colorFormat = RenderTextureFormat.RInt;
                 cmd.GetTemporaryRT(_HashResult, desc);
+
+                desc.colorFormat = RenderTextureFormat.RFloat;
+                cmd.GetTemporaryRT(_ReflectionHeightBuffer, desc);
 
                 if (settings.isApplyBlur)
                 {
@@ -237,7 +282,7 @@ namespace PowerUtilities
             public override void FrameCleanup(CommandBuffer cmd)
             {
                 if (cmd == null) return;
-                cmd.ReleaseTemporaryRT(_ScreenSpacePlanarReflectionTexture);
+                cmd.ReleaseTemporaryRT(_ReflectionTexture);
                 cmd.ReleaseTemporaryRT(_ReflectionHeightBuffer);
                 cmd.ReleaseTemporaryRT(_HashResult);
 
@@ -248,13 +293,13 @@ namespace PowerUtilities
             }
         }
 
-        CustomRenderPass ssprPass;
+        SSPRPass ssprPass;
         public Settings settings;
 
         /// <inheritdoc/>
         public override void Create()
         {
-            ssprPass = new CustomRenderPass() { settings = settings };
+            ssprPass = new SSPRPass() { settings = settings };
 
             // Configures where the render pass should be injected.
             ssprPass.renderPassEvent = RenderPassEvent.BeforeRenderingTransparents;
