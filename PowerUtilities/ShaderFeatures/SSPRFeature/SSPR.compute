@@ -17,7 +17,7 @@ RWTexture2D<float4> _ReflectionTexture;
 RWTexture2D<float> _ReflectionHeightBuffer;
 RWTexture2D<uint> _HashResult;
 
-SamplerState sampler_point_clamp;
+SamplerState sampler_point_clamp,sampler_linear_clamp;
 TEXTURE2D(_CameraOpaqueTexture);
 TEXTURE2D(_CameraDepthTexture);
 
@@ -166,36 +166,42 @@ void CSHash(uint3 id:SV_DispatchThreadID){
 }
 
 uint GetHash4Corners(uint2 id,uint hash){
-	// const uint2 offsets[4] = {-1,-1, -1,1, 1,-1, 1,1};
-	// for(int i=0;i<4;i++){
-	// 	hash = min(_HashResult[id.xy + offsets[i]],hash);
-	// }
-	// return hash;
-
-	if(hash == 0xffffffff)
-		hash = _HashResult[id.xy+uint2(-1,-1)];
-	if(hash == 0xffffffff)
-		hash = _HashResult[id.xy+uint2(-1,1)];
-	if(hash == 0xffffffff)
-		hash = _HashResult[id.xy+uint2(1,-1)];
-	if(hash == 0xffffffff)
-		hash = _HashResult[id.xy+uint2(1,1)];
+	const uint2 offsets[4] = {-1,-1, 1,1, -1,1, 1,-1};
+	for(int i=0;i<4;i++){
+		hash = min(_HashResult[id.xy + offsets[i]],hash);
+	}
 	return hash;
+
+	// if(hash >= 0xffffffff)
+	// 	hash = _HashResult[id.xy+uint2(-1,-1)];
+	// if(hash >= 0xffffffff)
+	// 	hash = _HashResult[id.xy+uint2(-1,1)];
+	// if(hash >= 0xffffffff)
+	// 	hash = _HashResult[id.xy+uint2(1,-1)];
+	// if(hash >= 0xffffffff)
+	// 	hash = _HashResult[id.xy+uint2(1,1)];
+	// return hash;
+}
+
+float4 SampleColorTexture(uint hash){
+	float4 c = 0;
+	if(hash < 0xffffffff){
+		float2 pos = float2(hash&0xffff,hash>>16);
+		float2 uv = pos*_TexSize.zw;
+
+		c = SampleColorTexture(uv);
+	}
+	return c;
 }
 
 [numthreads(THREAD_X,THREAD_Y,THREAD_Z)]
 void CSResolve(uint3 id:SV_DispatchThreadID){
 	if(any(id.xy > uint2(_TexSize.xy)))
 		return;
-	
+
 	uint hash = (_HashResult[id.xy]);
 	if(_FixedHole)
 		hash = GetHash4Corners(id.xy,hash);
 
-	if(hash < 0xffffffff){
-		float2 pos = float2(hash&0xffff,hash>>16);
-		float2 uv = pos*_TexSize.zw;
-
-		_ReflectionTexture[id.xy] = SampleColorTexture(uv);
-	}
+	_ReflectionTexture[id.xy] = SampleColorTexture(hash);
 }

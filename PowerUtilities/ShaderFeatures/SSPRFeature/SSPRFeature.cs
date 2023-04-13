@@ -28,7 +28,6 @@ namespace PowerUtilities
         public class Settings
         {
             public ComputeShader ssprCS;
-            public Material hashResolveMat;
 
             [Header("Options")]
             public string reflectionTextureName = "_ReflectionTexture";
@@ -147,9 +146,6 @@ namespace PowerUtilities
 
                 }
 
-                if (!settings.hashResolveMat)
-                    settings.isApplyBlur = false;
-
                 if (settings.isApplyBlur)
                 {
                     ApplyBlur(cmd);
@@ -193,8 +189,7 @@ namespace PowerUtilities
                 var csClear = cs.FindKernel("CSClear");
                 cmd.SetComputeTextureParam(cs, csClear, _ReflectionTexture, _ReflectionTexture);
                 cmd.SetComputeTextureParam(cs, csClear, _ReflectionHeightBuffer, _ReflectionHeightBuffer);
-                cmd.DispatchCompute(cs, csClear, threads.x, threads.y, 1);
-                //WaitDispatchCS(cs, csClear, cmd, threads);
+                WaitDispatchCS(cs, csClear, cmd, threads);
             }
 
             void HashPass(ComputeShader cs, CommandBuffer cmd, ScriptableRenderer renderer, Vector2Int threads)
@@ -219,15 +214,10 @@ namespace PowerUtilities
                 WaitDispatchCS(cs, csResolve, cmd, threads);
             }
 
-            private void BlitResolveHash(CommandBuffer cmd, ScriptableRenderer renderer)
-            {
-                cmd.SetGlobalTexture(_CameraOpaqueTexture, renderer.cameraColorTarget);
-                cmd.Blit(_HashResult, _ReflectionTexture, settings.hashResolveMat, 0); // no blur
-            }
 
             private void ApplyBlur(CommandBuffer cmd)
             {
-                cmd.Blit(_ReflectionTexture, _BlurReflectTex, settings.hashResolveMat, 1);
+                cmd.Blit(_ReflectionTexture, _BlurReflectTex);
                 cmd.SetGlobalTexture(_ReflectionTexture, _BlurReflectTex);
             }
 
