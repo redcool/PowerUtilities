@@ -12,6 +12,15 @@ using UnityEngine.Rendering.Universal;
 /// https://github.com/Steven-Cannavan/URP_ScreenSpacePlanarReflections
 /// https://www.cnblogs.com/idovelemon/p/13184970.html
 /// 
+/// usage:
+/// 1 add SSPRFeature to UniversalRenderPipelineAsset_Renderer
+///     1.1 ssprFeature add ssprCore
+///     1.2 change params
+/// 2 add 3D plane to scene
+///     2.1 assign SSPRFeature/Shaders/ShowReflectionTexture.mat to plane
+///     2.2 chang plane'mat renderqueue > 2500
+///     
+/// 
 /// </summary>
 namespace PowerUtilities
 {
@@ -45,6 +54,10 @@ namespace PowerUtilities
             [Header("Stretch Options")]
             public bool isApplyStretch;
             public float stretchThreshold = 0.95f, stretchIntensity = 1;
+
+            [Header("Render")]
+            public RenderPassEvent renderEvent = RenderPassEvent.AfterRenderingSkybox;
+            public int renderEventOffset = 0;
         }
         class SSPRPass : ScriptableRenderPass
         {
@@ -292,7 +305,7 @@ namespace PowerUtilities
             ssprPass = new SSPRPass() { settings = settings };
 
             // Configures where the render pass should be injected.
-            ssprPass.renderPassEvent = RenderPassEvent.BeforeRenderingTransparents;
+            ssprPass.renderPassEvent = settings.renderEvent + settings.renderEventOffset;
         }
 
         // Here you can inject one or multiple render passes in the renderer.
