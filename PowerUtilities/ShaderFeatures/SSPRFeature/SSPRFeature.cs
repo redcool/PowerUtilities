@@ -297,7 +297,7 @@ namespace PowerUtilities
         }
 
         SSPRPass ssprPass;
-        public Settings settings;
+        public Settings settings = new Settings();
 
         /// <inheritdoc/>
         public override void Create()

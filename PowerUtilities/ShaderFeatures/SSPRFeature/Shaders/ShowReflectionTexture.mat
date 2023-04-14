@@ -7,14 +7,14 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Unlit_test
+  m_Name: ShowReflectionTexture
   m_Shader: {fileID: 4800000, guid: e9f08d1c0c8586b439e7f9a0a87fe9ed, type: 3}
   m_ValidKeywords: []
   m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
+  m_CustomRenderQueue: 2502
   stringTagMap: {}
   disabledShaderPasses: []
   m_SavedProperties:
