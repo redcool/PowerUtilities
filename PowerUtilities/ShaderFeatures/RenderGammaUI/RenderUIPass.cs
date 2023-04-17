@@ -24,26 +24,32 @@ namespace PowerUtilities.Features
         const string _LINEAR_TO_SRGB_CONVERSION = nameof(_LINEAR_TO_SRGB_CONVERSION);
         const string _SRGB_TO_LINEAR_CONVERSION = nameof(_SRGB_TO_LINEAR_CONVERSION);
 
-        Material blitMat;
-        LayerMask layerMask;
-
-        RenderStateBlock renderStateBlock; // stencil
-
         CommandBuffer cmd = new CommandBuffer { name=nameof(RenderUIPass) };
 
-        public bool createFullsizeTex;
-        public RenderUIPass(Material blitMat, LayerMask layerMask, StencilState stencilState,int stencilRefValue)
-        {
-            this.blitMat = blitMat;
-            this.layerMask=layerMask;
+        public RenderGammaUIFeature.Settings settings;
 
-            renderStateBlock = new RenderStateBlock(RenderStateMask.Nothing);
+        StencilState GetStencilState()
+        {
+            var stencilState = new StencilState();
+            stencilState.SetCompareFunction(settings.stencilStateData.stencilCompareFunction);
+            stencilState.SetFailOperation(settings.stencilStateData.failOperation);
+            stencilState.SetPassOperation(settings.stencilStateData.passOperation);
+            stencilState.SetZFailOperation(settings.stencilStateData.zFailOperation);
+            stencilState.enabled = settings.stencilStateData.overrideStencilState;
+            return stencilState;
+        }
+
+        RenderStateBlock GetRenderStateBlock()
+        {
+            var stencilState = GetStencilState();
+            var renderStateBlock = new RenderStateBlock(RenderStateMask.Nothing);
             if (stencilState.enabled)
             {
-                renderStateBlock.stencilReference = stencilRefValue;
+                renderStateBlock.stencilReference = settings.stencilStateData.stencilReference;
                 renderStateBlock.stencilState = stencilState;
                 renderStateBlock.mask = RenderStateMask.Stencil;
             }
+            return renderStateBlock;
         }
 
         void SetColorSpace(CommandBuffer cmd, ColorSpaceTransform trans)
@@ -112,10 +118,10 @@ namespace PowerUtilities.Features
             //--------------------- 3 to colorTarget
 
             SetColorSpace(cmd, ColorSpaceTransform.SRGBToLinear);
-            Blit(cmd, BuiltinRenderTextureType.CurrentActive, BuiltinRenderTextureType.CameraTarget, blitMat);
+            Blit(cmd, BuiltinRenderTextureType.CurrentActive, BuiltinRenderTextureType.CameraTarget, settings.blitMat);
 
             //------------- end 
-            if (createFullsizeTex)
+            if (settings.createFullsizeGammaTex)
                 cmd.ReleaseTemporaryRT(_GammaTex);
 
             SetColorSpace(cmd, ColorSpaceTransform.None);
@@ -128,14 +134,14 @@ namespace PowerUtilities.Features
 
         void BlitToGammaTarget(ref ScriptableRenderContext context,ref CameraData cameraData,int colorHandleId,int depthHandleId)
         {
-            blitMat.shaderKeywords=null;
+            settings.blitMat.shaderKeywords=null;
             SetColorSpace(cmd, ColorSpaceTransform.LinearToSRGB);
 
             //Blit(cmd, colorHandleId, gammaTexId, blitMat);
             cmd.SetGlobalTexture(_SourceTex, _CameraOpaqueTexture); // _CameraOpaqueTexture is _CameraColorAttachmentA or _CameraColorAttachmentB
             cmd.SetRenderTarget(colorHandleId);
 
-            if (createFullsizeTex)
+            if (settings.createFullsizeGammaTex)
             {
                 /**  copy depth from _CameraDepthTexture
                  * 
@@ -149,7 +155,7 @@ namespace PowerUtilities.Features
                 cmd.ClearRenderTarget(true, false, Color.black, 1);
             }
 
-            cmd.Blit(BuiltinRenderTextureType.None, colorHandleId, blitMat);
+            cmd.Blit(BuiltinRenderTextureType.None, colorHandleId, settings.blitMat);
 
             context.ExecuteCommandBuffer(cmd);
             cmd.Clear();
@@ -165,7 +171,7 @@ namespace PowerUtilities.Features
                 new ShaderTagId("UniversalForwardOnly"), 
                 new ShaderTagId("LightweightForward")
                 }, ref renderingData, sortFlags);
-            var filterSettings = new FilteringSettings(RenderQueueRange.transparent, layerMask);
+            var filterSettings = new FilteringSettings(RenderQueueRange.transparent, settings.layerMask);
 #if UNITY_EDITOR
             // When rendering the preview camera, we want the layer mask to be forced to Everything
             if (renderingData.cameraData.isPreviewCamera)
@@ -184,6 +190,7 @@ namespace PowerUtilities.Features
                 cmd.Clear();
             }
 
+            var renderStateBlock = GetRenderStateBlock();
             context.DrawRenderers(renderingData.cullResults, ref drawSettings, ref filterSettings, ref renderStateBlock);
         }
 
@@ -206,12 +213,22 @@ namespace PowerUtilities.Features
 
             colorHandleId = AnyCameraHasPostProcessing() && renderingData.postProcessingEnabled ? _CameraColorAttachmentA : _CameraColorAttachmentB;
 
-            if (createFullsizeTex)
+            if (settings.createFullsizeGammaTex)
             {
-                var desc = cameraData.cameraTargetDescriptor;
-                //desc.msaaSamples = 1;
-                desc.width = cameraData.camera.pixelWidth;
-                desc.height = cameraData.camera.pixelHeight;
+                //var desc = cameraData.cameraTargetDescriptor;
+                var desc = new RenderTextureDescriptor(cameraData.camera.pixelWidth, cameraData.camera.pixelHeight);
+                desc.msaaSamples = 1;
+                desc.colorFormat = RenderTextureFormat.Default;
+                desc.sRGB = false;
+                if (!settings.useStencilBuffer)
+                {
+                    desc.depthBufferBits = 0;
+                }
+                else
+                {
+                    desc.depthStencilFormat = UnityEngine.Experimental.Rendering.GraphicsFormat.D24_UNorm_S8_UInt;
+                }
+
                 cmd.GetTemporaryRT(_GammaTex, desc);
 
                 colorHandleId = _GammaTex;
