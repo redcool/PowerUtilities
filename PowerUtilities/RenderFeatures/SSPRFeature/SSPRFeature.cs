@@ -58,6 +58,7 @@ namespace PowerUtilities
             [Header("Render")]
             public RenderPassEvent renderEvent = RenderPassEvent.AfterRenderingSkybox;
             public int renderEventOffset = 0;
+            public string cameraTag = "MainCamera";
         }
         class SSPRPass : ScriptableRenderPass
         {
@@ -312,6 +313,11 @@ namespace PowerUtilities
         // This method is called when settings up the renderer once per-camera.
         public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
         {
+            ref var cameraData = ref renderingData.cameraData;
+            var enabled = string.IsNullOrEmpty(settings.cameraTag) ? true:cameraData.camera.CompareTag(settings.cameraTag) ;
+            if (!enabled)
+                return;
+
             renderer.EnqueuePass(ssprPass);
         }
     }
