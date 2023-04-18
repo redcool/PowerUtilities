@@ -1,4 +1,4 @@
-Shader "Hidden/HashResolve"
+Shader "Hidden/SSPR/HashResolve"
 {
     Properties
     {

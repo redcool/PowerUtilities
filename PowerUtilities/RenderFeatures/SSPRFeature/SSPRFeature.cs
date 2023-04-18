@@ -42,6 +42,11 @@ namespace PowerUtilities
             public string reflectionTextureName = "_ReflectionTexture";
             public Vector3 planeLocation = new Vector3(0,0.01f,0);
             public Quaternion planeRotation = Quaternion.identity;
+            public float fading = 10;
+
+            [Header("Stretch Options")]
+            public bool isApplyStretch;
+            public float stretchThreshold = 0.95f, stretchIntensity = 1;
 
             [Header("Key Options")]
             public RunMode runMode;
@@ -49,16 +54,17 @@ namespace PowerUtilities
             public bool isFixedHoleInHashMode;
 
             [Range(0,2)]public int downSamples;
+            [Header("Blur")]
             public bool isApplyBlur;
-
-            [Header("Stretch Options")]
-            public bool isApplyStretch;
-            public float stretchThreshold = 0.95f, stretchIntensity = 1;
+            public bool isSinglePass = true;
+            public Material blurMat;
+            [Min(1)]public float blurSize=1;
+            [Range(2,10)]public int stepCount=10;
 
             [Header("Render")]
             public RenderPassEvent renderEvent = RenderPassEvent.AfterRenderingSkybox;
             public int renderEventOffset = 0;
-            public string cameraTag = "MainCamera";
+            public string gameCameraTag = "MainCamera";
         }
         class SSPRPass : ScriptableRenderPass
         {
@@ -69,6 +75,9 @@ namespace PowerUtilities
             int _TexSize = Shader.PropertyToID(nameof(_TexSize));
             int _Plane = Shader.PropertyToID(nameof(_Plane));
             int _Stretch = Shader.PropertyToID(nameof(_Stretch));
+            int _Fading = Shader.PropertyToID(nameof(_Fading));
+            int _BlurSize = Shader.PropertyToID(nameof(_BlurSize)),
+                _StepCount = Shader.PropertyToID(nameof(_StepCount));
 
             int _CameraOpaqueTexture = Shader.PropertyToID(nameof(_CameraOpaqueTexture));
             int _CameraColorAttachmentA = Shader.PropertyToID(nameof(_CameraColorAttachmentA));
@@ -136,6 +145,7 @@ namespace PowerUtilities
 
                 cmd.SetComputeIntParam(cs, _FixedHole, settings.isFixedHoleInHashMode ? 1 : 0);
                 cmd.SetComputeIntParam(cs, _RunMode, (int)settings.runMode);
+                cmd.SetComputeFloatParam(cs, _Fading, settings.fading);
 
                 var threads = new Vector2Int(Mathf.CeilToInt(width / (float)THREAD_X),
                     Mathf.CeilToInt(height / (float)THREAD_Y));
@@ -231,8 +241,19 @@ namespace PowerUtilities
 
             private void ApplyBlur(CommandBuffer cmd)
             {
-                cmd.Blit(_ReflectionTexture, _BlurReflectTex);
-                cmd.SetGlobalTexture(_ReflectionTexture, _BlurReflectTex);
+                if (!settings.blurMat)
+                    return;
+
+                settings.blurMat.SetFloat(_BlurSize, settings.blurSize);
+                settings.blurMat.SetInt(_StepCount, settings.stepCount);
+
+                cmd.Blit(_ReflectionTexture, _BlurReflectTex,settings.blurMat,0);
+                if (settings.isSinglePass)
+                {
+                    cmd.SetGlobalTexture(_ReflectionTexture, _BlurReflectTex);
+                    return;
+                }
+                cmd.Blit(_BlurReflectTex, _ReflectionTexture, settings.blurMat, 1);
             }
 
             private static void WaitDispatchCS(ComputeShader cs, int csId, CommandBuffer cmd, Vector2Int threads, bool needFence = false)
@@ -265,6 +286,7 @@ namespace PowerUtilities
                 desc.msaaSamples = 1;
                 desc.enableRandomWrite = true;
                 desc.colorFormat = RenderTextureFormat.Default;
+                desc.depthBufferBits = 0;
 
                 cmd.GetTemporaryRT(_ReflectionTexture, desc, FilterMode.Bilinear);
 
@@ -314,7 +336,8 @@ namespace PowerUtilities
         public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
         {
             ref var cameraData = ref renderingData.cameraData;
-            var enabled = string.IsNullOrEmpty(settings.cameraTag) ? true:cameraData.camera.CompareTag(settings.cameraTag) ;
+            var enabled = string.IsNullOrEmpty(settings.gameCameraTag) ? true:cameraData.camera.CompareTag(settings.gameCameraTag) ;
+            enabled = enabled || cameraData.cameraType != CameraType.Game;
             if (!enabled)
                 return;
 

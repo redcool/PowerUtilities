@@ -24,6 +24,7 @@ TEXTURE2D(_CameraDepthTexture);
 float4 _Plane; // xyz:plane direction, w : - dot(plane location, plane direction)
 float4 _TexSize; //x:width,height,1/width,1/height
 float4 _Stretch; //x:camera forward.z, stretch threshold,stretch intensity,isApplyStretch
+float _Fading;
 
 int _FixedHole;
 
@@ -72,7 +73,7 @@ float4 SampleColorTexture(float2 uv){
 	#else
 	float fade = (1-uv.y);
 	#endif
-	return half4(c.xyz,fade*10);
+	return half4(c.xyz,fade * _Fading);
 }
 
 [numthreads(THREAD_X,THREAD_Y,THREAD_Z)]
