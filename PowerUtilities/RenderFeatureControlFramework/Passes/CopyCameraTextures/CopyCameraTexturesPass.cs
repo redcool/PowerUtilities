@@ -9,9 +9,9 @@ using UnityEngine.Rendering.Universal;
 
 namespace PowerUtilities.RenderFeatures
 {
-    public class CopyDepthWorkerPass : SRPPass<CopyDepthWorkerFeature>
+    public class CopyCameraTexturesPass : SRPPass<CopyCameraTextures>
     {
-        public CopyDepthWorkerPass(CopyDepthWorkerFeature feature) : base(feature) { 
+        public CopyCameraTexturesPass(CopyCameraTextures feature) : base(feature) { 
             ConfigureInput(Feature.passInputType);
         
         }

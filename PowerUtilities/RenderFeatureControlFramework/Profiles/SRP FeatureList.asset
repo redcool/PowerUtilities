@@ -9,9 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 373430fea770b404099833450fbd9f02, type: 3}
-  m_Name: New Copy Depth Worker Feature
+  m_Script: {fileID: 11500000, guid: 5c1219bfe19a5744c8a5afb7f86bd798, type: 3}
+  m_Name: SRP FeatureList
   m_EditorClassIdentifier: 
-  enabled: 1
-  renderPassEvent: 400
-  passInputType: 1
+  settingList:
+  - {fileID: 11400000, guid: 918d2e51a42af944fb0fcaf57c344677, type: 2}
+  - {fileID: 11400000, guid: 237a477945564ee419d8bed4361e3bee, type: 2}
