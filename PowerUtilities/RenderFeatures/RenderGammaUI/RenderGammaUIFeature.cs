@@ -1,4 +1,3 @@
-using log4net.Config;
 using System;
 using UnityEngine;
 using UnityEngine.Rendering;
