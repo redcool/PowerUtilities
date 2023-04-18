@@ -9,6 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a4f39d4c6d7ccc540a1aaf0b3c258507, type: 3}
-  m_Name: New SRP Render Feature SO
+  m_Script: {fileID: 11500000, guid: b95dbe2d6c0f1294e8e41dad93ef4332, type: 3}
+  m_Name: New Test SRP Feature
   m_EditorClassIdentifier: 
+  enabled: 1
+  renderPassEvent: 400
+  featureName: test feature
