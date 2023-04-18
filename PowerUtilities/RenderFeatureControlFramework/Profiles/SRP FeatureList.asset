@@ -15,3 +15,4 @@ MonoBehaviour:
   settingList:
   - {fileID: 11400000, guid: 918d2e51a42af944fb0fcaf57c344677, type: 2}
   - {fileID: 11400000, guid: 237a477945564ee419d8bed4361e3bee, type: 2}
+  - {fileID: 11400000, guid: 50ec92f569f8fb049b9c9da18b27b0ec, type: 2}
