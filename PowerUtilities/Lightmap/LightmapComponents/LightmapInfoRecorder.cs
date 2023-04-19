@@ -4,10 +4,10 @@
     using System.Collections.Generic;
     using UnityEngine;
     using System;
+    using System.Linq;
 
 #if UNITY_EDITOR
     using UnityEditor;
-    using System.Linq;
     [CustomEditor(typeof(LightmapInfoRecorder))]
     public class LightmapInfosEidotr : Editor
     {

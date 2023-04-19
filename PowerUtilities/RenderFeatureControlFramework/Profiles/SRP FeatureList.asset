@@ -9,7 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5c1219bfe19a5744c8a5afb7f86bd798, type: 3}
+  m_Script: {fileID: 11500000, guid: 020239da890028742becb2d5aad81070, type: 3}
   m_Name: SRP FeatureList
   m_EditorClassIdentifier: 
   settingList:
