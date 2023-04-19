@@ -15,12 +15,8 @@ namespace PowerUtilities
             _FinalDstMode = Shader.PropertyToID(nameof(_FinalDstMode))
         ;
 
-        public static void ExecuteCommand(this CommandBuffer cmd,ScriptableRenderContext context)
-        {
-            context.ExecuteCommandBuffer(cmd);
-            cmd.Clear();
-        }
-        static RenderTextureDescriptor defaultDescriptor = new RenderTextureDescriptor(1, 1, RenderTextureFormat.Default, 0, 0);
+        public readonly static RenderTextureDescriptor defaultDescriptor = new RenderTextureDescriptor(1, 1, RenderTextureFormat.Default, 0, 0);
+
         public static void ClearRenderTarget(this CommandBuffer cmd, Camera camera, float depth = 1, uint stencil = 0)
         {
             var isClearDepth = camera.clearFlags <= CameraClearFlags.Depth;
@@ -68,6 +64,12 @@ namespace PowerUtilities
             {
                 Cmd.GetTemporaryRT(item, desc);
             }
+        }
+        public static void CreateDepthTarget(this CommandBuffer Cmd, Camera camera, int targetId, float renderScale = 1)
+        {
+            var desc = defaultDescriptor;
+            desc.SetupDepthDescriptor(camera, renderScale);
+            Cmd.GetTemporaryRT(targetId, desc);
         }
 
         public static void Execute(this CommandBuffer cmd, ref ScriptableRenderContext context)

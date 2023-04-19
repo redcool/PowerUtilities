@@ -9,17 +9,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f161de703236717458c35a45cc616f8c, type: 3}
-  m_Name: Create Target
+  m_Script: {fileID: 11500000, guid: f65fc8c7a8f3ffa4798d07b2e7297a90, type: 3}
+  m_Name: Blit Target
   m_EditorClassIdentifier: 
-  enabled: 1
+  enabled: 0
   cameraTag: MainCamera
-  renderPassEvent: 0
-  renderPassEventOffset: 0
+  renderPassEvent: 1000
+  renderPassEventOffset: 101
   isFoldout: 0
-  colorTargetNames:
-  - _ColorBuffer0
-  isTargetHasDepthBuffer: 0
-  isHDR: 0
-  depthTargetName: _DepthBuffer
-  renderScale: 0.63
+  sourceName: _ColorBuffer0
+  targetName: 
+  blitMat: {fileID: 2100000, guid: 437a529721e807446a5f0207e801bac0, type: 2}

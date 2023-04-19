@@ -25,7 +25,10 @@ namespace PowerUtilities.RenderFeatures
             Feature = feature;
         }
 
-        public virtual bool IsValid(Camera cam) => !(Feature == null || !Feature.enabled || !cam.CompareTag(Feature.cameraTag));
+        public virtual bool IsValid(Camera cam) => !(
+            Feature == null || !Feature.enabled 
+            || (!string.IsNullOrEmpty(Feature.cameraTag) && !cam.CompareTag(Feature.cameraTag))
+            );
 
         public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
         {
@@ -34,12 +37,12 @@ namespace PowerUtilities.RenderFeatures
                 return;
 
             var cmd = CommandBufferPool.Get(nameof(T));
-            cmd.ExecuteCommand(context);
+            cmd.Execute(ref context);
             cmd.Clear();
 
             OnExecute(context, ref renderingData,cmd);
 
-            cmd.ExecuteCommand(context);
+            cmd.Execute(ref context);
             cmd.Clear();
         }
 

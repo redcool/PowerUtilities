@@ -31,7 +31,7 @@ namespace PowerUtilities.RenderFeatures
                 if (pass == null || !feature.enabled)
                     continue;
 
-                pass.renderPassEvent = feature.renderPassEvent;
+                pass.renderPassEvent = feature.renderPassEvent + feature.renderPassEventOffset;
                 renderer.EnqueuePass(pass);
             }
             

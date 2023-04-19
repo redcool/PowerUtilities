@@ -15,6 +15,7 @@ MonoBehaviour:
   enabled: 1
   cameraTag: MainCamera
   renderPassEvent: 250
+  renderPassEventOffset: 0
   isFoldout: 0
   profilerTag: DrawOpaques
   shaderTags:

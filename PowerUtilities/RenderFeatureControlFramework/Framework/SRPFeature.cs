@@ -22,6 +22,7 @@ namespace PowerUtilities.RenderFeatures
         public string cameraTag = "MainCamera";
 
         public RenderPassEvent renderPassEvent = RenderPassEvent.AfterRenderingSkybox;
+        public int renderPassEventOffset = 0;
         //[HideInInspector]
         public bool isFoldout;
     }

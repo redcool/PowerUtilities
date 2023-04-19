@@ -137,7 +137,7 @@ namespace PowerUtilities.Features
             settings.blitMat.shaderKeywords=null;
             SetColorSpace(cmd, ColorSpaceTransform.LinearToSRGB);
 
-            //Blit(cmd, colorHandleId, gammaTexId, blitMat);
+            //BlitToTarget(cmd, colorHandleId, gammaTexId, blitMat);
             // _CameraOpaqueTexture is _CameraColorAttachmentA or _CameraColorAttachmentB
             var lastTargetId = GetLastColorTargetId(ref renderingData);
             cmd.SetGlobalTexture(_SourceTex, lastTargetId);
@@ -148,7 +148,7 @@ namespace PowerUtilities.Features
                 /**  copy depth from _CameraDepthTexture
                  * 
                 cmd.SetRenderTarget(depthHandleId);
-                //cmd.Blit(BuiltinRenderTextureType.None, depthHandleId, copyDepthMat);
+                //cmd.BlitToTarget(BuiltinRenderTextureType.None, depthHandleId, copyDepthMat);
 
                 cmd.SetViewProjectionMatrices(Matrix4x4.identity, Matrix4x4.identity);
                 cmd.DrawMesh(RenderingUtils.fullscreenMesh, Matrix4x4.identity, copyDepthMat);

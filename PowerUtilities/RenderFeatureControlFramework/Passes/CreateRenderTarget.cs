@@ -9,31 +9,43 @@ namespace PowerUtilities.RenderFeatures
     [CreateAssetMenu(menuName = SRP_FEATURE_MENU+"/CreateRenderTarget")]
     public class CreateRenderTarget : SRPFeature
     {
-        [Range(0.1f,2)]public float renderScale = 1;
-
         public string[] colorTargetNames;
         public bool isTargetHasDepthBuffer;
         public bool isHDR;
-        //public string depthTargetName;
+
+        public string depthTargetName;
+        [Range(0.1f,2)]public float renderScale = 1;
         public override ScriptableRenderPass GetPass() => new CreateRenderTargetPass(this);
     }
 
     public class CreateRenderTargetPass : SRPPass<CreateRenderTarget>
     {
-        int[] targetIds;
+        int[] colorIds;
         public CreateRenderTargetPass(CreateRenderTarget feature) : base(feature) { }
+
+        public override bool IsValid(Camera cam)
+        {
+            return base.IsValid(cam) 
+                && Feature.colorTargetNames.Length>0 
+                && !string.IsNullOrEmpty(Feature.depthTargetName);
+        }
 
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
         {
-            if(targetIds == null || targetIds.Length != Feature.colorTargetNames.Length)
+            if(colorIds == null || colorIds.Length != Feature.colorTargetNames.Length)
             {
-                var targetIds = new int[Feature.colorTargetNames.Length];
-                RenderingTools.RenderTargetNameToInt(Feature.colorTargetNames, ref targetIds);
+                colorIds = new int[Feature.colorTargetNames.Length];
+                RenderingTools.RenderTargetNameToInt(Feature.colorTargetNames, ref colorIds);
             }
 
             ref var cameraData = ref renderingData.cameraData;
-            cmd.CreateTargets(cameraData.camera, targetIds, Feature.renderScale, Feature.isTargetHasDepthBuffer, Feature.isHDR);
+            cmd.CreateTargets(cameraData.camera, colorIds, Feature.renderScale, Feature.isTargetHasDepthBuffer, Feature.isHDR);
 
+            if (!string.IsNullOrEmpty(Feature.depthTargetName))
+            {
+                var depthId = Shader.PropertyToID(Feature.depthTargetName);
+                cmd.CreateDepthTarget(cameraData.camera, depthId, Feature.renderScale);
+            }
         }
     }
 }

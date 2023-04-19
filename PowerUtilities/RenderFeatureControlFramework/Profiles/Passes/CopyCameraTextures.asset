@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 373430fea770b404099833450fbd9f02, type: 3}
   m_Name: CopyCameraTextures
   m_EditorClassIdentifier: 
-  enabled: 1
+  enabled: 0
   cameraTag: MainCamera
   renderPassEvent: 400
+  renderPassEventOffset: 0
   isFoldout: 0
   passInputType: 0
