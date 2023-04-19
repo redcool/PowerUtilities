@@ -40,7 +40,7 @@ namespace PowerUtilities
             var isFirstRun = graphSharedMaterialList.Count == 0;
             if (enabled && isFirstRun)
             {
-                var firstMat = isRenderersValid ? renderers[0].sharedMaterial : graphs[0].material;
+                var firstMat = isRenderersValid ? renderers[0].sharedMaterial : graphs[0].materialForRendering;
                 if (firstMat)
                     ReadFirstMaterial(firstMat);
             }
