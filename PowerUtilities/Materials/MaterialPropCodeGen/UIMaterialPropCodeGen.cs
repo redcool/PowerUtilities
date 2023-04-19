@@ -10,6 +10,7 @@ using UnityEngine.Rendering;
 using System.IO;
 using System.Linq;
 using System;
+using System.Text.RegularExpressions;
 
 public class UIMaterialPropCodeGen
 {
@@ -68,7 +69,7 @@ public class UIMaterialPropCodeGen
 
         PathTools.CreateAbsFolderPath(PATH);
 
-        var className = shader.name.Replace('/', '_');
+        var className = Regex.Replace(shader.name, @"[/ ]", "_");
         var codeStr = string.Format(CODE_TEMPLATE,
             className,
             fieldSb.ToString(),
