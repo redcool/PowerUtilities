@@ -108,7 +108,7 @@ namespace PowerUtilities.Features
             SetupTargetTex(ref renderingData, ref cameraData, out colorHandleId,out depthHandleId);
 
             //---------------------  1 to gamma tex
-            BlitToGammaTarget(ref context,ref cameraData, colorHandleId,depthHandleId);
+            BlitToGammaTarget(ref context,ref cameraData,ref renderingData, colorHandleId,depthHandleId);
 
 
             //--------------------- 2 draw ui
@@ -132,13 +132,15 @@ namespace PowerUtilities.Features
             cmd.Clear();
         }
 
-        void BlitToGammaTarget(ref ScriptableRenderContext context,ref CameraData cameraData,int colorHandleId,int depthHandleId)
+        void BlitToGammaTarget(ref ScriptableRenderContext context,ref CameraData cameraData,ref RenderingData renderingData,int colorHandleId,int depthHandleId)
         {
             settings.blitMat.shaderKeywords=null;
             SetColorSpace(cmd, ColorSpaceTransform.LinearToSRGB);
 
             //Blit(cmd, colorHandleId, gammaTexId, blitMat);
-            cmd.SetGlobalTexture(_SourceTex, _CameraOpaqueTexture); // _CameraOpaqueTexture is _CameraColorAttachmentA or _CameraColorAttachmentB
+            // _CameraOpaqueTexture is _CameraColorAttachmentA or _CameraColorAttachmentB
+            var lastTargetId = GetLastColorTargetId(ref renderingData);
+            cmd.SetGlobalTexture(_SourceTex, lastTargetId);
             cmd.SetRenderTarget(colorHandleId);
 
             if (settings.createFullsizeGammaTex)
@@ -201,6 +203,7 @@ namespace PowerUtilities.Features
                 Any(cd => cd.renderPostProcessing);
         }
 
+        int GetLastColorTargetId(ref RenderingData renderingData) => (AnyCameraHasPostProcessing() && renderingData.postProcessingEnabled )? _CameraColorAttachmentB : _CameraColorAttachmentA ;
         private void SetupTargetTex(ref RenderingData renderingData, ref CameraData cameraData, out int colorHandleId,out int depthHandleId)
         {
             /** =============================================
@@ -211,7 +214,7 @@ namespace PowerUtilities.Features
              * **/
             depthHandleId = _CameraDepthAttachment;
 
-            colorHandleId = AnyCameraHasPostProcessing() && renderingData.postProcessingEnabled ? _CameraColorAttachmentA : _CameraColorAttachmentB;
+            colorHandleId = GetLastColorTargetId(ref renderingData);
 
             if (settings.createFullsizeGammaTex)
             {
