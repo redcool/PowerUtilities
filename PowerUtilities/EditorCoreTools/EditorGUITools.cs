@@ -155,10 +155,17 @@ namespace PowerUtilities
         /// <param name="drawContentAction"></param>
         public static void DrawFoldContent(ref (string title, bool fold) foldInfo, Action drawContentAction)
         {
-            DrawFoldContent(ref foldInfo, drawContentAction, GUI.contentColor);
+            DrawFoldContent(foldInfo.title, ref foldInfo.fold, drawContentAction, GUI.contentColor);
         }
-
+        public static void DrawFoldContent(string title, ref bool fold,Action drawContentAction)
+        {
+            DrawFoldContent(title,ref fold, drawContentAction, GUI.contentColor);
+        }
         public static void DrawFoldContent(ref (string title, bool fold) foldInfo, Action drawContentAction, Color titleColor, float space = 1)
+        {
+            DrawFoldContent(foldInfo.title, ref foldInfo.fold, drawContentAction, titleColor, space);
+        }
+        public static void DrawFoldContent(string title, ref bool fold, Action drawContentAction, Color titleColor, float space = 1)
         {
             var lastColor = GUI.contentColor;
             GUI.contentColor = titleColor;
@@ -168,7 +175,7 @@ namespace PowerUtilities
 
             // draw title button bar
             EditorGUILayout.BeginVertical("Button");
-            foldInfo.fold = EditorGUILayout.Foldout(foldInfo.fold, foldInfo.title, true);
+            fold = EditorGUILayout.Foldout(fold, title, true);
             EditorGUILayout.Space(space);
             EditorGUILayout.EndVertical();
 
@@ -176,7 +183,7 @@ namespace PowerUtilities
             GUI.contentColor = lastColor;
 
             //draw content
-            if (foldInfo.fold)
+            if (fold)
             {
                 ++EditorGUI.indentLevel;
                 drawContentAction();
@@ -346,6 +353,26 @@ namespace PowerUtilities
                 EditorGUILayout.LabelField(label, EditorStyles.boldLabel);
                 return EditorGUILayout.TextField(defaultText);
             });
+        }
+
+        public static bool DrawDefaultInspect(SerializedObject obj)
+        {
+            EditorGUI.BeginChangeCheck();
+            //obj.UpdateIfRequiredOrScript();
+            var iterator = obj.GetIterator();
+
+            var enterChildren = true;
+
+            while (iterator.NextVisible(enterChildren))
+            {
+                using (new EditorGUI.DisabledScope("m_Script" == iterator.propertyPath))
+                {
+                    EditorGUILayout.PropertyField(iterator, true);
+                }
+                enterChildren = false;
+            }
+            //obj.ApplyModifiedProperties();
+            return EditorGUI.EndChangeCheck();
         }
     }
 }

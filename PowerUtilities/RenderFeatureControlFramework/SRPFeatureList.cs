@@ -13,10 +13,14 @@ using UnityEngine;
     public class SRPFeatureListEditor : PowerEditor<SRPFeatureList>
     {
         bool isFold;
+        List<SerializedObject> featureSOList;
 
         public override void DrawInspectorUI(SRPFeatureList inst)
         {
             DrawDefaultGUI();
+
+            if(featureSOList == null || featureSOList.Count != inst.settingList.Count)
+                featureSOList = inst.settingList.Select(feature => new SerializedObject(feature)).ToList();
 
             isFold = EditorGUILayout.Foldout(isFold, "Passes",true);
             if (isFold)
@@ -24,26 +28,10 @@ using UnityEngine;
                 for (int i = 0; i < inst.settingList.Count; i++)
                 {
                     var feature = inst.settingList[i];
-                    
-                    EditorGUILayout.BeginHorizontal("Box");
-                    {
-                        var text = $"{i},{feature.name}";
-                        EditorGUILayout.LabelField(text);
-                        if (!feature.enabled)
-                        {
-                            EditorGUITools.DrawColorUI(() =>
-                            {
-                                EditorGUILayout.ObjectField(feature, feature.GetType(), allowSceneObjects: false, GUILayout.Height(18));
-
-                            },Color.gray, GUI.color);
-                        }
-                        else
-                        {
-                            EditorGUILayout.ObjectField(feature, feature.GetType(), allowSceneObjects: false,GUILayout.Height(18));
-                        }
-
-                    }
-                    EditorGUILayout.EndHorizontal();
+                    var color = feature.enabled ? GUI.color : Color.gray;
+                    var title = feature.name;
+                    var foldoutProp = featureSOList[i].FindProperty(nameof(SRPFeature.isFoldout));
+                    PassDrawer.DrawPassDetail(featureSOList[i], color, foldoutProp, EditorGUITools.TempContent(title));
                 }
             }
         }

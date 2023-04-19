@@ -20,6 +20,8 @@ namespace PowerUtilities.RenderFeatures
 
 
         public RenderPassEvent renderPassEvent = RenderPassEvent.AfterRenderingSkybox;
+        //[HideInInspector]
+        public bool isFoldout;
     }
 
 }
