@@ -20,23 +20,30 @@ namespace PowerUtilities.RenderFeatures
     {
         public T Feature { get; private set; }
 
+        protected Camera camera;
+        protected ScriptableRenderContext context;
+
         public SRPPass(T feature)
         {
             Feature = feature;
         }
 
-        public virtual bool IsValid(Camera cam) => !(
+        public virtual bool CanExecute() => !(
             Feature == null || !Feature.enabled 
-            || (!string.IsNullOrEmpty(Feature.cameraTag) && !cam.CompareTag(Feature.cameraTag))
+            || (!string.IsNullOrEmpty(Feature.cameraTag) && !camera.CompareTag(Feature.cameraTag))
             );
 
         public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
         {
             ref var cameraData = ref renderingData.cameraData;
-            if (! IsValid(cameraData.camera))
+            this.camera = cameraData.camera;
+            this.context = context;
+            
+
+            if (! CanExecute())
                 return;
 
-            var cmd = CommandBufferPool.Get(nameof(T));
+            var cmd = CommandBufferPool.Get(Feature.name);
             cmd.Execute(ref context);
             cmd.Clear();
 

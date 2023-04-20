@@ -12,8 +12,7 @@ namespace PowerUtilities.RenderFeatures
     public abstract class SRPFeature : ScriptableObject
     {
         public const string SRP_FEATURE_MENU = "SrpRenderFeatures/Passes";
-        
-        public abstract ScriptableRenderPass GetPass();
+        [Header("Pass Options")]
 
         [Tooltip("This pass can run?")]
         public bool enabled = true;
@@ -23,8 +22,10 @@ namespace PowerUtilities.RenderFeatures
 
         public RenderPassEvent renderPassEvent = RenderPassEvent.AfterRenderingSkybox;
         public int renderPassEventOffset = 0;
-        //[HideInInspector]
+
+        [HideInInspector]
         public bool isFoldout;
+        public abstract ScriptableRenderPass GetPass();
     }
 
 }

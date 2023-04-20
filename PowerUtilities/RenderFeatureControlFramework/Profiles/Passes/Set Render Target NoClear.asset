@@ -9,17 +9,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f161de703236717458c35a45cc616f8c, type: 3}
-  m_Name: Create Target
+  m_Script: {fileID: 11500000, guid: 9de0f74c61e5e6e4ab0a53c364b0797f, type: 3}
+  m_Name: Set Render Target NoClear
   m_EditorClassIdentifier: 
   enabled: 0
   cameraTag: MainCamera
-  renderPassEvent: 250
+  renderPassEvent: 450
   renderPassEventOffset: 0
   isFoldout: 0
   colorTargetNames:
-  - a123
-  isTargetHasDepthBuffer: 0
-  isHDR: 0
+  - _ColorBuffer0
   depthTargetName: _DepthBuffer
-  renderScale: 0.63
+  clearTarget: 0

@@ -16,12 +16,12 @@ MonoBehaviour:
   cameraTag: MainCamera
   renderPassEvent: 450
   renderPassEventOffset: 0
-  isFoldout: 0
-  profilerTag: DrawOpaques
+  isFoldout: 1
+  profilerTag: DrawTransparents
   shaderTags:
   - UniversalForwardOnly
   - UniversalForward
-  - UniversalUnlit
+  - SRPDefaultUnlit
   isOpaque: 0
   layers:
     serializedVersion: 2

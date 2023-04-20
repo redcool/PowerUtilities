@@ -17,10 +17,15 @@ using UnityEngine;
 
         public override void DrawInspectorUI(SRPFeatureList inst)
         {
+            EditorGUI.BeginChangeCheck();
             DrawDefaultGUI();
-
-            if(featureSOList == null || featureSOList.Count != inst.settingList.Count)
-                featureSOList = inst.settingList.Select(feature => new SerializedObject(feature)).ToList();
+            if (EditorGUI.EndChangeCheck() || featureSOList == null)
+            {
+                featureSOList = inst.settingList
+                    .Where(item => item)
+                    .Select(feature => new SerializedObject(feature))
+                    .ToList();
+            }
 
             isFold = EditorGUILayout.Foldout(isFold, "Passes",true);
             if (isFold)

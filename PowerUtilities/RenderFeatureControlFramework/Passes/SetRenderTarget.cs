@@ -26,13 +26,13 @@ namespace PowerUtilities.RenderFeatures
         {
         }
 
-        public override bool IsValid(Camera cam)
+        public override bool CanExecute()
         {
             //Feature.colorTargetNames = Feature.colorTargetNames
             //    .Where(item => !string.IsNullOrEmpty(item))
             //    .ToArray();
 
-            return base.IsValid(cam) 
+            return base.CanExecute() 
                 && Feature.colorTargetNames.Length > 0;
         }
 

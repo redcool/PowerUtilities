@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: Test
   m_EditorClassIdentifier: 
   enabled: 0
+  cameraTag: MainCamera
   renderPassEvent: 400
+  renderPassEventOffset: 0
   isFoldout: 0
   featureName: test feature

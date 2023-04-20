@@ -28,9 +28,9 @@ namespace PowerUtilities.RenderFeatures
 
         public BlitToTargetPass(BlitToTarget feature) : base(feature) { }
 
-        public override bool IsValid(Camera cam)
+        public override bool CanExecute()
         {
-            return base.IsValid(cam) 
+            return base.CanExecute() 
                 && Feature.blitMat
                 ;
         }

@@ -23,9 +23,9 @@ namespace PowerUtilities.RenderFeatures
         int[] colorIds;
         public CreateRenderTargetPass(CreateRenderTarget feature) : base(feature) { }
 
-        public override bool IsValid(Camera cam)
+        public override bool CanExecute()
         {
-            return base.IsValid(cam) 
+            return base.CanExecute() 
                 && Feature.colorTargetNames.Length>0 
                 && !string.IsNullOrEmpty(Feature.depthTargetName);
         }
