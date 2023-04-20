@@ -18,7 +18,7 @@ namespace PowerUtilities.RenderFeatures
         public string[] shaderTags = new[] {
             "UniversalForwardOnly",
             "UniversalForward",
-            "UniversalUnlit"
+            "SRPDefaultUnlit"
         }; 
         
         public bool isOpaque;

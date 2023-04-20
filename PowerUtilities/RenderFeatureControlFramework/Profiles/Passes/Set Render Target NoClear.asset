@@ -18,6 +18,7 @@ MonoBehaviour:
   renderPassEventOffset: 0
   isFoldout: 0
   colorTargetNames:
+  - 
   - _ColorBuffer0
-  depthTargetName: _DepthBuffer
+  depthTargetName: 
   clearTarget: 0

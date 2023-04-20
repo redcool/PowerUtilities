@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f3c6d2cd4defcb49920b98f50d01b66, type: 3}
   m_Name: Draw Transparent
   m_EditorClassIdentifier: 
-  enabled: 1
+  enabled: 0
   cameraTag: MainCamera
   renderPassEvent: 450
   renderPassEventOffset: 0
-  isFoldout: 1
+  isFoldout: 0
   profilerTag: DrawTransparents
   shaderTags:
   - UniversalForwardOnly

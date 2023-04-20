@@ -21,7 +21,7 @@ namespace PowerUtilities.RenderFeatures
     public class SetRenderTargetPass : SRPPass<SetRenderTarget>
     {
         RenderTargetIdentifier[] colorIds;
-        int depthId;
+
         public SetRenderTargetPass(SetRenderTarget feature) : base(feature)
         {
         }
@@ -40,15 +40,31 @@ namespace PowerUtilities.RenderFeatures
         {
             if (colorIds == null || colorIds.Length != Feature.colorTargetNames.Length)
             {
-                RenderingTools.RenderTargetNameToIdentifier(Feature.colorTargetNames,ref colorIds);
+                RenderingTools.RenderTargetNameToIdentifier(Feature.colorTargetNames, ref colorIds);
             }
             ref var cameraData = ref renderingData.cameraData;
 
-            depthId = Shader.PropertyToID(Feature.depthTargetName);
+            RenderTargetIdentifier depthId = cameraData.renderer.cameraDepthTarget;
+            if (!string.IsNullOrEmpty(Feature.depthTargetName))
+            {
+                depthId = Shader.PropertyToID(Feature.depthTargetName);
+            }
+
+
+
+            if (Feature.clearTarget)
+            {
+                var cam = cameraData.camera;
+                //cmd.ClearRenderTarget(cam);
+
+                colorIds.ForEach(id =>
+                {
+                    cmd.SetRenderTarget(id);
+                    cmd.ClearRenderTarget(cam);
+                });
+            }
 
             cmd.SetRenderTarget(colorIds, depthId);
-            if(Feature.clearTarget)
-                cmd.ClearRenderTarget(cameraData.camera);
         }
     }
 }

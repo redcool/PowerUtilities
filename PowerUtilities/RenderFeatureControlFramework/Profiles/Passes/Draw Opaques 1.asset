@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f3c6d2cd4defcb49920b98f50d01b66, type: 3}
-  m_Name: Draw Opaques
+  m_Name: Draw Opaques 1
   m_EditorClassIdentifier: 
-  enabled: 0
+  enabled: 1
   cameraTag: MainCamera
-  renderPassEvent: 250
+  renderPassEvent: 1000
   renderPassEventOffset: 0
-  isFoldout: 0
+  isFoldout: 1
   profilerTag: DrawOpaques
   shaderTags:
   - UniversalForwardOnly
