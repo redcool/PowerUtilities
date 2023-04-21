@@ -10,7 +10,7 @@ namespace PowerUtilities.RenderFeatures
     [CreateAssetMenu(menuName =SRP_FEATURE_MENU+ "/SetRenderTarget")]
     public class SetRenderTarget : SRPFeature
     {
-        public string[] colorTargetNames = new[] { "_CameraColorAttachmentA" };
+        public string[] colorTargetNames = new[] { nameof(ShaderPropertyIds._CameraColorAttachmentA) };
         public string depthTargetName;
 
         public bool clearTarget;

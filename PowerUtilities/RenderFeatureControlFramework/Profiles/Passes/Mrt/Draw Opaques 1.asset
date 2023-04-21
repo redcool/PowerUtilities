@@ -9,15 +9,27 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b95dbe2d6c0f1294e8e41dad93ef4332, type: 3}
-  m_Name: Test
+  m_Script: {fileID: 11500000, guid: 2f3c6d2cd4defcb49920b98f50d01b66, type: 3}
+  m_Name: Draw Opaques 1
   m_EditorClassIdentifier: 
-  enabled: 0
+  enabled: 1
   cameraTag: MainCamera
   renderPassEvent: 1000
   renderPassEventOffset: 0
-  isFoldout: 0
+  isFoldout: 1
+  profilerTag: DrawOpaques
+  shaderTags:
+  - UniversalForwardOnly
+  - UniversalForward
+  - SRPDefaultUnlit
+  isOpaque: 1
   layers:
     serializedVersion: 2
     m_Bits: 64
-  featureName: test feature
+  stencilData:
+    overrideStencilState: 0
+    stencilReference: 0
+    stencilCompareFunction: 8
+    passOperation: 0
+    failOperation: 0
+    zFailOperation: 0

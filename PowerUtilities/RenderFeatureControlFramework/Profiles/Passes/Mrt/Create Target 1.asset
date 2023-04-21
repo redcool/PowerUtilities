@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f161de703236717458c35a45cc616f8c, type: 3}
   m_Name: Create Target 1
   m_EditorClassIdentifier: 
-  enabled: 0
+  enabled: 1
   cameraTag: MainCamera
   renderPassEvent: 1000
   renderPassEventOffset: 0
