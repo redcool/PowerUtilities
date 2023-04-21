@@ -14,6 +14,7 @@ namespace PowerUtilities.RenderFeatures
     [CreateAssetMenu(menuName =SRP_FEATURE_MENU+ "/DrawObjects")]
     public class DrawObjects : SRPFeature
     {
+        [Header("Draw Options")]
         public string profilerTag = "DrawObjects";
         public string[] shaderTags = new[] {
             "UniversalForwardOnly",
@@ -22,8 +23,6 @@ namespace PowerUtilities.RenderFeatures
         }; 
         
         public bool isOpaque;
-        
-        
         public LayerMask layers = -1;
 
         public StencilStateData stencilData;
@@ -48,4 +47,5 @@ namespace PowerUtilities.RenderFeatures
             return new DrawObjectsPass(profilerTag,shaderTagIds,isOpaque,renderPassEvent,renderQueueRange,layers,stencilState,stencilData.stencilReference);
         }
     }
+
 }

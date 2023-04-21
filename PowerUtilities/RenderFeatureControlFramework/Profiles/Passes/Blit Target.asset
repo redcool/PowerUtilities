@@ -15,8 +15,8 @@ MonoBehaviour:
   enabled: 1
   cameraTag: MainCamera
   renderPassEvent: 1000
-  renderPassEventOffset: 101
+  renderPassEventOffset: 1001
   isFoldout: 1
-  sourceName: _ColorBuffer1
+  sourceName: _CameraColorAttachmentA
   targetName: 
   blitMat: {fileID: 2100000, guid: 437a529721e807446a5f0207e801bac0, type: 2}

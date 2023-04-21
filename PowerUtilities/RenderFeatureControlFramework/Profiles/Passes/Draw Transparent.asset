@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enabled: 0
   cameraTag: MainCamera
-  renderPassEvent: 450
+  renderPassEvent: 1000
   renderPassEventOffset: 0
   isFoldout: 0
   profilerTag: DrawTransparents

@@ -12,9 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b95dbe2d6c0f1294e8e41dad93ef4332, type: 3}
   m_Name: Test
   m_EditorClassIdentifier: 
-  enabled: 0
+  enabled: 1
   cameraTag: MainCamera
-  renderPassEvent: 400
+  renderPassEvent: 1000
   renderPassEventOffset: 0
-  isFoldout: 0
+  isFoldout: 1
+  layers:
+    serializedVersion: 2
+    m_Bits: 64
   featureName: test feature

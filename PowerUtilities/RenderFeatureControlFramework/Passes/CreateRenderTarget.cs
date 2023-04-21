@@ -10,7 +10,7 @@ namespace PowerUtilities.RenderFeatures
     public class CreateRenderTarget : SRPFeature
     {
         [Header("Color Targets")]
-        public string[] colorTargetNames;
+        public string[] colorTargetNames = new[] { "_CameraColorAttachmentA"};
         public bool isTargetHasDepthBuffer;
         public bool isHDR;
 

@@ -4,14 +4,13 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
-using static log4net.Appender.ColoredConsoleAppender;
 
 namespace PowerUtilities.RenderFeatures
 {
     [CreateAssetMenu(menuName =SRP_FEATURE_MENU+ "/SetRenderTarget")]
     public class SetRenderTarget : SRPFeature
     {
-        public string[] colorTargetNames;
+        public string[] colorTargetNames = new[] { "_CameraColorAttachmentA" };
         public string depthTargetName;
 
         public bool clearTarget;
@@ -50,21 +49,23 @@ namespace PowerUtilities.RenderFeatures
                 depthId = Shader.PropertyToID(Feature.depthTargetName);
             }
 
+            if(SystemInfo.supportedRenderTargetCount < colorIds.Length)
+                colorIds = colorIds.Take(SystemInfo.supportedRenderTargetCount).ToArray();
 
+            cmd.SetRenderTarget(colorIds, depthId);
 
             if (Feature.clearTarget)
             {
                 var cam = cameraData.camera;
-                //cmd.ClearRenderTarget(cam);
+                cmd.ClearRenderTarget(cam);
 
-                colorIds.ForEach(id =>
-                {
-                    cmd.SetRenderTarget(id);
-                    cmd.ClearRenderTarget(cam);
-                });
+                //colorIds.ForEach(id =>
+                //{
+                //    cmd.SetRenderTarget(id);
+                //    cmd.ClearRenderTarget(cam);
+                //});
             }
 
-            cmd.SetRenderTarget(colorIds, depthId);
         }
     }
 }

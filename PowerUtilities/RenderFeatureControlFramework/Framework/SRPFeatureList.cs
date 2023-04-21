@@ -19,7 +19,7 @@ using UnityEngine;
         {
             EditorGUI.BeginChangeCheck();
             DrawDefaultGUI();
-            if (EditorGUI.EndChangeCheck() || featureSOList == null)
+            if (EditorGUI.EndChangeCheck() || featureSOList == null || featureSOList.Count != inst.settingList.Count)
             {
                 featureSOList = inst.settingList
                     .Where(item => item)

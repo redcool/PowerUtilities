@@ -28,7 +28,7 @@ namespace PowerUtilities.RenderFeatures
 
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
         {
-            if (targetIds == null || targetIds.Length != Feature.targetNames.Length)
+            //if (targetIds == null || targetIds.Length != Feature.targetNames.Length)
             {
                 targetIds = new int[Feature.targetNames.Length];
                 RenderingTools.RenderTargetNameToInt(Feature.targetNames, ref targetIds);
