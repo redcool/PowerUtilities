@@ -16,16 +16,14 @@ MonoBehaviour:
   cameraTag: MainCamera
   renderPassEvent: 1000
   renderPassEventOffset: 0
-  isFoldout: 1
+  isFoldout: 0
   profilerTag: DrawOpaques
   shaderTags:
-  - UniversalForwardOnly
-  - UniversalForward
-  - SRPDefaultUnlit
+  - OutputMRT
   isOpaque: 1
   layers:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 2147483647
   stencilData:
     overrideStencilState: 0
     stencilReference: 0

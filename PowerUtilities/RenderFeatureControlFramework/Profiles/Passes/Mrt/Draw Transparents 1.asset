@@ -12,20 +12,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f3c6d2cd4defcb49920b98f50d01b66, type: 3}
   m_Name: Draw Transparents 1
   m_EditorClassIdentifier: 
-  enabled: 0
+  enabled: 1
   cameraTag: MainCamera
   renderPassEvent: 1000
   renderPassEventOffset: 0
   isFoldout: 0
   profilerTag: DrawOpaques
   shaderTags:
-  - UniversalForwardOnly
-  - UniversalForward
-  - SRPDefaultUnlit
+  - OutputMRT
   isOpaque: 0
   layers:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 2147483647
   stencilData:
     overrideStencilState: 0
     stencilReference: 0

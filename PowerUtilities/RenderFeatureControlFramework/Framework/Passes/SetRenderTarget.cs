@@ -11,7 +11,9 @@ namespace PowerUtilities.RenderFeatures
     public class SetRenderTarget : SRPFeature
     {
         public string[] colorTargetNames = new[] { nameof(ShaderPropertyIds._CameraColorAttachmentA) };
-        public string depthTargetName;
+
+        [Tooltip("Will be _CameraDepthAttachment when empty")]
+        public string depthTargetName = nameof(ShaderPropertyIds._CameraDepthAttachment);
 
         public bool clearTarget;
         public override ScriptableRenderPass GetPass() => new SetRenderTargetPass(this);
@@ -43,6 +45,7 @@ namespace PowerUtilities.RenderFeatures
             }
             ref var cameraData = ref renderingData.cameraData;
 
+            // set depth target id
             RenderTargetIdentifier depthId = cameraData.renderer.cameraDepthTarget;
             if (!string.IsNullOrEmpty(Feature.depthTargetName))
             {
@@ -58,12 +61,6 @@ namespace PowerUtilities.RenderFeatures
             {
                 var cam = cameraData.camera;
                 cmd.ClearRenderTarget(cam);
-
-                //colorIds.ForEach(id =>
-                //{
-                //    cmd.SetRenderTarget(id);
-                //    cmd.ClearRenderTarget(cam);
-                //});
             }
 
         }
