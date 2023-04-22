@@ -17,9 +17,8 @@ MonoBehaviour:
   renderPassEvent: 1000
   renderPassEventOffset: 0
   isFoldout: 0
-  profilerTag: DrawOpaques
   shaderTags:
-  - OutputMRT
+  - GBuffer
   isOpaque: 1
   layers:
     serializedVersion: 2
@@ -31,3 +30,5 @@ MonoBehaviour:
     passOperation: 0
     failOperation: 0
     zFailOperation: 0
+  isDrawSkybox: 1
+  drawSkyboxEvent: 1000

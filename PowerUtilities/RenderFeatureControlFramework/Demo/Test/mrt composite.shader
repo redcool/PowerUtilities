@@ -6,7 +6,7 @@ Shader "Unlit/mrt 1"
     }
     SubShader
     {
-        Tags { "RenderType"="Opaque" "LightMode"="OutputMRT" }
+        Tags { "RenderType"="Opaque" "LightMode"="GBuffer" }
         LOD 100
 
         Pass

@@ -20,5 +20,5 @@ MonoBehaviour:
   colorTargetNames:
   - _ColorBuffer0
   - _ColorBuffer1
-  depthTargetName: 
+  depthTargetName: _DepthBuffer
   clearTarget: 1

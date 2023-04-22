@@ -22,4 +22,4 @@ MonoBehaviour:
   - _ColorBuffer1
   isTargetHasDepthBuffer: 0
   isHDR: 0
-  depthTargetName: 
+  depthTargetName: _DepthBuffer

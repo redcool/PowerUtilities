@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -20,7 +19,7 @@ namespace PowerUtilities
         public static void ClearRenderTarget(this CommandBuffer cmd, Camera camera, float depth = 1, uint stencil = 0)
         {
             var isClearDepth = camera.clearFlags <= CameraClearFlags.Depth;
-            var isClearColor = camera.clearFlags == CameraClearFlags.Color;
+            var isClearColor = camera.clearFlags <= CameraClearFlags.Color;// if condition set equals , mrt color will not clear
             var backColor = isClearColor ? camera.backgroundColor : Color.clear;
             var flags = RTClearFlags.None;
             if (isClearColor)

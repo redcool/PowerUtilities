@@ -16,10 +16,9 @@ MonoBehaviour:
   cameraTag: MainCamera
   renderPassEvent: 1000
   renderPassEventOffset: 0
-  isFoldout: 0
-  profilerTag: DrawOpaques
+  isFoldout: 1
   shaderTags:
-  - OutputMRT
+  - DeferredShading
   isOpaque: 0
   layers:
     serializedVersion: 2
@@ -31,3 +30,5 @@ MonoBehaviour:
     passOperation: 0
     failOperation: 0
     zFailOperation: 0
+  isDrawSkybox: 0
+  drawSkyboxEvent: 350
