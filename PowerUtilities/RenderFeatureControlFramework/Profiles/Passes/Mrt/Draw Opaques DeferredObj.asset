@@ -10,16 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f3c6d2cd4defcb49920b98f50d01b66, type: 3}
-  m_Name: Draw Transparents 1
+  m_Name: Draw Opaques DeferredObj
   m_EditorClassIdentifier: 
-  enabled: 0
+  enabled: 1
   cameraTag: MainCamera
   renderPassEvent: 1000
   renderPassEventOffset: 0
-  isFoldout: 0
+  isFoldout: 1
   shaderTags:
-  - DeferredShading
-  isOpaque: 0
+  - GBufferComposite
+  isOpaque: 1
   layers:
     serializedVersion: 2
     m_Bits: 2147483647
@@ -30,5 +30,5 @@ MonoBehaviour:
     passOperation: 0
     failOperation: 0
     zFailOperation: 0
-  isDrawSkybox: 0
-  drawSkyboxEvent: 350
+  isDrawSkybox: 1
+  drawSkyboxEvent: 1000
