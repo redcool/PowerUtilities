@@ -30,5 +30,5 @@ MonoBehaviour:
     passOperation: 0
     failOperation: 0
     zFailOperation: 0
-  isDrawSkybox: 1
+  isDrawSkybox: 0
   drawSkyboxEvent: 1000

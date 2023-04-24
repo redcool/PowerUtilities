@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f65fc8c7a8f3ffa4798d07b2e7297a90, type: 3}
   m_Name: Blit Target 1
   m_EditorClassIdentifier: 
-  enabled: 1
+  enabled: 0
   cameraTag: MainCamera
   renderPassEvent: 1000
   renderPassEventOffset: 20
-  isFoldout: 1
-  sourceName: _CameraColorAttachmentA
+  isFoldout: 0
+  sourceName: _DepthBuffer
   targetName: 
   blitMat: {fileID: 2100000, guid: 437a529721e807446a5f0207e801bac0, type: 2}

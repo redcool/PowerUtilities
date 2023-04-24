@@ -16,7 +16,7 @@ MonoBehaviour:
   cameraTag: MainCamera
   renderPassEvent: 1000
   renderPassEventOffset: 0
-  isFoldout: 1
+  isFoldout: 0
   shaderTags:
   - GBufferComposite
   isOpaque: 1
