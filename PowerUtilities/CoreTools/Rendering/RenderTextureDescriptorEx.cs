@@ -10,6 +10,13 @@ namespace PowerUtilities
 {
     public static class RenderTextureDescriptorEx
     {
+        /// <summary>
+        /// unity editor renderScale need 1
+        /// </summary>
+        /// <param name="desc"></param>
+        /// <param name="camera"></param>
+        /// <param name="renderScale"></param>
+        /// <param name="isHdr"></param>
         public static void SetupColorDescriptor(ref this RenderTextureDescriptor desc, Camera camera, float renderScale = 1,bool isHdr=false)
         {
             desc.width = (int)(camera.pixelWidth * renderScale);

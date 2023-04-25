@@ -40,6 +40,9 @@ namespace PowerUtilities.RenderFeatures
             }
 
             var renderScale = UniversalRenderPipeline.asset.renderScale;
+            // for above SceneView 
+            if (camera.cameraType > CameraType.Game)
+                renderScale = 1;
 
             ref var cameraData = ref renderingData.cameraData;
             cmd.CreateTargets(cameraData.camera, colorIds, renderScale, Feature.isTargetHasDepthBuffer, Feature.isHDR);

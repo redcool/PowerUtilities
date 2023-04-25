@@ -1,28 +1,53 @@
+namespace PowerUtilities.RenderFeatures
+{
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 
-namespace PowerUtilities.RenderFeatures
-{
-    
-    public class SRPRenderFeatureControl : ScriptableRendererFeature
+#if UNITY_EDITOR
+    using UnityEditor;
+    [CustomEditor(typeof(SRPRenderFeatureControl))]
+    public class SRPRenderFeatureControlEditor : Editor
     {
-        [Serializable]
-        public class Settings
+        bool isFold;
+        Editor featureListEditor;
+        private void OnEnable()
         {
-            public SRPFeatureList featureList;
+            var settings = serializedObject.FindProperty(nameof(SRPRenderFeatureControl.featureListSO));
+            featureListEditor = Editor.CreateEditor(settings.objectReferenceValue);
         }
 
-        public Settings settings;
+        public override void OnInspectorGUI ()
+        {
+            DrawDefaultInspector();
+
+            serializedObject.Update();
+
+            isFold = EditorGUILayout.Foldout(isFold, EditorGUITools.TempContent("featureList Details"),true,EditorStylesEx.FoldoutHeader);
+            if (isFold)
+            {
+                EditorGUI.indentLevel++;
+                featureListEditor.OnInspectorGUI();
+                EditorGUI.indentLevel--;
+            }
+
+            serializedObject.ApplyModifiedProperties();
+        }
+    }
+#endif
+
+    public class SRPRenderFeatureControl : ScriptableRendererFeature
+    {
+        public SRPFeatureListSO featureListSO;
 
         public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
         {
-            if (settings == null || settings.featureList == null || settings.featureList.settingList.Count == 0)
+            if ( featureListSO == null || featureListSO.featureList.Count == 0)
                 return;
 
-            foreach (var feature in settings.featureList.settingList)
+            foreach (var feature in featureListSO.featureList)
             {
                 if (feature == null)
                     continue;

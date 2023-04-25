@@ -9,12 +9,10 @@ using UnityEngine.Rendering.Universal;
 
 namespace PowerUtilities.RenderFeatures
 {
-
-    //public abstract class SRPPass : ScriptableRenderPass
-    //{
-    //    public bool enabled;
-    //}
-
+    /// <summary>
+    /// urp renderPass controlled by SRPFeatureControl
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public abstract class SRPPass<T> : ScriptableRenderPass
         where T : SRPFeature
     {
@@ -28,10 +26,21 @@ namespace PowerUtilities.RenderFeatures
             Feature = feature;
         }
 
-        public virtual bool CanExecute() => !(
-            Feature == null || !Feature.enabled 
-            || (!string.IsNullOrEmpty(Feature.cameraTag) && !camera.CompareTag(Feature.cameraTag))
-            );
+        /// <summary>
+        /// This pass can execute
+        /// 1 check Feature 
+        /// 2 check cameraType,
+        ///     2.1 check gameCameraTag when cameraType is Game
+        /// </summary>
+        /// <returns></returns>
+        public virtual bool CanExecute()
+        { 
+            if(Feature == null || !Feature.enabled)
+                return false;
+            if (camera.cameraType == CameraType.Game &&!string.IsNullOrEmpty(Feature.gameCameraTag))
+                return camera.CompareTag(Feature.gameCameraTag);
+            return true;
+        }
 
         public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
         {

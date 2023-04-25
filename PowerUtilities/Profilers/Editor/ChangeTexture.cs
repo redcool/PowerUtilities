@@ -15,8 +15,10 @@
         [MenuItem(AnalysisUtils.ANALYSIS_UTILS + "/ChangeTextures")]
         static void Init()
         {
-            var mats = AnalysisUtils.GetSceneMaterials(AnalysisUtils.GetSceneGameObjects());
-            new ChangeTexture().Change(mats);
+            if (EditorUtility.DisplayDialog("Waring", "change textures?", "ok")){
+                var mats = AnalysisUtils.GetSceneMaterials(AnalysisUtils.GetSceneGameObjects());
+                new ChangeTexture().Change(mats);
+            }
         }
 
         string DataPath
