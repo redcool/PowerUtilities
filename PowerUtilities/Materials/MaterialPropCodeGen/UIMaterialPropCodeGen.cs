@@ -11,6 +11,8 @@ using System.IO;
 using System.Linq;
 using System;
 using System.Text.RegularExpressions;
+using System.Net;
+using UnityEditor.Graphs;
 
 public class UIMaterialPropCodeGen
 {
@@ -18,6 +20,13 @@ public class UIMaterialPropCodeGen
     const string PATH = "Assets/CodeGens/";
 
     static HashSet<string> propNameSet = new HashSet<string>();
+    /// <summary>
+    /// {
+    ///     propName -> groupName
+    /// }
+    /// when propName == groupName, is header
+    /// </summary>
+    static Dictionary<string, (string groupName, bool isHeader)> propLayoutDict = new Dictionary<string, (string groupName, bool isHeder)>();
 
     [MenuItem(MENU_ROOT+"/CreateUIMaterialCode(from hierarchy ui)")]
     static void Init()
@@ -34,16 +43,53 @@ public class UIMaterialPropCodeGen
     [MenuItem(MENU_ROOT+"/CreateUIMaterialCode(from Asset Shader)")]
     static void Init2()
     {
-        var shader = Selection.GetFiltered<Shader>(SelectionMode.Assets);
+        var shaders = Selection.GetFiltered<Shader>(SelectionMode.Assets);
 
-        foreach (var item in shader)
+        foreach (var item in shaders)
         {
             Analysis(item);
         }
     }
 
+    /// <summary>
+    /// analysis layout file
+    /// {
+    ///     prop -> (groupName, isHeader)    
+    /// }
+    /// </summary>
+    /// <param name="shader"></param>
+    static void SetupPropLayoutDict(Shader shader)
+    {
+        propLayoutDict.Clear();
+
+        var shaderPath = AssetDatabase.GetAssetPath(shader);
+        var layoutFilePath = shaderPath.Substring(0, shaderPath.Length - Path.GetExtension(shaderPath).Length) + ".txt";
+        //var layoutText = AssetDatabase.LoadAssetAtPath<TextAsset>(layoutFilePath);
+        
+        var dict = ConfigTool.ReadKeyValueConfig(layoutFilePath);
+
+        dict.ForEach(kv =>
+        {
+            if(kv.Key != "tabNames")
+            {
+                var propNames = ConfigTool.SplitBy(kv.Value);
+                for (int i = 0; i < propNames.Length; i++)
+                {
+                    var prop = propNames[i];
+                    propLayoutDict[prop] = (kv.Key,i == 0);
+                }
+            }
+        });
+
+    }
+
     static void Analysis(Shader shader)
     {
+        // setup layout
+        SetupPropLayoutDict(shader);
+
+        // setup props
+
         var fieldSb = new StringBuilder();
         var updateMatMethodSb = new StringBuilder();
         var updateBlockMethodSb = new StringBuilder();
@@ -105,7 +151,7 @@ public class UIMaterialPropCodeGen
 
     public static string GetDefaultValue(int id, ShaderPropertyType type, Shader shader) => type switch
     {
-        //ShaderPropertyType.Texture => $"Texture2D.{shader.GetPropertyTextureDefaultName(id)}Texture",
+        //ShaderPropertyType.Texture => $"Texture2D.{shaders.GetPropertyTextureDefaultName(id)}Texture",
         ShaderPropertyType.Texture => $"null",
         ShaderPropertyType.Color => $"new Color{FormatVector(shader.GetPropertyDefaultVectorValue(id))}",
         ShaderPropertyType.Vector => $"new Vector4{FormatVector(shader.GetPropertyDefaultVectorValue(id))}",
@@ -130,7 +176,11 @@ public class UIMaterialPropCodeGen
         var setMethodName = GetSetMethodName(type);
 
         var varDecorator = GetVarDecorator(propName, flags);
-        //demo : [ColorUsage(true,true)] public Color color = shaderDefaultValue
+        /** 
+         * demo : 
+         *      [ColorUsage(true,true)] public Color color = shaderDefaultValue
+         *      [EditorGroup(groupName,isHeader)]
+         */
         fieldSb.AppendLine($"{varDecorator} public {varTypeName} {propName} = {propValue};");
 
         var textureCondition = "";
@@ -147,12 +197,31 @@ public class UIMaterialPropCodeGen
         readMatSb.AppendLine($"{propName} = mat.Get{setMethodName}(\"{propName}\");");
     }
 
+    /// <summary>
+    /// add variables decorator
+    /// 
+    /// demo : 
+    /// [ColorUsage(true, true)]
+    /// [EditorGroup(groupName, isHeader)]
+    /// public Color color = shaderDefaultValue
+    ///      
+    ///
+    /// </summary>
+    /// <param name="propName"></param>
+    /// <param name="flags"></param>
+    /// <returns></returns>
     private static string GetVarDecorator(string propName, ShaderPropertyFlags flags)
     {
         var sb = new StringBuilder();
         if ((flags & ShaderPropertyFlags.HDR) > 0)
         {
             sb.Append("[ColorUsage(true,true)]");
+        }
+
+        if(propLayoutDict.ContainsKey(propName))
+        {
+            var groupInfo = propLayoutDict[propName];
+            sb.AppendFormat("[EditorGroup(\"{0}\",{1})]",groupInfo.groupName,groupInfo.isHeader?"true":"false");
         }
 
         return sb.ToString();
