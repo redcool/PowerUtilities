@@ -10,19 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f3c6d2cd4defcb49920b98f50d01b66, type: 3}
-  m_Name: Draw Transparent
+  m_Name: 3 Draw Opaques
   m_EditorClassIdentifier: 
   enabled: 0
   cameraTag: MainCamera
-  renderPassEvent: 1000
+  renderPassEvent: 250
   renderPassEventOffset: 0
   isFoldout: 0
-  profilerTag: DrawTransparents
+  profilerTag: DrawOpaques
   shaderTags:
   - UniversalForwardOnly
   - UniversalForward
   - SRPDefaultUnlit
-  isOpaque: 0
+  isOpaque: 1
   layers:
     serializedVersion: 2
     m_Bits: 2147483647

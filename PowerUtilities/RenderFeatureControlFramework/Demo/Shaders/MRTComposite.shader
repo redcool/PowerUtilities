@@ -24,7 +24,7 @@ Shader "Hidden/Utils/MRTComposite"
 
     sampler2D _ColorBuffer0;
     sampler2D _ColorBuffer1;
-    
+    TEXTURE2D(_DepthBuffer);
 
     v2f vert (appdata i)
     {
@@ -47,7 +47,7 @@ Shader "Hidden/Utils/MRTComposite"
         float3 normal = gbuffer1.xyz;
         normal.z = sqrt(1-gbuffer1.x*gbuffer1.x-gbuffer1.y*gbuffer1.y);
 
-        float depth = GetScreenDepth(suv);    
+        float depth = GetScreenDepth(_DepthBuffer,sampler_linear_clamp,suv);    
         float3 worldPos = ComputeWorldSpacePosition(i.uv,depth,UNITY_MATRIX_I_VP);
         Light mainLight = GetMainLight();
 

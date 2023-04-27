@@ -13,12 +13,13 @@ MonoBehaviour:
   m_Name: 2 Set Render Target mrt
   m_EditorClassIdentifier: 
   enabled: 1
+  interrupt: 0
   gameCameraTag: MainCamera
-  renderPassEvent: 1000
+  renderPassEvent: 400
   renderPassEventOffset: 0
+  log: 
   isFoldout: 0
   colorTargetNames:
-  - _ColorBuffer0
-  - _ColorBuffer1
-  depthTargetName: _DepthBuffer
-  clearTarget: 1
+  - _CameraColorAttachmentA
+  depthTargetName: _CameraDepthAttachment
+  clearTarget: 0

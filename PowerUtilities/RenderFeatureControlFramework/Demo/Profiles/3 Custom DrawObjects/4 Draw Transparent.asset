@@ -10,15 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f3c6d2cd4defcb49920b98f50d01b66, type: 3}
-  m_Name: 4 Draw Transparents mrt
+  m_Name: 4 Draw Transparent
   m_EditorClassIdentifier: 
   enabled: 0
-  gameCameraTag: MainCamera
+  cameraTag: MainCamera
   renderPassEvent: 1000
   renderPassEventOffset: 0
   isFoldout: 0
+  profilerTag: DrawTransparents
   shaderTags:
-  - DeferredShading
+  - UniversalForwardOnly
+  - UniversalForward
+  - SRPDefaultUnlit
   isOpaque: 0
   layers:
     serializedVersion: 2
@@ -30,5 +33,3 @@ MonoBehaviour:
     passOperation: 0
     failOperation: 0
     zFailOperation: 0
-  isDrawSkybox: 0
-  drawSkyboxEvent: 350

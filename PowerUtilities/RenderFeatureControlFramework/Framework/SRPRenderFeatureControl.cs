@@ -21,7 +21,12 @@ using UnityEngine.Rendering.Universal;
 
         public override void OnInspectorGUI ()
         {
+            EditorGUI.BeginChangeCheck();
             DrawDefaultInspector();
+            if(EditorGUI.EndChangeCheck())
+            {
+                OnEnable();
+            }
 
             serializedObject.Update();
 
@@ -58,6 +63,9 @@ using UnityEngine.Rendering.Universal;
 
                 pass.renderPassEvent = feature.renderPassEvent + feature.renderPassEventOffset;
                 renderer.EnqueuePass(pass);
+
+                if (feature.interrupt)
+                    break;
             }
             
         }

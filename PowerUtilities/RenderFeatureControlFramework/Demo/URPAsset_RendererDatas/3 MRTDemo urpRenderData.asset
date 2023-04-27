@@ -67,5 +67,4 @@ MonoBehaviour:
   m_Name: SRPRenderFeatureControl
   m_EditorClassIdentifier: 
   m_Active: 1
-  settings:
-    featureList: {fileID: 11400000, guid: fe7183656b6c1c04b935b3daa8f3870d, type: 2}
+  featureListSO: {fileID: 11400000, guid: fe7183656b6c1c04b935b3daa8f3870d, type: 2}

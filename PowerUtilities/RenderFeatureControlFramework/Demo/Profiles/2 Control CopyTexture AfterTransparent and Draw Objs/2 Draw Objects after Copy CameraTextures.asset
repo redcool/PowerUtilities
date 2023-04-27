@@ -13,11 +13,12 @@ MonoBehaviour:
   m_Name: 2 Draw Objects after Copy CameraTextures
   m_EditorClassIdentifier: 
   enabled: 1
+  interrupt: 0
   gameCameraTag: MainCamera
   renderPassEvent: 500
   renderPassEventOffset: 0
-  isFoldout: 1
   log: 
+  isFoldout: 0
   shaderTags:
   - UniversalForwardOnly
   - UniversalForward

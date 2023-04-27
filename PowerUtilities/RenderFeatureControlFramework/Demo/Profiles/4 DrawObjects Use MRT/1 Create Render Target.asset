@@ -10,16 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f161de703236717458c35a45cc616f8c, type: 3}
-  m_Name: Create Target
+  m_Name: 1 Create Render Target
   m_EditorClassIdentifier: 
-  enabled: 0
-  cameraTag: MainCamera
-  renderPassEvent: 1000
+  enabled: 1
+  interrupt: 0
+  gameCameraTag: MainCamera
+  renderPassEvent: 400
   renderPassEventOffset: 0
+  log: 
   isFoldout: 0
   colorTargetNames:
-  - _ColorBuffer0
-  - _ColorBuffer1
+  - _CameraColorAttachmentA
   isTargetHasDepthBuffer: 0
   isHDR: 0
   depthTargetName: 

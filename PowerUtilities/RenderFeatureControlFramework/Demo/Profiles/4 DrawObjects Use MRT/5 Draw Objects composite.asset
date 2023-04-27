@@ -10,22 +10,23 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f3c6d2cd4defcb49920b98f50d01b66, type: 3}
-  m_Name: Draw Opaques
+  m_Name: 5 Draw Objects composite
   m_EditorClassIdentifier: 
-  enabled: 0
-  cameraTag: MainCamera
-  renderPassEvent: 250
+  enabled: 1
+  interrupt: 0
+  gameCameraTag: MainCamera
+  renderPassEvent: 400
   renderPassEventOffset: 0
+  log: 
   isFoldout: 0
-  profilerTag: DrawOpaques
   shaderTags:
   - UniversalForwardOnly
   - UniversalForward
   - SRPDefaultUnlit
-  isOpaque: 1
+  isOpaque: 0
   layers:
     serializedVersion: 2
-    m_Bits: 2147483647
+    m_Bits: 4294967295
   stencilData:
     overrideStencilState: 0
     stencilReference: 0
@@ -33,3 +34,5 @@ MonoBehaviour:
     passOperation: 0
     failOperation: 0
     zFailOperation: 0
+  isDrawSkybox: 0
+  drawSkyboxEvent: 350

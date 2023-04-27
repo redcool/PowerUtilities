@@ -22,7 +22,7 @@ namespace PowerUtilities.RenderFeatures
             "SRPDefaultUnlit"
         }; 
         
-        public bool isOpaque;
+        public bool isOpaque = true;
         public LayerMask layers = -1;
 
         public StencilStateData stencilData;

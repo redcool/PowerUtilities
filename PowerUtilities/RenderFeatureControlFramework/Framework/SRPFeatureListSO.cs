@@ -36,7 +36,7 @@ using UnityEngine;
                 for (int i = 0; i < inst.featureList.Count; i++)
                 {
                     var feature = inst.featureList[i];
-                    var color = feature.enabled ? GUI.color : Color.gray;
+                    var color = feature.enabled ? (feature.interrupt? Color.red : GUI.color) : Color.gray;
                     var title = feature.name;
                     var foldoutProp = featureSOList[i].FindProperty(nameof(SRPFeature.isFoldout));
                     PassDrawer.DrawPassDetail(featureSOList[i], color, foldoutProp, EditorGUITools.TempContent(title));
