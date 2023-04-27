@@ -12,4 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 020239da890028742becb2d5aad81070, type: 3}
   m_Name: _ DrawObjects Use MRT
   m_EditorClassIdentifier: 
-  featureList: []
+  featureList:
+  - {fileID: 11400000, guid: 18cd9b83ea2216442abe69cd17d1d0c4, type: 2}
+  - {fileID: 11400000, guid: 88032fec6939ff1419aa111c3db12da5, type: 2}
+  - {fileID: 11400000, guid: 51525a9f2b0360c46b711e1967b484c3, type: 2}
+  - {fileID: 11400000, guid: 688ceb21f6a82cd4a97ed9543a823984, type: 2}
+  - {fileID: 11400000, guid: 13875ef8a8e56bd40abe1f134a8c0225, type: 2}

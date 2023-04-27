@@ -23,7 +23,7 @@ MonoBehaviour:
   - UniversalForwardOnly
   - UniversalForward
   - SRPDefaultUnlit
-  isOpaque: 0
+  isOpaque: 1
   layers:
     serializedVersion: 2
     m_Bits: 4294967295

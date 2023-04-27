@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
+  m_IndirectSpecularColor: {r: 0.3740694, g: 0.30401343, b: 0.3628881, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -123,6 +123,115 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &396780966
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 396780968}
+  - component: {fileID: 396780967}
+  m_Layer: 0
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &396780967
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 396780966}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d234d4c335ed7642939de44db0c2636, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _WeatherNoiseTexture: {fileID: 0}
+  _IsGlobalFogOn: 0
+  _GlobalFogIntensity: 1
+  _IsGlobalRainOn: 0
+  _GlobalRainIntensity: 1
+  _IsGlobalSnowOn: 0
+  _GlobalSnowIntensity: 1
+  _IsGlobalWindOn: 0
+  _GlobalWindIntensity: 1
+  thunderOn: 0
+  mainLight: {fileID: 0}
+  thunderMode: 0
+  thunderCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  thunderColor:
+    serializedVersion: 2
+    key0: {r: 1, g: 1, b: 1, a: 1}
+    key1: {r: 1, g: 1, b: 1, a: 1}
+    key2: {r: 0, g: 0, b: 0, a: 0}
+    key3: {r: 0, g: 0, b: 0, a: 0}
+    key4: {r: 0, g: 0, b: 0, a: 0}
+    key5: {r: 0, g: 0, b: 0, a: 0}
+    key6: {r: 0, g: 0, b: 0, a: 0}
+    key7: {r: 0, g: 0, b: 0, a: 0}
+    ctime0: 0
+    ctime1: 65535
+    ctime2: 0
+    ctime3: 0
+    ctime4: 0
+    ctime5: 0
+    ctime6: 0
+    ctime7: 0
+    atime0: 0
+    atime1: 65535
+    atime2: 0
+    atime3: 0
+    atime4: 0
+    atime5: 0
+    atime6: 0
+    atime7: 0
+    m_Mode: 0
+    m_NumColorKeys: 2
+    m_NumAlphaKeys: 2
+  thunderTime: 3
+  thunderInvervalTime: {x: 1, y: 10}
+  isGlobalSkyOn: 0
+  skyExposure: 0.097
+  rainVFX: {fileID: 0}
+  snowVFX: {fileID: 0}
+  followTarget: {fileID: 963194225}
+  followSpeed: 1
+  showSceneBound: 1
+  _EmissionScanLineColor: {r: 1, g: 1, b: 1, a: 1}
+  sceneMinTr: {fileID: 0}
+  _EmissionScanLineMin: {x: 0, y: 0, z: 0}
+  sceneMaxTr: {fileID: 0}
+  _EmissionScanLineMax: {x: 100, y: 0, z: 0}
+  _EmissionScanLineRate: 0
+  _ScanLineRangeMin: 0.1
+  _ScanLineRangeMax: 0.2
+  _ScanLineAxis: 0
+--- !u!4 &396780968
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 396780966}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -18.843098, y: 20.957298, z: -22.131393}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &421496071
 GameObject:
   m_ObjectHideFlags: 0
@@ -703,7 +812,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
-  m_LocalRotation: {x: 0.47302356, y: -0.11447547, z: 0.04110093, w: 0.8726138}
+  m_LocalRotation: {x: 0.30356687, y: -0.1308715, z: 0.013330068, w: 0.9436854}
   m_LocalPosition: {x: 22.68, y: 27.779581, z: -33.579224}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -711,7 +820,7 @@ Transform:
   - {fileID: 1717496756}
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 56.61, y: -17, z: -3.81}
+  m_LocalEulerAnglesHint: {x: 35.2, y: -17, z: -3.81}
 --- !u!114 &963194229
 MonoBehaviour:
   m_ObjectHideFlags: 0

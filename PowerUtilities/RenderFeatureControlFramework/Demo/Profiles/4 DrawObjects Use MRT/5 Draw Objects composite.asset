@@ -23,7 +23,8 @@ MonoBehaviour:
   - UniversalForwardOnly
   - UniversalForward
   - SRPDefaultUnlit
-  isOpaque: 0
+  - GBufferComposite
+  isOpaque: 1
   layers:
     serializedVersion: 2
     m_Bits: 4294967295
@@ -34,5 +35,5 @@ MonoBehaviour:
     passOperation: 0
     failOperation: 0
     zFailOperation: 0
-  isDrawSkybox: 0
+  isDrawSkybox: 1
   drawSkyboxEvent: 350

@@ -20,7 +20,8 @@ MonoBehaviour:
   log: 
   isFoldout: 0
   colorTargetNames:
-  - _CameraColorAttachmentA
+  - _ColorBuffer0
+  - _ColorBuffer1
   isTargetHasDepthBuffer: 0
   isHDR: 0
-  depthTargetName: 
+  depthTargetName: _DepthBuffer

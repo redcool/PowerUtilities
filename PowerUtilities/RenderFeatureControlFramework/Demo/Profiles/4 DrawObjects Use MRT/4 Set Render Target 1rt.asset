@@ -21,5 +21,5 @@ MonoBehaviour:
   isFoldout: 0
   colorTargetNames:
   - _CameraColorAttachmentA
-  depthTargetName: _CameraDepthAttachment
+  depthTargetName: _DepthBuffer
   clearTarget: 0

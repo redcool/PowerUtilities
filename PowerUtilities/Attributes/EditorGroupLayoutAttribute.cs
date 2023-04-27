@@ -56,7 +56,10 @@
 #endif
 
     /// <summary>
-    /// Show toggle group in inspector gui (GUILaout, CustomEditor)
+    /// Show toggle group in inspector gui 
+    /// ** (GUILaout, CustomEditor) can use this attribute
+    /// 
+    /// ** GUI(EditorGUI) should use EditorGroup
     /// 
     /// [EditorGroup("Fog",true)] public bool _IsGlobalFogOn;
     /// [EditorGroup("Fog")][Range(0, 1)] public float _GlobalFogIntensity = 1;
