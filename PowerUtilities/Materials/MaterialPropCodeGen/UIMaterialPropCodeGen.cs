@@ -139,10 +139,10 @@ public class UIMaterialPropCodeGen
     /// </summary>
     /// <param name="flags"></param>
     /// <returns></returns>
-    private static bool IsValidFlags(ShaderPropertyFlags flags)
-    {
-        return (ShaderPropertyFlags.HideInInspector & flags) == 0;
-    }
+    private static bool IsValidFlags(ShaderPropertyFlags flags) =>
+        (ShaderPropertyFlags.HideInInspector & flags) == 0
+        && (ShaderPropertyFlags.PerRendererData & flags) == 0
+    ;
 
     public static string FormatVector(Vector4 v)
     {
@@ -158,6 +158,16 @@ public class UIMaterialPropCodeGen
         _ => $"{shader.GetPropertyDefaultFloatValue(id)}f"
     };
 
+    static bool IsPropExisted(string propName)
+    {
+        var isExisted = propNameSet.Contains(propName);
+        if (!isExisted)
+        {
+            propNameSet.Add(propName);
+        }
+        return isExisted;
+    }
+
     public static void AnalysisProp(ShaderPropertyFlags flags, ShaderPropertyType type, string propName, string propValue,
         StringBuilder fieldSb,
         StringBuilder updateMatSb,
@@ -166,11 +176,8 @@ public class UIMaterialPropCodeGen
         )
     {
         //Check repeatted propName
-        if (propNameSet.Contains(propName))
-        {
+        if (IsPropExisted(propName))
             return;
-        }
-        propNameSet.Add(propName);
 
         var varTypeName = GetVarableType(type);
         var setMethodName = GetSetMethodName(type);
@@ -213,16 +220,17 @@ public class UIMaterialPropCodeGen
     private static string GetVarDecorator(string propName, ShaderPropertyFlags flags)
     {
         var sb = new StringBuilder();
-        if ((flags & ShaderPropertyFlags.HDR) > 0)
-        {
-            sb.Append("[ColorUsage(true,true)]");
-        }
-
         if(propLayoutDict.ContainsKey(propName))
         {
             var groupInfo = propLayoutDict[propName];
             sb.AppendFormat("[EditorGroup(\"{0}\",{1})]",groupInfo.groupName,groupInfo.isHeader?"true":"false");
         }
+
+        if ((flags & ShaderPropertyFlags.HDR) > 0)
+        {
+            sb.Append("[ColorUsage(true,true)]");
+        }
+
 
         return sb.ToString();
     }
