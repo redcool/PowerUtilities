@@ -12,8 +12,11 @@ using System.Linq;
 using System;
 using System.Text.RegularExpressions;
 using System.Net;
-using UnityEditor.Graphs;
 
+/// <summary>
+/// UIMaterial code generate
+/// can k framework this generated script,that control ui material
+/// </summary>
 public class UIMaterialPropCodeGen
 {
     const string MENU_ROOT = "PowerUtilities/CodeGenerator";
@@ -27,6 +30,7 @@ public class UIMaterialPropCodeGen
     /// when propName == groupName, is header
     /// </summary>
     static Dictionary<string, (string groupName, bool isHeader)> propLayoutDict = new Dictionary<string, (string groupName, bool isHeder)>();
+    static Shader currentShader;
 
     [MenuItem(MENU_ROOT+"/CreateUIMaterialCode(from hierarchy ui)")]
     static void Init()
@@ -85,6 +89,7 @@ public class UIMaterialPropCodeGen
 
     static void Analysis(Shader shader)
     {
+        currentShader = shader;
         // setup layout
         SetupPropLayoutDict(shader);
 
@@ -109,7 +114,7 @@ public class UIMaterialPropCodeGen
             var propType = shader.GetPropertyType(i);
             var propDefaultValue = GetDefaultValue(i, propType, shader);
 
-            AnalysisProp(propFlags, propType, propName, propDefaultValue,
+            AnalysisProp(i,propFlags, propType, propName, propDefaultValue,
                 fieldSb, updateMatMethodSb, updateBlockMethodSb, readMatSb);
         }
 
@@ -133,6 +138,7 @@ public class UIMaterialPropCodeGen
         updateBlockMethodSb.Clear();
 
         AssetDatabase.Refresh();
+        currentShader = null;
     }
     /// <summary>
     /// filter material property by flags
@@ -168,7 +174,7 @@ public class UIMaterialPropCodeGen
         return isExisted;
     }
 
-    public static void AnalysisProp(ShaderPropertyFlags flags, ShaderPropertyType type, string propName, string propValue,
+    public static void AnalysisProp(int propId,ShaderPropertyFlags flags, ShaderPropertyType type, string propName, string propValue,
         StringBuilder fieldSb,
         StringBuilder updateMatSb,
         StringBuilder updateBlockSB,
@@ -182,7 +188,7 @@ public class UIMaterialPropCodeGen
         var varTypeName = GetVarableType(type);
         var setMethodName = GetSetMethodName(type);
 
-        var varDecorator = GetVarDecorator(propName, flags);
+        var varDecorator = GetVarDecorator(propId,propName, flags, type);
         /** 
          * demo : 
          *      [ColorUsage(true,true)] public Color color = shaderDefaultValue
@@ -217,20 +223,26 @@ public class UIMaterialPropCodeGen
     /// <param name="propName"></param>
     /// <param name="flags"></param>
     /// <returns></returns>
-    private static string GetVarDecorator(string propName, ShaderPropertyFlags flags)
+    private static string GetVarDecorator(int propId,string propName, ShaderPropertyFlags flags,ShaderPropertyType type)
     {
         var sb = new StringBuilder();
+        // add group
         if(propLayoutDict.ContainsKey(propName))
         {
             var groupInfo = propLayoutDict[propName];
             sb.AppendFormat("[EditorGroup(\"{0}\",{1})]",groupInfo.groupName,groupInfo.isHeader?"true":"false");
         }
-
+        // add ColorUsage
         if ((flags & ShaderPropertyFlags.HDR) > 0)
         {
             sb.Append("[ColorUsage(true,true)]");
         }
-
+        // add Range
+        if(type == ShaderPropertyType.Range)
+        {
+            var range = currentShader.GetPropertyRangeLimits(propId);
+            sb.AppendFormat(@"[Range({0},{1})]",range.x,range.y);
+        }
 
         return sb.ToString();
     }
