@@ -8,16 +8,22 @@ using UnityEngine.Events;
 
 namespace PowerUtilities
 {
+    /// <summary>
+    /// ui components(Graphic) use material clone
+    /// Renderers use MaterialPropertyBlock update variables
+    /// </summary>
     public abstract class BaseUIMaterialPropUpdater : MonoBehaviour
     {
         [Header("UI Graphs")]
         public Graphic[] graphs;
-        [SerializeField]List<Material> graphSharedMaterialList = new List<Material>();
 
         [Header("Renderers")]
         public Renderer[] renderers;
         
         static MaterialPropertyBlock rendererBlock;
+        // private vars
+        [HideInInspector][SerializeField]List<Material> graphSharedMaterialList = new List<Material>();
+        [HideInInspector][SerializeField] bool isInited;
 
         private void Start()
         {
@@ -37,7 +43,9 @@ namespace PowerUtilities
             var isGraphsValid = (graphs != null && graphs.Length>0);
             enabled = isRenderersValid || isGraphsValid;
 
-            var isFirstRun = graphSharedMaterialList.Count == 0;
+            var isFirstRun = graphSharedMaterialList.Count == 0
+                && !isInited;
+
             if (enabled && isFirstRun)
             {
                 var firstMat = isRenderersValid ? renderers[0].sharedMaterial : graphs[0].materialForRendering;
