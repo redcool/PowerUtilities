@@ -74,7 +74,7 @@ namespace PowerUtilities
             graphs.ForEach((g) => graphSharedMaterialList.Add(g.material));
         }
 
-        private void Update()
+        private void LateUpdate()
         {
             if (rendererBlock == null)
                 rendererBlock= new MaterialPropertyBlock();
