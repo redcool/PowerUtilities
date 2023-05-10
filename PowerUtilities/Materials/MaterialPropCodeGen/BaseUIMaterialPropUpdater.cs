@@ -16,13 +16,13 @@ namespace PowerUtilities
     {
         [Header("UI Graphs")]
         public Graphic[] graphs;
+        [SerializeField]List<Material> graphSharedMaterialList = new List<Material>();
 
         [Header("Renderers")]
         public Renderer[] renderers;
         
         static MaterialPropertyBlock rendererBlock;
         // private vars
-        [HideInInspector][SerializeField]List<Material> graphSharedMaterialList = new List<Material>();
         [HideInInspector][SerializeField] bool isInited;
 
         private void Start()
