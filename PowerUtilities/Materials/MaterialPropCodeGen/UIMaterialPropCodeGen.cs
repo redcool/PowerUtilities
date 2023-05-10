@@ -226,6 +226,11 @@ public class UIMaterialPropCodeGen
     private static string GetVarDecorator(int propId,string propName, ShaderPropertyFlags flags,ShaderPropertyType type)
     {
         var sb = new StringBuilder();
+        // texturePreview
+        if(type == ShaderPropertyType.Texture)
+        {
+            sb.AppendLine("[TexturePreview]");
+        }
         // add group
         if(propLayoutDict.ContainsKey(propName))
         {

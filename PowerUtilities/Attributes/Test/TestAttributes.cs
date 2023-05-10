@@ -23,6 +23,9 @@ namespace PowerUtilities
         [DisplayName("Ò»¸ö»¬¿é", "slider helps","Assets/Gizmos/img1.png")]
         [Range(0, 1)]
         public float propA;
+
+        [TexturePreview]
+        public Texture tex;
     }
 }
 #endif
