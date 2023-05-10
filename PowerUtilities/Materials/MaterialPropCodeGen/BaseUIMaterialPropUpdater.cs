@@ -93,14 +93,22 @@ namespace PowerUtilities
             });
         }
 
+        void ResetGraphsMaterial()
+        {
+            graphs.ForEach((g, id) => g.material = graphSharedMaterialList[id]);
+            graphSharedMaterialList.Clear();
+        }
+
         private void OnDestroy()
         {
+            ResetGraphsMaterial();
             rendererBlock =null;
         }
+
+        [ContextMenu("Reset")]
         private void Reset()
         {
-            //graphs.ForEach((g, id) => g.material = graphSharedMaterialList[id]);
-            graphSharedMaterialList.Clear();
+            ResetGraphsMaterial();
             if (Application.isEditor)
                 Start();
         }
