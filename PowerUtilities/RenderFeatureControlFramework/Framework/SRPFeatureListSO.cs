@@ -18,7 +18,7 @@ using UnityEngine;
         public override void DrawInspectorUI(SRPFeatureListSO inst)
         {
             EditorGUI.BeginChangeCheck();
-            DrawDefaultGUI();
+            DrawDefaultInspector();
 
             TryInitFeatureSOList(inst);
 

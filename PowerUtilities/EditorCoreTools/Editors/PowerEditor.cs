@@ -13,17 +13,20 @@ namespace PowerUtilities
     /// <typeparam name="T"></typeparam>
     public abstract class PowerEditor<T> : Editor where T : class
     {
-
-        public void DrawDefaultGUI()
-        {
-            base.OnInspectorGUI();
-        }
+        public (string, bool) foldInfo = ("Options",true);
+        public virtual bool NeedDrawDefaultUI() => false;
 
         public override void OnInspectorGUI()
         {
+            if (NeedDrawDefaultUI())
+                DrawDefaultInspector();
+
             var inst = target as T;
             serializedObject.UpdateIfRequiredOrScript();
+
+            GUILayout.BeginVertical("Box");
             DrawInspectorUI(inst);
+            GUILayout.EndVertical();
 
             serializedObject.ApplyModifiedProperties();
         }

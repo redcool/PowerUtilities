@@ -18,7 +18,8 @@ namespace GameUtilsFramework
         {
             EditorGUILayout.HelpBox(helpStr, MessageType.Info);
 
-            DrawDefaultGUI();
+            DrawDefaultInspector();
+
             GUILayout.BeginVertical("Box");
             GUILayout.Label("Options");
             if (GUILayout.Button("Auto Mapping Skeleton"))

@@ -13,7 +13,7 @@ public class SyncMaterialPropertiesEditor : PowerEditor<SyncMaterialProperties>
     {
 
         EditorGUILayout.HelpBox(helpStr,MessageType.Info,true);
-        DrawDefaultGUI();
+        DrawDefaultInspector();
     }
 }
 #endif

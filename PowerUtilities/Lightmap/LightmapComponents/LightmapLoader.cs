@@ -5,6 +5,23 @@ namespace PowerUtilities
     using System.Collections.Generic;
     using UnityEngine;
 
+#if UNITY_EDITOR
+    using UnityEditor;
+    [CustomEditor(typeof(LightmapLoader))]
+    public class LightmapLoaderEditor : PowerEditor<LightmapLoader>
+    {
+        public override bool NeedDrawDefaultUI() => true;
+        public override void DrawInspectorUI(LightmapLoader inst)
+        {
+            GUILayout.Label("Options");
+            if (GUILayout.Button("Load Lightmaps"))
+            {
+                LightmapLoader.LoadLightmaps(inst.lightmaps, inst.shadowMasks);
+            }
+        }
+    }
+#endif
+
     public class LightmapLoader : MonoBehaviour
     {
         public Texture2D[] lightmaps;
@@ -25,7 +42,7 @@ namespace PowerUtilities
             {
                 var data = lightmapDatas[i] = new LightmapData();
                 data.lightmapColor = lightmaps[i];
-                data.shadowMask = shadowMasks[i];
+                data.shadowMask = i < shadowMasks.Length ? shadowMasks[i] : null;
             }
             LightmapSettings.lightmaps = lightmapDatas;
         }
