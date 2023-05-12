@@ -20,8 +20,7 @@ MonoBehaviour:
   log: 
   isFoldout: 0
   colorTargetNames:
-  - _ColorBuffer1
-  - __CameraNormalsTexture
+  - _CameraNormalsTexture
   isTargetHasDepthBuffer: 0
   isHDR: 0
   depthTargetName: 

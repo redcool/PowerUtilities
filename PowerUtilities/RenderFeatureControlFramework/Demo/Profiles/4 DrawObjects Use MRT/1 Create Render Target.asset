@@ -18,7 +18,7 @@ MonoBehaviour:
   renderPassEvent: 400
   renderPassEventOffset: 0
   log: 
-  isFoldout: 0
+  isFoldout: 1
   colorTargetNames:
   - _ColorBuffer0
   - _ColorBuffer1

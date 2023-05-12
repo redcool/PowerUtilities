@@ -21,6 +21,6 @@ MonoBehaviour:
   isFoldout: 1
   colorTargetNames:
   - _CameraColorAttachmentA
-  - __CameraNormalsTexture
+  - _CameraNormalsTexture
   depthTargetName: 
   clearTarget: 1
