@@ -13,6 +13,8 @@ namespace PowerUtilities
             _CameraColorAttachmentA = Shader.PropertyToID(nameof(_CameraColorAttachmentA)),
             _CameraColorAttachmentB = Shader.PropertyToID(nameof(_CameraColorAttachmentB)),
             _CameraDepthAttachment = Shader.PropertyToID(nameof(_CameraDepthAttachment)),
+            _CameraNormalsTexture = Shader.PropertyToID(nameof(_CameraNormalsTexture)),
+            _MotionVectorTexture = Shader.PropertyToID(nameof(_MotionVectorTexture)),
             _GBuffer0 = Shader.PropertyToID(nameof(_GBuffer0)),
             _GBuffer1 = Shader.PropertyToID(nameof(_GBuffer1)),
             _GBuffer2 = Shader.PropertyToID(nameof(_GBuffer2)),

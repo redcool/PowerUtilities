@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 020239da890028742becb2d5aad81070, type: 3}
+  m_Name: _URP DrawObjects Use MRT
+  m_EditorClassIdentifier: 
+  featureList:
+  - {fileID: 11400000, guid: da97985627475774ba57b95deb66327f, type: 2}
+  - {fileID: 11400000, guid: f0faeb3e1ff249845889ecc3e53237da, type: 2}
+  - {fileID: 11400000, guid: bc33fb1e2c50fca44bcb33512cc796ee, type: 2}
