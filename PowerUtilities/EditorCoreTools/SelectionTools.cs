@@ -6,6 +6,7 @@ namespace PowerUtilities
     using UnityEditor;
     using UnityEngine;
     using System.Linq;
+    using System.IO;
 
     public static class SelectionTools
     {
@@ -19,6 +20,24 @@ namespace PowerUtilities
             return Selection.gameObjects.
                 SelectMany(go => go.GetComponentsInChildren<T>(includeInactive), (go, comp) => comp)
                 .ToArray();
+        }
+
+
+        /// <summary>
+        /// Get selected objects's folder paths
+        /// </summary>
+        /// <returns></returns>
+        public static string[] GetSelectedFolders()
+        {
+            return Selection.objects.Select(item =>
+            {
+                var path = AssetDatabase.GetAssetPath(item);
+                var isFolder = AssetDatabase.IsValidFolder(path);
+                if (!isFolder)
+                    path = Path.GetDirectoryName(path);
+
+                return path;
+            }).ToArray();
         }
     }
 }

@@ -103,23 +103,6 @@ namespace PowerUtilities
         }
 
         /// <summary>
-        /// Get selected objects's folder paths
-        /// </summary>
-        /// <returns></returns>
-        public static string[] GetSelectedFolders()
-        {
-            return Selection.objects.Select(item =>
-            {
-                var path = AssetDatabase.GetAssetPath(item);
-                var isFolder = AssetDatabase.IsValidFolder(path);
-                if (!isFolder)
-                    path = Path.GetDirectoryName(path);
-
-                return path;
-            }).ToArray();
-        }
-
-        /// <summary>
         /// Find assets in project
         /// 
         /// extName is null dont check extName, use empty string check that files(folders) have no extName
