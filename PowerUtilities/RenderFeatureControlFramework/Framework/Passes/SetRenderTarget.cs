@@ -14,7 +14,7 @@ namespace PowerUtilities.RenderFeatures
         public string[] colorTargetNames = new[] { nameof(ShaderPropertyIds._CameraColorAttachmentA) };
 
         [Tooltip("use CurrentActive(or renderer.cameraDepthTarget) when empty")]
-        public string depthTargetName = nameof(ShaderPropertyIds._CameraDepthAttachment);
+        public string depthTargetName;
 
         public bool clearTarget;
         public override ScriptableRenderPass GetPass() => new SetRenderTargetPass(this);

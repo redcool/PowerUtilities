@@ -34,7 +34,7 @@ using UnityEngine.Rendering.Universal;
             if (isFold)
             {
                 EditorGUI.indentLevel++;
-                featureListEditor.OnInspectorGUI();
+                featureListEditor?.OnInspectorGUI();
                 EditorGUI.indentLevel--;
             }
 
