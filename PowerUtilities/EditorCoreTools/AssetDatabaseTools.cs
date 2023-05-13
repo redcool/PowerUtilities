@@ -15,67 +15,69 @@ namespace PowerUtilities
     public class AssetDatabaseTools
     {
         /// <summary>
-        /// 找寻assetPaths下面的gameObject并返回T组件
+        /// Find gameObjects in searchInFolders, return gameObject's component
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="filter"></param>
-        /// <param name="assetPaths"></param>
+        /// <param name="searchInFolders"></param>
         /// <returns></returns>
-        public static T[] FindComponentFromAssets<T>(string filter, params string[] assetPaths)
+        public static T[] FindComponentInProject<T>(string filter, params string[] searchInFolders)
             where T : Component
         {
-            var gos = FindAssetsInProject<GameObject>(filter + " t:GameObject", assetPaths);
+            var gos = FindAssetsInProject<GameObject>(filter, searchInFolders);
             var q = gos.Select(go => go.GetComponent<T>());
             return q.ToArray();
         }
 
 
         /// <summary>
-        /// 找寻assetPaths下面的T Object
+        /// Find asset in searchInFolders, return T[]
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="filter"></param>
         /// <param name="searchInFolders"></param>
         /// <returns></returns>
-        public static T[] FindAssetsInProject<T>(string filter, params string[] searchInFolders)
+        public static T[] FindAssetsInProject<T>(string filter="", params string[] searchInFolders)
             where T : Object
         {
-            var paths = AssetDatabase.FindAssets(filter, searchInFolders);
+            var paths = AssetDatabase.FindAssets($"{filter} t:{typeof(T).Name}", searchInFolders);
 
             var q = paths.Select(pathStr => AssetDatabase.LoadAssetAtPath<T>(AssetDatabase.GUIDToAssetPath(pathStr)))
                 .Where(item => item);
             return q.ToArray();
         }
 
-        public enum SearchFilter
-        {
-            GameObject, Texture, Material, Shader
-        }
+        //public enum SearchFilter
+        //{
+        //    Object, GameObject, Texture, Material, Shader, AnimationClip, AudioClip
+        //}
 
-        public static T[] FindAssetsInProject<T>(SearchFilter filterEnum, params string[] searchInFolders)
-            where T : Object
-        {
-            var filter = "t:" + Enum.GetName(typeof(SearchFilter), filterEnum);
-            return FindAssetsInProject<T>(filter, searchInFolders);
-        }
+        //public static T[] FindAssetsInProject<T>(SearchFilter filterEnum, params string[] searchInFolders)
+        //    where T : Object
+        //{
+        //    var filter = "t:" + Enum.GetName(typeof(SearchFilter), filterEnum);
+        //    return FindAssetsInProject<T>(filter, searchInFolders);
+        //}
 
-        public static T[] FindAssetsInProjectByType<T>(params string[] folders) where T : UnityEngine.Object
-        {
-            var filter = "t:" + typeof(T).Name;
-            var paths = AssetDatabase.FindAssets(filter, folders);
-            var q = paths.Select(pathStr => AssetDatabase.LoadAssetAtPath<T>(AssetDatabase.GUIDToAssetPath(pathStr)));
-            return q.ToArray();
-        }
+        //public static T[] FindAssetsInProjectByType<T>(params string[] folders) where T : UnityEngine.Object
+        //{
+        //    var filter = "t:" + typeof(T).Name;
+        //    var paths = AssetDatabase.FindAssets(filter, folders);
+        //    var q = paths.Select(pathStr => AssetDatabase.LoadAssetAtPath<T>(AssetDatabase.GUIDToAssetPath(pathStr)));
+        //    return q.ToArray();
+        //}
 
         /// <summary>
-        /// Create a folder in scene folder, folder's name is scene's name
+        /// Create scene adjoint folder
         /// 
         /// </summary>
         /// <param name="subFolderName"></param>
         /// <returns></returns>
-        public static string CreateFolderSameNameAsScene()
+        public static string CreateSceneFolder(Scene scene=default)
         {
-            var scene = SceneManager.GetActiveScene();
+            if(scene == default)
+                scene = SceneManager.GetActiveScene();
+            
             var sceneParentFolder = PathTools.GetAssetDir(scene.path);
             var sceneFolder = $"{sceneParentFolder}/{scene.name}";
             //1 create folder same as scene's Name
@@ -100,6 +102,10 @@ namespace PowerUtilities
             return AssetDatabase.GUIDToAssetPath(guid);
         }
 
+        /// <summary>
+        /// Get selected objects's folder paths
+        /// </summary>
+        /// <returns></returns>
         public static string[] GetSelectedFolders()
         {
             return Selection.objects.Select(item =>
@@ -111,6 +117,24 @@ namespace PowerUtilities
 
                 return path;
             }).ToArray();
+        }
+
+        /// <summary>
+        /// Find assets in project
+        /// 
+        /// extName is null dont check extName, use empty string check that files(folders) have no extName
+        /// </summary>
+        /// <param name="filter">filter string</param>
+        /// <param name="extName">null dont check extName, empty string check that files has no extName</param>
+        /// <param name="searchInFolders"></param>
+        /// <returns></returns>
+        public static string[] FindAssetPaths(string filter,string extName=null,params string[] searchInFolders)
+        {
+            var q = AssetDatabase.FindAssets(filter, searchInFolders)
+                .Select(guid => AssetDatabase.GUIDToAssetPath(guid))
+                .Where(path => extName == null ? true : Path.GetExtension(path) == extName)
+                ;
+            return q.ToArray();
         }
     }
 }

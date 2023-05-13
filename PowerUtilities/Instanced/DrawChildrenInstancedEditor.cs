@@ -24,7 +24,7 @@ namespace PowerUtilities
 
             if (!inst.drawInfoSO)
             {
-                var sceneFolder = AssetDatabaseTools.CreateFolderSameNameAsScene();
+                var sceneFolder = AssetDatabaseTools.CreateSceneFolder();
                 var soName = inst.transform.GetHierarchyPath((Transform)null, "_");
                 var soPath = $"{sceneFolder}/{soName}.asset";
                 // 1 find exist profile
