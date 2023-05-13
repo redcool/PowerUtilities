@@ -16,6 +16,10 @@ namespace PowerUtilities.RenderFeatures
 
         [Header("Depth Target")]
         public string depthTargetName;
+
+        [Header("Render Scale")]
+        public bool overrideURPRenderScale=false;
+        [Range(0.1f,2)]public float renderScale = 1;
         public override ScriptableRenderPass GetPass() => new CreateRenderTargetPass(this);
     }
 
@@ -40,6 +44,8 @@ namespace PowerUtilities.RenderFeatures
             }
 
             var renderScale = UniversalRenderPipeline.asset.renderScale;
+            if (Feature.overrideURPRenderScale)
+                renderScale = Feature.renderScale;
             // for above SceneView 
             if (camera.cameraType > CameraType.Game)
                 renderScale = 1;

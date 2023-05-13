@@ -10,9 +10,10 @@ namespace PowerUtilities.RenderFeatures
     [CreateAssetMenu(menuName =SRP_FEATURE_MENU+ "/SetRenderTarget")]
     public class SetRenderTarget : SRPFeature
     {
+        [Tooltip("use CurrentActive when item empty")]
         public string[] colorTargetNames = new[] { nameof(ShaderPropertyIds._CameraColorAttachmentA) };
 
-        [Tooltip("use renderer.cameraDepthTarget when empty")]
+        [Tooltip("use CurrentActive(or renderer.cameraDepthTarget) when empty")]
         public string depthTargetName = nameof(ShaderPropertyIds._CameraDepthAttachment);
 
         public bool clearTarget;
@@ -46,7 +47,7 @@ namespace PowerUtilities.RenderFeatures
             ref var cameraData = ref renderingData.cameraData;
 
             // set depth target id
-            RenderTargetIdentifier depthId = cameraData.renderer.cameraDepthTarget;
+            RenderTargetIdentifier depthId = UniversalRenderPipeline.asset.supportsCameraDepthTexture ? cameraData.renderer.cameraDepthTarget : BuiltinRenderTextureType.CurrentActive;
             if (!string.IsNullOrEmpty(Feature.depthTargetName))
             {
                 depthId = Shader.PropertyToID(Feature.depthTargetName);

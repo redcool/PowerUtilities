@@ -9,6 +9,20 @@
     using UnityEngine.Rendering;
     using UnityEngine.Rendering.Universal;
 
+#if UNITY_EDITOR
+    using UnityEditor;
+    [CanEditMultipleObjects]
+    [CustomEditor(typeof(SRPFeature),true)]
+    public class SRPFeatureEditor : PowerEditor<SRPFeature>
+    {
+        public override bool NeedDrawDefaultUI() => true;
+        public override void DrawInspectorUI(SRPFeature inst)
+        {
+            //DrawDefaultInspector();    
+        }
+    }
+#endif
+
     /// <summary>
     /// SRPPass's parameters
     /// 
@@ -16,8 +30,8 @@
     public abstract class SRPFeature : ScriptableObject
     {
         public const string SRP_FEATURE_MENU = "SrpRenderFeatures/Passes";
-        [Header("Pass Options")]
 
+        [Header("Pass Options")]
         [Tooltip("Skip when false")]
         public bool enabled = true;
 
@@ -33,10 +47,15 @@
         public int renderPassEventOffset = 0;
 
         [Header("Pass Options / Pass Log")]
+        [Multiline]
         public string log;
+
         [HideInInspector]
         public bool isFoldout;
+
+
         public abstract ScriptableRenderPass GetPass();
+        
     }
 
 }

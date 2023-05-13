@@ -22,8 +22,10 @@ namespace PowerUtilities
                 ToArray();
         }
 
-        public static void RenderTargetNameToIdentifier(string[] names, ref RenderTargetIdentifier[] ids)
-        => ConvertStringArray(ref ids, (n) => new RenderTargetIdentifier(n), names);
+        public static void RenderTargetNameToIdentifier(string[] names, ref RenderTargetIdentifier[] ids, BuiltinRenderTextureType defaultId = BuiltinRenderTextureType.CurrentActive)
+        => ConvertStringArray(ref ids,
+            (n) => string.IsNullOrEmpty(n)? defaultId : new RenderTargetIdentifier(n),
+            names);
 
 
         public static void RenderTargetNameToInt(string[] names, ref int[] ids)
