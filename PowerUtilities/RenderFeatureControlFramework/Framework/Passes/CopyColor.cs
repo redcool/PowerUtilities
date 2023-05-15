@@ -21,14 +21,14 @@ namespace PowerUtilities.RenderFeatures
 
         public override ScriptableRenderPass GetPass()
         {
-            return new CopyColorPassEX(this);
+            return new CopyColorPassWrapper(this);
         }
     }
 
-    public class CopyColorPassEX : SRPPass<CopyColor>
+    public class CopyColorPassWrapper : SRPPass<CopyColor>
     {
         CopyColorPass copyPass;
-        public CopyColorPassEX(CopyColor feature) : base(feature)
+        public CopyColorPassWrapper(CopyColor feature) : base(feature)
         {
             copyPass = new CopyColorPass(renderPassEvent, Feature.samplingMat, Feature.blitMat);
             
