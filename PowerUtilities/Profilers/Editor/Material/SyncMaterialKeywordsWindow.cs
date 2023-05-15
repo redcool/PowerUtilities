@@ -91,7 +91,7 @@ namespace PowerUtilities
 
         private static Material[] GetMaterialsRefShader(Shader shader)
         {
-            var paths = AssetDatabaseTools.GetSelectedFolders();
+            var paths = SelectionTools.GetSelectedFolders();
             var mats = AssetDatabaseTools.FindAssetsInProject<Material>("t:Material", paths);
             mats = mats.Where(mat => mat.shader == shader).ToArray();
             return mats;

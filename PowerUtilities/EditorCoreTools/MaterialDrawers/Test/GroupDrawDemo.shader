@@ -4,41 +4,62 @@ Shader "Unlit/GroupDrawDemo"
     {
         [Tooltip(show float value)]
         Test_FloatVlaue("_FloatVlaue0",range(0,1)) = 0.1
-        
-        [Group(group0,group0 helps,false,_KEY1 _KEY2)]
-        [GroupHeader(group0,header0,header0 helps)]
+// show toggle group        
+        [Group(ToggleGroup,ToggleGroup helps,false,_KEY1 _KEY2)]
+        [GroupHeader(ToggleGroup,toggle group,header0 helps)]
 
-        [GroupItem(group0,_FloatVlaue0 helps)]
+        [GroupItem(ToggleGroup,_FloatVlaue0 helps)]
         _FloatVlaue0("_FloatVlaue0",range(0,1)) = 0.1
 
-        [GroupSlider(group0,_FloatVlaue0 helps)]_FloatVlaue0_1("_FloatVlaue0_1",range(0,1)) = 0.1
-[GroupItem(group0,_MainTex0 helps)]_MainTex0 ("Texture0", 2D) = "white" {}
-        // //show a new Group
-        [Group(group1)]
-        [GroupItem(group1,_MainTex1 helps)]_MainTex1 ("Texture1", 2D) = "white" {}
+        [GroupItem(ToggleGroup,_MainTex0 helps)]_MainTex0 ("Texture0", 2D) = "white" {}
+
+//show GroupItems
+[Group(Group)]
+        [GroupHeader(Group,GroupItem_Texture)]
+        [GroupItem(Group,_MainTex1 helps)]_MainTex1 ("Texture1", 2D) = "white" {}
+
         // // show group item
-        [GroupItem(group1,_FloatVlaue1 helps)]_FloatVlaue("_FloatVlaue1",range(0,1)) = 0.1
-        // remap slider
-        [GroupSlider(group1,_GroupSlider helps)]_GroupSlider("_GroupSlider",range(0.1,0.5)) = 0.2
-        [GroupItem(group1)]_FloatVlaue2("_FloatVlaue2",float) = 0.1
+        [GroupHeader(Group,GroupItem_Float)]
+        [GroupItem(Group,_FloatVlaue1 helps)]_FloatVlaue("_FloatVlaue1",range(0,1)) = 0.1
+
+[Group(GroupSlider)]
+        [GroupHeader(GroupSlider,float)]
+        [GroupSlider(GroupSlider,_FloatVlaue0 helps,float)]_GroupSlider_float("float slider",range(0,2)) = 0.1
+
+        [GroupHeader(GroupSlider,int)]
+        [GroupSlider(GroupSlider,_FloatVlaue0 helps,int)]_GroupSlider_int("int slider",range(0,10)) = 0.1
+
+        [GroupHeader(GroupSlider,remap(slider value is x,show range 0_1))]
+        [GroupSlider(GroupSlider,_GroupSlider helps)]_GroupSliderRemap("remap slider",range(0.1,0.5)) = 0.2
+
+ [Group(GroupToggle)]
         // Toggle
-        [GroupToggle(group1)]_ToggleNoKeyword("_ToggleNoKeyword",int) = 1
-        [GroupToggle(group1,_Ker,_ToggleWithKeyword helps)]_ToggleWithKeyword("_ToggleWithKeyword",int) = 1
-        //header
-        [GroupHeader(group1,header1,header1 helps)]
+        [GroupHeader(GroupToggle,_ToggleNoKeyword)]
+        [GroupToggle(GroupToggle)]_ToggleNoKeyword("_ToggleNoKeyword",int) = 1
+
+        [GroupHeader(GroupToggle,_ToggleWithKeyword)]
+        [GroupToggle(GroupToggle,_Ker,_ToggleWithKeyword helps)]_ToggleWithKeyword("_ToggleWithKeyword",int) = 1
+
+        [Group(GroupEnum)]
+        
         // show Enum with keyword
-        [GroupEnum(group1 ,_kEYA _KEYB,true,_GroupKeywordEnum helps)]_GroupKeywordEnum("_GroupKeywordEnum",int) = 0
+        [GroupHeader(GroupEnum,show Enum with keyword)]
+        [GroupEnum(GroupEnum ,_kEYA _KEYB,true,_GroupKeywordEnum helps)]_GroupKeywordEnum("_GroupKeywordEnum",int) = 0
+
         // // show Enum, space is splitter 
-        [GroupEnum(group1,A 0 B 1)]_GroupEnum("_GroupEnum",int) = 0
-        [GroupEnum(group1,UnityEngine.Rendering.BlendMode)]_GroupEnumBlend("_GroupEnumBlend",int) = 0
+        [GroupHeader(GroupEnum,show Enum, space is splitter )]
+        [GroupEnum(GroupEnum,A 0 B 1)]_GroupEnum("_GroupEnum",int) = 0
+
+        [GroupHeader(GroupEnum,show Enum, enum class)]
+        //show Enum, enum class
+        [GroupEnum(GroupEnum,UnityEngine.Rendering.BlendMode)]_GroupEnumBlend("_GroupEnumBlend",int) = 0
 
         // vector slider
-        [GroupVectorSlider(group1,a b c d,0_1 1_2 0_1 0_m.2,helps,float)] _Vector("_Vector",vector) = (1,1,1,1)
-        [GroupVectorSlider(group1,Dir(xyz) intensity, 0_1)]_Vector2("_Vector2", vector) = (1,0.1,0,1)
-        [GroupVectorSlider(group1,a b,0_1 1_2,_Vector3 helps)] _Vector3("_Vector3",vector) = (1,1,1,1)
-
-        [Group(group2)]
-        [GroupItem(group2,_MainTex2 help)]_MainTex2("Texture2", 2D) = "white" {}
+        [Group(GroupVector)]
+        [GroupVectorSlider(GroupVector,a b c d,0_1 1_2 0_1 0_m.2,helps,float)] _Vector("Vector4",vector) = (1,1,1,1)
+        [GroupVectorSlider(GroupVector,Dir(xyz) intensity, 0_1)]_Vector2("Vector3,Slider1", vector) = (1,0.1,0,1)
+        [GroupVectorSlider(GroupVector,a b,0_1 1_2,_Vector3 helps)] _Vector3("Vector2 float",vector) = (1,1,1,1)
+        [GroupVectorSlider(GroupVector,a b,0_5 1_10,_Vector3 helps,int)] _Vector4("Vector2 Int",vector) = (1,1,1,1)
     }
     SubShader{
         pass{
