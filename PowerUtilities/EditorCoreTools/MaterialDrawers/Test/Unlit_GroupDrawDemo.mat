@@ -51,10 +51,17 @@ Material:
     - _GroupEnumBlend: 0
     - _GroupKeywordEnum: 0
     - _GroupSlider: 0.27560002
+    - _GroupSlider1: 0.494
+    - _GroupSlider2: 0.2
+    - _GroupSliderField: 0.2584
+    - _GroupSliderRemap: 0.266
+    - _GroupSlider_float: 1.091
+    - _GroupSlider_int: 4
     - _ToggleNoKeyword: 1
     - _ToggleWithKeyword: 1
     m_Colors:
     - _Vector: {r: 1, g: 1.188, b: 1, a: -0.097}
     - _Vector2: {r: 1, g: 0.1, b: 0, a: 0.569}
-    - _Vector3: {r: 0.221, g: 1, b: 1, a: 1}
+    - _Vector3: {r: 0.385, g: 1, b: 1, a: 1}
+    - _Vector4: {r: 2, g: 3.19, b: 1, a: 1}
   m_BuildTextureStacks: []
