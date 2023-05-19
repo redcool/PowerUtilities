@@ -13,10 +13,17 @@ namespace PowerUtilities
     /// <typeparam name="T"></typeparam>
     public abstract class PowerEditor<T> : Editor where T : class
     {
-        public string GetVersion() => "";
+        /// <summary>
+        /// Show version in inspector when not empty
+        /// </summary>
         public string version = "";
 
         public (string, bool) foldInfo = ("Options",true);
+
+        /// <summary>
+        /// Draw Default Inspector
+        /// </summary>
+        /// <returns></returns>
         public virtual bool NeedDrawDefaultUI() => false;
 
         public override void OnInspectorGUI()
