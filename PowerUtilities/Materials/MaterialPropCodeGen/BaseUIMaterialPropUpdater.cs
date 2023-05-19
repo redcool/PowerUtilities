@@ -8,6 +8,23 @@ using UnityEngine.Events;
 
 namespace PowerUtilities
 {
+#if UNITY_EDITOR
+    using UnityEditor;
+
+    [CustomEditor(typeof(BaseUIMaterialPropUpdater),true)]
+    public class BaseUIMaterialPropUpdaterEditor : PowerEditor<BaseUIMaterialPropUpdater>
+    {
+        public override void DrawInspectorUI(BaseUIMaterialPropUpdater inst)
+        {
+        }
+
+        public override bool NeedDrawDefaultUI() => true;
+        private void OnEnable()
+        {
+            version = "v(0.0.3)";
+        }
+    }
+#endif
     /// <summary>
     /// ui components(Graphic) use material clone
     /// Renderers use MaterialPropertyBlock update variables
