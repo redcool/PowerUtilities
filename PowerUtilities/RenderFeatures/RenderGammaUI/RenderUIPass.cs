@@ -104,11 +104,11 @@ namespace PowerUtilities.Features
 
             cmd.BeginSample(nameof(RenderUIPass));
 
-            int colorHandleId,depthHandleId;
-            SetupTargetTex(ref renderingData, ref cameraData, out colorHandleId,out depthHandleId);
+            int lastColorHandleId,colorHandleId,depthHandleId;
+            SetupTargetTex(ref renderingData, ref cameraData,out lastColorHandleId, out colorHandleId,out depthHandleId);
 
             //---------------------  1 to gamma tex
-            BlitToGammaTarget(ref context,ref cameraData,ref renderingData, colorHandleId,depthHandleId);
+            BlitToGammaTarget(ref context,ref cameraData,ref renderingData, lastColorHandleId, colorHandleId,depthHandleId);
 
 
             //--------------------- 2 draw ui
@@ -132,15 +132,14 @@ namespace PowerUtilities.Features
             cmd.Clear();
         }
 
-        void BlitToGammaTarget(ref ScriptableRenderContext context,ref CameraData cameraData,ref RenderingData renderingData,int colorHandleId,int depthHandleId)
+        void BlitToGammaTarget(ref ScriptableRenderContext context,ref CameraData cameraData,ref RenderingData renderingData,int lastColorHandleId,int colorHandleId,int depthHandleId)
         {
             settings.blitMat.shaderKeywords=null;
             SetColorSpace(cmd, ColorSpaceTransform.LinearToSRGB);
 
             //BlitToTarget(cmd, colorHandleId, gammaTexId, blitMat);
             // _CameraOpaqueTexture is _CameraColorAttachmentA or _CameraColorAttachmentB
-            var lastTargetId = GetLastColorTargetId(ref renderingData);
-            cmd.SetGlobalTexture(_SourceTex, lastTargetId);
+            cmd.SetGlobalTexture(_SourceTex, lastColorHandleId);
             cmd.SetRenderTarget(colorHandleId);
 
             if (settings.createFullsizeGammaTex)
@@ -204,7 +203,7 @@ namespace PowerUtilities.Features
         }
 
         int GetLastColorTargetId(ref RenderingData renderingData) => (AnyCameraHasPostProcessing() && renderingData.postProcessingEnabled )? _CameraColorAttachmentB : _CameraColorAttachmentA ;
-        private void SetupTargetTex(ref RenderingData renderingData, ref CameraData cameraData, out int colorHandleId,out int depthHandleId)
+        private void SetupTargetTex(ref RenderingData renderingData, ref CameraData cameraData, out int lastColorHandleId, out int colorHandleId, out int depthHandleId)
         {
             /** =============================================
              * 
@@ -214,7 +213,8 @@ namespace PowerUtilities.Features
              * **/
             depthHandleId = _CameraDepthAttachment;
 
-            colorHandleId = GetLastColorTargetId(ref renderingData);
+            lastColorHandleId = GetLastColorTargetId(ref renderingData);
+            colorHandleId = (lastColorHandleId == _CameraColorAttachmentA) ? _CameraColorAttachmentB : _CameraColorAttachmentA;
 
             if (settings.createFullsizeGammaTex)
             {
@@ -223,15 +223,7 @@ namespace PowerUtilities.Features
                 desc.msaaSamples = 1;
                 desc.colorFormat = RenderTextureFormat.Default;
                 desc.sRGB = false;
-                if (!settings.useStencilBuffer)
-                {
-                    desc.depthBufferBits = 0;
-                }
-                else
-                {
-                    desc.depthStencilFormat = UnityEngine.Experimental.Rendering.GraphicsFormat.D24_UNorm_S8_UInt;
-                }
-
+                desc.depthBufferBits = settings.useStencilBuffer ? 24 : 0;
                 cmd.GetTemporaryRT(_GammaTex, desc);
 
                 colorHandleId = _GammaTex;
