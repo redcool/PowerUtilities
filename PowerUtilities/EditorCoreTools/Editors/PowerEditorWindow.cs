@@ -9,10 +9,14 @@ using UnityEngine.UIElements;
 public class PowerEditorWindow : EditorWindow
 {
     bool isFold;
+
     public VisualTreeAsset treeAsset;
     VisualTreeAsset lastTreeAsset;
+    VisualElement treeInstance;
 
-    VisualElement treeVInstance;
+    public BaseUIElementEventSO treeEventSO;
+    BaseUIElementEventSO lastTreeEventSO;
+
 
     public const string ROOT_MENU = "PowerUtilities/Window";
     [MenuItem(ROOT_MENU+"/UxmlWindow")]
@@ -27,19 +31,41 @@ public class PowerEditorWindow : EditorWindow
         //if (treeAsset)
         //    return;
 
-        isFold = EditorGUILayout.Foldout(isFold, EditorGUITools.TempContent("TreeAsset"), true);
+        DrawHeader();
+    }
+
+    private void DrawHeader()
+    {
+        var lastIsFold = isFold;
+        isFold = EditorGUILayout.Foldout(lastIsFold, EditorGUITools.TempContent("TreeAsset"), true);
         if (isFold)
         {
-            EditorGUILayout.BeginVertical(EditorStylesEx.box);
-            treeAsset = EditorGUILayout.ObjectField(treeAsset, typeof(VisualTreeAsset), true) as VisualTreeAsset;
-            EditorGUILayout.EndVertical();
+            EditorGUILayout.BeginHorizontal(EditorStylesEx.box);
 
-            if (treeAsset != null && lastTreeAsset != treeAsset)
+            EditorGUILayout.LabelField("Uxml",GUILayout.Width(60));
+            treeAsset = EditorGUILayout.ObjectField(treeAsset, typeof(VisualTreeAsset), true) as VisualTreeAsset;
+
+            EditorGUILayout.LabelField("Event SO",GUILayout.Width(60));
+            treeEventSO = EditorGUILayout.ObjectField(treeEventSO, typeof(BaseUIElementEventSO), true) as BaseUIElementEventSO;
+
+            EditorGUILayout.EndHorizontal();
+
+            if (lastTreeAsset != treeAsset || lastIsFold != isFold)
             {
                 CreateGUI();
             }
+
+            if (lastIsFold != isFold || lastTreeAsset != treeAsset)
+            {
+                AddTreeEvents();
+            }
         }
+    }
+
+    private void Update()
+    {
         MoveTreeView();
+        
     }
 
     private void CreateGUI()
@@ -51,15 +77,15 @@ public class PowerEditorWindow : EditorWindow
 
         rootVisualElement.Clear();
 
-        treeVInstance = treeAsset.CloneTree();
-        rootVisualElement.Add(treeVInstance);
+        treeInstance = treeAsset.CloneTree();
+        rootVisualElement.Add(treeInstance);
 
         MoveTreeView();
     }
 
     private void MoveTreeView()
     {
-        if (treeVInstance == null)
+        if (treeInstance == null)
             return;
 
         var pos = Vector2.zero;
@@ -68,7 +94,21 @@ public class PowerEditorWindow : EditorWindow
         {
             pos.y += 20;
         }
-        treeVInstance.transform.position = pos;
+        treeInstance.transform.position = pos;
+    }
+
+    void AddTreeEvents()
+    {
+        if (treeInstance == null || !treeEventSO)
+            return;
+
+        //treeInstance.Query<Button>().Build().ForEach(button => {
+        //    treeEventSO.TestButton(button);
+        //});
+
+        treeEventSO.AddEvent(treeInstance);
+
+        Debug.Log("ADD Events");
     }
 }
 #endif
