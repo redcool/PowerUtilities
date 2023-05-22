@@ -7,7 +7,7 @@ using UnityEngine.Rendering.Universal;
 
 namespace PowerUtilities.RenderFeatures
 {
-    [CreateAssetMenu(menuName =SRP_FEATURE_MENU+ "/SetRenderTarget")]
+    [CreateAssetMenu(menuName =SRP_FEATURE_PASSES_MENU+ "/SetRenderTarget")]
     public class SetRenderTarget : SRPFeature
     {
         [Tooltip("use CurrentActive when item empty")]

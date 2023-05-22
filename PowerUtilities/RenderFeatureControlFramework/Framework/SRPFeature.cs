@@ -29,7 +29,8 @@
     /// </summary>
     public abstract class SRPFeature : ScriptableObject
     {
-        public const string SRP_FEATURE_MENU = "SrpRenderFeatures/Passes";
+        public const string SRP_FEATURE_MENU = "PowerUtilities/SrpRenderFeatures";
+        public const string SRP_FEATURE_PASSES_MENU = SRP_FEATURE_MENU + "/Passes";
 
         [Header("Pass Options")]
         [Tooltip("Skip when false")]

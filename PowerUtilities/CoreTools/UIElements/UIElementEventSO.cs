@@ -6,8 +6,8 @@ namespace PowerUtilities
     using UnityEngine;
     using UnityEngine.UIElements;
 
-    [CreateAssetMenu(menuName ="PowerUtilities/SOs/"+nameof(BaseUIElementEventSO))]
-    public class BaseUIElementEventSO : ScriptableObject
+    [CreateAssetMenu(menuName ="PowerUtilities/UIElements/"+nameof(UIElementEventSO))]
+    public class UIElementEventSO : ScriptableObject ,IUIElementEvent
     {
         public void AddEvent(VisualElement root)
         {
@@ -20,6 +20,7 @@ namespace PowerUtilities
                 Debug.Log("test click");
             };
         }
+
         void TestToggle(ChangeEvent<bool> ce)
         {
             Debug.Log(ce.target+":"+ce.previousValue +":"+ce.newValue);

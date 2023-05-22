@@ -8,7 +8,7 @@ using UnityEngine.Rendering.Universal.Internal;
 
 namespace PowerUtilities.RenderFeatures
 {
-    [CreateAssetMenu(menuName =SRP_FEATURE_MENU+"/CopyColor")]
+    [CreateAssetMenu(menuName =SRP_FEATURE_PASSES_MENU+"/CopyColor")]
     public class CopyColor : SRPFeature
     {
         [Header("CopyColor Options")]

@@ -10,7 +10,7 @@ using UnityEngine.Rendering.Universal.Internal;
 
 namespace PowerUtilities.RenderFeatures
 {
-    [CreateAssetMenu(menuName =SRP_FEATURE_MENU+ "/DrawObjects")]
+    [CreateAssetMenu(menuName =SRP_FEATURE_PASSES_MENU+ "/DrawObjects")]
     public class DrawObjects : SRPFeature
     {
         [Header("Draw Objects Options")]

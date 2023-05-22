@@ -6,7 +6,7 @@ using UnityEngine.Rendering.Universal;
 
 namespace PowerUtilities.RenderFeatures
 {
-    [CreateAssetMenu(menuName = SRP_FEATURE_MENU+"/ReleaseRenderTarget")]
+    [CreateAssetMenu(menuName = SRP_FEATURE_PASSES_MENU+"/ReleaseRenderTarget")]
     public class ReleaseRenderTarget : SRPFeature
     {
         [Header("Targets")]

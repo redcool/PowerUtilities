@@ -11,7 +11,7 @@ using UnityEngine.Rendering.RendererUtils;
 
 namespace PowerUtilities.RenderFeatures
 {
-    [CreateAssetMenu(menuName = SRP_FEATURE_MENU+"/TestSRPFeature")]
+    [CreateAssetMenu(menuName = SRP_FEATURE_PASSES_MENU+"/TestSRPFeature")]
     public class TestSRPFeature : SRPFeature
     {
         public LayerMask layers;

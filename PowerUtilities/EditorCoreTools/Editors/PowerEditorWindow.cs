@@ -14,8 +14,8 @@ public class PowerEditorWindow : EditorWindow
     VisualTreeAsset lastTreeAsset;
     VisualElement treeInstance;
 
-    public BaseUIElementEventSO treeEventSO;
-    BaseUIElementEventSO lastTreeEventSO;
+    public UIElementEventSO treeEventSO;
+    UIElementEventSO lastTreeEventSO;
 
 
     public const string ROOT_MENU = "PowerUtilities/Window";
@@ -46,7 +46,7 @@ public class PowerEditorWindow : EditorWindow
             treeAsset = EditorGUILayout.ObjectField(treeAsset, typeof(VisualTreeAsset), true) as VisualTreeAsset;
 
             EditorGUILayout.LabelField("Event SO",GUILayout.Width(60));
-            treeEventSO = EditorGUILayout.ObjectField(treeEventSO, typeof(BaseUIElementEventSO), true) as BaseUIElementEventSO;
+            treeEventSO = EditorGUILayout.ObjectField(treeEventSO, typeof(UIElementEventSO), true) as UIElementEventSO;
 
             EditorGUILayout.EndHorizontal();
 

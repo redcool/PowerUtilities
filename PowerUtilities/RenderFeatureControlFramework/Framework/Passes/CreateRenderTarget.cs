@@ -6,7 +6,7 @@ using UnityEngine.Rendering.Universal;
 
 namespace PowerUtilities.RenderFeatures
 {
-    [CreateAssetMenu(menuName = SRP_FEATURE_MENU+"/CreateRenderTarget")]
+    [CreateAssetMenu(menuName = SRP_FEATURE_PASSES_MENU+"/CreateRenderTarget")]
     public class CreateRenderTarget : SRPFeature
     {
         [Header("Color Targets")]

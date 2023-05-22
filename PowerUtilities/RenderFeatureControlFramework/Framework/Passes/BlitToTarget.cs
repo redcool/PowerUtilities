@@ -6,7 +6,7 @@ using UnityEngine.Rendering.Universal;
 
 namespace PowerUtilities.RenderFeatures
 {
-    [CreateAssetMenu(menuName=SRP_FEATURE_MENU+ "/BlitToTarget")]
+    [CreateAssetMenu(menuName=SRP_FEATURE_PASSES_MENU+ "/BlitToTarget")]
     public class BlitToTarget : SRPFeature
     {
         [Header("Source")]

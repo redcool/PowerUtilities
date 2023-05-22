@@ -9,7 +9,7 @@ using UnityEngine.Rendering.Universal;
 
 namespace PowerUtilities.RenderFeatures
 {
-    [CreateAssetMenu(menuName = SRP_FEATURE_MENU+"/"+nameof(CopyCameraTextures))]
+    [CreateAssetMenu(menuName = SRP_FEATURE_PASSES_MENU+"/"+nameof(CopyCameraTextures))]
     public class CopyCameraTextures : SRPFeature
     {
         public ScriptableRenderPassInput passInputType;
