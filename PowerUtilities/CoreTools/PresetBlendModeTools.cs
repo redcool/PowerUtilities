@@ -18,7 +18,11 @@ namespace PowerUtilities
         MultiColor,
         MultiColor_2X
     }
-
+    /// <summary>
+    /// PresetBlendMode control shader's srcMode and dstMode
+    /// 
+    /// use in PowerShaderInspector and GroupAPI(GroupPresetBlendMode)
+    /// </summary>
     public static class PresetBlendModeTools
     {
         public static Dictionary<PresetBlendMode, BlendMode[]> blendModeDict = new Dictionary<PresetBlendMode, BlendMode[]>

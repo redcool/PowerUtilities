@@ -8,6 +8,15 @@ namespace PowerUtilities
 
     /// <summary>
     /// Draw PresetBlendMode in GroupAPI
+    /// 
+    /// 
+    /*  
+     *  shader demo:
+        [GroupHeader(Alpha,BlendMode)]
+        [GroupPresetBlendMode(Alpha,, _SrcMode, _DstMode)] _PresetBlendMode("_PresetBlendMode", int)=0
+        [HideInInspector] _SrcMode("_SrcMode", int) = 1
+        [HideInInspector] _DstMode("_DstMode", int) = 0
+    */
     /// </summary>
     public class GroupPresetBlendModeDrawer : BaseGroupItemDrawer
     {
