@@ -10,6 +10,9 @@ namespace PowerUtilities
 
     /// <summary>
     /// Group Item ui
+    /// 
+    /// xxxDrawer : only call drawer,
+    /// xxxDecorator : call draw decorator first, then call property drawer 
     /// </summary>
     public abstract class BaseGroupItemDrawer : MaterialPropertyDrawer
     {
