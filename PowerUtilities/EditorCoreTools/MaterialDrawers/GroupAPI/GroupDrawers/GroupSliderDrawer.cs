@@ -19,6 +19,12 @@ namespace PowerUtilities
         GroupAPITools.SliderType sliderType;
         public GroupSliderDrawer(string groupName) : this(groupName,"") { }
         public GroupSliderDrawer(string groupName,string tooltip) : base(groupName,tooltip) { }
+        /// <summary>
+        /// type : remap(default) ,int,float
+        /// </summary>
+        /// <param name="groupName"></param>
+        /// <param name="tooltip"></param>
+        /// <param name="type"></param>
         public GroupSliderDrawer(string groupName, string tooltip, string type) : base(groupName, tooltip)
         {
             Enum.TryParse(type, out sliderType);
