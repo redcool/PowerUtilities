@@ -188,7 +188,7 @@ namespace PowerUtilities
             {
                 //draw preset blend mode
                 if (MaterialCodeProps.Instance.IsPropExists(MaterialCodeProps.CodePropNames._PresetBlendMode))
-                    MaterialEditorGUITools.DrawBlendMode(mat, ConfigTool.Text(propNameTextDict, "PresetBlendMode"), ref presetBlendMode);
+                    MaterialEditorGUITools.DrawBlendMode(mat, ConfigTool.Text(propNameTextDict, "PresetBlendMode"));
 
                 //draw render queue
                 if (MaterialCodeProps.Instance.IsPropExists(MaterialCodeProps.CodePropNames._RenderQueue))

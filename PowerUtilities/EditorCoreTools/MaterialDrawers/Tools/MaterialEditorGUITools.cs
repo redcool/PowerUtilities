@@ -28,38 +28,44 @@ namespace PowerUtilities
             }
         }
 
-        public static void DrawBlendMode(Rect pos,Material mat, string propName, ref PresetBlendMode presetBlendMode
+        public static void DrawBlendMode(Rect pos,Material mat, string propName
             , string srcModeName = PresetBlendModeTools.SRC_MODE
             , string dstModeName = PresetBlendModeTools.DST_MODE)
         {
+
+            var presetBlendMode = PresetBlendModeTools.GetPresetBlendMode(mat);
+
             EditorGUI.BeginChangeCheck();
             presetBlendMode = (PresetBlendMode)EditorGUI.EnumPopup(pos,propName, presetBlendMode);
             if (EditorGUI.EndChangeCheck())
             {
-                var blendModes = PresetBlendModeTools.blendModeDict[presetBlendMode];
+                var blendModes = PresetBlendModeTools.GetBlendMode(presetBlendMode);
                 mat.SetFloat(srcModeName, (int)blendModes[0]);
                 mat.SetFloat(dstModeName, (int)blendModes[1]);
             }
         }
 
-        public static void DrawBlendMode(Material mat, string propName, ref PresetBlendMode presetBlendMode
+        public static void DrawBlendMode(Material mat, string propName
             ,string srcModeName=PresetBlendModeTools.SRC_MODE
             ,string dstModeName=PresetBlendModeTools.DST_MODE)
         {
-            EditorGUI.BeginChangeCheck();
+            var presetBlendMode = PresetBlendModeTools.GetPresetBlendMode(mat);
+
             GUILayout.BeginVertical();
             EditorGUILayout.Space(10);
             GUILayout.Label("Alpha Blend", EditorStyles.boldLabel);
 
+            EditorGUI.BeginChangeCheck();
             presetBlendMode = (PresetBlendMode)EditorGUILayout.EnumPopup(propName, presetBlendMode);
 
-            GUILayout.EndVertical();
             if (EditorGUI.EndChangeCheck())
             {
-                var blendModes = PresetBlendModeTools.blendModeDict[presetBlendMode];
+                var blendModes = PresetBlendModeTools.GetBlendMode(presetBlendMode);
                 mat.SetFloat(srcModeName, (int)blendModes[0]);
                 mat.SetFloat(dstModeName, (int)blendModes[1]);
             }
+
+            GUILayout.EndVertical();
         }
     }
 }

@@ -20,7 +20,6 @@ namespace PowerUtilities
     /// </summary>
     public class GroupPresetBlendModeDrawer : BaseGroupItemDrawer
     {
-        PresetBlendMode presetBlendMode;
         string srcModeName, dstModeName;
         public GroupPresetBlendModeDrawer(string groupName, string tooltip,string srcModeName,string dstModeName) : base(groupName, tooltip)
         {
@@ -32,7 +31,7 @@ namespace PowerUtilities
         {
             var mat = editor.target as Material;
             //EditorGUI.DrawRect(position, Color.red);
-            MaterialEditorGUITools.DrawBlendMode(position, mat, "PresetBlendMode", ref presetBlendMode, srcModeName, dstModeName);
+            MaterialEditorGUITools.DrawBlendMode(position, mat, "PresetBlendMode", srcModeName, dstModeName);
         }
     }
 }

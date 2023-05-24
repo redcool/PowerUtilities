@@ -51,5 +51,14 @@ namespace PowerUtilities
             var dstMode = mat.GetInt(dstModeName);
             return GetPresetBlendMode((BlendMode)srcMode, (BlendMode)dstMode);
         }
+        /// <summary>
+        /// return srcMode & dstMode
+        /// </summary>
+        /// <param name="presetBlendMode"></param>
+        /// <returns></returns>
+        public static BlendMode[] GetBlendMode(PresetBlendMode presetBlendMode)
+        {
+            return blendModeDict[presetBlendMode];
+        }
     }
 }
