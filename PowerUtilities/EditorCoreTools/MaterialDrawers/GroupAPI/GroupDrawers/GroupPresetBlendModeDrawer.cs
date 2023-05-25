@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 namespace PowerUtilities
 {
 
@@ -35,3 +36,4 @@ namespace PowerUtilities
         }
     }
 }
+#endif
