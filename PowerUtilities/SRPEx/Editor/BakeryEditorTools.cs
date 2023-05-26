@@ -1,9 +1,11 @@
-#if UNITY_EDITOR && BAKERY_INCLUDED
+#if UNITY_EDITOR
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace PowerUtilities
 {
@@ -13,33 +15,65 @@ namespace PowerUtilities
 
         public static Texture2D BakeryDefaultSpotCookieTexture => AssetDatabaseTools.FindAssetsInProject<Texture2D>("ftUnitySpotTexture").FirstOrDefault();
 
-        public static SerializedObject GetBakeryLightSO(Light light,bool dontUseCache=false)
+        public static bool TryGetBakeryLightSO(Light light, out SerializedObject bakeryLightSo, bool dontUseCache = false)
         {
-            var isCached = lightDict.TryGetValue(light, out SerializedObject bakeryLightSo);
+            var isCached = lightDict.TryGetValue(light, out bakeryLightSo);
 
-            if(!isCached || dontUseCache)
+            if (dontUseCache || !isCached || bakeryLightSo==null)
             {
-                var bakeryLight = light.GetComponents(typeof(MonoBehaviour))
-                .Where(mono => mono.GetType().Name.StartsWith("Bakery"))
+                bakeryLightSo = light.GetComponents(typeof(MonoBehaviour))
+                .Where(mono => mono && mono.GetType().Name.StartsWith("Bakery"))
+                .Select(comp => new SerializedObject(comp))
                 .FirstOrDefault();
 
-                if(bakeryLight != null)
-                    bakeryLightSo = lightDict[light] = new SerializedObject(bakeryLight);
+                lightDict[light] = bakeryLightSo;
             }
-            
-            return bakeryLightSo;
+
+            return bakeryLightSo == null;
+        }
+
+        public static Type GetBakeryLightType(string name)
+        {
+            return TypeCache.GetTypesDerivedFrom<MonoBehaviour>()
+                .Where(t => t.Name== (name))
+                .FirstOrDefault();
+        }
+
+        public static void AddBakeryLight(Light light)
+        {
+            Type bakeryLightType = null;
+            if (light.type == LightType.Directional)
+            {
+                bakeryLightType = GetBakeryLightType("BakeryDirectLight");
+            }
+            else if (light.type == LightType.Spot ||  light.type == LightType.Point)
+            {
+                bakeryLightType = GetBakeryLightType("BakeryPointLight");
+            }
+            if (bakeryLightType != null)
+                light.gameObject.GetOrAddComponent(bakeryLightType);
+        }
+
+        public static void RemoveBakeryLight(Light light)
+        {
+            var t1 = light.GetComponent("BakeryDirectLight");
+            if (t1 != null)
+                Object.DestroyImmediate(t1);
+
+            var t2 = light.GetComponent("BakeryPointLight");
+            if (t2 != null)
+                Object.DestroyImmediate(t2);
         }
 
         public static bool SyncBakeryLight(Light light)
         {
-            //var bLightSo = GetBakeryLightSO(light);
-            var bLightSo = light.GetComponents(typeof(MonoBehaviour))
-                .Where(comp => comp.GetType().Name.StartsWith("Bakery"))
-                .Select(comp => new SerializedObject(comp))
-                .FirstOrDefault()
-                ;
+            TryGetBakeryLightSO(light, out var bLightSo,true);
+            return SyncBakeryLight(light,bLightSo);
+        }
 
-            if (bLightSo == null)
+        public static bool SyncBakeryLight(Light light,SerializedObject bLightSo)
+        {
+            if (!light || bLightSo == null || !bLightSo.targetObject)
                 return false;
 
             bLightSo.UpdateIfRequiredOrScript();

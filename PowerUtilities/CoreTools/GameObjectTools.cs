@@ -1,12 +1,17 @@
 ﻿namespace PowerUtilities
 {
+    using System;
     using System.Collections;
     using System.Collections.Generic;
+    using System.ComponentModel.Design.Serialization;
+    using System.Linq;
     using System.Text;
     using UnityEngine;
+    using Object = UnityEngine.Object;
 
     public static class GameObjectTools
     {
+
         /// <summary>
         /// Get object's path from root to tr.
         /// Dont not include root
@@ -66,6 +71,36 @@
             if (!comp)
                 comp = go.AddComponent<T>();
             return comp;
+        }
+
+        public static Component GetOrAddComponent(this GameObject go, Type type)
+        {
+            if (type == default)
+                return default;
+
+            var comp = go.GetComponent(type);
+            if (!comp)
+                comp = go.AddComponent(type);
+            return comp;
+        }
+
+        public static Component[] GetComponents(this GameObject go,string typeName,Func<string,string,bool> predicate)
+        {
+            if (predicate == null)
+                return default;
+
+            var comps = go.GetComponents(typeof(Component))
+                .Where(comp => predicate(comp.GetType().Name,typeName))
+                ;
+            return comps.ToArray();
+        }
+
+        public static Component[] GetComponents(this GameObject go, string typeName, StringEx.NameMatchMode matchMode)
+        {
+            var comps = go.GetComponents(typeof(Component))
+                .Where(comp => comp.GetType().Name.IsMatch(typeName, matchMode))
+                ;
+            return comps.ToArray();
         }
     }
 }

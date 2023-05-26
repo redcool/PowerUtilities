@@ -19,7 +19,7 @@ namespace PowerUtilities
 
         static class Styles
         {
-            public static readonly GUIContent BakerySync = new GUIContent(nameof(BakerySync));
+            public static readonly GUIContent BakeryLight = new GUIContent(nameof(BakeryLight));
         }
 
 
@@ -28,32 +28,55 @@ namespace PowerUtilities
             if (!light)
                 return false;
 
-#if BAKERY_INCLUDED
             return BakeryEditorTools.SyncBakeryLight(light);
-#else
-            return false;
-#endif
+        }
+
+        public override LightingExplorerTab[] GetContentTabs()
+        {
+            return new List<LightingExplorerTab>(base.GetContentTabs())
+            {
+
+            }.ToArray();
         }
 
         protected override LightingExplorerTableColumn[] GetLightColumns()
         {
-            var columns = new List<LightingExplorerTableColumn>(base.GetLightColumns()) { 
-                new LightingExplorerTableColumn(LightingExplorerTableColumn.DataType.Custom,Styles.BakerySync,"m_Intensity"
-                ,onGUIDelegate:(rect,prop,propDeps)=>{
-                    if(prop == null)
-                        return;
-                    var light = prop.serializedObject.targetObject as Light;
-
-                    var isSynced = SyncLightInfo(light);
-                    EditorGUI.LabelField(rect, isSynced? "sync" : "no");
-                }
+            return new List<LightingExplorerTableColumn>(base.GetLightColumns())
+            { 
+                new LightingExplorerTableColumn(
+                    LightingExplorerTableColumn.DataType.Custom
+                    ,Styles.BakeryLight
+                    ,"m_Intensity"
+                    ,onGUIDelegate:DrawBakeryLight
                 )
-            };
-
-            return columns.ToArray();
+            }.ToArray();
         }
 
+        public void DrawBakeryLight(Rect rect, SerializedProperty prop, SerializedProperty[] dependencies)
+        {
+            if (prop == null)
+                return;
 
+            var pos = new Rect(rect.x, rect.y, 50, 18);
+            var light = prop.serializedObject.targetObject as Light;
+
+            var isSynced = SyncLightInfo(light);
+            // status
+            EditorGUI.LabelField(pos, isSynced ? "sync" : "no");
+            // buttons
+            pos.x += 30;
+            if (!isSynced)
+            {
+                if (GUI.Button(pos, "Add"))
+                    BakeryEditorTools.AddBakeryLight(light);
+            }
+            else
+            {
+                if (GUI.Button(pos, "Remove"))
+                    BakeryEditorTools.RemoveBakeryLight(light);
+            }
+
+        }
     }
 }
 #endif
