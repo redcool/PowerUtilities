@@ -7,7 +7,7 @@ using UnityEngine.Events;
 namespace BoxSouls
 {
     /// <summary>
-    /// Receive animation events
+    /// Receive animation monos
     /// put on Animator node
     /// 
     /// add event Receiver by inspector

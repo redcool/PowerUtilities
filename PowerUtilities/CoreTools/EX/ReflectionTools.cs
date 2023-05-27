@@ -39,5 +39,16 @@ namespace PowerUtilities
                 .SelectMany(assembly => assembly.GetTypes().Where(predication))
             ;
         }
+
+        public static bool IsImplementOf(this Type type,Type interfaceType)
+        {
+            return type.GetInterfaces()
+                .Any(obj => (obj.IsGenericType && obj.GetGenericTypeDefinition() == interfaceType) 
+                    || interfaceType.IsAssignableFrom(type)
+                )
+                ;
+            //return interfaceType.IsAssignableFrom(type);
+
+        }
     }
 }

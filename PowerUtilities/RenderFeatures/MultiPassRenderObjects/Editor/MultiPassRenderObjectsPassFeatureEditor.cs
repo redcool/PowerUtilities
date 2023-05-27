@@ -87,9 +87,9 @@ namespace UnityEditor.Experimental.Rendering.Universal
 #elif UNITY_2021
             var prepassId = RenderPassEvent.BeforeRenderingPrePasses;
 #endif
-			// Return all events higher or equal than before rendering prepasses
+			// Return all monos higher or equal than before rendering prepasses
 			return evt >= (int)prepassId &&
-			// filter obsolete events
+			// filter obsolete monos
 			typeof(RenderPassEvent).GetField(Enum.GetName(typeof(RenderPassEvent), evt))?.GetCustomAttribute(typeof(ObsoleteAttribute)) == null;
 		}
         // Return all render pass event names that match filterRenderPassEvent

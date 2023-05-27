@@ -1,5 +1,6 @@
 #if UNITY_EDITOR
 using PowerUtilities;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
@@ -11,11 +12,11 @@ public class PowerEditorWindow : EditorWindow
     bool isFold;
 
     public VisualTreeAsset treeAsset;
-    VisualTreeAsset lastTreeAsset;
     VisualElement treeInstance;
 
-    public UIElementEventSO treeEventSO;
-    UIElementEventSO lastTreeEventSO;
+    public MonoScript eventMono;
+
+    public IUIElementEvent eventInstance;
 
 
     public const string ROOT_MENU = "PowerUtilities/Window";
@@ -28,37 +29,35 @@ public class PowerEditorWindow : EditorWindow
 
     private void OnGUI()
     {
-        //if (treeAsset)
-        //    return;
-
         DrawHeader();
     }
 
     private void DrawHeader()
     {
-        var lastIsFold = isFold;
-        isFold = EditorGUILayout.Foldout(lastIsFold, EditorGUITools.TempContent("TreeAsset"), true);
+        EditorGUI.BeginChangeCheck();
+        isFold = EditorGUILayout.Foldout(isFold, EditorGUITools.TempContent("TreeAsset"), true);
         if (isFold)
         {
             EditorGUILayout.BeginHorizontal(EditorStylesEx.box);
 
-            EditorGUILayout.LabelField("Uxml",GUILayout.Width(60));
+            EditorGUILayout.LabelField("Uxml", GUILayout.Width(60));
             treeAsset = EditorGUILayout.ObjectField(treeAsset, typeof(VisualTreeAsset), true) as VisualTreeAsset;
 
-            EditorGUILayout.LabelField("Event SO",GUILayout.Width(60));
-            treeEventSO = EditorGUILayout.ObjectField(treeEventSO, typeof(UIElementEventSO), true) as UIElementEventSO;
+            EditorGUILayout.LabelField("Event MonoScript", GUILayout.Width(60));
+            eventMono = EditorGUILayout.ObjectField(eventMono, typeof(MonoScript), true) as MonoScript;
+            var isValid = eventMono!= null && eventMono.GetClass().IsImplementOf(typeof(IUIElementEvent));
+            if (!isValid)
+            {
+                eventMono = null;
+            }
 
             EditorGUILayout.EndHorizontal();
-
-            if (lastTreeAsset != treeAsset || lastIsFold != isFold)
-            {
-                CreateGUI();
-            }
-
-            if (lastIsFold != isFold || lastTreeAsset != treeAsset)
-            {
-                AddTreeEvents();
-            }
+        }
+        var isChanged = EditorGUI.EndChangeCheck();
+        if (isChanged)
+        {
+            CreateGUI();
+            AddTreeEvents();
         }
     }
 
@@ -70,12 +69,10 @@ public class PowerEditorWindow : EditorWindow
 
     private void CreateGUI()
     {
+        rootVisualElement.Clear();
+
         if (!treeAsset)
             return;
-
-        lastTreeAsset = treeAsset;
-
-        rootVisualElement.Clear();
 
         treeInstance = treeAsset.CloneTree();
         rootVisualElement.Add(treeInstance);
@@ -99,16 +96,15 @@ public class PowerEditorWindow : EditorWindow
 
     void AddTreeEvents()
     {
-        if (treeInstance == null || !treeEventSO)
+        if (treeInstance == null || !eventMono)
             return;
 
-        //treeInstance.Query<Button>().Build().ForEach(button => {
-        //    treeEventSO.TestButton(button);
-        //});
+        eventInstance = Activator.CreateInstance(eventMono.GetClass()) as IUIElementEvent;
+        if (eventInstance != null)
+        {
+            eventInstance.AddEvent(treeInstance);
+        }
 
-        treeEventSO.AddEvent(treeInstance);
-
-        Debug.Log("ADD Events");
     }
 }
 #endif

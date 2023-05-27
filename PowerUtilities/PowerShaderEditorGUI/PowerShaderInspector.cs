@@ -71,7 +71,7 @@ namespace PowerUtilities
 
     public class PowerShaderInspector : ShaderGUI
     {
-        // events
+        // monos
         public event Action<MaterialProperty, Material> OnDrawProperty;
         public event Action<Dictionary<string, MaterialProperty>, Material> OnDrawPropertyFinish;
 
