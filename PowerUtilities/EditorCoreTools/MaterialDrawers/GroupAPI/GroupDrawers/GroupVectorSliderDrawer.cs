@@ -54,7 +54,7 @@ namespace PowerUtilities
         /// </summary>
         /// <param name="headerString"></param>
         public GroupVectorSliderDrawer(string groupName, string headerString, string rangeString) : this(groupName, headerString,rangeString, "","") { }
-        public GroupVectorSliderDrawer(string groupName, string headerString, string rangeString,string sliderFormat) : this(groupName, headerString, rangeString, "", sliderFormat) { }
+        public GroupVectorSliderDrawer(string groupName, string headerString, string rangeString,string tooltip) : this(groupName, headerString, rangeString, tooltip, "") { }
         public GroupVectorSliderDrawer(string groupName,string headerString,string rangeString,string tooltip,string sliderStyleFormat) : base(groupName,tooltip)
         {
             if (!string.IsNullOrEmpty(headerString))
