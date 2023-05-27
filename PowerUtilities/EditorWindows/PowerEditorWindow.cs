@@ -20,7 +20,7 @@ public class PowerEditorWindow : EditorWindow
 
 
     public const string ROOT_MENU = "PowerUtilities/Window";
-    [MenuItem(ROOT_MENU+"/UxmlWindow")]
+    [MenuItem(ROOT_MENU+"/Common UxmlWindow")]
     public static void InitWindow()
     {
         var w = GetWindow<PowerEditorWindow>();
