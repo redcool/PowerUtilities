@@ -32,20 +32,8 @@ namespace PowerUtilities
         #region Selection
         public static T[] GetFilteredFromSelection<T>(SelectionMode mode) where T : Object
         {
-#if UNITY_5
-            var objs = Selection.GetFiltered(typeof(Object),mode);
-            var list = new List<T>(objs.Length);
-            foreach (var obj in objs)
-            {
-                var t = obj as T;
-                if (t)
-                    list.Add(t);
-            }
-            return list.ToArray();
-#else
             var objs = Selection.GetFiltered(typeof(T), mode);
             return Array.ConvertAll(objs, t => (T)t);
-#endif
         }
 
         public static T GetFirstFilteredFromSelection<T>(SelectionMode mode) where T : Object
@@ -79,21 +67,7 @@ namespace PowerUtilities
         }
 
         #endregion
-        #region ScriptableObject
-        public static T LoadOrCreate<T>(string path) where T : ScriptableObject
-        {
-            PathTools.CreateAbsFolderPath(path);
 
-            var t = AssetDatabase.LoadAssetAtPath<T>(path);
-            if (!t)
-            {
-                var newT = ScriptableObject.CreateInstance<T>();
-                AssetDatabase.CreateAsset(newT, path);
-                return AssetDatabase.LoadAssetAtPath<T>(path);
-            }
-            return t;
-        }
-        #endregion
         #region Scene
         public static void ForeachSceneObject<T>(Action<T> act) where T : Object
         {
