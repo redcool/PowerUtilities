@@ -1,4 +1,5 @@
 using PowerUtilities.RenderFeatures;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
@@ -18,16 +19,20 @@ namespace PowerUtilities
         public Material overrideMaterial = null;
         public int overrideMaterialPassIndex = 0;
 
-        [EditorGroup("Override Depth",true)]
-        public bool overrideDepthState = false;
-        [EditorGroup("Override Depth")] public CompareFunction depthCompareFunction = CompareFunction.LessEqual;
-        [EditorGroup("Override Depth")] public bool enableWrite = true;
-
-        public StencilStateData stencilSettings = new StencilStateData();
-
-        public CustomCameraSettings cameraSettings = new CustomCameraSettings();
+        public DepthSettings depthOverrideSettings = new DepthSettings();
+        public StencilStateData stencilOverrideSettings = new StencilStateData();
+        public CustomCameraSettings cameraOverrideSettings = new CustomCameraSettings();
 
         public override ScriptableRenderPass GetPass() => new RenderObjectsWrapper(this);
+    }
+
+    [Serializable]
+    public class DepthSettings
+    {
+        public bool overrideDepthState = false;
+        public CompareFunction depthCompareFunction = CompareFunction.LessEqual;
+        public bool enableWrite = true;
+
     }
 
     public class RenderObjectsWrapper : SRPPass<RenderObjects> {
@@ -36,15 +41,16 @@ namespace PowerUtilities
         {
             var filter = Feature.filterSettings;
             renderObjectPass = new RenderObjectsPass(Feature.name, Feature.renderPassEvent+Feature.renderPassEventOffset
-                , filter.PassNames, filter.RenderQueueType, filter.LayerMask, Feature.cameraSettings);
+                , filter.PassNames, filter.RenderQueueType, filter.LayerMask, Feature.cameraOverrideSettings);
             renderObjectPass.overrideMaterial = Feature.overrideMaterial;
             renderObjectPass.overrideMaterialPassIndex = Feature.overrideMaterialPassIndex;
 
-            if(Feature.overrideDepthState) 
-                renderObjectPass.SetDetphState(Feature.overrideDepthState);
+            var depth = Feature.depthOverrideSettings;
+            if(depth.overrideDepthState) 
+                renderObjectPass.SetDetphState(depth.overrideDepthState);
 
-            var stencil = Feature.stencilSettings;
-            if (Feature.stencilSettings.overrideStencilState)
+            var stencil = Feature.stencilOverrideSettings;
+            if (Feature.stencilOverrideSettings.overrideStencilState)
                 renderObjectPass.SetStencilState(stencil.stencilReference, stencil.stencilCompareFunction, stencil.passOperation,
                     stencil.failOperation, stencil.zFailOperation);
         }
