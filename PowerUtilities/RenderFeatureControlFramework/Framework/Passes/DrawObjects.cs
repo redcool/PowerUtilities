@@ -29,14 +29,14 @@ namespace PowerUtilities.RenderFeatures
         public bool isDrawSkybox;
         public RenderPassEvent drawSkyboxEvent = RenderPassEvent.BeforeRenderingSkybox;
 
-        public override ScriptableRenderPass GetPass() => new RenderObjectsPass(this);
+        public override ScriptableRenderPass GetPass() => new DrawObjectsPassWrapper(this);
     }
 
-    public class RenderObjectsPass : SRPPass<DrawObjects>
+    public class DrawObjectsPassWrapper : SRPPass<DrawObjects>
     {
         DrawObjectsPass drawObjectsPass;
         DrawSkyboxPass drawSkyboxPass;
-        public RenderObjectsPass(DrawObjects feature) : base(feature)
+        public DrawObjectsPassWrapper(DrawObjects feature) : base(feature)
         {
             drawObjectsPass = GetDrawObjectsPass(feature);
             if (feature.isDrawSkybox)
