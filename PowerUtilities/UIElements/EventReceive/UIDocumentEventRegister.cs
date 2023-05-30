@@ -35,7 +35,7 @@ namespace PowerUtilities
             {
                 inst.eventTypeQNames = inst.monos
                     .Select(mono => mono ? mono.GetClass().AssemblyQualifiedName : default)
-                    .ToArray();
+                    .ToList();
 
             }
 
@@ -49,21 +49,21 @@ namespace PowerUtilities
 
     public class UIDocumentEventRegister : MonoBehaviour
     {
-        public UIDocument[] docs;
-        public string[] eventTypeQNames;
+        public List<UIDocument> docs = new List<UIDocument>();        
 #if UNITY_EDITOR
-        public MonoScript[] monos;
+        public List<MonoScript> monos = new List<MonoScript>();
 #endif
-        IUIElementEvent[] eventInstances;
+        public List<string> eventTypeQNames= new List<string>();
+        List<IUIElementEvent> eventInstances;
 
 
         void OnEnable()
         {
-            if(docs.Length == 0)
+            if(docs.Count == 0)
             {
                 docs[0] = GetComponent<UIDocument>();
             }
-            if (eventTypeQNames == null || eventTypeQNames.Length != docs.Length)
+            if (eventTypeQNames == null || eventTypeQNames.Count != docs.Count)
             {
                 Debug.Log("eventTypes is none");
                 return;
@@ -71,7 +71,7 @@ namespace PowerUtilities
 
             eventInstances = eventTypeQNames
                 .Select(typeQName => Activator.CreateInstance(Type.GetType(typeQName)) as IUIElementEvent)
-                .ToArray();
+                .ToList();
 
             eventInstances.ForEach((eventInst, id) => eventInst?.AddEvent(docs[id]?.rootVisualElement));
         }
@@ -79,6 +79,11 @@ namespace PowerUtilities
         private void OnDisable()
         {
             eventInstances = null;
+        }
+
+        public void AddEventQName(string typeQName)
+        {
+            eventTypeQNames.Add(typeQName);
         }
     }
 
