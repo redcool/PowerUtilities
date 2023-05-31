@@ -17,6 +17,7 @@ Shader "Hidden/PowerUtilities/Unlit/ShowVertexColor"
             #pragma fragment frag
 
             #include "UnityCG.cginc"
+            #include "../../../../../PowerShaderLib/Lib/MathLib.hlsl"
 
             struct appdata
             {
@@ -35,7 +36,12 @@ Shader "Hidden/PowerUtilities/Unlit/ShowVertexColor"
             {
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
+                // OffsetHClipVertexZ(o.vertex/**/,-0.1);
+                #if UNITY_REVERSED_Z
                 o.vertex.z += 0.0001;
+                #else
+                o.vertex.z -= 0.0001;
+                #endif
                 o.color = v.color;
                 return o;
             }
