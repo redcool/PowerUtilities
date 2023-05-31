@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -90,7 +91,7 @@ namespace PowerUtilities
             cmd.Execute(ref context);
         }
 
-        public static void SetShaderKeyords(this CommandBuffer cmd, bool isOn, params string[] keywords)
+        public static void SetShaderKeywords(this CommandBuffer cmd, bool isOn, params string[] keywords)
         {
             foreach (var item in keywords)
             {
@@ -101,6 +102,20 @@ namespace PowerUtilities
                     cmd.EnableShaderKeyword(item);
                 else
                     cmd.DisableShaderKeyword(item);
+            }
+        }
+
+        public static void SetComputeShaderKeywords(this CommandBuffer cmd,ComputeShader cs,bool isOn,params string[] keywords)
+        {
+            foreach (var item in keywords)
+            {
+                if (cs.IsKeywordEnabled(item) == isOn)
+                    continue;
+
+                if (isOn)
+                    cs.EnableKeyword(item);
+                else
+                    cs.DisableKeyword(item);
             }
         }
 

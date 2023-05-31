@@ -315,6 +315,8 @@ namespace PowerUtilities
 
                 if (IsUseRWBuffer())
                 {
+                    if (hashBuffer != null)
+                        hashBuffer.Release();
                     hashBuffer = new ComputeBuffer(desc.width * desc.height, 4);
                 }
                 else

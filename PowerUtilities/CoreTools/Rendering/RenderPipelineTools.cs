@@ -7,7 +7,7 @@ namespace PowerUtilities
 
     public static class RenderPipelineTools
     {
-        public static bool IsUniversalPipeline() => GraphicsSettings.currentRenderPipeline.GetType().Name == "UniversalRenderPipelineAsset";
-        public static bool IsHDRenderPipeline() => GraphicsSettings.currentRenderPipeline.GetType().Name == "HDRenderPipelineAsset";
+        public static bool IsUniversalPipeline() =>  GraphicsSettings.currentRenderPipeline.GetType().Name.IsMatch("UniversalRenderPipelineAsset", StringEx.NameMatchMode.Contains);
+        public static bool IsHDRenderPipeline() => GraphicsSettings.currentRenderPipeline.GetType().Name.IsMatch("HDRenderPipelineAsset", StringEx.NameMatchMode.Contains);
     }
 }
