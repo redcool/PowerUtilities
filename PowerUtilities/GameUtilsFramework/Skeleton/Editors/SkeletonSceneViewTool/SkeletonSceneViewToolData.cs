@@ -16,7 +16,7 @@ namespace GameUtilsFramework
         public bool enable;
         public GameObject skeletonObj;
         public SkinnedMeshRenderer skinned;
-        public bool isShowHierarchy=true;
+        public bool isShowHierarchy = true;
         public bool isKeepChildren = false;
         public bool isShowWeights;
         public List<Vector3> bonesScreenPosList = new List<Vector3>();
@@ -32,6 +32,22 @@ namespace GameUtilsFramework
         /// rect selection
         public bool isRectSelectionStart;
         public Rect selectionRect;
+
+        public Material WeightMat
+        {
+            get
+            {
+                if (!weightMat)
+                {
+                    var shader = Shader.Find("Hidden/PowerUtilities/Unlit/ShowVertexColor");
+                    weightMat = new Material(shader);
+
+                    if (!shader)
+                        throw new Exception("Hidden/PowerUtilities/Unlit/ShowVertexColor not found");
+                }
+                return weightMat;
+            }
+        }
     }
 }
 #endif

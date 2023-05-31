@@ -74,8 +74,8 @@ namespace GameUtilsFramework
         {
             var e = Event.current;
 
-                SetupMouseStates(e, ref SkeletonToolData.isSceneViewMouseDown, ref SkeletonToolData.isSceneViewMouseDrag, ref SkeletonToolData.isSceneViewMouseUp);
-                SetupSelectionRect(e);
+            SetupMouseStates(e, ref SkeletonToolData.isSceneViewMouseDown, ref SkeletonToolData.isSceneViewMouseDrag, ref SkeletonToolData.isSceneViewMouseUp);
+            SetupSelectionRect(e);
 
             TryFindSkinned();
             SetupBonesScreenPos();
@@ -240,14 +240,7 @@ namespace GameUtilsFramework
             {
                 data = items[0];
             }
-            if (!data.weightMat)
-            {
-                var shader = Shader.Find("Hidden/PowerUtilities/Unlit/ShowVertexColor");
-                data.weightMat = new Material(shader);
 
-                if (!shader)
-                    throw new Exception("Hidden/PowerUtilities/Unlit/ShowVertexColor not found");
-            }
         }
 
         private static void DrawSkeletonHierarchy(SkeletonSceneViewToolData data)
@@ -342,7 +335,7 @@ namespace GameUtilsFramework
             Color[] colors = GetVertexWeightColor(data, weights, boneId);
             snapshotMesh.colors = colors;
 
-            data.weightMat.SetPass(0);
+            data.WeightMat.SetPass(0);
             Graphics.DrawMeshNow(snapshotMesh, skinTr.position, skinTr.rotation);
         }
 
