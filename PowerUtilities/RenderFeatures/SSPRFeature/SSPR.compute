@@ -6,6 +6,7 @@
 #pragma kernel CSHashClear
 #pragma kernel CSHash
 #pragma kernel CSResolve
+#pragma multi_compile _ TEST_BUFFER
 
 #define THREAD_X 8
 #define THREAD_Y 8
@@ -15,7 +16,6 @@
 // with cs.SetTexture
 RWTexture2D<float4> _ReflectionTexture;
 RWTexture2D<float> _ReflectionHeightBuffer;
-RWTexture2D<uint> _HashResult;
 
 SamplerState sampler_point_clamp,sampler_linear_clamp;
 TEXTURE2D(_CameraOpaqueTexture);
@@ -30,6 +30,17 @@ int _FixedHole;
 
 #define RUN_MODE_HASH 0
 int _RunMode;
+
+#if defined(SHADER_API_METAL) || defined(TEST_BUFFER)
+	RWBuffer<uint> _HashResult;
+	uint GetIndex(uint2 id){
+		return id.y * _TexSize.x + id.x;
+	}
+	#define INDEX(id) GetIndex(id)
+#else
+	RWTexture2D<uint> _HashResult;
+	#define INDEX(id) id
+#endif
 
 
 void ApplyStretch(inout float2 reflectUV,float distance){
@@ -82,7 +93,6 @@ void CSClear(uint3 id:SV_DispatchThreadID){
 		return;
     _ReflectionTexture[id.xy] = 0;
     _ReflectionHeightBuffer[id.xy] = HALF_MAX;
-	// _HashResult[id.xy] = 0xffffffff;
 }
 
 [numthreads(THREAD_X,THREAD_Y,THREAD_Z)]
@@ -128,7 +138,7 @@ void CSHashClear(uint3 id:SV_DispatchThreadID){
 	if(any(id.xy > uint2(_TexSize.xy)))
 		return;
     _ReflectionTexture[id.xy] = 0;
-	_HashResult[id.xy] = 0xffffffff;
+	_HashResult[INDEX(id.xy)] = 0xffffffff;
 }
 
 [numthreads(THREAD_X,THREAD_Y,THREAD_Z)]
@@ -162,14 +172,14 @@ void CSHash(uint3 id:SV_DispatchThreadID){
 		uint hash = (id.y<<16)|(id.x & 0xffff);
 
 		uint _;
-		InterlockedMin(_HashResult[location],hash,_);
+		InterlockedMin(_HashResult[INDEX(location)],hash,_);
 	}
 }
 
 uint GetHash4Corners(uint2 id,uint hash){
 	const uint2 offsets[4] = {-1,-1, 1,1, -1,1, 1,-1};
 	for(int i=0;i<4;i++){
-		hash = min(_HashResult[id.xy + offsets[i]],hash);
+		hash = min(_HashResult[INDEX(id.xy + offsets[i])],hash);
 	}
 	return hash;
 
@@ -200,7 +210,7 @@ void CSResolve(uint3 id:SV_DispatchThreadID){
 	if(any(id.xy > uint2(_TexSize.xy)))
 		return;
 
-	uint hash = (_HashResult[id.xy]);
+	uint hash = (_HashResult[INDEX(id.xy)]);
 	if(_FixedHole)
 		hash = GetHash4Corners(id.xy,hash);
 

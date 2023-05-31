@@ -92,6 +92,8 @@ namespace PowerUtilities
             int _BlurReflectTex = Shader.PropertyToID(nameof(_BlurReflectTex));
             int _RunMode = Shader.PropertyToID(nameof(_RunMode));
 
+            ComputeBuffer hashBuffer;
+
             int GetWidth(int width) => width >> settings.downSamples;
             int GetHeight(int height) => height>> settings.downSamples;
 
@@ -111,6 +113,12 @@ namespace PowerUtilities
 
                 return false;
 #endif
+            }
+
+            bool IsUseRWBuffer()
+            {
+                //return true;
+                return SystemInfo.graphicsDeviceType == GraphicsDeviceType.Metal;
             }
 
             public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
@@ -147,9 +155,9 @@ namespace PowerUtilities
                 cmd.SetComputeIntParam(cs, _RunMode, (int)settings.runMode);
                 cmd.SetComputeFloatParam(cs, _Fading, settings.fading);
 
+                //cmd.SetComputeShaderKeywords(cs, IsUseRWBuffer(), "TEST_BUFFER");
                 var threads = new Vector2Int(Mathf.CeilToInt(width / (float)THREAD_X),
                     Mathf.CeilToInt(height / (float)THREAD_Y));
-
 
                 switch (settings.runMode)
                 {
@@ -219,20 +227,33 @@ namespace PowerUtilities
             void HashPass(ComputeShader cs, CommandBuffer cmd, ScriptableRenderer renderer, Vector2Int threads)
             {
                 var csHashClear = cs.FindKernel("CSHashClear");
-                cmd.SetComputeTextureParam(cs, csHashClear, _HashResult, _HashResult);
+                if (IsUseRWBuffer())
+                    cmd.SetComputeBufferParam(cs, csHashClear, _HashResult, hashBuffer);
+                else
+                    cmd.SetComputeTextureParam(cs, csHashClear, _HashResult, _HashResult);
+
                 cmd.SetComputeTextureParam(cs, csHashClear, _ReflectionTexture, _ReflectionTexture);
                 WaitDispatchCS(cs, csHashClear, cmd, threads);
 
                 // hash
                 var csHash = cs.FindKernel("CSHash");
                 cmd.SetComputeTextureParam(cs, csHash, _CameraDepthTexture, _CameraDepthTexture);
-                cmd.SetComputeTextureParam(cs, csHash, _HashResult, _HashResult);
+
+                if (IsUseRWBuffer())
+                    cmd.SetComputeBufferParam(cs, csHash, _HashResult, hashBuffer);
+                else
+                    cmd.SetComputeTextureParam(cs, csHash, _HashResult, _HashResult);
+
 
                 WaitDispatchCS(cs, csHash, cmd, threads);
 
                 //resolve 
                 var csResolve = cs.FindKernel("CSResolve");
-                cmd.SetComputeTextureParam(cs, csResolve, _HashResult, _HashResult);
+                if (IsUseRWBuffer())
+                    cmd.SetComputeBufferParam(cs, csResolve, _HashResult, hashBuffer);
+                else
+                    cmd.SetComputeTextureParam(cs, csResolve, _HashResult, _HashResult);
+
                 cmd.SetComputeTextureParam(cs, csResolve, _ReflectionTexture, _ReflectionTexture);
                 cmd.SetComputeTextureParam(cs, csResolve, _CameraOpaqueTexture, renderer.cameraColorTarget);
                 WaitDispatchCS(cs, csResolve, cmd, threads);
@@ -291,7 +312,15 @@ namespace PowerUtilities
                 cmd.GetTemporaryRT(_ReflectionTexture, desc, FilterMode.Bilinear);
 
                 desc.colorFormat = RenderTextureFormat.RInt;
-                cmd.GetTemporaryRT(_HashResult, desc);
+
+                if (IsUseRWBuffer())
+                {
+                    hashBuffer = new ComputeBuffer(desc.width * desc.height, 4);
+                }
+                else
+                {
+                    cmd.GetTemporaryRT(_HashResult, desc);
+                }
 
                 desc.colorFormat = RenderTextureFormat.RFloat;
                 cmd.GetTemporaryRT(_ReflectionHeightBuffer, desc);
