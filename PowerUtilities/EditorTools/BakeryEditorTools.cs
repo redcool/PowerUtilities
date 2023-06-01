@@ -15,7 +15,7 @@ namespace PowerUtilities
 
         public static Texture BakeryDefaultSpotCookieTexture => TextureCacheTool.GetTexture("ftUnitySpotTexture"
             , () => AssetDatabaseTools.FindAssetsInProject<Texture>("ftUnitySpotTexture").FirstOrDefault()
-            , true);
+            );
 
         //public static Texture2D BakeryDefaultSpotCookieTexture => AssetDatabaseTools.FindAssetsInProject<Texture2D>("ftUnitySpotTexture").FirstOrDefault();
 
