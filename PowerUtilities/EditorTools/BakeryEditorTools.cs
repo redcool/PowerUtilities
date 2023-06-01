@@ -13,7 +13,11 @@ namespace PowerUtilities
     {
         static Dictionary<Light, SerializedObject> lightDict = new Dictionary<Light, SerializedObject>();
 
-        public static Texture2D BakeryDefaultSpotCookieTexture => AssetDatabaseTools.FindAssetsInProject<Texture2D>("ftUnitySpotTexture").FirstOrDefault();
+        public static Texture BakeryDefaultSpotCookieTexture => TextureCacheTool.GetTexture("ftUnitySpotTexture"
+            , () => AssetDatabaseTools.FindAssetsInProject<Texture>("ftUnitySpotTexture").FirstOrDefault()
+            , true);
+
+        //public static Texture2D BakeryDefaultSpotCookieTexture => AssetDatabaseTools.FindAssetsInProject<Texture2D>("ftUnitySpotTexture").FirstOrDefault();
 
         public static bool TryGetBakeryLightSO(Light light, out SerializedObject bakeryLightSo, bool dontUseCache = false)
         {
