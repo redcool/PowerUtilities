@@ -32,6 +32,8 @@ namespace PowerUtilities
 
         /// <summary>
         /// Find asset in searchInFolders, return T[]
+        /// 
+        /// * Global search is slow, results should be cached.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="filter"></param>
