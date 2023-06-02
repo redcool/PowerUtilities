@@ -36,13 +36,13 @@ namespace PowerUtilities
         }
 
 
-        public static void CreateTargets(this CommandBuffer Cmd, Camera camera, int[] targetIds, float renderScale = 1, bool hasDepth = false, bool isHdr = false)
+        public static void CreateTargets(this CommandBuffer Cmd, Camera camera, int[] targetIds, float renderScale = 1, bool hasDepth = false, bool isHdr = false,int samples=1)
         {
             if (targetIds == null || targetIds.Length == 0)
                 return;
 
             var desc = defaultDescriptor;
-            desc.SetupColorDescriptor(camera, renderScale, isHdr);
+            desc.SetupColorDescriptor(camera, renderScale, isHdr, samples);
             if (hasDepth)
                 desc.depthStencilFormat = UnityEngine.Experimental.Rendering.GraphicsFormat.D24_UNorm_S8_UInt;
 
@@ -52,23 +52,25 @@ namespace PowerUtilities
             }
         }
 
-        public static void CreateDepthTargets(this CommandBuffer Cmd, Camera camera, int[] targetIds, float renderScale = 1)
+        public static void CreateDepthTargets(this CommandBuffer Cmd, Camera camera, int[] targetIds, float renderScale = 1, int samples = 1)
         {
             if (targetIds == null || targetIds.Length == 0)
                 return;
 
             var desc = defaultDescriptor;
             desc.SetupDepthDescriptor(camera, renderScale);
+            desc.msaaSamples = samples;
 
             foreach (var item in targetIds)
             {
                 Cmd.GetTemporaryRT(item, desc);
             }
         }
-        public static void CreateDepthTarget(this CommandBuffer Cmd, Camera camera, int targetId, float renderScale = 1)
+        public static void CreateDepthTarget(this CommandBuffer Cmd, Camera camera, int targetId, float renderScale = 1, int samples = 1)
         {
             var desc = defaultDescriptor;
             desc.SetupDepthDescriptor(camera, renderScale);
+            desc.msaaSamples = samples;
             Cmd.GetTemporaryRT(targetId, desc);
         }
 

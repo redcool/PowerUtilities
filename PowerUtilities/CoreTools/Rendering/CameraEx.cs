@@ -12,6 +12,6 @@ namespace PowerUtilities
     {
         public static bool IsReflectionCamera(this Camera c) => c.cameraType == CameraType.Reflection;
         public static bool IsMainCamera(this Camera c) => c.CompareTag("MainCamera");
-
+        public static bool IsGameCamera(this Camera c) => c.cameraType  == CameraType.Game;
     }
 }
