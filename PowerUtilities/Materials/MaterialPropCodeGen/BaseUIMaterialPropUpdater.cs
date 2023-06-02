@@ -21,7 +21,7 @@ namespace PowerUtilities
         public override bool NeedDrawDefaultUI() => true;
         private void OnEnable()
         {
-            version = "v(0.0.3)";
+            version = "v(0.0.4)";
         }
     }
 #endif
@@ -29,6 +29,7 @@ namespace PowerUtilities
     /// ui components(Graphic) use material clone
     /// Renderers use MaterialPropertyBlock update variables
     /// </summary>
+    [ExecuteInEditMode]
     public abstract class BaseUIMaterialPropUpdater : MonoBehaviour
     {
         [Header("UI Graphs")]
@@ -40,40 +41,40 @@ namespace PowerUtilities
         
         static MaterialPropertyBlock rendererBlock;
         // private vars
-        [HideInInspector][SerializeField] bool isInited;
+        //[HideInInspector]
+        [SerializeField] bool isFirstMaterialReaded;
 
         private void Start()
+        {
+            SetupRenderers(out var isRenderersValid,out var isGraphsValid);
+
+            enabled = isRenderersValid || isGraphsValid;
+
+            ReadMaterial(enabled, isRenderersValid);
+
+            var needInitGraphs = graphSharedMaterialList.Count == 0;
+            if(needInitGraphs)
+                SaveGraphMaterials();
+
+            InstantiateGraphMaterials();
+        }
+
+        void SetupRenderers(out bool isRenderersValid,out bool isGraphsValid)
         {
             if (graphs == null || graphs.Length == 0)
             {
                 if (gameObject.TryGetComponent<Graphic>(out var comp))
-                    graphs =  new[] { comp };
+                    graphs = new[] { comp };
             }
 
             if (renderers == null || renderers.Length == 0)
             {
                 if (gameObject.TryGetComponent<Renderer>(out var comp))
-                    renderers =  new[] { comp };
+                    renderers = new[] { comp };
             }
 
-            var isRenderersValid = (renderers != null && renderers.Length>0);
-            var isGraphsValid = (graphs != null && graphs.Length>0);
-            enabled = isRenderersValid || isGraphsValid;
-
-            var isFirstRun = graphSharedMaterialList.Count == 0
-                && !isInited;
-
-            if (enabled && isFirstRun)
-            {
-                var firstMat = isRenderersValid ? renderers[0].sharedMaterial : graphs[0].materialForRendering;
-                if (firstMat)
-                    ReadFirstMaterial(firstMat);
-            }
-
-            if(isFirstRun)
-                SaveGraphMaterials();
-
-            InstantiateGraphMaterials();
+            isRenderersValid = (renderers != null && renderers.Length > 0);
+            isGraphsValid = (graphs != null && graphs.Length > 0);
         }
 
         void InstantiateGraphMaterials()
@@ -91,6 +92,18 @@ namespace PowerUtilities
             graphs.ForEach((g) => graphSharedMaterialList.Add(g.material));
         }
 
+        void ReadMaterial(bool isValid,bool isRenderersValid)
+        {
+            if (isValid && !isFirstMaterialReaded)
+            {
+                var firstMat = isRenderersValid ? renderers[0].sharedMaterial : graphs[0].materialForRendering;
+                if (firstMat)
+                    ReadFirstMaterial(firstMat);
+
+                isFirstMaterialReaded = true;
+            }
+        }
+
         private void LateUpdate()
         {
             if (rendererBlock == null)
@@ -98,8 +111,7 @@ namespace PowerUtilities
 
             MaterialPropCodeGenTools.UpdateComponentsMaterial(graphs, (graph, id) =>
             {
-                UpdateMaterial(graph.materialForRendering);
-                //graph.SetMaterialDirty();
+                UpdateGraphMaterial(graph, id);
             });
             MaterialPropCodeGenTools.UpdateComponentsMaterial(renderers, (render, id) =>
             {
@@ -108,26 +120,61 @@ namespace PowerUtilities
                 UpdateBlock(rendererBlock);
                 render.SetPropertyBlock(rendererBlock);
             });
+
         }
 
-        void ResetGraphsMaterial()
+        private void UpdateGraphMaterial(Graphic graph, int id)
         {
-            graphs.ForEach((g, id) => g.material = graphSharedMaterialList[id]);
+            // get material instance
+
+            if (graphSharedMaterialList.Count <= id)
+                return;
+
+            TryInitGraphMat(graph, id);
+
+            // dont update default material
+            if (graph.materialForRendering == graph.defaultMaterial)
+                return;
+
+            UpdateMaterial(graph.materialForRendering);
+        }
+
+        void TryInitGraphMat(Graphic graph,int id)
+        {
+            var targetMat = graphSharedMaterialList[id];
+            if (!targetMat)
+                targetMat = graphSharedMaterialList[id] = graph.defaultMaterial;
+
+            if (graph.material == graph.defaultMaterial
+            || graph.material.shader != targetMat.shader
+            )
+            {
+                graph.material = Instantiate(targetMat);
+            }
+        }
+
+        void RestoreGraphsMaterial()
+        {
+            graphs.ForEach((g, id) =>
+            {
+                if (graphSharedMaterialList.Count > id)
+                    g.material = graphSharedMaterialList[id];
+            });
             graphSharedMaterialList.Clear();
         }
 
         private void OnDestroy()
         {
-            ResetGraphsMaterial();
+            RestoreGraphsMaterial();
             rendererBlock =null;
         }
 
         [ContextMenu("Reset")]
-        private void Reset()
+        private void OnReset()
         {
-            ResetGraphsMaterial();
-            if (Application.isEditor)
-                Start();
+            //RestoreGraphsMaterial();
+            //if (Application.isEditor)
+            //    Start();
         }
 
         public abstract void ReadFirstMaterial(Material mat);
