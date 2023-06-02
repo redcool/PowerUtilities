@@ -56,8 +56,11 @@ namespace PowerUtilities.RenderFeatures
             if(SystemInfo.supportedRenderTargetCount < colorIds.Length)
                 colorIds = colorIds.Take(SystemInfo.supportedRenderTargetCount).ToArray();
 
-            cmd.SetRenderTarget(colorIds, depthId);
-            //ConfigureTarget(colorIds, depthId);
+            /// scene view show nothing
+            if(cameraData.camera.IsGameCamera())
+                cmd.SetRenderTarget(colorIds, depthId);
+            else
+                ConfigureTarget(colorIds, depthId);
 
             if (Feature.clearTarget)
             {

@@ -44,6 +44,8 @@ namespace PowerUtilities.RenderFeatures
             }
 
             var renderScale = UniversalRenderPipeline.asset.renderScale;
+            var samples = UniversalRenderPipeline.asset.msaaSampleCount;
+
             if (Feature.overrideURPRenderScale)
                 renderScale = Feature.renderScale;
             // for above SceneView 
@@ -51,12 +53,12 @@ namespace PowerUtilities.RenderFeatures
                 renderScale = 1;
 
             ref var cameraData = ref renderingData.cameraData;
-            cmd.CreateTargets(cameraData.camera, colorIds, renderScale, Feature.isTargetHasDepthBuffer, Feature.isHDR);
+            cmd.CreateTargets(cameraData.camera, colorIds, renderScale, Feature.isTargetHasDepthBuffer, Feature.isHDR, samples);
 
             if (!string.IsNullOrEmpty(Feature.depthTargetName))
             {
                 var depthId = Shader.PropertyToID(Feature.depthTargetName);
-                cmd.CreateDepthTarget(cameraData.camera, depthId, renderScale);
+                cmd.CreateDepthTarget(cameraData.camera, depthId, renderScale, samples);
             }
         }
     }
