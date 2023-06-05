@@ -34,6 +34,7 @@ namespace PowerUtilities
 
             EditorSceneManager.activeSceneChangedInEditMode -=SceneManager_activeSceneChanged;
             EditorSceneManager.activeSceneChangedInEditMode +=SceneManager_activeSceneChanged;
+
         }
 
         static void Clear()
@@ -76,7 +77,7 @@ namespace PowerUtilities
 
             lightmapPreviewWin.titleContent.tooltip= WINDOW_TOOLTIPS;
 
-            if(rendererList.Count == 0)
+            if (rendererList.Count == 0)
                 SetupRenderers();
 
 
@@ -138,7 +139,9 @@ namespace PowerUtilities
         }
         private static void SetupRenderers()
         {
-            rendererList = Object.FindObjectsByType<Renderer>(FindObjectsInactive.Include, FindObjectsSortMode.None)
+            rendererList =
+                //Object.FindObjectsByType<Renderer>(FindObjectsInactive.Include, FindObjectsSortMode.None) // unity_2021_3_18 later
+                Object.FindObjectsOfType<Renderer>(true)
                 .Where(r => r.gameObject.HasStaticFlag(StaticEditorFlags.ContributeGI) && r.lightmapIndex != -1)
                 .ToList();
         }
@@ -154,7 +157,7 @@ namespace PowerUtilities
                 var rect = new Rect(new Vector2(r.lightmapScaleOffset.z, r.lightmapScaleOffset.w), new Vector2(r.lightmapScaleOffset.x, r.lightmapScaleOffset.y));
                 Debug.Log(rect +" : "+ uvPosStartsAtBottom+":"+ rect.Contains(uvPosStartsAtBottom));
             });
-#endif            
+#endif
             return rendererList.Where(r => r.lightmapIndex == lightmapId
                 && new Rect(new Vector2(r.lightmapScaleOffset.z, r.lightmapScaleOffset.w),new Vector2( r.lightmapScaleOffset.x, r.lightmapScaleOffset.y)).Contains(uvPosStartsAtBottom)
                 ).FirstOrDefault()
