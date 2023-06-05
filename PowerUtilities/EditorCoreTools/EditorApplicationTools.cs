@@ -4,6 +4,7 @@ namespace PowerUtilities
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using System.Reflection;
     using UnityEditor;
     using UnityEngine;
 
@@ -37,6 +38,7 @@ namespace PowerUtilities
             if (OnGlobalKeyEvent == null)
                 return;
 
+            // add global key events once
             if (isInited)
             {
                 EditorApplication.update -= AddEvent;
@@ -52,7 +54,7 @@ namespace PowerUtilities
                 onKeyEvent();
             };
 
-            var globalEventHandler = typeof(EditorApplication).GetField("globalEventHandler", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+            var globalEventHandler = typeof(EditorApplication).GetField("globalEventHandler", BindingFlags.NonPublic | BindingFlags.Static);
             EditorApplication.CallbackFunction globalEvent = (EditorApplication.CallbackFunction)globalEventHandler.GetValue(null);
             if (globalEvent !=null)
             {

@@ -12,10 +12,10 @@ namespace PowerUtilities
     /// call Get() will get cached object or find object then cache and return .
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class ObjectCacheTool<T> where T : UnityEngine.Object
+    public class ObjectCacheTool<T> where T : class
     {
         Dictionary<string, T> dict = new Dictionary<string, T>();
-        public T Get(string key, Func<T> onNotExists,bool forceRefresh=false)
+        public T Get(string key, Func<T> onNotExists, bool forceRefresh = false)
         {
             if (dict.TryGetValue(key, out T obj))
             {
