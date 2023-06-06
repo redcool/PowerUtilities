@@ -47,19 +47,7 @@ namespace PowerUtilities
         {
             EditorGUI.BeginChangeCheck();
             var value = prop.floatValue;
-
-            switch (sliderType)
-            {
-                case GroupAPITools.SliderType.@float:
-                    value = EditorGUI.Slider(position, label, value, prop.rangeLimits.x, prop.rangeLimits.y);
-                    break;
-                case GroupAPITools.SliderType.@int:
-                    value = EditorGUI.IntSlider(position, label, (int)value, (int)prop.rangeLimits.x, (int)prop.rangeLimits.y);
-                    break;
-                default:
-                    value = EditorGUITools.DrawRemapSlider(position, prop.rangeLimits, label, value);
-                    break;
-            }
+            value = GroupAPITools.DrawSlider(position, label, value, prop.rangeLimits, sliderType);
 
             if (EditorGUI.EndChangeCheck())
             {

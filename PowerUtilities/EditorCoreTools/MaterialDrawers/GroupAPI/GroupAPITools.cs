@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using UnityEditor;
 using UnityEngine;
 
 namespace PowerUtilities
@@ -14,7 +15,10 @@ namespace PowerUtilities
 
         public enum SliderType
         {
-            remap, @float, @int,slider
+            remap // float value,ui show [0,1] slider
+            , @float // float value, ui show float slider
+            , @int  // int value,ui show int slider
+            ,field  // float value,ui show float value
         }
 
         /// <summary>
@@ -52,6 +56,26 @@ namespace PowerUtilities
             return num;
         }
 
+        public static float DrawSlider(Rect pos, string header,float value, Vector2 range,SliderType sliderType)
+        => DrawSlider(pos,EditorGUITools.TempContent(header),value,range,sliderType);
+        
+
+        public static float DrawSlider(Rect pos, GUIContent header, float value, Vector2 range, SliderType sliderType)
+        {
+            switch (sliderType)
+            {
+                case SliderType.@int:
+                case SliderType.@float:
+                    if (sliderType == SliderType.@int)
+                        value = Mathf.RoundToInt(value);
+
+                    return EditorGUI.Slider(pos, header, value, range.x, range.y);
+                case SliderType.field:
+                    return EditorGUI.FloatField(pos, header, value);
+                default: // remap
+                    return EditorGUITools.DrawRemapSlider(pos, range, header, value);
+            }
+        }
     }
 }
 #endif
