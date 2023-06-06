@@ -21,7 +21,7 @@ namespace PowerUtilities
         public override bool NeedDrawDefaultUI() => true;
         private void OnEnable()
         {
-            version = "v(0.0.4.1)";
+            version = "v(0.0.4.2)";
         }
     }
 #endif
@@ -147,7 +147,7 @@ namespace PowerUtilities
         {
             // get material instance
 
-            if (graphSharedMaterialList.Count <= id)
+            if (!graph || graphSharedMaterialList.Count <= id)
                 return;
 
             TryInitGraphMat(graph, id);
