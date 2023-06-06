@@ -21,7 +21,7 @@ namespace PowerUtilities
         public override bool NeedDrawDefaultUI() => true;
         private void OnEnable()
         {
-            version = "v(0.0.4)";
+            version = "v(0.0.4.1)";
         }
     }
 #endif
@@ -41,10 +41,10 @@ namespace PowerUtilities
         
         static MaterialPropertyBlock rendererBlock;
         // private vars
-        //[HideInInspector]
+        [HideInInspector]
         [SerializeField] bool isFirstMaterialReaded;
 
-        private void Start()
+        private void Awake()
         {
             SetupRenderers(out var isRenderersValid,out var isGraphsValid);
 
@@ -57,6 +57,26 @@ namespace PowerUtilities
                 SaveGraphMaterials();
 
             InstantiateGraphMaterials();
+        }
+
+        private void OnDestroy()
+        {
+            RestoreGraphsMaterial();
+            rendererBlock =null;
+        }
+
+        [ContextMenu("Reset")]
+        private void OnReset()
+        {
+            //RestoreGraphsMaterial();
+            //if (Application.isEditor)
+            //    Start();
+        }
+        private void OnEnable()
+        {
+            if (graphs == null || graphs.Length == 0)
+                return;
+            graphs.ForEach(graph => graph.material = null);
         }
 
         void SetupRenderers(out bool isRenderersValid,out bool isGraphsValid)
@@ -163,19 +183,7 @@ namespace PowerUtilities
             graphSharedMaterialList.Clear();
         }
 
-        private void OnDestroy()
-        {
-            RestoreGraphsMaterial();
-            rendererBlock =null;
-        }
 
-        [ContextMenu("Reset")]
-        private void OnReset()
-        {
-            //RestoreGraphsMaterial();
-            //if (Application.isEditor)
-            //    Start();
-        }
 
         public abstract void ReadFirstMaterial(Material mat);
 
