@@ -125,6 +125,7 @@ namespace PowerUtilities
         {
             var vectorHeader = headers[0];
             var sliderHeader = headers[1];
+            var sliderRange = ranges[0];
 
 
             var itemWidth = position.width / 4;
@@ -146,7 +147,9 @@ namespace PowerUtilities
             pos.y += LINE_HEIGHT;
             pos.width = position.width;
             EditorGUIUtility.labelWidth = MaterialGroupTools.BASE_LABLE_WIDTH;
-            value[3] = EditorGUITools.DrawRemapSlider(pos, ranges[0], new GUIContent(sliderHeader), value[3]);
+            //value[3] = EditorGUITools.DrawRemapSlider(pos, ranges[0], new GUIContent(sliderHeader), value[3]);
+            
+            DrawSlider(ref value, pos, 3, sliderHeader, sliderRange);
         }
 
         private void DrawSliders(Rect position, ref Vector4 value)
@@ -154,24 +157,24 @@ namespace PowerUtilities
             var pos = new Rect(position.x, position.y, position.width, 18);
             for (int i = 0; i < headers.Length; i++)
             {
-                DrawSlider(ref value, pos, i);
+                DrawSlider(ref value, pos, i, headers[i],ranges[i]);
 
                 pos.y += LINE_HEIGHT;
 
             }
         }
 
-        private void DrawSlider(ref Vector4 value, Rect pos, int i)
+        private void DrawSlider(ref Vector4 value, Rect pos, int i,string header,Vector2 range)
         {
-            if(sliderType == GroupAPITools.SliderType.field)
+            if(sliderType == GroupAPITools.SliderType.@float)
             {
-                value[i] = EditorGUI.FloatField(pos,EditorGUITools.TempContent(headers[i]), value[i]);
+                value[i] = EditorGUI.FloatField(pos,EditorGUITools.TempContent(header), value[i]);
                 return;
             }
 
             if (sliderType == GroupAPITools.SliderType.remap)
             {
-                value[i] = EditorGUITools.DrawRemapSlider(pos, ranges[i], EditorGUITools.TempContent(headers[i]), value[i]);
+                value[i] = EditorGUITools.DrawRemapSlider(pos, range, EditorGUITools.TempContent(header), value[i]);
                 return;
             }
 
@@ -180,7 +183,7 @@ namespace PowerUtilities
                 value[i] = (int)value[i];
             }
 
-            value[i] = EditorGUI.Slider(pos, new GUIContent(headers[i]), value[i], ranges[i].x, ranges[i].y);
+            value[i] = EditorGUI.Slider(pos, new GUIContent(header), value[i], range.x, range.y);
         }
     }
 }
