@@ -6,7 +6,7 @@ using System;
 using UnityEditor;
 using Random = UnityEngine.Random;
 
-namespace PowerUtilities.Scenes.Tools
+namespace PowerUtilities.Scenes
 {
     public class PlacementInfo{
         public Vector2 scale = new Vector2(0.1f,1f);
@@ -17,9 +17,10 @@ namespace PowerUtilities.Scenes.Tools
         public Transform minTr, maxTr;
         public float rayMaxHeight = 500;
     }
+
     public class PlacementWindow : EditorWindow
     {
-        const string ROOT_PATH = "PowerUtilities/TransformTools";
+        const string ROOT_PATH = PowerEditorWindow.ROOT_MENU + "/Scene";
         const string helpStr = @"
 Hierarchy中对选中节点的子节点进行
 随机缩放
@@ -29,11 +30,11 @@ Hierarchy中对选中节点的子节点进行
 
         PlacementInfo info = new PlacementInfo();
 
-        [MenuItem(ROOT_PATH + "/放置")]
+        [MenuItem(ROOT_PATH + "/"+nameof(PlacementWindow))]
         static void Init()
         {
             var win = GetWindow<PlacementWindow>();
-            win.titleContent = new GUIContent("场景放置");
+            win.titleContent = new GUIContent(nameof(PlacementWindow));
             win.Show();
         }
 
