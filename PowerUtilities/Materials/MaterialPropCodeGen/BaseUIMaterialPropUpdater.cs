@@ -31,7 +31,7 @@ namespace PowerUtilities
         public override bool NeedDrawDefaultUI() => true;
         private void OnEnable()
         {
-            version = "v(0.0.4.3)";
+            version = "v(0.0.4.4)";
         }
     }
 #endif
@@ -45,7 +45,11 @@ namespace PowerUtilities
     {
         [Header("UI Graphs")]
         public Graphic[] graphs;
-        public List<Material> graphCachedMaterialList = new List<Material>();
+
+        // keep for compatible
+        [HideInInspector][SerializeField] List<Material> graphSharedMaterialList = new List<Material>();
+
+        [HideInInspector] public List<Material> graphCachedMaterialList = new List<Material>();
 
         [Header("Renderers")]
         public Renderer[] renderers;
@@ -117,6 +121,12 @@ namespace PowerUtilities
         {
             if (isValid && !isFirstMaterialReaded)
             {
+                if(graphSharedMaterialList != null && graphSharedMaterialList.Count > 0)
+                {
+                    graphs[0].material = graphSharedMaterialList[0];
+                    graphSharedMaterialList.Clear();
+                }
+
                 var firstMat = isRenderersValid ? renderers[0].sharedMaterial : graphs[0].materialForRendering;
                 if (firstMat)
                     ReadFirstMaterial(firstMat);
@@ -142,9 +152,14 @@ namespace PowerUtilities
 
         public Material GetModifiedMaterial(Material baseMaterial)
         {
-            if (graphCachedMaterialList.Count == 0 || !graphCachedMaterialList[0])
+            if (graphCachedMaterialList.Count == 0
+                || !graphCachedMaterialList[0]
+                || baseMaterial.shader != graphCachedMaterialList[0].shader)
+            {
+                graphCachedMaterialList.Clear();
                 graphCachedMaterialList.Add(Instantiate(baseMaterial));
-            
+            }
+
             return graphCachedMaterialList[0];
         }
     }

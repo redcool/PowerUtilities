@@ -59,10 +59,10 @@ namespace PowerUtilities
 
             var e = Event.current;
             var mousePos = (e.mousePosition); // in sceneView
-            Handles.BeginGUI();
-            Handles.DrawLine(mousePos, mousePos+new Vector2(100,0));
-            GUI.Button(new Rect(0,0,100,100),"test");
-            Handles.EndGUI();
+            //Handles.BeginGUI();
+            //Handles.DrawLine(mousePos, mousePos+new Vector2(100,0));
+            //GUI.Button(new Rect(0,0,100,100),"test");
+            //Handles.EndGUI();
 
             var lightmapPreviewWin = EditorWindowTools.GetWindow("LightmapPreviewWindow");
             if (lightmapPreviewWin == null 
