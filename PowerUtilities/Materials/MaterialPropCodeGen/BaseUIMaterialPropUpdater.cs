@@ -10,18 +10,28 @@ namespace PowerUtilities
 {
 #if UNITY_EDITOR
     using UnityEditor;
+    using Object = UnityEngine.Object;
 
     [CustomEditor(typeof(BaseUIMaterialPropUpdater),true)]
     public class BaseUIMaterialPropUpdaterEditor : PowerEditor<BaseUIMaterialPropUpdater>
     {
+
         public override void DrawInspectorUI(BaseUIMaterialPropUpdater inst)
         {
+            if (inst.graphs.Length == 0&&  PrefabTools.IsOuterPrefabMode(target))
+            {
+                PrefabTools.ModifyPrefab(inst.gameObject, (go) => {
+                    var updater = go.GetComponent<BaseUIMaterialPropUpdater>();
+                    updater?.Setup();
+                });
+
+            }
         }
 
         public override bool NeedDrawDefaultUI() => true;
         private void OnEnable()
         {
-            version = "v(0.0.4.2)";
+            version = "v(0.0.4.3)";
         }
     }
 #endif
@@ -30,11 +40,12 @@ namespace PowerUtilities
     /// Renderers use MaterialPropertyBlock update variables
     /// </summary>
     [ExecuteInEditMode]
-    public abstract class BaseUIMaterialPropUpdater : MonoBehaviour
+    [DisallowMultipleComponent]
+    public abstract class BaseUIMaterialPropUpdater : MonoBehaviour, IMaterialModifier
     {
         [Header("UI Graphs")]
         public Graphic[] graphs;
-        [SerializeField]List<Material> graphSharedMaterialList = new List<Material>();
+        public List<Material> graphCachedMaterialList = new List<Material>();
 
         [Header("Renderers")]
         public Renderer[] renderers;
@@ -44,25 +55,18 @@ namespace PowerUtilities
         [HideInInspector]
         [SerializeField] bool isFirstMaterialReaded;
 
-        private void Awake()
+        void Awake()
         {
-            SetupRenderers(out var isRenderersValid,out var isGraphsValid);
-
-            enabled = isRenderersValid || isGraphsValid;
-
-            ReadMaterial(enabled, isRenderersValid);
-
-            var needInitGraphs = graphSharedMaterialList.Count == 0;
-            if(needInitGraphs)
-                SaveGraphMaterials();
-
-            InstantiateGraphMaterials();
+            Setup();
         }
 
-        private void OnDestroy()
+        public void Setup()
         {
-            RestoreGraphsMaterial();
-            rendererBlock =null;
+            graphCachedMaterialList.Clear();
+
+            SetupRenderers(out var isRenderersValid, out var isGraphsValid);
+            enabled = isRenderersValid || isGraphsValid;
+            ReadMaterial(enabled, isRenderersValid);
         }
 
         [ContextMenu("Reset")]
@@ -72,11 +76,23 @@ namespace PowerUtilities
             //if (Application.isEditor)
             //    Start();
         }
-        private void OnEnable()
+
+        private void LateUpdate()
         {
-            if (graphs == null || graphs.Length == 0)
-                return;
-            graphs.ForEach(graph => graph.material = null);
+            if (rendererBlock == null)
+                rendererBlock= new MaterialPropertyBlock();
+
+            MaterialPropCodeGenTools.UpdateComponentsMaterial(graphs, (graph, id) =>
+            {
+                UpdateGraphMaterial(graph, id);
+            });
+            MaterialPropCodeGenTools.UpdateComponentsMaterial(renderers, (render, id) =>
+            {
+                rendererBlock.Clear();
+                render.GetPropertyBlock(rendererBlock);
+                UpdateBlock(rendererBlock);
+                render.SetPropertyBlock(rendererBlock);
+            });
         }
 
         void SetupRenderers(out bool isRenderersValid,out bool isGraphsValid)
@@ -97,21 +113,6 @@ namespace PowerUtilities
             isGraphsValid = (graphs != null && graphs.Length > 0);
         }
 
-        void InstantiateGraphMaterials()
-        {
-            graphs.ForEach((g, id) =>
-            {
-                var targetMat = graphSharedMaterialList[id] ?? g.material;
-                if (targetMat && !g.material.name.Contains("Clone"))
-                    g.material = Instantiate(targetMat);
-            });
-        }
-
-        private void SaveGraphMaterials()
-        {
-            graphs.ForEach((g) => graphSharedMaterialList.Add(g.material));
-        }
-
         void ReadMaterial(bool isValid,bool isRenderersValid)
         {
             if (isValid && !isFirstMaterialReaded)
@@ -124,70 +125,27 @@ namespace PowerUtilities
             }
         }
 
-        private void LateUpdate()
+        private void UpdateGraphMaterial(Graphic graph,int id)
         {
-            if (rendererBlock == null)
-                rendererBlock= new MaterialPropertyBlock();
-
-            MaterialPropCodeGenTools.UpdateComponentsMaterial(graphs, (graph, id) =>
-            {
-                UpdateGraphMaterial(graph, id);
-            });
-            MaterialPropCodeGenTools.UpdateComponentsMaterial(renderers, (render, id) =>
-            {
-                rendererBlock.Clear();
-                render.GetPropertyBlock(rendererBlock);
-                UpdateBlock(rendererBlock);
-                render.SetPropertyBlock(rendererBlock);
-            });
-
-        }
-
-        private void UpdateGraphMaterial(Graphic graph, int id)
-        {
-            // get material instance
-
-            if (!graph || graphSharedMaterialList.Count <= id)
-                return;
-
-            TryInitGraphMat(graph, id);
-
-            // dont update default material
-            if (graph.materialForRendering == graph.defaultMaterial)
+            if (!graph
+                ||  graph.materialForRendering == graph.defaultMaterial // dont update default material
+                )
                 return;
 
             UpdateMaterial(graph.materialForRendering);
         }
 
-        void TryInitGraphMat(Graphic graph,int id)
-        {
-            var targetMat = graphSharedMaterialList[id];
-            if (!targetMat)
-                targetMat = graphSharedMaterialList[id] = graph.defaultMaterial;
-
-            if (graph.material == graph.defaultMaterial
-            || graph.material.shader != targetMat.shader
-            )
-            {
-                graph.material = Instantiate(targetMat);
-            }
-        }
-
-        void RestoreGraphsMaterial()
-        {
-            graphs.ForEach((g, id) =>
-            {
-                if (graphSharedMaterialList.Count > id)
-                    g.material = graphSharedMaterialList[id];
-            });
-            graphSharedMaterialList.Clear();
-        }
-
-
-
         public abstract void ReadFirstMaterial(Material mat);
 
         public abstract void UpdateMaterial(Material mat);
         public abstract void UpdateBlock(MaterialPropertyBlock block);
+
+        public Material GetModifiedMaterial(Material baseMaterial)
+        {
+            if (graphCachedMaterialList.Count == 0 || !graphCachedMaterialList[0])
+                graphCachedMaterialList.Add(Instantiate(baseMaterial));
+            
+            return graphCachedMaterialList[0];
+        }
     }
 }

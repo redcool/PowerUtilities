@@ -1,3 +1,4 @@
+#define DEBUG_ON
 #if UNITY_EDITOR
 namespace PowerUtilities
 {
@@ -29,8 +30,8 @@ namespace PowerUtilities
         [InitializeOnLoadMethod]
         static void Init()
         {
-            SceneView.duringSceneGui -= OnEditorUpdate;
-            SceneView.duringSceneGui += OnEditorUpdate;
+            SceneView.duringSceneGui -= OnSceneGUIUpdate;
+            SceneView.duringSceneGui += OnSceneGUIUpdate;
 
             EditorSceneManager.activeSceneChangedInEditMode -=SceneManager_activeSceneChanged;
             EditorSceneManager.activeSceneChangedInEditMode +=SceneManager_activeSceneChanged;
@@ -50,19 +51,23 @@ namespace PowerUtilities
             Clear();
         }
 
-        static void OnEditorUpdate(SceneView sv)
+        static void OnSceneGUIUpdate(SceneView sv)
         {
             //sv.wantsMouseEnterLeaveWindow = true;
-            //sv.wantsLessLayoutEvents = true;
-            //sv.wantsMouseMove = true;
+            sv.wantsLessLayoutEvents = true;
+            sv.wantsMouseMove = true;
 
             var e = Event.current;
             var mousePos = (e.mousePosition); // in sceneView
+            Handles.BeginGUI();
+            Handles.DrawLine(mousePos, mousePos+new Vector2(100,0));
+            GUI.Button(new Rect(0,0,100,100),"test");
+            Handles.EndGUI();
 
             var lightmapPreviewWin = EditorWindowTools.GetWindow("LightmapPreviewWindow");
             if (lightmapPreviewWin == null 
                 || !InternalEditorUtility.isApplicationActive 
-                || EditorWindow.focusedWindow != lightmapPreviewWin
+                //|| EditorWindow.focusedWindow != lightmapPreviewWin
                 || e.type == EventType.Layout // layout, coord error, repaint is useful
                 || e.control == lastControlPressed
                 )
@@ -102,7 +107,7 @@ namespace PowerUtilities
             {
                 Selection.activeObject = obj;
             }
-
+            lightmapPreviewWin.wantsMouseMove = true;
         }
         public static int GetLightmapIndex(object lightmapPreviewWin)
         {

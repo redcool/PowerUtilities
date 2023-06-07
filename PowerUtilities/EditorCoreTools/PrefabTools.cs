@@ -6,10 +6,11 @@ namespace PowerUtilities
     using System.Collections.Generic;
     using UnityEditor;
     using UnityEngine;
+    using Object = UnityEngine.Object;
 
     public static class PrefabTools
     {
-        public static void RenamePrefab(GameObject instance,string newName)
+        public static void RenamePrefab(GameObject instance, string newName)
         {
             if (!instance)
                 return;
@@ -24,7 +25,7 @@ namespace PowerUtilities
         }
 
 
-        public static void ModifyPrefab(GameObject prefab,Action<GameObject> onModify)
+        public static void ModifyPrefab(GameObject prefab, Action<GameObject> onModify)
         {
             if (!prefab || onModify == null)
                 return;
@@ -32,7 +33,7 @@ namespace PowerUtilities
             //var path = PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(prefab);
             //var prefabInst = PrefabUtility.LoadPrefabContents(path);
 
-            (string path,GameObject prefabInst) = OpenPrefab(prefab);
+            (string path, GameObject prefabInst) = OpenPrefab(prefab);
 
             onModify(prefabInst);
 
@@ -41,18 +42,28 @@ namespace PowerUtilities
             CloseSavePrefab(prefabInst, path);
         }
 
-        public static (string prefabPath,GameObject prefabInst) OpenPrefab(GameObject prefab)
+        public static (string prefabPath, GameObject prefabInst) OpenPrefab(GameObject prefab)
         {
             var path = PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(prefab);
             var prefabInst = PrefabUtility.LoadPrefabContents(path);
             return (path, prefabInst);
         }
 
-        public static void CloseSavePrefab(GameObject prefabInst,string path)
+        public static void CloseSavePrefab(GameObject prefabInst, string path)
         {
             PrefabUtility.SaveAsPrefabAsset(prefabInst, path);
             PrefabUtility.UnloadPrefabContents(prefabInst);
         }
+
+        /// <summary>
+        /// is outer prefab mode in project
+        /// </summary>
+        /// <param name="target"></param>
+        /// <returns></returns>
+        public static bool IsOuterPrefabMode(Object target)
+            => PrefabUtility.GetPrefabAssetType(target)== PrefabAssetType.Regular
+            && PrefabUtility.GetPrefabInstanceStatus(target) == PrefabInstanceStatus.NotAPrefab;
+
     }
 #endif
 }

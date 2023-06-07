@@ -202,13 +202,19 @@ namespace PowerUtilities
             {
                 textureCondition = $"if({propName}!=null)";
             }
+            // demo: if(mat.HasFloat("_Value"))
+            var matPropCondition = GetPropCondition(setMethodName, propName);
+            var blockPropCondition = GetPropCondition(setMethodName, propName,"block");
 
             //demo : mat.SetColor("_Color",color);
-            updateMatSb.AppendLine($"{textureCondition} mat.Set{setMethodName}(\"{propName}\", {propName});");
-            updateBlockSB.AppendLine($"{textureCondition} block.Set{setMethodName}(\"{propName}\", {propName});");
+            updateMatSb.AppendLine($"{matPropCondition} {textureCondition} mat.Set{setMethodName}(\"{propName}\", {propName});");
+            updateBlockSB.AppendLine($"{blockPropCondition} {textureCondition} block.Set{setMethodName}(\"{propName}\", {propName});");
 
             // demo: color = mat.GetColor("_Color");
-            readMatSb.AppendLine($"{propName} = mat.Get{setMethodName}(\"{propName}\");");
+            readMatSb.AppendLine($"{matPropCondition} {propName} = mat.Get{setMethodName}(\"{propName}\");");
+
+            string GetPropCondition(string setMethodName,string propName,string invokerName = "mat")
+                => $"if ({invokerName}.Has{setMethodName} (\"{propName}\"))";
         }
 
         /// <summary>
@@ -276,7 +282,10 @@ using UnityEngine;
 
 namespace PowerUtilities
 {{
-    [ExecuteInEditMode]
+    /// <summary>
+    /// generated code by UIMaterialPropCodeGen
+    /// </summary>
+    [ExecuteAlways]
     public class {0} : BaseUIMaterialPropUpdater
     {{
         // props
