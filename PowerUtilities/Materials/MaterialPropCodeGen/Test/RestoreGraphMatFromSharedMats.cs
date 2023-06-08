@@ -14,25 +14,23 @@ namespace PowerUtilities
         static void Restore()
         {
             var folders = SelectionTools.GetSelectedFolders();
-            var imagePrefabs = AssetDatabaseTools.FindComponentsInProject<Image>("", folders);
+            var updaters = AssetDatabaseTools.FindComponentsInProject<BaseUIMaterialPropUpdater>("", folders);
             var count = 0;
 
-            imagePrefabs.ForEach(image => {
-                var prefab = PrefabUtility.GetCorrespondingObjectFromOriginalSource(image.gameObject);
+            updaters.ForEach(updater => {
+                var prefab = PrefabUtility.GetCorrespondingObjectFromOriginalSource(updater.gameObject);
                 
                 PrefabTools.ModifyPrefab(prefab, (go) =>
                 {
                     var updaters = go.GetComponentsInChildren<BaseUIMaterialPropUpdater>();
-                    var images = go.GetComponentsInChildren<Image>();
-                    images.ForEach(image =>
+                    updaters.ForEach(updater =>
                     {
-                        var updater = image.GetComponent<BaseUIMaterialPropUpdater>();
                         if (updater && updater.RestoreGraphMatFromShared())
                             count++;
                     });
                 });
             });
-            Debug.Log($"RestoreGraphMatFromSharedMats done : {count}");
+            Debug.Log($"RestoreGraphMatFromSharedMats,prefabs{updaters.Length}, modified : {count}");
         }
     }
 }
