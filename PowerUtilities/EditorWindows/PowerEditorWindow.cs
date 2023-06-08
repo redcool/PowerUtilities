@@ -10,16 +10,15 @@ namespace PowerUtilities
 
     public class PowerEditorWindow : EditorWindow
     {
-        public bool isHiddenCommonHeader;
+        public bool isShowCommonHeader = true;
 
         public VisualTreeAsset treeAsset;
         VisualElement treeInstance;
 
         public MonoScript eventMono;
-
         public IUIElementEvent eventInstance;
 
-        bool isFold;
+        bool isCommonHeaderFolded;
 
         public const string ROOT_MENU = "PowerUtilities/Window";
         [MenuItem(ROOT_MENU + "/Common UxmlWindow")]
@@ -29,17 +28,11 @@ namespace PowerUtilities
             w.titleContent = EditorGUITools.TempContent("PowerEditorWin");
         }
 
-        private void OnGUI()
-        {
-            if (!isHiddenCommonHeader)
-                DrawHeader();
-        }
-
         private void DrawHeader()
         {
             EditorGUI.BeginChangeCheck();
-            isFold = EditorGUILayout.Foldout(isFold, EditorGUITools.TempContent("TreeAsset"), true);
-            if (isFold)
+            isCommonHeaderFolded = EditorGUILayout.Foldout(isCommonHeaderFolded, EditorGUITools.TempContent("TreeAsset"), true);
+            if (isCommonHeaderFolded)
             {
                 EditorGUILayout.BeginHorizontal(EditorStylesEx.box);
 
@@ -63,11 +56,15 @@ namespace PowerUtilities
                 AddTreeEvents();
             }
         }
-
-        private void Update()
+        public void OnGUI()
         {
-            MoveTreeView();
-
+            if (isShowCommonHeader)
+                DrawHeader();
+        }
+        public void Update()
+        {
+            if (isShowCommonHeader)
+                MoveTreeView();
         }
 
         public void CreateGUI()
@@ -79,8 +76,6 @@ namespace PowerUtilities
 
             treeInstance = treeAsset.CloneTree();
             rootVisualElement.Add(treeInstance);
-
-            MoveTreeView();
         }
 
         private void MoveTreeView()
@@ -90,19 +85,21 @@ namespace PowerUtilities
 
             var pos = Vector2.zero;
             pos.y = 20;
-            if (isFold)
+            if (isCommonHeaderFolded)
             {
                 pos.y += 20;
             }
             treeInstance.transform.position = pos;
         }
 
-        void AddTreeEvents()
+        public void AddTreeEvents()
         {
-            if (treeInstance == null || !eventMono)
+            if (treeInstance == null)
                 return;
 
-            eventInstance = Activator.CreateInstance(eventMono.GetClass()) as IUIElementEvent;
+            if(eventMono)
+                eventInstance = Activator.CreateInstance(eventMono.GetClass()) as IUIElementEvent;
+
             if (eventInstance != null)
             {
                 eventInstance.AddEvent(treeInstance);

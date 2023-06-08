@@ -46,7 +46,11 @@ namespace PowerUtilities
     }
 
 #endif
-
+    /// <summary>
+    /// add UIDocumentEventRegister to UIDocument GameObject
+    /// add monos(implements IUIElementEvent) to monos
+    /// run 
+    /// </summary>
     public class UIDocumentEventRegister : MonoBehaviour
     {
         public List<UIDocument> docs = new List<UIDocument>();        

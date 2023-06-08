@@ -6,6 +6,10 @@ namespace PowerUtilities
     using UnityEngine;
     using UnityEngine.UIElements;
 
+    /// <summary>
+    /// default mono implements IUIElementEvent
+    /// other event mono can extends this add special event handles
+    /// </summary>
     public class DefaultUIElementEvent : IUIElementEvent
     {
         public void AddEvent(VisualElement root)
