@@ -27,7 +27,7 @@ namespace PowerUtilities
                     images.ForEach(image =>
                     {
                         var updater = image.GetComponent<BaseUIMaterialPropUpdater>();
-                        if((bool)(updater?.RestoreGraphMatFromShared()))
+                        if (updater && updater.RestoreGraphMatFromShared())
                             count++;
                     });
                 });
