@@ -20,7 +20,7 @@ namespace PowerUtilities
     /// </summary>
     public class UIMaterialPropCodeGen
     {
-        const string MENU_ROOT = "PowerUtilities/CodeGenerator";
+        public const string MENU_ROOT = "PowerUtilities/CodeGenerator";
         const string PATH = "Assets/CodeGens/";
 
         static HashSet<string> propNameSet = new HashSet<string>();

@@ -21,12 +21,13 @@ namespace PowerUtilities
         /// <param name="filter"></param>
         /// <param name="searchInFolders"></param>
         /// <returns></returns>
-        public static T[] FindComponentInProject<T>(string filter, params string[] searchInFolders)
+        public static T[] FindComponentsInProject<T>(string filter, params string[] searchInFolders)
             where T : Component
         {
-            var gos = FindAssetsInProject<GameObject>(filter, searchInFolders);
-            var q = gos.Select(go => go.GetComponent<T>());
-            return q.ToArray();
+            return FindAssetsInProject<GameObject>(filter, searchInFolders)
+                .Where(go => go.GetComponent<T>())
+                .Select(go => go.GetComponent<T>())
+                .ToArray();
         }
 
 
@@ -113,7 +114,7 @@ namespace PowerUtilities
         /// <param name="extName">null dont check extName, empty string check that files has no extName</param>
         /// <param name="searchInFolders"></param>
         /// <returns></returns>
-        public static string[] FindAssetPaths(string filter,string extName=null,params string[] searchInFolders)
+        public static string[] FindAssetsPath(string filter,string extName=null,params string[] searchInFolders)
         {
             var q = AssetDatabase.FindAssets(filter, searchInFolders)
                 .Select(guid => AssetDatabase.GUIDToAssetPath(guid))

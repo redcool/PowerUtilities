@@ -31,7 +31,7 @@ namespace PowerUtilities
         public override bool NeedDrawDefaultUI() => true;
         private void OnEnable()
         {
-            version = "v(0.0.4.4)";
+            version = "v(0.0.4.5)";
         }
     }
 #endif
@@ -47,9 +47,11 @@ namespace PowerUtilities
         public Graphic[] graphs;
 
         // keep for compatible
-        [HideInInspector][SerializeField] List<Material> graphSharedMaterialList = new List<Material>();
+        //[HideInInspector]
+        [SerializeField] List<Material> graphSharedMaterialList = new List<Material>();
 
-        [HideInInspector] public List<Material> graphCachedMaterialList = new List<Material>();
+        //[HideInInspector]
+        public List<Material> graphCachedMaterialList = new List<Material>();
 
         [Header("Renderers")]
         public Renderer[] renderers;
@@ -121,11 +123,7 @@ namespace PowerUtilities
         {
             if (isValid && !isFirstMaterialReaded)
             {
-                if(graphSharedMaterialList != null && graphSharedMaterialList.Count > 0)
-                {
-                    graphs[0].material = graphSharedMaterialList[0];
-                    graphSharedMaterialList.Clear();
-                }
+                RestoreGraphMatFromShared();
 
                 var firstMat = isRenderersValid ? renderers[0].sharedMaterial : graphs[0].materialForRendering;
                 if (firstMat)
@@ -133,6 +131,21 @@ namespace PowerUtilities
 
                 isFirstMaterialReaded = true;
             }
+        }
+
+        public bool RestoreGraphMatFromShared()
+        {
+            if (graphSharedMaterialList != null 
+                && graphSharedMaterialList.Count > 0
+                && graphs.Length>0
+                && graphs[0].material == graphs[0].defaultMaterial
+                )
+            {
+                graphs[0].material = graphSharedMaterialList[0];
+                graphSharedMaterialList.Clear();
+                return true;
+            }
+            return false;
         }
 
         private void UpdateGraphMaterial(Graphic graph,int id)
