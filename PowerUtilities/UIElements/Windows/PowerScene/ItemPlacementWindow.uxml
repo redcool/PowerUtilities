@@ -1,0 +1,11 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <ui:VisualElement name="PrefabSeting" style="margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; border-left-width: 1px; border-right-width: 1px; border-top-width: 1px; border-bottom-width: 1px; border-left-color: rgb(60, 60, 60); border-right-color: rgb(60, 60, 60); border-top-color: rgb(60, 60, 60); border-bottom-color: rgb(60, 60, 60); padding-left: 10px; padding-right: 10px; padding-top: 10px; padding-bottom: 10px;">
+        <ui:Label text="PrefabSetting" display-tooltip-when-elided="true" style="-unity-text-align: middle-center; -unity-font-style: bold;" />
+        <uie:LayerField label="Layer" name="Layer" />
+        <uie:ObjectField label="Prefab" type="UnityEngine.GameObject, UnityEngine.CoreModule" name="Prefab" style="margin-left: 3px; margin-right: 0; margin-top: 0; margin-bottom: 0;" />
+    </ui:VisualElement>
+    <ui:VisualElement name="Options" style="padding-left: 10px; padding-right: 10px; padding-top: 10px; padding-bottom: 10px; border-left-width: 1px; border-right-width: 1px; border-top-width: 1px; border-bottom-width: 1px; border-left-color: rgb(60, 60, 60); border-right-color: rgb(60, 60, 60); border-top-color: rgb(60, 60, 60); border-bottom-color: rgb(60, 60, 60); border-top-left-radius: 2px; border-bottom-left-radius: 2px; border-top-right-radius: 2px; border-bottom-right-radius: 2px;">
+        <ui:Label text="Options" display-tooltip-when-elided="true" style="align-items: flex-start; justify-content: center; -unity-text-align: middle-center; -unity-font-style: bold;" />
+        <ui:Toggle label="NormalAlign" name="NormalAlign" />
+    </ui:VisualElement>
+</ui:UXML>

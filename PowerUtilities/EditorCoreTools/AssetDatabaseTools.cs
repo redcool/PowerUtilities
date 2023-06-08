@@ -114,11 +114,11 @@ namespace PowerUtilities
         /// <param name="extName">null dont check extName, empty string check that files has no extName</param>
         /// <param name="searchInFolders"></param>
         /// <returns></returns>
-        public static string[] FindAssetsPath(string filter,string extName=null,params string[] searchInFolders)
+        public static string[] FindAssetsPath(string filter, string extName = null, params string[] searchInFolders)
         {
             var q = AssetDatabase.FindAssets(filter, searchInFolders)
-                .Select(guid => AssetDatabase.GUIDToAssetPath(guid))
-                .Where(path => extName == null ? true : Path.GetExtension(path) == extName)
+                .Select(AssetDatabase.GUIDToAssetPath)
+                .Where(path => extName == null ? true : Path.GetExtension(path).EndsWith(extName))
                 ;
             return q.ToArray();
         }

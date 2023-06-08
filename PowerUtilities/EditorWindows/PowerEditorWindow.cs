@@ -10,7 +10,7 @@ namespace PowerUtilities
 
     public class PowerEditorWindow : EditorWindow
     {
-        bool isFold;
+        public bool isHiddenCommonHeader;
 
         public VisualTreeAsset treeAsset;
         VisualElement treeInstance;
@@ -19,6 +19,7 @@ namespace PowerUtilities
 
         public IUIElementEvent eventInstance;
 
+        bool isFold;
 
         public const string ROOT_MENU = "PowerUtilities/Window";
         [MenuItem(ROOT_MENU + "/Common UxmlWindow")]
@@ -30,7 +31,8 @@ namespace PowerUtilities
 
         private void OnGUI()
         {
-            DrawHeader();
+            if (!isHiddenCommonHeader)
+                DrawHeader();
         }
 
         private void DrawHeader()
@@ -68,7 +70,7 @@ namespace PowerUtilities
 
         }
 
-        private void CreateGUI()
+        public void CreateGUI()
         {
             rootVisualElement.Clear();
 
