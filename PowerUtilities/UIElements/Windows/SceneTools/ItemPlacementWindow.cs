@@ -13,37 +13,37 @@ namespace PowerUtilities
 {
     public class ItemPlacementWindow : PowerEditorWindow,IUIElementEvent
     {
-        public static ItemPlacementWindow current;
         [MenuItem(ROOT_MENU+"/Scene/"+nameof(ItemPlacementWindow))]
-        static void Init()
+        new static void OpenWindow()
         {
             var win = GetWindow<ItemPlacementWindow>();
-            var uxmlPath = AssetDatabaseTools.FindAssetsPath("ItemPlacementWindow", "uxml").FirstOrDefault();
-
-            win.treeAsset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(uxmlPath);
-            win.isShowCommonHeader = false;
-            win.CreateGUI();
-
-            win.eventInstance = win;
-            win.AddTreeEvents();
-            current = win;
         }
 
         private void OnEnable()
         {
             SceneView.duringSceneGui -= SceneView_duringSceneGui;
             SceneView.duringSceneGui += SceneView_duringSceneGui;
+        }
+         
+        new public void CreateGUI()
+        {
+            var uxmlPath = AssetDatabaseTools.FindAssetsPath("ItemPlacementWindow", "uxml").FirstOrDefault();
 
-            if (!current)
-                Init();
+            treeAsset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(uxmlPath);
+            isShowCommonHeader = false;
+            base.CreateGUI();
+
+            eventInstance = this;
+            AddTreeEvents();
         }
 
         private void SceneView_duringSceneGui(SceneView obj)
         {
             var e = Event.current;
             var ray = HandleUtility.GUIPointToWorldRay(e.mousePosition);
+            var layerMask = this.layerMask.value;
 
-            if (Physics.Raycast(ray, out var hit, float.MaxValue, -1))
+            if (Physics.Raycast(ray, out var hit, float.MaxValue, layerMask))
             {
                 if (prefab && e.IsMouseLeftDown())
                 {
@@ -57,11 +57,12 @@ namespace PowerUtilities
                         inst.transform.rotation = Quaternion.FromToRotation(Vector3.up, hit.normal);
                 }
 
-                DrawGuideLine(e.mousePosition, hit.point,hit.normal);
+                var endPos = normalAlign.value ? hit.normal : Vector3.up;
+                DrawGuideLine(e.mousePosition, hit.point, endPos);
             }
         }
 
-        private static void DrawGuideLine(Vector2 mousePos,Vector3 point,Vector3 normal)
+        public static void DrawGuideLine(Vector2 mousePos,Vector3 point,Vector3 endPos)
         {
             var lastColor = Handles.color;
 
@@ -74,7 +75,6 @@ namespace PowerUtilities
             Handles.EndGUI();
 
             //draw guide line
-            var endPos = current.normalAlign.value ? normal : Vector3.up;
             Handles.color = Color.cyan;
             Handles.DrawPolyLine(new[] {
                     point,
@@ -85,12 +85,13 @@ namespace PowerUtilities
 
         Object prefab;
         Toggle normalAlign;
+        LayerMaskField layerMask;
 
         public void AddEvent(VisualElement root)
         {
             root.Q<ObjectField>("Prefab").RegisterValueChangedCallback(e => prefab = e.newValue);
             normalAlign = root.Q<Toggle>("NormalAlign");
-            Debug.Log(normalAlign.value);
+            layerMask = root.Q<LayerMaskField>("LayerMask");
         }
     }
 }

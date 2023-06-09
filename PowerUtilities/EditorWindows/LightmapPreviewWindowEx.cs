@@ -53,10 +53,6 @@ namespace PowerUtilities
 
         static void OnSceneGUIUpdate(SceneView sv)
         {
-            //sv.wantsMouseEnterLeaveWindow = true;
-            sv.wantsLessLayoutEvents = true;
-            sv.wantsMouseMove = true;
-
             var e = Event.current;
             var mousePos = (e.mousePosition); // in sceneView
             //Handles.BeginGUI();

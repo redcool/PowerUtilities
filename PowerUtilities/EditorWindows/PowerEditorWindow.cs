@@ -22,7 +22,7 @@ namespace PowerUtilities
 
         public const string ROOT_MENU = "PowerUtilities/Window";
         [MenuItem(ROOT_MENU + "/Common UxmlWindow")]
-        public static void InitWindow()
+        public static void OpenWindow()
         {
             var w = GetWindow<PowerEditorWindow>();
             w.titleContent = EditorGUITools.TempContent("PowerEditorWin");
@@ -67,6 +67,9 @@ namespace PowerUtilities
                 MoveTreeView();
         }
 
+        /// <summary>
+        /// create ui elements
+        /// </summary>
         public void CreateGUI()
         {
             rootVisualElement.Clear();
