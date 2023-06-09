@@ -1,4 +1,4 @@
-#define DEBUG_ON
+//#define DEBUG_ON
 #if UNITY_EDITOR
 namespace PowerUtilities
 {
