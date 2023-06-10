@@ -46,10 +46,11 @@ namespace PowerUtilities
         {
             var e = Event.current;
             var ray = HandleUtility.GUIPointToWorldRay(e.mousePosition);
-            var layerMask = this.layerMask.value;
+            var layerMask = this.layerMaskField.value;
 
             if (Physics.Raycast(ray, out var hit, float.MaxValue, layerMask))
             {
+                var prefab = prefabField.value;
                 if (prefab && e.IsMouseLeftDown())
                 {
                     var inst = (GameObject)(PrefabUtility.IsPartOfAnyPrefab(prefab) ?
@@ -58,11 +59,12 @@ namespace PowerUtilities
 
                     inst.transform.position = hit.point;
 
-                    if (normalAlign.value)
+                    if (normalAlignField.value)
                         inst.transform.rotation = Quaternion.FromToRotation(Vector3.up, hit.normal);
+
                 }
 
-                var endPos = normalAlign.value ? hit.normal : Vector3.up;
+                var endPos = normalAlignField.value ? hit.normal : Vector3.up;
                 DrawGuideLine(e.mousePosition, hit.point, endPos);
             }
         }
@@ -88,15 +90,15 @@ namespace PowerUtilities
             Handles.color = lastColor;
         }
 
-        Object prefab;
-        Toggle normalAlign;
-        LayerMaskField layerMask;
+        ObjectField prefabField;
+        Toggle normalAlignField;
+        LayerMaskField layerMaskField;
 
         public void AddEvent(VisualElement root)
         {
-            root.Q<ObjectField>("Prefab").RegisterValueChangedCallback(e => prefab = e.newValue);
-            normalAlign = root.Q<Toggle>("NormalAlign");
-            layerMask = root.Q<LayerMaskField>("LayerMask");
+            prefabField = root.Q<ObjectField>("Prefab");
+            normalAlignField = root.Q<Toggle>("NormalAlign");
+            layerMaskField = root.Q<LayerMaskField>("LayerMask");
         }
     }
 }
