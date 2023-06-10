@@ -1,0 +1,27 @@
+.menu-button {
+    font-size: 33px;
+    color: rgb(255, 255, 255);
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    -unity-font: initial;
+    -unity-font-definition: url('project://database/Assets/Test/ui/uxml/ARIBLK%20SDF.asset?fileID=11400000&guid=0a1ba583930d64344b4092978d12b4ab&type=2#ARIBLK SDF');
+    border-left-color: rgba(255, 0, 0, 0.2);
+    border-right-color: rgba(255, 0, 0, 0.2);
+    border-top-color: rgba(255, 0, 0, 0.2);
+    border-bottom-color: rgba(255, 0, 0, 0.2);
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    -unity-text-outline-color: rgba(2, 2, 2, 255);
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.menu-button:hover {
+    font-size: 40px;
+    rotate: -10deg;
+    transition-duration: 0.3s;
+}
+
+.menu-button:active {
+}

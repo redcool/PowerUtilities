@@ -1,0 +1,16 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/Test/ui/uxml/MenuStyles.uss?fileID=7433441132597879392&amp;guid=a9f97886c7af7184e9f47a6d517885b9&amp;type=3#MenuStyles" />
+    <ui:VisualElement name="Menu" style="flex-direction: row; flex-grow: 1; width: 100%; height: 100%;">
+        <ui:VisualElement name="LeftSection" style="width: 45%; height: 100%; margin-left: 50px; background-color: rgba(0, 0, 0, 0.39); flex-direction: column; align-items: center; justify-content: flex-start;">
+            <ui:VisualElement name="Logo" style="background-image: url(&apos;project://database/Packages/com.unity.memoryprofiler/Package%20Resources/Icons/UnityObjectIcon@3x.png?fileID=2800000&amp;guid=1fdf3d799ee593f46ae9dd9fa6ef702c&amp;type=3#UnityObjectIcon@3x&apos;); width: 256px; height: 256px;" />
+            <ui:VisualElement name="Buttons" style="flex-grow: 1; flex-shrink: 1; justify-content: center; margin-bottom: 0; padding-bottom: 86px;">
+                <ui:Button text="Play" display-tooltip-when-elided="true" name="PlayButton" class="menu-button" />
+                <ui:Button text="Settings" display-tooltip-when-elided="true" name="SettingButton" class="menu-button" />
+                <ui:Button text="Exit" display-tooltip-when-elided="true" name="ExitButton" class="menu-button" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="RightSecion" style="flex-grow: 1; justify-content: flex-end; align-items: auto; background-color: rgba(0, 0, 0, 0);">
+            <ui:Button display-tooltip-when-elided="true" class="menu-button" style="background-image: url(&apos;project://database/Packages/com.unity.2d.animation/Editor/Assets/SkinningModule/Icons/Selected/Create%20Bones@2x.png?fileID=2800000&amp;guid=5b7f664b515582d458717c354f6be292&amp;type=3#Create Bones@2x&apos;); width: 60px; height: 60px; align-items: flex-end; justify-content: flex-end; -unity-text-align: middle-center; translate: 0 0;" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

@@ -51,7 +51,9 @@ namespace PowerUtilities
             if (Physics.Raycast(ray, out var hit, float.MaxValue, layerMask))
             {
                 var prefab = prefabField.value;
-                if (prefab && e.IsMouseLeftDown())
+                if (activeField.value 
+                    && prefab 
+                    && e.IsMouseLeftDown())
                 {
                     var inst = (GameObject)(PrefabUtility.IsPartOfAnyPrefab(prefab) ?
                         PrefabUtility.InstantiatePrefab(prefab) : Instantiate(prefab));
@@ -67,6 +69,7 @@ namespace PowerUtilities
                 var endPos = normalAlignField.value ? hit.normal : Vector3.up;
                 DrawGuideLine(e.mousePosition, hit.point, endPos);
             }
+            rootField.SetEnabled(activeField.value);
         }
 
         public static void DrawGuideLine(Vector2 mousePos,Vector3 point,Vector3 endPos)
@@ -93,12 +96,16 @@ namespace PowerUtilities
         ObjectField prefabField;
         Toggle normalAlignField;
         LayerMaskField layerMaskField;
+        Toggle activeField;
+        VisualElement rootField;
 
         public void AddEvent(VisualElement root)
         {
             prefabField = root.Q<ObjectField>("Prefab");
             normalAlignField = root.Q<Toggle>("NormalAlign");
             layerMaskField = root.Q<LayerMaskField>("LayerMask");
+            activeField = root.Q<Toggle>("Active");
+            rootField = root.Q<VisualElement>("Root");
         }
     }
 }
