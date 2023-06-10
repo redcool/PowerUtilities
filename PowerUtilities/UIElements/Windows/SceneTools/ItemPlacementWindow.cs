@@ -24,7 +24,12 @@ namespace PowerUtilities
             SceneView.duringSceneGui -= SceneView_duringSceneGui;
             SceneView.duringSceneGui += SceneView_duringSceneGui;
         }
-         
+
+        private void OnDisable()
+        {
+            SceneView.duringSceneGui -= SceneView_duringSceneGui;
+        }
+
         new public void CreateGUI()
         {
             var uxmlPath = AssetDatabaseTools.FindAssetsPath("ItemPlacementWindow", "uxml").FirstOrDefault();
