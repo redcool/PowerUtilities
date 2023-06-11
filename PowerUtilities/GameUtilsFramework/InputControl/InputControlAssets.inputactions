@@ -114,7 +114,7 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "TopdownLook",
+                    "name": "LookPosition",
                     "type": "Value",
                     "id": "6b69025b-12ce-46f8-8bb4-22928bae51a6",
                     "expectedControlType": "Vector2",
@@ -406,7 +406,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "KeyboardMouse",
-                    "action": "TopdownLook",
+                    "action": "LookPosition",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

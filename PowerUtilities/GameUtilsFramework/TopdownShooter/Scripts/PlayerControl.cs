@@ -19,8 +19,6 @@ namespace TopdownShooter
         public Transform GunDir;
         public float shootInterval = 0.5f;
 
-
-
         Camera cam;
         Animator anim;
 
@@ -34,7 +32,7 @@ namespace TopdownShooter
         {
             playerInput = GetComponent<InputControl>();
             cam = Camera.main;
-            anim = GetComponent<Animator>();
+            anim = GetComponentInChildren<Animator>();
         }
 
         // Update is called once per frame
@@ -115,7 +113,7 @@ namespace TopdownShooter
         private Vector3 MouseAim()
         {
             var dir = transform.forward;
-            var ray = cam.ScreenPointToRay(playerInput.topdownLook);
+            var ray = cam.ScreenPointToRay(playerInput.lookPosition);
             if (Physics.Raycast(ray, out var hit))
             {
                 var pos = hit.point;
