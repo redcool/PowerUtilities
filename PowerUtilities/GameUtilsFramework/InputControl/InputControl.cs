@@ -38,10 +38,10 @@ using UnityEngine;
             isRolling,
             isJump,
             tryLock,
-            isActionHolding,
+            isActionHolding, // e, gamepad A
             LB,
             LT, 
-            RB,
+            RB, // right sholder
             RT
             ;
 
@@ -79,6 +79,32 @@ using UnityEngine;
 
         public bool IsHoldLeftWeapon() => isActionHolding && RT;
         public bool IsHoldRightWeapon() => isActionHolding && RB;
+
+
+        //-------------- from scripts
+        
+        InputControlAssets inputControlAsset;
+        public InputControlAssets InputControlAsset
+        {
+            get
+            {
+                if(inputControlAsset == null)
+                    inputControlAsset = new InputControlAssets();
+                return inputControlAsset;
+            }
+        }
+
+        public InputControlAssets.PlayerControlActions PlayerControl => InputControlAsset.PlayerControl;
+
+        private void OnEnable()
+        {
+            InputControlAsset.Enable();
+        }
+
+        private void OnDisable()
+        {
+            InputControlAsset.Disable();
+        }
     }
 
 }
