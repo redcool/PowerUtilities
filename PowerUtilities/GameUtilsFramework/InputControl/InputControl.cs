@@ -23,20 +23,33 @@ using UnityEngine;
     }
 #endif
 
-
+    /// <summary>
+    /// Need Unity PlayerInput, seneMessage
+    /// </summary>
     public class InputControl : MonoBehaviour
     {
-        public Vector2 movement;
-        public Vector2 look, topdownLook;
-        public bool isSprint,isRolling,isJump,tryLock,isActionHolding,
-            LB, LT, RB, RT
+        public Vector2 
+            movement,
+            look, 
+            lookPosition;
+
+        public bool 
+            isSprint,
+            isRolling,
+            isJump,
+            tryLock,
+            isActionHolding, // e, gamepad A
+            LB,
+            LT, 
+            RB, // right sholder
+            RT
             ;
 
         public float MovementLength =>  movement.magnitude;
         public void OnMovement(InputValue v) => movement = v.Get<Vector2>();
 
         public void OnLook(InputValue v) => look = v.Get<Vector2>();
-        public void OnTopdownLook(InputValue v) => topdownLook = v.Get<Vector2>();
+        public void OnLookPosition(InputValue v) => lookPosition = v.Get<Vector2>();
 
         public void OnSprint(InputValue v) => isSprint = v.isPressed;
 
@@ -66,6 +79,32 @@ using UnityEngine;
 
         public bool IsHoldLeftWeapon() => isActionHolding && RT;
         public bool IsHoldRightWeapon() => isActionHolding && RB;
+
+
+        //-------------- from scripts
+        
+        InputControlAssets inputControlAsset;
+        public InputControlAssets InputControlAsset
+        {
+            get
+            {
+                if(inputControlAsset == null)
+                    inputControlAsset = new InputControlAssets();
+                return inputControlAsset;
+            }
+        }
+
+        public InputControlAssets.PlayerControlActions PlayerControl => InputControlAsset.PlayerControl;
+
+        private void OnEnable()
+        {
+            InputControlAsset.Enable();
+        }
+
+        private void OnDisable()
+        {
+            InputControlAsset.Disable();
+        }
     }
 
 }
