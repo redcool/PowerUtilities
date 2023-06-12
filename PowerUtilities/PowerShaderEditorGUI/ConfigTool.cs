@@ -16,17 +16,29 @@ namespace PowerUtilities
     /// </summary>
     public static class ConfigTool
     {
+
+        public enum LayoutProfileType
+        {
+            Standard = 0,
+            MIN_VERSION
+        }
+
         /// <summary>
         /// * = *
         /// </summary>
         static Regex kvRegex = new Regex(@"\s*=\s*");
         public const string 
             I18N_PROFILE_PATH = "Profiles/i18n.txt",
-            LAYOUT_PROFILE_PATH = "Profiles/Layout.txt",
+            LAYOUT_PROFILE_PATH_FORMAT = "Profiles/Layout{0}.txt",
             COLOR_PROFILE_PATH = "Profiles/Colors.txt",
-            PROP_HELP_PROFILE_PATH = "Profiles/Helps.txt"
+            PROP_HELP_PROFILE_PATH = "Profiles/Helps.txt",
+
+            MIN_VERSION = nameof(MIN_VERSION)
             ;
 
+
+        public static string GetLayoutProfilePath(LayoutProfileType profileType) 
+            => string.Format(LAYOUT_PROFILE_PATH_FORMAT, profileType == LayoutProfileType.Standard ? "" : Enum.GetName(typeof(LayoutProfileType),profileType));
         /// <summary>
         /// 从configPath开始找configFileName文件,一直找到Assets目录
         /// </summary>
@@ -107,7 +119,7 @@ namespace PowerUtilities
 
         public static string Text(Dictionary<string,string> dict,string propName)
         {
-            if(dict.TryGetValue(propName,out var text))
+            if(dict != null && dict.TryGetValue(propName,out var text))
             {
                 return text;
             }

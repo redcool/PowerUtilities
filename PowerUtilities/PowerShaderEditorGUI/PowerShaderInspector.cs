@@ -77,8 +77,8 @@ namespace PowerUtilities
 
         public string shaderName = ""; //子类来指定,用于EditorPrefs读写
 
-        string[] tabNames;
-        bool[] tabToggles;
+        string[] tabNames = new string[] { } ;
+        bool[] tabToggles = new bool[] { } ;
         List<int> tabSelectedIds = new List<int>();
 
         List<string[]> propNameList = new List<string[]>();
@@ -100,7 +100,7 @@ namespace PowerUtilities
 
         bool isFirstRunOnGUI = true;
         string helpStr;
-        string[] tabNamesInConfig;
+        string[] tabNamesInConfig = new string[] { };
 
         Shader lastShader;
 
@@ -302,7 +302,9 @@ namespace PowerUtilities
                 presetBlendMode = PresetBlendModeTools.GetPresetBlendMode(mat);
 
             var shaderFilePath = AssetDatabase.GetAssetPath(mat.shader);
-            SetupLayout(shaderFilePath);
+
+            var profileType = mat.IsKeywordEnabled(ConfigTool.MIN_VERSION) ? ConfigTool.LayoutProfileType.MIN_VERSION : ConfigTool.LayoutProfileType.Standard;
+            SetupLayout(shaderFilePath, profileType);
 
             propNameTextDict = ConfigTool.ReadConfig(shaderFilePath, ConfigTool.I18N_PROFILE_PATH);
 
@@ -317,13 +319,16 @@ namespace PowerUtilities
 
         }
 
-        private void SetupLayout(string shaderFilePath)
+        private void SetupLayout(string shaderFilePath,ConfigTool.LayoutProfileType profileType)
         {
-            var layoutConfigPath = ConfigTool.FindPathRecursive(shaderFilePath, ConfigTool.LAYOUT_PROFILE_PATH);
+            var layoutConfigPath = ConfigTool.FindPathRecursive(shaderFilePath, ConfigTool.GetLayoutProfilePath(profileType));
             var dict = ConfigTool.ReadKeyValueConfig(layoutConfigPath);
 
             if (!dict.TryGetValue("tabNames", out var tabNamesLine))
-                return;
+            {
+                throw new Exception($"layout profile file not found, path :{layoutConfigPath}");
+                //return;
+            }
 
             // for tabNames
             tabNames = ConfigTool.SplitBy(tabNamesLine);
