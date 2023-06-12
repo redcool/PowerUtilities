@@ -69,7 +69,6 @@ namespace PowerUtilities
                 var endPos = normalAlignField.value ? hit.normal : Vector3.up;
                 DrawGuideLine(e.mousePosition, hit.point, endPos);
             }
-            rootField.SetEnabled(activeField.value);
         }
 
         public static void DrawGuideLine(Vector2 mousePos,Vector3 point,Vector3 endPos)
