@@ -26,26 +26,26 @@ using UnityEngine;
     /// <summary>
     /// Need Unity PlayerInput, seneMessage
     /// </summary>
-    public class InputControl : MonoBehaviour
+    public partial class InputControl : MonoBehaviour
     {
-        public Vector2 
+        public Vector2
             movement,
-            look, 
+            look,
             lookPosition;
 
-        public bool 
+        public bool
             isSprint,
             isRolling,
             isJump,
             tryLock,
             isActionHolding, // e, gamepad A
             LB,
-            LT, 
+            LT,
             RB, // right sholder
             RT
             ;
 
-        public float MovementLength =>  movement.magnitude;
+        public float MovementLength => movement.magnitude;
         public void OnMovement(InputValue v) => movement = v.Get<Vector2>();
 
         public void OnLook(InputValue v) => look = v.Get<Vector2>();
@@ -62,7 +62,7 @@ using UnityEngine;
         public void OnRT(InputValue v) => RT = v.isPressed;
         public void OnTryLock(InputValue v) => tryLock = v.isPressed;
 
-        public void OnActionHolding(InputValue v)=> isActionHolding = v.isPressed;
+        public void OnActionHolding(InputValue v) => isActionHolding = v.isPressed;
 
 
         public bool IsButtonTriggeredAndReset(ref bool buttonId)
@@ -82,7 +82,7 @@ using UnityEngine;
 
 
         //-------------- from scripts
-        
+#if INPUT_SYSTEM_ENABLED
         InputControlAssets inputControlAsset;
         public InputControlAssets InputControlAsset
         {
@@ -96,6 +96,7 @@ using UnityEngine;
 
         public InputControlAssets.PlayerControlActions PlayerControl => InputControlAsset.PlayerControl;
 
+
         private void OnEnable()
         {
             InputControlAsset.Enable();
@@ -105,6 +106,7 @@ using UnityEngine;
         {
             InputControlAsset.Disable();
         }
-    }
+#endif
 
+    }
 }

@@ -14,6 +14,9 @@ namespace GameUtilsFramework
     {
         const string ROOT_PATH = "PowerUtilities";
 
+        /// <summary>
+        /// enabled script macros(inputSystem
+        /// </summary>
         [MenuItem(ROOT_PATH+"/InputSystem/SyncInputSystemMacro")]
         public static void SyncInputSystemMacro()
         {
