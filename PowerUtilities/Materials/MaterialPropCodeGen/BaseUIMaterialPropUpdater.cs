@@ -31,7 +31,7 @@ namespace PowerUtilities
         public override bool NeedDrawDefaultUI() => true;
         private void OnEnable()
         {
-            version = "v(0.0.4.5)";
+            version = "v(0.0.4.6)";
         }
     }
 #endif

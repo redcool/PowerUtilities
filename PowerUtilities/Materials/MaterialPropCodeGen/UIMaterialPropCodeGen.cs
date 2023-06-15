@@ -253,7 +253,7 @@ namespace PowerUtilities
             if (type == ShaderPropertyType.Range)
             {
                 var range = currentShader.GetPropertyRangeLimits(propId);
-                sb.AppendFormat(@"[Range({0},{1})]", range.x, range.y);
+                sb.AppendFormat(@"[Range({0}f,{1}f)]", range.x, range.y);
             }
 
             return sb.ToString();
