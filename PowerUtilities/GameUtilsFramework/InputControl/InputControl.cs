@@ -81,32 +81,32 @@ using UnityEngine;
         public bool IsHoldRightWeapon() => isActionHolding && RB;
 
 
-        //-------------- from scripts
-#if INPUT_SYSTEM_ENABLED
-        InputControlAssets inputControlAsset;
-        public InputControlAssets InputControlAsset
-        {
-            get
-            {
-                if(inputControlAsset == null)
-                    inputControlAsset = new InputControlAssets();
-                return inputControlAsset;
-            }
-        }
+//        //-------------- from scripts
+//#if INPUT_SYSTEM_ENABLED
+//        InputControlAssets inputControlAsset;
+//        public InputControlAssets InputControlAsset
+//        {
+//            get
+//            {
+//                if(inputControlAsset == null)
+//                    inputControlAsset = new InputControlAssets();
+//                return inputControlAsset;
+//            }
+//        }
 
-        public InputControlAssets.PlayerControlActions PlayerControl => InputControlAsset.PlayerControl;
+//        public InputControlAssets.PlayerControlActions PlayerControl => InputControlAsset.PlayerControl;
 
 
-        private void OnEnable()
-        {
-            InputControlAsset.Enable();
-        }
+//        private void OnEnable()
+//        {
+//            InputControlAsset.Enable();
+//        }
 
-        private void OnDisable()
-        {
-            InputControlAsset.Disable();
-        }
-#endif
+//        private void OnDisable()
+//        {
+//            InputControlAsset.Disable();
+//        }
+//#endif
 
     }
 }

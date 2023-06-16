@@ -28,7 +28,7 @@ namespace GameUtilsFramework
             var buildTargetGroup = EditorUserBuildSettings.selectedBuildTargetGroup;
 
             var scriptDefines = PlayerSettings.GetScriptingDefineSymbolsForGroup(buildTargetGroup);
-            scriptDefines.Replace(";INPUT_SYSTEM_ENABLED", "");
+            scriptDefines = scriptDefines.Replace(";INPUT_SYSTEM_ENABLED", "");
             if (inputSystemEnabled)
                 scriptDefines += ";INPUT_SYSTEM_ENABLED";
             PlayerSettings.SetScriptingDefineSymbolsForGroup(buildTargetGroup, scriptDefines);
