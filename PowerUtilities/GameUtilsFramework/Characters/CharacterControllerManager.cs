@@ -6,7 +6,7 @@ using UnityEngine;
 public class CharacterControllerManager : MonoBehaviour
 {
     CharacterController cc;
-    InputControl inputControl;
+    BaseInputControl inputControl;
 
     public bool updateRotation = false;
 
@@ -24,7 +24,7 @@ public class CharacterControllerManager : MonoBehaviour
     void Start()
     {
         cc = GetComponent<CharacterController>();
-        inputControl = GetComponent<InputControl>();
+        inputControl = GetComponent<BaseInputControl>();
     }
 
     // Update is called once per frame

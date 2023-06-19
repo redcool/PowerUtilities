@@ -22,7 +22,7 @@ namespace TopdownShooter
         Camera cam;
         Animator anim;
 
-        InputControl playerInput;
+        BaseInputControl playerInput;
 
 
         float bulletLastTime;
@@ -30,7 +30,7 @@ namespace TopdownShooter
         // Start is called before the first frame update
         void Start()
         {
-            playerInput = GetComponent<InputControl>();
+            playerInput = GetComponent<BaseInputControl>();
             cam = Camera.main;
             anim = GetComponentInChildren<Animator>();
         }

@@ -10,12 +10,12 @@ namespace GameUtilsFramework
     public class RigidbodyCharacterController : MonoBehaviour
     {
         public RigidbodyCharater c = new RigidbodyCharater();
-        public InputControl inputControl;
+        public BaseInputControl inputControl;
         public float moveSpeed = 4;
         private void Start()
         {
             c.rigid = GetComponent<Rigidbody>();
-            inputControl = inputControl ?? GetComponent<InputControl>();
+            inputControl = inputControl ?? GetComponent<BaseInputControl>();
         }
 
         private void FixedUpdate()
