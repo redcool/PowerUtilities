@@ -18,7 +18,7 @@ namespace PowerUtilities
 
         public override void DrawInspectorUI(BaseUIMaterialPropUpdater inst)
         {
-            if (inst.graphs.Length == 0&&  PrefabTools.IsOuterPrefabMode(target))
+            if (inst.graphs != null && inst.graphs.Length == 0&&  PrefabTools.IsOuterPrefabMode(target))
             {
                 PrefabTools.ModifyPrefab(inst.gameObject, (go) => {
                     var updater = go.GetComponent<BaseUIMaterialPropUpdater>();
