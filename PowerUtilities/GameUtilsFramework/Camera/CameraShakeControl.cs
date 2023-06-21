@@ -6,12 +6,20 @@ namespace GameUtilsFramework
 {
     public class CameraShakeControl : MonoBehaviour
     {
+        [Tooltip("elapsed time")]
+        [Min(0)]
         public float time = 1f;
-        public float distance = 1;
-        public AnimationCurve smoothDampingCurve = new AnimationCurve(new Keyframe(0, 0, 0.1f, 0.1f), new Keyframe(1, 1, .1f, .1f));
 
+        [Tooltip("sphere radius")]
+        public float distance = 1;
+
+        [Tooltip("smooth damping, more big more slow")]
+        public AnimationCurve smoothDampingCurve = new AnimationCurve(new Keyframe(0, 0.5f, 0.1f, 0.1f), new Keyframe(1, 1, .1f, .1f));
+
+        [Tooltip("auto start play")]
         public bool autoPlay = true;
 
+        [Tooltip("target, use current transform when empty")]
         public Transform target;
 
         float startTime;
@@ -20,7 +28,7 @@ namespace GameUtilsFramework
         void Start()
         {
             if (!target)
-                target = GetComponent<Camera>()?.transform;
+                target = transform;
 
             if (autoPlay)
             {
@@ -41,7 +49,7 @@ namespace GameUtilsFramework
         // Update is called once per frame
         void LateUpdate()
         {
-            if (!target || Time.time - startTime > time)
+            if (!target || Time.time - startTime >= time)
             {
                 enabled = false;
                 target.position = startPos;
@@ -69,6 +77,9 @@ namespace GameUtilsFramework
 
         public void Shake()
         {
+            if (!target)
+                return;
+
             startTime = Time.time;
             startPos = target.position;
             enabled = true;
