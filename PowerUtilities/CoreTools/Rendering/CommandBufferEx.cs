@@ -21,7 +21,7 @@ namespace PowerUtilities
         {
             var isClearDepth = camera.clearFlags <= CameraClearFlags.Depth;
             var isClearColor = camera.clearFlags <= CameraClearFlags.Color;// if condition set equals , mrt color will not clear
-            var backColor = isClearColor ? camera.backgroundColor : Color.clear;
+            var backColor = isClearColor ? camera.backgroundColor.linear : Color.clear;
             var flags = RTClearFlags.None;
             if (isClearColor)
                 flags |= RTClearFlags.Color;
