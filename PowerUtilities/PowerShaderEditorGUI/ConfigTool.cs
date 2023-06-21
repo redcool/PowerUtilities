@@ -29,7 +29,7 @@ namespace PowerUtilities
         static Regex kvRegex = new Regex(@"\s*=\s*");
         public const string 
             I18N_PROFILE_PATH = "Profiles/i18n.txt",
-            LAYOUT_PROFILE_PATH_FORMAT = "Profiles/Layout{0}.txt",
+            LAYOUT_PROFILE_PATH_FORMAT = "Profiles/Layout{0}.{1}",// Layout.txt,LayoutMIN_VERSION.txt,Layout.json
             COLOR_PROFILE_PATH = "Profiles/Colors.txt",
             PROP_HELP_PROFILE_PATH = "Profiles/Helps.txt",
 
@@ -37,8 +37,10 @@ namespace PowerUtilities
             ;
 
 
-        public static string GetLayoutProfilePath(LayoutProfileType profileType) 
-            => string.Format(LAYOUT_PROFILE_PATH_FORMAT, profileType == LayoutProfileType.Standard ? "" : Enum.GetName(typeof(LayoutProfileType),profileType));
+        public static string GetLayoutProfilePath(LayoutProfileType profileType,string extName="txt") 
+            => string.Format(LAYOUT_PROFILE_PATH_FORMAT
+                , profileType == LayoutProfileType.Standard ? "" : Enum.GetName(typeof(LayoutProfileType),profileType)
+                , extName);
         /// <summary>
         /// 从configPath开始找configFileName文件,一直找到Assets目录
         /// </summary>
@@ -130,9 +132,19 @@ namespace PowerUtilities
         public static GUIContent GetContent(Dictionary<string,string> nameDict,Dictionary<string,string> propHelpDict,string propName)
         {
             var text = Text(nameDict, propName);
-            var tooltips = "";
-            propHelpDict.TryGetValue(propName, out tooltips);
-            return new GUIContent(text, tooltips);
+            propHelpDict.TryGetValue(propName, out var tooltips);
+            return EditorGUITools.TempContent(text, tooltips);
+        }
+
+        public static Color GetPropColor(Dictionary<string, string> colorTextDict, string propName)
+        {
+            var contentColor = GUI.contentColor;
+            if (colorTextDict.TryGetValue(propName, out var colorString))
+            {
+                ColorUtility.TryParseHtmlString(colorString, out contentColor);
+            }
+
+            return contentColor;
         }
     }
 }

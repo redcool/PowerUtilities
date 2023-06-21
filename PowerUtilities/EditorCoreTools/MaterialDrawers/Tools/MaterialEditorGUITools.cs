@@ -28,7 +28,7 @@ namespace PowerUtilities
             }
         }
 
-        public static void DrawBlendMode(Rect pos,Material mat, string propName
+        public static void DrawBlendMode(Rect pos, Material mat, GUIContent label
             , string srcModeName = PresetBlendModeTools.SRC_MODE
             , string dstModeName = PresetBlendModeTools.DST_MODE)
         {
@@ -36,7 +36,7 @@ namespace PowerUtilities
             var presetBlendMode = PresetBlendModeTools.GetPresetBlendMode(mat);
 
             EditorGUI.BeginChangeCheck();
-            presetBlendMode = (PresetBlendMode)EditorGUI.EnumPopup(pos,propName, presetBlendMode);
+            presetBlendMode = (PresetBlendMode)EditorGUI.EnumPopup(pos, label, presetBlendMode);
             if (EditorGUI.EndChangeCheck())
             {
                 var blendModes = PresetBlendModeTools.GetBlendMode(presetBlendMode);
@@ -45,18 +45,30 @@ namespace PowerUtilities
             }
         }
 
-        public static void DrawBlendMode(Material mat, string propName
-            ,string srcModeName=PresetBlendModeTools.SRC_MODE
-            ,string dstModeName=PresetBlendModeTools.DST_MODE)
+        public static void DrawBlendMode(Material mat, GUIContent label
+            , string srcModeName = PresetBlendModeTools.SRC_MODE
+            , string dstModeName = PresetBlendModeTools.DST_MODE)
+        {
+            DrawBlendMode(mat, label, GUI.contentColor, srcModeName, dstModeName);
+        }
+
+        public static void DrawBlendMode(Material mat, GUIContent label
+        , Color contentColor
+        , string srcModeName = PresetBlendModeTools.SRC_MODE
+        , string dstModeName = PresetBlendModeTools.DST_MODE)
         {
             var presetBlendMode = PresetBlendModeTools.GetPresetBlendMode(mat);
 
             GUILayout.BeginVertical();
             EditorGUILayout.Space(10);
+
+            var lastColor = GUI.contentColor;
+            GUI.contentColor = contentColor;
+            //------------
             GUILayout.Label("Alpha Blend", EditorStyles.boldLabel);
 
             EditorGUI.BeginChangeCheck();
-            presetBlendMode = (PresetBlendMode)EditorGUILayout.EnumPopup(propName, presetBlendMode);
+            presetBlendMode = (PresetBlendMode)EditorGUILayout.EnumPopup(label, presetBlendMode);
 
             if (EditorGUI.EndChangeCheck())
             {
@@ -64,7 +76,8 @@ namespace PowerUtilities
                 mat.SetFloat(srcModeName, (int)blendModes[0]);
                 mat.SetFloat(dstModeName, (int)blendModes[1]);
             }
-
+            //------------
+            GUI.contentColor = lastColor;
             GUILayout.EndVertical();
         }
     }

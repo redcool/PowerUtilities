@@ -32,7 +32,7 @@ namespace PowerUtilities
         {
             var mat = editor.target as Material;
             //EditorGUI.DrawRect(position, Color.red);
-            MaterialEditorGUITools.DrawBlendMode(position, mat, "PresetBlendMode", srcModeName, dstModeName);
+            MaterialEditorGUITools.DrawBlendMode(position, mat, label, srcModeName, dstModeName);
         }
     }
 }

@@ -5,94 +5,49 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using System.Linq;
 using System;
+using System.IO;
 
 namespace PowerUtilities
 {
-
     /// <summary>
-    /// 管理材质上代码绘制的属性
-    /// 这是属性需要定义在Layout.txt里,通过代码来控制材质的状态.
+    /// Power shader material gui
+    /// need configs:
+    ///     Layout
+    ///     Colors
+    ///     Helps
+    ///     i18n
     /// </summary>
-    public class MaterialCodeProps
-    {
-        public enum CodePropNames
-        {
-            _PresetBlendMode,
-            _RenderQueue,
-            _ToggleGroups,
-            _BakedEmission,
-        }
-
-        Dictionary<string, bool> materialCodePropDict = new Dictionary<string, bool>();
-        public void Clear()
-        {
-            var keys = materialCodePropDict.Keys.ToList();
-            foreach (var item in keys)
-            {
-                materialCodePropDict[item] = false;
-            }
-        }
-
-        private MaterialCodeProps()
-        {
-            var names = Enum.GetNames(typeof(CodePropNames));
-            foreach (var item in names)
-            {
-                materialCodePropDict[item] = false;
-            }
-        }
-        private static MaterialCodeProps instance;
-
-        public static MaterialCodeProps Instance
-        {
-            get
-            {
-                if (instance == null)
-                    instance = new MaterialCodeProps();
-                return instance;
-            }
-        }
-
-        public void InitMaterialCodeVars(string propName)
-        {
-            if (materialCodePropDict.ContainsKey(propName))
-            {
-                materialCodePropDict[propName] = true;
-            }
-        }
-
-        public bool IsPropExists(CodePropNames propName)
-        {
-            var key = propName.ToString();
-            materialCodePropDict.TryGetValue(key, out var isExist);
-            return isExist;
-        }
-    }
-
     public class PowerShaderInspector : ShaderGUI
     {
-        // monos
+
+        // events
         public event Action<MaterialProperty, Material> OnDrawProperty;
         public event Action<Dictionary<string, MaterialProperty>, Material> OnDrawPropertyFinish;
 
-        public string shaderName = ""; //子类来指定,用于EditorPrefs读写
+        /// <summary>
+        /// 子类来指定,用于EditorPrefs读写
+        /// </summary>
+        public string shaderName = "";
+
+        /// <summary>
+        /// use txt or json
+        /// </summary>
+        public bool isLayoutUseJson; 
 
         string[] tabNames = new string[] { } ;
         bool[] tabToggles = new bool[] { } ;
         List<int> tabSelectedIds = new List<int>();
 
         List<string[]> propNameList = new List<string[]>();
-        string materialSelectedId => shaderName + "_SeletectedId";
+        //string materialSelectedId => shaderName + "_SeletectedId";
         string materialToolbarCount => shaderName + "_ToolbarCount";
 
-        string GetMaterialSelectionIdKey(string matName)
-        {
-            return matName + shaderName + "_SeletectedId";
-        }
+        string GetMaterialSelectionIdKey(string matName)=> matName + shaderName + "_SeletectedId";
 
         //int selectedTabId;
         bool showOriginalPage;
 
+        // contents from Config files
         Dictionary<string, MaterialProperty> propDict;
         Dictionary<string, string> propNameTextDict;
         Dictionary<string, string> colorTextDict;
@@ -108,13 +63,13 @@ namespace PowerUtilities
         PresetBlendMode presetBlendMode;
         int toolbarCount = 5;
 
-        Color defaultContentColor;
         bool isAllGroupsOpen;
 
         static PowerShaderInspector()
         {
             MaterialGroupTools.SetStateAll(true);
         }
+
 
         public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] properties)
         {
@@ -127,7 +82,6 @@ namespace PowerUtilities
             {
                 lastShader = mat.shader;
 
-                defaultContentColor = GUI.contentColor;
                 isFirstRunOnGUI = false;
                 OnInit(mat, properties);
             }
@@ -153,6 +107,21 @@ namespace PowerUtilities
                 EditorGUILayout.EndVertical();
             }
             EditorGUILayout.EndVertical();
+        }
+
+        void DrawPageDetails(MaterialEditor materialEditor, Material mat)
+        {
+            if (tabSelectedIds.Count == 0)
+            {
+                EditorGUILayout.LabelField("No Selected");
+            }
+            foreach (var tabId in tabSelectedIds)
+            {
+                var tabName = tabNames[tabId];
+                var propNames = propNameList[tabId];
+
+                DrawPageDetail(materialEditor, mat, tabName, propNames);
+            }
         }
 
         /// <summary>
@@ -183,18 +152,31 @@ namespace PowerUtilities
                 DrawProperty(materialEditor, mat, propName);
             }
 
-            // draw additional options 
+            // draw code props
+            DrawCodeProperties(mat);
+
+            if (OnDrawPropertyFinish != null)
+                OnDrawPropertyFinish(propDict, mat);
+        }
+
+        private void DrawCodeProperties(Material mat)
+        {
             if (IsTargetShader(mat))
             {
                 //draw preset blend mode
                 if (MaterialCodeProps.Instance.IsPropExists(MaterialCodeProps.CodePropNames._PresetBlendMode))
-                    MaterialEditorGUITools.DrawBlendMode(mat, ConfigTool.Text(propNameTextDict, "PresetBlendMode"));
+                {
+                    MaterialEditorGUITools.DrawBlendMode(mat
+                        ,ConfigTool.GetContent(propNameTextDict, propHelpDict, nameof(MaterialCodeProps.CodePropNames._PresetBlendMode))
+                        ,ConfigTool.GetPropColor(colorTextDict, nameof(MaterialCodeProps.CodePropNames._PresetBlendMode))
+                        );
+                }
 
                 //draw render queue
                 if (MaterialCodeProps.Instance.IsPropExists(MaterialCodeProps.CodePropNames._RenderQueue))
                 {
                     // render queue, instanced, double sided gi
-                    DrawMaterialProps(mat);
+                    DrawMaterialProps(mat,ConfigTool.GetPropColor(colorTextDict,nameof(MaterialCodeProps.CodePropNames._RenderQueue)));
                 }
 
                 //draw toggle groups
@@ -203,50 +185,25 @@ namespace PowerUtilities
                     DrawToggleGroups(mat);
                 }
                 if (MaterialCodeProps.Instance.IsPropExists(MaterialCodeProps.CodePropNames._BakedEmission))
+                {
                     DrawBakedEmission();
+                }
             }
-
-            if (OnDrawPropertyFinish != null)
-                OnDrawPropertyFinish(propDict, mat);
         }
 
         private void DrawProperty(MaterialEditor materialEditor, Material mat, string propName)
         {
-            // found color
-            var contentColor = defaultContentColor;
-            string colorString;
-            if (colorTextDict.TryGetValue(propName, out colorString))
-            {
-                ColorUtility.TryParseHtmlString(colorString, out contentColor);
-            }
-            //show color
-            GUI.contentColor = contentColor;
             var prop = propDict[propName];
 
-            MaterialEditorEx.ShaderProperty(materialEditor, prop, ConfigTool.GetContent(propNameTextDict, propHelpDict, prop.name));
-            //materialEditor.ShaderProperty(prop, ConfigTool.GetContent(propNameTextDict, propHelpDict, prop.name));
-
-            GUI.contentColor = defaultContentColor;
+            EditorGUITools.DrawColorUI(() =>
+            {
+                MaterialEditorEx.ShaderProperty(materialEditor, prop, ConfigTool.GetContent(propNameTextDict, propHelpDict, prop.name));
+                //materialEditor.ShaderProperty(prop, ConfigTool.GetContent(propNameTextDict, propHelpDict, prop.name));
+            }, ConfigTool.GetPropColor(colorTextDict, propName), GUI.color);
 
             if (OnDrawProperty != null)
                 OnDrawProperty(prop, mat);
         }
-
-        void DrawPageDetails(MaterialEditor materialEditor, Material mat)
-        {
-            if (tabSelectedIds.Count == 0)
-            {
-                EditorGUILayout.LabelField("No Selected");
-            }
-            foreach (var tabId in tabSelectedIds)
-            {
-                var tabName = tabNames[tabId];
-                var propNames = propNameList[tabId];
-
-                DrawPageDetail(materialEditor, mat, tabName, propNames);
-            }
-        }
-
 
         private bool IsTargetShader(Material mat)
         {
@@ -304,7 +261,10 @@ namespace PowerUtilities
             var shaderFilePath = AssetDatabase.GetAssetPath(mat.shader);
 
             var profileType = mat.IsKeywordEnabled(ConfigTool.MIN_VERSION) ? ConfigTool.LayoutProfileType.MIN_VERSION : ConfigTool.LayoutProfileType.Standard;
-            SetupLayout(shaderFilePath, profileType);
+            if (isLayoutUseJson)
+                SetupLayoutFromJson(shaderFilePath, profileType);
+            else
+                SetupLayout(shaderFilePath, profileType);
 
             propNameTextDict = ConfigTool.ReadConfig(shaderFilePath, ConfigTool.I18N_PROFILE_PATH);
 
@@ -319,6 +279,12 @@ namespace PowerUtilities
 
         }
 
+        /// <summary>
+        /// Setup tabNames, propNameList
+        /// </summary>
+        /// <param name="shaderFilePath"></param>
+        /// <param name="profileType"></param>
+        /// <exception cref="Exception"></exception>
         private void SetupLayout(string shaderFilePath,ConfigTool.LayoutProfileType profileType)
         {
             var layoutConfigPath = ConfigTool.FindPathRecursive(shaderFilePath, ConfigTool.GetLayoutProfilePath(profileType));
@@ -347,17 +313,36 @@ namespace PowerUtilities
             }
         }
 
+        void SetupLayoutFromJson(string shaderFilePath, ConfigTool.LayoutProfileType profileType)
+        {
+            var layoutConfigPath = ConfigTool.FindPathRecursive(shaderFilePath, ConfigTool.GetLayoutProfilePath(profileType,"json"));
+            var jsonStr = File.ReadAllText(layoutConfigPath);
+            var layoutObj = JsonUtility.FromJson<LayoutData>(jsonStr);
+            tabNames = layoutObj.tabNames;
 
-        void DrawMaterialProps(Material mat)
+            propNameList.Clear();
+            for (int i = 0; i < tabNames.Length; i++)
+            {
+                propNameList.Add(layoutObj.contents[i].array);
+            }
+        }
+
+
+        void DrawMaterialProps(Material mat,Color contentColor)
         {
             GUILayout.BeginVertical();
             EditorGUILayout.Space(10);
 
             GUILayout.Label("Material Props", EditorStyles.boldLabel);
             //mat.renderQueue = EditorGUILayout.IntField(ConfigTool.Text(propNameTextDict, "RenderQueue"), mat.renderQueue);
-            materialEditor.RenderQueueField();
-            materialEditor.EnableInstancingField();
-            materialEditor.DoubleSidedGIField();
+
+            EditorGUITools.DrawColorUI(() =>
+            {
+                materialEditor.RenderQueueField();
+                materialEditor.EnableInstancingField();
+                materialEditor.DoubleSidedGIField();
+
+            }, contentColor, GUI.color);
 
             GUILayout.EndVertical();
         }
@@ -382,7 +367,6 @@ namespace PowerUtilities
             {
                 foreach (Material mat in materialEditor.targets)
                     mat.globalIlluminationFlags &= ~MaterialGlobalIlluminationFlags.EmissiveIsBlack;
-
             }
         }
 
