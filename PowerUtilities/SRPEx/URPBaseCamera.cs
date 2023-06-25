@@ -7,6 +7,9 @@ namespace PowerUtilities
 
 #if UNITY_EDITOR
     using UnityEditor;
+    using System;
+    using static PowerUtilities.StringEx;
+
     [CustomEditor(typeof(URPBaseCamera))]
     public class URPBaseCameraEditor : Editor
     {
@@ -19,14 +22,31 @@ namespace PowerUtilities
             {
                 inst.SetCameras();
                 Selection.activeGameObject = null;
+                Selection.activeGameObject = inst.gameObject;
             }
         }
     }
 #endif
 
+    /// <summary>
+    /// Current camera set as Base
+    /// others camera set as overlay
+    /// </summary>
     public class URPBaseCamera : MonoBehaviour
     {
+        [Tooltip("setup overlay cameras when Start()")]
         public bool autoSetOverlays;
+
+        [Tooltip("Camera's RenderType not Overlay will be filtered")]
+        public bool isOnlyOverlayCamera;
+
+        [Header("Cameras Filter")]
+        [Tooltip("gameObject's tag will be filtered, when not empty")]
+        public string filterTag;
+
+        [Tooltip("compare with gameObject's name, when not empty")]
+        public string filterName;
+        public NameMatchMode matchMode = NameMatchMode.Contains;
         // Start is called before the first frame update
         void Start()
         {
@@ -36,32 +56,61 @@ namespace PowerUtilities
 
         public void SetCameras()
         {
-            var mainCam = GetComponent<Camera>();
-            var maincamData = GetComponent<UniversalAdditionalCameraData>();
-            if (!maincamData)
+            SetupMain(gameObject,out var mainCam, out var maincamData);
+
+            SetupOverlays(mainCam, maincamData,isOnlyOverlayCamera, IsCameraValid);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cam"></param>
+        /// <returns></returns>
+        bool IsCameraValid(Camera cam)
+        {
+            if (string.IsNullOrEmpty(filterTag))
             {
-                maincamData = mainCam.gameObject.AddComponent<UniversalAdditionalCameraData>();
+                return !cam.gameObject.CompareTag(filterTag);
             }
 
-            maincamData.renderType = CameraRenderType.Base;
-            maincamData.cameraStack.Clear();
+            if (string.IsNullOrEmpty(filterName))
+            {
+                return gameObject.name.IsMatch(filterName, matchMode);
+            }
+            return true;
+        }
 
+        public static void SetupOverlays(Camera mainCam, UniversalAdditionalCameraData maincamData,bool isOnlyOverlayCamera=false,Func<Camera,bool> isCamValid=null)
+        {
             var cams = FindObjectsOfType<Camera>();
             foreach (var cam in cams)
             {
+                // check filter
+                var isValid = isCamValid?.Invoke(cam);
+                if (isValid.HasValue && !isValid.Value)
+                    continue;
+
+                // check main
                 if (cam == mainCam)
                     continue;
 
-                var camData = cam.GetComponent<UniversalAdditionalCameraData>();
-                if (!camData)
-                {
-                    camData = cam.gameObject.AddComponent<UniversalAdditionalCameraData>();
-                }
+                var camData = cam.gameObject.GetOrAddComponent<UniversalAdditionalCameraData>();
+                if (isOnlyOverlayCamera && camData.renderType == CameraRenderType.Base)
+                    continue;
+
                 camData.renderType = CameraRenderType.Overlay;
 
                 maincamData.cameraStack.Add(cam);
             }
+        }
 
+        public static void SetupMain(GameObject cameraGO, out Camera mainCam, out UniversalAdditionalCameraData maincamData)
+        {
+            mainCam = cameraGO.GetComponent<Camera>();
+            maincamData = cameraGO.GetOrAddComponent<UniversalAdditionalCameraData>();
+
+            maincamData.renderType = CameraRenderType.Base;
+            maincamData.cameraStack.Clear();
         }
     }
 }
