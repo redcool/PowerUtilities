@@ -74,6 +74,11 @@ namespace PowerUtilities
             Cmd.GetTemporaryRT(targetId, desc);
         }
 
+        /// <summary>
+        /// Execute cmd then Clear it
+        /// </summary>
+        /// <param name="cmd"></param>
+        /// <param name="context"></param>
         public static void Execute(this CommandBuffer cmd, ref ScriptableRenderContext context)
         {
             context.ExecuteCommandBuffer(cmd);
