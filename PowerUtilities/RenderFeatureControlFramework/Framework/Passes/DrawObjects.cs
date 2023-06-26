@@ -6,7 +6,6 @@
     using System.Text;
     using System.Threading.Tasks;
     using Unity.Collections;
-    using UnityEditor;
     using UnityEngine;
     using UnityEngine.Rendering;
     using UnityEngine.Rendering.Universal;
@@ -44,7 +43,7 @@
         [Space(10)]
         public bool overrideMainLightIndex;
         [Tooltip("restore mainLightIndex when draw finish")]
-        public bool isRestoreMainLightIndexFinish;
+        public bool isRestoreMainLightIndexFinish=true;
         
         public int mainLightIndex;
 

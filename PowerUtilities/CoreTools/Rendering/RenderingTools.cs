@@ -10,6 +10,16 @@ namespace PowerUtilities
 {
     public static class RenderingTools
     {
+        public static List<ShaderTagId> legacyShaderPassNames = new List<ShaderTagId>
+        {
+            new ShaderTagId("Always"),
+            new ShaderTagId("ForwardBase"),
+            new ShaderTagId("PrepassBase"),
+            new ShaderTagId("Vertex"),
+            new ShaderTagId("VertexLMRGBM"),
+            new ShaderTagId("VertexLM"),
+        };
+
         public static Material ErrorMaterial => MaterialCacheTool.GetMaterial("Hidden/InternalErrorShader");
 
         public static void ConvertStringArray<T>(ref T[] results, Func<string, T> onConvert, params string[] names)
@@ -37,5 +47,23 @@ namespace PowerUtilities
 
         public static bool IsNeedCreateTexture(Texture t, int targetWidth, int targetHeight)
             => !(t && t.width == targetWidth && t.height == targetHeight);
+
+        public static void DrawErrorObjects(ref ScriptableRenderContext context,ref CullingResults cullingResults,Camera cam,FilteringSettings filterSettings,SortingCriteria sortFlags)
+        {
+            var sortingSettings = new SortingSettings(cam) { criteria = sortFlags };
+            var drawSettings = new DrawingSettings(legacyShaderPassNames[0], sortingSettings)
+            {
+                perObjectData = PerObjectData.None,
+                overrideMaterial = ErrorMaterial,
+                overrideMaterialPassIndex = 0
+            };
+            for (int i = 1; i < legacyShaderPassNames.Count; i++)
+            {
+                drawSettings.SetShaderPassName(i, legacyShaderPassNames[i]);
+            }
+
+            context.DrawRenderers(cullingResults, ref drawSettings, ref filterSettings);
+
+        }
     }
 }
