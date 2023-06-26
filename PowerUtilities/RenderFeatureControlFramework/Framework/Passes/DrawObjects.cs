@@ -58,9 +58,15 @@
         public bool enableDynamicBatching;
 
         [Space(10)]
-        [Tooltip("override instancing,")]
+        [Tooltip("override instancing")]
         public bool overrideGPUInstancing;
         public bool enableGPUInstancing;
+
+        [Space(10)]
+        public bool overrideSRPBatch;
+        public bool enableSRPBatch;
+        [Tooltip("restore URPPipelineAsset's useSRPBatch when finish")]
+        public bool isRestoreSRPBatch = true;
 
         [Header("SkyBox")]
         public bool isDrawSkybox;
@@ -139,7 +145,9 @@
         public static event RefAction<DrawingSettings> OnSetupDrawSettings;
 
         ForwardLights forwardLights;
+
         int lastMainLightIndex;
+        bool lastSRPBatchEnabled;
 
         public FullDrawObjectsPass(DrawObjects feature) : base(feature)
         {
@@ -168,6 +176,9 @@
 
         public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
         {
+            lastMainLightIndex = renderingData.lightData.mainLightIndex;
+            lastSRPBatchEnabled = UniversalRenderPipeline.asset.useSRPBatcher;
+
             if (renderStateBlock.depthState.compareFunction == CompareFunction.Equal)
             {
                 renderStateBlock.depthState = new DepthState(true, CompareFunction.LessEqual);
@@ -199,21 +210,30 @@
             if (camera.cameraType == CameraType.Preview)
                 filterSetting.layerMask = -1;
 #endif
-            lastMainLightIndex = renderingData.lightData.mainLightIndex;
+
             DrawingSettings drawSettings = GetDrawSettings(context,ref renderingData, ref cameraData);
 
             context.DrawRenderers(renderingData.cullResults, ref drawSettings, ref filterSetting, ref renderStateBlock);
 
             RenderingTools.DrawErrorObjects(ref context, ref renderingData.cullResults, camera, filterSetting, SortingCriteria.None);
 
+            RestoreDrawSettings(ref renderingData);
+
+        }
+
+        private void RestoreDrawSettings(ref RenderingData renderingData)
+        {
             if (Feature.isRestoreMainLightIndexFinish)
             {
                 OverrideLight(context, ref renderingData, lastMainLightIndex);
             }
+            if (Feature.isRestoreSRPBatch)
+            {
+                UniversalRenderPipeline.asset.useSRPBatcher = lastSRPBatchEnabled;
+            }
         }
 
-
-        private DrawingSettings GetDrawSettings(ScriptableRenderContext context,ref RenderingData renderingData, ref CameraData cameraData)
+        private DrawingSettings GetDrawSettings(ScriptableRenderContext context, ref RenderingData renderingData, ref CameraData cameraData)
         {
             var sortFlags = Feature.isOpaque ? cameraData.defaultOpaqueSortFlags : SortingCriteria.CommonTransparent;
             var drawSettings = CreateDrawingSettings(shaderTagList, ref renderingData, sortFlags);
@@ -245,6 +265,9 @@
 
             if (Feature.overrideGPUInstancing)
                 drawSettings.enableInstancing = Feature.enableGPUInstancing;
+
+            if (Feature.overrideSRPBatch && UniversalRenderPipeline.asset)
+                UniversalRenderPipeline.asset.useSRPBatcher = Feature.enableSRPBatch;
 
             if (OnSetupDrawSettings != null)
             {
