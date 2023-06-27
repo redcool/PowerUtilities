@@ -24,7 +24,10 @@ namespace PowerUtilities
 
                 // show checker
                 var enabledProp = passItemSO.FindProperty("enabled");
-                enabledProp.boolValue = EditorGUILayout.Toggle(enabledProp.boolValue);
+                if (enabledProp != null)
+                {
+                    enabledProp.boolValue = EditorGUILayout.Toggle(enabledProp.boolValue);
+                }
 
                 EditorGUILayout.EndHorizontal();
             }, GUI.contentColor, labelColor);
