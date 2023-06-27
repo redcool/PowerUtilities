@@ -4,11 +4,11 @@ namespace PowerUtilities
     using System.Collections.Generic;
     using UnityEngine;
     using UnityEngine.Rendering.Universal;
+    using System;
+    using static PowerUtilities.StringEx;
 
 #if UNITY_EDITOR
     using UnityEditor;
-    using System;
-    using static PowerUtilities.StringEx;
 
     [CustomEditor(typeof(URPBaseCamera))]
     public class URPBaseCameraEditor : Editor
