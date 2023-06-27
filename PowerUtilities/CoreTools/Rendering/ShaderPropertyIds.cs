@@ -18,7 +18,8 @@ namespace PowerUtilities
             _GBuffer0 = Shader.PropertyToID(nameof(_GBuffer0)),
             _GBuffer1 = Shader.PropertyToID(nameof(_GBuffer1)),
             _GBuffer2 = Shader.PropertyToID(nameof(_GBuffer2)),
-            _GBuffer3 = Shader.PropertyToID(nameof(_GBuffer3))
+            _GBuffer3 = Shader.PropertyToID(nameof(_GBuffer3)),
+            _PrevViewProjMatrix = Shader.PropertyToID(nameof(_PrevViewProjMatrix))
             ;
 
         public const string _DEBUG = nameof(_DEBUG),
@@ -81,6 +82,7 @@ namespace PowerUtilities
             // Required for 2D Unlit Shadergraph master node as it doesn't currently support hidden properties.
             rendererColor = Shader.PropertyToID("_RendererColor")
             ;
+
     }
 
 }

@@ -1,22 +1,31 @@
-using PowerUtilities.RenderFeatures;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.Rendering;
-using UnityEngine.Rendering.Universal;
-
 namespace PowerUtilities
 {
+    using PowerUtilities.RenderFeatures;
+    using System;
+    using System.Collections;
+    using System.Collections.Generic;
+    using UnityEngine;
+    using UnityEngine.Rendering;
+    using UnityEngine.Rendering.Universal;
+
     [CreateAssetMenu(menuName = SRP_FEATURE_PASSES_MENU+ "/SetVariables")]
     public class SetVariables : SRPFeature
     {
-        public string[] floatNames;
-        public float[] floatValues;
+        [Header("--- Set Variables")]
+        public List<ShaderValue<float>> floatValues = new List<ShaderValue<float>>();
+        public List<ShaderValue<int>> intValues = new List<ShaderValue<int>>();
+        public List<ShaderValue<Vector4>> vectorValues = new List<ShaderValue<Vector4>>();
 
-        public string[] vectorNames ;
-        public Vector4[] vectorValues ;
+        public bool update_PreviousViewProjMatrix;
 
         public override ScriptableRenderPass GetPass() => new SetVarialbesPass(this);
+    }
+
+    [Serializable]
+    public class ShaderValue<T> where T : struct
+    {
+        public string name;
+        public T value;
     }
 
     public class SetVarialbesPass : SRPPass<SetVariables>
@@ -25,27 +34,18 @@ namespace PowerUtilities
         {
         }
 
-        public override bool CanExecute()
-        {
-            return base.CanExecute() && 
-                Feature.floatNames != null 
-                && Feature.floatValues != null 
-                && Feature.floatValues.Length == Feature.floatNames.Length;
-        }
-
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
         {
-            Feature.floatNames.ForEach((id,index) =>
-            {
-                cmd.SetGlobalFloat(Feature.floatNames[index], Feature.floatValues[index]);
-            });
+            var camera = renderingData.cameraData.camera;
 
-            Feature.floatNames.ForEach((id, index) =>
-            {
-                cmd.SetGlobalVector(Feature.floatNames[index], Feature.vectorValues[index]);
-            });
+            Feature.floatValues.ForEach( v => cmd.SetGlobalFloat(v.name,v.value));
+            Feature.vectorValues.ForEach(v =>cmd.SetGlobalVector(v.name,v.value));
+            Feature.intValues.ForEach(v =>cmd.SetGlobalInt(v.name,v.value));
+
+            cmd.SetGlobalMatrix(ShaderPropertyIds._PrevViewProjMatrix, Matrix4x4.zero);
 
             cmd.Execute(ref context);
         }
+
     }
 }
