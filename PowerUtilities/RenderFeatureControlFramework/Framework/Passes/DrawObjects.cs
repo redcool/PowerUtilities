@@ -34,6 +34,9 @@
         [Tooltip("overrideMaterial use pass index")]
         public int overrideMaterialPassIndex;
 
+        [Tooltip("lightMode canot match, use this material")]
+        public Material fallbackMaterial;
+
         [Space(10)]
         [Tooltip("overridePerObjectData,Lightmap : (Lightmaps,LightProbe,LightProbeProxyVolume)" +
             ",ShadowMask:(ShadowMask,OcclusionProbe,OcclusionProbeProxyVolume)")]
@@ -210,7 +213,8 @@
                 filterSetting.layerMask = -1;
 #endif
 
-            DrawingSettings drawSettings = GetDrawSettings(context,ref renderingData, ref cameraData);
+            var drawSettings = GetDrawSettings(context,ref renderingData, ref cameraData);
+            drawSettings = CreateDrawingSettings(shaderTagList, ref renderingData, renderingData.cameraData.defaultOpaqueSortFlags);
 
             context.DrawRenderers(renderingData.cullResults, ref drawSettings, ref filterSetting, ref renderStateBlock);
 
@@ -222,11 +226,11 @@
 
         private void RestoreDrawSettings(ref RenderingData renderingData)
         {
-            if (Feature.isRestoreMainLightIndexFinish)
+            if (Feature.overrideMainLightIndex && Feature.isRestoreMainLightIndexFinish)
             {
                 OverrideLight(context, ref renderingData, lastMainLightIndex);
             }
-            if (Feature.isRestoreSRPBatch)
+            if (Feature.overrideSRPBatch && Feature.isRestoreSRPBatch)
             {
                 UniversalRenderPipeline.asset.useSRPBatcher = lastSRPBatchEnabled;
             }
@@ -238,6 +242,7 @@
             var drawSettings = CreateDrawingSettings(shaderTagList, ref renderingData, sortFlags);
             drawSettings.overrideMaterial = Feature.overrideMaterial;
             drawSettings.overrideMaterialPassIndex = Feature.overrideMaterialPassIndex;
+            drawSettings.fallbackMaterial = Feature.fallbackMaterial;
 
             if (Feature.overrideMainLightIndex)
             {
