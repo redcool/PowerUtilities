@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Reflection;
     using System.Text;
     using System.Threading.Tasks;
     using Unity.Collections;
@@ -43,16 +44,17 @@
         public bool overridePerObjectData;
         public PerObjectData perObjectData;
 
+        // has bugs, hidden first
         [Space(10)]
-        public bool overrideMainLightIndex;
+        [HideInInspector] public bool overrideMainLightIndex;
         [Tooltip("restore mainLightIndex when draw finish")]
-        public bool isRestoreMainLightIndexFinish=true;
-        
-        public int mainLightIndex;
+        [HideInInspector] public bool isRestoreMainLightIndexFinish=true;
+
+        [HideInInspector] public int mainLightIndex;
 
         [Tooltip("use this light as mainLight")]
-        public string lightName;
-        public List<string> visibleLightNames = new List<string>();
+        [HideInInspector] public string lightName;
+        [HideInInspector] public List<string> visibleLightNames = new List<string>();
 
         [Space(10)]
         [Tooltip("override urp Pipeline Asset")]
@@ -213,8 +215,10 @@
                 filterSetting.layerMask = -1;
 #endif
 
-            var drawSettings = GetDrawSettings(context,ref renderingData, ref cameraData);
-            drawSettings = CreateDrawingSettings(shaderTagList, ref renderingData, renderingData.cameraData.defaultOpaqueSortFlags);
+            var drawSettings = GetDrawSettings(context,cmd,ref renderingData, ref cameraData);
+            
+            
+            cmd.SetGlobalVectorArray("unity_LightIndices0", new[] { new Vector4(0,1,0,0),Vector4.zero});
 
             context.DrawRenderers(renderingData.cullResults, ref drawSettings, ref filterSetting, ref renderStateBlock);
 
@@ -236,7 +240,7 @@
             }
         }
 
-        private DrawingSettings GetDrawSettings(ScriptableRenderContext context, ref RenderingData renderingData, ref CameraData cameraData)
+        private DrawingSettings GetDrawSettings(ScriptableRenderContext context,CommandBuffer cmd, ref RenderingData renderingData, ref CameraData cameraData)
         {
             var sortFlags = Feature.isOpaque ? cameraData.defaultOpaqueSortFlags : SortingCriteria.CommonTransparent;
             var drawSettings = CreateDrawingSettings(shaderTagList, ref renderingData, sortFlags);
@@ -300,12 +304,10 @@
 
         private void OverrideLight(ScriptableRenderContext context, ref RenderingData renderingData,int mainLightIndex)
         {
-            renderingData.lightData.mainLightIndex = mainLightIndex;
+            return;
 
-            if (forwardLights == null)
-                forwardLights = new ForwardLights();
-
-            forwardLights.Setup(context, ref renderingData);
+            //renderingData.lightData.mainLightIndex = mainLightIndex;
+            renderingData.cameraData.renderer.SetupLights(context,ref renderingData);
         }
     }
 
