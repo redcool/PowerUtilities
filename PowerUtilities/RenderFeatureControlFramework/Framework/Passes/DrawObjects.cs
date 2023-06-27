@@ -267,6 +267,10 @@
 
                 OverrideLight(context, ref renderingData, mainLightIndex);
             }
+            if (Feature.overridePerObjectData)
+            {
+                drawSettings.perObjectData = Feature.perObjectData;
+            }
 
             if (Feature.overrideDynamicBatching)
                 drawSettings.enableDynamicBatching = Feature.enableDynamicBatching;
