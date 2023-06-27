@@ -15,11 +15,21 @@ namespace PowerUtilities
         {
             passItemSO.UpdateIfRequiredOrScript();
 
+            // pass header
             EditorGUITools.DrawColorUI(() =>
             {
+                EditorGUILayout.BeginHorizontal();
+                // show fold label 
                 foldoutProp.boolValue = EditorGUILayout.Foldout(foldoutProp.boolValue, label, true);
+
+                // show checker
+                var enabledProp = passItemSO.FindProperty("enabled");
+                enabledProp.boolValue = EditorGUILayout.Toggle(enabledProp.boolValue);
+
+                EditorGUILayout.EndHorizontal();
             }, GUI.contentColor, labelColor);
 
+            // pass details
             if (foldoutProp.boolValue)
             {
                 EditorGUI.indentLevel++;
