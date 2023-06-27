@@ -38,7 +38,7 @@ namespace PowerUtilities
         public bool autoSetOverlays;
 
         [Tooltip("Camera's RenderType not Overlay will be filtered")]
-        public bool isOnlyOverlayCamera;
+        public bool isOverlayCameraOnly=true;
 
         [Header("Cameras Filter")]
         [Tooltip("gameObject's tag will be filtered, when not empty")]
@@ -58,7 +58,7 @@ namespace PowerUtilities
         {
             SetupMain(gameObject,out var mainCam, out var maincamData);
 
-            SetupOverlays(mainCam, maincamData,isOnlyOverlayCamera, IsCameraValid);
+            SetupOverlays(mainCam, maincamData,isOverlayCameraOnly, IsCameraValid);
         }
 
         /// <summary>

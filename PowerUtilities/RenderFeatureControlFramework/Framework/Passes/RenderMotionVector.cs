@@ -47,23 +47,12 @@ namespace PowerUtilities
         {
             ref var cameraData = ref renderingData.cameraData;
             var camera = cameraData.camera;
-            
-            MotionVectorData.Instance().Update(camera);
 
             if (camera.cameraType == CameraType.Preview)
                 return;
-
-            if(camera.TryGetComponent<UniversalAdditionalCameraData>(out var additionalCameraData))
-            {
-                var m_MotionVectorsPersistentData = typeof(UniversalAdditionalCameraData).GetField("m_MotionVectorsPersistentData", BindingFlags.Instance| BindingFlags.NonPublic);
-                var motionData = m_MotionVectorsPersistentData.GetValue(additionalCameraData);
-                if (motionData == null)
-                {
-                    return;
-                }
-            }
             
             Shader.SetGlobalMatrix(kPreviousViewProjectionMatrix,MotionVectorData.Instance().GetPreviousVP(camera));
+            MotionVectorData.Instance().Update(camera);
 
             camera.depthTextureMode |= DepthTextureMode.MotionVectors | DepthTextureMode.Depth;
             DrawCameraMotionVectors(cmd);
@@ -94,6 +83,7 @@ namespace PowerUtilities
         static Dictionary<Camera, Matrix4x4> dict = new Dictionary<Camera, Matrix4x4>();
 
         static MotionVectorData instance;
+        int frameCount;
         public static MotionVectorData Instance()
         {
             if(instance == null)
@@ -102,16 +92,18 @@ namespace PowerUtilities
             }
             return instance;
         }
-
-        int frameCount;
+        /// <summary>
+        /// call GetPreviousVP after call this
+        /// </summary>
+        /// <param name="cam"></param>
         public void Update(Camera cam)
         {
-            if (Time.frameCount == frameCount)
+            if (Time.frameCount - frameCount == 0)
                 return;
 
             frameCount = Time.frameCount;
 
-            var vp = cam.nonJitteredProjectionMatrix * cam.worldToCameraMatrix;
+            var vp = GL.GetGPUProjectionMatrix(cam.projectionMatrix,true) * cam.worldToCameraMatrix;
             dict[cam] = vp;
         }
 
@@ -120,7 +112,7 @@ namespace PowerUtilities
             if(dict.TryGetValue(cam, out var vp))
                 return vp;
             else
-                return cam.nonJitteredProjectionMatrix* cam.worldToCameraMatrix;
+                return GL.GetGPUProjectionMatrix(cam.projectionMatrix, true) * cam.worldToCameraMatrix;
         }
     }
 }
