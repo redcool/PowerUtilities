@@ -27,7 +27,6 @@ using UnityEngine.Rendering.Universal;
                 OnEnable();
             }
 
-
             serializedObject.UpdateIfRequiredOrScript();
 
             var isFoldout = serializedObject.FindProperty("isFoldout");

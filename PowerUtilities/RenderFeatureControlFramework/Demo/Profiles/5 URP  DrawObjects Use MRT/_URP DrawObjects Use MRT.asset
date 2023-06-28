@@ -20,3 +20,4 @@ MonoBehaviour:
   - {fileID: 11400000, guid: cb0def3a351a4634eb4bf30c7491bf17, type: 2}
   - {fileID: 11400000, guid: c9ebccf7413c69f489c0313fc8b40104, type: 2}
   - {fileID: 11400000, guid: 278a0c9c4ce1f8f488507c84df25b37d, type: 2}
+  isDetailsFoldout: 1

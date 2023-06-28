@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f3c6d2cd4defcb49920b98f50d01b66, type: 3}
-  m_Name: 3 Draw Objects mrt
+  m_Name: 7 Draw Objects mrt 1
   m_EditorClassIdentifier: 
   enabled: 1
   interrupt: 0
@@ -36,12 +36,11 @@ MonoBehaviour:
     zFailOperation: 0
   overrideMaterial: {fileID: 0}
   overrideMaterialPassIndex: 0
-  fallbackMaterial: {fileID: 0}
   overridePerObjectData: 0
   perObjectData: 0
   overrideMainLightIndex: 0
-  isRestoreMainLightIndexFinish: 1
-  mainLightIndex: 1
+  isRestoreMainLightIndexFinish: 0
+  mainLightIndex: 0
   lightName: 
   visibleLightNames:
   - Directional Light

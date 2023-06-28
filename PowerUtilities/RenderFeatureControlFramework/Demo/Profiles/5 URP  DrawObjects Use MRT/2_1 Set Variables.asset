@@ -9,17 +9,17 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b6d46e5148b37904c9f61b224c64feb9, type: 3}
-  m_Name: 6 Render Motion Vector
+  m_Script: {fileID: 11500000, guid: 0b9b536b92735f848852727ac632aac3, type: 3}
+  m_Name: 2_1 Set Variables
   m_EditorClassIdentifier: 
-  enabled: 1
+  enabled: 0
   interrupt: 0
   gameCameraTag: MainCamera
   renderPassEvent: 400
   renderPassEventOffset: 0
   log: 
-  isFoldout: 1
-  isCreateMotionVectorTexture: 0
-  cameraMotionMat: {fileID: 2100000, guid: a0805429b693a2d459182083c4dc20ef, type: 2}
-  isDrawObjectMotionVectors: 0
-  objectMotionMaterial: {fileID: 2100000, guid: c0461b490bd74d041a53af2b2ac05919, type: 2}
+  isFoldout: 0
+  floatValues: []
+  intValues: []
+  vectorValues: []
+  update_PreviousViewProjMatrix: 1
