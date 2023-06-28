@@ -18,5 +18,6 @@ MonoBehaviour:
   renderPassEvent: 400
   renderPassEventOffset: 0
   log: 
-  isFoldout: 0
+  isFoldout: 1
+  isCreateMotionVectorTexture: 0
   cameraMotionMat: {fileID: 2100000, guid: a0805429b693a2d459182083c4dc20ef, type: 2}

@@ -11,27 +11,28 @@ using UnityEngine.Rendering.Universal;
     [CustomEditor(typeof(SRPRenderFeatureControl))]
     public class SRPRenderFeatureControlEditor : Editor
     {
-        bool isFold;
         Editor featureListEditor;
         private void OnEnable()
         {
-            var settings = serializedObject.FindProperty(nameof(SRPRenderFeatureControl.featureListSO));
-            featureListEditor = Editor.CreateEditor(settings.objectReferenceValue);
+            var featureListSO = serializedObject.FindProperty(nameof(SRPRenderFeatureControl.featureListSO));
+            featureListEditor = CreateEditor(featureListSO.objectReferenceValue);
         }
 
-        public override void OnInspectorGUI ()
+        public override void OnInspectorGUI()
         {
             EditorGUI.BeginChangeCheck();
             DrawDefaultInspector();
-            if(EditorGUI.EndChangeCheck())
+            if (EditorGUI.EndChangeCheck())
             {
                 OnEnable();
             }
 
-            serializedObject.Update();
 
-            isFold = EditorGUILayout.Foldout(isFold, EditorGUITools.TempContent("featureList Details"),true,EditorStylesEx.FoldoutHeader);
-            if (isFold)
+            serializedObject.UpdateIfRequiredOrScript();
+
+            var isFoldout = serializedObject.FindProperty("isFoldout");
+            isFoldout.boolValue = EditorGUILayout.Foldout(isFoldout.boolValue, EditorGUITools.TempContent("featureList Details"), true, EditorStylesEx.FoldoutHeader);
+            if (isFoldout.boolValue)
             {
                 EditorGUI.indentLevel++;
                 featureListEditor?.OnInspectorGUI();
@@ -46,6 +47,10 @@ using UnityEngine.Rendering.Universal;
     public class SRPRenderFeatureControl : ScriptableRendererFeature
     {
         public SRPFeatureListSO featureListSO;
+
+        [SerializeField]
+        bool isFoldout;
+
 
         public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
         {

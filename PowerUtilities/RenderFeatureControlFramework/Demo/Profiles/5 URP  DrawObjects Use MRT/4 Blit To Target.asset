@@ -12,13 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f65fc8c7a8f3ffa4798d07b2e7297a90, type: 3}
   m_Name: 4 Blit To Target
   m_EditorClassIdentifier: 
-  enabled: 1
+  enabled: 0
   interrupt: 0
   gameCameraTag: MainCamera
   renderPassEvent: 400
-  renderPassEventOffset: 0
+  renderPassEventOffset: 1
   log: 
-  isFoldout: 0
-  sourceName: 
-  targetName: 
-  blitMat: {fileID: 0}
+  isFoldout: 1
+  sourceName: _MotionVectorTexture
+  targetName: _CameraColorAttachmentA
+  blitMat: {fileID: 2100000, guid: 437a529721e807446a5f0207e801bac0, type: 2}

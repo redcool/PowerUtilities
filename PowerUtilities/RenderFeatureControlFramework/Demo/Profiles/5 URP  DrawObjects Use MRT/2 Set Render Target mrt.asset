@@ -18,9 +18,10 @@ MonoBehaviour:
   renderPassEvent: 250
   renderPassEventOffset: 0
   log: 
-  isFoldout: 1
+  isFoldout: 0
   colorTargetNames:
   - _CameraColorAttachmentA
   - _CameraNormalsTexture
+  - _MotionVectorTexture
   depthTargetName: 
   clearTarget: 1

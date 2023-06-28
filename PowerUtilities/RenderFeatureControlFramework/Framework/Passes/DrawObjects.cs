@@ -46,15 +46,15 @@
 
         // has bugs, hidden first
         [Space(10)]
-        [HideInInspector] public bool overrideMainLightIndex;
+         public bool overrideMainLightIndex;
         [Tooltip("restore mainLightIndex when draw finish")]
-        [HideInInspector] public bool isRestoreMainLightIndexFinish=true;
+         public bool isRestoreMainLightIndexFinish=true;
 
-        [HideInInspector] public int mainLightIndex;
+         public int mainLightIndex;
 
         [Tooltip("use this light as mainLight")]
-        [HideInInspector] public string lightName;
-        [HideInInspector] public List<string> visibleLightNames = new List<string>();
+         public string lightName;
+         public List<string> visibleLightNames = new List<string>();
 
         [Space(10)]
         [Tooltip("override urp Pipeline Asset")]
@@ -150,7 +150,7 @@
 
         ForwardLights forwardLights;
 
-        int lastMainLightIndex;
+        Light sun;
         bool lastSRPBatchEnabled;
 
         public FullDrawObjectsPass(DrawObjects feature) : base(feature)
@@ -180,7 +180,8 @@
 
         public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
         {
-            lastMainLightIndex = renderingData.lightData.mainLightIndex;
+            sun = RenderSettings.sun;
+
             lastSRPBatchEnabled = UniversalRenderPipeline.asset.useSRPBatcher;
 
             if (renderStateBlock.depthState.compareFunction == CompareFunction.Equal)
@@ -232,7 +233,7 @@
         {
             if (Feature.overrideMainLightIndex && Feature.isRestoreMainLightIndexFinish)
             {
-                OverrideLight(context, ref renderingData, lastMainLightIndex);
+                OverrideMainLight(context, ref renderingData, sun);
             }
             if (Feature.overrideSRPBatch && Feature.isRestoreSRPBatch)
             {
@@ -258,6 +259,7 @@
                     .Select(vl => vl.light.name)
                     );
 
+                Feature.mainLightIndex = Mathf.Clamp(Feature.mainLightIndex, 0, renderingData.lightData.visibleLights.Length-1);
                 var mainLightIndex = Feature.mainLightIndex;
                 //// find by lightName
                 if (!string.IsNullOrEmpty(Feature.lightName))
@@ -265,7 +267,7 @@
                     mainLightIndex = FindLightIndex(ref renderingData, Feature.lightName);
                 }
 
-                OverrideLight(context, ref renderingData, mainLightIndex);
+                OverrideMainLight(context, ref renderingData, renderingData.lightData.visibleLights[mainLightIndex].light);
             }
             if (Feature.overridePerObjectData)
             {
@@ -306,12 +308,9 @@
             return -1;
         }
 
-        private void OverrideLight(ScriptableRenderContext context, ref RenderingData renderingData,int mainLightIndex)
+        private void OverrideMainLight(ScriptableRenderContext context, ref RenderingData renderingData,Light mainLight)
         {
-            return;
-
-            //renderingData.lightData.mainLightIndex = mainLightIndex;
-            renderingData.cameraData.renderer.SetupLights(context,ref renderingData);
+            RenderSettings.sun = mainLight;
         }
     }
 

@@ -12,11 +12,12 @@
     [CustomEditor(typeof(SRPFeatureListSO))]
     public class SRPFeatureListEditor : PowerEditor<SRPFeatureListSO>
     {
-        bool isFold;
         List<SerializedObject> featureSOList;
 
         public override void DrawInspectorUI(SRPFeatureListSO inst)
         {
+            serializedObject.UpdateIfRequiredOrScript();
+
             EditorGUI.BeginChangeCheck();
             DrawDefaultInspector();
 
@@ -28,8 +29,10 @@
                 return;
             }
 
-            isFold = EditorGUILayout.Foldout(isFold, "Details", true);
-            if (isFold)
+            var isDetailsFoldout = serializedObject.FindProperty("isDetailsFoldout");
+
+            isDetailsFoldout.boolValue = EditorGUILayout.Foldout(isDetailsFoldout.boolValue, "Details", true);
+            if (isDetailsFoldout.boolValue)
             {
                 //EditorGUILayout.BeginVertical("Box");
                 EditorGUI.indentLevel++;
@@ -44,6 +47,8 @@
                 EditorGUI.indentLevel--;
                 //EditorGUILayout.EndVertical();
             }
+
+            serializedObject.ApplyModifiedProperties();
         }
 
         private void TryInitFeatureSOList(SRPFeatureListSO inst)
@@ -58,10 +63,14 @@
         }
     }
 #endif
-
+    [Serializable]
     [CreateAssetMenu(menuName = SRPFeature.SRP_FEATURE_MENU + "/SRPFeatureList")]
     public class SRPFeatureListSO : ScriptableObject
     {
         public List<SRPFeature> featureList = new List<SRPFeature>();
+
+        [SerializeField]
+        bool isDetailsFoldout; // feature details folded?
+
     }
 }

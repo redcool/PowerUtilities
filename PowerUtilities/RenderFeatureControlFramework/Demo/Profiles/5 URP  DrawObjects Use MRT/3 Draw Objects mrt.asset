@@ -34,5 +34,23 @@ MonoBehaviour:
     passOperation: 0
     failOperation: 0
     zFailOperation: 0
+  overrideMaterial: {fileID: 0}
+  overrideMaterialPassIndex: 0
+  overridePerObjectData: 0
+  perObjectData: 0
+  overrideMainLightIndex: 0
+  isRestoreMainLightIndexFinish: 1
+  mainLightIndex: 1
+  lightName: 
+  visibleLightNames:
+  - Directional Light
+  - Directional Light (1)
+  overrideDynamicBatching: 0
+  enableDynamicBatching: 0
+  overrideGPUInstancing: 0
+  enableGPUInstancing: 0
+  overrideSRPBatch: 0
+  enableSRPBatch: 0
+  isRestoreSRPBatch: 0
   isDrawSkybox: 0
   drawSkyboxEvent: 350

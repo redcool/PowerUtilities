@@ -21,6 +21,9 @@ MonoBehaviour:
   isFoldout: 0
   colorTargetNames:
   - _CameraNormalsTexture
+  - _MotionVectorTexture
   isTargetHasDepthBuffer: 0
   isHDR: 0
   depthTargetName: 
+  overrideURPRenderScale: 0
+  renderScale: 1
