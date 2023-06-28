@@ -18,12 +18,16 @@ MonoBehaviour:
   renderPassEvent: 250
   renderPassEventOffset: 0
   log: 
-  isFoldout: 0
-  colorTargetNames:
-  - _CameraNormalsTexture
-  - _MotionVectorTexture
-  isTargetHasDepthBuffer: 0
-  isHDR: 0
+  isFoldout: 1
+  colorTargetInfos:
+  - name: _MotionVectorTexture
+    format: 4
+    isHdr: 0
+    hasDepthBuffer: 0
+  - name: _CameraNormalsTexture
+    format: 4
+    isHdr: 0
+    hasDepthBuffer: 0
   depthTargetName: 
   overrideURPRenderScale: 0
   renderScale: 1

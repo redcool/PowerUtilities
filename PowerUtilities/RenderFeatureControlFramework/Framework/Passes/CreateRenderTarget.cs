@@ -1,8 +1,11 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+using static UnityEditor.Progress;
 
 namespace PowerUtilities.RenderFeatures
 {
@@ -10,9 +13,7 @@ namespace PowerUtilities.RenderFeatures
     public class CreateRenderTarget : SRPFeature
     {
         [Header("Color Targets")]
-        public string[] colorTargetNames = new[] { nameof(ShaderPropertyIds._CameraColorAttachmentA)};
-        public bool isTargetHasDepthBuffer;
-        public bool isHDR;
+        public List<RenderTargetInfo> colorTargetInfos = new List<RenderTargetInfo>();
 
         [Header("Depth Target")]
         public string depthTargetName;
@@ -25,27 +26,22 @@ namespace PowerUtilities.RenderFeatures
 
     public class CreateRenderTargetPass : SRPPass<CreateRenderTarget>
     {
-        int[] colorIds;
+
         public CreateRenderTargetPass(CreateRenderTarget feature) : base(feature) { }
 
         public override bool CanExecute()
         {
             return base.CanExecute() 
-                && !(Feature.colorTargetNames.Length == 0 && string.IsNullOrEmpty(Feature.depthTargetName))
+                && !(Feature.colorTargetInfos.Count == 0 && string.IsNullOrEmpty(Feature.depthTargetName))
                 ;
         }
 
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
         {
-            if (colorIds == null || colorIds.Length != Feature.colorTargetNames.Length)
-            {
-                colorIds = new int[Feature.colorTargetNames.Length];
-                RenderingTools.RenderTargetNameToInt(Feature.colorTargetNames, ref colorIds);
-            }
-
             var renderScale = UniversalRenderPipeline.asset.renderScale;
             var samples = UniversalRenderPipeline.asset.msaaSampleCount;
 
+            // override 
             if (Feature.overrideURPRenderScale)
                 renderScale = Feature.renderScale;
             // for above SceneView 
@@ -53,13 +49,23 @@ namespace PowerUtilities.RenderFeatures
                 renderScale = 1;
 
             ref var cameraData = ref renderingData.cameraData;
-            cmd.CreateTargets(cameraData.camera, colorIds, renderScale, Feature.isTargetHasDepthBuffer, Feature.isHDR, samples);
+            cmd.CreateTargets(cameraData.camera, Feature.colorTargetInfos, renderScale, samples);
 
             if (!string.IsNullOrEmpty(Feature.depthTargetName))
             {
                 var depthId = Shader.PropertyToID(Feature.depthTargetName);
                 cmd.CreateDepthTarget(cameraData.camera, depthId, renderScale, samples);
             }
+        }
+
+        public override void Configure(CommandBuffer cmd, RenderTextureDescriptor cameraTextureDescriptor)
+        {
+            //var names = Enum.GetValues(typeof(RenderTextureFormat));
+            //foreach (var item in names)
+            //{
+            //    var g = GraphicsFormatUtility.GetGraphicsFormat((RenderTextureFormat)item, false);
+            //    Debug.Log(item+":"+g);
+            //};
         }
     }
 }

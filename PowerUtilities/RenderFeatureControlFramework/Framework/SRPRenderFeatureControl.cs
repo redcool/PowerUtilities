@@ -48,6 +48,7 @@ using UnityEngine.Rendering.Universal;
         public SRPFeatureListSO featureListSO;
 
         [SerializeField]
+        [HideInInspector]
         bool isFeatureListFoldout;
 
 

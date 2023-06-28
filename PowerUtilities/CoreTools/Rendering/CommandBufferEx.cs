@@ -2,7 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Experimental.Rendering;
 using UnityEngine.Rendering;
+using static UnityEditor.Progress;
 
 namespace PowerUtilities
 {
@@ -43,13 +45,39 @@ namespace PowerUtilities
 
             var desc = defaultDescriptor;
             desc.SetupColorDescriptor(camera, renderScale, isHdr, samples);
-            if (hasDepth)
-                desc.depthStencilFormat = UnityEngine.Experimental.Rendering.GraphicsFormat.D24_UNorm_S8_UInt;
 
-            foreach (var item in targetIds)
+            if (hasDepth)
+                desc.depthStencilFormat = GraphicsFormat.D24_UNorm_S8_UInt;
+
+            targetIds.ForEach((item, id) =>
             {
+
                 Cmd.GetTemporaryRT(item, desc);
-            }
+            });
+
+        }
+
+        public static void CreateTargets(this CommandBuffer cmd, Camera camera, List<RenderTargetInfo> targetInfos, float renderScale = 1, int samples = 1)
+        {
+            if (targetInfos == null || targetInfos.Count == 0)
+                return;
+
+            var desc = defaultDescriptor;
+            desc.SetupColorDescriptor(camera, renderScale, false, samples);
+
+            targetInfos.ForEach((info, id) =>
+            {
+                if (! info.IsValid())
+                    return;
+
+                desc.colorFormat = info.isHdr ? RenderTextureFormat.DefaultHDR : RenderTextureFormat.Default;
+                desc.graphicsFormat = info.format;
+
+                if (info.hasDepthBuffer)
+                    desc.depthStencilFormat = GraphicsFormat.D24_UNorm_S8_UInt;
+
+                cmd.GetTemporaryRT(info.GetHash(), desc);
+            });
         }
 
         public static void CreateDepthTargets(this CommandBuffer Cmd, Camera camera, int[] targetIds, float renderScale = 1, int samples = 1)

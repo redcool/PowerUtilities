@@ -70,6 +70,7 @@
         public List<SRPFeature> featureList = new List<SRPFeature>();
 
         [SerializeField]
+        [HideInInspector]
         bool isDetailsFoldout; // feature details folded?
 
     }

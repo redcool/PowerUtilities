@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f65fc8c7a8f3ffa4798d07b2e7297a90, type: 3}
   m_Name: 4 Blit To Target
   m_EditorClassIdentifier: 
-  enabled: 1
+  enabled: 0
   interrupt: 0
   gameCameraTag: MainCamera
   renderPassEvent: 400
