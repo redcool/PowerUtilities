@@ -15,6 +15,7 @@ namespace PowerUtilities
         [Header("Camera Motion Vectors")]
         public bool isCreateMotionVectorTexture;
         public Material cameraMotionMat;
+        public BlendMode srcMode = BlendMode.One, dstMode = BlendMode.Zero;
 
         [Header("Object Motion Vectors")]
         [Tooltip("draw scene get object motions,need objectMotionMaterial")]
@@ -81,6 +82,9 @@ namespace PowerUtilities
 
         private void DrawCameraMotionVectors(CommandBuffer cmd)
         {
+            Feature.cameraMotionMat.SetFloat("_SrcMode", (int)Feature.srcMode);
+            Feature.cameraMotionMat.SetFloat("_DstMode", (int)Feature.dstMode);
+
             cmd.DrawProcedural(Matrix4x4.identity, Feature.cameraMotionMat, 0, MeshTopology.Triangles, 3);
         }
 
