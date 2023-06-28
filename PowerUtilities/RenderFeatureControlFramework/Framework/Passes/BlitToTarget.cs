@@ -28,13 +28,6 @@ namespace PowerUtilities.RenderFeatures
 
         public BlitToTargetPass(BlitToTarget feature) : base(feature) { }
 
-        public override bool CanExecute()
-        {
-            return base.CanExecute() 
-                && Feature.blitMat
-                ;
-        }
-
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
         {
             ref var cameraData = ref renderingData.cameraData;
@@ -42,7 +35,10 @@ namespace PowerUtilities.RenderFeatures
             RenderTargetIdentifier sourceId = string.IsNullOrEmpty(Feature.sourceName) ? BuiltinRenderTextureType.CurrentActive : Shader.PropertyToID(Feature.sourceName);
             RenderTargetIdentifier targetId = string.IsNullOrEmpty(Feature.targetName) ? cameraTarget : Shader.PropertyToID(Feature.targetName);
 
-            cmd.BlitTriangle(sourceId, targetId, Feature.blitMat, 0);
+            if (Feature.blitMat)
+                cmd.BlitTriangle(sourceId, targetId, Feature.blitMat, 0);
+            else
+                cmd.Blit(sourceId, targetId);
         }
     }
 }
