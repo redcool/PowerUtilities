@@ -9,14 +9,20 @@ namespace PowerUtilities
     public class TestAttributes : MonoBehaviour
     {
         [Flags]
-        public enum PropEnum { a,b,c};
+        public enum PropEnum {
+            //[InspectorName("class/a")]
+            a,
+            //[InspectorName("class/b")]
+            b,
+            c};
 
 
         [EditorGroup("Group1", true)]
         public bool Group1On;
 
         [EditorGroup("Group1")]
-        [EnumFlags]
+        //[EnumFlags]
+        [Searchable]
         public PropEnum propEnum;
 
         [EditorGroup("Group1")]
