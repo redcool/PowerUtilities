@@ -29,9 +29,9 @@ using UnityEngine.Rendering.Universal;
 
             serializedObject.UpdateIfRequiredOrScript();
 
-            var isFoldout = serializedObject.FindProperty("isFoldout");
-            isFoldout.boolValue = EditorGUILayout.Foldout(isFoldout.boolValue, EditorGUITools.TempContent("featureList Details"), true, EditorStylesEx.FoldoutHeader);
-            if (isFoldout.boolValue)
+            var isFeatureListFoldout = serializedObject.FindProperty("isFeatureListFoldout");
+            isFeatureListFoldout.boolValue = EditorGUILayout.Foldout(isFeatureListFoldout.boolValue, EditorGUITools.TempContent("featureList Details"), true, EditorStylesEx.FoldoutHeader);
+            if (isFeatureListFoldout.boolValue)
             {
                 EditorGUI.indentLevel++;
                 featureListEditor?.OnInspectorGUI();
@@ -48,7 +48,7 @@ using UnityEngine.Rendering.Universal;
         public SRPFeatureListSO featureListSO;
 
         [SerializeField]
-        bool isFoldout;
+        bool isFeatureListFoldout;
 
 
         public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)

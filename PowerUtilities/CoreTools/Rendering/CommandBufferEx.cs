@@ -20,8 +20,8 @@ namespace PowerUtilities
         public static void ClearRenderTarget(this CommandBuffer cmd, Camera camera, float depth = 1, uint stencil = 0)
         {
             var isClearDepth = camera.clearFlags <= CameraClearFlags.Depth;
-            var isClearColor = camera.clearFlags <= CameraClearFlags.Color;// if condition set equals , mrt color will not clear
-            var backColor = isClearColor ? camera.backgroundColor.linear : Color.clear;
+            var isClearColor = camera.clearFlags <= CameraClearFlags.Color;// ** if condition set equals , mrt color will not clear
+            var backColor = camera.clearFlags == CameraClearFlags.Color ? camera.backgroundColor.linear : Color.clear;
             var flags = RTClearFlags.None;
             if (isClearColor)
                 flags |= RTClearFlags.Color;

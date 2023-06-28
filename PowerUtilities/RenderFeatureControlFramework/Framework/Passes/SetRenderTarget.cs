@@ -16,7 +16,9 @@ namespace PowerUtilities.RenderFeatures
         [Tooltip("use CameraTarget(or renderer.cameraDepthTarget) when empty")]
         public string depthTargetName;
 
+        [Header("Clear ")]
         public bool clearTarget;
+
         public override ScriptableRenderPass GetPass() => new SetRenderTargetPass(this);
     }
 
