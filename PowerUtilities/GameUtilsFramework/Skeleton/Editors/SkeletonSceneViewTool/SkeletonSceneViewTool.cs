@@ -176,7 +176,8 @@ namespace GameUtilsFramework
                 SkeletonToolData.bonesScreenPosList.Clear();
                 foreach (var boneTr in SkeletonToolData.skinned.bones)
                 {
-                    SkeletonToolData.bonesScreenPosList.Add(HandleUtility.WorldToGUIPoint(boneTr.position));
+                    if (boneTr)
+                        SkeletonToolData.bonesScreenPosList.Add(HandleUtility.WorldToGUIPoint(boneTr.position));
                 }
             }
         }
@@ -251,7 +252,7 @@ namespace GameUtilsFramework
             if (data.skinned)
             {
                 data.skinned.bones.ForEach(b => {
-                    if (b.parent && data.skinned.bones.Contains(b.parent)){
+                    if (b && b.parent && data.skinned.bones.Contains(b.parent)){
                         var p1 = HandleUtility.WorldToGUIPoint(b.position);
                         var p2 = HandleUtility.WorldToGUIPoint(b.parent.position);
                         Handles.DrawLine(p1,p2,3);
@@ -276,6 +277,8 @@ namespace GameUtilsFramework
         }
         private static void DrawJoints(Transform[] trs)
         {
+            trs = trs.Where(t => t).ToArray();
+
             for (int i = 0; i < trs.Length; i++)
             {
                 var tr = trs[i];
