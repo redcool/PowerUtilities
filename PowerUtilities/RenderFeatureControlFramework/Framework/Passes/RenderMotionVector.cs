@@ -13,6 +13,8 @@ namespace PowerUtilities
     public class RenderMotionVector : SRPFeature
     {
         [Header("Camera Motion Vectors")]
+        public bool isRenderCameraMotionVectors = true;
+
         public bool isCreateMotionVectorTexture;
         public Material cameraMotionMat;
         public BlendMode srcMode = BlendMode.One, dstMode = BlendMode.Zero;
@@ -85,7 +87,8 @@ namespace PowerUtilities
             Feature.cameraMotionMat.SetFloat("_SrcMode", (int)Feature.srcMode);
             Feature.cameraMotionMat.SetFloat("_DstMode", (int)Feature.dstMode);
 
-            cmd.DrawProcedural(Matrix4x4.identity, Feature.cameraMotionMat, 0, MeshTopology.Triangles, 3);
+            if (Feature.isRenderCameraMotionVectors)
+                cmd.DrawProcedural(Matrix4x4.identity, Feature.cameraMotionMat, 0, MeshTopology.Triangles, 3);
         }
 
         public override void Configure(CommandBuffer cmd, RenderTextureDescriptor cameraTextureDescriptor)
@@ -102,7 +105,8 @@ namespace PowerUtilities
 
         public override void OnFinishCameraStackRendering(CommandBuffer cmd)
         {
-            cmd.ReleaseTemporaryRT(ShaderPropertyIds._MotionVectorTexture);
+            if (Feature.isCreateMotionVectorTexture)
+                cmd.ReleaseTemporaryRT(ShaderPropertyIds._MotionVectorTexture);
         }
 
     }

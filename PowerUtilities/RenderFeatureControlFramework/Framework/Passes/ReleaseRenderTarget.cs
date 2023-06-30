@@ -9,8 +9,13 @@ namespace PowerUtilities.RenderFeatures
     [CreateAssetMenu(menuName = SRP_FEATURE_PASSES_MENU+"/ReleaseRenderTarget")]
     public class ReleaseRenderTarget : SRPFeature
     {
+
+
         [Header("Targets")]
         public string[] targetNames;
+
+        [Tooltip("run this pass after all camera rendering")]
+        public bool isRunAfterCameraStackRendering;
         public override ScriptableRenderPass GetPass() => new ReleaseRenderTargetPass(this);
     }
 
@@ -21,12 +26,21 @@ namespace PowerUtilities.RenderFeatures
 
         public override bool CanExecute()
         {
-            return base.CanExecute() 
-                && !(Feature.targetNames.Length == 0)
-                ;
+            if (Feature.targetNames.Length == 0)
+                return false;
+
+            if (Feature.isRunAfterCameraStackRendering)
+                return true;
+
+            return base.CanExecute();
         }
 
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
+        {
+            
+        }
+
+        public void ReleaseTargets(CommandBuffer cmd)
         {
             //if (targetIds == null || targetIds.Length != Feature.targetNames.Length)
             {
@@ -35,7 +49,18 @@ namespace PowerUtilities.RenderFeatures
             }
 
             targetIds.ForEach(id => cmd.ReleaseTemporaryRT(id));
-            
         }
+
+        public override void OnCameraCleanup(CommandBuffer cmd)
+        {
+            if (!Feature.isRunAfterCameraStackRendering)
+                ReleaseTargets(cmd);
+        }
+        public override void OnFinishCameraStackRendering(CommandBuffer cmd)
+        {
+            if (Feature.isRunAfterCameraStackRendering)
+                ReleaseTargets(cmd);
+        }
+
     }
 }
