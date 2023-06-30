@@ -5,7 +5,6 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
-using static UnityEditor.Progress;
 
 namespace PowerUtilities.RenderFeatures
 {
