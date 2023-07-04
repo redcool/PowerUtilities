@@ -53,6 +53,7 @@ namespace PowerUtilities
             public bool runModeAuto = true;
             public bool isFixedHoleInHashMode;
 
+            [Header("control buffer's resolution")]
             [Range(0,2)]public int downSamples;
             [Header("Blur")]
             public bool isApplyBlur;
@@ -168,7 +169,7 @@ namespace PowerUtilities
 
                 cmd.SetComputeVectorParam(cs, _CameraTexture_TexelSize, new Vector4(desc.width, desc.height));
 
-                cmd.SetComputeShaderKeywords(cs, IsUseRWBuffer(), "TEST_BUFFER");
+                //cmd.SetComputeShaderKeywords(cs, IsUseRWBuffer(), "TEST_BUFFER");
 
                 var threads = new Vector2Int(Mathf.CeilToInt(width / (float)THREAD_X),
                     Mathf.CeilToInt(height / (float)THREAD_Y));
