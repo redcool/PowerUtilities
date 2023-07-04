@@ -68,29 +68,34 @@ namespace PowerUtilities
         }
         class SSPRPass : ScriptableRenderPass
         {
-            const int THREAD_X = 8, THREAD_Y = 8, THREAD_Z = 1;
+            const int THREAD_X = 32, THREAD_Y = 32, THREAD_Z = 1;
 
             public Settings settings;
 
-            int _TexSize = Shader.PropertyToID(nameof(_TexSize));
-            int _Plane = Shader.PropertyToID(nameof(_Plane));
-            int _Stretch = Shader.PropertyToID(nameof(_Stretch));
-            int _Fading = Shader.PropertyToID(nameof(_Fading));
-            int _BlurSize = Shader.PropertyToID(nameof(_BlurSize)),
-                _StepCount = Shader.PropertyToID(nameof(_StepCount));
+            int 
+                _TexSize = Shader.PropertyToID(nameof(_TexSize)),
+                _Plane = Shader.PropertyToID(nameof(_Plane)),
+                _Stretch = Shader.PropertyToID(nameof(_Stretch)),
+                _Fading = Shader.PropertyToID(nameof(_Fading)),
+                _BlurSize = Shader.PropertyToID(nameof(_BlurSize)),
+                _StepCount = Shader.PropertyToID(nameof(_StepCount)),
 
-            int _CameraOpaqueTexture = Shader.PropertyToID(nameof(_CameraOpaqueTexture));
-            int _CameraColorAttachmentA = Shader.PropertyToID(nameof(_CameraColorAttachmentA));
-            int _CameraDepthTexture = Shader.PropertyToID(nameof(_CameraDepthTexture));
-            int _ReflectionTexture = Shader.PropertyToID(nameof(_ReflectionTexture));
-            int _ReflectionHeightBuffer = Shader.PropertyToID(nameof(_ReflectionHeightBuffer));
+                _CameraOpaqueTexture = Shader.PropertyToID(nameof(_CameraOpaqueTexture)),
+                _CameraColorAttachmentA = Shader.PropertyToID(nameof(_CameraColorAttachmentA)),
+                _CameraDepthTexture = Shader.PropertyToID(nameof(_CameraDepthTexture)),
+                _ReflectionTexture = Shader.PropertyToID(nameof(_ReflectionTexture)),
+                _ReflectionHeightBuffer = Shader.PropertyToID(nameof(_ReflectionHeightBuffer)),
 
-            // hash mode
-            int _HashResult = Shader.PropertyToID(nameof(_HashResult));
-            // states
-            int _FixedHole = Shader.PropertyToID(nameof(_FixedHole));
-            int _BlurReflectTex = Shader.PropertyToID(nameof(_BlurReflectTex));
-            int _RunMode = Shader.PropertyToID(nameof(_RunMode));
+                // hash mode
+                _HashResult = Shader.PropertyToID(nameof(_HashResult)),
+                // states
+                _FixedHole = Shader.PropertyToID(nameof(_FixedHole)),
+                _BlurReflectTex = Shader.PropertyToID(nameof(_BlurReflectTex)),
+                _RunMode = Shader.PropertyToID(nameof(_RunMode)),
+                _VP = Shader.PropertyToID(nameof(_VP)),
+                _InvVP = Shader.PropertyToID(nameof(_InvVP)),
+                _CameraTexture_TexelSize = Shader.PropertyToID(nameof(_CameraTexture_TexelSize)) // urp texture size
+                ;
 
             ComputeBuffer hashBuffer;
 
@@ -128,20 +133,26 @@ namespace PowerUtilities
                     return;
 
                 var cmd = CommandBufferPool.Get(nameof(SSPRFeature));
-
                 //ExecuteCommand(context, cmd);
 
                 ref var cameraData = ref renderingData.cameraData;
+                var cam = cameraData.camera;
                 var renderer = cameraData.renderer;
                 var desc = cameraData.cameraTargetDescriptor;
-
                 var plane = settings.planeRotation * Vector3.up;
 
+                TryUpdateRunMode();
+
+                // vp,invVP
+                var vp = GL.GetGPUProjectionMatrix(cam.projectionMatrix, true) * cam.worldToCameraMatrix;
+                var invVP = vp.inverse;
+                cmd.SetComputeMatrixParam(cs, _VP, vp);
+                cmd.SetComputeMatrixParam(cs, _InvVP, invVP);
+
+                // size
                 var width = GetWidth(desc.width);
                 var height = GetHeight(desc.height);
                 var texSize = new Vector4(width, height, 1f / width, 1f / height);
-
-                TryUpdateRunMode();
 
                 // bind cs vars
                 cmd.SetComputeVectorParam(cs, _TexSize, texSize);
@@ -155,7 +166,10 @@ namespace PowerUtilities
                 cmd.SetComputeIntParam(cs, _RunMode, (int)settings.runMode);
                 cmd.SetComputeFloatParam(cs, _Fading, settings.fading);
 
-                //cmd.SetComputeShaderKeywords(cs, IsUseRWBuffer(), "TEST_BUFFER");
+                cmd.SetComputeVectorParam(cs, _CameraTexture_TexelSize, new Vector4(desc.width, desc.height));
+
+                cmd.SetComputeShaderKeywords(cs, IsUseRWBuffer(), "TEST_BUFFER");
+
                 var threads = new Vector2Int(Mathf.CeilToInt(width / (float)THREAD_X),
                     Mathf.CeilToInt(height / (float)THREAD_Y));
 

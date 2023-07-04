@@ -6,10 +6,9 @@
 #pragma kernel CSHashClear
 #pragma kernel CSHash
 #pragma kernel CSResolve
-#pragma multi_compile _ TEST_BUFFER
 
-#define THREAD_X 8
-#define THREAD_Y 8
+#define THREAD_X 32
+#define THREAD_Y 32
 #define THREAD_Z 1
 
 // Create a RenderTexture with enableRandomWrite flag and set it
@@ -19,7 +18,9 @@ RWTexture2D<float> _ReflectionHeightBuffer;
 
 SamplerState sampler_point_clamp,sampler_linear_clamp;
 TEXTURE2D(_CameraOpaqueTexture);
+
 TEXTURE2D(_CameraDepthTexture);
+float2 _CameraTexture_TexelSize; // width,height
 
 float4 _Plane; // xyz:plane direction, w : - dot(plane location, plane direction)
 float4 _TexSize; //x:width,height,1/width,1/height
@@ -30,6 +31,10 @@ int _FixedHole;
 
 #define RUN_MODE_HASH 0
 int _RunMode;
+
+float4x4 _VP,_InvVP;
+
+// #define TEST_BUFFER // for debug RWBuffer
 
 #if defined(SHADER_API_METAL) || defined(TEST_BUFFER)
 	RWBuffer<uint> _HashResult;
@@ -70,10 +75,16 @@ float4 BlurSample(uint2 id){
 }
 
 float LoadDepth(float2 uv){
-	float depth = SAMPLE_TEXTURE2D_LOD(_CameraDepthTexture,sampler_point_clamp,uv,0).x;
+	uint2 pos = uint2(uv * _CameraTexture_TexelSize.xy);
+	float depth = LOAD_TEXTURE2D(_CameraDepthTexture,pos).x;
+
+	// sample with uv,cannot work on metal
+	// float depth = SAMPLE_TEXTURE2D_LOD(_CameraDepthTexture,sampler_point_clamp,uv,0).x;
+	
 	#if ! defined(UNITY_REVERSED_Z)
 		depth = depth * 2 - 1;
 	#endif
+
 	return depth;
 }
 
@@ -149,14 +160,14 @@ void CSHash(uint3 id:SV_DispatchThreadID){
 	float2 uv = id.xy * _TexSize.zw;
 
 	float depth = LoadDepth(uv);
-	float3 wpos = ComputeWorldSpacePosition(uv,depth,UNITY_MATRIX_I_VP);
+	float3 wpos = ComputeWorldSpacePosition(uv,depth,_InvVP);
 
 	float distance = dot(wpos,_Plane.xyz) + _Plane.w;
 	if(distance < 0.001)
 		return;
 
 	float3 reflectPosWS = wpos - _Plane.xyz * distance * 2;
-	float4 reflectPosCS = TransformWorldToHClip(reflectPosWS);
+	float4 reflectPosCS = mul(_VP,float4(reflectPosWS,1));  //TransformWorldToHClip(reflectPosWS);
 	float2 reflectUV = reflectPosCS.xy/reflectPosCS.w * 0.5 + 0.5;
 	if(all(reflectUV >= 0) && all(reflectUV <= 1))
 	{
