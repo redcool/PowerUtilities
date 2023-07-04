@@ -4,8 +4,8 @@ Shader "Hidden/kMotion/CameraMotionVectors"
     {
         Pass
         {
-            blend [_SrcMode][_DstMode]
-            // blendOp max
+            // blend [_SrcMode][_DstMode]
+            blendOp max
             Cull Off
             ZWrite On
             ZTest Always
