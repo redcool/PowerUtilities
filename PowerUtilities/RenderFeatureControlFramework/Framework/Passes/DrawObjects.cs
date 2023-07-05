@@ -69,8 +69,11 @@
         [Space(10)]
         public bool overrideSRPBatch;
         public bool enableSRPBatch;
-        [Tooltip("restore URPPipelineAsset's useSRPBatch when finish")]
-        public bool isRestoreSRPBatch = true;
+
+        [Space(10)]
+        public bool overrideCamera;
+        public float cameraFOV = 60;
+        public Vector4 cameraOffset;
 
         [Header("SkyBox")]
         public bool isDrawSkybox;
@@ -215,34 +218,40 @@
             if (camera.cameraType == CameraType.Preview)
                 filterSetting.layerMask = -1;
 #endif
-
+            OverrideCamera(ref context, cmd, ref renderingData);
             var drawSettings = GetDrawSettings(context,cmd,ref renderingData, ref cameraData);
-            
-            
-            cmd.SetGlobalVectorArray("unity_LightIndices0", new[] { new Vector4(0,1,0,0),Vector4.zero});
 
             context.DrawRenderers(renderingData.cullResults, ref drawSettings, ref filterSetting, ref renderStateBlock);
 
             RenderingTools.DrawErrorObjects(ref context, ref renderingData.cullResults, camera, filterSetting, SortingCriteria.None);
 
-            RestoreDrawSettings(ref renderingData);
+            RestoreDrawSettings(ref renderingData,cmd);
 
         }
 
-        private void RestoreDrawSettings(ref RenderingData renderingData)
+        private void RestoreDrawSettings(ref RenderingData renderingData,CommandBuffer cmd)
         {
+            var cameraData = renderingData.cameraData;
+
             if (Feature.overrideMainLightIndex && Feature.isRestoreMainLightIndexFinish)
             {
                 OverrideMainLight(context, ref renderingData, sun);
             }
-            if (Feature.overrideSRPBatch && Feature.isRestoreSRPBatch)
+            if (Feature.overrideSRPBatch)
             {
                 UniversalRenderPipeline.asset.useSRPBatcher = lastSRPBatchEnabled;
+            }
+
+            if (Feature.overrideCamera)
+            {
+                RenderingUtils.SetViewAndProjectionMatrices(cmd, cameraData.GetViewMatrix(), cameraData.GetProjectionMatrix(), false);
             }
         }
 
         private DrawingSettings GetDrawSettings(ScriptableRenderContext context,CommandBuffer cmd, ref RenderingData renderingData, ref CameraData cameraData)
         {
+            var cam = renderingData.cameraData.camera;
+
             var sortFlags = Feature.isOpaque ? cameraData.defaultOpaqueSortFlags : SortingCriteria.CommonTransparent;
             var drawSettings = CreateDrawingSettings(shaderTagList, ref renderingData, sortFlags);
             drawSettings.overrideMaterial = Feature.overrideMaterial;
@@ -295,6 +304,25 @@
             return drawSettings;
         }
 
+        private void OverrideCamera(ref ScriptableRenderContext context, CommandBuffer cmd, ref RenderingData renderingData)
+        {
+            if (Feature.overrideCamera)
+            {
+                var cameraData = renderingData.cameraData;
+                var cam = cameraData.camera;
+
+                var aspect = cam.pixelWidth / (float)cam.pixelHeight;
+                var projMat = Matrix4x4.Perspective(Feature.cameraFOV, aspect, cam.nearClipPlane, cam.farClipPlane);
+                projMat = GL.GetGPUProjectionMatrix(projMat, renderingData.cameraData.IsCameraProjectionMatrixFlipped());
+
+                var viewMat = cameraData.GetViewMatrix();
+                viewMat.SetColumn(3, viewMat.GetColumn(3) + Feature.cameraOffset);
+
+                RenderingUtils.SetViewAndProjectionMatrices(cmd, viewMat, projMat, false);
+
+                cmd.Execute(ref context);
+            }
+        }
 
         public int FindLightIndex(ref RenderingData renderingData, string lightGOName)
         {
