@@ -64,15 +64,9 @@ namespace PowerUtilities
             Shader.SetGlobalMatrix(ShaderPropertyIds._PrevViewProjMatrix, MotionVectorData.Instance().GetPreviousVP(camera));
             MotionVectorData.Instance().Update(camera);
 
-            var motionFlags = DepthTextureMode.MotionVectors | DepthTextureMode.Depth;
-            if (Feature.isRenderCameraMotionVectors)
-            {
-                camera.depthTextureMode |= motionFlags;
-            }
-            else
-            {
-                camera.depthTextureMode &= ~motionFlags;
-            }
+            camera.depthTextureMode |= DepthTextureMode.MotionVectors | DepthTextureMode.Depth; // great importance
+            
+            UpdateMotionMaterial();
 
             DrawCameraMotionVectors(cmd);
             cmd.Execute(ref context);
@@ -96,12 +90,15 @@ namespace PowerUtilities
 
         private void DrawCameraMotionVectors(CommandBuffer cmd)
         {
+            if (Feature.isRenderCameraMotionVectors)
+                cmd.DrawProcedural(Matrix4x4.identity, Feature.cameraMotionMat, 0, MeshTopology.Triangles, 3);
+        }
+
+        private void UpdateMotionMaterial()
+        {
             Feature.cameraMotionMat.SetFloat("_SrcMode", (int)Feature.srcMode);
             Feature.cameraMotionMat.SetFloat("_DstMode", (int)Feature.dstMode);
             Feature.cameraMotionMat.SetFloat("_BlendOp", (int)Feature.blendOp);
-
-            if (Feature.isRenderCameraMotionVectors)
-                cmd.DrawProcedural(Matrix4x4.identity, Feature.cameraMotionMat, 0, MeshTopology.Triangles, 3);
         }
 
         public override void Configure(CommandBuffer cmd, RenderTextureDescriptor cameraTextureDescriptor)

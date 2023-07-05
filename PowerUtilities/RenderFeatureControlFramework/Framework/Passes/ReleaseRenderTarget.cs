@@ -26,7 +26,7 @@ namespace PowerUtilities.RenderFeatures
 
         public override bool CanExecute()
         {
-            if (Feature.targetNames.Length == 0)
+            if (Feature.targetNames == null || Feature.targetNames.Length == 0)
                 return false;
 
             if (Feature.isRunAfterCameraStackRendering)
