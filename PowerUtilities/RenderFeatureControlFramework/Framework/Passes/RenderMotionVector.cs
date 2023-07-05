@@ -16,8 +16,11 @@ namespace PowerUtilities
         public bool isRenderCameraMotionVectors = true;
 
         public bool isCreateMotionVectorTexture;
+
+        [Header("--- cameraMotion material options")]
         public Material cameraMotionMat;
-        //public BlendMode srcMode = BlendMode.One, dstMode = BlendMode.Zero;
+        public BlendMode srcMode = BlendMode.One, dstMode = BlendMode.Zero;
+        public BlendOp blendOp = BlendOp.Max;
 
         [Header("Object Motion Vectors")]
         [Tooltip("draw scene get object motions,need objectMotionMaterial")]
@@ -61,12 +64,21 @@ namespace PowerUtilities
             Shader.SetGlobalMatrix(ShaderPropertyIds._PrevViewProjMatrix, MotionVectorData.Instance().GetPreviousVP(camera));
             MotionVectorData.Instance().Update(camera);
 
-            camera.depthTextureMode |= DepthTextureMode.MotionVectors | DepthTextureMode.Depth;
+            var motionFlags = DepthTextureMode.MotionVectors | DepthTextureMode.Depth;
+            if (Feature.isRenderCameraMotionVectors)
+            {
+                camera.depthTextureMode |= motionFlags;
+            }
+            else
+            {
+                camera.depthTextureMode &= ~motionFlags;
+            }
+
             DrawCameraMotionVectors(cmd);
             cmd.Execute(ref context);
 
-            if(Feature.isDrawObjectMotionVectors && Feature.objectMotionMaterial) 
-            DrawObjectMotionVectors(ref context, ref renderingData, camera);
+            if (Feature.isDrawObjectMotionVectors && Feature.objectMotionMaterial)
+                DrawObjectMotionVectors(ref context, ref renderingData, camera);
         }
 
         private void DrawObjectMotionVectors(ref ScriptableRenderContext context,ref RenderingData renderingData, Camera camera)
@@ -84,8 +96,9 @@ namespace PowerUtilities
 
         private void DrawCameraMotionVectors(CommandBuffer cmd)
         {
-            //Feature.cameraMotionMat.SetFloat("_SrcMode", (int)Feature.srcMode);
-            //Feature.cameraMotionMat.SetFloat("_DstMode", (int)Feature.dstMode);
+            Feature.cameraMotionMat.SetFloat("_SrcMode", (int)Feature.srcMode);
+            Feature.cameraMotionMat.SetFloat("_DstMode", (int)Feature.dstMode);
+            Feature.cameraMotionMat.SetFloat("_BlendOp", (int)Feature.blendOp);
 
             if (Feature.isRenderCameraMotionVectors)
                 cmd.DrawProcedural(Matrix4x4.identity, Feature.cameraMotionMat, 0, MeshTopology.Triangles, 3);
