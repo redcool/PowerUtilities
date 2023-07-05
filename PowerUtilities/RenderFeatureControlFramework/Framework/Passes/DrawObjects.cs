@@ -25,10 +25,11 @@
         public bool isOpaque = true;
         public LayerMask layers = -1;
 
-        [Header("Override")]
-        [Tooltip("stencil state conttro")]
+        [Header("--- Override stencil")]
+        [Tooltip("stencil state control")]
         public StencilStateData stencilData;
 
+        [Header("--- override material")]
         [Tooltip("use this material render objects when not empty")]
         public Material overrideMaterial;
 
@@ -38,14 +39,15 @@
         [Tooltip("lightMode canot match, use this material")]
         public Material fallbackMaterial;
 
-        [Space(10)]
+
+        [Header("--- Per Object Data")]
         [Tooltip("overridePerObjectData,Lightmap : (Lightmaps,LightProbe,LightProbeProxyVolume)" +
             ",ShadowMask:(ShadowMask,OcclusionProbe,OcclusionProbeProxyVolume)")]
         public bool overridePerObjectData;
         public PerObjectData perObjectData;
 
-        // has bugs, hidden first
-        [Space(10)]
+
+        [Header("--- override mainLight")]
          public bool overrideMainLightIndex;
         [Tooltip("restore mainLightIndex when draw finish")]
          public bool isRestoreMainLightIndexFinish=true;
@@ -56,21 +58,25 @@
          public string lightName;
          public List<string> visibleLightNames = new List<string>();
 
-        [Space(10)]
+
+        [Header("--- override dynamic batch")]
         [Tooltip("override urp Pipeline Asset")]
         public bool overrideDynamicBatching;
         public bool enableDynamicBatching;
 
-        [Space(10)]
+
+        [Header("--- override instancing")]
         [Tooltip("override instancing")]
         public bool overrideGPUInstancing;
         public bool enableGPUInstancing;
 
-        [Space(10)]
+
+        [Header("--- override srp batch")]
         public bool overrideSRPBatch;
         public bool enableSRPBatch;
 
-        [Space(10)]
+
+        [Header("--- override camera")]
         public bool overrideCamera;
         public float cameraFOV = 60;
         public Vector4 cameraOffset;
