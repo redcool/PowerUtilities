@@ -12,7 +12,7 @@
 #if UNITY_EDITOR
     using UnityEditor;
     [CanEditMultipleObjects]
-    [CustomEditor(typeof(SRPFeature),true)]
+    [CustomEditor(typeof(SRPFeature), true)]
     public class SRPFeatureEditor : PowerEditor<SRPFeature>
     {
         public override bool NeedDrawDefaultUI() => true;
@@ -54,9 +54,27 @@
         [HideInInspector]
         public bool isFoldout;
 
-
+        /// <summary>
+        /// get a new pass instance
+        /// </summary>
+        /// <returns></returns>
         public abstract ScriptableRenderPass GetPass();
         
+        // pass instance cache
+        ScriptableRenderPass passInstance;
+
+        /// <summary>
+        /// get cached pass instance
+        /// </summary>
+        public ScriptableRenderPass PassInstance
+        {
+            get
+            {
+                if (passInstance == null)
+                    passInstance = GetPass();
+                return passInstance;
+            }
+        }
     }
 
 }

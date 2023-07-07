@@ -62,7 +62,7 @@ using UnityEngine.Rendering.Universal;
                 if (feature == null)
                     continue;
 
-                var pass = feature.GetPass();
+                var pass = feature.PassInstance;
                 if (pass == null || !feature.enabled)
                     continue;
 
