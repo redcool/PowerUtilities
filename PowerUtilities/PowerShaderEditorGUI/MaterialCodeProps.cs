@@ -17,6 +17,7 @@ namespace PowerUtilities
             _RenderQueue,
             _ToggleGroups,
             _BakedEmission,
+            _Version,
         }
 
         Dictionary<string, bool> materialCodePropDict = new Dictionary<string, bool>();
@@ -37,17 +38,8 @@ namespace PowerUtilities
                 materialCodePropDict[item] = false;
             }
         }
-        private static MaterialCodeProps instance;
 
-        public static MaterialCodeProps Instance
-        {
-            get
-            {
-                if (instance == null)
-                    instance = new MaterialCodeProps();
-                return instance;
-            }
-        }
+        public static MaterialCodeProps Instance { get; } = new MaterialCodeProps();
 
         public void InitMaterialCodeVars(string propName)
         {

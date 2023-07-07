@@ -6,6 +6,7 @@ using UnityEngine.Rendering;
 using System.Linq;
 using System;
 using System.IO;
+using static PowerUtilities.ConfigTool;
 
 namespace PowerUtilities
 {
@@ -61,9 +62,11 @@ namespace PowerUtilities
 
         MaterialEditor materialEditor;
         PresetBlendMode presetBlendMode;
+
         int toolbarCount = 5;
 
-        bool isAllGroupsOpen;
+        bool isAllGroupsOpen; // groups toggle
+        LayoutProfileType layoutProfileType; // Version selection
 
         static PowerShaderInspector()
         {
@@ -188,6 +191,10 @@ namespace PowerUtilities
                 {
                     DrawBakedEmission();
                 }
+                if (MaterialCodeProps.Instance.IsPropExists(MaterialCodeProps.CodePropNames._Version))
+                {
+                    DrawVersion(mat);
+                }
             }
         }
 
@@ -260,11 +267,11 @@ namespace PowerUtilities
 
             var shaderFilePath = AssetDatabase.GetAssetPath(mat.shader);
 
-            var profileType = mat.IsKeywordEnabled(ConfigTool.MIN_VERSION) ? ConfigTool.LayoutProfileType.MIN_VERSION : ConfigTool.LayoutProfileType.Standard;
+            layoutProfileType = mat.IsKeywordEnabled(MIN_VERSION) ? ConfigTool.LayoutProfileType.MIN_VERSION : ConfigTool.LayoutProfileType.Standard;
             if (isLayoutUseJson)
-                SetupLayoutFromJson(shaderFilePath, profileType);
+                SetupLayoutFromJson(shaderFilePath, layoutProfileType);
             else
-                SetupLayout(shaderFilePath, profileType);
+                SetupLayout(shaderFilePath, layoutProfileType);
 
             propNameTextDict = ConfigTool.ReadConfig(shaderFilePath, ConfigTool.I18N_PROFILE_PATH);
 
@@ -370,7 +377,17 @@ namespace PowerUtilities
             }
         }
 
-
+        void DrawVersion(Material mat)
+        {
+            MaterialEditorGUITools.DrawField(mat, "Version", () =>
+            {
+                layoutProfileType = (LayoutProfileType)EditorGUILayout.EnumPopup("Version",layoutProfileType);
+            }, mat =>
+            {
+                mat.SetKeywords(new[] { MIN_VERSION }, layoutProfileType == LayoutProfileType.MIN_VERSION);
+                isFirstRunOnGUI = true; // force reInit
+            });
+        }
     }
 }
 
