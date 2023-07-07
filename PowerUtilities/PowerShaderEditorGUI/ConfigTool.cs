@@ -36,6 +36,7 @@ namespace PowerUtilities
             MIN_VERSION = nameof(MIN_VERSION)
             ;
 
+        static GUIContent powerShaderInspectorContent = new GUIContent();
 
         public static string GetLayoutProfilePath(LayoutProfileType profileType,string extName="txt") 
             => string.Format(LAYOUT_PROFILE_PATH_FORMAT
@@ -129,11 +130,13 @@ namespace PowerUtilities
             return propName;
         }
 
+       
         public static GUIContent GetContent(Dictionary<string,string> nameDict,Dictionary<string,string> propHelpDict,string propName)
         {
             var text = Text(nameDict, propName);
             propHelpDict.TryGetValue(propName, out var tooltips);
-            return EditorGUITools.TempContent(text, tooltips);
+
+            return EditorGUITools.TempContent(text, tooltips,inst: powerShaderInspectorContent);
         }
 
         public static Color GetPropColor(Dictionary<string, string> colorTextDict, string propName)

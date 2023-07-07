@@ -14,11 +14,16 @@ namespace PowerUtilities
         public static Color darkGray = new Color(0.2f, 0.3f, 0.4f);
 
         static GUIContent tempContent = new GUIContent();
-        public static GUIContent TempContent(string str,string tooltip="")
+        public static GUIContent TempContent(string str,string tooltip=default,Texture image = default,GUIContent inst = default)
         {
-            tempContent.text = str;
-            tempContent.tooltip = tooltip;
-            return tempContent;
+            if (inst == default)
+                inst = tempContent;
+
+            inst.text = str;
+            inst.tooltip = tooltip;
+            inst.image = image;
+
+            return inst;
         }
 
         public static void DrawPreview(Texture tex)
