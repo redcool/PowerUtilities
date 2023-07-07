@@ -10,6 +10,10 @@ namespace PowerUtilities.RenderFeatures
     [CreateAssetMenu(menuName =SRP_FEATURE_PASSES_MENU+ "/SetRenderTarget")]
     public class SetRenderTarget : SRPFeature
     {
+        [Header("Targets")]
+        [Tooltip("Set colors and depth target,skip setTargets when not check")]
+        public bool isSetTargets = true;
+
         [Tooltip("use CurrentActive when item empty")]
         public string[] colorTargetNames = new[] { nameof(ShaderPropertyIds._CameraColorAttachmentA) };
 
@@ -47,17 +51,38 @@ namespace PowerUtilities.RenderFeatures
         {
         }
 
-        public override bool CanExecute()
+        public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
         {
-            //Feature.colorTargetNames = Feature.colorTargetNames
-            //    .Where(item => !string.IsNullOrEmpty(item))
-            //    .ToArray();
+            ref var cameraData = ref renderingData.cameraData;
+            var camera = renderingData.cameraData.camera;
 
-            return base.CanExecute() 
-                && Feature.colorTargetNames.Length > 0;
+            if (Feature.isSetTargets)
+            {
+                SetTargets(ref renderingData, camera, cmd);
+            }
+
+            // Clear targets
+            if (Feature.clearTarget)
+            {
+                ClearTarget(cmd, cameraData);
+            }
+
         }
 
-        public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
+        void ClearTarget(CommandBuffer cmd, CameraData cameraData)
+        {
+            if (Feature.isOverrideClear)
+            {
+                cmd.ClearRenderTarget(Feature.isClearColor, Feature.clearColor, Feature.isClearDepth, Feature.depth, Feature.isClearStencil, Feature.stencil);
+            }
+            else
+            {
+                var cam = cameraData.camera;
+                cmd.ClearRenderTarget(cam);
+            }
+        }
+
+        void SetTargets(ref RenderingData renderingData,Camera camera, CommandBuffer cmd)
         {
             if (colorIds == null || colorIds.Length != Feature.colorTargetNames.Length)
             {
@@ -72,29 +97,14 @@ namespace PowerUtilities.RenderFeatures
                 depthId = Shader.PropertyToID(Feature.depthTargetName);
             }
 
-            if(SystemInfo.supportedRenderTargetCount < colorIds.Length)
+            if (SystemInfo.supportedRenderTargetCount < colorIds.Length)
                 colorIds = colorIds.Take(SystemInfo.supportedRenderTargetCount).ToArray();
 
             /// scene view show nothing
-            if(cameraData.camera.IsGameCamera())
+            if (camera.IsGameCamera())
                 cmd.SetRenderTarget(colorIds, depthId);
             else
                 ConfigureTarget(colorIds, depthId);
-
-
-            // Clear targets
-            if (Feature.clearTarget)
-            {
-                if (Feature.isOverrideClear)
-                {
-                    cmd.ClearRenderTarget(Feature.isClearColor, Feature.clearColor, Feature.isClearDepth, Feature.depth, Feature.isClearStencil, Feature.stencil);
-                }
-                else
-                {
-                    var cam = cameraData.camera;
-                    cmd.ClearRenderTarget(cam);
-                }
-            }
 
         }
     }
