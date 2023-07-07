@@ -38,6 +38,18 @@ namespace PowerUtilities
             //);
         }
 
+        public static void ClearRenderTarget(this CommandBuffer cmd,bool isClearColor,Color backColor, bool isClearDepth,float depth,bool isClearStencil, uint stencil)
+        {
+            var flags = RTClearFlags.None;
+            if (isClearColor)
+                flags |= RTClearFlags.Color;
+            if (isClearDepth)
+                flags |= RTClearFlags.Depth;
+            if (isClearStencil)
+                flags |= RTClearFlags.Stencil;
+
+            cmd.ClearRenderTarget(flags, backColor, depth, stencil);
+        }
 
         public static void CreateTargets(this CommandBuffer Cmd, Camera camera, int[] targetIds, float renderScale = 1, bool hasDepth = false, bool isHdr = false,int samples=1)
         {

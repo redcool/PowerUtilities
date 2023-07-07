@@ -19,6 +19,23 @@ namespace PowerUtilities.RenderFeatures
         [Header("Clear ")]
         public bool clearTarget;
 
+        [Header("--- Override Clear")]
+        [Tooltip("clear target use camera's setting or settings below")]
+        public bool isOverrideClear;
+
+        [Space(10)]
+        public bool isClearColor = true;
+        public Color clearColor = Color.clear;
+
+        [Space(10)]
+        public bool isClearDepth = true;
+        [Range(0,1)] public float depth = 1;
+
+        [Space(10)]
+        public bool isClearStencil = true;
+        [Range(0,255)]public uint stencil;
+
+
         public override ScriptableRenderPass GetPass() => new SetRenderTargetPass(this);
     }
 
@@ -64,10 +81,19 @@ namespace PowerUtilities.RenderFeatures
             else
                 ConfigureTarget(colorIds, depthId);
 
+
+            // Clear targets
             if (Feature.clearTarget)
             {
-                var cam = cameraData.camera;
-                cmd.ClearRenderTarget(cam);
+                if (Feature.isOverrideClear)
+                {
+                    cmd.ClearRenderTarget(Feature.isClearColor, Feature.clearColor, Feature.isClearDepth, Feature.depth, Feature.isClearStencil, Feature.stencil);
+                }
+                else
+                {
+                    var cam = cameraData.camera;
+                    cmd.ClearRenderTarget(cam);
+                }
             }
 
         }
