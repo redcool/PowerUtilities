@@ -1,0 +1,21 @@
+{
+    "name": "TestProject",
+    "rootNamespace": "PowerUtilities.Test",
+    "references": [
+        "GUID:5a5cc6c9cee917248a0beb2ae4b4170f",
+        "GUID:4ccd971c6cf07f04ea3f16f8ae112570",
+        "GUID:fa4b8ca72f33fc44eb52c1a91b2db75d",
+        "",
+        "GUID:f06555f75b070af458a003d92f9efb00",
+        "GUID:4d7978c8e91b36c4898b68b93a664cc7"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
