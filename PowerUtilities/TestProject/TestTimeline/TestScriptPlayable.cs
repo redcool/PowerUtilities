@@ -1,19 +1,58 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.Animations;
-using UnityEngine.Playables;
-using UnityEngine.Timeline;
-using UnityEngine.UI;
-
 namespace PowerUtilities
 {
+    using System;
+    using System.Collections;
+    using System.Collections.Generic;
+    using UnityEngine;
+    using UnityEngine.Animations;
+    using UnityEngine.Playables;
+    using UnityEngine.Timeline;
+    using UnityEngine.UI;
+
+#if UNITY_EDITOR
+    using UnityEditor;
+    using UnityEditor.Timeline;
+
+    [CustomTimelineEditor(typeof(CustomTimelinePlayableAsset))]
+    public class CustomTimelinePlayableAssetEditor : ClipEditor
+    {
+        public override void DrawBackground(TimelineClip clip, ClipBackgroundRegion region)
+        {
+            var rect = region.position;
+            rect.height = 10;
+            EditorGUI.DrawRect(rect, Color.blue);
+        }
+
+        public override ClipDrawOptions GetClipOptions(TimelineClip clip)
+        {
+            return new ClipDrawOptions
+            {
+                displayClipName=true,
+                errorText= GetErrorText(clip),
+                highlightColor = GetDefaultHighlightColor(clip),
+                tooltip = "test",
+                icons = System.Linq.Enumerable.Empty<Texture2D>()
+            };
+        }
+
+        public override void OnCreate(TimelineClip clip, TrackAsset track, TimelineClip clonedFrom)
+        {
+            var asset = clip.asset as CustomTimelinePlayableAsset;
+            if (asset)
+            {
+                clip.displayName = "自定义的 asset";
+            }
+        }
+
+        
+    }
+#endif
+
     public class CustomPlayable : PlayableBehaviour
     {
         public override void OnGraphStart(Playable playable)
         {
-            Debug.Log(nameof (OnGraphStart));
+            Debug.Log(nameof(OnGraphStart));
         }
 
         public override void OnGraphStop(Playable playable)
@@ -34,7 +73,7 @@ namespace PowerUtilities
         public override void ProcessFrame(Playable playable, FrameData info, object playerData)
         {
             var image = playerData as Image;
-            if(image)
+            if (image)
             {
                 var duration = playable.GetDuration();
                 var time = playable.GetTime();
@@ -75,7 +114,7 @@ namespace PowerUtilities
             graph = PlayableGraph.Create(name: "Test");
 
             var customPlay = ScriptPlayable<CustomPlayable>.Create(graph);
-            
+
 
             //output = AnimationPlayableOutput.Create(graph,"anim out",GetComponent<Animator>()); 
             //output.SetSourcePlayable(customPlay);
