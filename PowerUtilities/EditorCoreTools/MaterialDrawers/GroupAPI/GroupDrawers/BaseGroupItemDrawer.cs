@@ -7,6 +7,7 @@ namespace PowerUtilities
     using UnityEditor;
     using System.Linq;
     using System;
+    using UnityEngine.UIElements;
 
     /// <summary>
     /// Group Item ui
@@ -52,8 +53,14 @@ namespace PowerUtilities
 
                 var lastLabelWidth = EditorGUIUtility.labelWidth;
                 EditorGUI.indentLevel += MaterialGroupTools.GroupIndentLevel(groupName);
-                EditorGUI.DrawRect(position, Color.green*0.07f);
+                // ui
                 DrawGroupUI(position, prop, label, editor);
+
+                // box colors
+                var pos = position;
+                pos.height += 2;
+                EditorGUITools.DrawBoxColors(pos, 2,MaterialGroupTools.GetBackgroundColor(groupName),MaterialGroupTools.GetColumnColor(groupName));
+
                 EditorGUI.indentLevel -= MaterialGroupTools.GroupIndentLevel(groupName);
                 EditorGUIUtility.labelWidth = lastLabelWidth;
             }

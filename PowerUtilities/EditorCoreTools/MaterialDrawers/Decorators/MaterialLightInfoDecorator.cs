@@ -21,6 +21,7 @@ namespace PowerUtilities
         InfoType infoType;
 
         Light light;
+        GUIContent lightInfoContent = new GUIContent("Get from light", "Drop Light object");
 
         public MaterialLightInfoDecorator()
         {
@@ -40,9 +41,8 @@ namespace PowerUtilities
 
         public override void OnGUI(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
         {
-            
             var c = GUI.color; GUI.color = Color.gray;
-            light = (Light)EditorGUI.ObjectField(position, new GUIContent("Get from light"), light, typeof(Light), true);
+            light = (Light)EditorGUI.ObjectField(position, lightInfoContent, light, typeof(Light), true);
             GUI.color = c;
 
             if (!light)
