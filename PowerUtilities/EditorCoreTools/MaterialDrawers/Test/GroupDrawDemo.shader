@@ -2,8 +2,12 @@ Shader "Unlit/GroupDrawDemo"
 {
     Properties
     {
+        [DocumentURL(123)]
+        _HelpURL("http://www.baidu.com",int) = 0
+
+
         [Tooltip(show float value)]
-        Test_FloatVlaue("_FloatVlaue0",range(0,1)) = 0.1
+        Test_FloatVlaue("_FloatVlaue0,中文",range(0,1)) = 0.1
 // show toggle group        
         [Group(ToggleGroup,ToggleGroup helps,false,_KEY1 _KEY2)]
         [GroupHeader(ToggleGroup,toggle group,header0 helps)]
