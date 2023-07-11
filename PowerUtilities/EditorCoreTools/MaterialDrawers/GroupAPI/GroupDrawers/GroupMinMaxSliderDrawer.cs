@@ -1,9 +1,19 @@
 ﻿#if UNITY_EDITOR
 namespace PowerUtilities
 {
+    using System;
+    using System.Numerics;
     using UnityEditor;
     using UnityEngine;
-    
+    using Vector4 = UnityEngine.Vector4;
+
+    /// <summary>
+    /// Draw MinMaxSlider
+    ///     Vector4(min,max,minLimit,maxLimit)
+    /// demo:
+    ///     [GroupMinMaxSlider(Group)]
+    ///     _VectorValue0("_VectorValue0", vector) = (0,0.1,0,1)
+    /// </summary>
     public class GroupMinMaxSliderDrawer : BaseGroupItemDrawer
     {
         public GroupMinMaxSliderDrawer() : this("", "") { }
@@ -15,59 +25,38 @@ namespace PowerUtilities
 
         public override void DrawGroupUI(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
         {
+            var v = prop.vectorValue;
+            CorrectMinMax(ref v);
+
+            var rowWidth = EditorGUIUtility.currentViewWidth - (MaterialGroupTools.IsGroupOn(groupName) ? 30 : 0);
+            var rowHeight = EditorGUIUtility.singleLineHeight;
+            var floatSize = 80;
+            var labelWidth = 120;
+
+            var labelPos = new Rect(position.x,position.y, labelWidth, rowHeight);
+            var minValuePos = new Rect(labelPos.xMax,position.y, floatSize, rowHeight);
+            var sliderPos = new Rect(minValuePos.xMax,position.y, rowWidth-labelWidth-floatSize*2, rowHeight);
+            var maxValuePos = new Rect(sliderPos.xMax,position.y, floatSize, rowHeight);
+
             EditorGUI.BeginChangeCheck();
-            EditorGUI.showMixedValue = prop.hasMixedValue;
 
-            Vector4 value = prop.vectorValue;
+            EditorGUIUtility.labelWidth = 40;
+            EditorGUI.LabelField(labelPos, label);
+            v.x = Mathf.Clamp(EditorGUI.FloatField(minValuePos, "Min", v.x), v.z, v.w);
+            EditorGUI.MinMaxSlider(sliderPos, ref v.x, ref v.y, v.z, v.w);
+            v.y = Mathf.Clamp(EditorGUI.FloatField(maxValuePos, "Max", v.y), v.z, v.w);
 
-            if (value.z.Equals(value.w))
-                value += new Vector4(0, 0, 0, 0.1f);
-            if (value.z > value.w)
-            {
-                value.z = value.w;
-                value.w = value.z;
-            }
-            if (value.x > value.y)
-            {
-                value.x = value.y;
-                value.y = value.x;
-            }
-            value.x = Mathf.Max(value.x, value.z);
-            value.y = Mathf.Min(value.y, value.w);
-            
-            //Slider
-            Rect rangeRect = new Rect(position)
-            {
-                width = position.width - 110
-            };
-
-            //min
-            Rect minRect = new Rect(position)
-            {
-                x = position.xMax - 105f,
-                width = 50,
-            };
-            //max
-            Rect maxRect = new Rect(position)
-            {
-                x = position.xMax - 50f,
-                width = 50,
-            };
-
-
-            EditorGUI.MinMaxSlider(rangeRect, label, ref value.x, ref value.y, value.z, value.w);
-            
-            int indentLevel = EditorGUI.indentLevel;
-            EditorGUI.indentLevel = 0;
-            value.x = EditorGUI.FloatField(minRect, value.x);
-            value.y = EditorGUI.FloatField(maxRect,value.y);
-            EditorGUI.indentLevel = indentLevel;
-
-            EditorGUI.showMixedValue = false;
             if (EditorGUI.EndChangeCheck())
             {
-                prop.vectorValue = value;
+                prop.vectorValue = v;
             }
+        }
+
+        private void CorrectMinMax(ref Vector4 v)
+        {
+            if (v.z >= v.w)
+                v.w +=0.1f;
+
         }
     }
 }

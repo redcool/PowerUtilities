@@ -18,22 +18,28 @@ namespace PowerUtilities
     public class GroupSpaceDecorator : BaseGroupItemDrawer
     {
         public float spaceHeight=1;
-        public GroupSpaceDecorator(string groupName,float height):base(groupName,"")
+        public Color backgroundColor;
+
+        public GroupSpaceDecorator(string groupName, float height):this(groupName, height, null) { }
+        public GroupSpaceDecorator(string groupName, float height, string backgroundColorStr = "#ffffff00") : base(groupName, "")
         {
             spaceHeight = height;
+
+            if (!string.IsNullOrEmpty(backgroundColorStr))
+                ColorUtility.TryParseHtmlString(backgroundColorStr, out backgroundColor);
         }
 
         public override float GetPropertyHeight(MaterialProperty prop, string label, MaterialEditor editor)
         {
-            return MaterialGroupTools.IsGroupOn(groupName) ? LINE_HEIGHT : MIN_LINE_HEIGHT;
+            return MaterialGroupTools.IsGroupOn(groupName) ? spaceHeight : MIN_LINE_HEIGHT;
         }
 
         public override void DrawGroupUI(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
         {
-            if (!MaterialGroupTools.IsGroupOn(groupName))
+            if (!MaterialGroupTools.IsGroupOn(groupName) || backgroundColor == default)
                 return;
 
-            EditorGUI.DrawRect(position,new Color(0,0,0,0));
+            EditorGUI.DrawRect(position,backgroundColor);
         }
     }
 }

@@ -7,13 +7,13 @@ Shader "Unlit/GroupDrawDemo"
 
 
         [Tooltip(show float value)]
-        Test_FloatVlaue("_FloatVlaue0,中文",range(0,1)) = 0.1
+        Test_FloatValue("_FloatValue0,中文",range(0,1)) = 0.1
 // show toggle group        
         [Group(ToggleGroup,ToggleGroup helps,false,_KEY1 _KEY2)]
         [GroupHeader(ToggleGroup,toggle group,header0 helps)]
-
-        [GroupItem(ToggleGroup,_FloatVlaue0 helps)]
-        _FloatVlaue0("_FloatVlaue0",range(0,1)) = 0.1
+[GroupSpace(ToggleGroup,5,#ff000040)]
+        [GroupItem(ToggleGroup,_FloatValue0 helps)]        
+        _FloatValue0("_FloatValue0",range(0,1)) = 0.1
 
         [GroupItem(ToggleGroup,_MainTex0 helps)]_MainTex0 ("Texture0", 2D) = "white" {}
 
@@ -24,14 +24,17 @@ Shader "Unlit/GroupDrawDemo"
 
         // // show group item
         [GroupHeader(Group,GroupItem_Float)]
-        [GroupItem(Group,_FloatVlaue1 helps)]_FloatVlaue("_FloatVlaue1",range(0,1)) = 0.1
+        [GroupItem(Group,_FloatValue1 helps)]_FloatValue("_FloatValue1",range(0,1)) = 0.1
+
+        [GroupMinMaxSlider(Group)]
+        _VectorValue0("_VectorValue0",vector) = (0,0,0,1)
 
 [Group(GroupSlider)]
         [GroupHeader(GroupSlider,float)]
-        [GroupSlider(GroupSlider,_FloatVlaue0 helps,float)]_GroupSlider_float("float slider",range(0,2)) = 0.1
+        [GroupSlider(GroupSlider,_FloatValue0 helps,float)]_GroupSlider_float("float slider",range(0,2)) = 0.1
 
         [GroupHeader(GroupSlider,int)]
-        [GroupSlider(GroupSlider,_FloatVlaue0 helps,int)]_GroupSlider_int("int slider",range(0,10)) = 0.1
+        [GroupSlider(GroupSlider,_FloatValue0 helps,int)]_GroupSlider_int("int slider",range(0,10)) = 0.1
 
         [GroupHeader(GroupSlider,remap(slider value is x,show range 0_1))]
         [GroupSlider(GroupSlider,_GroupSlider helps)]_GroupSliderRemap("remap slider",range(0.1,0.5)) = 0.2
