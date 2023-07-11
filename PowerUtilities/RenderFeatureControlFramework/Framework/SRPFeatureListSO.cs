@@ -36,9 +36,11 @@
             {
                 //EditorGUILayout.BeginVertical("Box");
                 EditorGUI.indentLevel++;
-                for (int i = 0; i < inst.featureList.Count; i++)
+                for (int i = 0; i < featureSOList.Count; i++)
                 {
-                    var feature = inst.featureList[i];
+                    var featureSO = featureSOList[i];
+                    var feature = (SRPFeature) featureSO.targetObject;
+
                     var color = feature.enabled ? (feature.interrupt ? Color.red : GUI.color) : Color.gray;
                     var title = feature.name;
                     var foldoutProp = featureSOList[i].FindProperty(nameof(SRPFeature.isFoldout));
