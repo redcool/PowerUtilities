@@ -101,11 +101,11 @@ namespace PowerUtilities.RenderFeatures
                 colorIds = colorIds.Take(SystemInfo.supportedRenderTargetCount).ToArray();
 
             /// scene view show nothing
-            if (camera.IsGameCamera())
+            //if (camera.IsGameCamera())
+            {
                 cmd.SetRenderTarget(colorIds, depthId);
-            else
-                ConfigureTarget(colorIds, depthId);
-
+            }
+            
         }
     }
 }

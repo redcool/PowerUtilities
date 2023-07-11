@@ -37,8 +37,10 @@ namespace PowerUtilities.RenderFeatures
         { 
             if(Feature == null || !Feature.enabled)
                 return false;
+
             if (camera.cameraType == CameraType.Game &&!string.IsNullOrEmpty(Feature.gameCameraTag))
                 return camera.CompareTag(Feature.gameCameraTag);
+
             return true;
         }
 
@@ -54,12 +56,10 @@ namespace PowerUtilities.RenderFeatures
 
             var cmd = CommandBufferPool.Get(Feature.name);
             cmd.Execute(ref context);
-            cmd.Clear();
 
             OnExecute(context, ref renderingData,cmd);
 
             cmd.Execute(ref context);
-            cmd.Clear();
         }
 
         public abstract void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd);

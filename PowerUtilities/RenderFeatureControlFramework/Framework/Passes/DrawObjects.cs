@@ -90,21 +90,19 @@
 
     public class DrawObjectsPassWrapper : SRPPass<DrawObjects>
     {
-        //DrawObjectsPass 
         FullDrawObjectsPass
             drawObjectsPass;
 
         DrawSkyboxPass drawSkyboxPass;
         public DrawObjectsPassWrapper(DrawObjects feature) : base(feature)
         {
-            //drawObjectsPass = GetDrawObjectsPass(feature);
-
             drawObjectsPass = new FullDrawObjectsPass(feature);
 
             if (feature.isDrawSkybox)
                 drawSkyboxPass = new DrawSkyboxPass(feature.drawSkyboxEvent);
         }
 
+        #region Get URP DrawObjects
         public static DrawObjectsPass GetUrpDrawObjectsPass(DrawObjects feature)
         {
             UniversalRenderPipelineAsset asset = UniversalRenderPipeline.asset;
@@ -125,6 +123,7 @@
 
             return new DrawObjectsPass(feature.name, shaderTagIds, feature.isOpaque, feature.renderPassEvent, renderQueueRange, feature.layers, stencilState, stencilData.stencilReference);
         }
+        #endregion
 
         public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
         {
@@ -138,7 +137,7 @@
         {
             cmd.BeginSampleExecute(Feature.name, ref context);
 
-            drawObjectsPass.Execute(context, ref renderingData);
+            drawObjectsPass.OnExecute(context, ref renderingData, cmd);
 
             if (drawSkyboxPass != null)
                 drawSkyboxPass.Execute(context, ref renderingData);

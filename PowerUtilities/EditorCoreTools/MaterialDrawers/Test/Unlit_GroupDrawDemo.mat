@@ -39,7 +39,7 @@ Material:
     m_Floats:
     - Test_FloatValue: 0.1
     - Test_FloatVlaue: 0.1
-    - _FloatValue: 0.1
+    - _FloatValue: 0.389
     - _FloatValue0: 0.1
     - _FloatVlaue: 0.1
     - _FloatVlaue0: 0.143
@@ -68,5 +68,6 @@ Material:
     - _Vector2: {r: 1, g: 0.1, b: 0, a: 0.569}
     - _Vector3: {r: 0.385, g: 1, b: 1, a: 1}
     - _Vector4: {r: 2, g: 3.19, b: 1, a: 1}
-    - _VectorValue: {r: 0, g: 0.5, b: 0, a: 1}
+    - _VectorValue: {r: 0.33645204, g: 0.44242522, b: 0, a: 1}
+    - _VectorValue0: {r: 0.027314961, g: 0.08910081, b: 0, a: 0.1}
   m_BuildTextureStacks: []

@@ -44,6 +44,14 @@ namespace PowerUtilities
                 MaterialGroupTools.SetState(groupName, groupInfo.isOn, groupInfo.hasCheckedMark, groupInfo.isChecked);
         }
 
+        public GroupDecorator(string groupName, string tooltip, string updateProp, string keywordsWhenChecked, string leftBoxColor)
+            : this(groupName, tooltip, updateProp, keywordsWhenChecked)
+        {
+            var groupInfo = MaterialGroupTools.GetGroupInfo(groupName);
+            if (groupInfo != null)
+                ColorUtility.TryParseHtmlString(leftBoxColor, out groupInfo.columnColor);
+        }
+
         public override float GetPropertyHeight(MaterialProperty prop, string label, MaterialEditor editor)
         {
             return EditorGUIUtility.singleLineHeight;

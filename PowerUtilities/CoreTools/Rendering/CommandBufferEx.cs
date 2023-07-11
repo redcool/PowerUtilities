@@ -107,12 +107,12 @@ namespace PowerUtilities
                 Cmd.GetTemporaryRT(item, desc);
             }
         }
-        public static void CreateDepthTarget(this CommandBuffer Cmd, Camera camera, int targetId, float renderScale = 1, int samples = 1)
+        public static void CreateDepthTarget(this CommandBuffer cmd, Camera camera, int targetId, float renderScale = 1, int samples = 1)
         {
             var desc = defaultDescriptor;
             desc.SetupDepthDescriptor(camera, renderScale);
             desc.msaaSamples = samples;
-            Cmd.GetTemporaryRT(targetId, desc);
+            cmd.GetTemporaryRT(targetId, desc);
         }
 
         /// <summary>
