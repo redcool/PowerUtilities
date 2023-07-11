@@ -7,9 +7,9 @@ Shader "Unlit/GroupDrawDemo"
 
 
         [Tooltip(show float value)]
-        Test_FloatValue("_FloatValue0,中文",range(0,1)) = 0.1
+        Test_FloatValue("_FloatValue0",range(0,1)) = 0.1
 // show toggle group        
-        [Group(ToggleGroup,ToggleGroup helps,false,_KEY1 _KEY2)]
+        [Group(ToggleGroup,ToggleGroup helps,false,_KEY1 _KEY2,#00ff0080)]
         [GroupHeader(ToggleGroup,toggle group,header0 helps)]
 [GroupSpace(ToggleGroup,5,#ff000040)]
         [GroupItem(ToggleGroup,_FloatValue0 helps)]        
