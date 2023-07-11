@@ -8,6 +8,7 @@ namespace PowerUtilities
     using UnityEditor;
     using UnityEditorInternal;
     using UnityEngine;
+    using UnityEngine.TerrainUtils;
 
     public static class EditorGUITools
     {
@@ -378,6 +379,47 @@ namespace PowerUtilities
             }
             //obj.ApplyModifiedProperties();
             return EditorGUI.EndChangeCheck();
+        }
+
+        /// <summary>
+        /// box' color
+        /// _________
+        /// |       |
+        /// |       |
+        /// |       |
+        /// _________
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="backgroundColor"></param>
+        /// <param name="leftColor"></param>
+        public static void DrawBoxColors(Rect position, float borderSize = 2, Color backgroundColor = default, Color leftColor = default, Color upColor = default, Color rightColor = default, Color bottomColor = default)
+        {
+            var positions = new[] {
+                position,
+                new Rect(position.x, position.y, 2, position.height),
+                new Rect(position.x,position.y,position.width,2),
+                new Rect(position.xMax-borderSize, position.y, position.width, position.height),
+                new Rect(position.x, position.y, position.width, 2)
+            };
+            var colors = new[] {
+                backgroundColor,leftColor, upColor, rightColor, bottomColor
+            };
+            colors.ForEach((color, id) =>
+            {
+                if (color != default)
+                    EditorGUI.DrawRect(positions[id], color);
+            });
+        }
+
+        public static void DrawHelpURL(Rect position, string url)
+        {
+            var helpContent = EditorGUIUtility.IconContent("_Help");
+            var buttonSize = position.height;
+            var helpPos = new Rect(position.xMax-buttonSize, position.y, buttonSize, buttonSize);
+            if (EditorGUI.LinkButton(helpPos, helpContent))
+            {
+                Help.BrowseURL(url);
+            }
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace PowerUtilities
 {
@@ -13,6 +14,8 @@ namespace PowerUtilities
             public bool isOn; // this group unfold?
             public bool hasCheckedMark; // isChecked work when hasCheckedMark is true
             public bool isChecked; //this group enabled?
+            public Color backgrounColor = new Color(0.05f, 0.05f, 0.05f, 0.05f); 
+            public Color columnColor = Color.blue*0.5f; // show group column header color
         }
 
         public const string DEFAULT_GROUP_NAME = "_";
@@ -25,7 +28,8 @@ namespace PowerUtilities
             !groupInfoDict.ContainsKey(groupName);
 
         public static int GroupIndentLevel(string groupName) => IsDefaultGroup(groupName) ? 0 : 1;
-
+        public static Color GetBackgroundColor(string groupName) => GetGroupInfo(groupName).backgrounColor;
+        public static Color GetColumnColor(string groupName) => GetGroupInfo(groupName).columnColor;
 
         public static bool IsGroupOn(string groupName)
         {
