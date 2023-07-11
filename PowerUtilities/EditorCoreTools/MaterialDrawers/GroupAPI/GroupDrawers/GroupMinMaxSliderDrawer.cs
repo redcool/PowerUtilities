@@ -31,11 +31,13 @@ namespace PowerUtilities
             var rowWidth = EditorGUIUtility.currentViewWidth - (MaterialGroupTools.IsGroupOn(groupName) ? 30 : 0);
             var rowHeight = EditorGUIUtility.singleLineHeight;
             var floatSize = 80;
-            var labelWidth = 120;
+            var labelWidth = 100;
 
             var labelPos = new Rect(position.x,position.y, labelWidth, rowHeight);
             var minValuePos = new Rect(labelPos.xMax,position.y, floatSize, rowHeight);
-            var sliderPos = new Rect(minValuePos.xMax,position.y, rowWidth-labelWidth-floatSize*2, rowHeight);
+
+            var sliderWidth = Mathf.Max(1, rowWidth-labelWidth-floatSize*2);
+            var sliderPos = new Rect(minValuePos.xMax,position.y, sliderWidth, rowHeight);
             var maxValuePos = new Rect(sliderPos.xMax,position.y, floatSize, rowHeight);
 
             EditorGUI.BeginChangeCheck();
