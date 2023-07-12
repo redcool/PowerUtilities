@@ -40,7 +40,7 @@
         public bool interrupt;
 
         [Tooltip("Only work in editor's scene camera")]
-        public bool isEditorOnly;
+        public bool isSceneCameraOnly;
 
         [Header("Pass Options / Filters")]
         [Tooltip("Which camera can run this pass ? only work for Game Camera")]
