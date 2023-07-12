@@ -38,6 +38,11 @@ namespace PowerUtilities.RenderFeatures
             if(Feature == null || !Feature.enabled)
                 return false;
 
+#if UNITY_EDITOR
+            if (Feature.isEditorOnly && camera.cameraType != CameraType.SceneView)
+                return false;
+#endif
+
             if (camera.cameraType == CameraType.Game &&!string.IsNullOrEmpty(Feature.gameCameraTag))
                 return camera.CompareTag(Feature.gameCameraTag);
 

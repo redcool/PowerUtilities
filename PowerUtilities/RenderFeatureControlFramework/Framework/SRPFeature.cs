@@ -39,6 +39,9 @@
         [Tooltip("Interrupt others pass when this pass done")]
         public bool interrupt;
 
+        [Tooltip("Only work in editor's scene camera")]
+        public bool isEditorOnly;
+
         [Header("Pass Options / Filters")]
         [Tooltip("Which camera can run this pass ? only work for Game Camera")]
         public string gameCameraTag = "MainCamera";
