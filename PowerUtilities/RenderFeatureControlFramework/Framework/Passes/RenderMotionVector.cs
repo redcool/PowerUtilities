@@ -63,7 +63,6 @@ namespace PowerUtilities
 
             Shader.SetGlobalMatrix(ShaderPropertyIds._PrevViewProjMatrix, MotionVectorData.Instance().GetPreviousVP(camera));
             MotionVectorData.Instance().Update(camera);
-
             camera.depthTextureMode |= DepthTextureMode.MotionVectors | DepthTextureMode.Depth; // great importance
             
             UpdateMotionMaterial();
@@ -110,7 +109,11 @@ namespace PowerUtilities
                 cmd.GetTemporaryRT(ShaderPropertyIds._MotionVectorTexture, desc);
             }
 
-            ConfigureTarget(ShaderPropertyIds._MotionVectorTexture, ShaderPropertyIds._MotionVectorTexture);
+            if (Feature.isDrawObjectMotionVectors || Feature.isRenderCameraMotionVectors)
+            {
+                //ConfigureTarget(ShaderPropertyIds._MotionVectorTexture, ShaderPropertyIds._MotionVectorTexture);
+                cmd.SetRenderTarget(ShaderPropertyIds._MotionVectorTexture);
+            }
         }
 
         public override void OnFinishCameraStackRendering(CommandBuffer cmd)
