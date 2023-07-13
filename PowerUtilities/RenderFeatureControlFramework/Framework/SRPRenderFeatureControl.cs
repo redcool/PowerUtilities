@@ -54,8 +54,11 @@ using UnityEngine.Rendering.Universal;
 
         public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
         {
-            if ( featureListSO == null || featureListSO.featureList.Count == 0)
+            if ( featureListSO == null || featureListSO.featureList.Count == 0 || !featureListSO.enabled)
                 return;
+
+            // cached last use instance
+            SRPFeatureListSO.instance = featureListSO;
 
             foreach (var feature in featureListSO.featureList)
             {

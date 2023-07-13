@@ -69,11 +69,31 @@
     [CreateAssetMenu(menuName = SRPFeature.SRP_FEATURE_MENU + "/SRPFeatureList")]
     public class SRPFeatureListSO : ScriptableObject
     {
+        [Tooltip("dont run featureList when disable")]
+        public bool enabled = true;
+
         public List<SRPFeature> featureList = new List<SRPFeature>();
 
         [SerializeField]
         [HideInInspector]
         bool isDetailsFoldout; // feature details folded?
 
+
+        public static SRPFeatureListSO instance; // last instance
+
+        public T GetFeature<T>(string featureName) where T : SRPFeature
+        {
+            if (string.IsNullOrEmpty(featureName))
+                return default;
+
+            return (T)featureList.Find(f => f.name == featureName);
+        }
+
+        public List<T> GetFeatures<T>() where T : SRPFeature
+        {
+            return featureList.FindAll(f => f.GetType() == typeof(T))
+                .Select(f=> (T)f)
+                .ToList();
+        }
     }
 }
