@@ -83,11 +83,19 @@ namespace PowerUtilities
                 if (! info.IsValid())
                     return;
 
-                desc.colorFormat = info.isHdr ? RenderTextureFormat.DefaultHDR : RenderTextureFormat.Default;
                 desc.graphicsFormat = info.format;
+                //desc.colorFormat = info.isHdr ? RenderTextureFormat.DefaultHDR : RenderTextureFormat.Default;
+
+                // depth format
+                if (GraphicsFormatUtility.IsDepthFormat(info.format))
+                {
+                    desc.colorFormat = RenderTextureFormat.Depth;
+                    info.hasDepthBuffer = true;
+                }
 
                 if (info.hasDepthBuffer)
                     desc.depthStencilFormat = GraphicsFormat.D24_UNorm_S8_UInt;
+
 
                 cmd.GetTemporaryRT(info.GetHash(), desc);
             });
