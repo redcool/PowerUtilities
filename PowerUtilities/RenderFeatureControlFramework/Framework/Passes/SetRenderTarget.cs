@@ -91,7 +91,7 @@ namespace PowerUtilities.RenderFeatures
             ref var cameraData = ref renderingData.cameraData;
 
             // set depth target id
-            RenderTargetIdentifier depthId = UniversalRenderPipeline.asset.supportsCameraDepthTexture ? cameraData.renderer.cameraDepthTarget : BuiltinRenderTextureType.CameraTarget;
+            RenderTargetIdentifier depthId = UniversalRenderPipeline.asset.supportsCameraDepthTexture ? ShaderPropertyIds._CameraDepthAttachment : BuiltinRenderTextureType.CameraTarget;
             if (!string.IsNullOrEmpty(Feature.depthTargetName))
             {
                 depthId = Shader.PropertyToID(Feature.depthTargetName);

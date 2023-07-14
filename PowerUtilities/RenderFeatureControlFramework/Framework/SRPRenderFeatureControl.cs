@@ -59,6 +59,7 @@ using UnityEngine.Rendering.Universal;
 
             // cached last use instance
             SRPFeatureListSO.instance = featureListSO;
+            ref var cameraData = ref renderingData.cameraData;
 
             foreach (var feature in featureListSO.featureList)
             {
@@ -67,6 +68,9 @@ using UnityEngine.Rendering.Universal;
 
                 var pass = feature.PassInstance;
                 if (pass == null || !feature.enabled)
+                    continue;
+
+                if (feature.isSceneCameraOnly && cameraData.camera.cameraType != CameraType.SceneView)
                     continue;
 
                 pass.renderPassEvent = feature.renderPassEvent + feature.renderPassEventOffset;
