@@ -79,17 +79,8 @@ namespace PowerUtilities
             var dict = new Dictionary<string, string>();
             if (!string.IsNullOrEmpty(configFilePath) && File.Exists(configFilePath))
             {
-                var lines = File.ReadAllLines(configFilePath);
-                foreach (var lineStr in lines)
-                {
-                    var line = lineStr.Trim();
-                    if (string.IsNullOrEmpty(line) || line.StartsWith("//"))
-                        continue;
-
-                    var kv = kvRegex.Split(line);
-                    if (kv.Length > 1)
-                        dict[kv[0]] = kv[1];
-                }
+                var text = File.ReadAllText(configFilePath);
+                text.ReadKeyValue(dict);
             }
             return dict;
         }

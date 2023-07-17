@@ -63,19 +63,7 @@ namespace PowerUtilities
 
             i18nDict.Clear();
 
-            var lines = profile.text.Split("\n");
-            lines.ForEach((line, id) =>
-            {
-                line = line.Trim();
-
-                if (string.IsNullOrEmpty(line) || line.StartsWith("//"))
-                    return;
-
-                var keyValue = line.Split("=");
-                var k = keyValue[0].Trim();
-                var v = keyValue[1].Trim();
-                i18nDict[k] = v;
-            });
+            profile.text.ReadKeyValue(i18nDict);
         }
 
         public void TryInit()

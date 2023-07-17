@@ -44,7 +44,7 @@ namespace GameUtilsFramework {
 
         void RenameChildren()
         {
-            if (string.IsNullOrEmpty(findStr) || string.IsNullOrEmpty(replaceStr))
+            if (string.IsNullOrEmpty(findStr))
                 return;
 
             var gos = go.GetComponentsInChildren<Transform>()
