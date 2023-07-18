@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using UnityEditor.VersionControl;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
@@ -10,6 +11,18 @@ using Object = UnityEngine.Object;
 
 namespace PowerUtilities
 {
+    /// <summary>
+    /// UniversalRenderPipelineAsset tools
+    /// 
+    /*
+     * 
+        var asset = (UniversalRenderPipelineAsset)GraphicsSettings.defaultRenderPipeline;
+        var features = asset.GetRendererDatas().FirstOrDefault().rendererFeatures;
+        features.ForEach(f => {
+            Debug.Log(f);
+        });
+    */
+    /// </summary>
     public static class UniversalRenderPipelineAssetExtends
     {
         /// <summary>

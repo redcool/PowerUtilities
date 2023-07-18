@@ -1,44 +1,71 @@
 #if UNITY_EDITOR
 namespace PowerUtilities
 {
+    using System;
     using System.Collections;
     using System.Collections.Generic;
+    using System.Reflection;
     using UnityEditor;
     using UnityEngine;
-
+    using Object = UnityEngine.Object;
 
     public static class ScriptableObjectTools
     {
         /// <summary>
-        /// get or create instance 
+        /// Get or create instance 
+        /// if path is empty will find from AssetPathAttribute
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="so"></param>
         /// <param name="path"></param>
         /// <returns></returns>
-        public static T GetInstance<T>(string path) where T : ScriptableObject
+        public static Object GetInstance(Type type,string path = "")
         {
-            var settings = AssetDatabase.LoadAssetAtPath<T>(path);
+            // check path from attribute
+            if (string.IsNullOrEmpty(path))
+            {
+                path = SOAssetPathAttribute.GetPath(type);
+            }
+
+            var settings = AssetDatabase.LoadAssetAtPath(path, type);
             if (settings == null)
             {
-                settings = ScriptableObject.CreateInstance<T>();
+                settings = ScriptableObject.CreateInstance(type);
                 AssetDatabase.CreateAsset(settings, path);
                 AssetDatabase.SaveAssets();
             }
             return settings;
         }
 
+        public static T GetInstance<T>(string path="") where T : ScriptableObject
+        {
+            return (T)GetInstance(typeof(T),path);
+        }
+
+
         /// <summary>
         /// Get scriptable's serializedObject 
+        /// if path is empty will find from AssetPathAttribute
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="so"></param>
         /// <param name="path"></param>
         /// <returns></returns>
-        public static SerializedObject GetSerializedInstance<T>(string path) where T : ScriptableObject
+        public static SerializedObject GetSerializedInstance(Type type,string path = "")
         {
-            return new SerializedObject(GetInstance<T>(path));
+            // check path from attribute
+            if (string.IsNullOrEmpty(path))
+            {
+                path = SOAssetPathAttribute.GetPath(type);
+            }
+
+            return new SerializedObject(GetInstance(type,path));
         }
+        public static SerializedObject GetSerializedInstance<T>(string path="") where T : ScriptableObject
+        {
+            return GetSerializedInstance(typeof(T), path);
+        }
+
     }
 }
 #endif

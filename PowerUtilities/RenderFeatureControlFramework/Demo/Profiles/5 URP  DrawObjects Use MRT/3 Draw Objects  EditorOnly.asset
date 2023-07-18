@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f3c6d2cd4defcb49920b98f50d01b66, type: 3}
+  m_Name: 3 Draw Objects  EditorOnly
+  m_EditorClassIdentifier: 
+  enabled: 1
+  interrupt: 0
+  isEditorOnly: 1
+  gameCameraTag: MainCamera
+  renderPassEvent: 250
+  renderPassEventOffset: 0
+  log: 
+  isFoldout: 1
+  shaderTags:
+  - UniversalForwardOnly
+  - UniversalForward
+  - SRPDefaultUnlit
+  isOpaque: 1
+  layers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  stencilData:
+    overrideStencilState: 0
+    stencilReference: 0
+    stencilCompareFunction: 8
+    passOperation: 0
+    failOperation: 0
+    zFailOperation: 0
+  overrideMaterial: {fileID: 0}
+  overrideMaterialPassIndex: 0
+  fallbackMaterial: {fileID: 0}
+  overridePerObjectData: 1
+  perObjectData: 1887
+  overrideMainLightIndex: 0
+  isRestoreMainLightIndexFinish: 1
+  mainLightIndex: 1
+  lightName: 
+  visibleLightNames:
+  - Directional Light
+  - Directional Light (1)
+  overrideDynamicBatching: 0
+  enableDynamicBatching: 0
+  overrideGPUInstancing: 0
+  enableGPUInstancing: 0
+  overrideSRPBatch: 0
+  enableSRPBatch: 0
+  overrideCamera: 0
+  cameraFOV: 60
+  cameraOffset: {x: 0, y: 0, z: 0, w: 0}
+  isDrawSkybox: 0
+  drawSkyboxEvent: 350
