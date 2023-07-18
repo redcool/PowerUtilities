@@ -8,6 +8,7 @@ using UnityEngine.Rendering.Universal.Internal;
 
 namespace PowerUtilities.RenderFeatures
 {
+    [Tooltip("Copy _CameraColorAttachmentA to _CameraOpaqueTexture, can control execution order ")]
     [CreateAssetMenu(menuName =SRP_FEATURE_PASSES_MENU+"/CopyColor")]
     public class CopyColor : SRPFeature
     {

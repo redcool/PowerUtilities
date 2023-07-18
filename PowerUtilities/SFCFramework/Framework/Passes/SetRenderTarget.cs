@@ -7,6 +7,7 @@ using UnityEngine.Rendering.Universal;
 
 namespace PowerUtilities.RenderFeatures
 {
+    [Tooltip("Set more color target (1 depth )to fill, 8 is max")]
     [CreateAssetMenu(menuName =SRP_FEATURE_PASSES_MENU+ "/SetRenderTarget")]
     public class SetRenderTarget : SRPFeature
     {

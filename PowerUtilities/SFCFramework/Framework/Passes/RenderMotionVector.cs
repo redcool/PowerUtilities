@@ -9,6 +9,7 @@ using UnityEngine.Rendering.Universal;
 
 namespace PowerUtilities
 {
+    [Tooltip("Control MotionVectors render,(object ,camera)")]
     [CreateAssetMenu(menuName = SRP_FEATURE_PASSES_MENU+"/RenderMotionVector")]
     public class RenderMotionVector : SRPFeature
     {

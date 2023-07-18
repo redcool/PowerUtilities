@@ -9,6 +9,8 @@
 
 #if UNITY_EDITOR
     using UnityEditor;
+    using System.Reflection;
+
     [CustomEditor(typeof(SRPFeatureListSO))]
     public class SRPFeatureListEditor : PowerEditor<SRPFeatureListSO>
     {
@@ -43,8 +45,8 @@
 
                     var color = feature.enabled ? (feature.interrupt ? Color.red : GUI.color) : Color.gray;
                     var title = feature.name;
-                    var foldoutProp = featureSOList[i].FindProperty(nameof(SRPFeature.isFoldout));
-                    PassDrawer.DrawPassDetail(featureSOList[i], color, foldoutProp, EditorGUITools.TempContent(title));
+                    var foldoutProp = featureSO.FindProperty(nameof(SRPFeature.isFoldout));
+                    PassDrawer.DrawPassDetail(featureSO, color, foldoutProp, EditorGUITools.TempContent(title, feature.Tooltip));
                 }
                 EditorGUI.indentLevel--;
                 //EditorGUILayout.EndVertical();

@@ -8,6 +8,7 @@ using UnityEngine.Rendering.Universal;
 
 namespace PowerUtilities.RenderFeatures
 {
+    [Tooltip("Create RenderTargets (Color or depth)")]
     [CreateAssetMenu(menuName = SRP_FEATURE_PASSES_MENU+"/CreateRenderTarget")]
     public class CreateRenderTarget : SRPFeature
     {

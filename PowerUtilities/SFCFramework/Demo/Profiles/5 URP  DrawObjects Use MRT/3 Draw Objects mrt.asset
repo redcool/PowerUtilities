@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enabled: 1
   interrupt: 0
+  isSceneCameraOnly: 0
   gameCameraTag: MainCamera
   renderPassEvent: 250
   renderPassEventOffset: 0
@@ -37,8 +38,8 @@ MonoBehaviour:
   overrideMaterial: {fileID: 0}
   overrideMaterialPassIndex: 0
   fallbackMaterial: {fileID: 0}
-  overridePerObjectData: 0
-  perObjectData: 0
+  overridePerObjectData: 1
+  perObjectData: 1887
   overrideMainLightIndex: 0
   isRestoreMainLightIndexFinish: 1
   mainLightIndex: 1
@@ -52,6 +53,8 @@ MonoBehaviour:
   enableGPUInstancing: 0
   overrideSRPBatch: 0
   enableSRPBatch: 0
-  isRestoreSRPBatch: 0
+  overrideCamera: 0
+  cameraFOV: 60
+  cameraOffset: {x: 0, y: 0, z: 0, w: 0}
   isDrawSkybox: 0
   drawSkyboxEvent: 350

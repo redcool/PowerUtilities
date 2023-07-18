@@ -8,6 +8,7 @@ using UnityEngine.Rendering.Universal.Internal;
 
 namespace PowerUtilities
 {
+    [Tooltip("Fill _CamerDepthTexture render scene once")]
     [CreateAssetMenu(menuName = SRP_FEATURE_PASSES_MENU+ "/DepthOnly")]
     public class DepthOnly : SRPFeature
     {

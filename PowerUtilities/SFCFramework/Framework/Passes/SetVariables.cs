@@ -8,6 +8,7 @@ namespace PowerUtilities
     using UnityEngine.Rendering;
     using UnityEngine.Rendering.Universal;
 
+    [Tooltip("Bind Shader varables")]
     [CreateAssetMenu(menuName = SRP_FEATURE_PASSES_MENU+ "/SetVariables")]
     public class SetVariables : SRPFeature
     {

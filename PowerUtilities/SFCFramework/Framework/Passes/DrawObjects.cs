@@ -12,6 +12,7 @@
     using UnityEngine.Rendering.Universal;
     using UnityEngine.Rendering.Universal.Internal;
 
+    [Tooltip("Draw Objects open all urp powers")]
     [CreateAssetMenu(menuName = SRP_FEATURE_PASSES_MENU+ "/DrawObjects")]
     public class DrawObjects : SRPFeature
     {

@@ -6,11 +6,10 @@ using UnityEngine.Rendering.Universal;
 
 namespace PowerUtilities.RenderFeatures
 {
+    [Tooltip("Release targets")]
     [CreateAssetMenu(menuName = SRP_FEATURE_PASSES_MENU+"/ReleaseRenderTarget")]
     public class ReleaseRenderTarget : SRPFeature
     {
-
-
         [Header("Targets")]
         public string[] targetNames;
 

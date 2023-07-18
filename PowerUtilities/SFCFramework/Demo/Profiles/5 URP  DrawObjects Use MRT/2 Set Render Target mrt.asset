@@ -19,9 +19,17 @@ MonoBehaviour:
   renderPassEventOffset: 0
   log: 
   isFoldout: 0
+  isSetTargets: 1
   colorTargetNames:
   - _CameraColorAttachmentA
   - _CameraNormalsTexture
   - _MotionVectorTexture
   depthTargetName: 
   clearTarget: 1
+  isOverrideClear: 0
+  isClearColor: 0
+  clearColor: {r: 0, g: 0, b: 0, a: 0}
+  isClearDepth: 0
+  depth: 1
+  isClearStencil: 0
+  stencil: 0

@@ -9,6 +9,7 @@ using UnityEngine.Rendering.Universal;
 
 namespace PowerUtilities.RenderFeatures
 {
+    [Tooltip("Control Camera's Texture Execution order (Depth,Color,MotionVaetor,Normal)")]
     [CreateAssetMenu(menuName = SRP_FEATURE_PASSES_MENU+"/"+nameof(CopyCameraTextures))]
     public class CopyCameraTextures : SRPFeature
     {

@@ -15,14 +15,15 @@ MonoBehaviour:
   enabled: 1
   interrupt: 0
   gameCameraTag: MainCamera
-  renderPassEvent: 350
+  renderPassEvent: 400
   renderPassEventOffset: 0
   log: 
   isFoldout: 0
+  isRenderCameraMotionVectors: 0
   isCreateMotionVectorTexture: 0
   cameraMotionMat: {fileID: 2100000, guid: 193eeeaf8639c074aafe5e1af3ce72ea, type: 2}
   srcMode: 1
-  dstMode: 0
+  dstMode: 1
+  blendOp: 0
   isDrawObjectMotionVectors: 0
-  objectMotionMaterial: {fileID: 2100000, guid: c0461b490bd74d041a53af2b2ac05919,
-    type: 2}
+  objectMotionMaterial: {fileID: 2100000, guid: c0461b490bd74d041a53af2b2ac05919, type: 2}

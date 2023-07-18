@@ -11,6 +11,8 @@
 
 #if UNITY_EDITOR
     using UnityEditor;
+    using System.Reflection;
+
     [CanEditMultipleObjects]
     [CustomEditor(typeof(SRPFeature), true)]
     public class SRPFeatureEditor : PowerEditor<SRPFeature>
@@ -50,21 +52,28 @@
         public RenderPassEvent renderPassEvent = RenderPassEvent.AfterRenderingSkybox;
         public int renderPassEventOffset = 0;
 
+        /// <summary>
+        /// output this pass's log,show in inspector
+        /// </summary>
         [Header("Pass Options / Pass Log")]
         [Multiline]
         public string log;
 
+        /// <summary>
+        /// is details foldout ? show in inspector
+        /// </summary>
         [HideInInspector]
         public bool isFoldout;
 
+        
+        // pass instance cache
+        ScriptableRenderPass passInstance;
+        TooltipAttribute featureTooltipAttr;
         /// <summary>
         /// get a new pass instance
         /// </summary>
         /// <returns></returns>
         public abstract ScriptableRenderPass GetPass();
-        
-        // pass instance cache
-        ScriptableRenderPass passInstance;
 
         /// <summary>
         /// get cached pass instance
@@ -78,6 +87,16 @@
                 return passInstance;
             }
         }
+
+        public string Tooltip
+        {
+            get { 
+                if(featureTooltipAttr == null)
+                    featureTooltipAttr = GetType().GetCustomAttribute<TooltipAttribute>();
+                return featureTooltipAttr?.tooltip;
+            }
+        }
+        
     }
 
 }

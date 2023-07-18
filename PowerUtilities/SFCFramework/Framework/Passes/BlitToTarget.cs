@@ -6,6 +6,7 @@ using UnityEngine.Rendering.Universal;
 
 namespace PowerUtilities.RenderFeatures
 {
+    [Tooltip("Blit sourceName to targetName")]
     [CreateAssetMenu(menuName=SRP_FEATURE_PASSES_MENU+ "/BlitToTarget")]
     public class BlitToTarget : SRPFeature
     {
