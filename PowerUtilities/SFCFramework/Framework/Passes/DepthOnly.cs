@@ -19,23 +19,55 @@ namespace PowerUtilities
 
     public class DepthOnlyPassWrapper : SRPPass<DepthOnly>
     {
-        DepthOnlyPass depthOnlyPass;
         public DepthOnlyPassWrapper(DepthOnly feature) : base(feature) {
-            depthOnlyPass = new DepthOnlyPass(feature.renderPassEvent, RenderQueueRange.opaque, feature.layerMask);
         }
 
-        public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
-        {
-            ref var cameraData = ref renderingData.cameraData;
-            depthOnlyPass.Setup(cameraData.cameraTargetDescriptor, new RenderTargetHandle(ShaderPropertyIds._CameraDepthTexture));
-        }
+
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
         {
             cmd.BeginSampleExecute(Feature.name, ref context);
 
-            depthOnlyPass.Execute(context, ref renderingData);
+            SetupDeptexTarget(ref context, ref renderingData, cmd);
+
+            var camera = renderingData.cameraData.camera;
+            var filterSettings = new FilteringSettings(RenderQueueRange.opaque, Feature.layerMask);
+
+            var sortingSettings = new SortingSettings(camera)
+            {
+                criteria = SortingCriteria.CommonOpaque
+            };
+
+            var drawingSettings = new DrawingSettings(new ShaderTagId("DepthOnly"), sortingSettings)
+            {
+                enableInstancing = true,
+                enableDynamicBatching = renderingData.supportsDynamicBatching,
+                mainLightIndex = renderingData.lightData.mainLightIndex,
+                perObjectData = PerObjectData.None,
+            };
+
+            context.DrawRenderers(renderingData.cullResults, ref drawingSettings, ref filterSettings);
 
             cmd.EndSampleExecute(Feature.name, ref context);
+        }
+
+        private void SetupDeptexTarget(ref ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
+        {
+            ref var cameraData = ref renderingData.cameraData;
+            var desc = cameraData.cameraTargetDescriptor;
+            desc.colorFormat = RenderTextureFormat.Depth;
+            desc.depthBufferBits = 32;
+            desc.msaaSamples = 1;
+
+            cmd.GetTemporaryRT(ShaderPropertyIds._CameraDepthTexture, desc, FilterMode.Point);
+            cmd.SetRenderTarget(ShaderPropertyIds._CameraDepthTexture);
+            cmd.ClearRenderTarget(true, false, Color.clear);
+
+            cmd.Execute(ref context);
+        }
+
+        public override void OnCameraCleanup(CommandBuffer cmd)
+        {
+            cmd.ReleaseTemporaryRT(ShaderPropertyIds._CameraDepthTexture);
         }
     }
 }
