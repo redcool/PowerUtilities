@@ -1,31 +1,36 @@
+#if UNITY_EDITOR
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
 using UnityEditor;
 
-/// <summary>
-/// Show a Project Settings(Preference) Group
-/// </summary>
-[AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
-public class ProjectSettingGroupAttribute : Attribute
+namespace PowerUtilities
 {
     /// <summary>
-    /// setting's path,like "Project/XXXSettings"
+    /// Show a Project Settings(Preference) Group
     /// </summary>
-    public string settingPath;
-
-    /// <summary>
-    /// Project Setting or Preferences
-    /// </summary>
-    public SettingsScope setingScope = SettingsScope.User;
-
-    /// <summary>
-    /// setting's label, like XXXSettings,shown on left
-    /// </summary>
-    public string label = "";
-    public ProjectSettingGroupAttribute(string groupName)
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
+    public class ProjectSettingGroupAttribute : Attribute
     {
-        this.settingPath = groupName;
+        /// <summary>
+        /// setting's path,like "Project/XXXSettings"
+        /// </summary>
+        public string settingPath;
+
+        /// <summary>
+        /// Project Setting or Preferences
+        /// </summary>
+        public SettingsScope setingScope = SettingsScope.User;
+
+        /// <summary>
+        /// setting's label, like XXXSettings,shown on left
+        /// </summary>
+        public string label = "";
+        public ProjectSettingGroupAttribute(string groupName)
+        {
+            this.settingPath = groupName;
+        }
     }
 }
+#endif
