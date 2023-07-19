@@ -1,4 +1,5 @@
 ﻿#if UNITY_EDITOR
+using PowerUtilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,8 @@ using Object = UnityEngine.Object;
 
 namespace GameUtilsFramework
 {
+    [ProjectSettingGroup("PowerUtils/SkeletonViewTool")]
+    [SOAssetPath("Assets/PowerUtilities/SkeletonData.asset")]
     [Serializable]
     public class SkeletonSceneViewToolData : ScriptableObject
     {
