@@ -51,7 +51,7 @@ namespace PowerUtilities
 
             normalFields.ForEach(field =>
             {
-                if (field.GetCustomAttribute<ProjectSetttingFieldAttribute>(true) == null)
+                if (field.GetCustomAttribute<HideInInspector>(true) != null)
                     return;
 
                 var prop = setting.FindProperty(field.Name);
