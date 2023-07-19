@@ -48,5 +48,20 @@ namespace GameUtilsFramework
             anim.SetBool(varName, varValue);
             anim.CrossFade(stateName, transitionDuraion);
         }
+        /// <summary>
+        /// move around target
+        /// </summary>
+        /// <param name="anim"></param>
+        /// <param name="idX"></param>
+        /// <param name="idZ"></param>
+        /// <param name="inputDir"></param>
+        /// <param name="damplingTime"></param>
+        public static void PlayBlendMove(this Animator anim,int idX,int idZ, Vector3 inputDir,float damplingTime=0.1f)
+        {
+            float speedX = Vector3.Dot(anim.transform.right, inputDir.normalized);
+            float speedZ = Vector3.Dot(anim.transform.forward, inputDir.normalized);
+            anim.SetFloat(idX, speedX, damplingTime,Time.deltaTime);
+            anim.SetFloat(idZ, speedZ, damplingTime, Time.deltaTime);
+        }
     }
 }
