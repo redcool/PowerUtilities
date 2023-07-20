@@ -49,15 +49,15 @@
 
 
         [Header("--- override mainLight")]
-         public bool overrideMainLightIndex;
+        public bool overrideMainLightIndex;
         [Tooltip("restore mainLightIndex when draw finish")]
-         public bool isRestoreMainLightIndexFinish=true;
+        public bool isRestoreMainLightIndexFinish = true;
 
-         public int mainLightIndex;
+        public int mainLightIndex;
 
         [Tooltip("use this light as mainLight")]
-         public string lightName;
-         public List<string> visibleLightNames = new List<string>();
+        public string lightName;
+        public List<string> visibleLightNames = new List<string>();
 
 
         [Header("--- override dynamic batch")]
@@ -219,23 +219,31 @@
             var camera = cameraData.camera;
 
 
-            var filterSetting = filteringSettings;
+            var filterSetting = GetFilterSettings();
 #if UNITY_EDITOR
             if (camera.cameraType == CameraType.Preview)
                 filterSetting.layerMask = -1;
 #endif
             OverrideCamera(ref context, cmd, ref renderingData);
-            var drawSettings = GetDrawSettings(context,cmd,ref renderingData, ref cameraData);
+            var drawSettings = GetDrawSettings(context, cmd, ref renderingData, ref cameraData);
 
             context.DrawRenderers(renderingData.cullResults, ref drawSettings, ref filterSetting, ref renderStateBlock);
 
             RenderingTools.DrawErrorObjects(ref context, ref renderingData.cullResults, camera, filterSetting, SortingCriteria.None);
 
-            RestoreDrawSettings(ref renderingData,cmd);
+            RestoreDrawSettings(ref renderingData, cmd);
 
         }
 
-        private void RestoreDrawSettings(ref RenderingData renderingData,CommandBuffer cmd)
+        private FilteringSettings GetFilterSettings()
+        {
+            if(filteringSettings.layerMask != Feature.layers)
+                filteringSettings.layerMask = Feature.layers;
+
+            return filteringSettings;
+        }
+
+        private void RestoreDrawSettings(ref RenderingData renderingData, CommandBuffer cmd)
         {
             var cameraData = renderingData.cameraData;
 
@@ -254,7 +262,9 @@
             }
         }
 
-        private DrawingSettings GetDrawSettings(ScriptableRenderContext context,CommandBuffer cmd, ref RenderingData renderingData, ref CameraData cameraData)
+
+
+        private DrawingSettings GetDrawSettings(ScriptableRenderContext context, CommandBuffer cmd, ref RenderingData renderingData, ref CameraData cameraData)
         {
             var cam = renderingData.cameraData.camera;
 
@@ -342,7 +352,7 @@
             return -1;
         }
 
-        private void OverrideMainLight(ScriptableRenderContext context, ref RenderingData renderingData,Light mainLight)
+        private void OverrideMainLight(ScriptableRenderContext context, ref RenderingData renderingData, Light mainLight)
         {
             RenderSettings.sun = mainLight;
         }

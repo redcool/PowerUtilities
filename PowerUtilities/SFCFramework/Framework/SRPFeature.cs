@@ -97,6 +97,10 @@
             }
         }
         
+        public void DestroyPassInstance()
+        {
+            passInstance = null;
+        }
     }
 
 }
