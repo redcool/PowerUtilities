@@ -125,7 +125,7 @@ namespace PowerUtilities
             graph.Play();
         }
 
-        private void OnDestroy()
+        private void OnDisable()
         {
             graph.Destroy();
         }

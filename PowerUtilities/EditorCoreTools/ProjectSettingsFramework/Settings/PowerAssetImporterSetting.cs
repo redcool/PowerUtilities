@@ -5,7 +5,8 @@ using UnityEngine;
 namespace PowerUtilities
 {
     /// <summary>
-    /// a settings will be shown in Preferences
+    /// PowerAssetImporterSetting ,shown in Preferences
+    /// 
     /// 1 define class attr (ProjectSettingGroup,SOAssetPath)
     /// 2 public variables will shown on ProjectSetting(preferences)
     /// </summary>
@@ -13,7 +14,7 @@ namespace PowerUtilities
     [SOAssetPath("Assets/PowerUtilities/PowerAssetImporterSettings.asset")]
     public class PowerAssetImporterSetting : ScriptableObject
     {
-
+        [Tooltip("remove prefix MixamoRig ")]
         public bool isRemoveMixamoRig;
 
     }

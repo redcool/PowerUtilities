@@ -27,22 +27,30 @@
                 act(item, id++);
         }
 
-        public static int FindIndex<T>(this IEnumerable<T> q,Func<T,bool> predication)
+        public static int FindIndex<T>(this IEnumerable<T> q,Func<T,bool> predicate,int startIndex=0)
         {
-            if (predication == null)
+            if (predicate == null)
                 return -1;
 
-            var index = 0;
-            foreach (var item in q)
+            for (int i = startIndex; i < q.Count(); i++)
             {
-                if (predication(item))
+                if (predicate(q.ElementAt(i)))
                 {
-                    return index;
+                    return i;
                 }
-                index++;
             }
             return -1;
         }
 
+        public static List<int> FindIndexAll<T>(this IEnumerable<T> q,Func<T,bool> predicate)
+        {
+            var list = new List<int>();
+            for (int i = 0; i<q.Count(); i++)
+            {
+                if(predicate(q.ElementAt(i)))
+                    list.Add(i);
+            }
+            return list;
+        }
     }
 }
