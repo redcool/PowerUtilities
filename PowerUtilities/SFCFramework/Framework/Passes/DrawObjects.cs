@@ -228,7 +228,14 @@
             RenderingTools.DrawErrorObjects(ref context, ref renderingData.cullResults, camera, filterSetting, SortingCriteria.None);
 
             RestoreDrawSettings(ref renderingData, cmd);
+        }
 
+        public override void OnCameraCleanup(CommandBuffer cmd)
+        {
+            if (Feature.overrideSRPBatch)
+            {
+                UniversalRenderPipeline.asset.useSRPBatcher = lastSRPBatchEnabled;
+            }
         }
 
         private FilteringSettings GetFilterSettings()
@@ -247,10 +254,7 @@
             {
                 OverrideMainLight(context, ref renderingData, sun);
             }
-            if (Feature.overrideSRPBatch)
-            {
-                UniversalRenderPipeline.asset.useSRPBatcher = lastSRPBatchEnabled;
-            }
+
 
             if (Feature.overrideCamera)
             {
