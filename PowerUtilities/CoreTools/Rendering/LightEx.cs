@@ -9,7 +9,7 @@ namespace PowerUtilities
 {
     public static class LightEx
     {
-        public static bool HasShadowMask(this Light light,out int occlusionMaskChannel)
+        public static bool HasShadowMask(this Light light, out int occlusionMaskChannel)
         {
             var bakingOutput = light.bakingOutput;
             occlusionMaskChannel = bakingOutput.occlusionMaskChannel;

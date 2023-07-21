@@ -80,7 +80,10 @@ namespace PowerUtilities
             scaleBiasRt = Shader.PropertyToID("_ScaleBiasRt"),
 
             // Required for 2D Unlit Shadergraph master node as it doesn't currently support hidden properties.
-            rendererColor = Shader.PropertyToID("_RendererColor")
+            rendererColor = Shader.PropertyToID("_RendererColor"),
+
+            // custom vars
+            shadows_ShadowMaskOn = Shader.PropertyToID("_Shadows_ShadowMaskOn")
             ;
 
     }

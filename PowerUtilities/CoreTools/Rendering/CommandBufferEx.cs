@@ -192,5 +192,10 @@ namespace PowerUtilities
             cmd.DrawProcedural(Matrix4x4.identity, mat, pass, MeshTopology.Triangles, 3);
         }
 
+        public static void SetGlobalBool(this CommandBuffer cmd,int nameId, bool value)
+        => cmd.SetGlobalInt(nameId, value ? 1 : 0);
+
+        public static void SetGlobalBool(this CommandBuffer cmd, string name, bool value)
+        => cmd.SetGlobalInt(name, value ? 1 : 0);
     }
 }

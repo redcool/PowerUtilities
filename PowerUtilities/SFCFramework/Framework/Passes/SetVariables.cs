@@ -35,6 +35,11 @@ namespace PowerUtilities
         {
         }
 
+        public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
+        {
+            
+        }
+
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
         {
             var camera = renderingData.cameraData.camera;
@@ -44,6 +49,10 @@ namespace PowerUtilities
             Feature.intValues.ForEach(v =>cmd.SetGlobalInt(v.name,v.value));
 
             cmd.SetGlobalMatrix(ShaderPropertyIds._PrevViewProjMatrix, Matrix4x4.zero);
+
+            // update vars
+            var isShadowMask = UniversalRenderPipeline.asset.IsShadowMask(ref renderingData);
+            cmd.SetGlobalBool(ShaderPropertyIds.shadows_ShadowMaskOn, isShadowMask);
 
             cmd.Execute(ref context);
         }

@@ -31,12 +31,12 @@ namespace PowerUtilities
             "m_RendererDataList",
             "m_Renderers"
         };
-        static Dictionary<string, Lazy<FieldInfo>> urpAssetFieldDict= new Dictionary<string, Lazy<FieldInfo>>();
+        static Dictionary<string, Lazy<FieldInfo>> urpAssetFieldDict = new Dictionary<string, Lazy<FieldInfo>>();
         static UniversalRenderPipelineAssetExtends()
         {
             urpAssetFieldDict.Clear();
 
-            foreach(var fieldName in privateFieldNames)
+            foreach (var fieldName in privateFieldNames)
             {
                 urpAssetFieldDict[fieldName] = new Lazy<FieldInfo>(() => typeof(UniversalRenderPipelineAsset).GetField(fieldName, BindingFlags.NonPublic| BindingFlags.Instance));
             }
@@ -49,9 +49,9 @@ namespace PowerUtilities
         /// <param name="asset"></param>
         /// <param name="fieldName"></param>
         /// <returns></returns>
-        public static T[] GetDatas<T>(this UniversalRenderPipelineAsset asset,string fieldName) 
+        public static T[] GetDatas<T>(this UniversalRenderPipelineAsset asset, string fieldName)
         {
-            if(!urpAssetFieldDict.ContainsKey(fieldName) || urpAssetFieldDict[fieldName].Value == null)
+            if (!urpAssetFieldDict.ContainsKey(fieldName) || urpAssetFieldDict[fieldName].Value == null)
                 return default;
 
             var datas = (object[])urpAssetFieldDict[fieldName].Value.GetValue(asset);
@@ -66,5 +66,51 @@ namespace PowerUtilities
 
         public static UniversalRenderer[] GetRenderers(this UniversalRenderPipelineAsset asset)
             => GetDatas<UniversalRenderer>(asset, "m_Renderers");
+
+        public static int GetDefaultRendererIndex(this UniversalRenderPipelineAsset asset)
+            => asset.GetType().GetFieldValue<int>(asset, "m_DefaultRendererIndex");
+
+        public static UniversalRenderer GetDefaultRenderer(this UniversalRenderPipelineAsset asset)
+            => (UniversalRenderer)asset.scriptableRenderer;
+
+        /// <summary>
+        /// is lightmap substract only
+        /// 
+        /// effect : MixedLightSubstractive
+        /// </summary>
+        /// <param name="asset"></param>
+        /// <returns></returns>
+        public static bool IsSubstract(this UniversalRenderPipelineAsset asset, ref RenderingData renderingData)
+        {
+            var mixedLighting = asset.GetDefaultRenderer()?.GetForwardLights()?.GetMixedlightingSetup(ref renderingData);
+            return asset.supportsMixedLighting && mixedLighting == MixedLightingSetup.Subtractive;
+        }
+
+        /// <summary>
+        /// shadowMask
+        /// </summary>
+        /// <param name="asset"></param>
+        /// <returns></returns>
+        public static bool IsShadowMaskAlways(this UniversalRenderPipelineAsset asset, ref RenderingData renderingData)
+        {
+            return IsShadowMask(asset, ref renderingData) && QualitySettings.shadowmaskMode == ShadowmaskMode.Shadowmask;
+        }
+
+        /// <summary>
+        /// shadowMask or distance shadowMask
+        /// </summary>
+        /// <param name="asset"></param>
+        /// <returns></returns>
+        public static bool IsShadowMask(this UniversalRenderPipelineAsset asset, ref RenderingData renderingData)
+        {
+            var f = asset.GetDefaultRenderer()?.GetForwardLights();
+            var mixedLighting = f.GetMixedlightingSetup(ref renderingData);
+
+            return asset.supportsMixedLighting && mixedLighting == MixedLightingSetup.ShadowMask;
+        }
+
+        public static bool IsLightmapShadowMixing(this UniversalRenderPipelineAsset asset, ref RenderingData renderingData)
+        => IsSubstract(asset, ref renderingData) || IsShadowMaskAlways(asset, ref renderingData);
+
     }
 }

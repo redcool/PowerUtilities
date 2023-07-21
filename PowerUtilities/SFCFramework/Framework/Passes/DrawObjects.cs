@@ -157,8 +157,6 @@
 
         public static event RefAction<DrawingSettings> OnSetupDrawSettings;
 
-        ForwardLights forwardLights;
-
         Light sun;
         bool lastSRPBatchEnabled;
 
@@ -184,7 +182,6 @@
                 renderStateBlock.mask = RenderStateMask.Stencil;
                 renderStateBlock.stencilReference = stencilData.stencilReference;
             }
-
         }
 
         public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
@@ -217,7 +214,6 @@
 
             ref var cameraData = ref renderingData.cameraData;
             var camera = cameraData.camera;
-
 
             var filterSetting = GetFilterSettings();
 #if UNITY_EDITOR
