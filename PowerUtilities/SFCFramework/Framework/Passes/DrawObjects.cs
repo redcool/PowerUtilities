@@ -12,7 +12,7 @@
     using UnityEngine.Rendering.Universal;
     using UnityEngine.Rendering.Universal.Internal;
 
-    [Tooltip("Draw Objects open all urp powers")]
+    [Tooltip("Draw Objects with full urp powers, use SRPBatch or Instanced need multi cameras")]
     [CreateAssetMenu(menuName = SRP_FEATURE_PASSES_MENU+ "/DrawObjects")]
     public class DrawObjects : SRPFeature
     {
@@ -306,7 +306,11 @@
                 drawSettings.enableInstancing = Feature.enableGPUInstancing;
 
             if (Feature.overrideSRPBatch && UniversalRenderPipeline.asset)
+            {
+
                 UniversalRenderPipeline.asset.useSRPBatcher = Feature.enableSRPBatch;
+                GraphicsSettings.useScriptableRenderPipelineBatching = Feature.enableSRPBatch;
+            }
 
             if (OnSetupDrawSettings != null)
             {

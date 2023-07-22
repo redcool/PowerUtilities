@@ -10,11 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f3c6d2cd4defcb49920b98f50d01b66, type: 3}
-  m_Name: 3 Draw Objects mrt
+  m_Name: 3 Draw Objects mrt instanced
   m_EditorClassIdentifier: 
   enabled: 1
   interrupt: 0
   isSceneCameraOnly: 0
+  gameCameraCompareType: 0
   gameCameraTag: MainCamera
   renderPassEvent: 250
   renderPassEventOffset: 0
@@ -27,7 +28,7 @@ MonoBehaviour:
   isOpaque: 1
   layers:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 16
   stencilData:
     overrideStencilState: 0
     stencilReference: 0
@@ -49,12 +50,12 @@ MonoBehaviour:
   - Directional Light (1)
   overrideDynamicBatching: 0
   enableDynamicBatching: 0
-  overrideGPUInstancing: 0
-  enableGPUInstancing: 0
-  overrideSRPBatch: 0
+  overrideGPUInstancing: 1
+  enableGPUInstancing: 1
+  overrideSRPBatch: 1
   enableSRPBatch: 0
   overrideCamera: 0
-  cameraFOV: 60
-  cameraOffset: {x: 0, y: 0, z: 0, w: 0}
+  cameraFOV: 44.2
+  cameraOffset: {x: -1.5, y: 0, z: 0, w: 0}
   isDrawSkybox: 0
   drawSkyboxEvent: 350
