@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b9b536b92735f848852727ac632aac3, type: 3}
   m_Name: 2_1 Set Variables
   m_EditorClassIdentifier: 
-  enabled: 0
+  enabled: 1
   interrupt: 0
+  isSceneCameraOnly: 0
   gameCameraTag: MainCamera
   renderPassEvent: 400
   renderPassEventOffset: 0

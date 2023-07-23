@@ -27,6 +27,23 @@ namespace PowerUtilities.RenderFeatures
         }
 
         /// <summary>
+        /// Compare with tag or name
+        /// </summary>
+        /// <param name="cam"></param>
+        /// <returns></returns>
+        public bool IsGameCameraValid(Camera cam)
+        {
+            switch (Feature.gameCameraCompareType)
+            {
+                case SRPFeature.CameraCompareType.Name:
+                    return camera.gameObject.name.IsMatch(Feature.gameCameraTag, StringEx.NameMatchMode.Full);
+                default:
+                    return camera.CompareTag(Feature.gameCameraTag);
+
+            }
+        }
+
+        /// <summary>
         /// This pass can execute
         /// 1 check Feature 
         /// 2 check cameraType,
@@ -42,7 +59,7 @@ namespace PowerUtilities.RenderFeatures
                 return false;
 
             if (camera.cameraType == CameraType.Game &&!string.IsNullOrEmpty(Feature.gameCameraTag))
-                return camera.CompareTag(Feature.gameCameraTag);
+                return IsGameCameraValid(camera);
 
             return true;
         }

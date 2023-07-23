@@ -31,6 +31,11 @@
     /// </summary>
     public abstract class SRPFeature : ScriptableObject
     {
+        public enum CameraCompareType
+        {
+            Tag=0,Name
+        }
+
         public const string SRP_FEATURE_MENU = "PowerUtilities/SrpRenderFeatures";
         public const string SRP_FEATURE_PASSES_MENU = SRP_FEATURE_MENU + "/Passes";
 
@@ -45,6 +50,9 @@
         public bool isSceneCameraOnly;
 
         [Header("Pass Options / Filters")]
+        [Tooltip("Compared properties ")]
+        public CameraCompareType gameCameraCompareType = CameraCompareType.Tag;
+
         [Tooltip("Which camera can run this pass ? only work for Game Camera")]
         public string gameCameraTag = "MainCamera";
 

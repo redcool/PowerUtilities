@@ -97,7 +97,7 @@ namespace PowerUtilities
         }
 
         /// <summary>
-        /// shadowMask or distance shadowMask
+        /// shadowMask or distance shadowMask, call this in OnCameraSetup
         /// </summary>
         /// <param name="asset"></param>
         /// <returns></returns>
