@@ -13,13 +13,26 @@ namespace PowerUtilities
 {
     public class URPAssetWin : BaseUXMLEditorWindow, IUIElementEvent
     {
-        ListView assetListView;
-        ListView assetDataListView;
+        ListView pipelineAssetListView;
+        ListView rendererDataListView;
+        IMGUIContainer details;
+
         UniversalRenderPipelineAsset[] urpAssets;
 
-        VisualTreeAsset assetRowUxml;
+        Lazy<VisualTreeAsset> assetRowUxml = new Lazy<VisualTreeAsset>(
+            () => AssetDatabaseTools.FindAssetPathAndLoad<VisualTreeAsset>(out var _,"URPAssetRowItem", "uxml")
+        );
 
-        Func<VisualElement> MakeAssetRowFunc => () => assetRowUxml?.CloneTree();
+        Lazy<VisualTreeAsset> assetDataRowUxml = new Lazy<VisualTreeAsset>(
+            () => AssetDatabaseTools.FindAssetPathAndLoad<VisualTreeAsset>(out var _, "URPRendererDataRowItem", "uxml")
+        );
+
+        Lazy<VisualTreeAsset> lazyTreeAsset = new Lazy<VisualTreeAsset>(
+            () => AssetDatabaseTools.FindAssetPathAndLoad<VisualTreeAsset>(out var _,"URPAssetWin", "uxml")
+        );
+
+        
+        
 
         [MenuItem(ROOT_MENU+"/URP/"+nameof(URPAssetWin))]
         static void Init()
@@ -32,16 +45,19 @@ namespace PowerUtilities
 
         public override void CreateGUI()
         {
-            var assetRowPath = AssetDatabaseTools.FindAssetsPath("URPAssetRow", "uxml").FirstOrDefault();
-            assetRowUxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(assetRowPath);
-
-            var uxmlPath = AssetDatabaseTools.FindAssetsPath("URPAssetWin", "uxml").FirstOrDefault();
-            treeAsset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(uxmlPath);
+            treeAsset = lazyTreeAsset.Value;
             eventInstance = this;
 
-            treeStyleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>(AssetDatabaseTools.FindAssetPath("DefaultStyles", "uss"));
-
             base.CreateGUI();
+        }
+
+        public void AddEvent(VisualElement root)
+        {
+            pipelineAssetListView = root.Q<ListView>("PipelineAssetListView");
+            rendererDataListView = root.Q<ListView>("RendererDataListView");
+            details = root.Q<IMGUIContainer>();
+
+            SetupURPAssetListView();
         }
 
         public void OnProjectChange()
@@ -51,32 +67,85 @@ namespace PowerUtilities
 
         private void SetupURPAssetListView()
         {
-            if (assetListView == null)
+            if (pipelineAssetListView == null)
                 return;
 
             urpAssets = AssetDatabaseTools.FindAssetsInProject<UniversalRenderPipelineAsset>();
-
-            assetListView.itemsSource = urpAssets;
-            assetListView.makeItem = MakeAssetRowFunc;
-            assetListView.bindItem = (e,i) =>
-            {
-                e.Q<Label>("AssetName").text = urpAssets[i].name;
+            Action OnSelect = () => {
+                Selection.activeObject = (Object)pipelineAssetListView.selectedItem;
             };
-            assetListView.onSelectionChange +=AssetListView_onSelectionChange;
-            assetListView.SetSelection(0);
+
+
+            SetupListView(pipelineAssetListView
+                , urpAssets
+                , () => assetRowUxml.Value?.CloneTree()
+                , (e, i) =>
+                {
+                    e.Q<Label>("PipelineAssetName").text = urpAssets[i].name;
+                }
+                , (assets) =>
+                {
+                    var asset = assets.First();
+
+                    SetupURPRendererDataListView();
+                }
+            );
         }
 
-        private void AssetListView_onSelectionChange(IEnumerable<object> assets)
+        public static void SetupListView(ListView listView, IList itemsSource, Func<VisualElement> makeItem
+            , Action<VisualElement, int> bindItem, Action<IEnumerable<object>> onSelectionChange)
         {
-            var asset = assets.First();
-            Selection.activeObject = (Object)asset;
+            listView.Clear();
+            listView.itemsSource = itemsSource;
+            listView.makeItem = makeItem;
+            listView.bindItem = bindItem;
+            listView.onSelectionChange -= onSelectionChange;
+            listView.onSelectionChange += onSelectionChange;
+            listView.selectedIndex = 0;
+            listView.SetSelection(0);
         }
 
-        public void AddEvent(VisualElement root)
+        private void SetupURPRendererDataListView()
         {
-            assetListView = root.Q<ListView>("AssetListView");
-            assetDataListView = root.Q<ListView>("AssetDataListView");
-            SetupURPAssetListView();
+            var urpAsset = urpAssets[pipelineAssetListView.selectedIndex];
+            if (!urpAsset || rendererDataListView == null)
+            {
+                return;
+            }
+            var datas = urpAsset.GetRendererDatas();
+            Action onSelect = () => {
+                Selection.activeObject = (Object)rendererDataListView.selectedItem;
+            };
+
+            SetupListView(rendererDataListView
+                , datas
+                , () => assetDataRowUxml.Value?.CloneTree()
+                , (e, i) =>
+                {
+                    if (i >= datas.Length)
+                    {
+                        return;
+                    }
+                    var dataNameLabel = e.Q<Label>("RendererDataName");
+                    dataNameLabel.text = datas[i].name;
+                }
+                ,(IEnumerable<object> obj) =>
+                {
+                    var data = (UniversalRendererData)obj.First();
+                    ShowRendererDataDetails(data);
+                }
+            );
+        }
+
+        private void ShowRendererDataDetails(UniversalRendererData data)
+        {
+            if (details == null)
+                return;
+
+            details.onGUIHandler = () =>
+            {
+                Editor.CreateEditor(data).DrawDefaultInspector();
+            };
         }
     }
 }

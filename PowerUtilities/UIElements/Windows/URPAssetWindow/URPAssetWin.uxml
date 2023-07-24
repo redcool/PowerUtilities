@@ -1,13 +1,13 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
     <Style src="project://database/Assets/PowerXXX/PowerUtilities/PowerUtilities/UIElements/USS/DefaultStyles.uss?fileID=7433441132597879392&amp;guid=d5ba540bd33919345963867ff5ab0ffd&amp;type=3#DefaultStyles" />
     <ui:VisualElement name="Root" style="height: 100%; width: 100%; flex-grow: 1; flex-direction: row; min-width: 250px;">
-        <ui:VisualElement name="AssetGroup" style="flex-grow: 1; width: 25%;">
-            <ui:Label text="URPAssetList" display-tooltip-when-elided="true" name="AssetGroupName" class="detail-header" />
-            <ui:ListView focusable="false" name="AssetListView" show-border="false" horizontal-scrolling="false" header-title="URPAssets" show-foldout-header="false" show-add-remove-footer="false" reorderable="false" show-alternating-row-backgrounds="None" selection-type="Single" show-bound-collection-size="false" usage-hints="GroupTransform" class="listview-row" style="flex-grow: 1; width: auto; height: auto; flex-shrink: 1; border-right-color: rgb(250, 0, 0); border-left-width: 1px; border-right-width: 1px; border-top-width: 1px; border-bottom-width: 1px; padding-left: 5px; padding-right: 5px; padding-top: 5px; padding-bottom: 5px;" />
+        <ui:VisualElement name="PipelineAssetGroup" style="flex-grow: 1; width: 25%;">
+            <ui:Label text="PipelineAssets" display-tooltip-when-elided="true" name="PipelineAssetsLabel" class="detail-header" />
+            <ui:ListView focusable="false" name="PipelineAssetListView" show-border="false" horizontal-scrolling="false" header-title="URPAssets" show-foldout-header="false" show-add-remove-footer="false" reorderable="false" show-alternating-row-backgrounds="None" selection-type="Single" show-bound-collection-size="false" usage-hints="GroupTransform" class="listview-row" style="flex-grow: 1; width: auto; height: auto; flex-shrink: 1; border-right-color: rgb(250, 0, 0); border-left-width: 1px; border-right-width: 1px; border-top-width: 1px; border-bottom-width: 1px; padding-left: 5px; padding-right: 5px; padding-top: 5px; padding-bottom: 5px;" />
         </ui:VisualElement>
-        <ui:VisualElement name="AssetDataGroup" style="flex-grow: 1; width: 25%;">
-            <ui:Label text="URPDataAssetList" display-tooltip-when-elided="true" name="AssetDataGroupName" class="detail-header" />
-            <ui:ListView focusable="true" name="AssetDataListView" show-border="true" horizontal-scrolling="false" style="flex-grow: 1; width: auto; height: auto; flex-shrink: 1; border-right-color: rgb(250, 0, 0); border-left-width: 1px; border-right-width: 1px; border-top-width: 1px; border-bottom-width: 1px; padding-left: 5px; padding-right: 5px; padding-top: 5px; padding-bottom: 5px; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0;" />
+        <ui:VisualElement name="RendererDataGroup" style="flex-grow: 1; width: 25%;">
+            <ui:Label text="RendererDataList" display-tooltip-when-elided="true" name="RendererDataLabel" class="detail-header" />
+            <ui:ListView focusable="true" name="RendererDataListView" show-border="true" horizontal-scrolling="false" style="flex-grow: 1; width: auto; height: auto; flex-shrink: 1; border-right-color: rgb(250, 0, 0); border-left-width: 1px; border-right-width: 1px; border-top-width: 1px; border-bottom-width: 1px; padding-left: 5px; padding-right: 5px; padding-top: 5px; padding-bottom: 5px; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0;" />
         </ui:VisualElement>
         <ui:VisualElement name="DetailGroup" style="width: 50%; flex-grow: 1;">
             <ui:Label text="Detail" display-tooltip-when-elided="true" class="detail-header" />

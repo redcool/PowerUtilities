@@ -122,10 +122,31 @@ namespace PowerUtilities
                 ;
             return q.ToArray();
         }
+        /// <summary>
+        /// Find assets in project and load them
+        /// 
+        /// extName is null dont check extName, use empty string check that files(folders) have no extName
+        /// </summary>
+        /// <param name="filter">filter string</param>
+        /// <param name="extName">null dont check extName, empty string check that files has no extName</param>
+        /// <param name="searchInFolders"></param>
+        /// <returns></returns>
+        public static T[] FindAssetsPathAndLoad<T>(out string[] paths,string filter, string extName = null, params string[] searchInFolders)
+            where T : Object
+        {
+            paths = FindAssetsPath(filter, extName, searchInFolders);
+            return paths.Select(path => AssetDatabase.LoadAssetAtPath<T>(path)).ToArray();
+        }
 
         public static string FindAssetPath(string filter, string extName = null, params string[] searchInFolders)
             => FindAssetsPath(filter, extName, searchInFolders).FirstOrDefault();
 
+        public static T FindAssetPathAndLoad<T>(out string path, string filter, string extName = null, params string[] searchInFolders)
+            where T : Object
+        {
+            path = FindAssetPath(filter, extName, searchInFolders);
+            return AssetDatabase.LoadAssetAtPath<T>(path);
+        }
     }
 }
 #endif

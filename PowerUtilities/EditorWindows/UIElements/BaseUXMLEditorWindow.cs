@@ -29,8 +29,14 @@ namespace PowerUtilities
         /// </summary>
         public IUIElementEvent eventInstance;
 
-        // uss
+        /// <summary>
+        /// uss
+        /// use defaultStyleSheet if not set
+        /// </summary>
         public StyleSheet treeStyleSheet;
+        public Lazy<StyleSheet> lazyDefaultStyleSheet = new Lazy<StyleSheet>(
+            () => AssetDatabaseTools.FindAssetPathAndLoad<StyleSheet>(out var _, "DefaultStyles", "uss")
+            );
 
         /// <summary>
         /// create ui elements use (treeAsset),
@@ -48,8 +54,8 @@ namespace PowerUtilities
             treeInstance = treeAsset.CloneTree();
             rootVisualElement.Add(treeInstance);
 
-            if(treeStyleSheet)
-            rootVisualElement.styleSheets.Add(treeStyleSheet);
+            var uss = treeStyleSheet ?? lazyDefaultStyleSheet.Value;
+            rootVisualElement.styleSheets.Add(uss);
 
             //
             AddTreeEvents();
