@@ -6,8 +6,15 @@ using System.Threading.Tasks;
 
 namespace PowerUtilities
 {
-    public static class Consts
+    public static partial class Consts
     {
         public const string POWER_UTILITIES = "PowerUtlities";
+    }
+
+    public static partial class Tags
+    {
+        public const string Player = "Player",
+            Monster = "Monster",
+            MainCamera = "MainCamera";
     }
 }
