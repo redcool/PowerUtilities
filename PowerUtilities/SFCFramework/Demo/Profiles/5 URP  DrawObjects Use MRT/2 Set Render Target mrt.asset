@@ -15,6 +15,7 @@ MonoBehaviour:
   enabled: 1
   interrupt: 0
   isSceneCameraOnly: 0
+  gameCameraCompareType: 0
   gameCameraTag: MainCamera
   renderPassEvent: 250
   renderPassEventOffset: 0

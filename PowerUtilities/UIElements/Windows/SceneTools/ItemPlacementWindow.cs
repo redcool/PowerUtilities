@@ -11,12 +11,24 @@ using UnityEngine.UIElements;
 
 namespace PowerUtilities
 {
-    public class ItemPlacementWindow : PowerEditorWindow,IUIElementEvent
+    /// <summary>
+    /// Simple spawn object view tools
+    /// </summary>
+    public class ItemPlacementWindow : BaseUXMLEditorWindow, IUIElementEvent
     {
         [MenuItem(ROOT_MENU+"/Scene/"+nameof(ItemPlacementWindow))]
-        new static void OpenWindow()
+        static void OpenWindow()
         {
             var win = GetWindow<ItemPlacementWindow>();
+        }
+        public override void CreateGUI()
+        {
+            var uxmlPath = AssetDatabaseTools.FindAssetsPath("ItemPlacementWindow", "uxml").FirstOrDefault();
+
+            treeAsset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(uxmlPath);
+            eventInstance = this;
+
+            base.CreateGUI();
         }
 
         private void OnEnable()
@@ -30,17 +42,6 @@ namespace PowerUtilities
             SceneView.duringSceneGui -= SceneView_duringSceneGui;
         }
 
-        new public void CreateGUI()
-        {
-            var uxmlPath = AssetDatabaseTools.FindAssetsPath("ItemPlacementWindow", "uxml").FirstOrDefault();
-
-            treeAsset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(uxmlPath);
-            isShowCommonHeader = false;
-            base.CreateGUI();
-
-            eventInstance = this;
-            AddTreeEvents();
-        }
 
         private void SceneView_duringSceneGui(SceneView obj)
         {
@@ -51,8 +52,8 @@ namespace PowerUtilities
             if (Physics.Raycast(ray, out var hit, float.MaxValue, layerMask))
             {
                 var prefab = prefabField.value;
-                if (activeField.value 
-                    && prefab 
+                if (activeField.value
+                    && prefab
                     && e.IsMouseLeftDown())
                 {
                     var inst = (GameObject)(PrefabUtility.IsPartOfAnyPrefab(prefab) ?
@@ -71,7 +72,7 @@ namespace PowerUtilities
             }
         }
 
-        public static void DrawGuideLine(Vector2 mousePos,Vector3 point,Vector3 endPos)
+        public static void DrawGuideLine(Vector2 mousePos, Vector3 point, Vector3 endPos)
         {
             var lastColor = Handles.color;
 

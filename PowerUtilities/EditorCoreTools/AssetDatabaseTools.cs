@@ -122,6 +122,10 @@ namespace PowerUtilities
                 ;
             return q.ToArray();
         }
+
+        public static string FindAssetPath(string filter, string extName = null, params string[] searchInFolders)
+            => FindAssetsPath(filter, extName, searchInFolders).FirstOrDefault();
+
     }
 }
 #endif

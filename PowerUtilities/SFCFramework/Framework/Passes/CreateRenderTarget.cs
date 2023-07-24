@@ -33,8 +33,11 @@ namespace PowerUtilities.RenderFeatures
                 ;
         }
 
-        public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
+        public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
         {
+            ref var cameraData = ref renderingData.cameraData;
+            var camera = cameraData.camera;
+
             var renderScale = UniversalRenderPipeline.asset.renderScale;
             var samples = UniversalRenderPipeline.asset.msaaSampleCount;
 
@@ -46,8 +49,11 @@ namespace PowerUtilities.RenderFeatures
             if (camera.cameraType > CameraType.Game)
                 renderScale = 1;
 
-            ref var cameraData = ref renderingData.cameraData;
             cmd.CreateTargets(cameraData.camera, Feature.colorTargetInfos, renderScale, samples);
+        }
+
+        public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
+        {
         }
     }
 }

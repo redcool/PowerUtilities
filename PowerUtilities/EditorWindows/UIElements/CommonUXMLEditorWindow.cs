@@ -8,24 +8,20 @@ namespace PowerUtilities
     using UnityEngine;
     using UnityEngine.UIElements;
 
-    public class PowerEditorWindow : EditorWindow
+    /// <summary>
+    /// Show editor window with a uxml
+    /// </summary>
+    public class CommonUXMLEditorWindow : BaseUXMLEditorWindow
     {
         public bool isShowCommonHeader = true;
-
-        public VisualTreeAsset treeAsset;
-        VisualElement treeInstance;
-
-        public MonoScript eventMono;
-        public IUIElementEvent eventInstance;
-
         bool isCommonHeaderFolded;
 
-        public const string ROOT_MENU = "PowerUtilities/Window";
-        [MenuItem(ROOT_MENU + "/Common UxmlWindow")]
+
+        [MenuItem(ROOT_MENU + "/CommonUxmlWindow")]
         public static void OpenWindow()
         {
-            var w = GetWindow<PowerEditorWindow>();
-            w.titleContent = EditorGUITools.TempContent("PowerEditorWin");
+            var w = GetWindow<CommonUXMLEditorWindow>();
+            w.titleContent = EditorGUITools.TempContent("CommonUxmlWindow");
         }
 
         private void DrawHeader()
@@ -52,8 +48,7 @@ namespace PowerUtilities
             var isChanged = EditorGUI.EndChangeCheck();
             if (isChanged)
             {
-                CreateGUI();
-                AddTreeEvents();
+                base.CreateGUI();
             }
         }
         public void OnGUI()
@@ -67,19 +62,6 @@ namespace PowerUtilities
                 MoveTreeView();
         }
 
-        /// <summary>
-        /// create ui elements
-        /// </summary>
-        public void CreateGUI()
-        {
-            rootVisualElement.Clear();
-
-            if (!treeAsset)
-                return;
-
-            treeInstance = treeAsset.CloneTree();
-            rootVisualElement.Add(treeInstance);
-        }
 
         private void MoveTreeView()
         {
@@ -93,21 +75,6 @@ namespace PowerUtilities
                 pos.y += 20;
             }
             treeInstance.transform.position = pos;
-        }
-
-        public void AddTreeEvents()
-        {
-            if (treeInstance == null)
-                return;
-
-            if(eventMono)
-                eventInstance = Activator.CreateInstance(eventMono.GetClass()) as IUIElementEvent;
-
-            if (eventInstance != null)
-            {
-                eventInstance.AddEvent(treeInstance);
-            }
-
         }
     }
 }

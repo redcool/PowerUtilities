@@ -15,6 +15,7 @@ MonoBehaviour:
   enabled: 1
   interrupt: 0
   isSceneCameraOnly: 0
+  gameCameraCompareType: 0
   gameCameraTag: MainCamera
   renderPassEvent: 250
   renderPassEventOffset: 0
@@ -24,8 +25,10 @@ MonoBehaviour:
   - name: _MotionVectorTexture
     format: 46
     hasDepthBuffer: 0
+    isSkip: 0
   - name: _CameraNormalsTexture
     format: 4
     hasDepthBuffer: 0
+    isSkip: 0
   overrideURPRenderScale: 0
   renderScale: 1

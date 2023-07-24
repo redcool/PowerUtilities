@@ -20,7 +20,7 @@ MonoBehaviour:
   renderPassEvent: 250
   renderPassEventOffset: 0
   log: 
-  isFoldout: 0
+  isFoldout: 1
   shaderTags:
   - UniversalForwardOnly
   - UniversalForward
@@ -51,9 +51,9 @@ MonoBehaviour:
   overrideDynamicBatching: 0
   enableDynamicBatching: 0
   overrideGPUInstancing: 1
-  enableGPUInstancing: 1
+  enableGPUInstancing: 0
   overrideSRPBatch: 1
-  enableSRPBatch: 0
+  enableSRPBatch: 1
   overrideCamera: 0
   cameraFOV: 44.2
   cameraOffset: {x: -1.5, y: 0, z: 0, w: 0}

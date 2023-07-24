@@ -12,15 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f3c6d2cd4defcb49920b98f50d01b66, type: 3}
   m_Name: 3 Draw Objects mrt srp
   m_EditorClassIdentifier: 
-  enabled: 1
+  enabled: 0
   interrupt: 0
   isSceneCameraOnly: 0
-  gameCameraCompareType: 1
-  gameCameraTag: InstancedCamera
+  gameCameraCompareType: 0
+  gameCameraTag: 
   renderPassEvent: 250
   renderPassEventOffset: 0
   log: 
-  isFoldout: 1
+  isFoldout: 0
   shaderTags:
   - UniversalForwardOnly
   - UniversalForward
@@ -48,12 +48,12 @@ MonoBehaviour:
   visibleLightNames:
   - Directional Light
   - Directional Light (1)
-  overrideDynamicBatching: 0
+  overrideDynamicBatching: 1
   enableDynamicBatching: 1
   overrideGPUInstancing: 1
-  enableGPUInstancing: 1
+  enableGPUInstancing: 0
   overrideSRPBatch: 1
-  enableSRPBatch: 0
+  enableSRPBatch: 1
   overrideCamera: 0
   cameraFOV: 44.2
   cameraOffset: {x: -1.5, y: 0, z: 0, w: 0}

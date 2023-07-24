@@ -20,7 +20,7 @@ namespace PowerUtilities.Scenes
 
     public class PlacementWindow : EditorWindow
     {
-        const string ROOT_PATH = PowerEditorWindow.ROOT_MENU + "/Scene";
+        const string ROOT_PATH = CommonUXMLEditorWindow.ROOT_MENU + "/Scene";
         const string helpStr = @"
 Hierarchy中对选中节点的子节点进行
 随机缩放

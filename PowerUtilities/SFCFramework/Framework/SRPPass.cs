@@ -69,7 +69,6 @@ namespace PowerUtilities.RenderFeatures
             ref var cameraData = ref renderingData.cameraData;
             this.camera = cameraData.camera;
             this.context = context;
-            
 
             if (! CanExecute())
                 return;

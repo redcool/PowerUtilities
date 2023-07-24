@@ -55,7 +55,6 @@ namespace PowerUtilities.RenderFeatures
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
         {
             ref var cameraData = ref renderingData.cameraData;
-            var camera = renderingData.cameraData.camera;
 
             if (Feature.isSetTargets)
             {
@@ -67,7 +66,6 @@ namespace PowerUtilities.RenderFeatures
             {
                 ClearTarget(cmd, cameraData);
             }
-
         }
 
         void ClearTarget(CommandBuffer cmd, CameraData cameraData)
@@ -83,7 +81,7 @@ namespace PowerUtilities.RenderFeatures
             }
         }
 
-        void SetTargets(ref RenderingData renderingData,Camera camera, CommandBuffer cmd)
+        void SetTargets(ref RenderingData renderingData, Camera camera, CommandBuffer cmd)
         {
             if (colorIds == null || colorIds.Length != Feature.colorTargetNames.Length)
             {
@@ -101,12 +99,7 @@ namespace PowerUtilities.RenderFeatures
             if (SystemInfo.supportedRenderTargetCount < colorIds.Length)
                 colorIds = colorIds.Take(SystemInfo.supportedRenderTargetCount).ToArray();
 
-            /// scene view show nothing
-            //if (camera.IsGameCamera())
-            {
-                cmd.SetRenderTarget(colorIds, depthId);
-            }
-            
+            cmd.SetRenderTarget(colorIds, depthId);
         }
     }
 }
