@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.UIElements;
 using Object = UnityEngine.Object;
@@ -53,6 +54,9 @@ namespace PowerUtilities
             eventInstance = this;
 
             base.CreateGUI();
+
+            RenderPipelineManager.activeRenderPipelineTypeChanged -= SetupSRPPipelineAssetListView;
+            RenderPipelineManager.activeRenderPipelineTypeChanged += SetupSRPPipelineAssetListView;
         }
 
         public void AddEvent(VisualElement root)
@@ -62,19 +66,20 @@ namespace PowerUtilities
             rendererDataDetailImgui = root.Q<IMGUIContainer>("RendererDataDetailIMGUI");
             pipelineAssetDetailImgui = root.Q<IMGUIContainer>("PipelineAssetDetailIMGUI");
 
-            SetupURPAssetListView();
+            SetupSRPPipelineAssetListView();
         }
 
         public void OnProjectChange()
         {
-            SetupURPAssetListView();
+            SetupSRPPipelineAssetListView();
         }
+        
 
-        private void SetupURPAssetListView()
+        private void SetupSRPPipelineAssetListView()
         {
             if (pipelineAssetListView == null)
                 return;
-
+            
             urpAssets = AssetDatabaseTools.FindAssetsInProject<UniversalRenderPipelineAsset>();
 
             SetupListView(pipelineAssetListView
@@ -89,6 +94,9 @@ namespace PowerUtilities
                         pipelineAssetListView.SetSelection(curId);
                         Selection.activeObject = (Object)pipelineAssetListView.selectedItem;
                     });
+
+                    var isUsedPipeline = (urpAssets[i] == QualitySettings.renderPipeline);
+                    ve.EnableInClassList("listview-row-selected", isUsedPipeline);
                 }
                 , (assets) =>
                 {
@@ -114,12 +122,14 @@ namespace PowerUtilities
             , Action<VisualElement, int> bindItem, Action<IEnumerable<object>> onSelectionChange)
         {
             listView.Clear();
+            listView.selectedIndex = 0;
+            listView.ClearSelection();
+
             listView.itemsSource = itemsSource;
             listView.makeItem = makeItem;
             listView.bindItem = bindItem;
             listView.onSelectionChange -= onSelectionChange;
             listView.onSelectionChange += onSelectionChange;
-            listView.selectedIndex = 0;
             listView.SetSelection(0);
         }
 
@@ -150,6 +160,14 @@ namespace PowerUtilities
                         rendererDataListView.SetSelection(curId);
                         Selection.activeObject = (Object)rendererDataListView.selectedItem;
                     });
+
+                    // show tag when i is defaut renderer
+                    var urpAsset = urpAssets[pipelineAssetListView.selectedIndex];
+                    if (urpAsset)
+                    {
+                        var isDefaultRenderer = urpAsset.GetDefaultRendererIndex() == i;
+                        ve.EnableInClassList("listview-row-selected", isDefaultRenderer);
+                    }
                 }
                 , (IEnumerable<object> obj) =>
                 {

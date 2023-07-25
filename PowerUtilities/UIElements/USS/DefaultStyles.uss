@@ -19,6 +19,13 @@
 .listview-row {
 }
 
+.listview-row-selected {
+    background-color: rgba(5, 43, 77, 0.29);
+    -unity-background-scale-mode: stretch-to-fill;
+    transition-duration: 1s;
+    -unity-background-image-tint-color: rgba(224, 224, 224, 255);
+}
+
 .box-right-border {
     border-left-width: 1px;
     border-right-width: 1px;
