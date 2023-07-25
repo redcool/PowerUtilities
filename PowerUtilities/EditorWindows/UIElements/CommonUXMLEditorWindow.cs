@@ -22,6 +22,9 @@ namespace PowerUtilities
         {
             var w = GetWindow<CommonUXMLEditorWindow>();
             w.titleContent = EditorGUITools.TempContent("CommonUxmlWindow");
+            if(w.position.width< 1000) {
+                w.position = new Rect(100, 100, 1000, 800);
+            }
         }
 
         private void DrawHeader()
@@ -42,6 +45,9 @@ namespace PowerUtilities
                 {
                     eventMono = null;
                 }
+
+                EditorGUILayout.LabelField("Uss",GUILayout.Width(30));
+                treeStyleSheet = EditorGUILayout.ObjectField(treeStyleSheet,typeof(StyleSheet), true) as StyleSheet;
 
                 EditorGUILayout.EndHorizontal();
             }
