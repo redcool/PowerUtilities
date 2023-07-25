@@ -33,7 +33,8 @@ namespace PowerUtilities
             () => AssetDatabaseTools.FindAssetPathAndLoad<VisualTreeAsset>(out var _, "URPAssetWin", "uxml")
         );
 
-
+        // last pipeline asset
+        RenderPipelineAsset lastPipeline;
 
 
         [MenuItem(ROOT_MENU+"/Pipeline/"+nameof(SRPPipelineAssetWin))]
@@ -54,9 +55,6 @@ namespace PowerUtilities
             eventInstance = this;
 
             base.CreateGUI();
-
-            RenderPipelineManager.activeRenderPipelineTypeChanged -= SetupSRPPipelineAssetListView;
-            RenderPipelineManager.activeRenderPipelineTypeChanged += SetupSRPPipelineAssetListView;
         }
 
         public void AddEvent(VisualElement root)
@@ -73,7 +71,16 @@ namespace PowerUtilities
         {
             SetupSRPPipelineAssetListView();
         }
-        
+
+        public void OnInspectorUpdate()
+        {
+            if(QualitySettings.renderPipeline != lastPipeline)
+            {
+                lastPipeline = QualitySettings.renderPipeline;
+                SetupSRPPipelineAssetListView();
+            }
+        }
+
 
         private void SetupSRPPipelineAssetListView()
         {
@@ -95,12 +102,13 @@ namespace PowerUtilities
                         Selection.activeObject = (Object)pipelineAssetListView.selectedItem;
                     });
 
-                    var isUsedPipeline = (urpAssets[i] == QualitySettings.renderPipeline);
+                    // get override used or default pipeline
+                    var isUsedPipeline = (urpAssets[i] == (QualitySettings.renderPipeline ?? GraphicsSettings.defaultRenderPipeline));
                     ve.EnableInClassList("listview-row-selected", isUsedPipeline);
                 }
                 , (assets) =>
                 {
-                    SetupURPRendererDataListView();
+                    SetupSRPRendererDataListView();
 
                     ShowPipelineAssetDetails();
                 }
@@ -122,18 +130,17 @@ namespace PowerUtilities
             , Action<VisualElement, int> bindItem, Action<IEnumerable<object>> onSelectionChange)
         {
             listView.Clear();
-            listView.selectedIndex = 0;
-            listView.ClearSelection();
 
             listView.itemsSource = itemsSource;
             listView.makeItem = makeItem;
             listView.bindItem = bindItem;
             listView.onSelectionChange -= onSelectionChange;
             listView.onSelectionChange += onSelectionChange;
+            listView.selectedIndex = 0;
             listView.SetSelection(0);
         }
 
-        private void SetupURPRendererDataListView()
+        private void SetupSRPRendererDataListView()
         {
             var urpAsset = urpAssets[pipelineAssetListView.selectedIndex];
             if (!urpAsset || rendererDataListView == null)
