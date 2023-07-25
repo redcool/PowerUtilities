@@ -4,7 +4,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
-using UnityEditor.Rendering.Universal;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.UIElements;
@@ -77,11 +76,6 @@ namespace PowerUtilities
                 return;
 
             urpAssets = AssetDatabaseTools.FindAssetsInProject<UniversalRenderPipelineAsset>();
-            EventCallback<ContextClickEvent> onRightClick = (e) =>
-            {
-                
-            };
-
 
             SetupListView(pipelineAssetListView
                 , urpAssets
