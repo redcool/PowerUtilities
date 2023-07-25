@@ -79,24 +79,27 @@ namespace PowerUtilities
             urpAssets = AssetDatabaseTools.FindAssetsInProject<UniversalRenderPipelineAsset>();
             EventCallback<ContextClickEvent> onRightClick = (e) =>
             {
-                Selection.activeObject = (Object)pipelineAssetListView.selectedItem;
+                
             };
 
 
             SetupListView(pipelineAssetListView
                 , urpAssets
                 , () => (assetRowUxml.Value?.CloneTree())
-                , (e, i) =>
+                , (ve, i) =>
                 {
-                    Label label = e.Q<Label>("PipelineAssetName");
+                    Label label = ve.Q<Label>("PipelineAssetName");
                     label.text = urpAssets[i].name;
-                    label.UnregisterCallback(onRightClick);
-                    label.RegisterCallback(onRightClick);
+                    label.RegisterCallback((ContextClickEvent e) => {
+                        var curId = i;
+                        pipelineAssetListView.SetSelection(curId);
+                        Selection.activeObject = (Object)pipelineAssetListView.selectedItem;
+                    });
                 }
                 , (assets) =>
                 {
-                    var asset = assets.First();
                     SetupURPRendererDataListView();
+
                     ShowPipelineAssetDetails();
                 }
             );
@@ -135,25 +138,24 @@ namespace PowerUtilities
             }
             var datas = urpAsset.GetRendererDatas();
 
-            EventCallback<ContextClickEvent> onRightClick = (e) =>
-            {
-                Selection.activeObject = (Object)rendererDataListView.selectedItem;
-            };
-
             SetupListView(rendererDataListView
                 , datas
                 , () => (assetDataRowUxml.Value?.CloneTree())
-                , (e, i) =>
+                , (ve, i) =>
                 {
                     if (i >= datas.Length)
                     {
                         return;
                     }
-                    var dataNameLabel = e.Q<Label>("RendererDataName");
+                    var dataNameLabel = ve.Q<Label>("RendererDataName");
                     dataNameLabel.text = datas[i].name;
 
-                    dataNameLabel.UnregisterCallback(onRightClick);
-                    dataNameLabel.RegisterCallback(onRightClick);
+                    dataNameLabel.RegisterCallback((ContextClickEvent e) =>
+                    {
+                        var curId = i;
+                        rendererDataListView.SetSelection(curId);
+                        Selection.activeObject = (Object)rendererDataListView.selectedItem;
+                    });
                 }
                 , (IEnumerable<object> obj) =>
                 {
