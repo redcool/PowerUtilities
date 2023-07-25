@@ -43,20 +43,23 @@ namespace PowerUtilities
             
             });
 
-
-            EditorGUILayout.LabelField("Update materials keywords by material toggle.");
-            if (GUILayout.Button("Check keywords"))
+            EditorGUI.BeginDisabledGroup(!shaderObj);
             {
-                var result = CheckKeywords(shaderObj, toggleTypeString);
-                Debug.Log(result);
-            }
+                EditorGUILayout.LabelField("Update materials keywords by material toggle.");
+                if (GUILayout.Button("Check keywords"))
+                {
+                    var result = CheckKeywords(shaderObj, toggleTypeString);
+                    Debug.Log(result);
+                }
 
-            EditorGUILayout.LabelField("Clear keywords reference target shader.");
-            if(GUILayout.Button("Clear Materials Keywords"))
-            {
-                ClearKeywords(shaderObj);
+                EditorGUILayout.LabelField("Clear keywords reference target shader.");
+                if (GUILayout.Button("Clear Materials Keywords"))
+                {
+                    ClearKeywords(shaderObj);
+                }
+                GUILayout.EndVertical();
             }
-            GUILayout.EndVertical();
+            EditorGUI.EndDisabledGroup();
         }
 
 

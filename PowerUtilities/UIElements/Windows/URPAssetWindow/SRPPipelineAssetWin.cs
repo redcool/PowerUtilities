@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
+using UnityEditor.Rendering.Universal;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.UIElements;
@@ -11,16 +12,17 @@ using Object = UnityEngine.Object;
 
 namespace PowerUtilities
 {
-    public class URPAssetWin : BaseUXMLEditorWindow, IUIElementEvent
+    public class SRPPipelineAssetWin : BaseUXMLEditorWindow, IUIElementEvent
     {
         ListView pipelineAssetListView;
         ListView rendererDataListView;
-        IMGUIContainer details;
+        IMGUIContainer rendererDataDetailImgui;
+        IMGUIContainer pipelineAssetDetailImgui;
 
         UniversalRenderPipelineAsset[] urpAssets;
 
         Lazy<VisualTreeAsset> assetRowUxml = new Lazy<VisualTreeAsset>(
-            () => AssetDatabaseTools.FindAssetPathAndLoad<VisualTreeAsset>(out var _,"URPAssetRowItem", "uxml")
+            () => AssetDatabaseTools.FindAssetPathAndLoad<VisualTreeAsset>(out var _, "URPAssetRowItem", "uxml")
         );
 
         Lazy<VisualTreeAsset> assetDataRowUxml = new Lazy<VisualTreeAsset>(
@@ -28,19 +30,22 @@ namespace PowerUtilities
         );
 
         Lazy<VisualTreeAsset> lazyTreeAsset = new Lazy<VisualTreeAsset>(
-            () => AssetDatabaseTools.FindAssetPathAndLoad<VisualTreeAsset>(out var _,"URPAssetWin", "uxml")
+            () => AssetDatabaseTools.FindAssetPathAndLoad<VisualTreeAsset>(out var _, "URPAssetWin", "uxml")
         );
 
-        
-        
 
-        [MenuItem(ROOT_MENU+"/URP/"+nameof(URPAssetWin))]
+
+
+        [MenuItem(ROOT_MENU+"/Pipeline/"+nameof(SRPPipelineAssetWin))]
         static void Init()
         {
-            var win = GetWindow<URPAssetWin>();
-            win.titleContent = new GUIContent("URPAssetView");
-            
-            //win.position = new Rect(0,0,400,300);
+            var win = GetWindow<SRPPipelineAssetWin>();
+            win.titleContent = new GUIContent("SRPPipelineAssetWin");
+            if (win.position.width < 1400)
+            {
+                win.position = new Rect(100, 100, 1440, 900);
+            }
+            win.ShowPopup();
         }
 
         public override void CreateGUI()
@@ -55,7 +60,8 @@ namespace PowerUtilities
         {
             pipelineAssetListView = root.Q<ListView>("PipelineAssetListView");
             rendererDataListView = root.Q<ListView>("RendererDataListView");
-            details = root.Q<IMGUIContainer>();
+            rendererDataDetailImgui = root.Q<IMGUIContainer>("RendererDataDetailIMGUI");
+            pipelineAssetDetailImgui = root.Q<IMGUIContainer>("PipelineAssetDetailIMGUI");
 
             SetupURPAssetListView();
         }
@@ -71,25 +77,40 @@ namespace PowerUtilities
                 return;
 
             urpAssets = AssetDatabaseTools.FindAssetsInProject<UniversalRenderPipelineAsset>();
-            Action OnSelect = () => {
+            EventCallback<ContextClickEvent> onRightClick = (e) =>
+            {
                 Selection.activeObject = (Object)pipelineAssetListView.selectedItem;
             };
 
 
             SetupListView(pipelineAssetListView
                 , urpAssets
-                , () => assetRowUxml.Value?.CloneTree()
+                , () => (assetRowUxml.Value?.CloneTree())
                 , (e, i) =>
                 {
-                    e.Q<Label>("PipelineAssetName").text = urpAssets[i].name;
+                    Label label = e.Q<Label>("PipelineAssetName");
+                    label.text = urpAssets[i].name;
+                    label.UnregisterCallback(onRightClick);
+                    label.RegisterCallback(onRightClick);
                 }
                 , (assets) =>
                 {
                     var asset = assets.First();
-
                     SetupURPRendererDataListView();
+                    ShowPipelineAssetDetails();
                 }
             );
+        }
+
+        void ShowPipelineAssetDetails()
+        {
+            if (pipelineAssetDetailImgui == null)
+                return;
+
+            pipelineAssetDetailImgui.onGUIHandler =() =>
+            {
+                Editor.CreateEditor((Object)pipelineAssetListView.selectedItem).OnInspectorGUI();
+            };
         }
 
         public static void SetupListView(ListView listView, IList itemsSource, Func<VisualElement> makeItem
@@ -113,13 +134,15 @@ namespace PowerUtilities
                 return;
             }
             var datas = urpAsset.GetRendererDatas();
-            Action onSelect = () => {
+
+            EventCallback<ContextClickEvent> onRightClick = (e) =>
+            {
                 Selection.activeObject = (Object)rendererDataListView.selectedItem;
             };
 
             SetupListView(rendererDataListView
                 , datas
-                , () => assetDataRowUxml.Value?.CloneTree()
+                , () => (assetDataRowUxml.Value?.CloneTree())
                 , (e, i) =>
                 {
                     if (i >= datas.Length)
@@ -128,24 +151,26 @@ namespace PowerUtilities
                     }
                     var dataNameLabel = e.Q<Label>("RendererDataName");
                     dataNameLabel.text = datas[i].name;
+
+                    dataNameLabel.UnregisterCallback(onRightClick);
+                    dataNameLabel.RegisterCallback(onRightClick);
                 }
-                ,(IEnumerable<object> obj) =>
+                , (IEnumerable<object> obj) =>
                 {
-                    var data = (UniversalRendererData)obj.First();
-                    ShowRendererDataDetails(data);
+                    ShowRendererDataDetails();
+
                 }
             );
-        }
-
-        private void ShowRendererDataDetails(UniversalRendererData data)
-        {
-            if (details == null)
-                return;
-
-            details.onGUIHandler = () =>
+            void ShowRendererDataDetails()
             {
-                Editor.CreateEditor(data).DrawDefaultInspector();
-            };
+                if (rendererDataDetailImgui == null)
+                    return;
+
+                rendererDataDetailImgui.onGUIHandler = () =>
+                {
+                    Editor.CreateEditor((Object)rendererDataListView.selectedItem).OnInspectorGUI();
+                };
+            }
         }
     }
 }

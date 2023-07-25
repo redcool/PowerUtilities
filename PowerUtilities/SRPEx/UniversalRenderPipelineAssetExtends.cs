@@ -61,8 +61,8 @@ namespace PowerUtilities
 
             return datas.Select(data => (T)data).ToArray();
         }
-        public static UniversalRendererData[] GetRendererDatas(this UniversalRenderPipelineAsset asset)
-            => GetDatas<UniversalRendererData>(asset, "m_RendererDataList");
+        public static ScriptableRendererData[] GetRendererDatas(this UniversalRenderPipelineAsset asset)
+            => GetDatas<ScriptableRendererData>(asset, "m_RendererDataList");
 
         public static UniversalRenderer[] GetRenderers(this UniversalRenderPipelineAsset asset)
             => GetDatas<UniversalRenderer>(asset, "m_Renderers");
@@ -71,7 +71,7 @@ namespace PowerUtilities
             => asset.GetType().GetFieldValue<int>(asset, "m_DefaultRendererIndex");
 
         public static UniversalRenderer GetDefaultRenderer(this UniversalRenderPipelineAsset asset)
-            => (UniversalRenderer)asset.scriptableRenderer;
+            => asset.scriptableRenderer as UniversalRenderer;
 
         /// <summary>
         /// is lightmap substract only

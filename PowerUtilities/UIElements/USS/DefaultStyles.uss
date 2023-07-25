@@ -13,8 +13,16 @@
     padding-right: 3px;
     padding-top: 3px;
     padding-bottom: 3px;
-    background-color: rgba(34, 34, 34, 255);
+    background-color: rgba(5, 43, 77, 255);
 }
 
 .listview-row {
+}
+
+.box-right-border {
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-right-color: rgba(0, 30, 91, 255);
 }

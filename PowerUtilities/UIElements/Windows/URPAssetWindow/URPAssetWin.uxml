@@ -1,17 +1,25 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
     <Style src="project://database/Assets/PowerXXX/PowerUtilities/PowerUtilities/UIElements/USS/DefaultStyles.uss?fileID=7433441132597879392&amp;guid=d5ba540bd33919345963867ff5ab0ffd&amp;type=3#DefaultStyles" />
     <ui:VisualElement name="Root" style="height: 100%; width: 100%; flex-grow: 1; flex-direction: row; min-width: 250px;">
-        <ui:VisualElement name="PipelineAssetGroup" style="flex-grow: 1; width: 25%;">
+        <ui:VisualElement name="PipelineAssetGroup" class="box-right-border" style="flex-grow: 1; width: 20%;">
             <ui:Label text="PipelineAssets" display-tooltip-when-elided="true" name="PipelineAssetsLabel" class="detail-header" />
-            <ui:ListView focusable="false" name="PipelineAssetListView" show-border="false" horizontal-scrolling="false" header-title="URPAssets" show-foldout-header="false" show-add-remove-footer="false" reorderable="false" show-alternating-row-backgrounds="None" selection-type="Single" show-bound-collection-size="false" usage-hints="GroupTransform" class="listview-row" style="flex-grow: 1; width: auto; height: auto; flex-shrink: 1; border-right-color: rgb(250, 0, 0); border-left-width: 1px; border-right-width: 1px; border-top-width: 1px; border-bottom-width: 1px; padding-left: 5px; padding-right: 5px; padding-top: 5px; padding-bottom: 5px;" />
+            <ui:ListView focusable="false" name="PipelineAssetListView" show-border="false" horizontal-scrolling="true" header-title="URPAssets" show-foldout-header="false" show-add-remove-footer="false" reorderable="false" show-alternating-row-backgrounds="ContentOnly" selection-type="Single" show-bound-collection-size="false" usage-hints="GroupTransform" fixed-item-height="30" class="listview-row" style="flex-grow: 1; width: auto; height: 100%; flex-shrink: 1; justify-content: center; align-items: flex-start;" />
         </ui:VisualElement>
-        <ui:VisualElement name="RendererDataGroup" style="flex-grow: 1; width: 25%;">
+        <ui:VisualElement name="RendererDataGroup" class="box-right-border" style="flex-grow: 1; width: 20%;">
             <ui:Label text="RendererDataList" display-tooltip-when-elided="true" name="RendererDataLabel" class="detail-header" />
-            <ui:ListView focusable="true" name="RendererDataListView" show-border="true" horizontal-scrolling="false" style="flex-grow: 1; width: auto; height: auto; flex-shrink: 1; border-right-color: rgb(250, 0, 0); border-left-width: 1px; border-right-width: 1px; border-top-width: 1px; border-bottom-width: 1px; padding-left: 5px; padding-right: 5px; padding-top: 5px; padding-bottom: 5px; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0;" />
+            <ui:ListView focusable="true" name="RendererDataListView" show-border="false" horizontal-scrolling="false" show-bound-collection-size="false" style="flex-grow: 1;" />
         </ui:VisualElement>
-        <ui:VisualElement name="DetailGroup" style="width: 50%; flex-grow: 1;">
-            <ui:Label text="Detail" display-tooltip-when-elided="true" class="detail-header" />
-            <ui:IMGUIContainer name="DetailIMGUI" />
+        <ui:VisualElement name="PipelineAssetlGroup" class="box-right-border" style="width: 30%; flex-grow: 1;">
+            <ui:Label text="PipelineAssetDetails" display-tooltip-when-elided="true" name="PipelineAssetDetails" class="detail-header" />
+            <ui:ScrollView>
+                <ui:IMGUIContainer name="PipelineAssetDetailIMGUI" />
+            </ui:ScrollView>
+        </ui:VisualElement>
+        <ui:VisualElement name="DetailGroup" class="box-right-border" style="width: 50%; flex-grow: 1;">
+            <ui:Label text="RendererDataDetails" display-tooltip-when-elided="true" name="RendererDataDetails" class="detail-header" />
+            <ui:ScrollView>
+                <ui:IMGUIContainer name="RendererDataDetailIMGUI" />
+            </ui:ScrollView>
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>
