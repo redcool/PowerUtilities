@@ -83,11 +83,11 @@ namespace PowerUtilities
                 if (! info.IsValid())
                     return;
 
-                desc.graphicsFormat = info.format;
+                desc.graphicsFormat = info.GetFinalFormat();
                 //desc.colorFormat = info.isHdr ? RenderTextureFormat.DefaultHDR : RenderTextureFormat.Default;
 
                 // depth format
-                if (GraphicsFormatUtility.IsDepthFormat(info.format))
+                if (GraphicsFormatUtility.IsDepthFormat(desc.graphicsFormat))
                 {
                     desc.colorFormat = RenderTextureFormat.Depth;
                     info.hasDepthBuffer = true;
@@ -96,8 +96,7 @@ namespace PowerUtilities
                 if (info.hasDepthBuffer)
                     desc.depthStencilFormat = GraphicsFormat.D24_UNorm_S8_UInt;
 
-
-                cmd.GetTemporaryRT(info.GetHash(), desc);
+                cmd.GetTemporaryRT(info.GetTextureId(), desc);
             });
         }
 

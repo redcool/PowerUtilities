@@ -20,10 +20,12 @@
 }
 
 .listview-row-selected {
-    background-color: rgba(5, 43, 77, 0.29);
-    -unity-background-scale-mode: stretch-to-fill;
     transition-duration: 1s;
-    -unity-background-image-tint-color: rgba(224, 224, 224, 255);
+    border-left-color: rgba(1, 86, 183, 255);
+    border-left-width: 4px;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
 }
 
 .box-right-border {

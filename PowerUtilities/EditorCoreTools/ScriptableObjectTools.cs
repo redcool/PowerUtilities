@@ -4,6 +4,7 @@ namespace PowerUtilities
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using System.IO;
     using System.Reflection;
     using UnityEditor;
     using UnityEngine;
@@ -26,6 +27,8 @@ namespace PowerUtilities
             {
                 path = SOAssetPathAttribute.GetPath(type);
             }
+
+            PathTools.CreateAbsFolderPath(path);
 
             var settings = AssetDatabase.LoadAssetAtPath(path, type);
             if (settings == null)

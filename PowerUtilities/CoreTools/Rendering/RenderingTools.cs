@@ -4,7 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Experimental.Rendering;
 using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 
 namespace PowerUtilities
 {
@@ -64,6 +66,20 @@ namespace PowerUtilities
 
             context.DrawRenderers(cullingResults, ref drawSettings, ref filterSettings);
 
+        }
+
+        /// <summary>
+        /// Get normal texture format auto
+        /// </summary>
+        /// <returns></returns>
+        public static GraphicsFormat GetNormalTextureFormat()
+        {
+            if (RenderingUtils.SupportsGraphicsFormat(GraphicsFormat.R8G8B8A8_SNorm, FormatUsage.Render))
+                return GraphicsFormat.R8G8B8A8_SNorm;
+            else if (RenderingUtils.SupportsGraphicsFormat(GraphicsFormat.R16G16B16A16_SFloat, FormatUsage.Render))
+                return GraphicsFormat.R16G16B16A16_SFloat;
+
+            return GraphicsFormat.R32G32B32A32_SFloat;
         }
     }
 }
