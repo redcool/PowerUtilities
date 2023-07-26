@@ -17,7 +17,7 @@ namespace PowerUtilities.UIElements
         [Serializable]
         public class PortInfo
         {
-            public Orientation orientation = Orientation.Horizontal;
+            public Orientation orientation = Orientation.Vertical;
             public Port.Capacity capacity = Port.Capacity.Single;
             public Type portType = typeof(bool);
             public string portName;
