@@ -120,9 +120,10 @@ namespace PowerUtilities
             if (pipelineAssetDetailImgui == null)
                 return;
 
+            var editor = Editor.CreateEditor((Object)pipelineAssetListView.selectedItem);
             pipelineAssetDetailImgui.onGUIHandler =() =>
             {
-                Editor.CreateEditor((Object)pipelineAssetListView.selectedItem).OnInspectorGUI();
+                editor?.OnInspectorGUI();
             };
         }
 
@@ -187,9 +188,11 @@ namespace PowerUtilities
                 if (rendererDataDetailImgui == null)
                     return;
 
+                var editor = Editor.CreateEditor((Object)rendererDataListView.selectedItem);
+
                 rendererDataDetailImgui.onGUIHandler = () =>
                 {
-                    Editor.CreateEditor((Object)rendererDataListView.selectedItem).OnInspectorGUI();
+                    editor?.OnInspectorGUI();
                 };
             }
         }
