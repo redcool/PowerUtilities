@@ -11,8 +11,7 @@
         public string name;
 
         [Tooltip("rt format")]
-        [SerializeField]
-        GraphicsFormat format = GraphicsFormat.R8G8B8A8_SNorm;
+        public GraphicsFormat format = GraphicsFormat.R8G8B8A8_SNorm;
 
         [Tooltip("setup depth buffer")]
         public bool hasDepthBuffer;

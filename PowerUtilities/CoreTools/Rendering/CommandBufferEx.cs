@@ -93,6 +93,12 @@ namespace PowerUtilities
                     info.hasDepthBuffer = true;
                 }
 
+                // sync info's format 
+                if(info.format != desc.graphicsFormat)
+                {
+                    info.format = desc.graphicsFormat;
+                }
+
                 if (info.hasDepthBuffer)
                     desc.depthStencilFormat = GraphicsFormat.D24_UNorm_S8_UInt;
 

@@ -1,0 +1,15 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" MemoryProfiler="Unity.MemoryProfiler.Editor" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <Style src="project://database/Assets/PowerXXX/PowerUtilities/PowerUtilities/UIElements/Test/testUIElements/TestWind1.uss?fileID=7433441132597879392&amp;guid=448ea7a42070fa5438853a5a07afe8c7&amp;type=3#TestWind1" />
+    <PowerUtilities.UIElements.TestSplitView fixed-pane-initial-dimension="800" style="flex-shrink: 1; flex-grow: 1;">
+        <ui:VisualElement name="Left" style="flex-grow: 1; flex-shrink: 1; min-width: auto;">
+            <ui:Label text="Graph" display-tooltip-when-elided="true" picking-mode="Ignore" style="visibility: visible; overflow: visible; display: flex;" />
+            <ui:VisualElement style="flex-grow: 1; flex-direction: row;">
+                <PowerUtilities.UIElements.TestGraphView focusable="true" style="flex-grow: 1; height: auto; width: auto;" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="Right" style="flex-shrink: 0; width: 100px;">
+            <ui:Label text="Inspector" display-tooltip-when-elided="true" picking-mode="Ignore" style="visibility: visible; overflow: visible; display: flex;" />
+            <PowerUtilities.UIElements.TestInspectorView style="flex-grow: 1;" />
+        </ui:VisualElement>
+    </PowerUtilities.UIElements.TestSplitView>
+</ui:UXML>
