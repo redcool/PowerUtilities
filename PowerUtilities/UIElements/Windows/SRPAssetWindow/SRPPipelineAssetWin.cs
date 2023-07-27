@@ -88,6 +88,7 @@ namespace PowerUtilities
                 return;
             
             urpAssets = AssetDatabaseTools.FindAssetsInProject<UniversalRenderPipelineAsset>();
+            var selectedId = urpAssets.FindIndex(asset => (QualitySettings.renderPipeline ?? GraphicsSettings.defaultRenderPipeline));
 
             SetupListView(pipelineAssetListView
                 , urpAssets
@@ -103,7 +104,7 @@ namespace PowerUtilities
                     });
 
                     // get override used or default pipeline
-                    var isUsedPipeline = (urpAssets[i] == (QualitySettings.renderPipeline ?? GraphicsSettings.defaultRenderPipeline));
+                    var isUsedPipeline = i == selectedId;
                     ve.EnableInClassList("listview-row-selected", isUsedPipeline);
                 }
                 , (assets) =>
@@ -112,6 +113,7 @@ namespace PowerUtilities
 
                     ShowPipelineAssetDetails();
                 }
+                , selectedId
             );
         }
 
@@ -128,7 +130,7 @@ namespace PowerUtilities
         }
 
         public static void SetupListView(ListView listView, IList itemsSource, Func<VisualElement> makeItem
-            , Action<VisualElement, int> bindItem, Action<IEnumerable<object>> onSelectionChange)
+            , Action<VisualElement, int> bindItem, Action<IEnumerable<object>> onSelectionChange,int selectedId)
         {
             listView.Clear();
 
@@ -137,8 +139,7 @@ namespace PowerUtilities
             listView.bindItem = bindItem;
             listView.onSelectionChange -= onSelectionChange;
             listView.onSelectionChange += onSelectionChange;
-            listView.selectedIndex = 0;
-            listView.SetSelection(0);
+            listView.selectedIndex = selectedId;
         }
 
         private void SetupSRPRendererDataListView()
@@ -149,6 +150,7 @@ namespace PowerUtilities
                 return;
             }
             var datas = urpAsset.GetRendererDatas();
+            var selectedId = urpAsset.GetDefaultRendererIndex();
 
             SetupListView(rendererDataListView
                 , datas
@@ -170,19 +172,19 @@ namespace PowerUtilities
                     });
 
                     // show tag when i is defaut renderer
-                    var urpAsset = urpAssets[pipelineAssetListView.selectedIndex];
                     if (urpAsset)
                     {
-                        var isDefaultRenderer = urpAsset.GetDefaultRendererIndex() == i;
+                        var isDefaultRenderer = selectedId == i;
                         ve.EnableInClassList("listview-row-selected", isDefaultRenderer);
                     }
                 }
                 , (IEnumerable<object> obj) =>
                 {
                     ShowRendererDataDetails();
-
                 }
+                ,selectedId
             );
+
             void ShowRendererDataDetails()
             {
                 if (rendererDataDetailImgui == null)
