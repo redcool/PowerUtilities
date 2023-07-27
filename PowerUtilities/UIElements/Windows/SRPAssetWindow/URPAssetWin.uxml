@@ -17,7 +17,7 @@
         </ui:VisualElement>
         <ui:VisualElement name="DetailGroup" class="box-right-border" style="width: 50%; flex-grow: 1;">
             <ui:Label text="RendererDataDetails" display-tooltip-when-elided="true" name="RendererDataDetails" class="detail-header" />
-            <ui:ScrollView>
+            <ui:ScrollView class="detail-content">
                 <ui:IMGUIContainer name="RendererDataDetailIMGUI" style="flex-grow: 1;" />
             </ui:ScrollView>
         </ui:VisualElement>

@@ -2,22 +2,22 @@
     <Style src="project://database/Assets/PowerXXX/PowerUtilities/PowerUtilities/UIElements/Test/testUIElements/TestNodeView.uss?fileID=7433441132597879392&amp;guid=7b5f59ea4c92b604ea6a3aeed8067195&amp;type=3#TestNodeView" />
     <ui:VisualElement name="node-border" style="min-width: 100px; min-height: 80px;">
         <ui:VisualElement name="contents">
-            <ui:VisualElement name="divider" class="vertical" />
             <ui:VisualElement name="top">
                 <ui:VisualElement name="input" style="height: auto;" />
                 <ui:VisualElement name="divider" class="vertical" />
                 <ui:VisualElement name="title">
                     <ui:Label name="title-label" text="test node" class="unity-text-element unity-label" style="font-size: 14px; -unity-font-style: bold; padding-left: 2px; padding-right: 2px; padding-top: 2px; padding-bottom: 2px;" />
-                    <ui:Label text="Label" display-tooltip-when-elided="true" name="desc" style="font-size: 10px;" />
+                    <ui:Label text="Label" display-tooltip-when-elided="true" name="desc" />
                     <ui:VisualElement name="title-button-container">
                         <ui:VisualElement name="collapse-button">
                             <ui:VisualElement name="icon" />
                         </ui:VisualElement>
                     </ui:VisualElement>
                 </ui:VisualElement>
+                <ui:VisualElement name="divider" class="vertical" />
                 <ui:VisualElement name="output" />
             </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>
-    <ui:VisualElement name="selection-border" picking-mode="Ignore" style="border-left-width: 0; border-right-width: 0; border-top-width: 0; border-bottom-width: 0;" />
+    <ui:VisualElement name="selection-border" picking-mode="Ignore" />
 </ui:UXML>
