@@ -16,17 +16,23 @@ namespace PowerUtilities
     public class GroupIndentDecorator : BaseGroupItemDrawer
     {
         public int indentLevelOffset; 
-        public GroupIndentDecorator():this("","",0){ }
-        public GroupIndentDecorator(float indentLevelOffset) : this("", "", indentLevelOffset) { }
-        public GroupIndentDecorator(string groupName,float indentLevelOffset) : this(groupName, "", indentLevelOffset) { }
-        public GroupIndentDecorator(string groupName, string tooltip, float indentLevelOffset) : base(groupName, tooltip)
+        public GroupIndentDecorator():this("","","1"){ }
+        public GroupIndentDecorator(string indentLevelOffsetStr) : this("", "", indentLevelOffsetStr) { }
+        public GroupIndentDecorator(string groupName, string indentLevelOffsetStr) : this(groupName, "", indentLevelOffsetStr) { }
+        public GroupIndentDecorator(string groupName, string tooltip, string indentLevelOffsetStr) : base(groupName, tooltip)
         {
-            this.indentLevelOffset= (int)indentLevelOffset;
+            if(!int.TryParse(indentLevelOffsetStr, out indentLevelOffset))
+            {
+                if (indentLevelOffsetStr.StartsWith('m'))
+                    indentLevelOffset = -1 * int.Parse(indentLevelOffsetStr.Substring(1));
+
+            }
+
         }
 
         public override void DrawGroupUI(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
         {
-            EditorGUI.indentLevel = indentLevelOffset;
+            EditorGUI.indentLevel += indentLevelOffset;
         }
     }
 }

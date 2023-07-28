@@ -28,6 +28,11 @@ namespace PowerUtilities
         /// field : float field
         /// </summary>
         GroupAPITools.SliderType sliderType;
+        /// <summary>
+        /// sliderStyleFormat,contains space char
+        /// 
+        /// </summary>
+        GroupAPITools.SliderType[] sliderTypes = new GroupAPITools.SliderType[4];
 
         //public GroupVectorSliderDrawer(string headerString) : this("",headerString, "") { }
         public GroupVectorSliderDrawer(string headerString,string rangeString) : this("", headerString, rangeString) { }
@@ -40,10 +45,14 @@ namespace PowerUtilities
         /// tooltip : helps
         /// 
         /// Demos:
-        /// 
-        /// sliders 4 : 
+        /// 1
+        /// sliders 4 (1 style): 
         /// *(headers length == ranges length)
         /// [GroupVectorSlider(group1, a b c d, 0_1 1_2 0_1 0_m2)] _Vector("_Vector", vector) = (1,1,1,1)
+        /// 
+        /// 2
+        /// sliders 4(4 styles)
+        /// [GroupVectorSlider(,CenterX CenterY Scale Offset,0_1 0_1 0_1 0_1,,float float field field)]_Vector("_Vector",vector) = (.5,.5,1,0)
         /// 
         /// vector3 slider 1 :
         /// * (headers length ==2 && ranges length == 1)
@@ -51,6 +60,9 @@ namespace PowerUtilities
         /// 
         /// 2 int sliders:
         /// [GroupVectorSlider(SheetAnimation,RowCount ColumnCount,1_16 1_16,,int)]_MainTexSheet("_MainTexSheet",vector)=(1,1,1,1)
+        /// 
+        /// custom sliders
+        /// 
         /// </summary>
         /// <param name="headerString"></param>
         public GroupVectorSliderDrawer(string groupName, string headerString, string rangeString) : this(groupName, headerString,rangeString, "","") { }
@@ -62,7 +74,29 @@ namespace PowerUtilities
                 headers = headerString.Split(ITEM_SPLITTER);
             }
             InitRanges(rangeString);
-            Enum.TryParse(sliderStyleFormat, out sliderType);
+            SetupSliderStyles(sliderStyleFormat);
+        }
+
+        private void SetupSliderStyles(string sliderStyleFormat)
+        {
+            const char SPACE_CHAR = ' ';
+            if (!sliderStyleFormat.Contains(SPACE_CHAR))
+            {
+                Enum.TryParse(sliderStyleFormat, out sliderType);
+                for (int i = 0; i < sliderTypes.Length; i++)
+                {
+                    sliderTypes[i] = sliderType;
+                }
+            }
+            else
+            {
+                // parse "int,float,remap,field"
+                var styles = sliderStyleFormat.SplitBy(SPACE_CHAR);
+                for (int i = 0; i < styles.Length; i++)
+                {
+                    Enum.TryParse(styles[i], out sliderTypes[i]);
+                }
+            }
         }
 
         private void InitRanges(string rangeString)
@@ -157,7 +191,8 @@ namespace PowerUtilities
             var pos = new Rect(position.x, position.y, position.width, 18);
             for (int i = 0; i < headers.Length; i++)
             {
-                value[i] = GroupAPITools.DrawSlider(pos, headers[i], value[i], ranges[i], sliderType);
+                var curSliderType = sliderTypes[i];
+                value[i] = GroupAPITools.DrawSlider(pos, headers[i], value[i], ranges[i], curSliderType);
 
                 pos.y += LINE_HEIGHT;
             }
