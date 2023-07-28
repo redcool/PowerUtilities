@@ -112,5 +112,13 @@ namespace PowerUtilities
         public static bool IsLightmapShadowMixing(this UniversalRenderPipelineAsset asset, ref RenderingData renderingData)
         => IsSubstract(asset, ref renderingData) || IsShadowMaskAlways(asset, ref renderingData);
 
+
+        public static int GetDefaultPipelineIndex(out UniversalRenderPipelineAsset[] urpAssets, out UniversalRenderPipelineAsset defaultAsset)
+        {
+            urpAssets = AssetDatabaseTools.FindAssetsInProject<UniversalRenderPipelineAsset>();
+            var selectedId = urpAssets.FindIndex(asset => asset == (QualitySettings.renderPipeline ?? GraphicsSettings.defaultRenderPipeline));
+            defaultAsset = urpAssets[selectedId];
+            return selectedId;
+        }
     }
 }

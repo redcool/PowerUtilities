@@ -86,9 +86,8 @@ namespace PowerUtilities
         {
             if (pipelineAssetListView == null)
                 return;
-            
-            urpAssets = AssetDatabaseTools.FindAssetsInProject<UniversalRenderPipelineAsset>();
-            var selectedId = urpAssets.FindIndex(asset => (QualitySettings.renderPipeline ?? GraphicsSettings.defaultRenderPipeline));
+
+            var selectedId = UniversalRenderPipelineAssetExtends.GetDefaultPipelineIndex(out urpAssets, out _);
 
             SetupListView(pipelineAssetListView
                 , urpAssets
