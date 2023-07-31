@@ -9,12 +9,28 @@ using UnityEngine.UIElements;
 using System.Reflection;
 using System.Linq;
 using System.IO;
+using System;
 
 namespace PowerUtilities.UIElements
 {
     public class BaseGraphView : GraphView
     {
         public new class UxmlFactory : UxmlFactory<BaseGraphView, UxmlTraits> { };
+
+        public class NodeViewInfo
+        {
+            public string name;
+            public Type type;
+        }
+
+        /// <summary>
+        /// contextual menu show this list
+        /// subClass override this list
+        /// </summary>
+        public List<NodeViewInfo> appendNodeList = new List<NodeViewInfo>()
+        {
+            new NodeViewInfo{name = "TestNode",type = typeof(BaseNodeView) }
+        };
 
         public BaseGraphView()
         {
@@ -36,9 +52,15 @@ namespace PowerUtilities.UIElements
 
         public override void BuildContextualMenu(ContextualMenuPopulateEvent evt)
         {
-            evt.menu.AppendAction("Add TestNode", (action) =>
+            //evt.menu.AppendAction("Add TestNode", (action) =>
+            //{
+            //    AddElement(new BaseNodeView());
+            //});
+            appendNodeList.ForEach(node =>
             {
-                AddElement(new BaseNodeView());
+                evt.menu.AppendAction(node.name,
+                    (action) => AddElement((GraphElement)Activator.CreateInstance(node.type))
+                );
             });
         }
 

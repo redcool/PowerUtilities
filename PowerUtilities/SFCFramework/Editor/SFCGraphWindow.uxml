@@ -1,0 +1,15 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" MemoryProfiler="Unity.MemoryProfiler.Editor" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <Style src="project://database/Assets/PowerXXX/PowerUtilities/PowerUtilities/SFCFramework/Editor/SRPGraphEditor.uss?fileID=7433441132597879392&amp;guid=4dac39b61e7751c41aa766921b89343f&amp;type=3#SRPGraphEditor" />
+    <PowerUtilities.UIElements.BaseSplitView fixed-pane-initial-dimension="800">
+        <ui:VisualElement name="Left" style="flex-grow: 1; flex-shrink: 1; min-width: auto;">
+            <ui:Label text="Graph" display-tooltip-when-elided="true" picking-mode="Ignore" style="visibility: visible; overflow: visible; display: flex;" />
+            <ui:VisualElement style="flex-grow: 1; flex-direction: row;">
+                <PowerUtilities.UIElements.BaseGraphView focusable="true" class="graphView" style="flex-grow: 1;" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="Right" style="flex-shrink: 0; width: 100px;">
+            <ui:Label text="Inspector" display-tooltip-when-elided="true" picking-mode="Ignore" style="visibility: visible; overflow: visible; display: flex;" />
+            <ui:VisualElement name="Inspector" style="flex-grow: 1;" />
+        </ui:VisualElement>
+    </PowerUtilities.UIElements.BaseSplitView>
+</ui:UXML>

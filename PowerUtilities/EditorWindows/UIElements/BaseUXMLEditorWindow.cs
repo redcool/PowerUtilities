@@ -18,6 +18,7 @@ namespace PowerUtilities
         // uxml
         public VisualTreeAsset treeAsset;
         protected VisualElement treeInstance;
+        public bool IsReplaceRootContainer = false;
 
         // events
         /// <summary>
@@ -51,8 +52,16 @@ namespace PowerUtilities
             if (!treeAsset)
                 return;
 
-            treeInstance = treeAsset.CloneTree();
-            rootVisualElement.Add(treeInstance);
+            if (!IsReplaceRootContainer)
+            {
+                treeInstance = treeAsset.CloneTree();
+                rootVisualElement.Add(treeInstance);
+            }
+            else
+            {
+                treeAsset.CloneTree(rootVisualElement);
+
+            }
 
             var uss = treeStyleSheet ?? lazyDefaultStyleSheet.Value;
             rootVisualElement.styleSheets.Add(uss);
@@ -66,15 +75,12 @@ namespace PowerUtilities
         /// </summary>
         public void AddTreeEvents()
         {
-            if (treeInstance == null)
-                return;
-
             if(eventMono)
                 eventInstance = Activator.CreateInstance(eventMono.GetClass()) as IUIElementEvent;
 
             if (eventInstance != null)
             {
-                eventInstance.AddEvent(treeInstance);
+                eventInstance.AddEvent(rootVisualElement);
             }
 
         }
