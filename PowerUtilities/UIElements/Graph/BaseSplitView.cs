@@ -5,9 +5,9 @@ using UnityEngine.UIElements;
 
 namespace PowerUtilities.UIElements
 {
-    public class TestSplitView : TwoPaneSplitView
+    public class BaseSplitView : TwoPaneSplitView
     {
-        public new class UxmlFactory : UxmlFactory<TestSplitView, UxmlTraits> { };
+        public new class UxmlFactory : UxmlFactory<BaseSplitView, UxmlTraits> { };
 
     }
 }

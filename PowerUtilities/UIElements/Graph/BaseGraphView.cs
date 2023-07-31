@@ -12,11 +12,11 @@ using System.IO;
 
 namespace PowerUtilities.UIElements
 {
-    public class TestGraphView : GraphView
+    public class BaseGraphView : GraphView
     {
-        public new class UxmlFactory : UxmlFactory<TestGraphView, UxmlTraits> { };
+        public new class UxmlFactory : UxmlFactory<BaseGraphView, UxmlTraits> { };
 
-        public TestGraphView()
+        public BaseGraphView()
         {
             Insert(0, new GridBackground());
 
@@ -25,10 +25,12 @@ namespace PowerUtilities.UIElements
             this.AddManipulator(new SelectionDragger());
             this.AddManipulator(new RectangleSelector());
 
-            var fileGUID = AssetDatabase.FindAssets("TestWind1").FirstOrDefault();
-            var folder = Path.GetDirectoryName(AssetDatabase.GUIDToAssetPath(fileGUID)); // Assets/testUIElements
+            LoadDefaultStyles();
+        }
 
-            var styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>(folder + "/TestWind1.uss");
+        public virtual void LoadDefaultStyles()
+        {
+            var styleSheet = AssetDatabaseTools.FindAssetPathAndLoad<StyleSheet>(out _, "BaseGraphView", "uss");
             styleSheets.Add(styleSheet);
         }
 
@@ -36,7 +38,7 @@ namespace PowerUtilities.UIElements
         {
             evt.menu.AppendAction("Add TestNode", (action) =>
             {
-                AddElement(new TestNodeView());
+                AddElement(new BaseNodeView());
             });
         }
 

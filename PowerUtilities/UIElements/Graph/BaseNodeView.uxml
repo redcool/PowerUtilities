@@ -1,5 +1,5 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
-    <Style src="project://database/Assets/PowerXXX/PowerUtilities/PowerUtilities/UIElements/Test/testUIElements/TestNodeView.uss?fileID=7433441132597879392&amp;guid=7b5f59ea4c92b604ea6a3aeed8067195&amp;type=3#TestNodeView" />
+    <Style src="project://database/Assets/PowerXXX/PowerUtilities/PowerUtilities/UIElements/Graph/BaseNodeView.uss?fileID=7433441132597879392&amp;guid=7b5f59ea4c92b604ea6a3aeed8067195&amp;type=3#BaseNodeView" />
     <ui:VisualElement name="node-border" style="min-width: 100px; min-height: 80px;">
         <ui:VisualElement name="contents">
             <ui:VisualElement name="top">

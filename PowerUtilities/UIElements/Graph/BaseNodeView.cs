@@ -13,7 +13,7 @@ using Object = UnityEngine.Object;
 
 namespace PowerUtilities.UIElements
 {
-    public class TestNodeView : Node
+    public class BaseNodeView : Node
     {
         [Serializable]
         public class PortInfo
@@ -30,7 +30,7 @@ namespace PowerUtilities.UIElements
             public FlexDirection flexDirection = FlexDirection.Column;
         }
 
-        public static Lazy<string> lazyNodeViewUssPath = new Lazy<string>(() => AssetDatabaseTools.FindAssetPath("TestNodeView", "uxml"));
+        public static Lazy<string> lazyNodeViewUssPath = new Lazy<string>(() => AssetDatabaseTools.FindAssetPath("BaseNodeView", "uxml"));
 
         public PortInfo
             inputPortInfo = new PortInfo(),
@@ -38,8 +38,7 @@ namespace PowerUtilities.UIElements
         ;
 
         public Port input, output;
-        const string PATH = "Assets/PowerXXX/PowerUtilities/PowerUtilities/UIElements/Test/testUIElements/TestNodeView.uxml";
-        public TestNodeView() : base(lazyNodeViewUssPath.Value)
+        public BaseNodeView() : base(lazyNodeViewUssPath.Value)
         {
             this.title = "test node";
             this.viewDataKey = GUID.Generate().ToString();

@@ -1,9 +1,9 @@
 #node-border {
     background-color: rgba(56, 56, 56, 0.76);
-    border-left-color: rgba(47, 47, 47, 255);
-    border-right-color: rgba(47, 47, 47, 255);
-    border-top-color: rgba(47, 47, 47, 255);
-    border-bottom-color: rgba(47, 47, 47, 255);
+    border-left-color: rgb(47, 47, 47);
+    border-right-color: rgb(47, 47, 47);
+    border-top-color: rgb(47, 47, 47);
+    border-bottom-color: rgb(47, 47, 47);
     border-left-width: 1px;
     border-right-width: 1px;
     border-top-width: 1px;
@@ -23,10 +23,10 @@
 }
 
 #selection-border {
-    border-left-color: rgba(11, 189, 255, 255);
-    border-right-color: rgba(11, 189, 255, 255);
-    border-top-color: rgba(11, 189, 255, 255);
-    border-bottom-color: rgba(11, 189, 255, 255);
+    border-left-color: rgb(11, 189, 255);
+    border-right-color: rgb(11, 189, 255);
+    border-top-color: rgb(11, 189, 255);
+    border-bottom-color: rgb(11, 189, 255);
     border-top-left-radius: 5px;
     border-bottom-left-radius: 5px;
     border-top-right-radius: 5px;
@@ -69,5 +69,5 @@
 
 #divider {
     min-height: 1px;
-    background-color: rgba(87, 87, 87, 255);
+    background-color: rgb(87, 87, 87);
 }
