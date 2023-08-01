@@ -87,7 +87,7 @@ namespace PowerUtilities
             if (pipelineAssetListView == null)
                 return;
 
-            var selectedId = UniversalRenderPipelineAssetExtends.GetDefaultPipelineIndex(out urpAssets, out _);
+            var selectedId = SRPTools.GetDefaultPipelineIndex(out urpAssets, out _);
 
             SetupListView(pipelineAssetListView
                 , urpAssets
