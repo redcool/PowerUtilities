@@ -6,6 +6,7 @@ using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
+using Object = UnityEngine.Object;
 
 namespace PowerUtilities
 {
@@ -15,6 +16,7 @@ namespace PowerUtilities
     public static class ProjectSettingsProvider
     {
         public readonly static GUIContent projectSettingContentInst = new GUIContent();
+        static CacheTool<Type, Editor> cachedEditors = new CacheTool<Type, Editor>();
 
         [SettingsProviderGroup]
         public static SettingsProvider[] CreateProviders()
@@ -45,18 +47,20 @@ namespace PowerUtilities
         public static void ShowSetting(Type type)
         {
             var setting = ScriptableObjectTools.GetSerializedInstance(type);
+            var settingEditor = cachedEditors.Get(type, () => Editor.CreateEditor(setting.targetObject));
+            settingEditor.OnInspectorGUI();
 
             // iterate fields
-            var normalFields = type.GetFields();
+            //var normalFields = type.GetFields();
 
-            normalFields.ForEach(field =>
-            {
-                if (field.GetCustomAttribute<HideInInspector>(true) != null)
-                    return;
+            //normalFields.ForEach(field =>
+            //{
+            //    if (field.GetCustomAttribute<HideInInspector>(true) != null)
+            //        return;
 
-                var prop = setting.FindProperty(field.Name);
-                EditorGUILayout.PropertyField(prop, EditorGUITools.TempContent(field.Name, inst: projectSettingContentInst));
-            });
+            //    var prop = setting.FindProperty(field.Name);
+            //    EditorGUILayout.PropertyField(prop, EditorGUITools.TempContent(field.Name, inst: projectSettingContentInst));
+            //});
 
             setting.ApplyModifiedProperties();
         }

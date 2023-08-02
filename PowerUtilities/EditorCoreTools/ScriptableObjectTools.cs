@@ -12,6 +12,8 @@ namespace PowerUtilities
 
     public static class ScriptableObjectTools
     {
+        static CacheTool<string,SerializedObject> cachedSerializedObjects = new CacheTool<string,SerializedObject>();
+
         /// <summary>
         /// Get or create instance 
         /// if path is empty will find from AssetPathAttribute
@@ -26,6 +28,8 @@ namespace PowerUtilities
             if (string.IsNullOrEmpty(path))
             {
                 path = SOAssetPathAttribute.GetPath(type);
+                if (string.IsNullOrEmpty(path))
+                    return default;
             }
 
             PathTools.CreateAbsFolderPath(path);
@@ -60,9 +64,12 @@ namespace PowerUtilities
             if (string.IsNullOrEmpty(path))
             {
                 path = SOAssetPathAttribute.GetPath(type);
-            }
 
-            return new SerializedObject(GetInstance(type,path));
+                if (string.IsNullOrEmpty(path))
+                    return default;
+            }
+            // from cache or get new
+            return cachedSerializedObjects.Get(path, () => new SerializedObject(GetInstance(type, path)));
         }
         public static SerializedObject GetSerializedInstance<T>(string path="") where T : ScriptableObject
         {
