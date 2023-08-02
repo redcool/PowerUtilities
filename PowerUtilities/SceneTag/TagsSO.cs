@@ -59,7 +59,6 @@ namespace PowerUtilities
                 var tagManagerSo = TagManager.GetTagLayerManager();
                 var tagEditor = tagManagerEditor.Get(tagManagerSo, () => Editor.CreateEditor(tagManagerSo.targetObject));
                 tagEditor.OnInspectorGUI();
-                tagManagerEditor.Clear();
             }
         }
 
