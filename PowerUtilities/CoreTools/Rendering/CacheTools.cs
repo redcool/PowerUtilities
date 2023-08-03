@@ -31,10 +31,11 @@ namespace PowerUtilities
             return onNotExists != null ? dict[key] = onNotExists() : default;
         }
 
-        public void Clear()
-        {
-            dict.Clear();
-        }
+        public void Clear() => dict.Clear();
+
+        public void Set(K key, T value) => dict[key] = value;
+
+        public void Remove(K key) => dict.Remove(key);
     }
 
     public static class MaterialCacheTool

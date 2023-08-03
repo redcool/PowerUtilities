@@ -47,21 +47,14 @@ namespace PowerUtilities
         public static void ShowSetting(Type type)
         {
             var setting = ScriptableObjectTools.GetSerializedInstance(type);
+            if (setting.targetObject == null)
+            {
+                EditorGUILayout.SelectableLabel($"{type} cannot load.");
+                return;
+            }
+
             var settingEditor = cachedEditors.Get(type, () => Editor.CreateEditor(setting.targetObject));
             settingEditor.OnInspectorGUI();
-
-            // iterate fields
-            //var normalFields = type.GetFields();
-
-            //normalFields.ForEach(field =>
-            //{
-            //    if (field.GetCustomAttribute<HideInInspector>(true) != null)
-            //        return;
-
-            //    var prop = setting.FindProperty(field.Name);
-            //    EditorGUILayout.PropertyField(prop, EditorGUITools.TempContent(field.Name, inst: projectSettingContentInst));
-            //});
-
             setting.ApplyModifiedProperties();
         }
     }
