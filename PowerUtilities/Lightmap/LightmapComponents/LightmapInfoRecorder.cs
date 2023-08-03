@@ -8,6 +8,7 @@
 
 #if UNITY_EDITOR
     using UnityEditor;
+    [CanEditMultipleObjects]
     [CustomEditor(typeof(LightmapInfoRecorder))]
     public class LightmapInfosEidotr : Editor
     {
@@ -17,33 +18,47 @@
             base.OnInspectorGUI();
             GUILayout.EndVertical();
 
-            var inst = target as LightmapInfoRecorder;
-
-            if (!inst.rootGo)
-                return;
-
             if (GUILayout.Button("Record LightmapInfos"))
             {
-                inst.RecordLightmapInfos();
-                EditorUtility.SetDirty(inst);
+                UpdateTargets(inst =>
+                {
+                    inst.RecordLightmapInfos();
+                    EditorUtility.SetDirty(inst);
+                });
             }
 
             if (GUILayout.Button("Apply LightmapInfos"))
             {
-                inst.ApplyLightmapInfos();
+                UpdateTargets(inst =>
+                {
+                    inst.ApplyLightmapInfos();
+                });
             }
 
             if (GUILayout.Button("Clear LightmapInfo"))
             {
-                foreach (var item in inst.renderers)
+                UpdateTargets(inst =>
                 {
-                    item.lightmapIndex = -1;
-                    item.lightmapScaleOffset = Vector4.zero;
-                }
+                    foreach (var item in inst.renderers)
+                    {
+                        item.lightmapIndex = -1;
+                        item.lightmapScaleOffset = Vector4.zero;
+                    }
+                });
             }
         }
 
+        public void UpdateTargets(Action<LightmapInfoRecorder> onAction)
+        {
+            targets.ForEach(t =>
+            {
+                var inst = t as LightmapInfoRecorder;
+                if (!inst.rootGo)
+                    return;
 
+                onAction(inst);
+            });
+        }
     }
     public class LightmapInfoDetector
     {
