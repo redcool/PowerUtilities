@@ -17,9 +17,12 @@ namespace PowerUtilities
     {
         SerializedObject drawInfoSerailizedObject;
 
+        Editor drawInfoEditor;
+
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
+
             var inst = target as DrawChildrenInstanced;
 
             if (!inst.drawInfoSO)
@@ -37,19 +40,26 @@ namespace PowerUtilities
                 //2 create a new profile
                 if (GUILayout.Button("Create New Profile"))
                 {
-                    inst.drawInfoSO = CreateNewProfile(inst,soName, soPath,existProfile);
+                    inst.drawInfoSO = CreateNewProfile(inst, soName, soPath, existProfile);
                 }
             }
 
             if (!inst.drawInfoSO)
                 return;
 
+            if (drawInfoEditor == null || drawInfoEditor.target != inst.drawInfoSO)
+            {
+                drawInfoEditor = CreateEditor(inst.drawInfoSO);
+            }
+
             if (drawInfoSerailizedObject == null)
                 drawInfoSerailizedObject = new SerializedObject(inst.drawInfoSO);
 
             drawInfoSerailizedObject.Update();
 
-            DrawProfileUI(inst);
+            // show default gui
+            drawInfoEditor.OnInspectorGUI();
+            //DrawProfileUI(inst);
 
             var isApplied = drawInfoSerailizedObject.ApplyModifiedProperties();
             if (isApplied)
@@ -57,18 +67,29 @@ namespace PowerUtilities
                 inst.drawInfoSO.UpdateGroupListMaterial(inst.drawInfoSO.IsLightMapEnabled());
             }
 
+            // buttons
+            EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("Bake Children Gos"))
             {
-                inst.drawInfoSO.Clear();
-                inst.drawInfoSO.SetupChildren(inst.gameObject);
-                if (inst.drawInfoSO.destroyGameObjectsWhenBaked && EditorUtility.DisplayDialog("Warning", "删除所有的子节点吗?", "yes"))
-                {
-                    inst.drawInfoSO.DestroyOrHiddenChildren(true);
-                }
-                EditorUtility.SetDirty(inst.drawInfoSO);
-                AssetDatabase.SaveAssets();
-                AssetDatabase.Refresh();
+                BakeChildren(inst);
             }
+
+            if (GUILayout.Button("Delete Children"))
+            {
+                inst.gameObject.DestroyChildren<MeshRenderer>(true);
+            }
+
+            EditorGUILayout.EndHorizontal();
+        }
+
+        private static void BakeChildren(DrawChildrenInstanced inst)
+        {
+            inst.drawInfoSO.Clear();
+            inst.drawInfoSO.SetupChildren(inst.gameObject);
+
+            EditorUtility.SetDirty(inst.drawInfoSO);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
         }
 
         static DrawChildrenInstancedSO CreateNewProfile(DrawChildrenInstanced inst,string soName, string soPath,bool isExist)
@@ -86,26 +107,27 @@ namespace PowerUtilities
 
 
 
-        private void DrawProfileUI(DrawChildrenInstanced inst)
-        {
-            GUILayout.BeginVertical("Box");
-            EditorGUILayout.PropertyField(drawInfoSerailizedObject.FindProperty(nameof(inst.drawInfoSO.lightmaps)));
-            EditorGUILayout.PropertyField(drawInfoSerailizedObject.FindProperty(nameof(inst.drawInfoSO.enableLightmap)));
-            EditorGUILayout.PropertyField(drawInfoSerailizedObject.FindProperty(nameof(inst.drawInfoSO.destroyGameObjectsWhenBaked)));
+        //private void DrawProfileUI(DrawChildrenInstanced inst)
+        //{
+        //    GUILayout.BeginVertical("Box");
+            
+        //    EditorGUILayout.PropertyField(drawInfoSerailizedObject.FindProperty(nameof(inst.drawInfoSO.lightmaps)));
+        //    EditorGUILayout.PropertyField(drawInfoSerailizedObject.FindProperty(nameof(inst.drawInfoSO.enableLightmap)));
+        //    EditorGUILayout.PropertyField(drawInfoSerailizedObject.FindProperty(nameof(inst.drawInfoSO.destroyGameObjectsWhenBaked)));
 
-            EditorGUILayout.PropertyField(drawInfoSerailizedObject.FindProperty(nameof(inst.drawInfoSO.culledRatio)));
-            EditorGUILayout.PropertyField(drawInfoSerailizedObject.FindProperty(nameof(inst.drawInfoSO.forceRefresh)));
-            EditorGUILayout.PropertyField(drawInfoSerailizedObject.FindProperty(nameof(inst.drawInfoSO.groupList)));
-            GUILayout.EndVertical();
-        }
+        //    EditorGUILayout.PropertyField(drawInfoSerailizedObject.FindProperty(nameof(inst.drawInfoSO.culledRatio)));
+        //    EditorGUILayout.PropertyField(drawInfoSerailizedObject.FindProperty(nameof(inst.drawInfoSO.forceRefresh)));
+        //    EditorGUILayout.PropertyField(drawInfoSerailizedObject.FindProperty(nameof(inst.drawInfoSO.groupList)));
+        //    GUILayout.EndVertical();
+        //}
 
-        private static void DrawProfileField(DrawChildrenInstanced inst)
-        {
-            GUILayout.BeginHorizontal("Box");
-            EditorGUILayout.PrefixLabel(nameof(inst.drawInfoSO));
-            inst.drawInfoSO  = (DrawChildrenInstancedSO)EditorGUILayout.ObjectField(inst.drawInfoSO, typeof(DrawChildrenInstancedSO),false); ;
-            GUILayout.EndHorizontal();
-        }
+        //private static void DrawProfileField(DrawChildrenInstanced inst)
+        //{
+        //    GUILayout.BeginHorizontal("Box");
+        //    EditorGUILayout.PrefixLabel(nameof(inst.drawInfoSO));
+        //    inst.drawInfoSO  = (DrawChildrenInstancedSO)EditorGUILayout.ObjectField(inst.drawInfoSO, typeof(DrawChildrenInstancedSO),false); ;
+        //    GUILayout.EndHorizontal();
+        //}
 
         // save to xx.unity's folder,name is inst's name
         private static DrawChildrenInstancedSO SaveAndGetSO(DrawChildrenInstancedSO drawInfoSO,string soPath,bool isExist)

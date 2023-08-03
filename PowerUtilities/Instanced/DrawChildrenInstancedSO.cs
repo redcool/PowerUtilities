@@ -13,10 +13,10 @@ namespace PowerUtilities
     public class DrawChildrenInstancedSO : ScriptableObject
     {
         public Texture2D[] lightmaps;
+        public Texture2D[] shadowMasks;
         public bool enableLightmap = true;
-        public bool destroyGameObjectsWhenBaked = true;
 
-        [Header("销毁概率")]
+        [Header("销毁概率,[0:no, 1:all]")]
         [Range(0, 1)] public float culledRatio = 0.5f;
         public bool forceRefresh;
 
@@ -32,7 +32,13 @@ namespace PowerUtilities
                 forceRefresh = false;
 
                 CullInstances(1 - culledRatio);
-                UpdateGroupListMaterial(IsLightMapEnabled());
+            }
+            var isLightmapOn = IsLightMapEnabled();
+            UpdateGroupListMaterial(isLightmapOn);
+
+            if (isLightmapOn)
+            {
+                SetupGroupLightmapInfo();
             }
         }
 
@@ -82,8 +88,8 @@ namespace PowerUtilities
                 else
                     item.gameObject.SetActive(false);
             }
-            renders = null;
 
+            renders = null;
         }
 
 
@@ -101,7 +107,12 @@ namespace PowerUtilities
                     var lightmapGroup = group.lightmapCoordsList[i];
 
                     block.SetTexture("unity_Lightmap", lightmaps[group.lightmapId]);
+
+                    if(group.lightmapId< shadowMasks.Length)
+                        block.SetTexture("unity_ShadowMask", shadowMasks[group.lightmapId]);
+
                     block.SetVectorArray("_LightmapST", lightmapGroup.lightmapCoords.ToArray());
+                    block.SetVectorArray("unity_LightmapST", lightmapGroup.lightmapCoords.ToArray());
                     block.SetInt("_DrawInstanced", 1);
 
                 }
@@ -156,6 +167,9 @@ namespace PowerUtilities
         {
             foreach (var group in groupList)
             {
+                if(!group.mat)
+                    continue;
+
                 for (int i = 0; i < group.displayTransformsGroupList.Count; i++)
                 {
                     var transforms = group.displayTransformsGroupList[i].transforms;
@@ -180,10 +194,7 @@ namespace PowerUtilities
                 if (!needUpdate)
                     continue;
 
-                if (enableLightmap)
-                    groupInfo.mat.EnableKeyword("LIGHTMAP_ON");
-                else
-                    groupInfo.mat.DisableKeyword("LIGHTMAP_ON");
+                groupInfo.mat.SetKeyword("LIGHTMAP_ON", enableLightmap);
             }
         }
     }

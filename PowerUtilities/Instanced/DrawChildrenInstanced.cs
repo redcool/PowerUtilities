@@ -59,7 +59,7 @@
             drawInfoSO.name = gameObject.name;
 
             drawInfoSO.SetupChildren(gameObject);
-            drawInfoSO.DestroyOrHiddenChildren(drawInfoSO.destroyGameObjectsWhenBaked);
+            drawInfoSO.DestroyOrHiddenChildren(false);
             return drawInfoSO;
         }
 

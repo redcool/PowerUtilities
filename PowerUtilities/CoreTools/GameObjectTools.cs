@@ -6,6 +6,7 @@
     using System.ComponentModel.Design.Serialization;
     using System.Linq;
     using System.Text;
+    using UnityEditor;
     using UnityEngine;
     using Object = UnityEngine.Object;
 
@@ -19,7 +20,7 @@
         /// <param name="tr"></param>
         /// <param name="root"></param>
         /// <returns>path string or ""</returns>
-        public static string GetHierarchyPath(this Transform tr, Transform root = null,string separator="/")
+        public static string GetHierarchyPath(this Transform tr, Transform root = null, string separator = "/")
         {
             if (!tr)
                 return "";
@@ -42,7 +43,7 @@
             return sb.ToString();
         }
 
-        public static string GetHierarchyPath(this Transform tr, string rootTrName , string separator = "/")
+        public static string GetHierarchyPath(this Transform tr, string rootTrName, string separator = "/")
         {
             if (!tr || string.IsNullOrEmpty(rootTrName))
                 return "";
@@ -84,13 +85,13 @@
             return comp;
         }
 
-        public static Component[] GetComponents(this GameObject go,string typeName,Func<string,string,bool> predicate)
+        public static Component[] GetComponents(this GameObject go, string typeName, Func<string, string, bool> predicate)
         {
             if (predicate == null)
                 return default;
 
             var comps = go.GetComponents(typeof(Component))
-                .Where(comp => predicate(comp.GetType().Name,typeName))
+                .Where(comp => predicate(comp.GetType().Name, typeName))
                 ;
             return comps.ToArray();
         }
@@ -101,6 +102,29 @@
                 .Where(comp => comp.GetType().Name.IsMatch(typeName, matchMode))
                 ;
             return comps.ToArray();
+        }
+
+        /// <summary>
+        /// Destroy children which has component T
+        /// with undo in editor
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="go"></param>
+        /// <param name="includeInactive"></param>
+        public static void DestroyChildren<T>(this GameObject go, bool includeInactive = false) where T : Component
+        {
+            var childrenGos = go.GetComponentsInChildren<T>(includeInactive)
+                .Select(c => c.gameObject)
+                .ToArray();
+
+            childrenGos.ForEach(c =>
+            {
+#if UNITY_EDITOR
+                Undo.DestroyObjectImmediate(c);
+#else
+                Object.Destroy(c);
+#endif
+            });
         }
     }
 }
