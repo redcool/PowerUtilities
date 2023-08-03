@@ -43,6 +43,8 @@ namespace PowerUtilities
         /// <param name="isInvertKeyword"></param>
         public static void SyncKeywordToFloat(this MaterialProperty prop, MaterialEditor editor, string keyword,bool isInvertKeyword=false)
         {
+            if(string.IsNullOrEmpty(keyword)) return;
+
             var mat = (Material)editor.target;
             var value = mat.IsKeywordEnabled(keyword) ? 1 : 0;
             
