@@ -24,13 +24,8 @@ namespace PowerUtilities
         public override void DrawGroupUI(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
         {
             // sync checkbutton with keyword
-            var mat = (Material)editor.target;
-            var stateId = mat.IsKeywordEnabled(keyword) ? 1 : 0;
-            if (stateId != prop.floatValue)
-            {
-                prop.floatValue = stateId;
-            }
-            
+            prop.SyncKeywordToFloat(editor,keyword);
+
             // user op
             EditorGUI.BeginChangeCheck();
             bool isOn = Mathf.Abs(prop.floatValue) > 0.001f;
@@ -46,6 +41,8 @@ namespace PowerUtilities
                 }
             }
         }
+
+
     }
 }
 #endif

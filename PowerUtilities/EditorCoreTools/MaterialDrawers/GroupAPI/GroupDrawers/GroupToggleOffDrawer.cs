@@ -23,6 +23,10 @@ namespace PowerUtilities
 
         public override void DrawGroupUI(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
         {
+            // auto sync float
+            prop.SyncKeywordToFloat(editor, keyword, true);
+
+            //user ops
             EditorGUI.BeginChangeCheck();
             bool isOn = Mathf.Abs(prop.floatValue) > 0.001f;
             isOn = EditorGUI.Toggle(position, label, isOn);

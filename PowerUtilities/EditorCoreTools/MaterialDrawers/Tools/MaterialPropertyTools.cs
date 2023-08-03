@@ -18,27 +18,43 @@ namespace PowerUtilities
         /// <param name="prop"></param>
         /// <param name="localKeyword"></param>
         /// <param name="isKeywordOn"></param>
-        public static void SetKeyword(MaterialProperty prop, string localKeyword, bool isKeywordOn)
+        public static void SetKeyword(this MaterialProperty prop, string localKeyword, bool isKeywordOn)
         {
             var mats = prop.targets.Select(t => (Material)t);
-            foreach (var mat in mats)
-            {
-                if (isKeywordOn)
-                    mat.EnableKeyword(localKeyword);
-                else
-                    mat.DisableKeyword(localKeyword);
-            }
+            mats.ForEach(mat => mat.SetKeyword(localKeyword, isKeywordOn));
         }
 
-        public static void SetKeyword(string globalKeyword,bool isOn)
+        public static void SetKeywords(this MaterialProperty prop, bool isKeywordOn, string[] keywords)
         {
-            if (Shader.IsKeywordEnabled(globalKeyword) == isOn)
+            if (keywords == null || keywords.Length == 0)
                 return;
 
-            if (isOn)
-                Shader.EnableKeyword(globalKeyword);
-            else
-                Shader.DisableKeyword(globalKeyword);
+            var mats = prop.targets.Select(t => (Material)t);
+            mats.ForEach(mat => mat.SetKeywords(keywords, isKeywordOn));
+        }
+
+        /// <summary>
+        /// Sync Keyword to float materialProperty
+        /// 
+        /// </summary>
+        /// <param name="prop"></param>
+        /// <param name="editor"></param>
+        /// <param name="keyword"></param>
+        /// <param name="isInvertKeyword"></param>
+        public static void SyncKeywordToFloat(this MaterialProperty prop, MaterialEditor editor, string keyword,bool isInvertKeyword=false)
+        {
+            var mat = (Material)editor.target;
+            var value = mat.IsKeywordEnabled(keyword) ? 1 : 0;
+            
+            if(isInvertKeyword)
+            {
+                value = Mathf.Abs(value-1);
+            }
+
+            if (value != prop.floatValue)
+            {
+                prop.floatValue = value;
+            }
         }
     }
 }

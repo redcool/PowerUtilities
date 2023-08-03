@@ -21,7 +21,7 @@ namespace PowerUtilities
         
         public override void OnGUI(Rect position, MaterialProperty prop, string label, MaterialEditor editor)
         {
-            EditorGUI.LabelField(position, $"Version: {m_VersionNumber}    {MaterialPropertyI18N.Text("DocumentURLDesc")}");
+            EditorGUI.LabelField(position, $"Version: {m_VersionNumber}    {MaterialPropertyI18NSO.Text("DocumentURLDesc")}");
             
             GUIContent gc = EditorGUIUtility.IconContent("_Help");
             position.x = EditorGUIUtility.currentViewWidth - 40;

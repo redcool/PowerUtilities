@@ -9,13 +9,13 @@ namespace PowerUtilities
 
     using UnityEditor;
 
-    [CustomEditor(typeof(MaterialPropertyI18N))]
+    [CustomEditor(typeof(MaterialPropertyI18NSO))]
     public class MaterialPropertyI18NEditor : Editor
     {
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
-            var inst = target as MaterialPropertyI18N;
+            var inst = target as MaterialPropertyI18NSO;
 
             GUILayout.Label($"Property Count : {inst.Count()}");
 
@@ -27,16 +27,16 @@ namespace PowerUtilities
     }
 
     [CreateAssetMenu(menuName = "PowerUtilities/Material/I18NProfile")]
-    public class MaterialPropertyI18N : ScriptableObject
+    public class MaterialPropertyI18NSO : ScriptableObject
     {
         public TextAsset profile;
         public bool forceLoadProfile;
 
         static Dictionary<string, string> i18nDict = new Dictionary<string, string>();
 
-        static MaterialPropertyI18N instance;
+        static MaterialPropertyI18NSO instance;
          
-        public static MaterialPropertyI18N Instance
+        public static MaterialPropertyI18NSO Instance
         {
             get
             {
@@ -44,7 +44,7 @@ namespace PowerUtilities
                 {
                     var path= AssetDatabaseTools.FindAssetsPath("MaterialPropertyI18N", "cs").FirstOrDefault();
                     var profileDir = $"{Path.GetDirectoryName(path)}/Profiles/";
-                    instance = AssetDatabaseTools.FindAssetsInProject<MaterialPropertyI18N>("", profileDir).FirstOrDefault();
+                    instance = AssetDatabaseTools.FindAssetsInProject<MaterialPropertyI18NSO>("", profileDir).FirstOrDefault();
                 }
                 return instance;
             }
