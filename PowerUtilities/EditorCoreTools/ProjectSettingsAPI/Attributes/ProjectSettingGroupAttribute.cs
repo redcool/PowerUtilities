@@ -13,6 +13,7 @@ namespace PowerUtilities
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
     public class ProjectSettingGroupAttribute : Attribute
     {
+        public const string POWER_UTILS = "PowerUtils";
         /// <summary>
         /// setting's path,like "Project/XXXSettings"
         /// </summary>

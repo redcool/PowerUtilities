@@ -26,7 +26,9 @@ namespace PowerUtilities
         }
     }
 
-    [CreateAssetMenu(menuName = "PowerUtilities/Material/I18NProfile")]
+    //[CreateAssetMenu(menuName = "PowerUtilities/Material/I18NProfile")]
+    [SOAssetPath("Assets/PowerUtilities/MaterialPropertyI18N.asset")]
+    [ProjectSettingGroup(ProjectSettingGroupAttribute.POWER_UTILS+"/MaterialPropertyI18N")]
     public class MaterialPropertyI18NSO : ScriptableObject
     {
         public TextAsset profile;
@@ -35,25 +37,18 @@ namespace PowerUtilities
         static Dictionary<string, string> i18nDict = new Dictionary<string, string>();
 
         static MaterialPropertyI18NSO instance;
-         
+
         public static MaterialPropertyI18NSO Instance
         {
             get
             {
                 if (!instance)
                 {
-                    var path= AssetDatabaseTools.FindAssetsPath("MaterialPropertyI18N", "cs").FirstOrDefault();
-                    var profileDir = $"{Path.GetDirectoryName(path)}/Profiles/";
-                    instance = AssetDatabaseTools.FindAssetsInProject<MaterialPropertyI18NSO>("", profileDir).FirstOrDefault();
+                    instance = ScriptableObjectTools.GetInstance<MaterialPropertyI18NSO>();
+                    instance.TryInit();
                 }
                 return instance;
             }
-        }
-
-        [InitializeOnLoadMethod]
-        static void Init()
-        {
-            Instance.TryInit();
         }
 
         public void LoadProfile(TextAsset profile)
@@ -69,11 +64,20 @@ namespace PowerUtilities
         public void TryInit()
         {
             if (forceLoadProfile)
-                i18nDict.Clear();
-
-            if (instance.Count() == 0)
             {
-                instance.LoadProfile(instance.profile);
+                forceLoadProfile = false;
+                i18nDict.Clear();
+            }
+
+            //use default profile
+            if (!profile)
+            {
+                profile = AssetDatabaseTools.FindAssetPathAndLoad<TextAsset>(out _, "MaterialProperty_CN", "txt");
+            }
+
+            if (Instance.Count() == 0)
+            {
+                Instance.LoadProfile(Instance.profile);
             }
         }
 
@@ -85,9 +89,10 @@ namespace PowerUtilities
             var isExist = i18nDict.TryGetValue(propName, out var text);
             return isExist ? text : propName;
         }
+
         public static string Text(string propName)
         {
-            return instance.GetText(propName);
+            return Instance.GetText(propName);
         }
 
         public int Count() => i18nDict.Count;

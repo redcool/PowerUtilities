@@ -24,24 +24,8 @@ namespace PowerUtilities
         /// <returns></returns>
         public static Object GetInstance(Type type,string path = "")
         {
-            // check path from attribute
-            if (string.IsNullOrEmpty(path))
-            {
-                path = SOAssetPathAttribute.GetPath(type);
-                if (string.IsNullOrEmpty(path))
-                    return default;
-            }
-
-            PathTools.CreateAbsFolderPath(path);
-
-            var settings = AssetDatabase.LoadAssetAtPath(path, type);
-            if (settings == null)
-            {
-                settings = ScriptableObject.CreateInstance(type);
-                AssetDatabase.CreateAsset(settings, path);
-                AssetDatabase.SaveAssets();
-            }
-            return settings;
+            var so = GetSerializedInstance(type, path);
+            return so.targetObject;
         }
 
         public static T GetInstance<T>(string path="") where T : ScriptableObject
@@ -68,9 +52,24 @@ namespace PowerUtilities
                 if (string.IsNullOrEmpty(path))
                     return default;
             }
-            // from cache or get new
-            return cachedSerializedObjects.Get(path, () => new SerializedObject(GetInstance(type, path)));
+
+            var so = cachedSerializedObjects.Get(path, () =>
+            {
+                PathTools.CreateAbsFolderPath(path);
+
+                var settings = AssetDatabase.LoadAssetAtPath(path, type);
+                if (settings == null)
+                {
+                    settings = ScriptableObject.CreateInstance(type);
+                    AssetDatabase.CreateAsset(settings, path);
+                    AssetDatabase.SaveAssets();
+                }
+                return new SerializedObject(settings);
+            });
+
+            return so;
         }
+
         public static SerializedObject GetSerializedInstance<T>(string path="") where T : ScriptableObject
         {
             return GetSerializedInstance(typeof(T), path);
