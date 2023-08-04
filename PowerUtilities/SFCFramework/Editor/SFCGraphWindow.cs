@@ -11,7 +11,7 @@ using UnityEngine.UIElements;
 
 namespace PowerUtilities
 {
-    public class SFCGraphWindow : BaseUXMLEditorWindow
+    public class SFCGraphWindow : BaseUXMLEditorWindow,IUIElementEvent
     {
         
         [OnOpenAsset]
@@ -41,6 +41,16 @@ namespace PowerUtilities
         {
             base.treeAsset = AssetDatabaseTools.FindAssetPathAndLoad<VisualTreeAsset>(out _, "SFCGraphWindow", "uxml");
             base.CreateGUI();
+        }
+
+        public void AddEvent(VisualElement root)
+        {
+            var graphView = root.Q<BaseGraphView>();
+            graphView.appendNodeList = new List<BaseGraphView.NodeViewInfo>
+            {
+                new BaseGraphView.NodeViewInfo {name = "SFCNode1",type = typeof(BaseNodeView)},
+                new BaseGraphView.NodeViewInfo {name = "SFCNode2",type = typeof(BaseNodeView)}
+            };
         }
     }
 }

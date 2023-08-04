@@ -52,10 +52,6 @@ namespace PowerUtilities.UIElements
 
         public override void BuildContextualMenu(ContextualMenuPopulateEvent evt)
         {
-            //evt.menu.AppendAction("Add TestNode", (action) =>
-            //{
-            //    AddElement(new BaseNodeView());
-            //});
             appendNodeList.ForEach(node =>
             {
                 evt.menu.AppendAction(node.name,
