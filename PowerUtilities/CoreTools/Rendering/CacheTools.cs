@@ -12,28 +12,63 @@ namespace PowerUtilities
     /// cache object tools
     /// call Get() will get cached object or find object then cache and return .
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public class CacheTool<K,T> where K : class where T : class
+    /// <typeparam name="V"></typeparam>
+    public class CacheTool<K,V> where K : class where V : class
     {
-        Dictionary<K, T> dict = new Dictionary<K, T>();
-        public T Get(K key, Func<T> onNotExists)
+        Dictionary<K, V> dict = new Dictionary<K, V>();
+
+        /// <summary>
+        /// get vallue from dict
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="onNotExists"></param>
+        /// <param name="isValueValid"></param>
+        /// <returns></returns>
+        public V Get(K key, Func<V> onNotExists,Func<V,bool> isValueValid = null)
         {
-            if (dict.TryGetValue(key, out T obj))
+            //get a default predicate
+            isValueValid = isValueValid ?? IsValid;
+
+            // try get
+            if (dict.TryGetValue(key, out V obj))
             {
                 // has value,but is null
-                if (onNotExists != null && obj == null)
+                if (onNotExists != null)
                 {
-                    return dict[key] = onNotExists();
+                    if (!isValueValid(obj))
+                        return dict[key] = onNotExists();
                 }
                 return obj;
             }
 
+            // no key
             return onNotExists != null ? dict[key] = onNotExists() : default;
+        }
+
+        /// <summary>
+        /// Check obj is valid
+        /// 1 object
+        /// 2 SerializedObject
+        /// 3 Editor
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public static bool IsValid(V obj)
+        {
+            var isValid = obj != null;
+#if UNITY_EDITOR
+            if (isValid && obj is UnityEditor.SerializedObject so)
+                isValid = isValid && so.targetObject != null;
+
+            if (isValid && obj is UnityEditor.Editor e)
+                isValid = isValid && e.target != null;
+#endif
+            return isValid;
         }
 
         public void Clear() => dict.Clear();
 
-        public void Set(K key, T value) => dict[key] = value;
+        public void Set(K key, V value) => dict[key] = value;
 
         public void Remove(K key) => dict.Remove(key);
     }

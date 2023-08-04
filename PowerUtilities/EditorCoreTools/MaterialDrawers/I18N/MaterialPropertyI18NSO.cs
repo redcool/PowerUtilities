@@ -21,7 +21,7 @@ namespace PowerUtilities
 
             if (GUILayout.Button("Load Profile"))
             {
-                inst.LoadProfile(inst.profile);
+                inst.LoadProfileContent(inst.profile);
             }
         }
     }
@@ -38,6 +38,12 @@ namespace PowerUtilities
 
         static MaterialPropertyI18NSO instance;
 
+        [InitializeOnLoadMethod]
+        static void Init()
+        {
+            Instance.TryInit();
+        }
+
         public static MaterialPropertyI18NSO Instance
         {
             get
@@ -45,19 +51,19 @@ namespace PowerUtilities
                 if (!instance)
                 {
                     instance = ScriptableObjectTools.GetInstance<MaterialPropertyI18NSO>();
-                    instance.TryInit();
                 }
+
+                instance.TryInit();
                 return instance;
             }
         }
 
-        public void LoadProfile(TextAsset profile)
+        public void LoadProfileContent(TextAsset profile)
         {
             if (!profile)
                 return;
 
             i18nDict.Clear();
-
             profile.text.ReadKeyValue(i18nDict);
         }
 
@@ -70,14 +76,19 @@ namespace PowerUtilities
             }
 
             //use default profile
+            TryLoadDefaultProfile();
+
+            if (instance.Count() == 0)
+            {
+                instance.LoadProfileContent(profile);
+            }
+        }
+
+        private void TryLoadDefaultProfile()
+        {
             if (!profile)
             {
                 profile = AssetDatabaseTools.FindAssetPathAndLoad<TextAsset>(out _, "MaterialProperty_CN", "txt");
-            }
-
-            if (Instance.Count() == 0)
-            {
-                Instance.LoadProfile(Instance.profile);
             }
         }
 
