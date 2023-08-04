@@ -61,6 +61,7 @@ namespace PowerUtilities
 
             return datas.Select(data => (T)data).ToArray();
         }
+
         public static ScriptableRendererData[] GetRendererDatas(this UniversalRenderPipelineAsset asset)
             => GetDatas<ScriptableRendererData>(asset, "m_RendererDataList");
 
@@ -74,44 +75,25 @@ namespace PowerUtilities
             => asset.scriptableRenderer as UniversalRenderer;
 
         /// <summary>
-        /// is lightmap substract only
-        /// 
-        /// effect : MixedLightSubstractive
-        /// </summary>
-        /// <param name="asset"></param>
-        /// <returns></returns>
-        public static bool IsSubstract(this UniversalRenderPipelineAsset asset, ref RenderingData renderingData)
-        {
-            var mixedLighting = asset.GetDefaultRenderer()?.GetForwardLights()?.GetMixedlightingSetup(ref renderingData);
-            return asset.supportsMixedLighting && mixedLighting == MixedLightingSetup.Subtractive;
-        }
-
-        /// <summary>
-        /// shadowMask
-        /// </summary>
-        /// <param name="asset"></param>
-        /// <returns></returns>
-        public static bool IsShadowMaskAlways(this UniversalRenderPipelineAsset asset, ref RenderingData renderingData)
-        {
-            return IsShadowMask(asset, ref renderingData) && QualitySettings.shadowmaskMode == ShadowmaskMode.Shadowmask;
-        }
-
-        /// <summary>
         /// shadowMask or distance shadowMask, call this in OnCameraSetup
         /// </summary>
         /// <param name="asset"></param>
         /// <returns></returns>
-        public static bool IsShadowMask(this UniversalRenderPipelineAsset asset, ref RenderingData renderingData)
+        public static bool IsShadowMask_Substract(this UniversalRenderPipelineAsset asset, ref RenderingData renderingData,out bool isSubstract)
         {
             var f = asset.GetDefaultRenderer()?.GetForwardLights();
             var mixedLighting = f.GetMixedlightingSetup(ref renderingData);
 
+            isSubstract = asset.supportsMixedLighting && mixedLighting == MixedLightingSetup.Subtractive;
             return asset.supportsMixedLighting && mixedLighting == MixedLightingSetup.ShadowMask;
         }
 
         public static bool IsLightmapShadowMixing(this UniversalRenderPipelineAsset asset, ref RenderingData renderingData)
-        => IsSubstract(asset, ref renderingData) || IsShadowMaskAlways(asset, ref renderingData);
-
+        {
+            var isShadowMask = IsShadowMask_Substract(asset, ref renderingData, out var isSubstract);
+            var isShadowMaskAlways = isShadowMask && QualitySettings.shadowmaskMode == ShadowmaskMode.Shadowmask;
+            return isShadowMaskAlways || isSubstract;
+        }
 
     }
 }

@@ -50,8 +50,8 @@ namespace PowerUtilities
 
             cmd.SetGlobalMatrix(ShaderPropertyIds._PrevViewProjMatrix, Matrix4x4.zero);
             // update vars
-            var isShadowMask = UniversalRenderPipeline.asset.IsShadowMask(ref renderingData);
-            cmd.SetGlobalBool(ShaderPropertyIds.shadows_ShadowMaskOn, isShadowMask);
+            var isShadowMaskMixing = UniversalRenderPipeline.asset.IsLightmapShadowMixing(ref renderingData);
+            cmd.SetGlobalBool(ShaderPropertyIds.shadows_ShadowMaskOn, isShadowMaskMixing);
         }
 
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
