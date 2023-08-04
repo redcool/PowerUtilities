@@ -14,18 +14,16 @@ namespace PowerUtilities
     {
         public static Color darkGray = new Color(0.2f, 0.3f, 0.4f);
 
-        static GUIContent tempContent = new GUIContent();
+        /// <summary>
+        /// set temporary guiContent
+        /// </summary>
+        /// <param name="str"></param>
+        /// <param name="tooltip"></param>
+        /// <param name="image"></param>
+        /// <param name="inst"></param>
+        /// <returns></returns>
         public static GUIContent TempContent(string str,string tooltip=default,Texture image = default,GUIContent inst = default)
-        {
-            if (inst == default)
-                inst = tempContent;
-
-            inst.text = str;
-            inst.tooltip = tooltip;
-            inst.image = image;
-
-            return inst;
-        }
+            => GUIContentEx.TempContent(str, tooltip, image, inst);
 
         public static void DrawPreview(Texture tex)
         {

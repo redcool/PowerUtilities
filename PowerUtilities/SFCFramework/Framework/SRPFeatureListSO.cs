@@ -19,10 +19,11 @@
         {
             serializedObject.UpdateIfRequiredOrScript();
 
+            // show list
             EditorGUI.BeginChangeCheck();
             DrawDefaultInspector();
-
-            TryInitFeatureSOList(inst);
+            if (EditorGUI.EndChangeCheck() || featureSOList == null || featureSOList.Count != inst.featureList.Count)
+                TryInitFeatureSOList(inst);
 
             if (featureSOList.Count == 0)
             {
@@ -30,8 +31,8 @@
                 return;
             }
 
+            // show details
             var isDetailsFoldout = serializedObject.FindProperty("isDetailsFoldout");
-
             isDetailsFoldout.boolValue = EditorGUILayout.Foldout(isDetailsFoldout.boolValue, "Details", true);
             if (isDetailsFoldout.boolValue)
             {
@@ -62,13 +63,10 @@
 
         private void TryInitFeatureSOList(SRPFeatureListSO inst)
         {
-            if (EditorGUI.EndChangeCheck() || featureSOList == null || featureSOList.Count != inst.featureList.Count)
-            {
-                featureSOList = inst.featureList
-                    .Where(item => item)
-                    .Select(feature => new SerializedObject(feature))
-                    .ToList();
-            }
+            featureSOList = inst.featureList
+                .Where(item => item)
+                .Select(feature => new SerializedObject(feature))
+                .ToList();
         }
     }
 #endif

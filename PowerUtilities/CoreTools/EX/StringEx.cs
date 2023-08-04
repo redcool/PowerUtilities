@@ -92,6 +92,7 @@
         /// <returns></returns>
         public static string[] SplitBy(this string str, char splitChar = ',')
         {
+            if (string.IsNullOrEmpty(str)) return new string[] { };
             return str.Split(splitChar)
                 .Select(item => item.Trim())
                 .ToArray();

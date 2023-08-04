@@ -24,22 +24,25 @@ namespace PowerUtilities.RenderFeatures
         [Header("Clear ")]
         public bool clearTarget;
 
-        [Header("--- Override Clear")]
+        [Header("--- Override Clear ")]
         [Tooltip("clear target use camera's setting or settings below")]
         public bool isOverrideClear;
 
         [Space(10)]
+        [Tooltip("target 0,use clearColor,otherwise use Color.clear")]
         public bool isClearColor = true;
-        public Color clearColor = Color.clear;
 
+        public Color clearColor = Color.clear;
+       
         [Space(10)]
         public bool isClearDepth = true;
+       
         [Range(0,1)] public float depth = 1;
 
         [Space(10)]
         public bool isClearStencil = true;
+        
         [Range(0,255)]public uint stencil;
-
 
         public override ScriptableRenderPass GetPass() => new SetRenderTargetPass(this);
     }
@@ -56,23 +59,44 @@ namespace PowerUtilities.RenderFeatures
         {
             ref var cameraData = ref renderingData.cameraData;
 
-            if (Feature.isSetTargets)
-            {
-                SetTargets(ref renderingData, camera, cmd);
-            }
+            TrySetTargets(ref renderingData, cmd);
 
             // Clear targets
             if (Feature.clearTarget)
             {
-                ClearTarget(cmd, cameraData);
+                ClearTarget(cmd, cameraData, out var needResetTargets);
+                if (needResetTargets)
+                {
+                    TrySetTargets(ref renderingData, cmd);
+                }
             }
         }
 
-        void ClearTarget(CommandBuffer cmd, CameraData cameraData)
+        public void TrySetTargets(ref RenderingData renderingData, CommandBuffer cmd)
         {
+            if (Feature.isSetTargets)
+            {
+                SetTargets(ref renderingData, camera, cmd);
+            }
+        }
+
+        void ClearTarget(CommandBuffer cmd, CameraData cameraData,out bool needResetTargets)
+        {
+            needResetTargets = false;
+
             if (Feature.isOverrideClear)
             {
-                cmd.ClearRenderTarget(Feature.isClearColor, Feature.clearColor, Feature.isClearDepth, Feature.depth, Feature.isClearStencil, Feature.stencil);
+                //clear all targets color(ColorClear),depth,stencil
+                cmd.ClearRenderTarget(Feature.isClearColor, Color.clear, Feature.isClearDepth, Feature.depth, Feature.isClearStencil, Feature.stencil);
+
+                //clear main target's color
+                if(Feature.isSetTargets && Feature.isClearColor && Feature.clearColor != Color.clear)
+                {
+                    cmd.SetRenderTarget(colorIds[0]);
+                    cmd.ClearRenderTarget(false, true, Feature.clearColor);
+
+                    needResetTargets = true;
+                }
             }
             else
             {
