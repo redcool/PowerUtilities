@@ -126,5 +126,18 @@
 #endif
             });
         }
+
+        public static GameObject[] CreateLinkChildren(this GameObject go, params GameObject[] children)
+        {
+            if (children == null)
+                return default;
+
+            children.ForEach(c =>
+            {
+                if (go.transform.Find(c.name) == null)
+                    c.transform.SetParent(go.transform, false);
+            });
+            return children;
+        }
     }
 }

@@ -14,7 +14,7 @@ namespace PowerUtilities
     {
         bool isTagsFolded;
 
-        readonly GUIContent guiSyncScene = new GUIContent("Sync Hierarchy", "create tag objects in hierarchy");
+        readonly GUIContent guiSyncScene = new GUIContent("Sync Hierarchy", "create or sync tag objects in hierarchy");
         readonly GUIContent guiSyncMaterial = new GUIContent("Sync Material","sync tag objects material settings");
 
         CacheTool<SerializedObject, Editor> tagManagerEditor = new CacheTool<SerializedObject, Editor>();
@@ -30,14 +30,14 @@ namespace PowerUtilities
                 });
             }
 
-            if (GUILayout.Button("Clear Tags"))
+            if (GUILayout.Button("Clear Tags",GUILayout.Width(100)) && EditorUtility.DisplayDialog("Warning","clear all tags?","yes"))
             {
                 TagManager.ClearTags();
             }
 
             if (GUILayout.Button(guiSyncScene))
             {
-                SyncHierarchy(inst.tagInfoList);
+                CreateOrSyncHierarchy(inst.tagInfoList);
             }
 
             if (GUILayout.Button(guiSyncMaterial))
@@ -83,12 +83,16 @@ namespace PowerUtilities
         public void SyncTagObjectMaterial(TagInfo tagInfo, Material mat)
         {
             mat.renderQueue = tagInfo.renderQueue;
-            mat.shaderKeywords = tagInfo.keywordList.ToArray();
+            mat.shaderKeywords = tagInfo.keywords.SplitBy();
         }
 
-        private void SyncHierarchy(List<TagInfo> tagInfoList)
+        private void CreateOrSyncHierarchy(List<TagInfo> tagInfoList)
         {
-            const string ROOT = "Root";
+            const string ROOT = "Root"
+                ,LIGHTMAPED = "Lighmaped"
+                ,NO_LIGHTMAPED = "NoLightmaped";
+
+
             var scene = SceneManager.GetActiveScene();
             var rootGo = scene.GetRootGameObjects()
                 .Where(go => go.name ==ROOT)
@@ -97,26 +101,63 @@ namespace PowerUtilities
             if (!rootGo)
                 rootGo = new GameObject(ROOT);
 
-            tagInfoList.ForEach(tagInfo =>
+            GameObject lightmapGO,noLightmapGO;
+            var list = GameObjectTools.CreateLinkChildren(rootGo, lightmapGO = new GameObject(LIGHTMAPED), noLightmapGO = new GameObject(NO_LIGHTMAPED));
+
+            list.ForEach(root2Go =>
             {
-                if(string.IsNullOrEmpty(tagInfo.tag))
-                    return;
-                // get root
-                var tagTr = rootGo.transform.Find(tagInfo.tag);
-                if (tagTr == null)
+                tagInfoList.ForEach(tagInfo =>
                 {
-                    var tagGo = new GameObject(tagInfo.tag);
-                    tagTr = tagGo.transform;
-                    tagTr.SetParent(rootGo.transform, false);
-                }
-
-                // spread tag to children
-                tagTr.GetComponentsInChildren<Transform>().ForEach(tr =>
-                {
-                    tr.tag = tagInfo.tag;
+                    if (string.IsNullOrEmpty(tagInfo.tag))
+                        return;
+                    // get root
+                    var tagTr = root2Go.transform.Find(tagInfo.tag);
+                    if (tagTr == null)
+                    {
+                        var tagGo = new GameObject(tagInfo.tag);
+                        tagTr = tagGo.transform;
+                        tagTr.SetParent(root2Go.transform, false);
+                    }
+                    tagTr.tag = tagInfo.tag;
                 });
-
             });
+
+        }
+    }
+
+    [CustomPropertyDrawer(typeof(TagInfo))]
+    public class TagInfoDrawer : PropertyDrawer
+    {
+        void SetPos(ref Rect pos,float offsetX,float w)
+        {
+            pos.x += offsetX;
+            pos.width = w;
+        }
+        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+        {
+            EditorGUI.BeginProperty(position, label, property);
+
+            var tag = property.FindPropertyRelative("tag");
+            var queue = property.FindPropertyRelative("renderQueue");
+            var keywords = property.FindPropertyRelative("keywords");
+
+            var pos = position;
+            SetPos(ref pos, 0, 120);
+            EditorGUI.PropertyField(pos, tag, GUIContent.none);
+
+            SetPos(ref pos, pos.width, 10);
+            EditorGUI.LabelField(pos,"q:");
+
+            SetPos(ref pos, pos.width, 50);
+            EditorGUI.PropertyField(pos,queue,GUIContent.none);
+
+            SetPos(ref pos, pos.width, 20);
+            EditorGUI.LabelField(pos,"kw:");
+
+            SetPos(ref pos, pos.width, position.width - pos.x);
+            EditorGUI.PropertyField(pos, keywords,GUIContent.none);
+
+            EditorGUI.EndProperty();
         }
     }
 
@@ -136,7 +177,12 @@ namespace PowerUtilities
         /// <summary>
         /// material's keywords
         /// </summary>
-        public List<string> keywordList = new List<string>();
+        [Tooltip("keywords,split by ,")]
+        public string keywords="";
+        public override string ToString()
+        {
+            return $"{tag},q:{renderQueue},kw:{keywords.Length}";
+        }
     }
     /// <summary>
     /// control project's tag
