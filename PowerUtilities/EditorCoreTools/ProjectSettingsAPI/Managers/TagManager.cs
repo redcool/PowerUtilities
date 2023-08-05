@@ -17,7 +17,6 @@ namespace PowerUtilities
         const int MAX_TAGS = 10000;
 
         public const string 
-            TAG_MANAGER_ASSET_PATH = "ProjectSettings/TagManager.asset",
             TAGS = "tags",
             LAYERS = "layers"
             ;
@@ -25,7 +24,7 @@ namespace PowerUtilities
         static CacheTool<string, SerializedObject> cachedManagers = new CacheTool<string, SerializedObject>();
 
         public static SerializedObject GetTagLayerManager()
-            => cachedManagers.Get(TAG_MANAGER_ASSET_PATH, () => new SerializedObject(AssetDatabase.LoadMainAssetAtPath(TAG_MANAGER_ASSET_PATH)));
+            => ProjectSettingManagers.GetAsset(ProjectSettingManagers.ProjectSettingTypes.TagManager);
 
         public static void GetTagsLayers(out SerializedObject tagManager, out SerializedProperty tagLayers,string arrayName=TAGS)
         {

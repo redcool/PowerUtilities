@@ -53,5 +53,15 @@ public static class SerializedPropertyEx
         return elements;
     }
 
+
+    public static void Set(this SerializedProperty p, float value)
+    {
+        switch (p.propertyType)
+        {
+            case SerializedPropertyType.Float: p.floatValue = value; break;
+            case SerializedPropertyType.Integer: p.intValue = (int)value; break;
+            case SerializedPropertyType.Boolean: p.boolValue = value>0; break;
+        }
+    }
 }
 #endif

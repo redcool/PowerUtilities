@@ -43,7 +43,7 @@ namespace PowerUtilities
             return list;
         }
 
-        public static void SetKeywords(string[] keywords, bool isOn)
+        public static void SetKeywords(bool isOn,params string[] keywords)
         {
             if (keywords== null || keywords.Length == 0) return;
             foreach (var item in keywords)
