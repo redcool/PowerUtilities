@@ -17,8 +17,6 @@ namespace PowerUtilities
         public List<ShaderValue<int>> intValues = new List<ShaderValue<int>>();
         public List<ShaderValue<Vector4>> vectorValues = new List<ShaderValue<Vector4>>();
 
-        public bool update_PreviousViewProjMatrix;
-
         public override ScriptableRenderPass GetPass() => new SetVarialbesPass(this);
     }
 
@@ -48,7 +46,6 @@ namespace PowerUtilities
             Feature.vectorValues.ForEach(v => cmd.SetGlobalVector(v.name, v.value));
             Feature.intValues.ForEach(v => cmd.SetGlobalInt(v.name, v.value));
 
-            cmd.SetGlobalMatrix(ShaderPropertyIds._PrevViewProjMatrix, Matrix4x4.zero);
             // update vars
             var isShadowMaskMixing = UniversalRenderPipeline.asset.IsLightmapShadowMixing(ref renderingData);
             cmd.SetGlobalBool(ShaderPropertyIds.shadows_ShadowMaskOn, isShadowMaskMixing);
