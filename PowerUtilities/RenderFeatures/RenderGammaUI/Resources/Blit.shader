@@ -1,4 +1,4 @@
-Shader "Hidden/Universal Render Pipeline/Blit"
+Shader "Hidden/Universal Render Pipeline/Blit1"
 {
     SubShader
     {
@@ -25,6 +25,7 @@ Shader "Hidden/Universal Render Pipeline/Blit"
 
             TEXTURE2D_X(_SourceTex);
             SAMPLER(sampler_SourceTex);
+            float _Double;
 
             half4 Fragment(Varyings input) : SV_Target
             {
@@ -34,7 +35,8 @@ Shader "Hidden/Universal Render Pipeline/Blit"
                 half4 col = SAMPLE_TEXTURE2D_X(_SourceTex, sampler_SourceTex, uv);
 
                 #ifdef _LINEAR_TO_SRGB_CONVERSION
-                    col = LinearToSRGB(col);
+                    // col = LinearToSRGB(col);
+                    col.xyz = pow(col.xyz,lerp(0.4545,0.25,_Double));
                     //col.xyz += float3(0,0.1,0);
                 #elif _SRGB_TO_LINEAR_CONVERSION
                     col = SRGBToLinear(col);
