@@ -76,6 +76,9 @@ namespace PowerUtilities
                     tags.DeleteArrayElementAtIndex(id);
             }, arrayName);
         }
+
+
+
         public static void RemoveLayer(string layer)
         {
             //UpdateTagsLayers((tagManager, tags) =>
@@ -142,6 +145,20 @@ namespace PowerUtilities
             }, arrayName);
         }
 
+        public static void ClearTags(Func<SerializedProperty, bool> predicate)
+        {
+            UpdateTagsLayers((tagManager, tags) =>
+            {
+                for (int i = 0; i < tags.arraySize; i++)
+                {
+                    if (predicate(tags.GetArrayElementAtIndex(i)))
+                    {
+                        tags.DeleteArrayElementAtIndex(i);
+                        i--;
+                    }
+                }
+            }, TAGS);
+        }
         public static void ClearLayers()
         {
             UpdateTagsLayers((tagManager, layers) => {

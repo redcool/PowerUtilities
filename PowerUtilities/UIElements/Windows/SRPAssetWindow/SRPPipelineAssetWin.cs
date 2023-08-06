@@ -41,6 +41,9 @@ namespace PowerUtilities
         static void Init()
         {
             var win = GetWindow<SRPPipelineAssetWin>();
+            if (!win)
+                return;
+
             win.titleContent = new GUIContent("SRPPipelineAssetWin");
             if (win.position.width < 1400)
             {

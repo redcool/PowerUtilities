@@ -30,9 +30,14 @@ namespace PowerUtilities
                 });
             }
 
-            if (GUILayout.Button("Clear Tags",GUILayout.Width(100)) && EditorUtility.DisplayDialog("Warning","clear all tags?","yes"))
+            if (GUILayout.Button("Clear Tags",GUILayout.Width(100)))
+                //&& EditorUtility.DisplayDialog("Warning","clear all tags?","yes"))
             {
-                TagManager.ClearTags();
+                inst.tagInfoList.ForEach(info =>
+                {
+                    TagManager.RemoveTag(info.tag);
+                });
+                TagManager.ClearTags(prop => prop.stringValue =="");
             }
 
             if (GUILayout.Button(guiSyncScene))
