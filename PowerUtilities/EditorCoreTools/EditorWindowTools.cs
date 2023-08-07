@@ -30,6 +30,19 @@ namespace PowerUtilities
 
         public static bool IsFocused(EditorWindow window) => EditorWindow.focusedWindow == window;
         
+        public static void OpenWindow<T>(string title="") where T : EditorWindow
+        {
+            var win = EditorWindow.GetWindow<T>();
+            if (!win)
+                return;
+            if(string.IsNullOrEmpty(title))
+            {
+                title = typeof(T).Name;
+            }
+            win.titleContent = new GUIContent(title);
+            if (win.position.width <= 0)
+                win.position = new Rect(100, 100, 800, 600);
+        }
     }
 }
 #endif
