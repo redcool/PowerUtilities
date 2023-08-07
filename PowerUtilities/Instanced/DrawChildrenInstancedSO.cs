@@ -132,6 +132,9 @@ namespace PowerUtilities
             for (int i = 0; i < renders.Length; i++)
             {
                 var r = renders[i];
+                if (!r.GetComponent<MeshFilter>().sharedMesh)
+                    continue;
+
                 if (r.gameObject && setRendererDisable)
                     r.gameObject.SetActive(false);
 
