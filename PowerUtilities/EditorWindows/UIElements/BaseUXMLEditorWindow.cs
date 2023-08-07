@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -64,7 +65,6 @@ namespace PowerUtilities
             else
             {
                 treeAsset.CloneTree(rootVisualElement);
-
             }
 
             var uss = treeStyleSheet ?? lazyDefaultStyleSheet.Value;
@@ -79,6 +79,40 @@ namespace PowerUtilities
             AddTreeEvents();
         }
 
+        public void OnCreateGUI(string uxmlName, string ussName,IUIElementEvent eventInstance)
+        {
+            LoadUxmlUss(uxmlName, ussName,out treeAsset,out treeStyleSheet);
+            this.eventInstance = eventInstance;
+        }
+
+        /// <summary>
+        /// Load,uxml, uss
+        /// create instance of treeAsset,treeStyleSheet
+        /// </summary>
+        /// <param name="uxmlName"></param>
+        /// <param name="ussName"></param>
+        public void LoadUxmlUss(string uxmlName, string ussName,out VisualTreeAsset treeAsset,out StyleSheet treeStyleSheet)
+        {
+            treeAsset = null;
+            treeStyleSheet = null;
+
+            var uxmlPath = AssetDatabaseTools.FindAssetPath(uxmlName, "uxml");
+            if (!string.IsNullOrEmpty(uxmlPath))
+                treeAsset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(uxmlPath);
+
+            if (!string.IsNullOrEmpty(ussName))
+            {
+                var ussPath = AssetDatabaseTools.FindAssetPath(ussName, "usdd");
+                if (!string.IsNullOrEmpty(ussPath))
+                    treeStyleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>(ussPath);
+            }
+        }
+
+        public void LoadUxmlUss(string uxmlName,string ussName)
+        {
+            LoadUxmlUss(uxmlName, ussName, out treeAsset, out treeStyleSheet);
+        }
+
         /// <summary>
         /// set eventMono or(eventInstance) then call this
         /// </summary>
@@ -86,8 +120,6 @@ namespace PowerUtilities
         {
             if(eventMono)
                 eventInstance = Activator.CreateInstance(eventMono.GetClass()) as IUIElementEvent;
-
-
 
             if (eventInstance != null)
             {

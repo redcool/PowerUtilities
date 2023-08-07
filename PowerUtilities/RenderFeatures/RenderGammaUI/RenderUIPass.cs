@@ -108,6 +108,10 @@ namespace PowerUtilities.Features
             SetupTargetTex(ref renderingData, ref cameraData,out lastColorHandleId, out colorHandleId,out depthHandleId);
 
             //---------------------  1 to gamma tex
+            settings.blitMat.shaderKeywords=null;
+            settings.blitMat.SetFloat("_Double", Display.main.requiresSrgbBlitToBackbuffer?1:0);
+
+            SetColorSpace(cmd, ColorSpaceTransform.LinearToSRGB);
             BlitToGammaTarget(ref context,ref cameraData,ref renderingData, lastColorHandleId, colorHandleId,depthHandleId);
 
 
@@ -116,7 +120,6 @@ namespace PowerUtilities.Features
 
 
             //--------------------- 3 to colorTarget
-
             SetColorSpace(cmd, ColorSpaceTransform.SRGBToLinear);
             Blit(cmd, BuiltinRenderTextureType.CurrentActive, BuiltinRenderTextureType.CameraTarget, settings.blitMat);
 
@@ -134,10 +137,6 @@ namespace PowerUtilities.Features
 
         void BlitToGammaTarget(ref ScriptableRenderContext context,ref CameraData cameraData,ref RenderingData renderingData,int lastColorHandleId,int colorHandleId,int depthHandleId)
         {
-            settings.blitMat.shaderKeywords=null;
-            SetColorSpace(cmd, ColorSpaceTransform.LinearToSRGB);
-
-            //BlitToTarget(cmd, colorHandleId, gammaTexId, blitMat);
             // _CameraOpaqueTexture is _CameraColorAttachmentA or _CameraColorAttachmentB
             cmd.SetGlobalTexture(_SourceTex, lastColorHandleId);
             cmd.SetRenderTarget(colorHandleId);

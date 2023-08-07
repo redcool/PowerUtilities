@@ -20,14 +20,11 @@ namespace PowerUtilities
         static void OpenWindow()
         {
             var win = GetWindow<ItemPlacementWindow>();
+            win.titleContent = new GUIContent("ItemPlaceWin");
         }
         public override void CreateGUI()
         {
-            var uxmlPath = AssetDatabaseTools.FindAssetsPath("ItemPlacementWindow", "uxml").FirstOrDefault();
-
-            treeAsset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(uxmlPath);
-            eventInstance = this;
-
+            LoadUxmlUss("ItemPlacementWindow", "");
             base.CreateGUI();
         }
 

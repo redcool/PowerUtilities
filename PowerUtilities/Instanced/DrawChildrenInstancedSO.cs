@@ -12,6 +12,7 @@ namespace PowerUtilities
     /// </summary>
     public class DrawChildrenInstancedSO : ScriptableObject
     {
+        [Header("Lightmap")]
         public Texture2D[] lightmaps;
         public Texture2D[] shadowMasks;
         public bool enableLightmap = true;
@@ -20,10 +21,15 @@ namespace PowerUtilities
         [Range(0, 1)] public float culledRatio = 0.5f;
         public bool forceRefresh;
 
+        [Header("Children Filters")]
+        public LayerMask layers = -1;
+
+        public bool setRendererDisable = true;
+
         [SerializeField] public Dictionary<Mesh, InstancedGroupInfo> meshGroupDict = new Dictionary<Mesh, InstancedGroupInfo>();
         [SerializeField] public List<InstancedGroupInfo> groupList = new List<InstancedGroupInfo>();
 
-        Renderer[] renders;
+        [HideInInspector] public Renderer[] renders;
 
         public void Update()
         {
@@ -52,11 +58,15 @@ namespace PowerUtilities
         /// <param name="rootGo"></param>
         public void SetupChildren(GameObject rootGo)
         {
-            renders = rootGo.GetComponentsInChildren<MeshRenderer>(true);
+            // fitler children
+            renders = rootGo.GetComponentsInChildren<MeshRenderer>(true)
+                .Where(r => LayerMaskEx.Contains(layers, r.gameObject.layer))
+                .ToArray();
+
             if (renders.Length == 0)
                 return;
 
-            AddToGroup(renders);
+            AddToGroup(renders, setRendererDisable);
             groupList.AddRange(meshGroupDict.Values);
 
             // lightmaps handle
@@ -88,8 +98,6 @@ namespace PowerUtilities
                 else
                     item.gameObject.SetActive(false);
             }
-
-            renders = null;
         }
 
 
@@ -119,12 +127,12 @@ namespace PowerUtilities
             }
         }
 
-        void AddToGroup(Renderer[] renders)
+        void AddToGroup(Renderer[] renders,bool setRendererDisable)
         {
             for (int i = 0; i < renders.Length; i++)
             {
                 var r = renders[i];
-                if (r.gameObject)
+                if (r.gameObject && setRendererDisable)
                     r.gameObject.SetActive(false);
 
                 var info = GetInfoFromDict(r);

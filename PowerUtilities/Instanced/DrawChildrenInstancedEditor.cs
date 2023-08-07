@@ -8,8 +8,6 @@ using System.Threading.Tasks;
 namespace PowerUtilities
 {
     using UnityEditor;
-    using UnityEngine.SceneManagement;
-    using UnityEditor.SceneManagement;
     using UnityEngine;
 
     [CustomEditor(typeof(DrawChildrenInstanced))]
@@ -79,6 +77,12 @@ namespace PowerUtilities
                 inst.gameObject.DestroyChildren<MeshRenderer>(true);
             }
 
+            if(GUILayout.Button("Select All"))
+            {
+                var objs = inst.drawInfoSO.renders.Select(r => r.gameObject).ToArray();
+                Selection.objects = objs;
+            }
+
             EditorGUILayout.EndHorizontal();
         }
 
@@ -104,30 +108,6 @@ namespace PowerUtilities
             profile.name = soName;
             return SaveAndGetSO(profile, soPath,isExist);
         }
-
-
-
-        //private void DrawProfileUI(DrawChildrenInstanced inst)
-        //{
-        //    GUILayout.BeginVertical("Box");
-            
-        //    EditorGUILayout.PropertyField(drawInfoSerailizedObject.FindProperty(nameof(inst.drawInfoSO.lightmaps)));
-        //    EditorGUILayout.PropertyField(drawInfoSerailizedObject.FindProperty(nameof(inst.drawInfoSO.enableLightmap)));
-        //    EditorGUILayout.PropertyField(drawInfoSerailizedObject.FindProperty(nameof(inst.drawInfoSO.destroyGameObjectsWhenBaked)));
-
-        //    EditorGUILayout.PropertyField(drawInfoSerailizedObject.FindProperty(nameof(inst.drawInfoSO.culledRatio)));
-        //    EditorGUILayout.PropertyField(drawInfoSerailizedObject.FindProperty(nameof(inst.drawInfoSO.forceRefresh)));
-        //    EditorGUILayout.PropertyField(drawInfoSerailizedObject.FindProperty(nameof(inst.drawInfoSO.groupList)));
-        //    GUILayout.EndVertical();
-        //}
-
-        //private static void DrawProfileField(DrawChildrenInstanced inst)
-        //{
-        //    GUILayout.BeginHorizontal("Box");
-        //    EditorGUILayout.PrefixLabel(nameof(inst.drawInfoSO));
-        //    inst.drawInfoSO  = (DrawChildrenInstancedSO)EditorGUILayout.ObjectField(inst.drawInfoSO, typeof(DrawChildrenInstancedSO),false); ;
-        //    GUILayout.EndHorizontal();
-        //}
 
         // save to xx.unity's folder,name is inst's name
         private static DrawChildrenInstancedSO SaveAndGetSO(DrawChildrenInstancedSO drawInfoSO,string soPath,bool isExist)
