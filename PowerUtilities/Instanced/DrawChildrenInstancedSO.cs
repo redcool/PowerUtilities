@@ -22,8 +22,13 @@ namespace PowerUtilities
         public bool forceRefresh;
 
         [Header("Children Filters")]
+        [Tooltip("object 's layer ")]
         public LayerMask layers = -1;
 
+        [Tooltip("find children include inactive")]
+        public bool includeInactive;
+
+        [Tooltip("disable renderer when add to instance group")]
         public bool setRendererDisable = true;
 
         [SerializeField] public Dictionary<Mesh, InstancedGroupInfo> meshGroupDict = new Dictionary<Mesh, InstancedGroupInfo>();
@@ -59,7 +64,7 @@ namespace PowerUtilities
         public void SetupChildren(GameObject rootGo)
         {
             // fitler children
-            renders = rootGo.GetComponentsInChildren<MeshRenderer>(true)
+            renders = rootGo.GetComponentsInChildren<MeshRenderer>(includeInactive)
                 .Where(r => LayerMaskEx.Contains(layers, r.gameObject.layer))
                 .ToArray();
 
