@@ -79,12 +79,6 @@ namespace PowerUtilities
             AddTreeEvents();
         }
 
-        public void OnCreateGUI(string uxmlName, string ussName,IUIElementEvent eventInstance)
-        {
-            LoadUxmlUss(uxmlName, ussName,out treeAsset,out treeStyleSheet);
-            this.eventInstance = eventInstance;
-        }
-
         /// <summary>
         /// Load,uxml, uss
         /// create instance of treeAsset,treeStyleSheet

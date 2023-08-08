@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace PowerUtilities
 {
@@ -74,6 +75,8 @@ namespace PowerUtilities
             AddToGroup(renders, setRendererDisable);
             groupList.AddRange(meshGroupDict.Values);
 
+            SetupLightmaps();
+
             // lightmaps handle
             if (IsLightMapEnabled())
             {
@@ -105,6 +108,18 @@ namespace PowerUtilities
             }
         }
 
+        public void SetupLightmaps()
+        {
+            lightmaps = new Texture2D[LightmapSettings.lightmaps.Length];
+            shadowMasks = new Texture2D[LightmapSettings.lightmaps.Length];
+
+            LightmapSettings.lightmaps.ForEach((lightmapData, id) =>
+            {
+                lightmaps[id] = lightmapData.lightmapColor;
+                shadowMasks[id] = lightmapData.shadowMask;
+            });
+        }
+
 
         void SetupGroupLightmapInfo()
         {
@@ -121,13 +136,12 @@ namespace PowerUtilities
 
                     block.SetTexture("unity_Lightmap", lightmaps[group.lightmapId]);
 
-                    if(group.lightmapId< shadowMasks.Length)
+                    if(group.lightmapId < shadowMasks.Length)
                         block.SetTexture("unity_ShadowMask", shadowMasks[group.lightmapId]);
 
                     block.SetVectorArray("_LightmapST", lightmapGroup.lightmapCoords.ToArray());
                     block.SetVectorArray("unity_LightmapST", lightmapGroup.lightmapCoords.ToArray());
                     block.SetInt("_DrawInstanced", 1);
-
                 }
             }
         }
@@ -197,7 +211,8 @@ namespace PowerUtilities
 
                     var block = group.blockList[i];
 
-                    Graphics.DrawMeshInstanced(group.mesh, 0, group.mat, transforms, block);
+                    var shadowCasterMode = QualitySettings.shadowmaskMode == ShadowmaskMode.DistanceShadowmask ? ShadowCastingMode.On : ShadowCastingMode.Off;
+                    Graphics.DrawMeshInstanced(group.mesh, 0, group.mat, transforms, block, shadowCasterMode);
                 }
             }
         }
@@ -206,11 +221,9 @@ namespace PowerUtilities
         {
             foreach (var groupInfo in groupList)
             {
-                var needUpdate = enableLightmap != groupInfo.mat.IsKeywordEnabled("LIGHTMAP_ON");
-                if (!needUpdate)
-                    continue;
-
                 groupInfo.mat.SetKeyword("LIGHTMAP_ON", enableLightmap);
+                groupInfo.mat.SetKeywords(new [] { "SHADOWS_SHADOWMASK", "CALCULATE_BAKED_SHADOWS" },enableLightmap);
+                
             }
         }
     }
