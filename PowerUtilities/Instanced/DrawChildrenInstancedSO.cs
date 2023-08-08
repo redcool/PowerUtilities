@@ -221,8 +221,10 @@ namespace PowerUtilities
         {
             foreach (var groupInfo in groupList)
             {
-                groupInfo.mat.SetKeyword("LIGHTMAP_ON", enableLightmap);
-                groupInfo.mat.SetKeywords(new [] { "SHADOWS_SHADOWMASK", "CALCULATE_BAKED_SHADOWS" },enableLightmap);
+                if(groupInfo.mat.IsKeywordEnabled("LIGHTMAP_ON") != enableLightmap)
+                    groupInfo.mat.SetKeyword("LIGHTMAP_ON", enableLightmap);
+
+                //groupInfo.mat.SetKeywords(new [] { "SHADOWS_SHADOWMASK"},enableLightmap);
                 
             }
         }
