@@ -53,10 +53,17 @@ namespace PowerUtilities
         public List<MaterialPropertyBlock> blockList = new List<MaterialPropertyBlock>();
 
         public int lightmapId;
+        /// <summary>
+        /// 使用 texture array, 传递 lightmapId
+        /// </summary>
+        public List<int> lightmapIdList = new List<int>();
 
         int groupId = 0;
-        public void AddRender(Matrix4x4 transform, Vector4 lightmapST)
+        public void AddRender(Mesh mesh,Material mat,Matrix4x4 transform, Vector4 lightmapST,int lightmapId)
         {
+            this.mesh = mesh;
+            this.mat = mat;
+            this.lightmapId = lightmapId;
             // new group
             if (originalTransformsGroupList.Count <= groupId)
             {
@@ -64,7 +71,9 @@ namespace PowerUtilities
                 displayTransformsGroupList.Add(new InstancedTransformGroup());
                 lightmapCoordsList.Add(new InstancedLightmapCoordGroup());
                 blockList.Add(new MaterialPropertyBlock());
+                lightmapIdList.Add(lightmapId);
             }
+
             // get current group
             var transformGroup = originalTransformsGroupList[groupId];
             transformGroup.transforms.Add(transform);

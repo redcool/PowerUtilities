@@ -18,6 +18,9 @@ namespace PowerUtilities
         public Texture2D[] shadowMasks;
         public bool enableLightmap = true;
 
+        [Tooltip("Lighting Mode is subtractive?")]
+        public bool isSubstractiveMode = false;
+
         [Header("销毁概率,[0:no, 1:all]")]
         [Range(0, 1)] public float culledRatio = 0.5f;
         public bool forceRefresh;
@@ -32,7 +35,6 @@ namespace PowerUtilities
         [Tooltip("disable renderer when add to instance group")]
         public bool setRendererDisable = true;
 
-        [SerializeField] public Dictionary<Mesh, InstancedGroupInfo> meshGroupDict = new Dictionary<Mesh, InstancedGroupInfo>();
         [SerializeField] public List<InstancedGroupInfo> groupList = new List<InstancedGroupInfo>();
 
         [HideInInspector] public Renderer[] renders;
@@ -66,14 +68,19 @@ namespace PowerUtilities
         {
             // fitler children
             renders = rootGo.GetComponentsInChildren<MeshRenderer>(includeInactive)
-                .Where(r => LayerMaskEx.Contains(layers, r.gameObject.layer))
+                .Where(r =>
+                {
+                    var isValid = LayerMaskEx.Contains(layers, r.gameObject.layer);
+                    var mf = r.GetComponent<MeshFilter>();
+                    return isValid && mf && mf.sharedMesh;
+                })
                 .ToArray();
 
             if (renders.Length == 0)
                 return;
 
-            AddToGroup(renders, setRendererDisable);
-            groupList.AddRange(meshGroupDict.Values);
+            groupList.Clear();
+            SetupGroupList(renders, groupList);
 
             SetupLightmaps();
 
@@ -84,9 +91,31 @@ namespace PowerUtilities
             }
         }
 
+        public static void SetupGroupList(Renderer[] renders, List<InstancedGroupInfo> groupList)
+        {
+            // use lightmapIndex,mesh as group
+            var sb = new StringBuilder();
+            var lightmapMeshGroups = renders.GroupBy(r => new { r.lightmapIndex, r.GetComponent<MeshFilter>().sharedMesh });
+            lightmapMeshGroups.ForEach((group, groupId) =>
+            {
+                // a instanced group
+                var groupInfo = new InstancedGroupInfo();
+                groupList.Add(groupInfo);
+
+                sb.AppendLine("group :"+groupId);
+                group.ForEach((r, renderId) =>
+                {
+                    sb.Append($"r:{r.name} ");
+                    
+                    groupInfo.AddRender(r.GetComponent<MeshFilter>().sharedMesh,r.sharedMaterial, r.transform.localToWorldMatrix, r.lightmapScaleOffset, r.lightmapIndex);
+                });
+                sb.AppendLine();
+            });
+            Debug.Log(sb.ToString());
+        }
+
         public void Clear()
         {
-            meshGroupDict.Clear();
             groupList.Clear();
         }
 
@@ -120,6 +149,8 @@ namespace PowerUtilities
             });
         }
 
+        public bool IsLightmapValid(int lightmapId, Texture[] lightmaps)
+        => lightmapId< lightmaps.Length && lightmaps[lightmapId];
 
         void SetupGroupLightmapInfo()
         {
@@ -134,52 +165,21 @@ namespace PowerUtilities
                     var block = group.blockList[i];
                     var lightmapGroup = group.lightmapCoordsList[i];
 
-                    block.SetTexture("unity_Lightmap", lightmaps[group.lightmapId]);
+                    if(IsLightmapValid(group.lightmapId,lightmaps))
+                        block.SetTexture("unity_Lightmap", lightmaps[group.lightmapId]);
 
-                    if(group.lightmapId < shadowMasks.Length)
+                    if (IsLightmapValid(group.lightmapId, shadowMasks))
                         block.SetTexture("unity_ShadowMask", shadowMasks[group.lightmapId]);
 
                     block.SetVectorArray("_LightmapST", lightmapGroup.lightmapCoords.ToArray());
                     block.SetVectorArray("unity_LightmapST", lightmapGroup.lightmapCoords.ToArray());
                     block.SetInt("_DrawInstanced", 1);
+
+                    if(isSubstractiveMode)
+                        block.SetVector("unity_LightData", Vector4.zero);
                 }
             }
         }
-
-        void AddToGroup(Renderer[] renders,bool setRendererDisable)
-        {
-            for (int i = 0; i < renders.Length; i++)
-            {
-                var r = renders[i];
-                if (!r.GetComponent<MeshFilter>().sharedMesh)
-                    continue;
-
-                if (r.gameObject && setRendererDisable)
-                    r.gameObject.SetActive(false);
-
-                var info = GetInfoFromDict(r);
-                info.lightmapId = r.lightmapIndex;
-                info.AddRender(r.transform.localToWorldMatrix, r.lightmapScaleOffset);
-            }
-        }
-
-        InstancedGroupInfo GetInfoFromDict(Renderer r)
-        {
-            InstancedGroupInfo info;
-            var filter = r.GetComponent<MeshFilter>();
-            if (!meshGroupDict.TryGetValue(filter.sharedMesh, out info))
-            {
-                info = new InstancedGroupInfo();
-                info.mesh = filter.sharedMesh;
-                info.mat = r.sharedMaterial;
-                info.mat.enableInstancing = true;
-
-                meshGroupDict.Add(filter.sharedMesh, info);
-            }
-            return info;
-        }
-
-
 
         public void CullInstances(float culledRatio)
         {

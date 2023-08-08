@@ -23,28 +23,41 @@ namespace PowerUtilities
 
             var inst = target as DrawChildrenInstanced;
 
-            if (!inst.drawInfoSO)
-            {
-                var sceneFolder = AssetDatabaseTools.CreateSceneFolder();
-                var soName = inst.transform.GetHierarchyPath((Transform)null, "_");
-                var soPath = $"{sceneFolder}/{soName}.asset";
-                // 1 find exist profile
-                var existProfile = AssetDatabase.LoadAssetAtPath<DrawChildrenInstancedSO>(soPath);
-                if (existProfile && GUILayout.Button($"Found Exist Profile,use it ?"))
-                {
-                    inst.drawInfoSO = AssetDatabase.LoadAssetAtPath<DrawChildrenInstancedSO>(soPath);
-                }
-
-                //2 create a new profile
-                if (GUILayout.Button("Create New Profile"))
-                {
-                    inst.drawInfoSO = CreateNewProfile(inst, soName, soPath, existProfile);
-                }
-            }
+            DrawExistNew(inst);
 
             if (!inst.drawInfoSO)
                 return;
 
+            DrawInstancedInfoGroup(inst);
+
+            // buttons
+            DrawButtons(inst);
+        }
+
+        private static void DrawButtons(DrawChildrenInstanced inst)
+        {
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("Bake Children Gos"))
+            {
+                BakeChildren(inst);
+            }
+
+            if (GUILayout.Button("Delete Children"))
+            {
+                inst.gameObject.DestroyChildren<MeshRenderer>(true);
+            }
+
+            if (GUILayout.Button("Select All"))
+            {
+                var objs = inst.drawInfoSO.renders.Select(r => r.gameObject).ToArray();
+                Selection.objects = objs;
+            }
+
+            EditorGUILayout.EndHorizontal();
+        }
+
+        private void DrawInstancedInfoGroup(DrawChildrenInstanced inst)
+        {
             if (drawInfoEditor == null || drawInfoEditor.target != inst.drawInfoSO)
             {
                 drawInfoEditor = CreateEditor(inst.drawInfoSO);
@@ -57,33 +70,35 @@ namespace PowerUtilities
 
             // show default gui
             drawInfoEditor.OnInspectorGUI();
-            //DrawProfileUI(inst);
 
             var isApplied = drawInfoSerailizedObject.ApplyModifiedProperties();
             if (isApplied)
             {
                 inst.drawInfoSO.UpdateGroupListMaterial(inst.drawInfoSO.IsLightMapEnabled());
             }
+        }
 
-            // buttons
-            EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("Bake Children Gos"))
+        private static void DrawExistNew(DrawChildrenInstanced inst)
+        {
+            if (inst.drawInfoSO)
+                return;
+
+            var sceneFolder = AssetDatabaseTools.CreateSceneFolder();
+            var soName = inst.transform.GetHierarchyPath((Transform)null, "_");
+            var soPath = $"{sceneFolder}/{soName}.asset";
+            // 1 find exist profile
+            var existProfile = AssetDatabase.LoadAssetAtPath<DrawChildrenInstancedSO>(soPath);
+            if (existProfile && GUILayout.Button($"Found Exist Profile,use it ?"))
             {
-                BakeChildren(inst);
+                inst.drawInfoSO = AssetDatabase.LoadAssetAtPath<DrawChildrenInstancedSO>(soPath);
             }
 
-            if (GUILayout.Button("Delete Children"))
+            //2 create a new profile
+            if (GUILayout.Button("Create New Profile"))
             {
-                inst.gameObject.DestroyChildren<MeshRenderer>(true);
+                inst.drawInfoSO = CreateNewProfile(inst, soName, soPath, existProfile);
             }
 
-            if(GUILayout.Button("Select All"))
-            {
-                var objs = inst.drawInfoSO.renders.Select(r => r.gameObject).ToArray();
-                Selection.objects = objs;
-            }
-
-            EditorGUILayout.EndHorizontal();
         }
 
         private static void BakeChildren(DrawChildrenInstanced inst)
