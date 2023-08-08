@@ -1,16 +1,20 @@
-﻿#if UNITY_EDITOR
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+using UnityEngine;
+
 namespace PowerUtilities
 {
-    using System.Collections;
-    using System.Collections.Generic;
-    using UnityEngine;
-    using UnityEditor;
-    using System;
-    using System.IO;
-    using UnityEngine.Experimental.Rendering;
-
     public static class TextureTools
     {
+
+#if UNITY_EDITOR
         public static void SaveTexturesToFolder(List<Texture2D> splitTextureList, string folder, int countInRow, bool showPropressBar = true)
         {
             for (int i = 0; i < splitTextureList.Count; i++)
@@ -28,6 +32,7 @@ namespace PowerUtilities
                 var bytes = tex.EncodeToPNG();
                 File.WriteAllBytes(string.Format("{0}/{1}_{2}.png", folder, col, row), bytes);
             }
+
             if (showPropressBar)
                 EditorUtility.ClearProgressBar();
         }
@@ -43,6 +48,7 @@ namespace PowerUtilities
 
             SaveTexturesToFolder(textures, folder, countInRow);
         }
+#endif
         /// <summary>
         /// Split Textures by resolution
         /// </summary>
@@ -50,7 +56,7 @@ namespace PowerUtilities
         /// <param name="resolution"></param>
         /// <param name="countInRow"></param>
         /// <returns></returns>
-        public static List<Texture2D> SplitTextures(Texture2D[] textures, TextureResolution resolution, ref int countInRow,Action<float> onProgress,bool isHeightmap, TextureFormat textureFormat= TextureFormat.R8, bool isMipChain=false, bool isLinear=true)
+        public static List<Texture2D> SplitTextures(Texture2D[] textures, TextureResolution resolution, ref int countInRow, Action<float> onProgress, bool isHeightmap, TextureFormat textureFormat = TextureFormat.R8, bool isMipChain = false, bool isLinear = true)
         {
             if (textures == null || textures.Length == 0)
                 return null;
@@ -73,7 +79,7 @@ namespace PowerUtilities
 
                 if (tex.width > res)
                 {
-                    var texs = tex.SplitTexture(res,onProgress,isHeightmap,textureFormat,isMipChain,isLinear);
+                    var texs = tex.SplitTexture(res, onProgress, isHeightmap, textureFormat, isMipChain, isLinear);
                     textureList.AddRange(texs);
                 }
                 else
@@ -84,8 +90,16 @@ namespace PowerUtilities
             return textureList;
         }
 
-        
+        public static Texture2DArray Create2DArray(List<Texture2D> textures, int width, int height, TextureFormat tf)
+        {
+            var arr = new Texture2DArray(width, height, textures.Count, tf, true);
+            textures.ForEach((tex, id) =>
+            {
+                Graphics.CopyTexture(tex, 0, arr, id);
+            });
+            return arr;
+        }
+
 
     }
 }
-#endif
