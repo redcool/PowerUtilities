@@ -67,7 +67,8 @@ namespace PowerUtilities
         public void SetupChildren(GameObject rootGo)
         {
             // fitler children
-            SetupRenderers(rootGo,includeInactive,layers,renders);
+            SetupRenderers(rootGo, includeInactive, layers,out renders);
+
             if (renders.Length == 0)
                 return;
 
@@ -90,7 +91,7 @@ namespace PowerUtilities
         /// <param name="includeInactive"></param>
         /// <param name="layers"></param>
         /// <param name="renders"></param>
-        public static void SetupRenderers(GameObject rootGo,bool includeInactive,LayerMask layers, Renderer[] renders)
+        public static void SetupRenderers(GameObject rootGo, bool includeInactive, LayerMask layers, out Renderer[] renders)
         {
             renders = rootGo.GetComponentsInChildren<MeshRenderer>(includeInactive)
                 .Where(r =>
