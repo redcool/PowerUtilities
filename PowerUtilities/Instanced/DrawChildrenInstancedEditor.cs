@@ -32,7 +32,7 @@ namespace PowerUtilities
 
             // buttons
             DrawButtons(inst);
-            //DrawButtons2(inst);
+            DrawButtons2(inst);
         }
 
         private static void DrawButtons(DrawChildrenInstanced inst)
@@ -62,7 +62,8 @@ namespace PowerUtilities
             EditorGUILayout.BeginHorizontal();
             if(GUILayout.Button("Lightmaps 2DArray"))
             {
-
+                var sceneFolder = AssetDatabaseTools.CreateSceneFolder();
+                EditorTextureTools.Create2DArray(inst.drawInfoSO.lightmaps.ToList(), $"{sceneFolder}/LightmapArray.asset");
             }
             EditorGUILayout.EndHorizontal();
         }
