@@ -32,6 +32,7 @@ namespace PowerUtilities
 
             // buttons
             DrawButtons(inst);
+            //DrawButtons2(inst);
         }
 
         private static void DrawButtons(DrawChildrenInstanced inst)
@@ -53,6 +54,16 @@ namespace PowerUtilities
                 Selection.objects = objs;
             }
 
+            EditorGUILayout.EndHorizontal();
+        }
+
+        static void DrawButtons2(DrawChildrenInstanced inst)
+        {
+            EditorGUILayout.BeginHorizontal();
+            if(GUILayout.Button("Lightmaps 2DArray"))
+            {
+
+            }
             EditorGUILayout.EndHorizontal();
         }
 

@@ -67,15 +67,7 @@ namespace PowerUtilities
         public void SetupChildren(GameObject rootGo)
         {
             // fitler children
-            renders = rootGo.GetComponentsInChildren<MeshRenderer>(includeInactive)
-                .Where(r =>
-                {
-                    var isValid = LayerMaskEx.Contains(layers, r.gameObject.layer);
-                    var mf = r.GetComponent<MeshFilter>();
-                    return isValid && mf && mf.sharedMesh;
-                })
-                .ToArray();
-
+            SetupRenderers(rootGo,includeInactive,layers,renders);
             if (renders.Length == 0)
                 return;
 
@@ -91,10 +83,33 @@ namespace PowerUtilities
             }
         }
 
+        /// <summary>
+        /// find valid renders
+        /// </summary>
+        /// <param name="rootGo"></param>
+        /// <param name="includeInactive"></param>
+        /// <param name="layers"></param>
+        /// <param name="renders"></param>
+        public static void SetupRenderers(GameObject rootGo,bool includeInactive,LayerMask layers, Renderer[] renders)
+        {
+            renders = rootGo.GetComponentsInChildren<MeshRenderer>(includeInactive)
+                .Where(r =>
+                {
+                    var isValid = LayerMaskEx.Contains(layers, r.gameObject.layer);
+                    var mf = r.GetComponent<MeshFilter>();
+                    return isValid && mf && mf.sharedMesh;
+                })
+                .ToArray();
+        }
+
+        /// <summary>
+        /// Fill GroupList with renders
+        /// </summary>
+        /// <param name="renders"></param>
+        /// <param name="groupList"></param>
         public static void SetupGroupList(Renderer[] renders, List<InstancedGroupInfo> groupList)
         {
             // use lightmapIndex,mesh as group
-            var sb = new StringBuilder();
             var lightmapMeshGroups = renders.GroupBy(r => new { r.lightmapIndex, r.GetComponent<MeshFilter>().sharedMesh });
             lightmapMeshGroups.ForEach((group, groupId) =>
             {
@@ -102,16 +117,11 @@ namespace PowerUtilities
                 var groupInfo = new InstancedGroupInfo();
                 groupList.Add(groupInfo);
 
-                sb.AppendLine("group :"+groupId);
                 group.ForEach((r, renderId) =>
                 {
-                    sb.Append($"r:{r.name} ");
-                    
                     groupInfo.AddRender(r.GetComponent<MeshFilter>().sharedMesh,r.sharedMaterial, r.transform.localToWorldMatrix, r.lightmapScaleOffset, r.lightmapIndex);
                 });
-                sb.AppendLine();
             });
-            Debug.Log(sb.ToString());
         }
 
         public void Clear()
@@ -149,10 +159,10 @@ namespace PowerUtilities
             });
         }
 
-        public bool IsLightmapValid(int lightmapId, Texture[] lightmaps)
+        public static bool IsLightmapValid(int lightmapId, Texture[] lightmaps)
         => lightmapId< lightmaps.Length && lightmaps[lightmapId];
 
-        void SetupGroupLightmapInfo()
+        public void SetupGroupLightmapInfo()
         {
             foreach (var group in groupList)
             {

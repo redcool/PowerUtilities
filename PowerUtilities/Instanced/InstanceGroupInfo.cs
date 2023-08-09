@@ -32,19 +32,17 @@ namespace PowerUtilities
         /// 要绘制的物体,untiy限制最多1023,这里用list来分组.
         /// 存放所有的 变换信息
         /// </summary>
-        //public List<List<Matrix4x4>> originalTransformsGroup = new List<List<Matrix4x4>>();
         public List<InstancedTransformGroup> originalTransformsGroupList = new List<InstancedTransformGroup>();
         /// <summary>
         /// 用于绘制的列表
-        /// 对originalTransformList进行洗牌,按概率过滤一部分
+        /// 对originalTransformList进行洗牌,按概率过滤一部分,
+        /// 可继续culling
         /// </summary>
-        //public List<List<Matrix4x4>> displayTransformsGroup = new List<List<Matrix4x4>>();
         public List<InstancedTransformGroup> displayTransformsGroupList = new List<InstancedTransformGroup>();
 
         /// <summary>
         /// 绘制物体的光照图uv分组
         /// </summary>
-        //public List<List<Vector4>> lightmapCoordsList = new List<List<Vector4>>();
         public List<InstancedLightmapCoordGroup> lightmapCoordsList = new List<InstancedLightmapCoordGroup>();
 
         /// <summary>

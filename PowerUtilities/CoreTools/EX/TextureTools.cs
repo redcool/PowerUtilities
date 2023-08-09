@@ -100,6 +100,14 @@ namespace PowerUtilities
             return arr;
         }
 
+        public static Texture2DArray Create2DArray(List<Texture2D> textures)
+        {
+            var q = textures.Where(t => t);
+            if (q.Count()==0)
+                return null;
 
+            var sample = textures[0];
+            return Create2DArray(textures, sample.width, sample.height, sample.format);
+        }
     }
 }
