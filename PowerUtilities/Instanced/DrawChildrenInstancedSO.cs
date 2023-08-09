@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -32,9 +35,11 @@ namespace PowerUtilities
         [Tooltip("find children include inactive")]
         public bool includeInactive;
 
-        [Tooltip("disable renderer when add to instance group")]
-        public bool setRendererDisable = true;
+        [Header("When done")]
+        [Tooltip("disable children when add to instance group")]
+        public bool disableChildren = true;
 
+        [Space(10)]
         [SerializeField] public List<InstancedGroupInfo> groupList = new List<InstancedGroupInfo>();
 
         [HideInInspector] public Renderer[] renders;
@@ -67,7 +72,7 @@ namespace PowerUtilities
         public void SetupChildren(GameObject rootGo)
         {
             // fitler children
-            SetupRenderers(rootGo, includeInactive, layers,out renders);
+            SetupRenderers(rootGo);
 
             if (renders.Length == 0)
                 return;
@@ -82,6 +87,9 @@ namespace PowerUtilities
             {
                 SetupGroupLightmapInfo();
             }
+
+            if (disableChildren)
+                rootGo.SetChildrenActive(false);
         }
 
         /// <summary>
@@ -91,16 +99,22 @@ namespace PowerUtilities
         /// <param name="includeInactive"></param>
         /// <param name="layers"></param>
         /// <param name="renders"></param>
-        public static void SetupRenderers(GameObject rootGo, bool includeInactive, LayerMask layers, out Renderer[] renders)
+        public void SetupRenderers(GameObject rootGo)
         {
-            renders = rootGo.GetComponentsInChildren<MeshRenderer>(includeInactive)
+            var q = rootGo.GetComponentsInChildren<MeshRenderer>(includeInactive)
                 .Where(r =>
                 {
                     var isValid = LayerMaskEx.Contains(layers, r.gameObject.layer);
+                    isValid = isValid && r.sharedMaterial;
+
+                    if (isValid && !r.sharedMaterial.enableInstancing)
+                        r.sharedMaterial.enableInstancing = true;
+
                     var mf = r.GetComponent<MeshFilter>();
                     return isValid && mf && mf.sharedMesh;
-                })
-                .ToArray();
+                });
+
+            renders = q.ToArray();
         }
 
         /// <summary>
@@ -161,7 +175,7 @@ namespace PowerUtilities
         }
 
         public static bool IsLightmapValid(int lightmapId, Texture[] lightmaps)
-        => lightmapId< lightmaps.Length && lightmaps[lightmapId];
+        => lightmapId >-1 && lightmapId< lightmaps.Length && lightmaps[lightmapId];
 
         public void SetupGroupLightmapInfo()
         {

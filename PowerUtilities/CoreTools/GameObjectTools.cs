@@ -139,5 +139,13 @@
             });
             return children;
         }
+
+        public static void SetChildrenActive(this GameObject go,bool isActive)
+        {
+            for (int i = 0;i< go.transform.childCount; i++)
+            {
+                go.transform.GetChild(i).gameObject.SetActive(isActive);
+            }
+        }
     }
 }

@@ -16,6 +16,7 @@ namespace PowerUtilities
         SerializedObject drawInfoSerailizedObject;
 
         Editor drawInfoEditor;
+        bool isChildrenActive;
 
         public override void OnInspectorGUI()
         {
@@ -35,14 +36,25 @@ namespace PowerUtilities
             DrawButtons2(inst);
         }
 
-        private static void DrawButtons(DrawChildrenInstanced inst)
+        private void DrawButtons(DrawChildrenInstanced inst )
         {
             EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("Bake Children Gos"))
+            if (GUILayout.Button("Bake Children"))
             {
                 BakeChildren(inst);
             }
 
+            if(GUILayout.Button("Bake Materials") && EditorUtility.DisplayDialog("Warning","Create new Materials and use it?","yes"))
+            {
+                CreateInstancedMaterials(inst.drawInfoSO.groupList);
+            }
+
+            var setChildenText = isChildrenActive ? "Disable" : "Enable";
+            if (GUILayout.Button(setChildenText +" Children"))
+            {
+                isChildrenActive = !isChildrenActive;
+                inst.gameObject.SetChildrenActive(isChildrenActive);
+            }
             if (GUILayout.Button("Delete Children"))
             {
                 inst.gameObject.DestroyChildren<MeshRenderer>(true);
@@ -57,7 +69,7 @@ namespace PowerUtilities
             EditorGUILayout.EndHorizontal();
         }
 
-        static void DrawButtons2(DrawChildrenInstanced inst)
+        void DrawButtons2(DrawChildrenInstanced inst)
         {
             EditorGUILayout.BeginHorizontal();
             if(GUILayout.Button("Lightmaps 2DArray"))
@@ -146,7 +158,30 @@ namespace PowerUtilities
             return AssetDatabase.LoadAssetAtPath<DrawChildrenInstancedSO>(soPath);
         }
 
+        public void CreateInstancedMaterials(List<InstancedGroupInfo> groupList)
+        {
+            var sceneFolder = AssetDatabaseTools.CreateSceneFolder();
+            var matFolder = AssetDatabaseTools.CreateFolder(sceneFolder, "InstancedMaterials", true);
+            AssetDatabaseTools.DeletaAsset(matFolder);
 
+            groupList.ForEach(g =>
+            {
+                var matName = g.mat.name;
+                var removedLen = matName.Contains(" (Instance)") ? 11 : 0;
+                var path = $"{matFolder}/{matName.Substring(0, matName.Length-removedLen)}.mat";
+
+                var targetMat = AssetDatabase.LoadAssetAtPath<Material>(path);
+                if (!targetMat)
+                {
+                    AssetDatabase.CreateAsset(Instantiate(g.mat), path);
+                    targetMat= AssetDatabase.LoadAssetAtPath<Material>(path);
+                }
+                // use material reference
+                g.mat = targetMat;
+            });
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+        }
     }
 }
 #endif

@@ -42,7 +42,8 @@ namespace PowerUtilities
 
             var trs =
                 parentGo ? parentGo.GetComponentsInChildren<Transform>(includeInactive) :
-                FindObjectsByType<Transform>(includeInactive ? FindObjectsInactive.Include : FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+                //FindObjectsByType<Transform>(includeInactive ? FindObjectsInactive.Include : FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+                FindObjectsOfType<Transform>(includeInactive);
 
             var gos = trs.Where(tr => tr.gameObject.layer == layer)
                 .Where(tr => tr.CompareTag(tag))

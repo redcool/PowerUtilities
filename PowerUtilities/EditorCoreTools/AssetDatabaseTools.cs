@@ -99,8 +99,15 @@ namespace PowerUtilities
         /// <param name="parentFolder"></param>
         /// <param name="subFolder"></param>
         /// <returns>folder assets path</returns>
-        public static string CreateFolder(string parentFolder, string subFolder)
+        public static string CreateFolder(string parentFolder, string subFolder, bool isUseExist = false)
         {
+            if (isUseExist)
+            {
+                var path = parentFolder + "/" + subFolder;
+                PathTools.CreateAbsFolderPath(path);
+                return path;
+            }
+            // create new folder when exist
             var guid = AssetDatabase.CreateFolder(parentFolder, subFolder);
             return AssetDatabase.GUIDToAssetPath(guid);
         }
@@ -146,6 +153,18 @@ namespace PowerUtilities
         {
             path = FindAssetPath(filter, extName, searchInFolders);
             return AssetDatabase.LoadAssetAtPath<T>(path);
+        }
+
+        public static void DeletaAsset(string assetPath)
+        {
+            if (string.IsNullOrEmpty(assetPath))
+                return;
+
+            AssetDatabase.DeleteAsset(assetPath);
+            PathTools.CreateAbsFolderPath(assetPath);
+
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
         }
     }
 }
