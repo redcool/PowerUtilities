@@ -72,11 +72,11 @@ namespace PowerUtilities
 
         /// <summary>
         /// Create scene adjoint folder
-        /// 
+        /// if not exists create it
         /// </summary>
-        /// <param name="subFolderName"></param>
+        /// <param name="scene"></param>
         /// <returns></returns>
-        public static string CreateSceneFolder(Scene scene=default)
+        public static string CreateGetSceneFolder(Scene scene=default)
         {
             if(scene == default)
                 scene = SceneManager.GetActiveScene();
@@ -155,7 +155,13 @@ namespace PowerUtilities
             return AssetDatabase.LoadAssetAtPath<T>(path);
         }
 
-        public static void DeletaAsset(string assetPath)
+        public static void SaveRefresh()
+        {
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+        }
+
+        public static void DeleteAsset(string assetPath,bool refresh)
         {
             if (string.IsNullOrEmpty(assetPath))
                 return;
@@ -163,8 +169,41 @@ namespace PowerUtilities
             AssetDatabase.DeleteAsset(assetPath);
             PathTools.CreateAbsFolderPath(assetPath);
 
-            AssetDatabase.SaveAssets();
-            AssetDatabase.Refresh();
+            if (refresh)
+            {
+                SaveRefresh();
+            }
+        }
+
+        /// <summary>
+        /// get a asset from scene's folder
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="pathInSceneFolder"></param>
+        /// <returns></returns>
+        public static T LoadAssetAtSceneFolder<T>(string pathInSceneFolder) where T : Object
+        {
+            if (string.IsNullOrEmpty(pathInSceneFolder))
+                return default;
+
+            var sceneFolder = CreateGetSceneFolder();
+            var path = $"{sceneFolder}/{pathInSceneFolder}";
+            return AssetDatabase.LoadAssetAtPath<T>(path);
+        }
+
+        /// <summary>
+        /// create asset in scene's folder
+        /// </summary>
+        /// <param name="asset"></param>
+        /// <param name="pathInSceneFolder"></param>
+        public static void CreateAssetAtSceneFolder(Object asset,string pathInSceneFolder)
+        {
+            if (string.IsNullOrEmpty(pathInSceneFolder))
+                return;
+
+            var sceneFolder = CreateGetSceneFolder();
+            var path = $"{sceneFolder}/{pathInSceneFolder}";
+            AssetDatabase.CreateAsset(asset, path);
         }
     }
 }

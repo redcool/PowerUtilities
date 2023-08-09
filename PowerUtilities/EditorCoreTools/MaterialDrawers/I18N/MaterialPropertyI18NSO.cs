@@ -50,7 +50,7 @@ namespace PowerUtilities
             {
                 if (!instance)
                 {
-                    instance = ScriptableObjectTools.GetInstance<MaterialPropertyI18NSO>();
+                    instance = ScriptableObjectTools.CreateGetInstance<MaterialPropertyI18NSO>();
                 }
 
                 instance.TryInit();

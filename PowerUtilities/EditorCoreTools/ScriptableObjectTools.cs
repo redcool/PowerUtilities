@@ -22,7 +22,7 @@ namespace PowerUtilities
         /// <param name="so"></param>
         /// <param name="path"></param>
         /// <returns></returns>
-        public static Object GetInstance(Type type,string path = "")
+        public static Object CreateGetInstance(Type type,string path = "")
         {
             // check path from attribute
             if (string.IsNullOrEmpty(path))
@@ -44,9 +44,9 @@ namespace PowerUtilities
             return settings;
         }
 
-        public static T GetInstance<T>(string path="") where T : ScriptableObject
+        public static T CreateGetInstance<T>(string path="") where T : ScriptableObject
         {
-            return (T)GetInstance(typeof(T),path);
+            return (T)CreateGetInstance(typeof(T),path);
         }
 
 
@@ -69,7 +69,7 @@ namespace PowerUtilities
                     return default;
             }
             // from cache or get new
-            return cachedSerializedObjects.Get(path, () => new SerializedObject(GetInstance(type, path)));
+            return cachedSerializedObjects.Get(path, () => new SerializedObject(CreateGetInstance(type, path)));
         }
         public static SerializedObject GetSerializedInstance<T>(string path="") where T : ScriptableObject
         {

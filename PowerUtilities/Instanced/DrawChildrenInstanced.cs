@@ -5,9 +5,6 @@
     using UnityEngine;
     using System;
     using UnityEngine.Profiling;
-
-
-
     /// <summary>
     /// 解决,gpu instancing对光照图的处理
     /// 

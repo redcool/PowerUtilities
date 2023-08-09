@@ -52,13 +52,24 @@ namespace PowerUtilities
 
         public int lightmapId;
         /// <summary>
-        /// 使用 texture array, 传递 lightmapId
+        /// 每个组,一个lightamapId
         /// </summary>
         public List<int> lightmapIdList = new List<int>();
+        
+        /// <summary>
+        /// max count per transformGroup
+        /// </summary>
+        public int maxCountPerGroup = 1023;
+        
+        /// <summary>
+        /// instance group id
+        /// </summary>
+        public int instanceGroupId;
 
         int groupId = 0;
-        public void AddRender(Mesh mesh,Material mat,Matrix4x4 transform, Vector4 lightmapST,int lightmapId)
+        public void AddRender(int instanceGroupId,float boundSphereSize,Mesh mesh,Material mat,Matrix4x4 transform, Vector4 lightmapST,int lightmapId)
         {
+            this.instanceGroupId = instanceGroupId;
             this.mesh = mesh;
             this.mat = mat;
             this.lightmapId = lightmapId;
@@ -72,7 +83,7 @@ namespace PowerUtilities
                 lightmapIdList.Add(lightmapId);
             }
 
-            // get current group
+            // get current group and save all
             var transformGroup = originalTransformsGroupList[groupId];
             transformGroup.transforms.Add(transform);
 
@@ -82,8 +93,15 @@ namespace PowerUtilities
             var transformsCulledGroup = displayTransformsGroupList[groupId];
             transformsCulledGroup.transforms.Add(transform);
 
+            // add to cullingGroup
+            CullingGroupSO.GetProfle().cullingInfos.Add(new InstancedGroupCullingInfo(transform.GetColumn(3), boundSphereSize) { 
+                groupId=instanceGroupId,
+                transformGroupId = groupId,
+                transformId = transformGroup.transforms.Count-1
+            });
+
             // check need increment groupId.
-            if (transformGroup.transforms.Count >= 1023)
+            if (transformGroup.transforms.Count >= maxCountPerGroup)
             {
                 groupId++;
             }

@@ -134,7 +134,8 @@ namespace PowerUtilities
 
                 group.ForEach((r, renderId) =>
                 {
-                    groupInfo.AddRender(r.GetComponent<MeshFilter>().sharedMesh,r.sharedMaterial, r.transform.localToWorldMatrix, r.lightmapScaleOffset, r.lightmapIndex);
+                    var boundSphereSize = Mathf.Max(r.bounds.extents.x, Mathf.Max(r.bounds.extents.y, r.bounds.extents.z));
+                    groupInfo.AddRender(groupId, boundSphereSize, r.GetComponent<MeshFilter>().sharedMesh,r.sharedMaterial, r.transform.localToWorldMatrix, r.lightmapScaleOffset, r.lightmapIndex);
                 });
             });
         }

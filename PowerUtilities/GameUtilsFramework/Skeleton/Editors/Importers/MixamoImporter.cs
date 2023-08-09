@@ -13,7 +13,7 @@ namespace GameUtilsFramework
     {
         private void OnPostprocessModel(GameObject gameObject)
         {
-            var setting = ScriptableObjectTools.GetInstance<PowerAssetImporterSetting>();
+            var setting = ScriptableObjectTools.CreateGetInstance<PowerAssetImporterSetting>();
             if (!setting.isRemoveMixamoRig)
                 return;
 

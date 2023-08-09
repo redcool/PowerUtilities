@@ -74,7 +74,7 @@ namespace PowerUtilities
             EditorGUILayout.BeginHorizontal();
             if(GUILayout.Button("Lightmaps 2DArray"))
             {
-                var sceneFolder = AssetDatabaseTools.CreateSceneFolder();
+                var sceneFolder = AssetDatabaseTools.CreateGetSceneFolder();
                 EditorTextureTools.Create2DArray(inst.drawInfoSO.lightmaps.ToList(), $"{sceneFolder}/LightmapArray.asset");
             }
             EditorGUILayout.EndHorizontal();
@@ -107,7 +107,7 @@ namespace PowerUtilities
             if (inst.drawInfoSO)
                 return;
 
-            var sceneFolder = AssetDatabaseTools.CreateSceneFolder();
+            var sceneFolder = AssetDatabaseTools.CreateGetSceneFolder();
             var soName = inst.transform.GetHierarchyPath((Transform)null, "_");
             var soPath = $"{sceneFolder}/{soName}.asset";
             // 1 find exist profile
@@ -160,9 +160,9 @@ namespace PowerUtilities
 
         public void CreateInstancedMaterials(List<InstancedGroupInfo> groupList)
         {
-            var sceneFolder = AssetDatabaseTools.CreateSceneFolder();
+            var sceneFolder = AssetDatabaseTools.CreateGetSceneFolder();
             var matFolder = AssetDatabaseTools.CreateFolder(sceneFolder, "InstancedMaterials", true);
-            AssetDatabaseTools.DeletaAsset(matFolder);
+            AssetDatabaseTools.DeleteAsset(matFolder,true);
 
             groupList.ForEach(g =>
             {
