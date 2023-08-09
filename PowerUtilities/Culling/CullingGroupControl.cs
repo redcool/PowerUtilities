@@ -13,7 +13,6 @@ namespace PowerUtilities
     [CustomEditor(typeof(CullingGroupControl))]
     public class CullingGroupControlEditor : PowerEditor<CullingGroupControl>
     {
-        bool isCullingInfoFolded;
         Editor cullingInfoEditor;
         public override bool NeedDrawDefaultUI() => true;
 
@@ -25,16 +24,14 @@ namespace PowerUtilities
                 inst.cullingProfile = ScriptableObjectTools.CreateGetInstance<CullingGroupSO>(path);
             }
 
-            if(isCullingInfoFolded = EditorGUILayout.Foldout(isCullingInfoFolded,"culling infos", true))
+            if (cullingInfoEditor == null || cullingInfoEditor.target != inst.cullingProfile)
             {
-                if(cullingInfoEditor ==null || cullingInfoEditor.target != inst.cullingProfile)
-                {
-                    cullingInfoEditor = Editor.CreateEditor(inst.cullingProfile);
-                }
-
-                cullingInfoEditor.OnInspectorGUI();
+                cullingInfoEditor = Editor.CreateEditor(inst.cullingProfile);
             }
+
+            cullingInfoEditor.OnInspectorGUI();
         }
+
     }
 
 #endif
@@ -49,6 +46,8 @@ namespace PowerUtilities
         public Camera targetCam;
         CullingGroup group;
 
+        static CullingGroupControl instance;
+
         private void Awake()
         {
             if (!targetCam)
@@ -56,11 +55,12 @@ namespace PowerUtilities
 
             group = new CullingGroup();
             group.targetCamera = targetCam;
+            instance = this;
         }
 
         private void OnEnable()
         {
-            group.SetBoundingSpheres(cullingProfile.cullingInfos.Select(c => c.boundingSphere).ToArray());
+            group.SetBoundingSpheres(cullingProfile.cullingInfos.Select(c => new BoundingSphere(c.pos,c.size)).ToArray());
             group.onStateChanged = OnChanged;
         }
 
@@ -70,9 +70,38 @@ namespace PowerUtilities
             group.Dispose();
         }
 
+        private void OnDrawGizmos()
+        {
+            GetProfle().cullingInfos.ForEach(info =>
+            {
+                Gizmos.DrawWireSphere(info.pos,info.size);
+            });
+        }
+
         private void OnChanged(CullingGroupEvent e)
         {
             Debug.Log($"{e.index},visible:{e.isVisible}");
+        }
+
+        public static CullingGroupSO GetProfle(string scenePath = "")
+        {
+            if (string.IsNullOrEmpty(scenePath))
+                scenePath = SceneManager.GetActiveScene().path;
+
+            if (Application.isPlaying)
+            {
+                return instance.cullingProfile;
+            }
+#if UNITY_EDITOR
+            var path = $"{AssetDatabaseTools.CreateGetSceneFolder()}/CullingProfile.asset";
+            var profile = ScriptableObjectTools.CreateGetInstance<CullingGroupSO>(path);
+            return profile;
+#endif
+        }
+
+        public static CullingGroupSO SceneProfile
+        {
+            get { return GetProfle(); }
         }
 
     }

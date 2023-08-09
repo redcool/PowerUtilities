@@ -9,13 +9,13 @@ namespace PowerUtilities
     [Serializable]
     public class CullingInfo
     {
-        public float size = 2;
+        public float size;
         public Vector3 pos;
-        public BoundingSphere boundingSphere;
 
         public CullingInfo(Vector3 pos, float size = 2)
         {
-            boundingSphere = new BoundingSphere(pos, size);
+            this.pos = pos;
+            this.size = size;
         }
     }
 }
