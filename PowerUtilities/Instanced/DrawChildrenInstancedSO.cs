@@ -232,17 +232,18 @@ namespace PowerUtilities
         /// </summary>
         public void CullInvisibleInstance()
         {
-            foreach (var group in groupList)
+            groupList.ForEach((group, groupId) =>
             {
                 for (int i = 0; i < group.originalTransformsGroupList.Count; i++)
                 {
                     var instancedGroup = group.originalTransformsGroupList[i];
                     var transforms = instancedGroup.transforms;
                     group.displayTransformsGroupList[i].transforms = transforms
-                        .Where((tr, trId) => instancedGroup.transformVisibleList[i])
+                        .Where((tr, trId) => instancedGroup.transformVisibleList[trId])
                         .ToList();
+
                 }
-            }
+            });
         }
 
         public void DrawGroupList()
@@ -279,6 +280,26 @@ namespace PowerUtilities
                 //groupInfo.mat.SetKeywords(new [] { "SHADOWS_SHADOWMASK"},enableLightmap);
                 
             }
+        }
+
+        public override string ToString()
+        {
+            var sb = new StringBuilder();
+
+            groupList.ForEach((group, groupId) =>
+            {
+                sb.AppendLine(groupId.ToString());
+
+                for (int i = 0; i < group.originalTransformsGroupList.Count; i++)
+                {
+                    var instancedGroup = group.originalTransformsGroupList[i];
+
+                    sb.AppendLine("tr group : "+i);
+                    sb.AppendLine(StringEx.ToString(instancedGroup.transformVisibleList));
+                }
+            });
+
+            return sb.ToString();
         }
     }
 }

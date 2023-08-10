@@ -2,6 +2,7 @@
 {
 
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
@@ -96,6 +97,18 @@
             return str.Split(splitChar)
                 .Select(item => item.Trim())
                 .ToArray();
+        }
+
+        public static string ToString<T>(IEnumerable<T> items)
+        {
+            var sb = new StringBuilder();
+            sb.Append("{");
+            items.ForEach(item =>
+            {
+                sb.AppendFormat("{0},",item);
+            });
+            sb.Append("}");
+            return sb.ToString();
         }
     }
 }

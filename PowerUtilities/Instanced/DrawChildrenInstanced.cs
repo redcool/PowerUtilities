@@ -5,6 +5,8 @@
     using UnityEngine;
     using System;
     using UnityEngine.Profiling;
+    using System.Text;
+
     /// <summary>
     /// 解决,gpu instancing对光照图的处理
     /// 
@@ -52,8 +54,18 @@
             CullingGroupControl.OnVisibleChanged +=CullingGroupControl_OnVisibleChanged;
         }
 
-        private void CullingGroupControl_OnVisibleChanged(CullingGroupEvent obj)
+        private void CullingGroupControl_OnVisibleChanged(CullingGroupEvent e)
         {
+            if (CullingGroupControl.SceneProfile.cullingInfos[e.index] is InstancedGroupCullingInfo cullingInfo)
+            {
+                
+            //Debug.Log(e.index+":"+e.isVisible+":"+cullingInfo.ToString());
+                drawInfoSO.groupList[cullingInfo.groupId]
+                    .originalTransformsGroupList[cullingInfo.transformGroupId]
+                    .transformVisibleList[cullingInfo.transformId] = e.isVisible;
+            }
+            //Debug.Log(drawInfoSO.ToString());
+
             drawInfoSO.CullInvisibleInstance();
         }
 

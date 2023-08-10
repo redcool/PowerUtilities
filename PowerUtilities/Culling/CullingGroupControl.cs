@@ -34,21 +34,9 @@ namespace PowerUtilities
             cullingInfoEditor.OnInspectorGUI();
 
             if (GUILayout.Button("Bake DrawChildrenInstancedGroup"))
-                BakeDrawChildrenInstancedGroup(inst);
+                inst.BakeDrawChildrenInstancedGroup();
         }
 
-        private void BakeDrawChildrenInstancedGroup(CullingGroupControl inst)
-        {
-            // clear all
-            CullingGroupControl.SceneProfile.cullingInfos.Clear();
-
-            // fill
-            var drawInfos = Object.FindObjectsOfType<DrawChildrenInstanced>();
-            drawInfos.ForEach(drawInfo =>
-            {
-                inst.cullingProfile.SetupCullingGroupSO(drawInfo.drawInfoSO.groupList);
-            });
-        }
     }
 
 #endif
@@ -65,6 +53,7 @@ namespace PowerUtilities
 
         [Header("Debug")]
         public bool isShowDebug;
+        public bool isShowGizmos;
 
         static CullingGroupControl instance;
 
@@ -109,8 +98,11 @@ namespace PowerUtilities
             OnVisibleChanged = null;
         }
 
-        private void OnDrawGizmosSelected()
+        private void OnDrawGizmos()
         {
+            if (!isShowGizmos)
+                return;
+
             GetProfle().cullingInfos.ForEach(info =>
             {
                 Gizmos.DrawWireSphere(info.pos,info.size);
@@ -122,7 +114,6 @@ namespace PowerUtilities
             if (isShowDebug)
             {
                 Debug.Log($"{e.index},visible:{e.isVisible}");
-
             }
 
             SceneProfile.cullingInfos[e.index].isVisible = e.isVisible;
@@ -149,6 +140,17 @@ namespace PowerUtilities
             get { return GetProfle(); }
         }
 
+        public void BakeDrawChildrenInstancedGroup()
+        {
+            // clear all
+            SceneProfile.cullingInfos.Clear();
 
+            // fill
+            var drawInfos = Object.FindObjectsOfType<DrawChildrenInstanced>();
+            drawInfos.ForEach(drawInfo =>
+            {
+                cullingProfile.SetupCullingGroupSO(drawInfo.drawInfoSO.groupList);
+            });
+        }
     }
 }

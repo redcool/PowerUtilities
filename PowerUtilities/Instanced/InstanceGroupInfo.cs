@@ -120,14 +120,6 @@ namespace PowerUtilities
             //var transformsCulledGroup = displayTransformsGroupList[groupId];
             //transformsCulledGroup.transforms.Add(transform);
 
-            //// add to cullingGroup
-            //CullingGroupControl.SceneProfile.cullingInfos.Add(new InstancedGroupCullingInfo(transform.GetColumn(3), boundSphereSize)
-            //{
-            //    groupId=instanceGroupId,
-            //    transformGroupId = groupId,
-            //    transformId = transformGroup.transforms.Count-1
-            //});
-
             // check need increment groupId.
             if (transformGroup.transforms.Count >= maxCountPerGroup)
             {

@@ -22,5 +22,10 @@ namespace PowerUtilities
         public InstancedGroupCullingInfo(Vector3 pos, float size = 2) : base(pos, size)
         {
         }
+
+        public override string ToString()
+        {
+            return $"{{{groupId},{transformGroupId},{transformId}}}";
+        }
     }
 }

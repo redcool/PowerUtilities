@@ -20,7 +20,7 @@ namespace PowerUtilities
                 CullingGroupControl.SceneProfile.cullingInfos.Clear();
                 var q = inst.list.Select(x => new CullingInfo(x.position));
 
-                CullingGroupControl.SceneProfile.cullingInfos.AddRange(q);
+                //CullingGroupControl.SceneProfile.cullingInfos.AddRange(q);
             }
         }
     }
