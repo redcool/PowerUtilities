@@ -51,6 +51,8 @@ namespace PowerUtilities
         public Camera targetCam;
         CullingGroup group;
 
+        public bool isInitAllVisibles=true;
+
         [Header("Debug")]
         public bool isShowDebug;
         public bool isShowGizmos;
@@ -85,6 +87,12 @@ namespace PowerUtilities
             }
             group.SetBoundingSpheres(cullingProfile.cullingInfos.Select(c => new BoundingSphere(c.pos,c.size)).ToArray());
             group.onStateChanged += OnStateChanged;
+        }
+
+        private void Start()
+        {
+            if (isInitAllVisibles)
+                InitAllVisibles();
         }
 
         private void OnDisable()
@@ -140,9 +148,10 @@ namespace PowerUtilities
             get { return GetProfle(); }
         }
 
-        public void BakeDrawChildrenInstancedGroup()
+        public void BakeDrawChildrenInstancedGroup(bool isClearAll=true)
         {
             // clear all
+            if(isClearAll)
             SceneProfile.cullingInfos.Clear();
 
             // fill
@@ -150,6 +159,14 @@ namespace PowerUtilities
             drawInfos.ForEach(drawInfo =>
             {
                 cullingProfile.SetupCullingGroupSO(drawInfo.drawInfoSO.groupList);
+            });
+        }
+
+        public void InitAllVisibles()
+        {
+            SceneProfile.cullingInfos.ForEach((info, id) =>
+            {
+                info.isVisible = group.IsVisible(id);
             });
         }
     }
