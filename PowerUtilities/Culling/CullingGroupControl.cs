@@ -60,6 +60,7 @@ namespace PowerUtilities
         static CullingGroupControl instance;
 
         public static event Action<CullingGroupEvent> OnVisibleChanged;
+        public static event Action OnInitAllVisibles;
 
         private void Awake()
         {
@@ -92,7 +93,9 @@ namespace PowerUtilities
         private void Start()
         {
             if (isInitAllVisibles)
+            {
                 InitAllVisibles();
+            }
         }
 
         private void OnDisable()

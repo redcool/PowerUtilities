@@ -52,17 +52,29 @@
             }
 
             CullingGroupControl.OnVisibleChanged +=CullingGroupControl_OnVisibleChanged;
+            CullingGroupControl.OnInitAllVisibles += CullingGroupControl_OnInitAllVisibles;
+        }
+
+        private void CullingGroupControl_OnInitAllVisibles()
+        {
+            CullingGroupControl.SceneProfile.cullingInfos.ForEach(cullingInfo =>
+            {
+                drawInfoSO.groupList[cullingInfo.groupId]
+                    .originalTransformsGroupList[cullingInfo.transformGroupId]
+                    .transformVisibleList[cullingInfo.transformId] = cullingInfo.isVisible;
+            });
+
+            drawInfoSO.CullInvisibleInstance();
         }
 
         private void CullingGroupControl_OnVisibleChanged(CullingGroupEvent e)
         {
             if (CullingGroupControl.SceneProfile.cullingInfos[e.index] is InstancedGroupCullingInfo cullingInfo)
             {
-                
-            //Debug.Log(e.index+":"+e.isVisible+":"+cullingInfo.ToString());
+                //Debug.Log(e.index+":"+e.isVisible+":"+cullingInfo.ToString());
                 drawInfoSO.groupList[cullingInfo.groupId]
                     .originalTransformsGroupList[cullingInfo.transformGroupId]
-                    .transformVisibleList[cullingInfo.transformId] = e.isVisible;
+                    .transformVisibleList[cullingInfo.transformId] = cullingInfo.isVisible;
             }
             //Debug.Log(drawInfoSO.ToString());
 
@@ -94,6 +106,7 @@
         {
             OnStarted = null;
             CullingGroupControl.OnVisibleChanged -=CullingGroupControl_OnVisibleChanged;
+            CullingGroupControl.OnInitAllVisibles -= CullingGroupControl_OnInitAllVisibles;
         }
 
 
