@@ -24,7 +24,7 @@ namespace PowerUtilities
         /// <param name="originalList"></param>
         /// <param name="maxCount"></param>
         /// <returns></returns>
-        public static List<T> Shuffle<T>(List<T> originalList, int maxCount)
+        public static List<T> Shuffle<T>(List<T> originalList, int maxCount,out int[] shuffleIds)
         {
             //shuffle
             var set = new HashSet<int>();
@@ -37,11 +37,12 @@ namespace PowerUtilities
                 set.Add(id);
             }
             // copy into list
-            var arr = set.ToArray();
+            shuffleIds = set.ToArray();
             var list = new List<T>();
-            for (int i = 0; i < arr.Length; i++)
+            for (int i = 0; i < shuffleIds.Length; i++)
             {
-                list.Add(originalList[i]);
+                var newId = shuffleIds[i];
+                list.Add(originalList[newId]);
             }
             return list;
         }

@@ -25,7 +25,7 @@ namespace PowerUtilities
         public bool isSubstractiveMode = false;
 
         [Header("销毁概率,[0:no, 1:all]")]
-        [Range(0, 1)] public float culledRatio = 0.5f;
+        [Range(0, 1)] public float culledRatio = 0f;
         public bool forceRefresh;
 
         [Header("Children Filters")]
@@ -222,52 +222,76 @@ namespace PowerUtilities
                 for (int i = 0; i < group.originalTransformsGroupList.Count; i++)
                 {
                     var transforms = group.originalTransformsGroupList[i].transforms;
-                    group.displayTransformsGroupList[i].transforms = RandomTools.Shuffle(transforms, (int)(transforms.Count * Mathf.Clamp01(culledRatio)));
+                    var visibles = group.originalTransformsGroupList[i].transformVisibleList;
+
+                    group.displayTransformsGroupList[i].transforms = RandomTools.Shuffle(transforms, (int)(transforms.Count * Mathf.Clamp01(culledRatio)),out int[] shuffleIds);
+
+                    group.displayTransformsGroupList[i].transformVisibleList.Clear();
+                    shuffleIds.ForEach(shuffleId =>
+                    {
+                        group.displayTransformsGroupList[i].transformVisibleList.Add(visibles[shuffleId]);
+                    });
                 }
             }
         }
 
         /// <summary>
+        /// slow 
         /// update group.displayTransformsGroupList with cullingGroup
         /// </summary>
         public void CullInvisibleInstance()
         {
+            return;
             groupList.ForEach((group, groupId) =>
             {
                 for (int i = 0; i < group.originalTransformsGroupList.Count; i++)
                 {
                     var instancedGroup = group.originalTransformsGroupList[i];
-                    var transforms = instancedGroup.transforms;
-                    group.displayTransformsGroupList[i].transforms = transforms
-                        .Where((tr, trId) => instancedGroup.transformVisibleList[trId])
-                        .ToList();
+                    //group.displayTransformsGroupList[i].transforms = transforms
+                    //    .Where((tr, trId) => instancedGroup.transformVisibleList[trId])
+                    //    .ToList();
+                    var displayTransforms = group.displayTransformsGroupList[i].transforms;
+                    displayTransforms.Clear();
 
+                    instancedGroup.transformVisibleList.ForEach((tr, trId) =>
+                    {
+                        if (instancedGroup.transformVisibleList[trId])
+                            displayTransforms.Add(instancedGroup.transforms[trId]);
+                    });
                 }
             });
         }
 
         public void DrawGroupList()
         {
-            foreach (var group in groupList)
+            var transforms = new List<Matrix4x4>();
+
+            var shadowCasterMode = QualitySettings.shadowmaskMode == ShadowmaskMode.DistanceShadowmask ? ShadowCastingMode.On : ShadowCastingMode.Off;
+            groupList.ForEach((group, groupId) =>
             {
-                if(!group.mat)
-                    continue;
+                //if (!group.mat)
+                //    return;
 
-                for (int i = 0; i < group.displayTransformsGroupList.Count; i++)
+                group.originalTransformsGroupList.ForEach((segment, sid) =>
                 {
-                    var transforms = group.displayTransformsGroupList[i].transforms;
-
-                    if(group.blockList.Count <= i)
+                    transforms.Clear();
+                    segment.transformVisibleList.ForEach((tr, trId) =>
                     {
-                        group.blockList.Add(new MaterialPropertyBlock());
-                    }
+                        if (segment.transformVisibleList[trId])
+                            transforms.Add(segment.transforms[trId]);
+                    });
 
-                    var block = group.blockList[i];
+                    //transforms = group.displayTransformsGroupList[i].transforms;
+                    //if (group.blockList.Count <= i)
+                    //{
+                    //    group.blockList.Add(new MaterialPropertyBlock());
+                    //}
 
-                    var shadowCasterMode = QualitySettings.shadowmaskMode == ShadowmaskMode.DistanceShadowmask ? ShadowCastingMode.On : ShadowCastingMode.Off;
+                    var block = group.blockList[sid];
+
                     Graphics.DrawMeshInstanced(group.mesh, 0, group.mat, transforms, block, shadowCasterMode);
-                }
-            }
+                });
+            });
         }
 
         public void UpdateGroupListMaterial(bool enableLightmap)

@@ -13,8 +13,13 @@
             if (q == null || act == null)
                 return;
 
-            foreach (var item in q)
-                act(item);
+            //foreach (var item in q)
+            //    act(item);
+            var count = q.Count();
+            for (int i = 0; i < q.Count(); i++)
+            {
+                act(q.ElementAt(i));
+            }
         }
 
         public static void ForEach<T>(this IEnumerable<T> q, Action<T, int> act)
@@ -23,8 +28,13 @@
                 return;
 
             var id = 0;
-            foreach (var item in q)
-                act(item, id++);
+            //foreach (var item in q)
+            //    act(item, id++);
+            var count = q.Count();
+            for (int i = 0; i < q.Count(); i++)
+            {
+                act(q.ElementAt(i), i);
+            }
         }
 
         public static int FindIndex<T>(this IEnumerable<T> q,Func<T,bool> predicate,int startIndex=0)

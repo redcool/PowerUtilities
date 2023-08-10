@@ -52,6 +52,7 @@ namespace PowerUtilities
         CullingGroup group;
 
         public bool isInitAllVisibles=true;
+        public bool isReceiveStateChange = true;
 
         [Header("Debug")]
         public bool isShowDebug;
@@ -82,16 +83,13 @@ namespace PowerUtilities
 
         private void OnEnable()
         {
-            if(group == null)
-            {
-                InitCullingGroup();
-            }
-            group.SetBoundingSpheres(cullingProfile.cullingInfos.Select(c => new BoundingSphere(c.pos,c.size)).ToArray());
             group.onStateChanged += OnStateChanged;
         }
 
         private void Start()
         {
+            group.SetBoundingSpheres(cullingProfile.cullingInfos.Select(c => new BoundingSphere(c.pos,c.size)).ToArray());
+
             if (isInitAllVisibles)
             {
                 InitAllVisibles();
@@ -106,7 +104,6 @@ namespace PowerUtilities
                 group.Dispose();
             }
 
-            OnVisibleChanged = null;
         }
 
         private void OnDrawGizmos()
@@ -123,9 +120,8 @@ namespace PowerUtilities
         private void OnStateChanged(CullingGroupEvent e)
         {
             if (isShowDebug)
-            {
                 Debug.Log($"{e.index},visible:{e.isVisible}");
-            }
+
 
             SceneProfile.cullingInfos[e.index].isVisible = e.isVisible;
 
@@ -171,6 +167,9 @@ namespace PowerUtilities
             {
                 info.isVisible = group.IsVisible(id);
             });
+
+            if (OnInitAllVisibles != null)
+                OnInitAllVisibles();
         }
     }
 }

@@ -29,6 +29,12 @@
 
         public static event Action<DrawChildrenInstanced> OnStarted;
 
+        private void Awake()
+        {
+            CullingGroupControl.OnVisibleChanged +=CullingGroupControl_OnVisibleChanged;
+            CullingGroupControl.OnInitAllVisibles += CullingGroupControl_OnInitAllVisibles;
+        }
+
         public void Start()
         {
             if (!CheckDeviceSupport()) //设备不支持instance 或者 等级为 0
@@ -50,9 +56,6 @@
             {
                 OnStarted(this);
             }
-
-            CullingGroupControl.OnVisibleChanged +=CullingGroupControl_OnVisibleChanged;
-            CullingGroupControl.OnInitAllVisibles += CullingGroupControl_OnInitAllVisibles;
         }
 
         private void CullingGroupControl_OnInitAllVisibles()
@@ -63,7 +66,7 @@
                     .originalTransformsGroupList[cullingInfo.transformGroupId]
                     .transformVisibleList[cullingInfo.transformId] = cullingInfo.isVisible;
             });
-
+            Debug.Log(drawInfoSO.ToString());
             drawInfoSO.CullInvisibleInstance();
         }
 
@@ -77,7 +80,6 @@
                     .transformVisibleList[cullingInfo.transformId] = cullingInfo.isVisible;
             }
             //Debug.Log(drawInfoSO.ToString());
-
             drawInfoSO.CullInvisibleInstance();
         }
 

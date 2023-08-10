@@ -16,20 +16,15 @@ namespace PowerUtilities
         /// </summary>
         public List<bool> transformVisibleList = new List<bool>();
 
-        public List<int> instancedGroupIdList = new List<int>();
-        public List<int> transformGroupIdList = new List<int>();
+        //public List<int> instancedGroupIdList = new List<int>();
+        //public List<int> transformGroupIdList = new List<int>();
         public List<float> boundsSphereRadiusList = new List<float>();
 
-        public void SetData(int id, Matrix4x4 transform,int instanceGroupId,int transformGroupId){
-            transforms[id] = transform;
-            instancedGroupIdList[id] = instanceGroupId;
-            transformGroupIdList[id] = transformGroupId;
-        }
         public void Add(Matrix4x4 transform,int instanceGroupId,int transformGroupId,float boundsSphereRadius) {
             transformVisibleList.Add(true);
             transforms.Add(transform);
-            instancedGroupIdList.Add(instanceGroupId);  
-            transformGroupIdList.Add(transformGroupId);
+            //instancedGroupIdList.Add(instanceGroupId);  
+            //transformGroupIdList.Add(transformGroupId);
             boundsSphereRadiusList.Add(boundsSphereRadius);
         }
     }
