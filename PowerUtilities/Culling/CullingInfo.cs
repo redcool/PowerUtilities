@@ -11,6 +11,7 @@ namespace PowerUtilities
     {
         public float size;
         public Vector3 pos;
+        public bool isVisible = true;
 
         public CullingInfo(Vector3 pos, float size = 2)
         {

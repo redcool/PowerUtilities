@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,6 +7,7 @@ using UnityEditor;
 #endif
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Object = UnityEngine.Object;
 
 namespace PowerUtilities
 {
@@ -30,8 +32,23 @@ namespace PowerUtilities
             }
 
             cullingInfoEditor.OnInspectorGUI();
+
+            if (GUILayout.Button("Bake DrawChildrenInstancedGroup"))
+                BakeDrawChildrenInstancedGroup(inst);
         }
 
+        private void BakeDrawChildrenInstancedGroup(CullingGroupControl inst)
+        {
+            // clear all
+            CullingGroupControl.SceneProfile.cullingInfos.Clear();
+
+            // fill
+            var drawInfos = Object.FindObjectsOfType<DrawChildrenInstanced>();
+            drawInfos.ForEach(drawInfo =>
+            {
+                inst.cullingProfile.SetupCullingGroupSO(drawInfo.drawInfoSO.groupList);
+            });
+        }
     }
 
 #endif
@@ -55,22 +72,25 @@ namespace PowerUtilities
 
             group = new CullingGroup();
             group.targetCamera = targetCam;
-            instance = this;
+
+            // keep first instance
+            if (!instance)
+                instance = this;
         }
 
         private void OnEnable()
         {
             group.SetBoundingSpheres(cullingProfile.cullingInfos.Select(c => new BoundingSphere(c.pos,c.size)).ToArray());
-            group.onStateChanged = OnChanged;
+            group.onStateChanged += OnStateChanged;
         }
 
         private void OnDisable()
         {
-            group.onStateChanged =null;
+            group.onStateChanged -= OnStateChanged;
             group.Dispose();
         }
 
-        private void OnDrawGizmos()
+        private void OnDrawGizmosSelected()
         {
             GetProfle().cullingInfos.ForEach(info =>
             {
@@ -78,9 +98,10 @@ namespace PowerUtilities
             });
         }
 
-        private void OnChanged(CullingGroupEvent e)
+        private void OnStateChanged(CullingGroupEvent e)
         {
-            Debug.Log($"{e.index},visible:{e.isVisible}");
+            //Debug.Log($"{e.index},visible:{e.isVisible}");
+            SceneProfile.cullingInfos[e.index].isVisible = e.isVisible;
         }
 
         public static CullingGroupSO GetProfle(string scenePath = "")
@@ -103,6 +124,7 @@ namespace PowerUtilities
         {
             get { return GetProfle(); }
         }
+
 
     }
 }

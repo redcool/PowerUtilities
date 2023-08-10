@@ -79,7 +79,6 @@ namespace PowerUtilities
 
             groupList.Clear();
             SetupGroupList(renders, groupList);
-
             SetupLightmaps();
 
             // lightmaps handle
@@ -90,7 +89,12 @@ namespace PowerUtilities
 
             if (disableChildren)
                 rootGo.SetChildrenActive(false);
+
+            // refresh culling
+            forceRefresh = true; 
         }
+
+
 
         /// <summary>
         /// find valid renders

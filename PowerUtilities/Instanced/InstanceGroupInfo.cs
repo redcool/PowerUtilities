@@ -11,6 +11,27 @@ namespace PowerUtilities
     public class InstancedTransformGroup
     {
         public List<Matrix4x4> transforms = new List<Matrix4x4>();
+        /// <summary>
+        /// camera see transform?
+        /// </summary>
+        public List<bool> transformVisibleList = new List<bool>();
+
+        public List<int> instancedGroupIdList = new List<int>();
+        public List<int> transformGroupIdList = new List<int>();
+        public List<float> boundsSphereRadiusList = new List<float>();
+
+        public void SetData(int id, Matrix4x4 transform,int instanceGroupId,int transformGroupId){
+            transforms[id] = transform;
+            instancedGroupIdList[id] = instanceGroupId;
+            transformGroupIdList[id] = transformGroupId;
+        }
+        public void Add(Matrix4x4 transform,int instanceGroupId,int transformGroupId,float boundsSphereRadius) {
+            transformVisibleList.Add(true);
+            transforms.Add(transform);
+            instancedGroupIdList.Add(instanceGroupId);  
+            transformGroupIdList.Add(transformGroupId);
+            boundsSphereRadiusList.Add(boundsSphereRadius);
+        }
     }
     [Serializable]
     public class InstancedLightmapCoordGroup
@@ -34,7 +55,7 @@ namespace PowerUtilities
         /// </summary>
         public List<InstancedTransformGroup> originalTransformsGroupList = new List<InstancedTransformGroup>();
         /// <summary>
-        /// 用于绘制的列表
+        /// *  用于绘制的列表,* (draw之前会进行填充)
         /// 对originalTransformList进行洗牌,按概率过滤一部分,
         /// 可继续culling
         /// </summary>
@@ -67,7 +88,7 @@ namespace PowerUtilities
         public int instanceGroupId;
 
         int groupId = 0;
-        public void AddRender(int instanceGroupId,float boundSphereSize,Mesh mesh,Material mat,Matrix4x4 transform, Vector4 lightmapST,int lightmapId)
+        public void AddRender(int instanceGroupId,float boundSphereRadius,Mesh mesh,Material mat,Matrix4x4 transform, Vector4 lightmapST,int lightmapId)
         {
             this.instanceGroupId = instanceGroupId;
             this.mesh = mesh;
@@ -80,25 +101,32 @@ namespace PowerUtilities
                 displayTransformsGroupList.Add(new InstancedTransformGroup());
                 lightmapCoordsList.Add(new InstancedLightmapCoordGroup());
                 blockList.Add(new MaterialPropertyBlock());
+
+                //
                 lightmapIdList.Add(lightmapId);
+
             }
 
             // get current group and save all
             var transformGroup = originalTransformsGroupList[groupId];
-            transformGroup.transforms.Add(transform);
+            //transformGroup.transforms.Add(transform);
+            //transformGroup.transformVisibleList.Add(true);
+            transformGroup.Add(transform, instanceGroupId, groupId,boundSphereRadius);
+            
 
             var lightmapSTGroup = lightmapCoordsList[groupId];
             lightmapSTGroup.lightmapCoords.Add(lightmapST);
 
-            var transformsCulledGroup = displayTransformsGroupList[groupId];
-            transformsCulledGroup.transforms.Add(transform);
+            //var transformsCulledGroup = displayTransformsGroupList[groupId];
+            //transformsCulledGroup.transforms.Add(transform);
 
-            // add to cullingGroup
-            CullingGroupSO.GetProfle().cullingInfos.Add(new InstancedGroupCullingInfo(transform.GetColumn(3), boundSphereSize) { 
-                groupId=instanceGroupId,
-                transformGroupId = groupId,
-                transformId = transformGroup.transforms.Count-1
-            });
+            //// add to cullingGroup
+            //CullingGroupControl.SceneProfile.cullingInfos.Add(new InstancedGroupCullingInfo(transform.GetColumn(3), boundSphereSize)
+            //{
+            //    groupId=instanceGroupId,
+            //    transformGroupId = groupId,
+            //    transformId = transformGroup.transforms.Count-1
+            //});
 
             // check need increment groupId.
             if (transformGroup.transforms.Count >= maxCountPerGroup)
