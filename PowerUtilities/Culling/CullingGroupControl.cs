@@ -109,15 +109,12 @@ namespace PowerUtilities
             if (string.IsNullOrEmpty(scenePath))
                 scenePath = SceneManager.GetActiveScene().path;
 
-            if (Application.isPlaying)
-            {
-                return instance.cullingProfile;
-            }
 #if UNITY_EDITOR
             var path = $"{AssetDatabaseTools.CreateGetSceneFolder()}/CullingProfile.asset";
             var profile = ScriptableObjectTools.CreateGetInstance<CullingGroupSO>(path);
             return profile;
 #endif
+            return instance.cullingProfile;
         }
 
         public static CullingGroupSO SceneProfile

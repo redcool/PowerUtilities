@@ -138,7 +138,7 @@ namespace PowerUtilities
     [ProjectSettingGroup("PowerUtils/Tags")]
     public class TagsSO : ScriptableObject
     {
-        [ListItemDraw("tag,q:,renderQueue,kw:,keywords", "120,10,50,20")]
+        [ListItemDraw("tag,q:,renderQueue,kw:,keywords", "120,10,50,20,0")]
         public List<TagInfo> tagInfoList = new List<TagInfo>();
     }
 }
