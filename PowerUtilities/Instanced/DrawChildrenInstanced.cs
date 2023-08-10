@@ -48,6 +48,13 @@
             {
                 OnStarted(this);
             }
+
+            CullingGroupControl.OnVisibleChanged +=CullingGroupControl_OnVisibleChanged;
+        }
+
+        private void CullingGroupControl_OnVisibleChanged(CullingGroupEvent obj)
+        {
+            drawInfoSO.CullInvisibleInstance();
         }
 
         DrawChildrenInstancedSO CreateNewProfile(string name)
@@ -74,6 +81,7 @@
         void OnDestroy()
         {
             OnStarted = null;
+            CullingGroupControl.OnVisibleChanged -=CullingGroupControl_OnVisibleChanged;
         }
 
 

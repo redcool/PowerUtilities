@@ -12,8 +12,13 @@ namespace PowerUtilities
     [Serializable]
     public class CullingGroupSO : ScriptableObject
     {
+        [ListItemDraw("p:,pos,s:,size,v:,isVisible", "20,200,20,30,20,30")]
         public List<CullingInfo> cullingInfos = new List<CullingInfo>();
 
+        /// <summary>
+        /// update group.originalTransformsGroupList instances visible
+        /// </summary>
+        /// <param name="groupList"></param>
         public void SetupCullingGroupSO(List<InstancedGroupInfo> groupList)
         {
             groupList.ForEach((group, groupId) =>

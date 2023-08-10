@@ -211,6 +211,10 @@ namespace PowerUtilities
             }
         }
 
+        /// <summary>
+        /// update group.displayTransformsGroupList,whith culledRatio
+        /// </summary>
+        /// <param name="culledRatio"></param>
         public void CullInstances(float culledRatio)
         {
             foreach (var group in groupList)
@@ -219,6 +223,24 @@ namespace PowerUtilities
                 {
                     var transforms = group.originalTransformsGroupList[i].transforms;
                     group.displayTransformsGroupList[i].transforms = RandomTools.Shuffle(transforms, (int)(transforms.Count * Mathf.Clamp01(culledRatio)));
+                }
+            }
+        }
+
+        /// <summary>
+        /// update group.displayTransformsGroupList with cullingGroup
+        /// </summary>
+        public void CullInvisibleInstance()
+        {
+            foreach (var group in groupList)
+            {
+                for (int i = 0; i < group.originalTransformsGroupList.Count; i++)
+                {
+                    var instancedGroup = group.originalTransformsGroupList[i];
+                    var transforms = instancedGroup.transforms;
+                    group.displayTransformsGroupList[i].transforms = transforms
+                        .Where((tr, trId) => instancedGroup.transformVisibleList[i])
+                        .ToList();
                 }
             }
         }

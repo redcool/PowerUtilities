@@ -63,31 +63,50 @@ namespace PowerUtilities
         public Camera targetCam;
         CullingGroup group;
 
+        [Header("Debug")]
+        public bool isShowDebug;
+
         static CullingGroupControl instance;
+
+        public static event Action<CullingGroupEvent> OnVisibleChanged;
 
         private void Awake()
         {
             if (!targetCam)
                 targetCam  = Camera.main;
 
-            group = new CullingGroup();
-            group.targetCamera = targetCam;
+            InitCullingGroup();
 
             // keep first instance
             if (!instance)
                 instance = this;
         }
 
+        private void InitCullingGroup()
+        {
+            group = new CullingGroup();
+            group.targetCamera = targetCam;
+        }
+
         private void OnEnable()
         {
+            if(group == null)
+            {
+                InitCullingGroup();
+            }
             group.SetBoundingSpheres(cullingProfile.cullingInfos.Select(c => new BoundingSphere(c.pos,c.size)).ToArray());
             group.onStateChanged += OnStateChanged;
         }
 
         private void OnDisable()
         {
-            group.onStateChanged -= OnStateChanged;
-            group.Dispose();
+            if(group != null)
+            {
+                group.onStateChanged -= OnStateChanged;
+                group.Dispose();
+            }
+
+            OnVisibleChanged = null;
         }
 
         private void OnDrawGizmosSelected()
@@ -100,8 +119,16 @@ namespace PowerUtilities
 
         private void OnStateChanged(CullingGroupEvent e)
         {
-            //Debug.Log($"{e.index},visible:{e.isVisible}");
+            if (isShowDebug)
+            {
+                Debug.Log($"{e.index},visible:{e.isVisible}");
+
+            }
+
             SceneProfile.cullingInfos[e.index].isVisible = e.isVisible;
+
+            if (OnVisibleChanged != null)
+                OnVisibleChanged(e);
         }
 
         public static CullingGroupSO GetProfle(string scenePath = "")
