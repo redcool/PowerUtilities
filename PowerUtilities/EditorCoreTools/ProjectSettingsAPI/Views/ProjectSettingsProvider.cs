@@ -29,7 +29,7 @@ namespace PowerUtilities
                 if (groupAttr == null)
                     continue;
 
-                var sp = new SettingsProvider(groupAttr.settingPath, groupAttr.setingScope)
+                var sp = new SettingsProvider(groupAttr.settingPath, (SettingsScope)groupAttr.settingsScope)
                 {
                     label = groupAttr.label,
                     guiHandler = (searchContex) =>

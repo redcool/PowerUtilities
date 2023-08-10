@@ -1,9 +1,7 @@
-#if UNITY_EDITOR
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-using UnityEditor;
 
 namespace PowerUtilities
 {
@@ -13,6 +11,11 @@ namespace PowerUtilities
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
     public class ProjectSettingGroupAttribute : Attribute
     {
+        public enum SettingsScope
+        {
+            User,Project
+        }
+
         public const string POWER_UTILS = "PowerUtils";
         /// <summary>
         /// setting's path,like "Project/XXXSettings"
@@ -22,7 +25,7 @@ namespace PowerUtilities
         /// <summary>
         /// Project Setting or Preferences
         /// </summary>
-        public SettingsScope setingScope = SettingsScope.User;
+        public SettingsScope settingsScope = SettingsScope.User;
 
         /// <summary>
         /// setting's label, like XXXSettings,shown on left
@@ -34,4 +37,3 @@ namespace PowerUtilities
         }
     }
 }
-#endif
