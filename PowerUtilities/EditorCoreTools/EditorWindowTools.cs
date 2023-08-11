@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 namespace PowerUtilities
 {
+    using System;
     using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
@@ -32,12 +33,17 @@ namespace PowerUtilities
         
         public static void OpenWindow<T>(string title="") where T : EditorWindow
         {
-            var win = EditorWindow.GetWindow<T>();
+            OpenWindow(typeof(T),title);
+        }
+
+        public static void OpenWindow(Type windowType,string title = "")
+        {
+            var win = EditorWindow.GetWindow(windowType);
             if (!win)
                 return;
-            if(string.IsNullOrEmpty(title))
+            if (string.IsNullOrEmpty(title))
             {
-                title = typeof(T).Name;
+                title = windowType.Name;
             }
             win.titleContent = new GUIContent(title);
             if (win.position.width <= 0)

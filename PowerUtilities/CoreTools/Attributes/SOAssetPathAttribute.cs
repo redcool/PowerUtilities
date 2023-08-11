@@ -10,6 +10,7 @@ namespace PowerUtilities
     [AttributeUsage(AttributeTargets.Class)]
     public class SOAssetPathAttribute : Attribute
     {
+        public const string PATH_POWER_UTILITIES = "Assets/PowerUtilities";
         public string path;
         public SOAssetPathAttribute(string path)
         {
