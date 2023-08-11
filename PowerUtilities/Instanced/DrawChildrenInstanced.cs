@@ -66,8 +66,7 @@
                     .originalTransformsGroupList[cullingInfo.transformGroupId]
                     .transformVisibleList[cullingInfo.transformId] = cullingInfo.isVisible;
             });
-            Debug.Log(drawInfoSO.ToString());
-            drawInfoSO.CullInvisibleInstance();
+            //Debug.Log(drawInfoSO.ToString());
         }
 
         private void CullingGroupControl_OnVisibleChanged(CullingGroupEvent e)
@@ -80,7 +79,6 @@
                     .transformVisibleList[cullingInfo.transformId] = cullingInfo.isVisible;
             }
             //Debug.Log(drawInfoSO.ToString());
-            drawInfoSO.CullInvisibleInstance();
         }
 
         DrawChildrenInstancedSO CreateNewProfile(string name)
