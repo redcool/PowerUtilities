@@ -29,10 +29,16 @@
 
         public static event Action<DrawChildrenInstanced> OnStarted;
 
-        private void Awake()
+        private void OnEnable()
         {
-            CullingGroupControl.OnVisibleChanged +=CullingGroupControl_OnVisibleChanged;
-            CullingGroupControl.OnInitAllVisibles += CullingGroupControl_OnInitAllVisibles;
+            CullingGroupControl.OnVisibleChanged += CullingGroupControl_OnVisibleChanged;
+            CullingGroupControl.OnInitSceneProfileVisibles += CullingGroupControl_OnInitAllVisibles;
+        }
+
+        private void OnDisable()
+        {
+            CullingGroupControl.OnVisibleChanged -= CullingGroupControl_OnVisibleChanged;
+            CullingGroupControl.OnInitSceneProfileVisibles -= CullingGroupControl_OnInitAllVisibles;
         }
 
         public void Start()
@@ -106,7 +112,7 @@
         {
             OnStarted = null;
             CullingGroupControl.OnVisibleChanged -=CullingGroupControl_OnVisibleChanged;
-            CullingGroupControl.OnInitAllVisibles -= CullingGroupControl_OnInitAllVisibles;
+            CullingGroupControl.OnInitSceneProfileVisibles -= CullingGroupControl_OnInitAllVisibles;
         }
 
 

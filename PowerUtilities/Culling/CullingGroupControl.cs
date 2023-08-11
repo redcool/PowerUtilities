@@ -28,13 +28,16 @@ namespace PowerUtilities
 
             if (cullingInfoEditor == null || cullingInfoEditor.target != inst.cullingProfile)
             {
-                cullingInfoEditor = Editor.CreateEditor(inst.cullingProfile);
+                cullingInfoEditor = CreateEditor(inst.cullingProfile);
             }
 
             cullingInfoEditor.OnInspectorGUI();
 
             if (GUILayout.Button("Bake DrawChildrenInstancedGroup"))
+            {
                 inst.BakeDrawChildrenInstancedGroup();
+                inst.InitSceneProfileVisibles();
+            }
         }
 
     }
@@ -44,6 +47,7 @@ namespace PowerUtilities
     /// <summary>
     /// CullingGroup 
     /// </summary>
+    [ExecuteInEditMode]
     public class CullingGroupControl : MonoBehaviour
     {
         public CullingGroupSO cullingProfile;
@@ -51,59 +55,71 @@ namespace PowerUtilities
         public Camera targetCam;
         CullingGroup group;
 
-        public bool isInitAllVisibles=true;
+        public bool isInitAllVisiblesWhenStart;
         public bool isReceiveStateChange = true;
 
         [Header("Debug")]
         public bool isShowDebug;
         public bool isShowGizmos;
 
-        static CullingGroupControl instance;
-
         public static event Action<CullingGroupEvent> OnVisibleChanged;
-        public static event Action OnInitAllVisibles;
+        public static event Action OnInitSceneProfileVisibles;
+        static CullingGroupControl instance;
 
         private void Awake()
         {
             if (!targetCam)
                 targetCam  = Camera.main;
-
-            InitCullingGroup();
+            
+            TryInitCullingGroup();
 
             // keep first instance
             if (!instance)
                 instance = this;
         }
-
-        private void InitCullingGroup()
+        private void Start()
         {
-            group = new CullingGroup();
+            SetBoundingSpheres();
+
+            if (isInitAllVisiblesWhenStart)
+            {
+                InitSceneProfileVisibles();
+            }
+        }
+
+        public void TryInitCullingGroup()
+        {
+            if(group == null)
+                group = new CullingGroup();
+
             group.targetCamera = targetCam;
+
+            group.onStateChanged -= OnStateChanged;
+            group.onStateChanged += OnStateChanged;
+        }
+
+        public void SetBoundingSpheres()
+        {
+            group.SetBoundingSpheres(cullingProfile.cullingInfos.Select(c => new BoundingSphere(c.pos, c.size)).ToArray());
+        }
+        public void TryDisposeCullingGroup()
+        {
+            if (group != null)
+            {
+                group.onStateChanged -= OnStateChanged;
+                group.Dispose();
+                group = null;
+            }
         }
 
         private void OnEnable()
         {
-            group.onStateChanged += OnStateChanged;
-        }
-
-        private void Start()
-        {
-            group.SetBoundingSpheres(cullingProfile.cullingInfos.Select(c => new BoundingSphere(c.pos,c.size)).ToArray());
-
-            if (isInitAllVisibles)
-            {
-                InitAllVisibles();
-            }
+            TryInitCullingGroup();
         }
 
         private void OnDisable()
         {
-            if(group != null)
-            {
-                group.onStateChanged -= OnStateChanged;
-                group.Dispose();
-            }
-
+            TryDisposeCullingGroup();
         }
 
         private void OnDrawGizmos()
@@ -147,29 +163,32 @@ namespace PowerUtilities
             get { return GetProfle(); }
         }
 
-        public void BakeDrawChildrenInstancedGroup(bool isClearAll=true)
+        public void BakeDrawChildrenInstancedGroup(bool isClearAll = true)
         {
             // clear all
-            if(isClearAll)
-            SceneProfile.cullingInfos.Clear();
+            if (isClearAll)
+                SceneProfile.cullingInfos.Clear();
 
             // fill
-            var drawInfos = Object.FindObjectsOfType<DrawChildrenInstanced>();
+            var drawInfos = FindObjectsOfType<DrawChildrenInstanced>();
             drawInfos.ForEach(drawInfo =>
             {
                 cullingProfile.SetupCullingGroupSO(drawInfo.drawInfoSO.groupList);
             });
+
+            // setbounds
+            SetBoundingSpheres();
         }
 
-        public void InitAllVisibles()
+        public void InitSceneProfileVisibles()
         {
             SceneProfile.cullingInfos.ForEach((info, id) =>
             {
                 info.isVisible = group.IsVisible(id);
             });
 
-            if (OnInitAllVisibles != null)
-                OnInitAllVisibles();
+            if (OnInitSceneProfileVisibles != null)
+                OnInitSceneProfileVisibles();
         }
     }
 }

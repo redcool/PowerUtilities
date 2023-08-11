@@ -21,7 +21,7 @@ namespace PowerUtilities
         public List<float> boundsSphereRadiusList = new List<float>();
 
         public void Add(Matrix4x4 transform,int instanceGroupId,int transformGroupId,float boundsSphereRadius) {
-            transformVisibleList.Add(true);
+            transformVisibleList.Add(false);
             transforms.Add(transform);
             //instancedGroupIdList.Add(instanceGroupId);  
             //transformGroupIdList.Add(transformGroupId);
