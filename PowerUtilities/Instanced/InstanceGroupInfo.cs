@@ -12,19 +12,24 @@ namespace PowerUtilities
     {
         public List<Matrix4x4> transforms = new List<Matrix4x4>();
         /// <summary>
-        /// camera see transform?
+        /// camera see transform ? 
+        /// CullingGroupControl will update this array
         /// </summary>
         public List<bool> transformVisibleList = new List<bool>();
 
-        //public List<int> instancedGroupIdList = new List<int>();
-        //public List<int> transformGroupIdList = new List<int>();
+        /// <summary>
+        /// shuffle culling will update this array
+        /// </summary>
+        public List<bool> transformShuffleCullingList = new List<bool>();
+
+        /// <summary>
+        /// boundSphere radius
+        /// </summary>
         public List<float> boundsSphereRadiusList = new List<float>();
 
-        public void Add(Matrix4x4 transform,int instanceGroupId,int transformGroupId,float boundsSphereRadius) {
+        public void Add(Matrix4x4 transform,float boundsSphereRadius) {
             transformVisibleList.Add(false);
             transforms.Add(transform);
-            //instancedGroupIdList.Add(instanceGroupId);  
-            //transformGroupIdList.Add(transformGroupId);
             boundsSphereRadiusList.Add(boundsSphereRadius);
         }
     }
@@ -54,7 +59,7 @@ namespace PowerUtilities
         /// 对originalTransformList进行洗牌,按概率过滤一部分,
         /// 可继续culling
         /// </summary>
-        public List<InstancedTransformGroup> displayTransformsGroupList = new List<InstancedTransformGroup>();
+        //public List<InstancedTransformGroup> displayTransformsGroupList = new List<InstancedTransformGroup>();
 
         /// <summary>
         /// 绘制物体的光照图uv分组
@@ -80,12 +85,14 @@ namespace PowerUtilities
         /// <summary>
         /// instance group id
         /// </summary>
-        public int instanceGroupId;
+        //public int instanceGroupId;
 
+        /// <summary>
+        /// instanceGroup's segment(contains transforms count < 1023)
+        /// </summary>
         int groupId = 0;
-        public void AddRender(int instanceGroupId,float boundSphereRadius,Mesh mesh,Material mat,Matrix4x4 transform, Vector4 lightmapST,int lightmapId)
+        public void AddRender(float boundSphereRadius,Mesh mesh,Material mat,Matrix4x4 transform, Vector4 lightmapST,int lightmapId)
         {
-            this.instanceGroupId = instanceGroupId;
             this.mesh = mesh;
             this.mat = mat;
             this.lightmapId = lightmapId;
@@ -93,7 +100,7 @@ namespace PowerUtilities
             if (originalTransformsGroupList.Count <= groupId)
             {
                 originalTransformsGroupList.Add(new InstancedTransformGroup());
-                displayTransformsGroupList.Add(new InstancedTransformGroup());
+                //displayTransformsGroupList.Add(new InstancedTransformGroup());
                 lightmapCoordsList.Add(new InstancedLightmapCoordGroup());
                 blockList.Add(new MaterialPropertyBlock());
 
@@ -106,7 +113,7 @@ namespace PowerUtilities
             var transformGroup = originalTransformsGroupList[groupId];
             //transformGroup.transforms.Add(transform);
             //transformGroup.transformVisibleList.Add(true);
-            transformGroup.Add(transform, instanceGroupId, groupId,boundSphereRadius);
+            transformGroup.Add(transform, boundSphereRadius);
             
 
             var lightmapSTGroup = lightmapCoordsList[groupId];

@@ -56,7 +56,6 @@ namespace PowerUtilities
         CullingGroup group;
 
         public bool isInitAllVisiblesWhenStart;
-        public bool isReceiveStateChange = true;
 
         [Header("Debug")]
         public bool isShowDebug;
@@ -115,6 +114,11 @@ namespace PowerUtilities
         private void OnEnable()
         {
             TryInitCullingGroup();
+
+#if UNITY_EDITOR
+            // spheres will lose when compiled in editor
+            SetBoundingSpheres();
+#endif
         }
 
         private void OnDisable()

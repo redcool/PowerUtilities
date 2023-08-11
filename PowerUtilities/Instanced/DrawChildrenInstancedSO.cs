@@ -94,8 +94,6 @@ namespace PowerUtilities
             forceRefresh = true; 
         }
 
-
-
         /// <summary>
         /// find valid renders
         /// </summary>
@@ -139,7 +137,7 @@ namespace PowerUtilities
                 group.ForEach((r, renderId) =>
                 {
                     var boundSphereSize = Mathf.Max(r.bounds.extents.x, Mathf.Max(r.bounds.extents.y, r.bounds.extents.z));
-                    groupInfo.AddRender(groupId, boundSphereSize, r.GetComponent<MeshFilter>().sharedMesh,r.sharedMaterial, r.transform.localToWorldMatrix, r.lightmapScaleOffset, r.lightmapIndex);
+                    groupInfo.AddRender(boundSphereSize, r.GetComponent<MeshFilter>().sharedMesh,r.sharedMaterial, r.transform.localToWorldMatrix, r.lightmapScaleOffset, r.lightmapIndex);
                 });
             });
         }
@@ -217,49 +215,22 @@ namespace PowerUtilities
         /// <param name="culledRatio"></param>
         public void CullInstances(float culledRatio)
         {
-            foreach (var group in groupList)
-            {
-                for (int i = 0; i < group.originalTransformsGroupList.Count; i++)
-                {
-                    var transforms = group.originalTransformsGroupList[i].transforms;
-                    var visibles = group.originalTransformsGroupList[i].transformVisibleList;
+            //foreach (var group in groupList)
+            //groupList.ForEach((group, groupId) =>
+            //{
+            //    for (int i = 0; i < group.originalTransformsGroupList.Count; i++)
+            //    {
+            //        var transforms = group.originalTransformsGroupList[i].transforms;
+            //        var visibles = group.originalTransformsGroupList[i].transformVisibleList;
 
-                    group.displayTransformsGroupList[i].transforms = RandomTools.Shuffle(transforms, (int)(transforms.Count * Mathf.Clamp01(culledRatio)),out int[] shuffleIds);
-
-                    group.displayTransformsGroupList[i].transformVisibleList.Clear();
-                    shuffleIds.ForEach(shuffleId =>
-                    {
-                        group.displayTransformsGroupList[i].transformVisibleList.Add(visibles[shuffleId]);
-                    });
-                }
-            }
-        }
-
-        /// <summary>
-        /// slow 
-        /// update group.displayTransformsGroupList with cullingGroup
-        /// </summary>
-        public void CullInvisibleInstance()
-        {
-            return;
-            groupList.ForEach((group, groupId) =>
-            {
-                for (int i = 0; i < group.originalTransformsGroupList.Count; i++)
-                {
-                    var instancedGroup = group.originalTransformsGroupList[i];
-                    //group.displayTransformsGroupList[i].transforms = transforms
-                    //    .Where((tr, trId) => instancedGroup.transformVisibleList[trId])
-                    //    .ToList();
-                    var displayTransforms = group.displayTransformsGroupList[i].transforms;
-                    displayTransforms.Clear();
-
-                    instancedGroup.transformVisibleList.ForEach((tr, trId) =>
-                    {
-                        if (instancedGroup.transformVisibleList[trId])
-                            displayTransforms.Add(instancedGroup.transforms[trId]);
-                    });
-                }
-            });
+            //        group.displayTransformsGroupList[i].transforms = RandomTools.Shuffle(transforms, (int)(transforms.Count * Mathf.Clamp01(culledRatio)), out int[] shuffleIds);
+            //        //group.displayTransformsGroupList[i].transformVisibleList.Clear();
+            //        shuffleIds.ForEach(shuffleId =>
+            //        {
+            //            group.displayTransformsGroupList[i].transformVisibleList.Add(visibles[shuffleId]);
+            //        });
+            //    }
+            //});
         }
 
         public void DrawGroupList()
