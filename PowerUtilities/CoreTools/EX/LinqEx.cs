@@ -8,33 +8,33 @@
 
     public static class LinqEx
     {
-        public static void ForEach<T>(this IEnumerable<T> q, Action<T> act)
+        public static void ForEach<T>(this IEnumerable<T> q, Action<T> action)
         {
-            if (q == null || act == null)
+            if (q == null || action == null)
                 return;
 
-            //foreach (var item in q)
-            //    act(item);
-            var count = q.Count();
-            for (int i = 0; i < q.Count(); i++)
-            {
-                act(q.ElementAt(i));
-            }
+            foreach (var item in q)
+                action(item);
         }
 
-        public static void ForEach<T>(this IEnumerable<T> q, Action<T, int> act)
+        public static void ForEachIndex<T>(this IEnumerable<T> q, Action<int> action)
         {
-            if (q == null || act == null)
+            if (q == null || action == null)
+                return;
+
+            var count = q.Count();
+            for (var i = 0; i<count; i++)
+                action(i);
+        }
+
+        public static void ForEach<T>(this IEnumerable<T> q, Action<T, int> action)
+        {
+            if (q == null || action == null)
                 return;
 
             var id = 0;
-            //foreach (var item in q)
-            //    act(item, id++);
-            var count = q.Count();
-            for (int i = 0; i < q.Count(); i++)
-            {
-                act(q.ElementAt(i), i);
-            }
+            foreach (var item in q)
+                action(item, id++);
         }
 
         public static int FindIndex<T>(this IEnumerable<T> q,Func<T,bool> predicate,int startIndex=0)
@@ -55,12 +55,18 @@
         public static List<int> FindIndexAll<T>(this IEnumerable<T> q,Func<T,bool> predicate)
         {
             var list = new List<int>();
-            for (int i = 0; i<q.Count(); i++)
+            var count = q.Count();
+            for (int i = 0; i< count; i++)
             {
                 if(predicate(q.ElementAt(i)))
                     list.Add(i);
             }
             return list;
+        }
+
+        public static void SetData<T>(this IList<T> q,T t)
+        {
+            q.ForEachIndex(i => q[i] = t);
         }
     }
 }

@@ -216,21 +216,23 @@ namespace PowerUtilities
         public void CullInstances(float culledRatio)
         {
             //foreach (var group in groupList)
-            //groupList.ForEach((group, groupId) =>
-            //{
-            //    for (int i = 0; i < group.originalTransformsGroupList.Count; i++)
-            //    {
-            //        var transforms = group.originalTransformsGroupList[i].transforms;
-            //        var visibles = group.originalTransformsGroupList[i].transformVisibleList;
+            groupList.ForEach((group, groupId) =>
+            {
+                for (int i = 0; i < group.originalTransformsGroupList.Count; i++)
+                {
+                    var transforms = group.originalTransformsGroupList[i].transforms;
+                    // clear all
+                    group.originalTransformsGroupList[i].transformShuffleCullingList.SetData(false);
 
-            //        group.displayTransformsGroupList[i].transforms = RandomTools.Shuffle(transforms, (int)(transforms.Count * Mathf.Clamp01(culledRatio)), out int[] shuffleIds);
-            //        //group.displayTransformsGroupList[i].transformVisibleList.Clear();
-            //        shuffleIds.ForEach(shuffleId =>
-            //        {
-            //            group.displayTransformsGroupList[i].transformVisibleList.Add(visibles[shuffleId]);
-            //        });
-            //    }
-            //});
+                    // set visible
+                    var retainCount = (int)(transforms.Count * Mathf.Clamp01(culledRatio));
+                    var shuffleIds = RandomTools.GetShuffle(retainCount);
+                    shuffleIds.ForEach(shuffleId =>
+                    {
+                        group.originalTransformsGroupList[i].transformShuffleCullingList[shuffleId] = true;
+                    });
+                }
+            });
         }
 
         public void DrawGroupList()
@@ -248,7 +250,7 @@ namespace PowerUtilities
                     transforms.Clear();
                     segment.transformVisibleList.ForEach((tr, trId) =>
                     {
-                        if (segment.transformVisibleList[trId])
+                        if (segment.transformVisibleList[trId] && segment.transformShuffleCullingList[trId])
                             transforms.Add(segment.transforms[trId]);
                     });
 
