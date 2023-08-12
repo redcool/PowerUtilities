@@ -68,6 +68,9 @@
         {
             CullingGroupControl.SceneProfile.cullingInfos.ForEach(cullingInfo =>
             {
+                if (drawInfoSO.drawChildrenId != cullingInfo.drawChildrenId)
+                    return;
+
                 drawInfoSO.groupList[cullingInfo.groupId]
                     .originalTransformsGroupList[cullingInfo.transformGroupId]
                     .transformVisibleList[cullingInfo.transformId] = cullingInfo.isVisible;
@@ -80,6 +83,10 @@
             if (CullingGroupControl.SceneProfile.cullingInfos[e.index] is InstancedGroupCullingInfo cullingInfo)
             {
                 //Debug.Log(e.index+":"+e.isVisible+":"+cullingInfo.ToString());
+
+                if (drawInfoSO.drawChildrenId != cullingInfo.drawChildrenId)
+                    return;
+
                 drawInfoSO.groupList[cullingInfo.groupId]
                     .originalTransformsGroupList[cullingInfo.transformGroupId]
                     .transformVisibleList[cullingInfo.transformId] = cullingInfo.isVisible;

@@ -12,14 +12,14 @@ namespace PowerUtilities
     [Serializable]
     public class CullingGroupSO : ScriptableObject
     {
-        [ListItemDraw("p:,pos,s:,size,v:,isVisible", "20,200,20,30,20,30")]
+        [ListItemDraw("dci:,drawChildrenId,p:,pos,s:,size,v:,isVisible", "20,30,20,200,20,30,20,30")]
         public List<InstancedGroupCullingInfo> cullingInfos = new List<InstancedGroupCullingInfo>();
 
         /// <summary>
         /// update group.originalTransformsGroupList instances visible
         /// </summary>
         /// <param name="groupList"></param>
-        public void SetupCullingGroupSO(List<InstancedGroupInfo> groupList)
+        public void SetupCullingGroupSO(int drawChildrenId,List<InstancedGroupInfo> groupList)
         {
             groupList.ForEach((group, groupId) =>
             {
@@ -32,6 +32,7 @@ namespace PowerUtilities
 
                         cullingInfos.Add(new InstancedGroupCullingInfo(transform.GetColumn(3), boundsSphereRadius)
                         {
+                            drawChildrenId = drawChildrenId,
                             groupId = groupId,
                             transformGroupId = transformGroupId,
                             transformId = i

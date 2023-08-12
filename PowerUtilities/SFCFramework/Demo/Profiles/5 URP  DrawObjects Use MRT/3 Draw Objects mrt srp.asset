@@ -28,7 +28,7 @@ MonoBehaviour:
   isOpaque: 1
   layers:
     serializedVersion: 2
-    m_Bits: 8
+    m_Bits: 2147483647
   stencilData:
     overrideStencilState: 0
     stencilReference: 0

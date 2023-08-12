@@ -16,6 +16,7 @@ namespace PowerUtilities
         },
         group2:{ ... }
          */
+        public int drawChildrenId; // drawChildrenInstanced id,can be lots DrawChildrenInstanced in scene
         public int groupId; // vertical group id
         public int transformGroupId; // horizontal group(segment) id
         public int transformId; // horizontal id
@@ -25,7 +26,7 @@ namespace PowerUtilities
 
         public override string ToString()
         {
-            return $"{{{groupId},{transformGroupId},{transformId}}}";
+            return $"{{ {drawChildrenId},{groupId},{transformGroupId},{transformId} }}";
         }
     }
 }

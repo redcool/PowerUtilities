@@ -20,7 +20,7 @@ MonoBehaviour:
   renderPassEvent: 250
   renderPassEventOffset: 0
   log: 
-  isFoldout: 1
+  isFoldout: 0
   shaderTags:
   - UniversalForwardOnly
   - UniversalForward
@@ -28,7 +28,7 @@ MonoBehaviour:
   isOpaque: 1
   layers:
     serializedVersion: 2
-    m_Bits: 16
+    m_Bits: 2147483647
   stencilData:
     overrideStencilState: 0
     stencilReference: 0
@@ -51,7 +51,7 @@ MonoBehaviour:
   overrideDynamicBatching: 0
   enableDynamicBatching: 0
   overrideGPUInstancing: 1
-  enableGPUInstancing: 0
+  enableGPUInstancing: 1
   overrideSRPBatch: 1
   enableSRPBatch: 1
   overrideCamera: 0

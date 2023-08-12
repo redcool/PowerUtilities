@@ -175,9 +175,10 @@ namespace PowerUtilities
 
             // fill
             var drawInfos = FindObjectsOfType<DrawChildrenInstanced>();
-            drawInfos.ForEach(drawInfo =>
+            drawInfos.ForEach((drawInfo ,infoId)=>
             {
-                cullingProfile.SetupCullingGroupSO(drawInfo.drawInfoSO.groupList);
+                drawInfo.drawInfoSO.drawChildrenId = infoId;
+                cullingProfile.SetupCullingGroupSO(infoId,drawInfo.drawInfoSO.groupList);
             });
 
             // setbounds

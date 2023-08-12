@@ -40,9 +40,13 @@ namespace PowerUtilities
         public bool disableChildren = true;
 
         [Space(10)]
-        [SerializeField] public List<InstancedGroupInfo> groupList = new List<InstancedGroupInfo>();
+        public List<InstancedGroupInfo> groupList = new List<InstancedGroupInfo>();
 
         [HideInInspector] public Renderer[] renders;
+        /// <summary>
+        /// index of all DrawChildrenInstanced
+        /// </summary>
+        public int drawChildrenId;
 
         public void Update()
         {
