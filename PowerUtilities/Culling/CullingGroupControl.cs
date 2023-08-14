@@ -36,6 +36,17 @@ namespace PowerUtilities
             if (GUILayout.Button("Bake DrawChildrenInstancedGroup"))
             {
                 inst.BakeDrawChildrenInstancedGroup();
+                //inst.SetBoundingSpheres();
+                //inst.InitSceneProfileVisibles();
+            }
+
+            if(GUILayout.Button("set bounds"))
+            {
+                inst.SetBoundingSpheres();
+            }
+
+            if(GUILayout.Button("Init All Visible"))
+            {
                 inst.InitSceneProfileVisibles();
             }
         }
@@ -181,8 +192,6 @@ namespace PowerUtilities
                 cullingProfile.SetupCullingGroupSO(infoId,drawInfo.drawInfoSO.groupList);
             });
 
-            // setbounds
-            SetBoundingSpheres();
         }
 
         public void InitSceneProfileVisibles()

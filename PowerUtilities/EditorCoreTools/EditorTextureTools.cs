@@ -44,7 +44,7 @@ namespace PowerUtilities
 
         public static void Create2DArray(List<Texture2D> textures,string assetPath)
         {
-            var arr = TextureTools.Create2DArray(textures);
+            var arr = TextureTools.Create2DArray(textures,false);
             AssetDatabase.CreateAsset(arr, assetPath);
         }
     }

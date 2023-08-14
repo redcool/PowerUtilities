@@ -6,7 +6,7 @@ namespace PowerUtilities
     /// <summary>
     /// common sphere info
     /// </summary>
-    //[Serializable]
+    [Serializable]
     public class CullingInfo
     {
         public float size;

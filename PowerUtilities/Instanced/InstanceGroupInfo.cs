@@ -34,6 +34,15 @@ namespace PowerUtilities
             transforms.Add(transform);
             boundsSphereRadiusList.Add(boundsSphereRadius);
         }
+
+        public override string ToString()
+        {
+            var sb = new StringBuilder();
+            //sb.AppendLine("trs: " + StringEx.ToString(transforms));
+            sb.AppendLine("cullingGroup : " + StringEx.ToString(transformVisibleList));
+            sb.AppendLine("shuffleCull:" + StringEx.ToString(transformShuffleCullingList));
+            return sb.ToString();
+        }
     }
     [Serializable]
     public class InstancedLightmapCoordGroup

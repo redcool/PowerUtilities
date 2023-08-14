@@ -99,16 +99,7 @@
                 .ToArray();
         }
 
-        public static string ToString<T>(IEnumerable<T> items)
-        {
-            var sb = new StringBuilder();
-            sb.Append("{");
-            items.ForEach(item =>
-            {
-                sb.AppendFormat("{0},",item);
-            });
-            sb.Append("}");
-            return sb.ToString();
-        }
+        public static string ToString<T>(IEnumerable<T> items) => string.Join(',', items);
+
     }
 }

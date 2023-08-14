@@ -26,7 +26,7 @@ namespace PowerUtilities
 
         public override string ToString()
         {
-            return $"{{ {drawChildrenId},{groupId},{transformGroupId},{transformId} }}";
+            return $"{{drawChildId: {drawChildrenId},groupId: {groupId},transGroupId: {transformGroupId}, transId {transformId}, v:{isVisible}}}";
         }
     }
 }

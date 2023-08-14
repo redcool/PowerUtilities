@@ -66,7 +66,7 @@
 
         private void CullingGroupControl_OnInitAllVisibles()
         {
-            CullingGroupControl.SceneProfile.cullingInfos.ForEach(cullingInfo =>
+            CullingGroupControl.SceneProfile.cullingInfos.ForEach((cullingInfo ,infoId)=>
             {
                 if (drawInfoSO.drawChildrenId != cullingInfo.drawChildrenId)
                     return;
@@ -104,7 +104,7 @@
             return drawInfoSO;
         }
 
-        void Update()
+        void LateUpdate()
         {
             Profiler.BeginSample("Draw Children Instanced");
             if (drawInfoSO)

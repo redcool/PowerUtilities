@@ -296,7 +296,7 @@ namespace PowerUtilities
                     var instancedGroup = group.originalTransformsGroupList[i];
 
                     sb.AppendLine("tr group : "+i);
-                    sb.AppendLine(StringEx.ToString(instancedGroup.transformVisibleList));
+                    sb.AppendLine(instancedGroup.ToString());
                 }
             });
 

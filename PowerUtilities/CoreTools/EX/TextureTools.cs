@@ -51,9 +51,9 @@ namespace PowerUtilities
             return textureList;
         }
 
-        public static Texture2DArray Create2DArray(List<Texture2D> textures, int width, int height, TextureFormat tf)
+        public static Texture2DArray Create2DArray(List<Texture2D> textures, int width, int height, TextureFormat tf,bool linear)
         {
-            var arr = new Texture2DArray(width, height, textures.Count, tf, true);
+            var arr = new Texture2DArray(width, height, textures.Count, tf, true, linear);
             textures.ForEach((tex, id) =>
             {
                 Graphics.CopyTexture(tex, 0, arr, id);
@@ -61,14 +61,15 @@ namespace PowerUtilities
             return arr;
         }
 
-        public static Texture2DArray Create2DArray(List<Texture2D> textures)
+        public static Texture2DArray Create2DArray(List<Texture2D> textures,bool linear)
         {
             var q = textures.Where(t => t);
             if (q.Count()==0)
                 return null;
 
             var sample = textures[0];
-            return Create2DArray(textures, sample.width, sample.height, sample.format);
+            
+            return Create2DArray(textures, sample.width, sample.height, sample.format, linear);
         }
     }
 }
