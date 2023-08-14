@@ -74,18 +74,29 @@ namespace PowerUtilities
 
         public static event Action<CullingGroupEvent> OnVisibleChanged;
         public static event Action OnInitSceneProfileVisibles;
+
         static CullingGroupControl instance;
+
+        public static CullingGroupControl GetInstance() => SingletonTools.GetInstance(ref instance);
 
         private void Awake()
         {
+            //destroy instances 
+            if (instance)
+            {
+                Debug.Log("CullingGroupControl exists one.");
+#if UNITY_EDITOR
+                DestroyImmediate(this);
+#else
+                Destroy(this);
+#endif
+                return;
+            }
+
             if (!targetCam)
                 targetCam  = Camera.main;
             
             TryInitCullingGroup();
-
-            // keep first instance
-            if (!instance)
-                instance = this;
         }
         private void Start()
         {
@@ -110,7 +121,7 @@ namespace PowerUtilities
 
         public void SetBoundingSpheres()
         {
-            group.SetBoundingSpheres(cullingProfile.cullingInfos.Select(c => new BoundingSphere(c.pos, c.size)).ToArray());
+            group.SetBoundingSpheres(SceneProfile.cullingInfos.Select(c => new BoundingSphere(c.pos, c.size)).ToArray());
         }
         public void TryDisposeCullingGroup()
         {
@@ -142,7 +153,7 @@ namespace PowerUtilities
             if (!isShowGizmos)
                 return;
 
-            GetProfle().cullingInfos.ForEach(info =>
+            cullingProfile.cullingInfos.ForEach(info =>
             {
                 Gizmos.DrawWireSphere(info.pos,info.size);
             });
@@ -165,18 +176,18 @@ namespace PowerUtilities
             if (string.IsNullOrEmpty(scenePath))
                 scenePath = SceneManager.GetActiveScene().path;
 
+
 #if UNITY_EDITOR
-            var path = $"{AssetDatabaseTools.CreateGetSceneFolder()}/CullingProfile.asset";
-            var profile = ScriptableObjectTools.CreateGetInstance<CullingGroupSO>(path);
-            return profile;
+            if (GetInstance().cullingProfile == null)
+            {
+                var path = $"{AssetDatabaseTools.CreateGetSceneFolder()}/CullingProfile.asset";
+                GetInstance().cullingProfile = ScriptableObjectTools.CreateGetInstance<CullingGroupSO>(path);
+            }
 #endif
-            return instance.cullingProfile;
+            return GetInstance().cullingProfile;
         }
 
-        public static CullingGroupSO SceneProfile
-        {
-            get { return GetProfle(); }
-        }
+        public static CullingGroupSO SceneProfile => GetProfle();
 
         public void BakeDrawChildrenInstancedGroup(bool isClearAll = true)
         {
