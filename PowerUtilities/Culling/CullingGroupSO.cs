@@ -12,7 +12,7 @@ namespace PowerUtilities
     [Serializable]
     public class CullingGroupSO : ScriptableObject
     {
-        [ListItemDraw("dci:,drawChildrenId,p:,pos,s:,size,v:,isVisible", "20,30,20,200,20,30,20,30")]
+        [ListItemDraw("dc:,drawChildrenId,g:,groupId,p:,pos,s:,size,v:,isVisible", "20,30,20,30,20,200,20,30,20,30")]
         public List<InstancedGroupCullingInfo> cullingInfos = new List<InstancedGroupCullingInfo>();
 
         /// <summary>

@@ -31,7 +31,10 @@
 
         private void OnEnable()
         {
+            CullingGroupControl.OnVisibleChanged -= CullingGroupControl_OnVisibleChanged;
             CullingGroupControl.OnVisibleChanged += CullingGroupControl_OnVisibleChanged;
+
+            CullingGroupControl.OnInitSceneProfileVisibles -= CullingGroupControl_OnInitAllVisibles;
             CullingGroupControl.OnInitSceneProfileVisibles += CullingGroupControl_OnInitAllVisibles;
         }
 

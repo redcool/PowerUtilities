@@ -37,9 +37,11 @@ namespace PowerUtilities
             var settings = AssetDatabase.LoadAssetAtPath(path, type);
             if (settings == null)
             {
-                settings = ScriptableObject.CreateInstance(type);
-                AssetDatabase.CreateAsset(settings, path);
-                AssetDatabase.SaveAssets();
+                var newProfile = ScriptableObject.CreateInstance(type);
+                AssetDatabase.CreateAsset(newProfile, path);
+                AssetDatabaseTools.SaveRefresh();
+
+                settings = AssetDatabase.LoadAssetAtPath(path, type);
             }
             return settings;
         }

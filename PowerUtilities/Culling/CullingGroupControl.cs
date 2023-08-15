@@ -38,6 +38,8 @@ namespace PowerUtilities
                 inst.BakeDrawChildrenInstancedGroup();
                 //inst.SetBoundingSpheres();
                 //inst.InitSceneProfileVisibles();
+
+                EditorUtility.SetDirty(inst.cullingProfile);
             }
 
             if(GUILayout.Button("set bounds"))
@@ -48,6 +50,7 @@ namespace PowerUtilities
             if(GUILayout.Button("Init All Visible"))
             {
                 inst.InitSceneProfileVisibles();
+                EditorUtility.SetDirty(inst.cullingProfile);
             }
         }
 
