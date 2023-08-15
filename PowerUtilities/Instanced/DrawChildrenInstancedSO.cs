@@ -197,8 +197,10 @@ namespace PowerUtilities
                     var block = group.blockList[i];
                     var lightmapGroup = group.lightmapCoordsList[i];
 
-                    if(IsLightmapValid(group.lightmapId,lightmaps))
+                    if (IsLightmapValid(group.lightmapId, lightmaps))
+                    {
                         block.SetTexture("unity_Lightmap", lightmaps[group.lightmapId]);
+                    }
 
                     if (IsLightmapValid(group.lightmapId, shadowMasks))
                         block.SetTexture("unity_ShadowMask", shadowMasks[group.lightmapId]);
@@ -275,8 +277,10 @@ namespace PowerUtilities
         {
             foreach (var groupInfo in groupList)
             {
-                if(groupInfo.mat.IsKeywordEnabled("LIGHTMAP_ON") != enableLightmap)
-                    groupInfo.mat.SetKeyword("LIGHTMAP_ON", enableLightmap);
+                var lightmapEnable = groupInfo.lightmapId == -1 && enableLightmap;
+
+                if(groupInfo.mat.IsKeywordEnabled("LIGHTMAP_ON") != lightmapEnable)
+                    groupInfo.mat.SetKeyword("LIGHTMAP_ON", lightmapEnable);
 
                 //groupInfo.mat.SetKeywords(new [] { "SHADOWS_SHADOWMASK"},enableLightmap);
                 
