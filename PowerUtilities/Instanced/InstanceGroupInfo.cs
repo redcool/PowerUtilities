@@ -29,7 +29,7 @@ namespace PowerUtilities
         public List<float> boundsSphereRadiusList = new List<float>();
 
         public void Add(Matrix4x4 transform,float boundsSphereRadius) {
-            transformVisibleList.Add(false);
+            transformVisibleList.Add(true);
             transformShuffleCullingList.Add(false);
 
             transforms.Add(transform);

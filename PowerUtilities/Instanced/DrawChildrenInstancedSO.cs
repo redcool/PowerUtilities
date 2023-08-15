@@ -60,7 +60,7 @@ namespace PowerUtilities
 
             //if (isLightmapOn)
             {
-                SetupGroupLightmapInfo();
+                //SetupGroupLightmapInfo();
             }
         }
 
@@ -85,10 +85,10 @@ namespace PowerUtilities
             SetupLightmaps();
 
             // lightmaps handle
-            if (IsLightMapEnabled())
-            {
-                SetupGroupLightmapInfo();
-            }
+            //if (IsLightMapEnabled())
+            //{
+            //    SetupGroupLightmapInfo();
+            //}
 
             if (disableChildren)
                 rootGo.SetChildrenActive(false);
@@ -183,41 +183,26 @@ namespace PowerUtilities
         public static bool IsLightmapValid(int lightmapId, Texture[] lightmaps)
         => lightmapId >-1 && lightmapId< lightmaps.Length && lightmaps[lightmapId];
 
-        public void SetupGroupLightmapInfo()
+        void UpdateSegmentBlock(InstancedGroupInfo group, List<Vector4> lightmapCoords, MaterialPropertyBlock block)
         {
-            foreach (var group in groupList)
+            if (IsLightmapValid(group.lightmapId, shadowMasks))
             {
-
-                for (int i = 0; i < group.lightmapCoordsList.Count; i++)
-                {
-                    if(group.blockList.Count <= i)
-                    {
-                        group.blockList.Add(new MaterialPropertyBlock());
-                    }
-
-                    if (group.lightmapId == -1)
-                        continue;
-
-
-                    var block = group.blockList[i];
-                    var lightmapGroup = group.lightmapCoordsList[i];
-
-                    if (IsLightmapValid(group.lightmapId, lightmaps))
-                    {
-                        block.SetTexture("unity_Lightmap", lightmaps[group.lightmapId]);
-                    }
-
-                    if (IsLightmapValid(group.lightmapId, shadowMasks))
-                        block.SetTexture("unity_ShadowMask", shadowMasks[group.lightmapId]);
-
-                    block.SetVectorArray("_LightmapST", lightmapGroup.lightmapCoords);
-                    block.SetVectorArray("unity_LightmapST", lightmapGroup.lightmapCoords);
-                    block.SetInt("_DrawInstanced", 1);
-
-                    if(isSubstractiveMode)
-                        block.SetVector("unity_LightData", Vector4.zero);
-                }
+                block.SetTexture("unity_ShadowMask", shadowMasks[group.lightmapId]);
             }
+
+            if (IsLightmapValid(group.lightmapId, lightmaps))
+            {
+                block.SetTexture("unity_Lightmap", lightmaps[group.lightmapId]);
+            }
+            if (lightmapCoords.Count >0)
+            {
+                //block.SetVectorArray("_LightmapST", lightmapGroup.lightmapCoords);
+                block.SetVectorArray("unity_LightmapST", lightmapCoords);
+                block.SetInt("_DrawInstanced", 1);
+            }
+
+            if (isSubstractiveMode)
+                block.SetVector("unity_LightData", Vector4.zero);
         }
 
         /// <summary>
@@ -248,14 +233,13 @@ namespace PowerUtilities
 
         public void DrawGroupList()
         {
+            // objs can visible
             var transforms = new List<Matrix4x4>();
+            var lightmapSTs = new List<Vector4>();
 
             var shadowCasterMode = QualitySettings.shadowmaskMode == ShadowmaskMode.DistanceShadowmask ? ShadowCastingMode.On : ShadowCastingMode.Off;
             groupList.ForEach((group, groupId) =>
             {
-                //if (!group.mat)
-                //    return;
-
                 //update material LIGHTMAP_ON
                 var lightmapEnable = group.lightmapId != -1 && IsLightMapEnabled();
                 LightmapSwitch(group.mat, lightmapEnable);
@@ -263,20 +247,23 @@ namespace PowerUtilities
                 group.originalTransformsGroupList.ForEach((segment, sid) =>
                 {
                     transforms.Clear();
+                    lightmapSTs.Clear();
+
                     segment.transformVisibleList.ForEach((tr, trId) =>
                     {
                         if (segment.transformVisibleList[trId] && segment.transformShuffleCullingList[trId])
+                        {
                             transforms.Add(segment.transforms[trId]);
+                            lightmapSTs.Add(group.lightmapCoordsList[sid].lightmapCoords[trId]);
+                        }
                     });
 
-                    //transforms = group.displayTransformsGroupList[i].transforms;
-                    //if (group.blockList.Count <= i)
-                    //{
-                    //    group.blockList.Add(new MaterialPropertyBlock());
-                    //}
-
+                    if (group.blockList.Count <= sid)
+                        group.blockList.Add(new MaterialPropertyBlock());
 
                     var block = group.blockList[sid];
+
+                    UpdateSegmentBlock(group, lightmapSTs, block);
 
                     Graphics.DrawMeshInstanced(group.mesh, 0, group.mat, transforms, block, shadowCasterMode);
                 });
