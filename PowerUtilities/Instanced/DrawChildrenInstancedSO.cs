@@ -8,6 +8,7 @@ using UnityEditor;
 #endif
 using UnityEngine;
 using UnityEngine.Rendering;
+using static PowerUtilities.MaterialGroupTools;
 
 namespace PowerUtilities
 {
@@ -56,10 +57,8 @@ namespace PowerUtilities
 
                 CullInstances(1 - culledRatio);
             }
-            var isLightmapOn = IsLightMapEnabled();
-            UpdateGroupListMaterial(isLightmapOn);
 
-            if (isLightmapOn)
+            //if (isLightmapOn)
             {
                 SetupGroupLightmapInfo();
             }
@@ -188,12 +187,18 @@ namespace PowerUtilities
         {
             foreach (var group in groupList)
             {
+
                 for (int i = 0; i < group.lightmapCoordsList.Count; i++)
                 {
                     if(group.blockList.Count <= i)
                     {
                         group.blockList.Add(new MaterialPropertyBlock());
                     }
+
+                    if (group.lightmapId == -1)
+                        continue;
+
+
                     var block = group.blockList[i];
                     var lightmapGroup = group.lightmapCoordsList[i];
 
@@ -205,8 +210,8 @@ namespace PowerUtilities
                     if (IsLightmapValid(group.lightmapId, shadowMasks))
                         block.SetTexture("unity_ShadowMask", shadowMasks[group.lightmapId]);
 
-                    block.SetVectorArray("_LightmapST", lightmapGroup.lightmapCoords.ToArray());
-                    block.SetVectorArray("unity_LightmapST", lightmapGroup.lightmapCoords.ToArray());
+                    block.SetVectorArray("_LightmapST", lightmapGroup.lightmapCoords);
+                    block.SetVectorArray("unity_LightmapST", lightmapGroup.lightmapCoords);
                     block.SetInt("_DrawInstanced", 1);
 
                     if(isSubstractiveMode)
@@ -251,6 +256,10 @@ namespace PowerUtilities
                 //if (!group.mat)
                 //    return;
 
+                //update material LIGHTMAP_ON
+                var lightmapEnable = group.lightmapId != -1 && IsLightMapEnabled();
+                LightmapSwitch(group.mat, lightmapEnable);
+
                 group.originalTransformsGroupList.ForEach((segment, sid) =>
                 {
                     transforms.Clear();
@@ -266,6 +275,7 @@ namespace PowerUtilities
                     //    group.blockList.Add(new MaterialPropertyBlock());
                     //}
 
+
                     var block = group.blockList[sid];
 
                     Graphics.DrawMeshInstanced(group.mesh, 0, group.mat, transforms, block, shadowCasterMode);
@@ -273,18 +283,10 @@ namespace PowerUtilities
             });
         }
 
-        public void UpdateGroupListMaterial(bool enableLightmap)
+        private static void LightmapSwitch(Material mat, bool lightmapEnable)
         {
-            foreach (var groupInfo in groupList)
-            {
-                var lightmapEnable = groupInfo.lightmapId == -1 && enableLightmap;
-
-                if(groupInfo.mat.IsKeywordEnabled("LIGHTMAP_ON") != lightmapEnable)
-                    groupInfo.mat.SetKeyword("LIGHTMAP_ON", lightmapEnable);
-
-                //groupInfo.mat.SetKeywords(new [] { "SHADOWS_SHADOWMASK"},enableLightmap);
-                
-            }
+            if (mat.IsKeywordEnabled("LIGHTMAP_ON") != lightmapEnable)
+                mat.SetKeyword("LIGHTMAP_ON", lightmapEnable);
         }
 
         public override string ToString()

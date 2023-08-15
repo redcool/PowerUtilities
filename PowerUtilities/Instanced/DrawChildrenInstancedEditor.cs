@@ -96,10 +96,6 @@ namespace PowerUtilities
             drawInfoEditor.OnInspectorGUI();
 
             var isApplied = drawInfoSerailizedObject.ApplyModifiedProperties();
-            if (isApplied)
-            {
-                inst.drawInfoSO.UpdateGroupListMaterial(inst.drawInfoSO.IsLightMapEnabled());
-            }
         }
 
         private static void DrawExistNew(DrawChildrenInstanced inst)

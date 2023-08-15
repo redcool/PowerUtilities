@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace PowerUtilities
 {
@@ -58,19 +59,15 @@ namespace PowerUtilities
     public class InstancedGroupInfo
     {
         public Mesh mesh;
-        public Material mat;
 
+        // material instance
+        public Material mat;
+        public Material originalMat;
         /// <summary>
         /// 要绘制的物体,untiy限制最多1023,这里用list来分组.
         /// 存放所有的 变换信息
         /// </summary>
         public List<InstancedTransformGroup> originalTransformsGroupList = new List<InstancedTransformGroup>();
-        /// <summary>
-        /// *  用于绘制的列表,* (draw之前会进行填充)
-        /// 对originalTransformList进行洗牌,按概率过滤一部分,
-        /// 可继续culling
-        /// </summary>
-        //public List<InstancedTransformGroup> displayTransformsGroupList = new List<InstancedTransformGroup>();
 
         /// <summary>
         /// 绘制物体的光照图uv分组
@@ -105,13 +102,14 @@ namespace PowerUtilities
         public void AddRender(float boundSphereRadius,Mesh mesh,Material mat,Matrix4x4 transform, Vector4 lightmapST,int lightmapId)
         {
             this.mesh = mesh;
-            this.mat = mat;
+            originalMat = mat;
+            this.mat = Object.Instantiate(originalMat);
+
             this.lightmapId = lightmapId;
             // new group
             if (originalTransformsGroupList.Count <= groupId)
             {
                 originalTransformsGroupList.Add(new InstancedTransformGroup());
-                //displayTransformsGroupList.Add(new InstancedTransformGroup());
                 lightmapCoordsList.Add(new InstancedLightmapCoordGroup());
                 blockList.Add(new MaterialPropertyBlock());
 
@@ -122,16 +120,11 @@ namespace PowerUtilities
 
             // get current group and save all
             var transformGroup = originalTransformsGroupList[groupId];
-            //transformGroup.transforms.Add(transform);
-            //transformGroup.transformVisibleList.Add(true);
             transformGroup.Add(transform, boundSphereRadius);
             
 
             var lightmapSTGroup = lightmapCoordsList[groupId];
             lightmapSTGroup.lightmapCoords.Add(lightmapST);
-
-            //var transformsCulledGroup = displayTransformsGroupList[groupId];
-            //transformsCulledGroup.transforms.Add(transform);
 
             // check need increment groupId.
             if (transformGroup.transforms.Count >= maxCountPerGroup)
