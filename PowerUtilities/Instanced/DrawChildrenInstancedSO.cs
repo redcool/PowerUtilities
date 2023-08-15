@@ -197,8 +197,8 @@ namespace PowerUtilities
             if (lightmapCoords.Count >0)
             {
                 //block.SetVectorArray("_LightmapST", lightmapGroup.lightmapCoords);
+                //block.SetInt("_DrawInstanced", 1);
                 block.SetVectorArray("unity_LightmapST", lightmapCoords);
-                block.SetInt("_DrawInstanced", 1);
             }
 
             if (isSubstractiveMode)
@@ -258,14 +258,17 @@ namespace PowerUtilities
                         }
                     });
 
+                    if (transforms.Count==0)
+                        return;
+
                     if (group.blockList.Count <= sid)
                         group.blockList.Add(new MaterialPropertyBlock());
 
                     var block = group.blockList[sid];
-
                     UpdateSegmentBlock(group, lightmapSTs, block);
 
                     Graphics.DrawMeshInstanced(group.mesh, 0, group.mat, transforms, block, shadowCasterMode);
+                    block.Clear();
                 });
             });
         }
