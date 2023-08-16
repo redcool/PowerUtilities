@@ -68,6 +68,10 @@ namespace PowerUtilities
             {
                 if (matInstance == null)
                     matInstance = Object.Instantiate(originalMat);
+
+                if(!matInstance.enableInstancing)
+                    matInstance.enableInstancing = true;
+
                 return matInstance;
             }
         }

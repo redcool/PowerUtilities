@@ -143,6 +143,7 @@ namespace PowerUtilities
 #if UNITY_EDITOR
             // spheres will lose when compiled in editor
             SetBoundingSpheres();
+            InitSceneProfileVisibles();
 #endif
         }
 
