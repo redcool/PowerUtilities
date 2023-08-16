@@ -16,7 +16,7 @@ namespace PowerUtilities
         SerializedObject drawInfoSerailizedObject;
 
         Editor drawInfoEditor;
-        bool isChildrenActive;
+        bool isActive;
 
         public override void OnInspectorGUI()
         {
@@ -49,11 +49,15 @@ namespace PowerUtilities
                 CreateInstancedMaterials(inst.drawInfoSO.groupList);
             }
 
-            var setChildenText = isChildrenActive ? "Disable" : "Enable";
-            if (GUILayout.Button(setChildenText +" Children"))
+            var setChildenText = isActive ? "Disable" : "Enable";
+            if (GUILayout.Button(setChildenText +" Renders"))
             {
-                isChildrenActive = !isChildrenActive;
-                inst.gameObject.SetChildrenActive(isChildrenActive);
+                isActive = !isActive;
+                //inst.gameObject.SetChildrenActive(isChildrenActive);
+                inst.drawInfoSO.renders.ForEach(render =>
+                {
+                    render.enabled = isActive;
+                });
             }
             if (GUILayout.Button("Delete Children"))
             {
