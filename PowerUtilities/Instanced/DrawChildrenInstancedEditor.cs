@@ -54,6 +54,7 @@ namespace PowerUtilities
             {
                 isActive = !isActive;
                 //inst.gameObject.SetChildrenActive(isChildrenActive);
+                inst.drawInfoSO.SetupRenderers(inst.gameObject, true);
                 inst.drawInfoSO.SetRendersActive(isActive);
             }
             if (GUILayout.Button("Delete Children"))
@@ -63,6 +64,7 @@ namespace PowerUtilities
 
             if (GUILayout.Button("Select All"))
             {
+                inst.drawInfoSO.SetupRenderers(inst.gameObject, true);
                 var objs = inst.drawInfoSO.renders.Select(r => r.gameObject).ToArray();
                 Selection.objects = objs;
             }

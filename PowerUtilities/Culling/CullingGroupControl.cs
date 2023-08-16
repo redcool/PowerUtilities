@@ -69,8 +69,6 @@ namespace PowerUtilities
         public Camera targetCam;
         CullingGroup group;
 
-        public bool isInitAllVisiblesWhenStart;
-
         [Header("Debug")]
         public bool isShowDebug;
         public bool isShowGizmos;
@@ -98,17 +96,6 @@ namespace PowerUtilities
 
             if (!targetCam)
                 targetCam  = Camera.main;
-            
-            TryInitCullingGroup();
-        }
-        private void Start()
-        {
-            SetBoundingSpheres();
-
-            if (isInitAllVisiblesWhenStart)
-            {
-                InitSceneProfileVisibles();
-            }
         }
 
         public void TryInitCullingGroup()
@@ -138,13 +125,20 @@ namespace PowerUtilities
 
         private void OnEnable()
         {
-            TryInitCullingGroup();
+            if (!targetCam.isActiveAndEnabled)
+            {
+                targetCam = GameObject.FindGameObjectsWithTag(Tags.MainCamera)
+                    .Select(go => go.GetComponent<Camera>())
+                    .Where(c => c.isActiveAndEnabled)
+                    .FirstOrDefault();
+            }
 
-#if UNITY_EDITOR
-            // spheres will lose when compiled in editor
+            TryInitCullingGroup();
             SetBoundingSpheres();
+
+            // query all spheres
             InitSceneProfileVisibles();
-#endif
+
         }
 
         private void OnDisable()

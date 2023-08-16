@@ -102,8 +102,11 @@ namespace PowerUtilities
         /// <param name="includeInactive"></param>
         /// <param name="layers"></param>
         /// <param name="renders"></param>
-        public void SetupRenderers(GameObject rootGo)
+        public void SetupRenderers(GameObject rootGo,bool useExistRenders=false)
         {
+            if (useExistRenders && renders != null && renders.Length>0)
+                return;
+
             var q = rootGo.GetComponentsInChildren<MeshRenderer>(includeInactive)
                 .Where(r =>
                 {
