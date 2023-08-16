@@ -54,10 +54,7 @@ namespace PowerUtilities
             {
                 isActive = !isActive;
                 //inst.gameObject.SetChildrenActive(isChildrenActive);
-                inst.drawInfoSO.renders.ForEach(render =>
-                {
-                    render.enabled = isActive;
-                });
+                inst.drawInfoSO.SetRendersActive(isActive);
             }
             if (GUILayout.Button("Delete Children"))
             {

@@ -61,6 +61,11 @@ namespace PowerUtilities
             }
         }
 
+        public void SetRendersActive(bool isActive)
+        {
+            renders.ForEach(r=> r.enabled = isActive);
+        }
+
         public bool IsLightMapEnabled()
         {
             return enableLightmap && lightmaps != null && lightmaps.Length > 0;
@@ -81,14 +86,8 @@ namespace PowerUtilities
             SetupGroupList(renders, groupList);
             SetupLightmaps();
 
-            // lightmaps handle
-            //if (IsLightMapEnabled())
-            //{
-            //    SetupGroupLightmapInfo();
-            //}
-
             if (disableChildren)
-                rootGo.SetChildrenActive(false);
+                SetRendersActive(false);
 
             // refresh culling
             forceRefresh = true; 

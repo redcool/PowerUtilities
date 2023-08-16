@@ -15,6 +15,8 @@ namespace PowerUtilities
     {
         public const string Player = "Player",
             Monster = "Monster",
-            MainCamera = "MainCamera";
+            MainCamera = "MainCamera",
+            EditorOnly = nameof(EditorOnly)
+            ;
     }
 }
