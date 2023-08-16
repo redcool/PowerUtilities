@@ -67,6 +67,7 @@ namespace PowerUtilities
         public CullingGroupSO cullingProfile;
 
         public Camera targetCam;
+        public bool findActiveMainCamera = true;
         CullingGroup group;
 
         [Header("Debug")]
@@ -125,7 +126,7 @@ namespace PowerUtilities
 
         private void OnEnable()
         {
-            if (!targetCam.isActiveAndEnabled)
+            if (!targetCam.isActiveAndEnabled || findActiveMainCamera)
             {
                 targetCam = GameObject.FindGameObjectsWithTag(Tags.MainCamera)
                     .Select(go => go.GetComponent<Camera>())
