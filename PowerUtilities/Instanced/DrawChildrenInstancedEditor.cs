@@ -162,7 +162,7 @@ namespace PowerUtilities
 
             groupList.ForEach(g =>
             {
-                var matName = g.mat.name;
+                var matName = g.originalMat.name;
                 var removedLen = matName.Contains(" (Instance)") ? 11 : 0;
                 var path = $"{matFolder}/{matName.Substring(0, matName.Length-removedLen)}.mat";
 
@@ -173,7 +173,7 @@ namespace PowerUtilities
                     targetMat= AssetDatabase.LoadAssetAtPath<Material>(path);
                 }
                 // use material reference
-                g.mat = targetMat;
+                g.originalMat = targetMat;
             });
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();

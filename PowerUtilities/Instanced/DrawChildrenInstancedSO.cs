@@ -49,6 +49,8 @@ namespace PowerUtilities
         /// </summary>
         public int drawChildrenId;
 
+        static MaterialPropertyBlock block;
+
         public void Update()
         {
             if (forceRefresh)
@@ -56,11 +58,6 @@ namespace PowerUtilities
                 forceRefresh = false;
 
                 CullInstances(1 - culledRatio);
-            }
-
-            //if (isLightmapOn)
-            {
-                //SetupGroupLightmapInfo();
             }
         }
 
@@ -123,14 +120,15 @@ namespace PowerUtilities
         }
 
         /// <summary>
-        /// Fill GroupList with renders
+        /// group renders by(lgihtmapIndex,sharedMesh,shaderMaterial)
+        /// fill groupList
         /// </summary>
         /// <param name="renders"></param>
         /// <param name="groupList"></param>
         public static void SetupGroupList(Renderer[] renders, List<InstancedGroupInfo> groupList)
         {
             // use lightmapIndex,mesh as group
-            var lightmapMeshGroups = renders.GroupBy(r => new { r.lightmapIndex, r.GetComponent<MeshFilter>().sharedMesh });
+            var lightmapMeshGroups = renders.GroupBy(r => new { r.lightmapIndex, r.GetComponent<MeshFilter>().sharedMesh,r.sharedMaterial });
             lightmapMeshGroups.ForEach((group, groupId) =>
             {
                 // a instanced group
@@ -261,10 +259,13 @@ namespace PowerUtilities
                     if (transforms.Count==0)
                         return;
 
-                    if (group.blockList.Count <= sid)
-                        group.blockList.Add(new MaterialPropertyBlock());
+                    //if (group.blockList.Count <= sid)
+                    //    group.blockList.Add(new MaterialPropertyBlock());
 
-                    var block = group.blockList[sid];
+                    //var block = group.blockList[sid];
+                    if (block == null)
+                        block = new MaterialPropertyBlock();
+
                     UpdateSegmentBlock(group, lightmapSTs, block);
 
                     Graphics.DrawMeshInstanced(group.mesh, 0, group.mat, transforms, block, shadowCasterMode);

@@ -61,7 +61,17 @@ namespace PowerUtilities
         public Mesh mesh;
 
         // material instance
-        public Material mat;
+        Material matInstance;
+        public Material mat
+        {
+            get
+            {
+                if (matInstance == null)
+                    matInstance = Object.Instantiate(originalMat);
+                return matInstance;
+            }
+        }
+
         public Material originalMat;
         /// <summary>
         /// 要绘制的物体,untiy限制最多1023,这里用list来分组.
@@ -73,11 +83,6 @@ namespace PowerUtilities
         /// 绘制物体的光照图uv分组
         /// </summary>
         public List<InstancedLightmapCoordGroup> lightmapCoordsList = new List<InstancedLightmapCoordGroup>();
-
-        /// <summary>
-        /// 每组(1023个)会分配一个 block
-        /// </summary>
-        public List<MaterialPropertyBlock> blockList = new List<MaterialPropertyBlock>();
 
         public int lightmapId;
         /// <summary>
@@ -103,7 +108,6 @@ namespace PowerUtilities
         {
             this.mesh = mesh;
             originalMat = mat;
-            this.mat = Object.Instantiate(originalMat);
 
             this.lightmapId = lightmapId;
             // new group
@@ -111,11 +115,8 @@ namespace PowerUtilities
             {
                 originalTransformsGroupList.Add(new InstancedTransformGroup());
                 lightmapCoordsList.Add(new InstancedLightmapCoordGroup());
-                blockList.Add(new MaterialPropertyBlock());
-
                 //
                 lightmapIdList.Add(lightmapId);
-
             }
 
             // get current group and save all
