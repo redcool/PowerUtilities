@@ -95,7 +95,9 @@ namespace PowerUtilities
         }
 
         /// <summary>
-        /// find valid renders
+        /// find valid renders,
+        /// (layer,tag( exclude EditorOnly,
+        /// need sharedMaterial,sharedMesh
         /// </summary>
         /// <param name="rootGo"></param>
         /// <param name="includeInactive"></param>
@@ -106,9 +108,14 @@ namespace PowerUtilities
             var q = rootGo.GetComponentsInChildren<MeshRenderer>(includeInactive)
                 .Where(r =>
                 {
+                    // layer
                     var isValid = LayerMaskEx.Contains(layers, r.gameObject.layer);
+                    // exclude EditorOnly
+                    isValid = isValid && !r.gameObject.CompareTag(Tags.EditorOnly);
+                    // material
                     isValid = isValid && r.sharedMaterial;
 
+                    // open isntaced
                     if (isValid && !r.sharedMaterial.enableInstancing)
                         r.sharedMaterial.enableInstancing = true;
 
