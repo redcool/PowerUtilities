@@ -6,6 +6,7 @@
     using System;
     using UnityEngine.Profiling;
     using System.Text;
+    using UnityEngine.Rendering;
 
     /// <summary>
     /// 解决,gpu instancing对光照图的处理
@@ -29,29 +30,39 @@
 
         public static event Action<DrawChildrenInstanced> OnStarted;
 
-        private void OnEnable()
+        private void AddEvents()
         {
-            CullingGroupControl.OnVisibleChanged -= CullingGroupControl_OnVisibleChanged;
             CullingGroupControl.OnVisibleChanged += CullingGroupControl_OnVisibleChanged;
-
-            CullingGroupControl.OnInitSceneProfileVisibles -= CullingGroupControl_OnInitAllVisibles;
             CullingGroupControl.OnInitSceneProfileVisibles += CullingGroupControl_OnInitAllVisibles;
         }
 
-        private void OnDisable()
+        private void RemoveEvents()
         {
             CullingGroupControl.OnVisibleChanged -= CullingGroupControl_OnVisibleChanged;
             CullingGroupControl.OnInitSceneProfileVisibles -= CullingGroupControl_OnInitAllVisibles;
+        }
+
+        public void Awake()
+        {
+            AddEvents();
+
+            CheckSupports();
+        }
+
+        private void CheckSupports()
+        {
+            if (!GraphicsDeviceTools.IsDeviceSupportInstancing()) //设备不支持instance 或者 等级为 0
+            {
+                enabled = false;
+
+                // show original objects
+                drawInfoSO.SetupRenderers(gameObject, true);
+                drawInfoSO.SetRendersActive(true);
+            }
         }
 
         public void Start()
         {
-            if (!CheckDeviceSupport()) //设备不支持instance 或者 等级为 0
-            {
-                enabled = false;
-                return;
-            }
-
             //not run in editor
             if (Application.isPlaying)
             {
@@ -121,16 +132,8 @@
         void OnDestroy()
         {
             OnStarted = null;
-            CullingGroupControl.OnVisibleChanged -=CullingGroupControl_OnVisibleChanged;
-            CullingGroupControl.OnInitSceneProfileVisibles -= CullingGroupControl_OnInitAllVisibles;
+            RemoveEvents();
         }
-
-
-        public bool CheckDeviceSupport()
-        {
-            return SystemInfo.supportsInstancing;
-        }
-
 
     }
 }

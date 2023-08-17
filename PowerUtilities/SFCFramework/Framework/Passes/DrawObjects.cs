@@ -11,6 +11,7 @@
     using UnityEngine.Rendering;
     using UnityEngine.Rendering.Universal;
     using UnityEngine.Rendering.Universal.Internal;
+    using Object = UnityEngine.Object;
 
     [Tooltip("Draw Objects with full urp powers, use SRPBatch or Instanced need multi cameras")]
     [CreateAssetMenu(menuName = SRP_FEATURE_PASSES_MENU+ "/DrawObjects")]
@@ -86,6 +87,10 @@
         public bool isDrawSkybox;
         public RenderPassEvent drawSkyboxEvent = RenderPassEvent.BeforeRenderingSkybox;
 
+        [Header("DrawChildrenInstanced")]
+        public bool isDrawChildrenInstancedOn;
+        public bool forceFindDrawChildrenInstanced;
+
         public override ScriptableRenderPass GetPass() => new DrawObjectsPassWrapper(this);
     }
 
@@ -95,12 +100,15 @@
             drawObjectsPass;
 
         DrawSkyboxPass drawSkyboxPass;
+        DrawChildrenInstancedPass drawChildrenInstancedPass;
         public DrawObjectsPassWrapper(DrawObjects feature) : base(feature)
         {
             drawObjectsPass = new FullDrawObjectsPass(feature);
 
             if (feature.isDrawSkybox)
                 drawSkyboxPass = new DrawSkyboxPass(feature.drawSkyboxEvent);
+
+            drawChildrenInstancedPass = new DrawChildrenInstancedPass(feature);
         }
 
         #region Get URP DrawObjects
@@ -132,6 +140,8 @@
 
             if (drawSkyboxPass != null)
                 drawSkyboxPass.OnCameraSetup(cmd, ref renderingData);
+
+            drawChildrenInstancedPass.OnCameraSetup();
         }
 
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
@@ -140,10 +150,48 @@
 
             drawObjectsPass.OnExecute(context, ref renderingData, cmd);
 
+            drawChildrenInstancedPass.OnExecute(context, ref renderingData, cmd);
+
             if (drawSkyboxPass != null)
                 drawSkyboxPass.Execute(context, ref renderingData);
 
             cmd.EndSampleExecute(Feature.name, ref context);
+        }
+    }
+
+    public class DrawChildrenInstancedPass : SRPPass<DrawObjects>
+    {
+        DrawChildrenInstanced[] drawChildren;
+        public int findCount;
+
+        public DrawChildrenInstancedPass(DrawObjects feature) : base(feature)
+        {
+        }
+
+        public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
+        {
+            if (!Feature.isDrawChildrenInstancedOn)
+                return;
+
+            if (Feature.forceFindDrawChildrenInstanced)
+            {
+                Feature.forceFindDrawChildrenInstanced = false;
+                findCount = 0;
+            }
+            drawChildren.ForEach(dc =>
+            {
+                dc.drawInfoSO.DrawGroupList(cmd);
+                cmd.Execute(ref context);
+            });
+        }
+
+        public void OnCameraSetup()
+        {
+            if (findCount <1)
+            {
+                findCount ++;
+                drawChildren = Object.FindObjectsOfType<DrawChildrenInstanced>();
+            }
         }
     }
 

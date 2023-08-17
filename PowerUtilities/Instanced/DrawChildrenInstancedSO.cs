@@ -271,16 +271,56 @@ namespace PowerUtilities
                     if (transforms.Count==0)
                         return;
 
-                    //if (group.blockList.Count <= sid)
-                    //    group.blockList.Add(new MaterialPropertyBlock());
-
-                    //var block = group.blockList[sid];
                     if (block == null)
                         block = new MaterialPropertyBlock();
 
                     UpdateSegmentBlock(group, lightmapSTs, block);
 
                     Graphics.DrawMeshInstanced(group.mesh, 0, group.mat, transforms, block, shadowCasterMode);
+                    block.Clear();
+                });
+            });
+        }
+
+        /// <summary>
+        /// use commanbuffer, but sh missing
+        /// </summary>
+        /// <param name="cmd"></param>
+        public void DrawGroupList(CommandBuffer cmd)
+        {
+            // objs can visible
+            var transforms = new List<Matrix4x4>();
+            var lightmapSTs = new List<Vector4>();
+
+            var shadowCasterMode = QualitySettings.shadowmaskMode == ShadowmaskMode.DistanceShadowmask ? ShadowCastingMode.On : ShadowCastingMode.Off;
+            groupList.ForEach((group, groupId) =>
+            {
+                //update material LIGHTMAP_ON
+                var lightmapEnable = group.lightmapId != -1 && IsLightMapEnabled();
+                LightmapSwitch(group.mat, lightmapEnable);
+
+                group.originalTransformsGroupList.ForEach((segment, sid) =>
+                {
+                    transforms.Clear();
+                    lightmapSTs.Clear();
+
+                    segment.transformVisibleList.ForEach((tr, trId) =>
+                    {
+                        if (segment.transformVisibleList[trId] && segment.transformShuffleCullingList[trId])
+                        {
+                            transforms.Add(segment.transforms[trId]);
+                            lightmapSTs.Add(group.lightmapCoordsList[sid].lightmapCoords[trId]);
+                        }
+                    });
+
+                    if (transforms.Count==0)
+                        return;
+
+                    if (block == null)
+                        block = new MaterialPropertyBlock();
+
+                    UpdateSegmentBlock(group, lightmapSTs, block);
+                    cmd.DrawMeshInstanced(group.mesh, 0, group.mat, 0, transforms.ToArray(), transforms.Count, block);
                     block.Clear();
                 });
             });
