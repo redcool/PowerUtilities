@@ -36,22 +36,16 @@ namespace PowerUtilities
             if (GUILayout.Button("Bake DrawChildrenInstancedGroup"))
             {
                 inst.BakeDrawChildrenInstancedGroup();
-                //inst.SetBoundingSpheres();
-                //inst.InitSceneProfileVisibles();
 
                 EditorUtility.SetDirty(inst.cullingProfile);
-            }
+                AssetDatabase.SaveAssets();
 
-            if(GUILayout.Button("set bounds"))
-            {
                 inst.SetBoundingSpheres();
+                inst.InitSceneProfileVisibles();
             }
 
-            if(GUILayout.Button("Init All Visible"))
-            {
-                inst.InitSceneProfileVisibles();
-                EditorUtility.SetDirty(inst.cullingProfile);
-            }
+            EditorGUILayout.LabelField("OnInitSceneProfileVisiblesLength :" + CullingGroupControl.OnInitSceneProfileVisiblesLength);
+            EditorGUILayout.LabelField("OnVisibleChangedLength :" + CullingGroupControl.OnVisibleChangedLength);
         }
 
     }
@@ -76,6 +70,8 @@ namespace PowerUtilities
 
         public static event Action<CullingGroupEvent> OnVisibleChanged;
         public static event Action OnInitSceneProfileVisibles;
+        public static int OnInitSceneProfileVisiblesLength => OnInitSceneProfileVisibles.GetInvocationListSafe().Length;
+        public static int OnVisibleChangedLength => OnVisibleChanged.GetInvocationListSafe().Length;
 
         static CullingGroupControl instance;
 

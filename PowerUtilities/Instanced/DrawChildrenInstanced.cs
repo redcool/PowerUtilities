@@ -28,8 +28,6 @@
     {
         public DrawChildrenInstancedSO drawInfoSO;
 
-        public static event Action<DrawChildrenInstanced> OnStarted;
-
         private void AddEvents()
         {
             CullingGroupControl.OnVisibleChanged += CullingGroupControl_OnVisibleChanged;
@@ -44,9 +42,16 @@
 
         public void Awake()
         {
-            AddEvents();
+            CheckSupports();
+        }
 
-            //CheckSupports();
+        private void OnEnable()
+        {
+            AddEvents();
+        }
+        private void OnDisable()
+        {
+            RemoveEvents();
         }
 
         private void CheckSupports()
@@ -70,11 +75,6 @@
                 {
                     drawInfoSO = CreateNewProfile(gameObject.name);
                 }
-            }
-
-            if (OnStarted != null)
-            {
-                OnStarted(this);
             }
         }
 
@@ -127,12 +127,6 @@
                 drawInfoSO.DrawGroupList();
             }
             Profiler.EndSample();
-        }
-
-        void OnDestroy()
-        {
-            OnStarted = null;
-            RemoveEvents();
         }
 
     }
