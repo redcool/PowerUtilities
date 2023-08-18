@@ -8,14 +8,6 @@
 
     public static class LinqEx
     {
-        public static void ForEach<T>(this IEnumerable<T> q, Action<T> action)
-        {
-            if (q == null || action == null)
-                return;
-
-            foreach (var item in q)
-                action(item);
-        }
 
         public static void ForEachIndex<T>(this IEnumerable<T> q, Action<int> action)
         {
@@ -27,14 +19,30 @@
                 action(i);
         }
 
-        public static void ForEach<T>(this IEnumerable<T> q, Action<T, int> action)
+        public static void ForEach<T>(this IEnumerable<T> q, Action<T> action, Func<T, bool> validPredicate = null)
+        {
+            if (q == null || action == null)
+                return;
+
+            foreach (var item in q) {
+                if (validPredicate!=null ? validPredicate.Invoke(item) : true)
+                    action(item);
+            }
+        }
+
+        public static void ForEach<T>(this IEnumerable<T> q, Action<T, int> action, Func<T, int, bool> validPredicate = null)
         {
             if (q == null || action == null)
                 return;
 
             var id = 0;
             foreach (var item in q)
-                action(item, id++);
+            {
+                if (validPredicate!=null ? validPredicate.Invoke(item, id) : true)
+                    action(item, id);
+
+                id++;
+            }
         }
 
         public static int FindIndex<T>(this IEnumerable<T> q,Func<T,bool> predicate,int startIndex=0)

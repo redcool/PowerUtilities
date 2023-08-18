@@ -1,5 +1,10 @@
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
-
+/**
+supporet apis:
+	dx, vulkan,( RWTexture2D)
+	glcore,es3,(2 pass csmain)
+	metal(ios,mac)( RWBuffer)
+*/
 // Each #kernel tells which function to compile; you can have many kernels
 #pragma kernel CSClear
 #pragma kernel CSMain

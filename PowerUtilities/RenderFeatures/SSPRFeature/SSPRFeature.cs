@@ -1,29 +1,55 @@
+namespace PowerUtilities
+{
 using System;
 using System.Threading;
 using UnityEditor.Rendering;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
-/// <summary>
-/// implements Screen Space Planar Reflection
-/// 
-/// references: 
-/// https://remi-genin.github.io/posts/screen-space-planar-reflections-in-ghost-recon-wildlands/
-/// https://github.com/Steven-Cannavan/URP_ScreenSpacePlanarReflections
-/// https://www.cnblogs.com/idovelemon/p/13184970.html
-/// 
-/// usage:
-/// 1 add SSPRFeature to UniversalRenderPipelineAsset_Renderer
-///     1.1 ssprFeature add ssprCore
-///     1.2 change params
-/// 2 add 3D plane to scene
-///     2.1 assign SSPRFeature/Shaders/ShowReflectionTexture.mat to plane
-///     2.2 chang plane'mat renderqueue > 2500
-///     
-/// 
-/// </summary>
-namespace PowerUtilities
-{
+
+#if UNITY_EDITOR
+    using UnityEditor;
+
+    [CustomEditor(typeof(SSPRFeature))]
+    public class SSPRFeatureEditor : PowerEditor<SSPRFeature>
+    {
+        string helpStr = @"
+    usage:
+    1 add SSPRFeature to UniversalRenderPipelineAsset_Renderer
+        1.1 ssprFeature add ssprCore
+        1.2 change params
+    2 add 3D plane to scene
+        2.1 assign SSPRFeature/Shaders/ShowReflectionTexture.mat to plane
+        2.2 chang plane'mat renderqueue > 2500
+";
+
+        public override void DrawInspectorUI(SSPRFeature inst)
+        {
+            EditorGUILayout.HelpBox(helpStr, MessageType.Info);
+
+            DrawDefaultInspector();
+        }
+    }
+#endif
+
+    /// <summary>
+    /// implements Screen Space Planar Reflection
+    /// 
+    /// references: 
+    /// https://remi-genin.github.io/posts/screen-space-planar-reflections-in-ghost-recon-wildlands/
+    /// https://github.com/Steven-Cannavan/URP_ScreenSpacePlanarReflections
+    /// https://www.cnblogs.com/idovelemon/p/13184970.html
+    /// 
+    /// usage:
+    /// 1 add SSPRFeature to UniversalRenderPipelineAsset_Renderer
+    ///     1.1 ssprFeature add ssprCore
+    ///     1.2 change params
+    /// 2 add 3D plane to scene
+    ///     2.1 assign SSPRFeature/Shaders/ShowReflectionTexture.mat to plane
+    ///     2.2 chang plane'mat renderqueue > 2500
+    ///     
+    /// 
+    /// </summary>
     public class SSPRFeature : ScriptableRendererFeature
     {
         public enum RunMode

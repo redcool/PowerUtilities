@@ -16,16 +16,20 @@ namespace PowerUtilities
         public List<ShaderValue<float>> floatValues = new List<ShaderValue<float>>();
         public List<ShaderValue<int>> intValues = new List<ShaderValue<int>>();
         public List<ShaderValue<Vector4>> vectorValues = new List<ShaderValue<Vector4>>();
+        public List<ShaderValue<Texture>> textureValues = new List<ShaderValue<Texture>>();
 
         public override ScriptableRenderPass GetPass() => new SetVarialbesPass(this);
     }
 
     [Serializable]
-    public class ShaderValue<T> where T : struct
+    public class ShaderValue<T> 
     {
         public string name;
         public T value;
+
+        public bool IsValid => !string.IsNullOrEmpty(name) && (typeof(T).IsClass ? value != null : true);
     }
+
 
     public class SetVarialbesPass : SRPPass<SetVariables>
     {
@@ -38,13 +42,14 @@ namespace PowerUtilities
             SerupVariables(cmd, ref renderingData);
         }
 
-        void SerupVariables(CommandBuffer cmd,ref RenderingData renderingData)
+        void SerupVariables(CommandBuffer cmd, ref RenderingData renderingData)
         {
             var camera = renderingData.cameraData.camera;
 
-            Feature.floatValues.ForEach(v => cmd.SetGlobalFloat(v.name, v.value));
-            Feature.vectorValues.ForEach(v => cmd.SetGlobalVector(v.name, v.value));
-            Feature.intValues.ForEach(v => cmd.SetGlobalInt(v.name, v.value));
+            Feature.floatValues.ForEach(v => cmd.SetGlobalFloat(v.name, v.value), v => v.IsValid);
+            Feature.vectorValues.ForEach(v => cmd.SetGlobalVector(v.name, v.value), v => v.IsValid);
+            Feature.intValues.ForEach(v => cmd.SetGlobalInt(v.name, v.value), v => v.IsValid);
+            Feature.textureValues.ForEach(v => cmd.SetGlobalTexture(v.name, v.value), v => v.IsValid);
 
             // update vars
             var isShadowMaskMixing = UniversalRenderPipeline.asset.IsLightmapShadowMixing(ref renderingData);
