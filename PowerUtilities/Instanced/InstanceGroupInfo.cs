@@ -138,5 +138,10 @@ namespace PowerUtilities
             }
         }
 
+        public void Reset()
+        {
+            matInstance = null;
+        }
+
     }
 }

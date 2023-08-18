@@ -8,7 +8,6 @@ using UnityEditor;
 #endif
 using UnityEngine;
 using UnityEngine.Rendering;
-using static PowerUtilities.MaterialGroupTools;
 
 namespace PowerUtilities
 {
@@ -55,9 +54,10 @@ namespace PowerUtilities
         {
             if (forceRefresh)
             {
-                forceRefresh = false;
-
                 CullInstances(1 - culledRatio);
+                ResetGroupListMaterial();
+
+                forceRefresh = false;
             }
         }
 
@@ -158,6 +158,13 @@ namespace PowerUtilities
         public void Clear()
         {
             groupList.Clear();
+        }
+        public void ResetGroupListMaterial()
+        {
+            groupList.ForEach((group, groupId) =>
+            {
+                group.Reset();
+            });
         }
 
         public void DestroyOrHiddenChildren(bool destroyGameObject)

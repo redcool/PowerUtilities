@@ -7,15 +7,11 @@ namespace PowerUtilities
 {
     public static class GraphicsDeviceTools
     {
-        public static bool IsDeviceSupportInstancing()
-        {
-            // some android es3, dont support DrawMeshInstanced
-            var isESDevice = (SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLES3)
-                || (SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLES2);
-            if (isESDevice)
-                return false;
+        public static bool IsDeviceSupportInstancing()=>
+        SystemInfo.supportsInstancing;
+        
 
-            return SystemInfo.supportsInstancing;
-        }
+        public static bool IsGLES3
+            => SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLES3;
     }
 }

@@ -34,8 +34,8 @@
         {
             CullingGroupControl.OnVisibleChanged += CullingGroupControl_OnVisibleChanged;
             CullingGroupControl.OnInitSceneProfileVisibles += CullingGroupControl_OnInitAllVisibles;
-        }
 
+        }
         private void RemoveEvents()
         {
             CullingGroupControl.OnVisibleChanged -= CullingGroupControl_OnVisibleChanged;
@@ -46,7 +46,7 @@
         {
             AddEvents();
 
-            CheckSupports();
+            //CheckSupports();
         }
 
         private void CheckSupports()
