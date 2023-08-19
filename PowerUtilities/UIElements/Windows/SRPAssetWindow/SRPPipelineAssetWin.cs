@@ -84,7 +84,7 @@ namespace PowerUtilities
             }
         }
 
-
+        
         private void SetupSRPPipelineAssetListView()
         {
             if (pipelineAssetListView == null)

@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Linq;
 using System.IO;
 using System;
+using static UnityEditor.Experimental.GraphView.GraphView;
 
 namespace PowerUtilities.UIElements
 {
@@ -31,6 +32,8 @@ namespace PowerUtilities.UIElements
         {
             new NodeViewInfo{name = "TestNode",type = typeof(BaseNodeView) }
         };
+
+        public List<BaseNodeView> nodeViewList = new List<BaseNodeView>();
 
         public BaseGraphView()
         {
@@ -65,6 +68,60 @@ namespace PowerUtilities.UIElements
             return ports.ToList().Where(p => p.direction != startPort.direction).ToList();
             //return base.GetCompatiblePorts(startPort, nodeAdapter);
         }
+
+        public void ShowNodes(List<BaseNodeInfo> nodeInfoList)
+        {
+            nodeViewList.Clear();
+            graphViewChanged -= OnGraphViewChanged;
+            DeleteElements(graphElements);
+            graphViewChanged += OnGraphViewChanged;
+
+            // nodes
+            nodeInfoList.ForEach((nodeInfo, id) =>
+            {
+                var nodeView = new BaseNodeView
+                {
+                    title = nodeInfo.title,
+                };
+                nodeViewList.Add(nodeView);
+
+                nodeView.SetPosition(nodeInfo.pos);
+                AddElement(nodeView);
+            });
+        }
+
+        public void ShowEdges(List<(int parentId,int childId)> edgeInfos)
+        {
+            edgeInfos.ForEach(edgeInfo =>
+            {
+                var edge = nodeViewList[edgeInfo.parentId].output.ConnectTo(nodeViewList[edgeInfo.childId].input);
+                AddElement(edge);
+            });
+        }
+
+        public GraphViewChange OnGraphViewChanged(GraphViewChange graphViewChange)
+        {
+            if(graphViewChange.elementsToRemove != null)
+            {
+
+            }
+
+            if(graphViewChange.edgesToCreate != null)
+            {
+
+            }
+
+            if(graphViewChange.movedElements != null)
+            {
+
+            }
+
+            return graphViewChange;
+        }
+
+        
     }
+
+
 }
 #endif

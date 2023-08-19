@@ -13,8 +13,25 @@ using Object = UnityEngine.Object;
 
 namespace PowerUtilities.UIElements
 {
+
+    /// <summary>
+    /// GraphView's node info
+    /// </summary>
+    [Serializable]
+    public class BaseNodeInfo
+    {
+        public Rect pos = new Rect(0, 0, 200, 100);
+        public string guid;
+        public string title;
+    }
+
+    /// <summary>
+    /// GraphView's nodeView
+    /// </summary>
     public class BaseNodeView : Node
     {
+
+
         [Serializable]
         public class PortInfo
         {
@@ -38,6 +55,12 @@ namespace PowerUtilities.UIElements
         ;
 
         public Port input, output;
+
+        /// <summary>
+        /// position in GraphView
+        /// </summary>
+        public Rect pos;
+
         public BaseNodeView() : base(lazyNodeViewUssPath.Value)
         {
             this.title = "test node";
@@ -59,11 +82,11 @@ namespace PowerUtilities.UIElements
         /// create input and output port
         /// </summary>
         public void CreatePortsAndAdd()
-        {   var input = CreatePort(inputPortInfo);
+        {   input = CreatePort(inputPortInfo);
             inputContainer.Add(true, input);
          
 
-            var output = CreatePort(outputPortInfo);
+            output = CreatePort(outputPortInfo);
             outputContainer.Add(true, output);
         }
 

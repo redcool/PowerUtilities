@@ -12,6 +12,7 @@
 
 #if UNITY_EDITOR
     using UnityEditor;
+    using PowerUtilities.UIElements;
 
     [CanEditMultipleObjects]
     [CustomEditor(typeof(SRPFeature), true)]
@@ -25,12 +26,15 @@
     }
 #endif
 
+
     /// <summary>
     /// SRPPass's parameters
     /// 
     /// </summary>
     public abstract class SRPFeature : ScriptableObject
     {
+        public BaseNodeInfo nodeInfo = new BaseNodeInfo();
+
         public enum CameraCompareType
         {
             Tag=0,Name

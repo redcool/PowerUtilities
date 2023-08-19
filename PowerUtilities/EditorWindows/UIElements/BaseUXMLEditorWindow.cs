@@ -21,7 +21,7 @@ namespace PowerUtilities
         protected VisualElement treeInstance;
 
         /// <summary>
-        /// use CloneTree(container) or othher
+        /// use treeAsset.CloneTree(rootVisualElement); or rootVisualElement.Add(treeInstance);
         /// </summary>
         public bool IsReplaceRootContainer = false;
 
