@@ -44,6 +44,11 @@ namespace PowerUtilities
                 inst.InitSceneProfileVisibles();
             }
 
+            if (GUILayout.Button("InitSceneProfileVisibles"))
+            {
+                inst.InitSceneProfileVisibles();
+            }
+
             EditorGUILayout.LabelField("OnInitSceneProfileVisiblesLength :" + CullingGroupControl.OnInitSceneProfileVisiblesLength);
             EditorGUILayout.LabelField("OnVisibleChangedLength :" + CullingGroupControl.OnVisibleChangedLength);
         }
@@ -213,7 +218,9 @@ namespace PowerUtilities
             });
 
             if (OnInitSceneProfileVisibles != null)
+            {
                 OnInitSceneProfileVisibles();
+            }
         }
     }
 }

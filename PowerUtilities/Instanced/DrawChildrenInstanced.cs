@@ -30,7 +30,10 @@
 
         private void AddEvents()
         {
+            CullingGroupControl.OnVisibleChanged -= CullingGroupControl_OnVisibleChanged;
             CullingGroupControl.OnVisibleChanged += CullingGroupControl_OnVisibleChanged;
+
+            CullingGroupControl.OnInitSceneProfileVisibles -= CullingGroupControl_OnInitAllVisibles;
             CullingGroupControl.OnInitSceneProfileVisibles += CullingGroupControl_OnInitAllVisibles;
 
         }
@@ -43,6 +46,10 @@
         public void Awake()
         {
             CheckSupports();
+
+            //AddEvents,must first register, CullingGroupControl onEnable will call
+            if (enabled)
+                AddEvents();
         }
 
         private void OnEnable()
