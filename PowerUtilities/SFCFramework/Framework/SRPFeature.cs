@@ -24,6 +24,12 @@
             //DrawDefaultInspector();    
         }
     }
+
+    public partial class SRPFeature
+    {
+        public BaseNodeInfo nodeInfo = new BaseNodeInfo();
+
+    }
 #endif
 
 
@@ -31,9 +37,8 @@
     /// SRPPass's parameters
     /// 
     /// </summary>
-    public abstract class SRPFeature : ScriptableObject
+    public abstract partial class SRPFeature : ScriptableObject
     {
-        public BaseNodeInfo nodeInfo = new BaseNodeInfo();
 
         public enum CameraCompareType
         {
