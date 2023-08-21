@@ -16,14 +16,17 @@ namespace PowerUtilities
     /// <summary>
     /// SFC's graph view
     /// </summary>
-    public class SFCGraphWindow : BaseUXMLEditorWindow,IUIElementEvent
+    public class SFCGraphWindow : BaseUXMLEditorWindow, IUIElementEvent
     {
         static SRPFeatureListSO srpFeatureList;
 
         BaseGraphView graphView;
+        IMGUIContainer inspectorView;
+
+        Editor featureSOEditor;
 
         [OnOpenAsset]
-        static bool OnOpenSFC(int instanceId,int line)
+        static bool OnOpenSFC(int instanceId, int line)
         {
             var srpFeatureList = Selection.activeObject as SRPFeatureListSO;
             if (srpFeatureList != null)
@@ -40,6 +43,7 @@ namespace PowerUtilities
                 win.position = new Rect(100, 100, 1000, 800);
         }
 
+
         public SFCGraphWindow()
         {
             base.IsReplaceRootContainer = true;
@@ -47,9 +51,15 @@ namespace PowerUtilities
 
         private void OnSelectionChange()
         {
-            if(Selection.activeObject is SRPFeatureListSO listSO)
+            ShowSelectedFeatureListSO();
+        }
+
+        private void ShowSelectedFeatureListSO()
+        {
+            if (Selection.activeObject is SRPFeatureListSO featurelistSO)
             {
-                ShowFeatureList(listSO);
+                srpFeatureList = featurelistSO;
+                ShowFeatureList(featurelistSO);
             }
         }
 
@@ -68,7 +78,7 @@ namespace PowerUtilities
                 return feature.nodeInfo;
             });
 
-            graphView.ShowNodes(infos.ToList());
+            graphView.ShowNodes(infos.ToList(), inspectorView);
 
             var edgeInfos = listSO.featureList
                 .Select((feature, id) =>
@@ -85,6 +95,7 @@ namespace PowerUtilities
         {
             base.treeAsset = AssetDatabaseTools.FindAssetPathAndLoad<VisualTreeAsset>(out _, "SFCGraphWindow", "uxml");
             base.CreateGUI();
+            ShowSelectedFeatureListSO();
         }
 
         public void AddEvent(VisualElement root)
@@ -95,6 +106,24 @@ namespace PowerUtilities
                 new BaseGraphView.NodeViewInfo {name = "SFCNode1",type = typeof(BaseNodeView)},
                 new BaseGraphView.NodeViewInfo {name = "SFCNode2",type = typeof(BaseNodeView)}
             };
+
+            inspectorView = root.Q<IMGUIContainer>("Inspector");
+            inspectorView.onGUIHandler = OnShowInspector;
+        }
+
+        void OnShowInspector()
+        {
+            if (!srpFeatureList || graphView.selectedNodeIndex == -1)
+            {
+                return;
+            }
+            var featureSO = srpFeatureList.featureList[graphView.selectedNodeIndex];
+            if(featureSOEditor == null || featureSOEditor.target != featureSO)
+            {
+                featureSOEditor = Editor.CreateEditor(featureSO);
+            }
+
+            featureSOEditor.OnInspectorGUI();
         }
     }
 }

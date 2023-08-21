@@ -61,6 +61,15 @@ namespace PowerUtilities.UIElements
         /// </summary>
         public Rect pos;
 
+        /// <summary>
+        /// node index
+        /// </summary>
+        public int nodeId;
+        /// <summary>
+        /// current GraphView
+        /// </summary>
+        public BaseGraphView graphView;
+
         public BaseNodeView() : base(lazyNodeViewUssPath.Value)
         {
             this.title = "test node";
@@ -103,6 +112,12 @@ namespace PowerUtilities.UIElements
             return CreatePort(info.portName, info.orientation, info.direction, info.capacity, info.portType, info.flexDirection);
         }
 
+        public override void OnSelected()
+        {
+            graphView.selectedNodeIndex = nodeId;
+        }
+
+        
     }
 }
 #endif

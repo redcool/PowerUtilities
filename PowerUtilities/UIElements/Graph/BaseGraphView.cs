@@ -35,6 +35,11 @@ namespace PowerUtilities.UIElements
 
         public List<BaseNodeView> nodeViewList = new List<BaseNodeView>();
 
+        /// <summary>
+        /// current selected node id
+        /// </summary>
+        public int selectedNodeIndex = -1;
+
         public BaseGraphView()
         {
             Insert(0, new GridBackground());
@@ -69,7 +74,7 @@ namespace PowerUtilities.UIElements
             //return base.GetCompatiblePorts(startPort, nodeAdapter);
         }
 
-        public void ShowNodes(List<BaseNodeInfo> nodeInfoList)
+        public void ShowNodes(List<BaseNodeInfo> nodeInfoList,IMGUIContainer inspectorView)
         {
             nodeViewList.Clear();
             graphViewChanged -= OnGraphViewChanged;
@@ -81,6 +86,9 @@ namespace PowerUtilities.UIElements
             {
                 var nodeView = new BaseNodeView
                 {
+                    nodeId = id,
+                    graphView = this,
+
                     title = nodeInfo.title,
                 };
                 nodeViewList.Add(nodeView);
