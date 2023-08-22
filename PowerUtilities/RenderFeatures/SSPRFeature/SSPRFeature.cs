@@ -95,7 +95,13 @@ using UnityEngine.Rendering.Universal;
         }
         class SSPRPass : ScriptableRenderPass
         {
-            const int THREAD_X = 32, THREAD_Y = 32, THREAD_Z = 1;
+            /**
+             * this value sync with SSPR.cs
+             huawei p(serail) es3 need 8
+             */
+            const int THREAD_X = 8
+                , THREAD_Y = 8
+                , THREAD_Z = 1;
 
             public Settings settings;
 
@@ -137,6 +143,7 @@ using UnityEngine.Rendering.Universal;
                 if(SystemInfo.graphicsDeviceType == GraphicsDeviceType.Direct3D11 
                     || SystemInfo.graphicsDeviceType == GraphicsDeviceType.Direct3D12
                     || SystemInfo.graphicsDeviceType == GraphicsDeviceType.Metal
+                    || SystemInfo.graphicsDeviceType == GraphicsDeviceType.Vulkan
                     )
                     return true;
 
@@ -151,6 +158,29 @@ using UnityEngine.Rendering.Universal;
             {
                 //return true;
                 return SystemInfo.graphicsDeviceType == GraphicsDeviceType.Metal;
+            }
+
+            void TestCS(ScriptableRenderContext context, ref RenderingData renderingData)
+            {
+                var cmd = CommandBufferPool.Get(nameof(SSPRFeature));
+
+                var _ResultTex = Shader.PropertyToID("Result");
+                var desc = renderingData.cameraData.cameraTargetDescriptor;
+                desc.enableRandomWrite = true;
+                desc.sRGB = false;
+                cmd.GetTemporaryRT(_ResultTex, desc);
+
+                var cs = Resources.Load<ComputeShader>("Test1");
+                var k = cs.FindKernel("CSMain");
+
+                cmd.SetComputeTextureParam(cs,k, _ResultTex, _ResultTex);
+                cs.GetKernelThreadGroupSizes(k, out var _x, out var _y, out _);
+                var x = Mathf.CeilToInt(desc.width/_x);
+                var y = Mathf.CeilToInt(desc.height/_y);
+                cmd.DispatchCompute(cs, k, x,y, 1);
+
+                cmd.Execute(ref context);
+                CommandBufferPool.Release(cmd);
             }
 
             public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
@@ -196,7 +226,6 @@ using UnityEngine.Rendering.Universal;
                 cmd.SetComputeVectorParam(cs, _CameraTexture_TexelSize, new Vector4(desc.width, desc.height));
 
                 //cmd.SetComputeShaderKeywords(cs, IsUseRWBuffer(), "TEST_BUFFER");
-
                 var threads = new Vector2Int(Mathf.CeilToInt(width / (float)THREAD_X),
                     Mathf.CeilToInt(height / (float)THREAD_Y));
 
@@ -224,7 +253,7 @@ using UnityEngine.Rendering.Universal;
                     ApplyBlur(cmd);
                 }
 
-                ExecuteCommand(context, cmd);
+                cmd.Execute(ref context);
                 CommandBufferPool.Release(cmd);
             }
 
@@ -327,12 +356,6 @@ using UnityEngine.Rendering.Universal;
                     var fence = cmd.CreateGraphicsFence(GraphicsFenceType.AsyncQueueSynchronisation, SynchronisationStageFlags.ComputeProcessing);
                     cmd.WaitOnAsyncGraphicsFence(fence);
                 }
-            }
-
-            private static void ExecuteCommand(ScriptableRenderContext context, CommandBuffer cmd)
-            {
-                context.ExecuteCommandBuffer(cmd);
-                cmd.Clear();
             }
 
             public override void Configure(CommandBuffer cmd, RenderTextureDescriptor desc)

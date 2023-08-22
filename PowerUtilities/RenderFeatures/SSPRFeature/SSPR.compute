@@ -12,8 +12,11 @@ supporet apis:
 #pragma kernel CSHash
 #pragma kernel CSResolve
 
-#define THREAD_X 32
-#define THREAD_Y 32
+/**
+	huawei p, es3,need 8
+*/
+#define THREAD_X 8
+#define THREAD_Y 8
 #define THREAD_Z 1
 
 // Create a RenderTexture with enableRandomWrite flag and set it
