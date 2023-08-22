@@ -34,6 +34,7 @@ namespace PowerUtilities
 
         [Tooltip("find children include inactive")]
         public bool includeInactive;
+        public string excludeTag = Tags.EditorOnly;
 
         [Header("When done")]
         [Tooltip("disable children when add to instance group")]
@@ -116,7 +117,10 @@ namespace PowerUtilities
                     // layer
                     var isValid = LayerMaskEx.Contains(layers, r.gameObject.layer);
                     // exclude EditorOnly
-                    isValid = isValid && !r.gameObject.CompareTag(Tags.EditorOnly);
+                    if (!string.IsNullOrEmpty(excludeTag))
+                    {
+                        isValid = isValid && !r.gameObject.CompareTag(excludeTag);
+                    }
                     // material
                     isValid = isValid && r.sharedMaterial;
 

@@ -13,6 +13,13 @@ namespace PowerUtilities
     [CustomEditor(typeof(DrawChildrenInstanced))]
     public class DrawChildrenInstancedEditor : Editor
     {
+        GUIContent guiBakeChildren = new GUIContent("BakeChildren", "record children meshRenderers instanced info,then use gpu instance rendering them")
+            , guiBakeMaterials = new GUIContent("BakeMaterial","clone children's shaderMaterial to sceneFolder/Materials")
+            ,guiRenderActiveSwitch = new GUIContent("EnableRenders","switch children renderer active")
+            ,guiDeleteChildren = new GUIContent("DeleteChildren","delete children renderers")
+            ,guiSelectAll = new GUIContent("SelectAll","select children gameobjects")
+            ;
+
         SerializedObject drawInfoSerailizedObject;
 
         Editor drawInfoEditor;
@@ -39,30 +46,31 @@ namespace PowerUtilities
         private void DrawButtons(DrawChildrenInstanced inst )
         {
             EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("Bake Children"))
+            if (GUILayout.Button(guiBakeChildren))
             {
                 BakeChildren(inst);
             }
 
-            if(GUILayout.Button("Bake Materials") && EditorUtility.DisplayDialog("Warning","Create new Materials and use it?","yes"))
+            if(GUILayout.Button(guiBakeMaterials) && EditorUtility.DisplayDialog("Warning","Create new Materials and use it?","yes"))
             {
                 CreateInstancedMaterials(inst.drawInfoSO.groupList);
             }
 
-            var setChildenText = isActive ? "Disable" : "Enable";
-            if (GUILayout.Button(setChildenText +" Renders"))
+            var setChildenText = isActive ? "DisableRenders" : "EnableRenders";
+            guiRenderActiveSwitch.text = setChildenText;
+            if (GUILayout.Button(guiRenderActiveSwitch))
             {
                 isActive = !isActive;
                 //inst.gameObject.SetChildrenActive(isChildrenActive);
                 inst.drawInfoSO.SetupRenderers(inst.gameObject);
                 inst.drawInfoSO.SetRendersActive(isActive);
             }
-            if (GUILayout.Button("Delete Children"))
+            if (GUILayout.Button(guiDeleteChildren))
             {
                 inst.gameObject.DestroyChildren<MeshRenderer>(true);
             }
 
-            if (GUILayout.Button("Select All"))
+            if (GUILayout.Button(guiSelectAll))
             {
                 inst.drawInfoSO.SetupRenderers(inst.gameObject);
                 var objs = inst.drawInfoSO.renders.Select(r => r.gameObject).ToArray();
