@@ -14,6 +14,8 @@ namespace PowerUtilities
     {
         bool isTagsFolded;
 
+        readonly GUIContent guiSyncTags = new GUIContent("SyncTags", "sync tags with unity tagManager");
+        readonly GUIContent guiClearTagsFromTagManager = new GUIContent("ClearTags", "clear unity tagmanager tags which in Tag Info List");
         readonly GUIContent guiSyncScene = new GUIContent("Sync Hierarchy", "create or sync tag objects in hierarchy");
         readonly GUIContent guiSyncMaterial = new GUIContent("Sync Material","sync tag objects material settings");
         readonly GUIContent guiSynnChildrenTag = new GUIContent("Sync ChildrenTag","sync selected object's children tag");
@@ -23,17 +25,30 @@ namespace PowerUtilities
         public override void DrawInspectorUI(TagsSO inst)
         {
             GUILayout.BeginHorizontal("Box");
-            if (GUILayout.Button("Sync Tags"))
+            if (GUILayout.Button(guiSyncTags))
             {
+                // sync to unity tagmanager
                 inst.tagInfoList.ForEach(info =>
                 {
                     TagManager.AddTag(info.tag);
                 });
+
+                // sync from unity tagmanager
+                TagManager.GetTags().ForEach(tag =>
+                {
+                    if (!inst.IsTagContains(tag))
+                    {
+                        inst.tagInfoList.Add(new TagInfo { tag = tag,renderQueue=2000 });
+                    }
+                });
             }
 
-            if (GUILayout.Button("Clear Tags", GUILayout.Width(100)))
-            //&& EditorUtility.DisplayDialog("Warning","clear all tags?","yes"))
+            if (GUILayout.Button(guiClearTagsFromTagManager, GUILayout.Width(100)))
             {
+                //var isConfirm = EditorUtility.DisplayDialog("Warning", "clear all tags?", "yes");
+                //if (!isConfirm)
+                //    return;
+
                 inst.tagInfoList.ForEach(info =>
                 {
                     TagManager.RemoveTag(info.tag);
@@ -174,6 +189,12 @@ namespace PowerUtilities
     {
         [ListItemDraw("tag,q:,renderQueue,kw:,keywords", "120,10,50,20,0")]
         public List<TagInfo> tagInfoList = new List<TagInfo>();
+
+        public bool IsTagContains(string tag)
+        {
+            var id = tagInfoList.FindIndex((tagInfo) => tagInfo.tag == tag);
+            return id > -1;
+        }
     }
 }
 #endif
