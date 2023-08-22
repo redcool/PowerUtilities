@@ -7,6 +7,7 @@ namespace PowerUtilities
     using UnityEditor;
     using UnityEngine.SceneManagement;
     using System.Linq;
+    using System;
 
     [CustomEditor(typeof(TagsSO))]
     public class TagsSOEditor : PowerEditor<TagsSO>
@@ -15,6 +16,7 @@ namespace PowerUtilities
 
         readonly GUIContent guiSyncScene = new GUIContent("Sync Hierarchy", "create or sync tag objects in hierarchy");
         readonly GUIContent guiSyncMaterial = new GUIContent("Sync Material","sync tag objects material settings");
+        readonly GUIContent guiSynnChildrenTag = new GUIContent("Sync ChildrenTag","sync selected object's children tag");
 
         CacheTool<SerializedObject, Editor> tagManagerEditor = new CacheTool<SerializedObject, Editor>();
         public override bool NeedDrawDefaultUI() => true;
@@ -29,8 +31,8 @@ namespace PowerUtilities
                 });
             }
 
-            if (GUILayout.Button("Clear Tags",GUILayout.Width(100)))
-                //&& EditorUtility.DisplayDialog("Warning","clear all tags?","yes"))
+            if (GUILayout.Button("Clear Tags", GUILayout.Width(100)))
+            //&& EditorUtility.DisplayDialog("Warning","clear all tags?","yes"))
             {
                 inst.tagInfoList.ForEach(info =>
                 {
@@ -56,14 +58,46 @@ namespace PowerUtilities
             {
                 // show color line
                 var pos = EditorGUILayout.GetControlRect(GUILayout.Height(2));
-
-                ColorUtility.TryParseHtmlString("#749C75", out var color);
-                EditorGUITools.DrawBoxColors(pos, backgroundColor: color);
+                DrawColorLine(pos);
 
                 var tagManagerSo = TagManager.GetTagLayerManager();
                 var tagEditor = tagManagerEditor.Get(tagManagerSo, () => Editor.CreateEditor(tagManagerSo.targetObject));
                 tagEditor.OnInspectorGUI();
             }
+
+            // editor extends
+            DrawColorLine(EditorGUILayout.GetControlRect(GUILayout.Height(2)));
+
+            GUILayout.BeginHorizontal("Editor Extends", "Box");
+            if (GUILayout.Button(guiSynnChildrenTag))
+            {
+                SyncChildrenTag();
+            }
+            GUILayout.EndHorizontal();
+
+        }
+
+        public static void DrawColorLine(Rect pos,string colorStr= "#749C75")
+        {
+            ColorUtility.TryParseHtmlString(colorStr, out var color);
+            EditorGUITools.DrawBoxColors(pos, backgroundColor: color);
+        }
+
+        private void SyncChildrenTag()
+        {
+            var go = Selection.activeGameObject;
+            if (!go)
+                return;
+            var trs = go.GetComponentsInChildren<Transform>();
+
+            var isConfirm = EditorUtility.DisplayDialog("warning", $"change children tag ,count {trs.Length} ", "yes");
+            if (!isConfirm)
+                return;
+
+            trs.ForEach(tr =>
+            {
+                tr.gameObject.tag = go.tag;
+            });
         }
 
         private void SyncTagObjectsMaterial(List<TagInfo> tagInfoList)
