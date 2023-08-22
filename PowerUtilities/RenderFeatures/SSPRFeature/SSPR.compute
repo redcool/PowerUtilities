@@ -15,8 +15,13 @@ supporet apis:
 /**
 	huawei p, es3,need 8
 */
-#define THREAD_X 8
-#define THREAD_Y 8
+#if defined(SHADER_API_GLES3)
+	#define THREAD_X 8
+	#define THREAD_Y 8
+#else
+	#define THREAD_X 32
+	#define THREAD_Y 32
+#endif
 #define THREAD_Z 1
 
 // Create a RenderTexture with enableRandomWrite flag and set it
@@ -34,12 +39,7 @@ float4 _Plane; // xyz:plane direction, w : - dot(plane location, plane direction
 float4 _TexSize; //x:width,height,1/width,1/height
 float4 _Stretch; //x:camera forward.z, stretch threshold,stretch intensity,isApplyStretch
 float _Fading;
-
 int _FixedHole;
-
-#define RUN_MODE_HASH 0
-int _RunMode;
-
 float4x4 _VP,_InvVP;
 
 // #define TEST_BUFFER // for debug RWBuffer

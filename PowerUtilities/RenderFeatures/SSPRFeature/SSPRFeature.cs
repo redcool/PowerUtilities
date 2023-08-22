@@ -95,14 +95,6 @@ using UnityEngine.Rendering.Universal;
         }
         class SSPRPass : ScriptableRenderPass
         {
-            /**
-             * this value sync with SSPR.cs
-             huawei p(serail) es3 need 8
-             */
-            const int THREAD_X = 8
-                , THREAD_Y = 8
-                , THREAD_Z = 1;
-
             public Settings settings;
 
             int 
@@ -226,8 +218,11 @@ using UnityEngine.Rendering.Universal;
                 cmd.SetComputeVectorParam(cs, _CameraTexture_TexelSize, new Vector4(desc.width, desc.height));
 
                 //cmd.SetComputeShaderKeywords(cs, IsUseRWBuffer(), "TEST_BUFFER");
-                var threads = new Vector2Int(Mathf.CeilToInt(width / (float)THREAD_X),
-                    Mathf.CeilToInt(height / (float)THREAD_Y));
+
+                var clearKernal = cs.FindKernel("CSClear");
+                cs.GetKernelThreadGroupSizes(clearKernal, out var _x, out var _y, out var _z);
+                var threads = new Vector2Int(Mathf.CeilToInt(width / (float)_x),
+                    Mathf.CeilToInt(height / (float)_y));
 
                 switch (settings.runMode)
                 {
