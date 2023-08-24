@@ -10,11 +10,17 @@ using UnityEngine;
 [CustomPropertyDrawer(typeof(Vector4))]
 public class Matrix4x4Drawer : PropertyDrawer
 {
+
     readonly string[] COLUMN_NAMES = { "x", "y", "z", "w" };
+
 
     int GetRowCount(SerializedProperty property)
         => property.propertyType == SerializedPropertyType.Vector4 ? 1 : 4;
 
+        /**
+     * vector,(x,y,z,w)
+     * matrix4x4(e00,...,eij)
+     * */
     string GetItemPropName(SerializedProperty property, int row, int col)
     => property.propertyType == SerializedPropertyType.Vector4 ? COLUMN_NAMES[col] : "e" + row + col;
 
