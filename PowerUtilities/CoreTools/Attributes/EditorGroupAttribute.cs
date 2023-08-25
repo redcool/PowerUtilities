@@ -29,7 +29,13 @@
             return 0;
         }
 
-        
+        public static bool DrawTitleFoldout(Rect position,bool isOn,string title,string titleColorStr = "#404E7C")
+        {
+            ColorUtility.TryParseHtmlString(titleColorStr, out var c);
+            EditorGUI.DrawRect(position, c);
+
+            return EditorGUI.Foldout(position, isOn, title, true);
+        }
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
@@ -49,13 +55,8 @@
                 if (groupInfo.isOn)
                     position.height -= LINE_HEIGHT;
 
-                //EditorGUI.DrawRect(position, Color.red);
-                //GUI.Box(position, EditorGUITools.TempContent("",""),EditorStylesEx.ShurikenModuleBg);
-                groupInfo.isOn = EditorGUI.BeginFoldoutHeaderGroup(position, groupInfo.isOn, groupInfo.groupName);
-                EditorGUI.EndFoldoutHeaderGroup();
-            //EditorGUI.DrawRect(position, Color.gray);
-
-                //groupInfo.isOn = EditorGUI.Foldout(position, groupInfo.isOn, groupInfo.groupName, true, EditorStyles.foldoutHeader);
+                groupInfo.isOn = DrawTitleFoldout(position, groupInfo.isOn, groupInfo.groupName, groupAttr.titleColorStr);
+                
                 MaterialGroupTools.SetState(groupInfo.groupName, groupInfo.isOn);
                 position.y += LINE_HEIGHT;
             }
@@ -83,11 +84,13 @@
     {
         public string groupName;
         public bool isHeader;
+        public string titleColorStr;
 
-        public EditorGroupAttribute(string groupName, bool isHeader = false)
+        public EditorGroupAttribute(string groupName, bool isHeader = false, string titleColorStr = "#404E7C")
         {
             this.isHeader = isHeader;
             this.groupName=groupName;
+            this.titleColorStr=titleColorStr;
         }
     }
 

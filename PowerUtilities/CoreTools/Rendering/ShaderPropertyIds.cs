@@ -7,7 +7,7 @@ namespace PowerUtilities
     public static class ShaderPropertyIds
     {
         public static readonly int
-            _MainTex = Shader.PropertyToID("_MainTex"),
+            _MainTex = Shader.PropertyToID(nameof(_MainTex)),
             _CameraOpaqueTexture = Shader.PropertyToID(nameof(_CameraOpaqueTexture)),
             _CameraDepthTexture = Shader.PropertyToID(nameof(_CameraDepthTexture)),
             _CameraColorAttachmentA = Shader.PropertyToID(nameof(_CameraColorAttachmentA)),
@@ -30,6 +30,7 @@ namespace PowerUtilities
         /// urp ShaderPropertyId (UniversalRenderPipelineCore.cs)
         /// </summary>
         public static readonly int
+
             glossyEnvironmentColor = Shader.PropertyToID("_GlossyEnvironmentColor"),
             subtractiveShadowColor = Shader.PropertyToID("_SubtractiveShadowColor"),
 
@@ -83,9 +84,12 @@ namespace PowerUtilities
             rendererColor = Shader.PropertyToID("_RendererColor"),
 
             // custom vars
-            shadows_ShadowMaskOn = Shader.PropertyToID("_Shadows_ShadowMaskOn")
-            ;
+            shadows_ShadowMaskOn = Shader.PropertyToID("_Shadows_ShadowMaskOn"),
 
+            //
+            _ScalingSetupTexture = Shader.PropertyToID("_ScalingSetupTexture"),
+            _UpscaledTexture = Shader.PropertyToID("_UpscaledTexture")
+            ;
     }
 
 }

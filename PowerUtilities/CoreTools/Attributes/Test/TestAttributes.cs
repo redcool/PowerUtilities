@@ -30,6 +30,12 @@ namespace PowerUtilities
         [Range(0, 1)]
         public float propA;
 
+        [EditorGroup("Group2", true)]
+        public bool Group2On;
+
+        [EditorGroup("Group2")]
+        public float a;
+
         [TexturePreview]
         public Texture tex;
     }
