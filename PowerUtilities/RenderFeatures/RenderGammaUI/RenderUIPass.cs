@@ -88,12 +88,19 @@ namespace PowerUtilities.Features
             cmd.Blit(source, BuiltinRenderTextureType.CurrentActive, material, passIndex);
         }
 
-
+        public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
+        {
+            var isUseFSR = UniversalRenderPipeline.asset.upscalingFilter == UpscalingFilterSelection.FSR;
+            if(isUseFSR && (!settings.createFullsizeGammaTex || settings.disableFSR))
+            {
+                UniversalRenderPipeline.asset.upscalingFilter = UpscalingFilterSelection.Auto;
+            }
+        }
 
         public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
         {
             ref var cameraData = ref renderingData.cameraData;
-
+            var isUseFSR = UniversalRenderPipeline.asset.upscalingFilter == UpscalingFilterSelection.FSR;
 #if UNITY_EDITOR
             if (cameraData.isSceneViewCamera)
             {
@@ -105,15 +112,14 @@ namespace PowerUtilities.Features
             cmd.BeginSample(nameof(RenderUIPass));
 
             int lastColorHandleId,colorHandleId,depthHandleId;
-            SetupTargetTex(ref renderingData, ref cameraData,out lastColorHandleId, out colorHandleId,out depthHandleId);
+            SetupTargetTex(ref renderingData, ref cameraData, isUseFSR, out lastColorHandleId, out colorHandleId,out depthHandleId);
 
             //---------------------  1 to gamma tex
             settings.blitMat.shaderKeywords=null;
             settings.blitMat.SetFloat("_Double", Display.main.requiresSrgbBlitToBackbuffer?1:0);
 
             SetColorSpace(cmd, ColorSpaceTransform.LinearToSRGB);
-            BlitToGammaTarget(ref context,ref cameraData,ref renderingData, lastColorHandleId, colorHandleId,depthHandleId);
-
+            BlitToGammaTarget(ref context, lastColorHandleId, colorHandleId, depthHandleId);
 
             //--------------------- 2 draw ui
             DrawRenderers(ref context, ref renderingData, depthHandleId, colorHandleId);
@@ -135,30 +141,18 @@ namespace PowerUtilities.Features
             cmd.Clear();
         }
 
-        void BlitToGammaTarget(ref ScriptableRenderContext context,ref CameraData cameraData,ref RenderingData renderingData,int lastColorHandleId,int colorHandleId,int depthHandleId)
+        void BlitToGammaTarget(ref ScriptableRenderContext context, int lastColorHandleId, RenderTargetIdentifier colorHandleId, RenderTargetIdentifier depthHandleId)
         {
             // _CameraOpaqueTexture is _CameraColorAttachmentA or _CameraColorAttachmentB
             cmd.SetGlobalTexture(_SourceTex, lastColorHandleId);
-            cmd.SetRenderTarget(colorHandleId);
+            cmd.SetRenderTarget(colorHandleId,depthHandleId);
 
             if (settings.createFullsizeGammaTex)
             {
-                /**  copy depth from _CameraDepthTexture
-                 * 
-                cmd.SetRenderTarget(depthHandleId);
-                //cmd.BlitToTarget(BuiltinRenderTextureType.None, depthHandleId, copyDepthMat);
-
-                cmd.SetViewProjectionMatrices(Matrix4x4.identity, Matrix4x4.identity);
-                cmd.DrawMesh(RenderingUtils.fullscreenMesh, Matrix4x4.identity, copyDepthMat);
-                cmd.SetViewProjectionMatrices(cameraData.camera.worldToCameraMatrix, cameraData.camera.projectionMatrix);
-                */
-                cmd.ClearRenderTarget(true, false, Color.black, 1);
+                //cmd.ClearRenderTarget(true, false, Color.black, 1);
             }
 
             cmd.Blit(BuiltinRenderTextureType.None, colorHandleId, settings.blitMat);
-
-            context.ExecuteCommandBuffer(cmd);
-            cmd.Clear();
         }
 
         private void DrawRenderers(ref ScriptableRenderContext context, ref RenderingData renderingData, int depthHandleId, int targetTexId)
@@ -202,7 +196,7 @@ namespace PowerUtilities.Features
         }
 
         int GetLastColorTargetId(ref RenderingData renderingData) => (AnyCameraHasPostProcessing() && renderingData.postProcessingEnabled )? _CameraColorAttachmentB : _CameraColorAttachmentA ;
-        private void SetupTargetTex(ref RenderingData renderingData, ref CameraData cameraData, out int lastColorHandleId, out int colorHandleId, out int depthHandleId)
+        private void SetupTargetTex(ref RenderingData renderingData, ref CameraData cameraData,bool isUseFSR, out int lastColorHandleId, out int colorHandleId, out int depthHandleId)
         {
             /** =============================================
              * 
@@ -214,6 +208,12 @@ namespace PowerUtilities.Features
 
             lastColorHandleId = GetLastColorTargetId(ref renderingData);
             colorHandleId = (lastColorHandleId == _CameraColorAttachmentA) ? _CameraColorAttachmentB : _CameraColorAttachmentA;
+
+            // use fsr,_UpscaledTexture is released but can read with warning
+            if (isUseFSR)
+            {
+                lastColorHandleId = ShaderPropertyIds._UpscaledTexture;
+            }
 
             if (settings.createFullsizeGammaTex)
             {

@@ -19,13 +19,16 @@ namespace PowerUtilities.Features
             public string cameraTag;
 
             [Header("Fullsize Texture")]
-            [Tooltip("create other full size texture,when RenderingScale < 1, rendering objects in fullscreen")]
+            [Tooltip("create other full size texture,when RenderingScale < 1, rendering objects in fullscreen,FSR need this text")]
             public bool createFullsizeGammaTex;
 
             [Tooltip("Need use stencil buffer?")]
             public bool useStencilBuffer=true;
             public StencilStateData stencilStateData;
 
+            [Header("Performance Options")]
+            [Tooltip("Best option is close for Middle device.")]
+            public bool disableFSR = true;
 
             [Header("Editor Options")]
             public bool reset;
