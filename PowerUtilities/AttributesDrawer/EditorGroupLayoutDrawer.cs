@@ -11,18 +11,18 @@ namespace PowerUtilities
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
-            var groupAttr = attribute as EditorGroupLayoutAttribute;
-            if (groupAttr.isHeader)
-            {
-                return 4;
-                //return base.GetPropertyHeight(property, label);
-            }
+            //var groupAttr = attribute as EditorGroupLayoutAttribute;
+            //if (groupAttr.isHeader)
+            //{
+            //    //return 4;
+            //    //return base.GetPropertyHeight(property, label);
+            //}
 
             //if (MaterialGroupTools.IsGroupOn(groupAttr.groupName))
             //{
             //    return 0;
             //}
-            return 0;
+            return -2;
         }
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
