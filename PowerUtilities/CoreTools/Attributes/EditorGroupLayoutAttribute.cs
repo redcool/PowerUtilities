@@ -4,7 +4,7 @@
 
     /// <summary>
     /// Show toggle group in inspector gui 
-    /// ** (GUILaout, CustomEditor) can use this attribute
+    /// * use this attribute, need a custom editor , OnInspectorGUI methods call DrawDefaultInspector
     /// 
     /// ** GUI(EditorGUI) should use EditorGroup
     /// 

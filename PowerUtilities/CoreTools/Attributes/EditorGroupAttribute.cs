@@ -26,7 +26,7 @@
                 return LINE_HEIGHT;
             }
 
-            return 0;
+            return -2;
         }
 
         public static bool DrawTitleFoldout(Rect position,bool isOn,string title,string titleColorStr = "#404E7C")
