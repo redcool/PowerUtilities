@@ -16,7 +16,7 @@ namespace PowerUtilities
         /// <summary>
         /// Show version in inspector when not empty
         /// </summary>
-        public string version = "";
+        public virtual string Version { get; } ="";
 
         public (string, bool) foldInfo = ("Options",true);
 
@@ -28,8 +28,8 @@ namespace PowerUtilities
 
         public override void OnInspectorGUI()
         {
-            if (!string.IsNullOrEmpty(version))
-                EditorGUI.LabelField(new Rect(100,5,100,16), version);
+            if (!string.IsNullOrEmpty(Version))
+                EditorGUI.LabelField(new Rect(100,8,100,16), Version);
 
             if (NeedDrawDefaultUI())
                 DrawDefaultInspector();

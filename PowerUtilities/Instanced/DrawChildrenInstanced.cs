@@ -7,7 +7,6 @@
     using UnityEngine.Profiling;
     using System.Text;
     using UnityEngine.Rendering;
-
     /// <summary>
     /// 解决,gpu instancing对光照图的处理
     /// 

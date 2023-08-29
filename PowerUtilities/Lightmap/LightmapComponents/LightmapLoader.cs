@@ -10,10 +10,8 @@ namespace PowerUtilities
     [CustomEditor(typeof(LightmapLoader))]
     public class LightmapLoaderEditor : PowerEditor<LightmapLoader>
     {
-        private void OnEnable()
-        {
-            version = "v(0.0.1)";
-        }
+        public override string Version => "v(0.0.1)";
+        
         public override bool NeedDrawDefaultUI() => true;
 
         public override void DrawInspectorUI(LightmapLoader inst)

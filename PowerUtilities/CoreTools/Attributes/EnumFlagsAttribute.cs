@@ -18,6 +18,11 @@
     }
 
 #endif
+
+    /// <summary>
+    /// flags Enum
+    /// like LayerMask
+    /// </summary>
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Enum)]
     public class EnumFlagsAttribute : PropertyAttribute
     {

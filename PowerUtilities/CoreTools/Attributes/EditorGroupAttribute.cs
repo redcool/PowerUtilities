@@ -29,10 +29,9 @@
             return -2;
         }
 
-        public static bool DrawTitleFoldout(Rect position,bool isOn,string title,string titleColorStr = "#404E7C")
+        public static bool DrawTitleFoldout(Rect position,bool isOn,string title,Color titleColor)
         {
-            ColorUtility.TryParseHtmlString(titleColorStr, out var c);
-            EditorGUI.DrawRect(position, c);
+            EditorGUI.DrawRect(position, titleColor);
 
             return EditorGUI.Foldout(position, isOn, title, true);
         }
@@ -55,7 +54,7 @@
                 if (groupInfo.isOn)
                     position.height -= LINE_HEIGHT;
 
-                groupInfo.isOn = DrawTitleFoldout(position, groupInfo.isOn, groupInfo.groupName, groupAttr.titleColorStr);
+                groupInfo.isOn = DrawTitleFoldout(position, groupInfo.isOn, groupInfo.groupName, groupAttr.titleColor);
                 
                 MaterialGroupTools.SetState(groupInfo.groupName, groupInfo.isOn);
                 position.y += LINE_HEIGHT;
@@ -84,13 +83,14 @@
     {
         public string groupName;
         public bool isHeader;
-        public string titleColorStr;
+        public Color titleColor;
 
         public EditorGroupAttribute(string groupName, bool isHeader = false, string titleColorStr = "#404E7C")
         {
             this.isHeader = isHeader;
             this.groupName=groupName;
-            this.titleColorStr=titleColorStr;
+            ColorUtility.TryParseHtmlString(titleColorStr,out titleColor);
+            //titleColor *=0.7f;
         }
     }
 

@@ -11,7 +11,7 @@ namespace PowerUtilities
     using UnityEngine;
 
     [CustomEditor(typeof(DrawChildrenInstanced))]
-    public class DrawChildrenInstancedEditor : Editor
+    public class DrawChildrenInstancedEditor : PowerEditor<DrawChildrenInstanced>
     {
         GUIContent guiBakeChildren = new GUIContent("BakeChildren", "record children meshRenderers instanced info,then use gpu instance rendering them")
             , guiBakeMaterials = new GUIContent("BakeMaterial","clone children's shaderMaterial to sceneFolder/Materials")
@@ -25,12 +25,10 @@ namespace PowerUtilities
         Editor drawInfoEditor;
         bool isActive;
 
-        public override void OnInspectorGUI()
+        public override string Version => "v0.0.2";
+
+        public override void DrawInspectorUI(DrawChildrenInstanced inst)
         {
-            base.OnInspectorGUI();
-
-            var inst = target as DrawChildrenInstanced;
-
             DrawExistNew(inst);
 
             if (!inst.drawInfoSO)
@@ -189,6 +187,7 @@ namespace PowerUtilities
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
         }
+
     }
 }
 #endif

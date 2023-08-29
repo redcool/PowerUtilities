@@ -24,11 +24,8 @@ namespace PowerUtilities
         [Tooltip("Lighting Mode is subtractive?")]
         public bool isSubstractiveMode = false;
 
-        [Header("销毁概率,[0:no, 1:all]")]
-        [Range(0, 1)] public float culledRatio = 0f;
-        public bool forceRefresh;
 
-        [Header("Children Filters")]
+        [Header("Find Children Filters")]
         [Tooltip("object 's layer ")]
         public LayerMask layers = -1;
 
@@ -40,7 +37,22 @@ namespace PowerUtilities
         [Tooltip("disable children when add to instance group")]
         public bool disableChildren = true;
 
+
+        [Header("销毁概率,[0:no, 1:all]")]
+        [Range(0, 1)] public float culledRatio = 0f;
+        public bool forceRefresh;
+
+        [Header("Draw Options")]
+        [Tooltip("which layer to use")]
+        [LayerIndex]public int layer = 0;
+        public bool receiveShadow = true;
+        [Tooltip("which camera can draw,null will drawn in all cameras ")]
+        public Camera camera = null;
+        public ShadowCastingMode shadowCastMode = ShadowCastingMode.Off;
+        public LightProbeUsage lightProbeUsage = LightProbeUsage.BlendProbes;
+
         [Space(10)]
+        [Header("Draw Datas")]
         public List<InstancedGroupInfo> groupList = new List<InstancedGroupInfo>();
 
         [HideInInspector] public Renderer[] renders;
@@ -258,7 +270,8 @@ namespace PowerUtilities
             var transforms = new List<Matrix4x4>();
             var lightmapSTs = new List<Vector4>();
 
-            var shadowCasterMode = QualitySettings.shadowmaskMode == ShadowmaskMode.DistanceShadowmask ? ShadowCastingMode.On : ShadowCastingMode.Off;
+            ShadowCastingMode shadowCasterMode = GetShadowCastingMode();
+
             groupList.ForEach((group, groupId) =>
             {
                 //update material LIGHTMAP_ON
@@ -287,10 +300,16 @@ namespace PowerUtilities
 
                     UpdateSegmentBlock(group, lightmapSTs, block);
 
-                    Graphics.DrawMeshInstanced(group.mesh, 0, group.mat, transforms, block, shadowCasterMode);
+                    Graphics.DrawMeshInstanced(group.mesh, 0, group.mat, transforms, block, shadowCasterMode,receiveShadow,layer,camera,lightProbeUsage);
                     block.Clear();
                 });
             });
+        }
+
+        private ShadowCastingMode GetShadowCastingMode()
+        {
+            return (QualitySettings.shadowmaskMode == ShadowmaskMode.DistanceShadowmask && shadowCastMode!= ShadowCastingMode.Off)
+                ? ShadowCastingMode.On : ShadowCastingMode.Off;
         }
 
         /// <summary>
@@ -303,7 +322,8 @@ namespace PowerUtilities
             var transforms = new List<Matrix4x4>();
             var lightmapSTs = new List<Vector4>();
 
-            var shadowCasterMode = QualitySettings.shadowmaskMode == ShadowmaskMode.DistanceShadowmask ? ShadowCastingMode.On : ShadowCastingMode.Off;
+            var shadowCasterMode = GetShadowCastingMode();
+
             groupList.ForEach((group, groupId) =>
             {
                 //update material LIGHTMAP_ON
