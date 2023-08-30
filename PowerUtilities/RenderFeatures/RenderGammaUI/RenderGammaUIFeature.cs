@@ -30,6 +30,9 @@ namespace PowerUtilities.Features
             [Tooltip("Best option is close for Middle device.")]
             public bool disableFSR = true;
 
+            [Tooltip("No blit,no gamma texture,draw in linear space")]
+            public bool isWriteToCameraTarget;
+
             [Header("Editor Options")]
             public bool reset;
             public string logs;

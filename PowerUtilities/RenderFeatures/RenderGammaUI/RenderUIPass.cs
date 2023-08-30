@@ -97,9 +97,23 @@ namespace PowerUtilities.Features
             }
         }
 
+        bool IsWriteToCameraTargetDirect()
+        {
+            if (Display.main.requiresSrgbBlitToBackbuffer)
+                return true;
+
+            return settings.isWriteToCameraTarget;
+        }
+
         public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
         {
             ref var cameraData = ref renderingData.cameraData;
+
+            if(IsWriteToCameraTargetDirect())
+            {
+                DrawRenderers(ref context, ref renderingData, (int)BuiltinRenderTextureType.CameraTarget, (int)BuiltinRenderTextureType.CameraTarget);
+                return;
+            }
 
 #if UNITY_EDITOR
             if (cameraData.isSceneViewCamera)
@@ -116,7 +130,7 @@ namespace PowerUtilities.Features
 
             //---------------------  1 to gamma tex
             settings.blitMat.shaderKeywords=null;
-            settings.blitMat.SetFloat("_Double", Display.main.requiresSrgbBlitToBackbuffer?1:0);
+            settings.blitMat.SetFloat("_Double", 0);
 
             SetColorSpace(cmd, ColorSpaceTransform.LinearToSRGB);
             BlitToGammaTarget(ref context, lastColorHandleId, colorHandleId, depthHandleId);
@@ -198,6 +212,7 @@ namespace PowerUtilities.Features
         int GetLastColorTargetId(ref RenderingData renderingData) => (AnyCameraHasPostProcessing() && renderingData.postProcessingEnabled )? _CameraColorAttachmentB : _CameraColorAttachmentA ;
         private void SetupTargetTex(ref RenderingData renderingData, ref CameraData cameraData,out int lastColorHandleId, out int colorHandleId, out int depthHandleId)
         {
+
             /** =============================================
              * 
              * hacking, use target name direct, when urp upgrade this will not work maybe.
