@@ -91,7 +91,7 @@ namespace PowerUtilities.Features
         public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
         {
             var isUseFSR = UniversalRenderPipeline.asset.upscalingFilter == UpscalingFilterSelection.FSR;
-            if(isUseFSR && (!settings.createFullsizeGammaTex || settings.disableFSR))
+            if(isUseFSR && settings.disableFSR)
             {
                 UniversalRenderPipeline.asset.upscalingFilter = UpscalingFilterSelection.Auto;
             }
@@ -100,7 +100,7 @@ namespace PowerUtilities.Features
         public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
         {
             ref var cameraData = ref renderingData.cameraData;
-            var isUseFSR = UniversalRenderPipeline.asset.upscalingFilter == UpscalingFilterSelection.FSR;
+
 #if UNITY_EDITOR
             if (cameraData.isSceneViewCamera)
             {
@@ -112,7 +112,7 @@ namespace PowerUtilities.Features
             cmd.BeginSample(nameof(RenderUIPass));
 
             int lastColorHandleId,colorHandleId,depthHandleId;
-            SetupTargetTex(ref renderingData, ref cameraData, isUseFSR, out lastColorHandleId, out colorHandleId,out depthHandleId);
+            SetupTargetTex(ref renderingData, ref cameraData, out lastColorHandleId, out colorHandleId,out depthHandleId);
 
             //---------------------  1 to gamma tex
             settings.blitMat.shaderKeywords=null;
@@ -196,7 +196,7 @@ namespace PowerUtilities.Features
         }
 
         int GetLastColorTargetId(ref RenderingData renderingData) => (AnyCameraHasPostProcessing() && renderingData.postProcessingEnabled )? _CameraColorAttachmentB : _CameraColorAttachmentA ;
-        private void SetupTargetTex(ref RenderingData renderingData, ref CameraData cameraData,bool isUseFSR, out int lastColorHandleId, out int colorHandleId, out int depthHandleId)
+        private void SetupTargetTex(ref RenderingData renderingData, ref CameraData cameraData,out int lastColorHandleId, out int colorHandleId, out int depthHandleId)
         {
             /** =============================================
              * 
@@ -208,12 +208,6 @@ namespace PowerUtilities.Features
 
             lastColorHandleId = GetLastColorTargetId(ref renderingData);
             colorHandleId = (lastColorHandleId == _CameraColorAttachmentA) ? _CameraColorAttachmentB : _CameraColorAttachmentA;
-
-            // use fsr,_UpscaledTexture is released but can read with warning
-            if (isUseFSR)
-            {
-                lastColorHandleId = ShaderPropertyIds._UpscaledTexture;
-            }
 
             if (settings.createFullsizeGammaTex)
             {
