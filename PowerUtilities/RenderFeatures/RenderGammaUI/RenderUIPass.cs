@@ -111,7 +111,7 @@ namespace PowerUtilities.Features
 
             if(IsWriteToCameraTargetDirect())
             {
-                DrawRenderers(ref context, ref renderingData, (int)BuiltinRenderTextureType.CameraTarget, (int)BuiltinRenderTextureType.CameraTarget);
+                DrawRenderers(ref context, ref renderingData, 2, cameraData.renderer.cameraDepthTarget);
                 return;
             }
 
@@ -151,8 +151,7 @@ namespace PowerUtilities.Features
             
             cmd.EndSample(nameof(RenderUIPass));
 
-            context.ExecuteCommandBuffer(cmd);
-            cmd.Clear();
+            cmd.Execute(ref context);
         }
 
         void BlitToGammaTarget(ref ScriptableRenderContext context, int lastColorHandleId, RenderTargetIdentifier colorHandleId, RenderTargetIdentifier depthHandleId)
@@ -169,7 +168,7 @@ namespace PowerUtilities.Features
             cmd.Blit(BuiltinRenderTextureType.None, colorHandleId, settings.blitMat);
         }
 
-        private void DrawRenderers(ref ScriptableRenderContext context, ref RenderingData renderingData, int depthHandleId, int targetTexId)
+        private void DrawRenderers(ref ScriptableRenderContext context, ref RenderingData renderingData, RenderTargetIdentifier depthHandleId, RenderTargetIdentifier targetTexId)
         {
             var sortFlags = SortingCriteria.CommonTransparent;
 
@@ -190,12 +189,11 @@ namespace PowerUtilities.Features
 
             // reset depth buffer(depthHandle), otherwise depth&stencil are missing
             {
-                //cmd.SetRenderTarget(targetTexId);
-                cmd.SetRenderTarget(targetTexId, RenderBufferLoadAction.Load, RenderBufferStoreAction.Store,
-                 depthHandleId, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store);
+                cmd.SetRenderTarget(targetTexId);
+                //cmd.SetRenderTarget(targetTexId, RenderBufferLoadAction.Load, RenderBufferStoreAction.Store,
+                // depthHandleId, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store);
 
-                context.ExecuteCommandBuffer(cmd);
-                cmd.Clear();
+                cmd.Execute(ref context);
             }
 
             var renderStateBlock = GetRenderStateBlock();
