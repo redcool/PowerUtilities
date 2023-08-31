@@ -108,18 +108,20 @@ namespace PowerUtilities.Features
         public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
         {
             ref var cameraData = ref renderingData.cameraData;
+            cmd.SetGlobalFloat(ShaderPropertyIds._GUIZTestMode, (int)CompareFunction.LessEqual);
 
-            if(IsWriteToCameraTargetDirect())
+            if (IsWriteToCameraTargetDirect())
             {
+                cmd.SetGlobalFloat(ShaderPropertyIds._GUIZTestMode, (int)CompareFunction.Always);
                 SetColorSpace(cmd, ColorSpaceTransform.None);
-                DrawRenderers(ref context, ref renderingData, 2, 3);
+                DrawRenderers(ref context, ref renderingData, 2, 2);
                 return;
             }
 
 #if UNITY_EDITOR
             if (cameraData.isSceneViewCamera)
             {
-                DrawRenderers(ref context, ref renderingData, 2,3);
+                DrawRenderers(ref context, ref renderingData, 2,2);
                 return;
             }
 #endif
@@ -137,7 +139,7 @@ namespace PowerUtilities.Features
             BlitToGammaTarget(ref context, lastColorHandleId, colorHandleId, depthHandleId);
 
             //--------------------- 2 draw ui
-            DrawRenderers(ref context, ref renderingData, depthHandleId, colorHandleId);
+            DrawRenderers(ref context, ref renderingData, colorHandleId,depthHandleId);
 
 
             //--------------------- 3 to colorTarget
@@ -169,7 +171,7 @@ namespace PowerUtilities.Features
             cmd.Blit(BuiltinRenderTextureType.None, colorHandleId, settings.blitMat);
         }
 
-        private void DrawRenderers(ref ScriptableRenderContext context, ref RenderingData renderingData, RenderTargetIdentifier depthHandleId, RenderTargetIdentifier targetTexId)
+        private void DrawRenderers(ref ScriptableRenderContext context, ref RenderingData renderingData, RenderTargetIdentifier targetTexId,RenderTargetIdentifier depthHandleId)
         {
             var sortFlags = SortingCriteria.CommonTransparent;
 
@@ -190,9 +192,8 @@ namespace PowerUtilities.Features
 
             // reset depth buffer(depthHandle), otherwise depth&stencil are missing
             {
-                cmd.SetRenderTarget(targetTexId);
-                //cmd.SetRenderTarget(targetTexId, RenderBufferLoadAction.Load, RenderBufferStoreAction.Store,
-                // depthHandleId, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store);
+                cmd.SetRenderTarget(targetTexId, RenderBufferLoadAction.Load, RenderBufferStoreAction.Store,
+                 depthHandleId, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store);
 
                 cmd.Execute(ref context);
             }
