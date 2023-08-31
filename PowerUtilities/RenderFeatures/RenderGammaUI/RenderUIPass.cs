@@ -112,8 +112,11 @@ namespace PowerUtilities.Features
 
             if (IsWriteToCameraTargetDirect())
             {
+                if (Display.main.requiresSrgbBlitToBackbuffer)
+                {
+                    SetColorSpace(cmd, ColorSpaceTransform.LinearToSRGB);
+                }
                 cmd.SetGlobalFloat(ShaderPropertyIds._GUIZTestMode, (int)CompareFunction.Always);
-                SetColorSpace(cmd, ColorSpaceTransform.None);
                 DrawRenderers(ref context, ref renderingData, 2, 2);
                 return;
             }
