@@ -27,6 +27,8 @@ namespace PowerUtilities
 
         public override string Version => "v0.0.2";
 
+        public override bool NeedDrawDefaultUI() => true;
+
         public override void DrawInspectorUI(DrawChildrenInstanced inst)
         {
             DrawExistNew(inst);
@@ -34,11 +36,16 @@ namespace PowerUtilities
             if (!inst.drawInfoSO)
                 return;
 
+            EditorGUITools.DrawBoxColors(EditorGUILayout.GetControlRect(), bottomColor: Color.cyan);
+            EditorGUI.indentLevel++;
             DrawInstancedInfoGroup(inst);
+            EditorGUI.indentLevel--;
 
             // buttons
+            EditorGUITools.DrawBoxColors(EditorGUILayout.GetControlRect(),bottomColor:Color.cyan);
             DrawButtons(inst);
             DrawButtons2(inst);
+
         }
 
         private void DrawButtons(DrawChildrenInstanced inst )
@@ -96,15 +103,12 @@ namespace PowerUtilities
                 drawInfoEditor = CreateEditor(inst.drawInfoSO);
             }
 
-            if (drawInfoSerailizedObject == null)
-                drawInfoSerailizedObject = new SerializedObject(inst.drawInfoSO);
-
-            drawInfoSerailizedObject.Update();
+            drawInfoEditor.serializedObject.Update();
 
             // show default gui
             drawInfoEditor.OnInspectorGUI();
 
-            var isApplied = drawInfoSerailizedObject.ApplyModifiedProperties();
+            drawInfoEditor.serializedObject.ApplyModifiedProperties();
         }
 
         private static void DrawExistNew(DrawChildrenInstanced inst)
