@@ -112,14 +112,14 @@ namespace PowerUtilities.Features
             if(IsWriteToCameraTargetDirect())
             {
                 SetColorSpace(cmd, ColorSpaceTransform.None);
-                DrawRenderers(ref context, ref renderingData, 2, cameraData.renderer.cameraDepthTarget);
+                DrawRenderers(ref context, ref renderingData, 2, 3);
                 return;
             }
 
 #if UNITY_EDITOR
             if (cameraData.isSceneViewCamera)
             {
-                DrawRenderers(ref context, ref renderingData, 2,2);
+                DrawRenderers(ref context, ref renderingData, 2,3);
                 return;
             }
 #endif
