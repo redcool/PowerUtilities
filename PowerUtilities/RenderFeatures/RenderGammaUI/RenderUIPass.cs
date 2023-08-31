@@ -111,6 +111,7 @@ namespace PowerUtilities.Features
 
             if(IsWriteToCameraTargetDirect())
             {
+                SetColorSpace(cmd, ColorSpaceTransform.None);
                 DrawRenderers(ref context, ref renderingData, 2, cameraData.renderer.cameraDepthTarget);
                 return;
             }
