@@ -17,6 +17,7 @@ namespace PowerUtilities
     {
         Editor cullingInfoEditor;
         public override bool NeedDrawDefaultUI() => true;
+        public override string Version => "0.0.1";
 
         public override void DrawInspectorUI(CullingGroupControl inst)
         {

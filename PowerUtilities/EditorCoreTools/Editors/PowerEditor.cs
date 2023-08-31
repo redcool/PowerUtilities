@@ -29,7 +29,9 @@ namespace PowerUtilities
         public override void OnInspectorGUI()
         {
             if (!string.IsNullOrEmpty(Version))
-                EditorGUI.LabelField(new Rect(100,8,100,16), Version);
+            {
+                EditorGUITools.DrawColorLabel(new Rect(100, 8, 100, 16), new GUIContent(Version), Color.cyan);
+            }
 
             if (NeedDrawDefaultUI())
                 DrawDefaultInspector();

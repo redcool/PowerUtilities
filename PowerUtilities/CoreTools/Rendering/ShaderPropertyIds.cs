@@ -19,7 +19,8 @@ namespace PowerUtilities
             _GBuffer1 = Shader.PropertyToID(nameof(_GBuffer1)),
             _GBuffer2 = Shader.PropertyToID(nameof(_GBuffer2)),
             _GBuffer3 = Shader.PropertyToID(nameof(_GBuffer3)),
-            _PrevViewProjMatrix = Shader.PropertyToID(nameof(_PrevViewProjMatrix))
+            _PrevViewProjMatrix = Shader.PropertyToID(nameof(_PrevViewProjMatrix)),
+            _GUIZTestMode = Shader.PropertyToID(nameof(_GUIZTestMode))
             ;
 
         public const string _DEBUG = nameof(_DEBUG),
