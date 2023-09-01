@@ -41,7 +41,7 @@ Shader "UI/Default"
         Cull Off
         Lighting Off
         ZWrite Off
-        ZTest [_GUIZTestMode]
+        ZTest [_GUIZTestMode] // original is unity_GUIZTestMode
         Blend One OneMinusSrcAlpha
         ColorMask [_ColorMask]
 

@@ -108,7 +108,7 @@ namespace PowerUtilities.Features
         public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
         {
             ref var cameraData = ref renderingData.cameraData;
-            cmd.SetGlobalFloat(ShaderPropertyIds._GUIZTestMode, (int)CompareFunction.LessEqual);
+            cmd.SetGlobalFloat(ShaderPropertyIds._GUIZTestMode, (int)CompareFunction.Always);
 
             if (IsWriteToCameraTargetDirect())
             {
@@ -116,7 +116,7 @@ namespace PowerUtilities.Features
                 {
                     SetColorSpace(cmd, ColorSpaceTransform.LinearToSRGB);
                 }
-                cmd.SetGlobalFloat(ShaderPropertyIds._GUIZTestMode, (int)CompareFunction.Always);
+                //cmd.SetGlobalFloat(ShaderPropertyIds._GUIZTestMode, (int)CompareFunction.Always);
                 DrawRenderers(ref context, ref renderingData, 2, 2);
                 return;
             }
