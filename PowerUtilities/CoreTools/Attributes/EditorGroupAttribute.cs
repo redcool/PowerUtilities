@@ -23,6 +23,7 @@
 
             if (isGroupOn)
             {
+                return EditorGUI.GetPropertyHeight(property, property.isExpanded);
                 return LINE_HEIGHT;
             }
 
@@ -65,7 +66,7 @@
                 return;
 
             EditorGUI.indentLevel++;
-            EditorGUI.PropertyField(position,property, new GUIContent(property.displayName));
+            EditorGUI.PropertyField(position,property, new GUIContent(property.displayName),true);
             EditorGUI.indentLevel--;
         }
     }
