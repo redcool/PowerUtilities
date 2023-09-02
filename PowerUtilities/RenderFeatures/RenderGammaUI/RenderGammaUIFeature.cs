@@ -11,6 +11,11 @@ namespace PowerUtilities.Features
         public class Settings
         {
             public Material blitMat;
+
+            [Tooltip("ui objects use")]
+            [LoadAsset("UI-Default1.shader")]
+            public Shader uiShader;
+
             public RenderPassEvent passEvent = RenderPassEvent.AfterRendering;
             public int passEventOffset = 10;
             public LayerMask layerMask = 32;
@@ -36,6 +41,18 @@ namespace PowerUtilities.Features
             [Header("Editor Options")]
             public bool reset;
             public string logs;
+
+
+            Material uiMat;
+            public Material UIMaterial
+            {
+                get
+                {
+                    if (!uiMat && uiShader)
+                        uiMat = new Material(uiShader);
+                    return uiMat;
+                }
+            }
         }
         public Settings settings;
 

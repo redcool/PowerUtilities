@@ -54,7 +54,7 @@
             //var scenes = AssetDatabaseTools.FindAssetsInProjectByType<SceneAsset>(folders);
             //var scenePaths = scenes.Select(s => AssetDatabase.GetAssetPath(s)).ToArray();
 
-            var scenePaths = AssetDatabaseTools.FindAssetsPath("t:SceneAsset", null, folders);
+            var scenePaths = AssetDatabaseTools.FindAssetsPath("t:SceneAsset", null,false, folders);
 
             foreach (var scenePath in scenePaths)
             {

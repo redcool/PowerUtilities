@@ -184,6 +184,10 @@ namespace PowerUtilities.Features
                 new ShaderTagId("UniversalForwardOnly"), 
                 new ShaderTagId("LightweightForward")
                 }, ref renderingData, sortFlags);
+            
+            if(settings.UIMaterial)
+                drawSettings.overrideMaterial = settings.UIMaterial;
+
             var filterSettings = new FilteringSettings(RenderQueueRange.transparent, settings.layerMask);
 #if UNITY_EDITOR
             // When rendering the preview camera, we want the layer mask to be forced to Everything

@@ -121,11 +121,14 @@ namespace PowerUtilities
         /// <param name="extName">null dont check extName, empty string check that files has no extName</param>
         /// <param name="searchInFolders"></param>
         /// <returns></returns>
-        public static string[] FindAssetsPath(string filter, string extName = null, params string[] searchInFolders)
+        public static string[] FindAssetsPath(string filter, string extName = null,bool isWholeWordsMatch=false, params string[] searchInFolders)
         {
             var q = AssetDatabase.FindAssets(filter, searchInFolders)
                 .Select(AssetDatabase.GUIDToAssetPath)
-                .Where(path => extName == null ? true : Path.GetExtension(path).EndsWith(extName))
+                .Where(path => 
+                    extName == null ? true : Path.GetExtension(path).EndsWith(extName)
+                    && isWholeWordsMatch ? filter == Path.GetFileNameWithoutExtension(path) : true
+                )
                 ;
             return q.ToArray();
         }
@@ -138,20 +141,23 @@ namespace PowerUtilities
         /// <param name="extName">null dont check extName, empty string check that files has no extName</param>
         /// <param name="searchInFolders"></param>
         /// <returns></returns>
-        public static T[] FindAssetsPathAndLoad<T>(out string[] paths,string filter, string extName = null, params string[] searchInFolders)
+        public static T[] FindAssetsPathAndLoad<T>(out string[] paths,string filter, string extName = null, bool isWholeWordsMatch = false, params string[] searchInFolders)
             where T : Object
         {
-            paths = FindAssetsPath(filter, extName, searchInFolders);
+            paths = FindAssetsPath(filter, extName,isWholeWordsMatch, searchInFolders);
             return paths.Select(path => AssetDatabase.LoadAssetAtPath<T>(path)).ToArray();
         }
 
-        public static string FindAssetPath(string filter, string extName = null, params string[] searchInFolders)
-            => FindAssetsPath(filter, extName, searchInFolders).FirstOrDefault();
+        public static string FindAssetPath(string filter, string extName = null, bool isWholeWordsMatch = false, params string[] searchInFolders)
+            => FindAssetsPath(filter, extName,isWholeWordsMatch, searchInFolders).FirstOrDefault();
 
-        public static T FindAssetPathAndLoad<T>(out string path, string filter, string extName = null, params string[] searchInFolders)
+        public static T FindAssetPathAndLoad<T>(out string path, string filter, string extName = null, bool isWholeWordsMatch = false, params string[] searchInFolders)
             where T : Object
         {
-            path = FindAssetPath(filter, extName, searchInFolders);
+            if(!string.IsNullOrEmpty(extName) && extName.StartsWith('.')) 
+                extName = extName.Substring(1);
+
+            path = FindAssetPath(filter, extName,isWholeWordsMatch, searchInFolders);
             return AssetDatabase.LoadAssetAtPath<T>(path);
         }
 
