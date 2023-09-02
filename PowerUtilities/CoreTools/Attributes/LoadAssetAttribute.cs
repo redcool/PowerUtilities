@@ -1,6 +1,5 @@
 ﻿namespace PowerUtilities
 {
-    using Codice.Client.BaseCommands;
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -11,7 +10,7 @@
     /// <summary>
     /// Load Asset when show in inspector
     /// </summary>
-    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
+    [AttributeUsage(AttributeTargets.Field)]
     public class LoadAssetAttribute : PropertyAttribute
     {
         /// <summary>
