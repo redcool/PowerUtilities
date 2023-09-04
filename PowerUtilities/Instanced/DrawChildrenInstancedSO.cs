@@ -268,11 +268,10 @@ namespace PowerUtilities
         Matrix4x4[] transforms = new Matrix4x4[1023];
         Vector4[] lightmapSTs = new Vector4[1023];
 
-        public void DrawGroupList(CommandBuffer cmd=null)
+        public void DrawGroupList(CommandBuffer cmd = null)
         {
             ShadowCastingMode shadowCasterMode = GetShadowCastingMode();
 
-            var visibleCount = 0;
 
             foreach (var group in groupList)
             {
@@ -283,6 +282,7 @@ namespace PowerUtilities
                 for (int sid = 0; sid<group.originalTransformsGroupList.Count; ++sid)
                 {
                     var segment = group.originalTransformsGroupList[sid];
+                    var visibleCount = 0;
 
                     for (int trId = 0; trId < segment.transformVisibleList.Count; trId++)
                     {
@@ -296,7 +296,7 @@ namespace PowerUtilities
                     };
 
                     if (visibleCount == 0)
-                        return;
+                        break;
 
                     if (block == null)
                         block = new MaterialPropertyBlock();
