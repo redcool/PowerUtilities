@@ -233,16 +233,16 @@ namespace PowerUtilities
         private static string GetVarDecorator(int propId, string propName, ShaderPropertyFlags flags, ShaderPropertyType type)
         {
             var sb = new StringBuilder();
-            // texturePreview
-            if (type == ShaderPropertyType.Texture)
-            {
-                sb.AppendLine("[TexturePreview]");
-            }
-            // add group
+            // add group , this need place outmost
             if (propLayoutDict.ContainsKey(propName))
             {
                 var groupInfo = propLayoutDict[propName];
                 sb.AppendFormat("[EditorGroup(\"{0}\",{1})]", groupInfo.groupName, groupInfo.isHeader ? "true" : "false");
+            }
+            // texturePreview
+            if (type == ShaderPropertyType.Texture)
+            {
+                sb.AppendLine("[TexturePreview]");
             }
             // add ColorUsage
             if ((flags & ShaderPropertyFlags.HDR) > 0)
