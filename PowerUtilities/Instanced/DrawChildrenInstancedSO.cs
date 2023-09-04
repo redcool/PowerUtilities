@@ -43,7 +43,6 @@ namespace PowerUtilities
         public bool forceRefresh;
 
         [Header("Draw Options")]
-        public int maxCountAGroup = 100;
         [Tooltip("which layer to use")]
         [LayerIndex]public int layer = 0;
         public bool receiveShadow = true;
@@ -266,19 +265,12 @@ namespace PowerUtilities
         }
 
         // objs can visible
-        Matrix4x4[] visibleTransforms;
-        Vector4[] visibleLightmapSTs;
+        Matrix4x4[] visibleTransforms = new Matrix4x4[1023];
+        Vector4[] visibleLightmapSTs = new Vector4[1023];
 
         public void DrawGroupList(CommandBuffer cmd = null)
         {
-            if(visibleTransforms == null)
-            {
-                visibleTransforms = new Matrix4x4[maxCountAGroup];
-                visibleLightmapSTs = new Vector4[maxCountAGroup];
-            }
-
             ShadowCastingMode shadowCasterMode = GetShadowCastingMode();
-
 
             //foreach (var group in groupList)
             for (int groupId = 0; groupId < groupList.Count; groupId++)
