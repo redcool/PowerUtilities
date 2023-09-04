@@ -216,7 +216,7 @@ namespace PowerUtilities
         public static bool IsLightmapValid(int lightmapId, Texture[] lightmaps)
         => lightmapId >-1 && lightmapId< lightmaps.Length && lightmaps[lightmapId];
 
-        void UpdateSegmentBlock(InstancedGroupInfo group, List<Vector4> lightmapCoords, MaterialPropertyBlock block)
+        void UpdateSegmentBlock(InstancedGroupInfo group, Vector4[] lightmapCoords, MaterialPropertyBlock block)
         {
             if (IsLightmapValid(group.lightmapId, shadowMasks))
             {
@@ -227,7 +227,7 @@ namespace PowerUtilities
             {
                 block.SetTexture("unity_Lightmap", lightmaps[group.lightmapId]);
             }
-            if (lightmapCoords.Count >0)
+            if (lightmapCoords.Length >0)
             {
                 //block.SetVectorArray("_LightmapST", lightmapGroup.lightmapCoords);
                 //block.SetInt("_DrawInstanced", 1);
@@ -264,35 +264,38 @@ namespace PowerUtilities
             });
         }
 
-        public void DrawGroupList()
-        {
-            // objs can visible
-            var transforms = new List<Matrix4x4>();
-            var lightmapSTs = new List<Vector4>();
+        // objs can visible
+        Matrix4x4[] transforms = new Matrix4x4[1023];
+        Vector4[] lightmapSTs = new Vector4[1023];
 
+        public void DrawGroupList(CommandBuffer cmd=null)
+        {
             ShadowCastingMode shadowCasterMode = GetShadowCastingMode();
 
-            groupList.ForEach((group, groupId) =>
+            var visibleCount = 0;
+
+            foreach (var group in groupList)
             {
                 //update material LIGHTMAP_ON
                 var lightmapEnable = group.lightmapId != -1 && IsLightMapEnabled();
                 LightmapSwitch(group.mat, lightmapEnable);
 
-                group.originalTransformsGroupList.ForEach((segment, sid) =>
+                for (int sid = 0; sid<group.originalTransformsGroupList.Count; ++sid)
                 {
-                    transforms.Clear();
-                    lightmapSTs.Clear();
+                    var segment = group.originalTransformsGroupList[sid];
 
-                    segment.transformVisibleList.ForEach((tr, trId) =>
+                    for (int trId = 0; trId < segment.transformVisibleList.Count; trId++)
                     {
                         if (segment.transformVisibleList[trId] && segment.transformShuffleCullingList[trId])
                         {
-                            transforms.Add(segment.transforms[trId]);
-                            lightmapSTs.Add(group.lightmapCoordsList[sid].lightmapCoords[trId]);
-                        }
-                    });
+                            transforms[visibleCount] = (segment.transforms[trId]);
+                            lightmapSTs[visibleCount]=(group.lightmapCoordsList[sid].lightmapCoords[trId]);
 
-                    if (transforms.Count==0)
+                            visibleCount++;
+                        }
+                    };
+
+                    if (visibleCount == 0)
                         return;
 
                     if (block == null)
@@ -300,61 +303,30 @@ namespace PowerUtilities
 
                     UpdateSegmentBlock(group, lightmapSTs, block);
 
-                    Graphics.DrawMeshInstanced(group.mesh, 0, group.mat, transforms, block, shadowCasterMode,receiveShadow,layer,camera,lightProbeUsage);
+                    DrawInstanced(shadowCasterMode, visibleCount, group);
+
                     block.Clear();
-                });
-            });
+                };
+            };
+
+            void DrawInstanced(ShadowCastingMode shadowCasterMode, int visibleCount, InstancedGroupInfo group)
+            {
+                if (cmd != null)
+                {
+                    cmd.DrawMeshInstanced(group.mesh, 0, group.mat, 0, transforms, visibleCount, block);
+                }
+                else
+                {
+                    Graphics.DrawMeshInstanced(group.mesh, 0, group.mat, transforms, visibleCount, block, shadowCasterMode,
+                        receiveShadow, layer, camera, lightProbeUsage);
+                }
+            }
         }
 
         private ShadowCastingMode GetShadowCastingMode()
         {
             return (QualitySettings.shadowmaskMode == ShadowmaskMode.DistanceShadowmask && shadowCastMode!= ShadowCastingMode.Off)
                 ? ShadowCastingMode.On : ShadowCastingMode.Off;
-        }
-
-        /// <summary>
-        /// use commanbuffer, but sh missing
-        /// </summary>
-        /// <param name="cmd"></param>
-        public void DrawGroupList(CommandBuffer cmd)
-        {
-            // objs can visible
-            var transforms = new List<Matrix4x4>();
-            var lightmapSTs = new List<Vector4>();
-
-            var shadowCasterMode = GetShadowCastingMode();
-
-            groupList.ForEach((group, groupId) =>
-            {
-                //update material LIGHTMAP_ON
-                var lightmapEnable = group.lightmapId != -1 && IsLightMapEnabled();
-                LightmapSwitch(group.mat, lightmapEnable);
-
-                group.originalTransformsGroupList.ForEach((segment, sid) =>
-                {
-                    transforms.Clear();
-                    lightmapSTs.Clear();
-
-                    segment.transformVisibleList.ForEach((tr, trId) =>
-                    {
-                        if (segment.transformVisibleList[trId] && segment.transformShuffleCullingList[trId])
-                        {
-                            transforms.Add(segment.transforms[trId]);
-                            lightmapSTs.Add(group.lightmapCoordsList[sid].lightmapCoords[trId]);
-                        }
-                    });
-
-                    if (transforms.Count==0)
-                        return;
-
-                    if (block == null)
-                        block = new MaterialPropertyBlock();
-
-                    UpdateSegmentBlock(group, lightmapSTs, block);
-                    cmd.DrawMeshInstanced(group.mesh, 0, group.mat, 0, transforms.ToArray(), transforms.Count, block);
-                    block.Clear();
-                });
-            });
         }
 
         private static void LightmapSwitch(Material mat, bool lightmapEnable)
