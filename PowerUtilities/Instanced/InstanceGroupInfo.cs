@@ -36,6 +36,7 @@ namespace PowerUtilities
             boundsSphereRadiusList.Add(boundsSphereRadius);
         }
 
+#if _DEBUG
         public override string ToString()
         {
             var sb = new StringBuilder();
@@ -44,6 +45,7 @@ namespace PowerUtilities
             sb.AppendLine("shuffleCull:" + StringEx.ToString(transformShuffleCullingList));
             return sb.ToString();
         }
+#endif
     }
     [Serializable]
     public class InstancedLightmapCoordGroup

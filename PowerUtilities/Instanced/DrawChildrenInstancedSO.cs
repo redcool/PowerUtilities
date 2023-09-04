@@ -43,6 +43,7 @@ namespace PowerUtilities
         public bool forceRefresh;
 
         [Header("Draw Options")]
+        public int maxCountAGroup = 100;
         [Tooltip("which layer to use")]
         [LayerIndex]public int layer = 0;
         public bool receiveShadow = true;
@@ -265,31 +266,42 @@ namespace PowerUtilities
         }
 
         // objs can visible
-        Matrix4x4[] transforms = new Matrix4x4[1023];
-        Vector4[] lightmapSTs = new Vector4[1023];
+        Matrix4x4[] visibleTransforms;
+        Vector4[] visibleLightmapSTs;
 
         public void DrawGroupList(CommandBuffer cmd = null)
         {
+            if(visibleTransforms == null)
+            {
+                visibleTransforms = new Matrix4x4[maxCountAGroup];
+                visibleLightmapSTs = new Vector4[maxCountAGroup];
+            }
+
             ShadowCastingMode shadowCasterMode = GetShadowCastingMode();
 
 
-            foreach (var group in groupList)
+            //foreach (var group in groupList)
+            for (int groupId = 0; groupId < groupList.Count; groupId++)
             {
+                var group = groupList[groupId];
+
                 //update material LIGHTMAP_ON
                 var lightmapEnable = group.lightmapId != -1 && IsLightMapEnabled();
                 LightmapSwitch(group.mat, lightmapEnable);
 
-                for (int sid = 0; sid<group.originalTransformsGroupList.Count; ++sid)
+                var transformsGroupList = group.originalTransformsGroupList.Count;
+                for (int sid = 0; sid<transformsGroupList; ++sid)
                 {
                     var segment = group.originalTransformsGroupList[sid];
                     var visibleCount = 0;
+                    var visibleListCount = segment.transformVisibleList.Count;
 
-                    for (int trId = 0; trId < segment.transformVisibleList.Count; trId++)
+                    for (int trId = 0; trId < visibleListCount; trId++)
                     {
                         if (segment.transformVisibleList[trId] && segment.transformShuffleCullingList[trId])
                         {
-                            transforms[visibleCount] = (segment.transforms[trId]);
-                            lightmapSTs[visibleCount]=(group.lightmapCoordsList[sid].lightmapCoords[trId]);
+                            visibleTransforms[visibleCount] = (segment.transforms[trId]);
+                            visibleLightmapSTs[visibleCount]=(group.lightmapCoordsList[sid].lightmapCoords[trId]);
 
                             visibleCount++;
                         }
@@ -301,7 +313,7 @@ namespace PowerUtilities
                     if (block == null)
                         block = new MaterialPropertyBlock();
 
-                    UpdateSegmentBlock(group, lightmapSTs, block);
+                    UpdateSegmentBlock(group, visibleLightmapSTs, block);
 
                     DrawInstanced(shadowCasterMode, visibleCount, group);
 
@@ -313,11 +325,11 @@ namespace PowerUtilities
             {
                 if (cmd != null)
                 {
-                    cmd.DrawMeshInstanced(group.mesh, 0, group.mat, 0, transforms, visibleCount, block);
+                    cmd.DrawMeshInstanced(group.mesh, 0, group.mat, 0, visibleTransforms, visibleCount, block);
                 }
                 else
                 {
-                    Graphics.DrawMeshInstanced(group.mesh, 0, group.mat, transforms, visibleCount, block, shadowCasterMode,
+                    Graphics.DrawMeshInstanced(group.mesh, 0, group.mat, visibleTransforms, visibleCount, block, shadowCasterMode,
                         receiveShadow, layer, camera, lightProbeUsage);
                 }
             }
@@ -334,7 +346,7 @@ namespace PowerUtilities
             if (mat.IsKeywordEnabled("LIGHTMAP_ON") != lightmapEnable)
                 mat.SetKeyword("LIGHTMAP_ON", lightmapEnable);
         }
-
+#if _DEBUG
         public override string ToString()
         {
             var sb = new StringBuilder();
@@ -354,5 +366,6 @@ namespace PowerUtilities
 
             return sb.ToString();
         }
+#endif
     }
 }
