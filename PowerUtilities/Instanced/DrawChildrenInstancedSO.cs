@@ -21,6 +21,11 @@ namespace PowerUtilities
         public Texture2D[] shadowMasks;
         public bool enableLightmap = true;
 
+        [Header("Lightmap Array")]
+        public Texture2DArray lightmapArray;
+        public bool isEnableLightmapArray;
+
+        [Header("Lightmap Mode")]
         [Tooltip("Lighting Mode is subtractive?")]
         public bool isSubstractiveMode = false;
 
@@ -96,7 +101,17 @@ namespace PowerUtilities
                 return;
 
             groupList.Clear();
-            SetupGroupList(renders, groupList);
+
+            if (isEnableLightmapArray)
+            {
+                SetupGroupListByMesh(renders, groupList);
+            }
+            else
+            {
+                SetupGroupList(renders, groupList);
+            }
+
+
             SetupLightmaps();
 
             if (disableChildren)
@@ -146,6 +161,13 @@ namespace PowerUtilities
 
             renders = q.ToArray();
         }
+            
+        public class GroupLightmapMeshMaterial
+        {
+            public int lightmapIndex;
+            public Mesh mesh;
+            public Material material;
+        }
 
         /// <summary>
         /// group renders by(lgihtmapIndex,sharedMesh,shaderMaterial)
@@ -156,7 +178,8 @@ namespace PowerUtilities
         public static void SetupGroupList(Renderer[] renders, List<InstancedGroupInfo> groupList)
         {
             // use lightmapIndex,mesh as group
-            var lightmapMeshGroups = renders.GroupBy(r => new { r.lightmapIndex, r.GetComponent<MeshFilter>().sharedMesh,r.sharedMaterial });
+            var lightmapMeshGroups = renders.GroupBy(r => new { r.lightmapIndex, r.GetComponent<MeshFilter>().sharedMesh, r.sharedMaterial });
+
             lightmapMeshGroups.ForEach((group, groupId) =>
             {
                 // a instanced group
@@ -166,7 +189,26 @@ namespace PowerUtilities
                 group.ForEach((r, renderId) =>
                 {
                     var boundSphereSize = Mathf.Max(r.bounds.extents.x, Mathf.Max(r.bounds.extents.y, r.bounds.extents.z));
-                    groupInfo.AddRender(boundSphereSize, r.GetComponent<MeshFilter>().sharedMesh,r.sharedMaterial, r.transform.localToWorldMatrix, r.lightmapScaleOffset, r.lightmapIndex);
+                    groupInfo.AddRender(boundSphereSize, r.GetComponent<MeshFilter>().sharedMesh, r.sharedMaterial, r.transform.localToWorldMatrix, r.lightmapScaleOffset, r.lightmapIndex);
+                });
+            });
+        }
+
+        public static void SetupGroupListByMesh(Renderer[] renders, List<InstancedGroupInfo> groupList)
+        {
+            // use lightmapIndex,mesh as group
+            var lightmapMeshGroups = renders.GroupBy(r => new { r.GetComponent<MeshFilter>().sharedMesh, r.sharedMaterial });
+
+            lightmapMeshGroups.ForEach((group, groupId) =>
+            {
+                // a instanced group
+                var groupInfo = new InstancedGroupInfo();
+                groupList.Add(groupInfo);
+
+                group.ForEach((r, renderId) =>
+                {
+                    var boundSphereSize = Mathf.Max(r.bounds.extents.x, Mathf.Max(r.bounds.extents.y, r.bounds.extents.z));
+                    groupInfo.AddRender(boundSphereSize, r.GetComponent<MeshFilter>().sharedMesh, r.sharedMaterial, r.transform.localToWorldMatrix, r.lightmapScaleOffset, r.lightmapIndex);
                 });
             });
         }
@@ -218,24 +260,37 @@ namespace PowerUtilities
 
         void UpdateSegmentBlock(InstancedGroupInfo group, Vector4[] lightmapCoords, MaterialPropertyBlock block)
         {
-            if (IsLightmapValid(group.lightmapId, shadowMasks))
-            {
-                block.SetTexture("unity_ShadowMask", shadowMasks[group.lightmapId]);
-            }
-
-            if (IsLightmapValid(group.lightmapId, lightmaps))
-            {
-                block.SetTexture("unity_Lightmap", lightmaps[group.lightmapId]);
-            }
+            // lightmap_ST
             if (lightmapCoords.Length >0)
             {
                 //block.SetVectorArray("_LightmapST", lightmapGroup.lightmapCoords);
                 //block.SetInt("_DrawInstanced", 1);
                 block.SetVectorArray("unity_LightmapST", lightmapCoords);
             }
-
+            // for substractive mode
             if (isSubstractiveMode)
                 block.SetVector("unity_LightData", Vector4.zero);
+
+            // use texture Array
+            if (isEnableLightmapArray)
+            {
+                group.mat.EnableKeyword("UNITY_INSTANCED_LIGHTMAPSTS");
+                block.SetTexture("unity_Lightmaps", lightmapArray!=null ? lightmapArray : Texture2D.blackTexture);
+                block.SetFloatArray("unity_LightmapIndexArray", group.lightmapIdList);
+            }
+            else // use textures
+            {
+                group.mat.DisableKeyword("UNITY_INSTANCED_LIGHTMAPSTS");
+                if (IsLightmapValid(group.lightmapId, shadowMasks))
+                {
+                    block.SetTexture("unity_ShadowMask", shadowMasks[group.lightmapId]);
+                }
+
+                if (IsLightmapValid(group.lightmapId, lightmaps))
+                {
+                    block.SetTexture("unity_Lightmap", lightmaps[group.lightmapId]);
+                }
+            }
         }
 
         /// <summary>

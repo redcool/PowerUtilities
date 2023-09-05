@@ -94,7 +94,7 @@ namespace PowerUtilities
         /// <summary>
         /// 每个组,一个lightamapId
         /// </summary>
-        public List<int> lightmapIdList = new List<int>();
+        public List<float> lightmapIdList = new List<float>();
         
         /// <summary>
         /// max count per transformGroup
@@ -121,8 +121,6 @@ namespace PowerUtilities
             {
                 originalTransformsGroupList.Add(new InstancedTransformGroup());
                 lightmapCoordsList.Add(new InstancedLightmapCoordGroup());
-                //
-                lightmapIdList.Add(lightmapId);
             }
 
             // get current group and save all
@@ -132,6 +130,8 @@ namespace PowerUtilities
 
             var lightmapSTGroup = lightmapCoordsList[groupId];
             lightmapSTGroup.lightmapCoords.Add(lightmapST);
+            //
+            lightmapIdList.Add(lightmapId);
 
             // check need increment groupId.
             if (transformGroup.transforms.Count >= maxCountPerGroup)
