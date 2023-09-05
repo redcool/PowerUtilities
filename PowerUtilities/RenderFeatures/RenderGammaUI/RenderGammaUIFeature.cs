@@ -14,7 +14,7 @@ namespace PowerUtilities.Features
 
             [Tooltip("ui objects use")]
             public bool isOverrideUIShader;
-            [LoadAsset("UI-Default1.shader")]
+            [LoadAsset("UI-Default.shader")]
             public Shader overrideUIShader;
 
             public RenderPassEvent passEvent = RenderPassEvent.AfterRendering;
