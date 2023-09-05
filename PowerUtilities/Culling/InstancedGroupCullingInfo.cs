@@ -24,9 +24,11 @@ namespace PowerUtilities
         {
         }
 
+#if UNITY_EDITOR
         public override string ToString()
         {
             return $"{{drawChildId: {drawChildrenId},groupId: {groupId},transGroupId: {transformGroupId}, transId {transformId}, v:{isVisible}}}";
         }
+#endif
     }
 }

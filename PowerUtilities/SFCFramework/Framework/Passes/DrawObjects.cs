@@ -178,11 +178,13 @@
                 Feature.forceFindDrawChildrenInstanced = false;
                 findCount = 0;
             }
-            drawChildren.ForEach(dc =>
+            //drawChildren.ForEach(dc =>
+            for (int i = 0; i < drawChildren.Length; i++)
             {
+                var dc = drawChildren[i];
                 dc.drawInfoSO.DrawGroupList(cmd);
                 cmd.Execute(ref context);
-            });
+            }
         }
 
         public void OnCameraSetup()

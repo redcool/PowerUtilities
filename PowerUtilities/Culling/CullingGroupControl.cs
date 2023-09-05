@@ -70,6 +70,9 @@ namespace PowerUtilities
         public bool findActiveMainCameraOnEnable = true;
         CullingGroup group;
 
+        [Header("Performance")]
+        public bool initAllVisibles;
+
         [Header("Debug")]
         public bool isShowDebug;
         public bool isShowGizmos;
@@ -145,8 +148,8 @@ namespace PowerUtilities
             SetBoundingSpheres();
 
             // query all spheres
-            InitSceneProfileVisibles();
-
+            if(initAllVisibles)
+                InitSceneProfileVisibles();
         }
 
         private void OnDisable()
@@ -213,10 +216,13 @@ namespace PowerUtilities
 
         public void InitSceneProfileVisibles()
         {
-            SceneProfile.cullingInfos.ForEach((info, id) =>
+            //SceneProfile.cullingInfos.ForEach((info, id) =>
+            var count = SceneProfile.cullingInfos.Count;
+            for (int id = 0;id<count;id++)
             {
+                var info = SceneProfile.cullingInfos[id];
                 info.isVisible = group.IsVisible(id);
-            });
+            };
 
             if (OnInitSceneProfileVisibles != null)
             {

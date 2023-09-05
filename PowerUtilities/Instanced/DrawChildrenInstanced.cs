@@ -55,7 +55,7 @@
         {
             AddEvents();
         }
-        private void OnDisable()
+        private void OnDestroy()
         {
             RemoveEvents();
         }
