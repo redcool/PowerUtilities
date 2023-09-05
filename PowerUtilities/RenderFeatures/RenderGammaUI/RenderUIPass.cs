@@ -185,7 +185,7 @@ namespace PowerUtilities.Features
                 new ShaderTagId("LightweightForward")
                 }, ref renderingData, sortFlags);
             
-            if(settings.UIMaterial)
+            if(settings.isOverrideUIShader && settings.UIMaterial)
                 drawSettings.overrideMaterial = settings.UIMaterial;
 
             var filterSettings = new FilteringSettings(RenderQueueRange.transparent, settings.layerMask);

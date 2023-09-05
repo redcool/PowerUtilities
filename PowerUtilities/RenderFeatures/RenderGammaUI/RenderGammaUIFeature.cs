@@ -13,8 +13,9 @@ namespace PowerUtilities.Features
             public Material blitMat;
 
             [Tooltip("ui objects use")]
+            public bool isOverrideUIShader;
             [LoadAsset("UI-Default1.shader")]
-            public Shader uiShader;
+            public Shader overrideUIShader;
 
             public RenderPassEvent passEvent = RenderPassEvent.AfterRendering;
             public int passEventOffset = 10;
@@ -48,8 +49,8 @@ namespace PowerUtilities.Features
             {
                 get
                 {
-                    if (!uiMat && uiShader)
-                        uiMat = new Material(uiShader);
+                    if (!uiMat && overrideUIShader)
+                        uiMat = new Material(overrideUIShader);
                     return uiMat;
                 }
             }
