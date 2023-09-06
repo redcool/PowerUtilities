@@ -22,6 +22,13 @@ namespace PowerUtilities
             new ShaderTagId("VertexLM"),
         };
 
+        public static List<ShaderTagId> urpForwardShaderPassNames= new List<ShaderTagId>{
+            new ShaderTagId("SRPDefaultUnlit"),
+            new ShaderTagId("UniversalForward"),
+            new ShaderTagId("UniversalForwardOnly"),
+            new ShaderTagId("LightweightForward")
+        };
+
         public static Material ErrorMaterial => MaterialCacheTool.GetMaterial("Hidden/InternalErrorShader");
 
         public static void ConvertStringArray<T>(ref T[] results, Func<string, T> onConvert, params string[] names)

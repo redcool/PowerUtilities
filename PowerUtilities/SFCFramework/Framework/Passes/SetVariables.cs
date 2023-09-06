@@ -46,10 +46,21 @@ namespace PowerUtilities
         {
             var camera = renderingData.cameraData.camera;
 
-            Feature.floatValues.ForEach(v => cmd.SetGlobalFloat(v.name, v.value), v => v.IsValid);
-            Feature.vectorValues.ForEach(v => cmd.SetGlobalVector(v.name, v.value), v => v.IsValid);
-            Feature.intValues.ForEach(v => cmd.SetGlobalInt(v.name, v.value), v => v.IsValid);
-            Feature.textureValues.ForEach(v => cmd.SetGlobalTexture(v.name, v.value), v => v.IsValid);
+            //Feature.floatValues.ForEach(v => cmd.SetGlobalFloat(v.name, v.value), v => v.IsValid);
+            //Feature.vectorValues.ForEach(v => cmd.SetGlobalVector(v.name, v.value), v => v.IsValid);
+            //Feature.intValues.ForEach(v => cmd.SetGlobalInt(v.name, v.value), v => v.IsValid);
+            //Feature.textureValues.ForEach(v => cmd.SetGlobalTexture(v.name, v.value), v => v.IsValid);
+            foreach (var v in Feature.floatValues)
+                if (v.IsValid) cmd.SetGlobalFloat(v.name, v.value);
+
+            foreach (var v in Feature.vectorValues)
+                if (v.IsValid) cmd.SetGlobalVector(v.name, v.value);
+
+            foreach (var v in Feature.intValues)
+                if (v.IsValid) cmd.SetGlobalInt(v.name, v.value);
+
+            foreach (var v in Feature.textureValues)
+                if (v.IsValid) cmd.SetGlobalTexture(v.name, v.value);
 
             // update vars
             var isShadowMaskMixing = UniversalRenderPipeline.asset.IsLightmapShadowMixing(ref renderingData);

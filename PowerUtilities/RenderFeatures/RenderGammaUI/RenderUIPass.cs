@@ -136,7 +136,7 @@ namespace PowerUtilities.Features
 
             //---------------------  1 to gamma tex
             settings.blitMat.shaderKeywords=null;
-            settings.blitMat.SetFloat("_Double", 0);
+            //settings.blitMat.SetFloat("_Double", 0);
 
             SetColorSpace(cmd, ColorSpaceTransform.LinearToSRGB);
             BlitToGammaTarget(ref context, lastColorHandleId, colorHandleId, depthHandleId);
@@ -174,16 +174,11 @@ namespace PowerUtilities.Features
             cmd.Blit(BuiltinRenderTextureType.None, colorHandleId, settings.blitMat);
         }
 
-        private void DrawRenderers(ref ScriptableRenderContext context, ref RenderingData renderingData, RenderTargetIdentifier targetTexId,RenderTargetIdentifier depthHandleId)
+    private void DrawRenderers(ref ScriptableRenderContext context, ref RenderingData renderingData, RenderTargetIdentifier targetTexId,RenderTargetIdentifier depthHandleId)
         {
             var sortFlags = SortingCriteria.CommonTransparent;
 
-            var drawSettings = CreateDrawingSettings(new List<ShaderTagId>{
-                new ShaderTagId("SRPDefaultUnlit"),
-                new ShaderTagId("UniversalForward"), 
-                new ShaderTagId("UniversalForwardOnly"), 
-                new ShaderTagId("LightweightForward")
-                }, ref renderingData, sortFlags);
+            var drawSettings = CreateDrawingSettings(RenderingTools.urpForwardShaderPassNames, ref renderingData, sortFlags);
             
             if(settings.isOverrideUIShader && settings.UIMaterial)
                 drawSettings.overrideMaterial = settings.UIMaterial;

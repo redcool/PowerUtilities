@@ -51,9 +51,9 @@ namespace PowerUtilities
             return textureList;
         }
 
-        public static Texture2DArray Create2DArray(List<Texture2D> textures, int width, int height, TextureFormat tf,bool linear)
+        public static Texture2DArray Create2DArray(List<Texture2D> textures, int width, int height, TextureFormat tf,bool mipChain,bool linear)
         {
-            var arr = new Texture2DArray(width, height, textures.Count, tf, true, linear);
+            var arr = new Texture2DArray(width, height, textures.Count, tf, mipChain, linear);
             textures.ForEach((tex, id) =>
             {
                 Graphics.CopyTexture(tex, 0, arr, id);
@@ -69,7 +69,7 @@ namespace PowerUtilities
 
             var sample = textures[0];
             
-            return Create2DArray(textures, sample.width, sample.height, sample.format, linear);
+            return Create2DArray(textures, sample.width, sample.height, sample.format,true, linear);
         }
     }
 }

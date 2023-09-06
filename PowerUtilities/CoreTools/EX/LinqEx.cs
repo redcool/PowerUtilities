@@ -9,7 +9,7 @@
     public static class LinqEx
     {
 
-        public static void ForEachIndex<T>(this IEnumerable<T> q, Action<int> action)
+        public static void For<T>(this IEnumerable<T> q, Action<int> action)
         {
             if (q == null || action == null)
                 return;
@@ -74,7 +74,7 @@
 
         public static void SetData<T>(this IList<T> q,T t)
         {
-            q.ForEachIndex(i => q[i] = t);
+            q.For(i => q[i] = t);
         }
     }
 }
