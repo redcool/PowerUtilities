@@ -168,7 +168,7 @@ namespace PowerUtilities.Features
 
             if (settings.createFullsizeGammaTex)
             {
-                //cmd.ClearRenderTarget(true, false, Color.black, 1);
+                cmd.ClearRenderTarget(true, false, Color.black, 1);
             }
 
             cmd.Blit(BuiltinRenderTextureType.None, colorHandleId, settings.blitMat);
