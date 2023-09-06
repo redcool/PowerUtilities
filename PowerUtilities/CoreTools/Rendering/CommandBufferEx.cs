@@ -62,11 +62,11 @@ namespace PowerUtilities
             if (hasDepth)
                 desc.depthStencilFormat = GraphicsFormat.D24_UNorm_S8_UInt;
 
-            targetIds.ForEach((item, id) =>
+            //targetIds.ForEach((item, id) =>
+            foreach ( var item in targetIds )
             {
-
                 Cmd.GetTemporaryRT(item, desc);
-            });
+            };
 
         }
 
@@ -78,7 +78,8 @@ namespace PowerUtilities
             var desc = defaultDescriptor;
             desc.SetupColorDescriptor(camera, renderScale, false, samples);
 
-            targetInfos.ForEach((info, id) =>
+            //targetInfos.ForEach((info, id) =>
+            foreach ( var info in targetInfos )
             {
                 if (! info.IsValid())
                     return;
@@ -103,7 +104,7 @@ namespace PowerUtilities
                     desc.depthStencilFormat = GraphicsFormat.D24_UNorm_S8_UInt;
 
                 cmd.GetTemporaryRT(info.GetTextureId(), desc);
-            });
+            };
         }
 
         public static void CreateDepthTargets(this CommandBuffer Cmd, Camera camera, int[] targetIds, float renderScale = 1, int samples = 1)

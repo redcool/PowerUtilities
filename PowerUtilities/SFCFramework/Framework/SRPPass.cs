@@ -20,10 +20,12 @@ namespace PowerUtilities.RenderFeatures
 
         protected Camera camera;
         protected ScriptableRenderContext context;
+        public string featureName;
 
         public SRPPass(T feature)
         {
             Feature = feature;
+            featureName = feature.name;
         }
 
         /// <summary>
@@ -73,7 +75,7 @@ namespace PowerUtilities.RenderFeatures
             if (! CanExecute())
                 return;
 
-            var cmd = CommandBufferPool.Get(Feature.name);
+            var cmd = CommandBufferPool.Get(featureName);
             cmd.Execute(ref context);
 
             OnExecute(context, ref renderingData,cmd);

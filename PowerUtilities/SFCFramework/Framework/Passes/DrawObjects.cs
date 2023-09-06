@@ -101,6 +101,7 @@
 
         DrawSkyboxPass drawSkyboxPass;
         DrawChildrenInstancedPass drawChildrenInstancedPass;
+
         public DrawObjectsPassWrapper(DrawObjects feature) : base(feature)
         {
             drawObjectsPass = new FullDrawObjectsPass(feature);
@@ -146,7 +147,7 @@
 
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
         {
-            cmd.BeginSampleExecute(Feature.name, ref context);
+            cmd.BeginSampleExecute(featureName, ref context);
 
             drawObjectsPass.OnExecute(context, ref renderingData, cmd);
 
@@ -155,7 +156,7 @@
             if (drawSkyboxPass != null)
                 drawSkyboxPass.Execute(context, ref renderingData);
 
-            cmd.EndSampleExecute(Feature.name, ref context);
+            cmd.EndSampleExecute(featureName, ref context);
         }
     }
 

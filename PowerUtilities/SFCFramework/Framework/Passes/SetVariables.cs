@@ -18,6 +18,10 @@ namespace PowerUtilities
         public List<ShaderValue<Vector4>> vectorValues = new List<ShaderValue<Vector4>>();
         public List<ShaderValue<Texture>> textureValues = new List<ShaderValue<Texture>>();
 
+        [Header("auto variables")]
+        [Tooltip("get ForwardLights and set _Shadows_ShadowMaskOn")]
+        public bool isAutoSetShadowMask;
+
         public override ScriptableRenderPass GetPass() => new SetVarialbesPass(this);
     }
 
@@ -63,8 +67,11 @@ namespace PowerUtilities
                 if (v.IsValid) cmd.SetGlobalTexture(v.name, v.value);
 
             // update vars
-            var isShadowMaskMixing = UniversalRenderPipeline.asset.IsLightmapShadowMixing(ref renderingData);
-            cmd.SetGlobalBool(ShaderPropertyIds.shadows_ShadowMaskOn, isShadowMaskMixing);
+            if (Feature.isAutoSetShadowMask)
+            {
+                var isShadowMaskMixing = UniversalRenderPipeline.asset.IsLightmapShadowMixing(ref renderingData);
+                cmd.SetGlobalBool(ShaderPropertyIds.shadows_ShadowMaskOn, isShadowMaskMixing);
+            }
         }
 
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)

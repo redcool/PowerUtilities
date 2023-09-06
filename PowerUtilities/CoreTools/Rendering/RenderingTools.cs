@@ -29,7 +29,9 @@ namespace PowerUtilities
             new ShaderTagId("LightweightForward")
         };
 
-        public static Material ErrorMaterial => MaterialCacheTool.GetMaterial("Hidden/InternalErrorShader");
+
+        public static Material ErrorMaterial = new Material(Shader.Find("Hidden/InternalErrorShader"));
+            //=> MaterialCacheTool.GetMaterial("Hidden/InternalErrorShader");
 
         public static void ConvertStringArray<T>(ref T[] results, Func<string, T> onConvert, params string[] names)
         {

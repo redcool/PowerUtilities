@@ -206,9 +206,15 @@ namespace PowerUtilities.Features
 
         bool AnyCameraHasPostProcessing()
         {
-            return Camera.allCameras.
-                Select(c => c.GetComponent<UniversalAdditionalCameraData>()).
-                Any(cd => cd.renderPostProcessing);
+            //return Camera.allCameras.
+            //    Select(c => c.GetComponent<UniversalAdditionalCameraData>()).
+            //    Any(cd => cd.renderPostProcessing);
+            foreach (var cam in Camera.allCameras)
+            {
+                var cd = cam.GetComponent<UniversalAdditionalCameraData>();
+                if(cd.renderPostProcessing) return true;
+            }
+            return false;
         }
 
         int GetLastColorTargetId(ref RenderingData renderingData) => (AnyCameraHasPostProcessing() && renderingData.postProcessingEnabled )? _CameraColorAttachmentB : _CameraColorAttachmentA ;
