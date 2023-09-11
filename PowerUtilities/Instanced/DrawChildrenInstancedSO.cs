@@ -39,7 +39,7 @@ namespace PowerUtilities
         public string excludeTag = Tags.EditorOnly;
         [Tooltip("< groupMinCount,dont use instanced rendering")]
         public Transform dontInstancedGroup;
-        public int groupMinCount = 10;
+        public int groupMinCount = 30;
         
 
         [Header("When done")]
