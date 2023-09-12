@@ -20,8 +20,6 @@ namespace PowerUtilities
             ,guiSelectAll = new GUIContent("SelectAll","select children gameobjects")
             ;
 
-        SerializedObject drawInfoSerailizedObject;
-
         Editor drawInfoEditor;
         bool isActive;
 
@@ -136,12 +134,24 @@ namespace PowerUtilities
 
         private static void BakeChildren(DrawChildrenInstanced inst)
         {
+            CreateDontInstancedGroup(inst);
+
             inst.drawInfoSO.Clear();
             inst.drawInfoSO.SetupChildren(inst.gameObject);
 
             EditorUtility.SetDirty(inst.drawInfoSO);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
+        }
+
+        static void CreateDontInstancedGroup(DrawChildrenInstanced inst)
+        {
+            var dontInstancedGroup = GameObject.Find(nameof(inst.drawInfoSO.dontInstancedGroup));
+            if(!dontInstancedGroup )
+            {
+                dontInstancedGroup = new GameObject(nameof(inst.drawInfoSO.dontInstancedGroup));
+                inst.drawInfoSO.dontInstancedGroup = dontInstancedGroup.transform;
+            }
         }
 
         static DrawChildrenInstancedSO CreateNewProfile(DrawChildrenInstanced inst,string soName, string soPath,bool isExist)

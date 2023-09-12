@@ -37,6 +37,8 @@ namespace PowerUtilities
         [Tooltip("find children include inactive")]
         public bool includeInactive;
         public string excludeTag = Tags.EditorOnly;
+
+        [Header("No Instanced Options")]
         [Tooltip("< groupMinCount,dont use instanced rendering")]
         public Transform dontInstancedGroup;
         public int groupMinCount = 30;
@@ -107,9 +109,6 @@ namespace PowerUtilities
             
             if (disableChildren)
                 SetRendersActive(false);
-
-            if (!dontInstancedGroup)
-                dontInstancedGroup = new GameObject(nameof(dontInstancedGroup)).transform;
 
             groupList.Clear();
 
