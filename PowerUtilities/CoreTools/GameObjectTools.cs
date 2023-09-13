@@ -113,18 +113,42 @@
         /// <param name="includeInactive"></param>
         public static void DestroyChildren<T>(this GameObject go, bool includeInactive = false) where T : Component
         {
+            // Transform, 
+            if(typeof(T) == typeof(Transform))
+            {
+                DestroyChildren(go, includeInactive);
+                return;
+            }
+
+            // not Transform
             var childrenGos = go.GetComponentsInChildren<T>(includeInactive)
                 .Select(c => c.gameObject)
                 .ToArray();
 
-            childrenGos.ForEach(c =>
+            //childrenGos.ForEach(c =>
+            foreach (var c in childrenGos)
             {
+                if (c.gameObject == go)
+                    continue;
 #if UNITY_EDITOR
                 Undo.DestroyObjectImmediate(c);
 #else
                 Object.Destroy(c);
 #endif
-            });
+            };
+        }
+
+        public static void DestroyChildren(this GameObject go, bool includeInactive = false)
+        {
+            for (int i = go.transform.childCount - 1; i >= 0; i--)
+            {
+                var c = go.transform.GetChild(i).gameObject;
+#if UNITY_EDITOR
+                Undo.DestroyObjectImmediate(c);
+#else
+                Object.Destroy(c);
+#endif
+            }
         }
 
         public static GameObject[] CreateLinkChildren(this GameObject go, params GameObject[] children)
