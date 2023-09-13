@@ -20,15 +20,12 @@ namespace PowerUtilities
         public Texture2D[] lightmaps;
         public Texture2D[] shadowMasks;
         public bool enableLightmap = true;
+        [Tooltip("Lighting Mode is subtractive?")]
+        public bool isSubstractiveMode = false;
 
         [Header("Lightmap Array")]
         public Texture2DArray lightmapArray;
         public bool isEnableLightmapArray;
-
-        [Header("Lightmap Mode")]
-        [Tooltip("Lighting Mode is subtractive?")]
-        public bool isSubstractiveMode = false;
-
 
         [Header("Find Children Filters")]
         [Tooltip("object 's layer ")]
@@ -38,9 +35,7 @@ namespace PowerUtilities
         public bool includeInactive;
         public string excludeTag = Tags.EditorOnly;
 
-        [Header("No Instanced Options")]
-        [Tooltip("< groupMinCount,dont use instanced rendering")]
-        public Transform dontInstancedGroup;
+        [Tooltip("< this,use srp batch")]
         public int groupMinCount = 30;
         
 
@@ -106,22 +101,24 @@ namespace PowerUtilities
 
             if (renders.Length == 0)
                 return;
-            
-            if (disableChildren)
-                SetRendersActive(false);
 
             groupList.Clear();
-
+            List<Renderer> removedRenderList = null;
             if (isEnableLightmapArray)
             {
-                SetupGroupListByMesh(renders, groupList,groupMinCount,dontInstancedGroup);
+                removedRenderList = SetupGroupListByMesh(renders, groupList,this);
             }
             else
             {
-                SetupGroupList(renders, groupList, groupMinCount, dontInstancedGroup);
+                removedRenderList = SetupGroupList(renders, groupList, this);
             }
+            // remove dont instanced renders
+            renders = renders.Where(r => !removedRenderList.Contains(r)).ToArray();
 
             SetupLightmaps();
+            
+            if (disableChildren)
+                SetRendersActive(false);
 
             // refresh culling
             forceRefresh = true; 
@@ -181,26 +178,34 @@ namespace PowerUtilities
         /// </summary>
         /// <param name="renders"></param>
         /// <param name="groupList"></param>
-        public static void SetupGroupList(Renderer[] renders, List<InstancedGroupInfo> groupList,int groupMinCount, Transform dontInstancedGroup)
+        public static List<Renderer> SetupGroupList(Renderer[] renders, List<InstancedGroupInfo> groupList,DrawChildrenInstancedSO inst)
         {
             // use lightmapIndex,mesh as group
             var lightmapMeshGroups = renders.GroupBy(r => new { r.lightmapIndex, r.GetComponent<MeshFilter>().sharedMesh, r.sharedMaterial });
-            FillGroupList(lightmapMeshGroups, groupList, groupMinCount, dontInstancedGroup);
+            return FillGroupList(lightmapMeshGroups, groupList, inst);
         }
-        public static void SetupGroupListByMesh(Renderer[] renders, List<InstancedGroupInfo> groupList, int groupMinCount, Transform dontInstancedGroup)
+        public static List<Renderer> SetupGroupListByMesh(Renderer[] renders, List<InstancedGroupInfo> groupList, DrawChildrenInstancedSO inst)
         {
             // use lightmapIndex,mesh as group
             var meshGroups = renders.GroupBy(r => new { r.GetComponent<MeshFilter>().sharedMesh, r.sharedMaterial });
-            FillGroupList(meshGroups, groupList, groupMinCount, dontInstancedGroup);
+            return FillGroupList(meshGroups, groupList, inst);
         }
 
-        static void FillGroupList(IEnumerable<IGrouping<object, Renderer>> lightmapMeshGroups, List<InstancedGroupInfo> groupList,int groupMinCount,Transform dontInstancedGroup)
+        public static List<Renderer> FillGroupList(IEnumerable<IGrouping<object, Renderer>> lightmapMeshGroups, List<InstancedGroupInfo> groupList, DrawChildrenInstancedSO inst)
         {
+            var removedRenders = new List<Renderer>();
+            //var sb = new StringBuilder();
             lightmapMeshGroups.ForEach((group, groupId) =>
             {
-                if (group.Count() < groupMinCount)
+                //sb.AppendLine(groupId+":"+ group.Count());
+                if (group.Count() < inst.groupMinCount)
                 {
-                    MoveToDontInstancedGroup(group, dontInstancedGroup);
+                    //sb.AppendLine("dont instanced "+groupId);
+                    group.ForEach(r => {
+                        r.enabled = true;
+                        r.sharedMaterial.enableInstancing = true;
+                        removedRenders.Add(r);
+                    });
                     return;
                 }
                 // a instanced group
@@ -213,17 +218,9 @@ namespace PowerUtilities
                     groupInfo.AddRender(boundSphereSize, r.GetComponent<MeshFilter>().sharedMesh, r.sharedMaterial, r.transform.localToWorldMatrix, r.lightmapScaleOffset, r.lightmapIndex);
                 });
             });
+            //Debug.Log(sb);
+            return removedRenders;
         }
-
-        private static void MoveToDontInstancedGroup(IGrouping<object, Renderer> group,Transform parent)
-        {
-            group.ForEach((Renderer r, int renderId) =>
-            {
-                r.enabled = true;
-                r.transform.SetParent(parent, true);
-            });
-        }
-
 
         public void Clear()
         {

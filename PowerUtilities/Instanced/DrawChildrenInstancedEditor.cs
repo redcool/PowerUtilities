@@ -65,7 +65,7 @@ namespace PowerUtilities
             {
                 isActive = !isActive;
                 //inst.gameObject.SetChildrenActive(isChildrenActive);
-                inst.drawInfoSO.SetupRenderers(inst.gameObject);
+                //inst.drawInfoSO.SetupRenderers(inst.gameObject);
                 inst.drawInfoSO.SetRendersActive(isActive);
             }
             if (GUILayout.Button(guiDeleteChildren))
@@ -75,7 +75,7 @@ namespace PowerUtilities
 
             if (GUILayout.Button(guiSelectAll))
             {
-                inst.drawInfoSO.SetupRenderers(inst.gameObject);
+                //inst.drawInfoSO.SetupRenderers(inst.gameObject);
                 var objs = inst.drawInfoSO.renders.Select(r => r.gameObject).ToArray();
                 Selection.objects = objs;
             }
@@ -134,24 +134,12 @@ namespace PowerUtilities
 
         private static void BakeChildren(DrawChildrenInstanced inst)
         {
-            CreateDontInstancedGroup(inst);
-
             inst.drawInfoSO.Clear();
             inst.drawInfoSO.SetupChildren(inst.gameObject);
 
             EditorUtility.SetDirty(inst.drawInfoSO);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
-        }
-
-        static void CreateDontInstancedGroup(DrawChildrenInstanced inst)
-        {
-            var dontInstancedGroup = GameObject.Find(nameof(inst.drawInfoSO.dontInstancedGroup));
-            if(!dontInstancedGroup )
-            {
-                dontInstancedGroup = new GameObject(nameof(inst.drawInfoSO.dontInstancedGroup));
-                inst.drawInfoSO.dontInstancedGroup = dontInstancedGroup.transform;
-            }
         }
 
         static DrawChildrenInstancedSO CreateNewProfile(DrawChildrenInstanced inst,string soName, string soPath,bool isExist)
