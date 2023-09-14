@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
@@ -19,7 +20,12 @@ namespace PowerUtilities.Features
 
             public RenderPassEvent passEvent = RenderPassEvent.AfterRendering;
             public int passEventOffset = 10;
+
+            [Tooltip("main render object's layer")]
             public LayerMask layerMask = 32;
+
+            [Tooltip("render objects use layers, one by one")]
+            public List<LayerMask> layerList = new List<LayerMask>();
 
             [Tooltip("Define ui camera use this tag, otherwise will check automatic(1 linear space,2 overlay camera,3 camera cullingMask is UI)")]
             public string cameraTag;
@@ -41,6 +47,7 @@ namespace PowerUtilities.Features
 
             [Header("Editor Options")]
             public bool reset;
+            [Multiline]
             public string logs;
 
 

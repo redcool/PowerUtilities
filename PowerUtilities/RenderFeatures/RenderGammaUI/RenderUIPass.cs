@@ -172,13 +172,13 @@ namespace PowerUtilities.Features
             cmd.Blit(BuiltinRenderTextureType.None, colorHandleId, settings.blitMat);
         }
 
-    private void DrawRenderers(ref ScriptableRenderContext context, ref RenderingData renderingData, RenderTargetIdentifier targetTexId,RenderTargetIdentifier depthHandleId)
+        private void DrawRenderers(ref ScriptableRenderContext context, ref RenderingData renderingData, RenderTargetIdentifier targetTexId, RenderTargetIdentifier depthHandleId)
         {
             var sortFlags = SortingCriteria.CommonTransparent;
 
             var drawSettings = CreateDrawingSettings(RenderingTools.urpForwardShaderPassNames, ref renderingData, sortFlags);
-            
-            if(settings.isOverrideUIShader && settings.UIMaterial)
+
+            if (settings.isOverrideUIShader && settings.UIMaterial)
                 drawSettings.overrideMaterial = settings.UIMaterial;
 
             var filterSettings = new FilteringSettings(RenderQueueRange.transparent, settings.layerMask);
@@ -200,6 +200,17 @@ namespace PowerUtilities.Features
 
             var renderStateBlock = GetRenderStateBlock();
             context.DrawRenderers(renderingData.cullResults, ref drawSettings, ref filterSettings, ref renderStateBlock);
+
+            // render objects by layerMasks order
+            if (settings.layerList.Count >0)
+            {
+                foreach (var layer in settings.layerList)
+                {
+                    filterSettings.layerMask = layer;
+
+                    context.DrawRenderers(renderingData.cullResults, ref drawSettings, ref filterSettings, ref renderStateBlock);
+                }
+            }
         }
 
         bool AnyCameraHasPostProcessing()
