@@ -8,6 +8,11 @@ namespace PowerUtilities.Features
 {
     public class RenderGammaUIFeature : ScriptableRendererFeature
     {
+        public enum DepthBufferBits
+        {
+            _0 = 0, _16 = 16, _24 = 24, _32 = 32
+        }
+
         [Serializable]
         public class Settings
         {
@@ -30,23 +35,33 @@ namespace PowerUtilities.Features
             [Tooltip("Define ui camera use this tag, otherwise will check automatic(1 linear space,2 overlay camera,3 camera cullingMask is UI)")]
             public string cameraTag;
 
+            [Header("Blit Options")]
+            [Tooltip("check this when rendering UI")]
+            public bool isFinalRendering = true;
+
+            /**** 
+             * ui rendering 
+             * ***/
+
             [Header("Fullsize Texture")]
             [Tooltip("create other full size texture,when RenderingScale < 1, rendering objects in fullscreen,FSR need this text")]
             public bool createFullsizeGammaTex;
 
             [Tooltip("Need use stencil buffer?")]
-            public bool useStencilBuffer=true;
+            public DepthBufferBits depthBufferBits = DepthBufferBits._24;
+
             public StencilStateData stencilStateData;
 
             [Header("Performance Options")]
             [Tooltip("Best option is close for Middle device.")]
             public bool disableFSR = true;
 
-            [Tooltip("No blit,no gamma texture,draw in linear space")]
-            public bool isWriteToCameraTarget;
+            [Tooltip("No blit,no gamma texture,draw in linear space,output to camera target")]
+            public bool isWriteToCameraTargetDirectly;
+
+
 
             [Header("Editor Options")]
-            public bool reset;
             [Multiline]
             public string logs;
 
@@ -72,7 +87,7 @@ namespace PowerUtilities.Features
 
         }
 
-        public static bool IsUICamera(ref CameraData cameraData,string cameraTag)
+        public static bool IsUICamera(ref CameraData cameraData, string cameraTag)
         {
             var isUICamera = false;
 
@@ -110,16 +125,21 @@ namespace PowerUtilities.Features
                 settings.logs = "UICamera not found";
                 return;
             }
-
-            if ((cameraData.camera.cullingMask & settings.layerMask) == 0)
+            // ui rendering checks
+            if (settings.isFinalRendering)
             {
-                settings.logs = "UICamera.cullingMask != settings.layerMask";
-                return;
-            }
-            if (uiPass == null)
-                uiPass  = new RenderUIPass();
 
-            uiPass.renderPassEvent = settings.passEvent+settings.passEventOffset;
+                if ((cameraData.camera.cullingMask & settings.layerMask) == 0)
+                {
+                    settings.logs = "UICamera.cullingMask != settings.layerMask";
+                    return;
+                }
+            }
+
+            if (uiPass == null)
+                uiPass = new RenderUIPass();
+
+            uiPass.renderPassEvent = settings.passEvent + settings.passEventOffset;
             uiPass.settings = settings;
 
             renderer.EnqueuePass(uiPass);

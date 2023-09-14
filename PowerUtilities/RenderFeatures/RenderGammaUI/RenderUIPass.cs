@@ -102,7 +102,7 @@ namespace PowerUtilities.Features
             if (Display.main.requiresSrgbBlitToBackbuffer)
                 return true;
 
-            return settings.isWriteToCameraTarget;
+            return settings.isWriteToCameraTargetDirectly;
         }
 
         public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
@@ -122,43 +122,52 @@ namespace PowerUtilities.Features
 #if UNITY_EDITOR
             if (cameraData.isSceneViewCamera)
             {
-                DrawRenderers(ref context, ref renderingData, 2,2);
+                DrawRenderers(ref context, ref renderingData, 2, 2);
                 return;
             }
 #endif
-
             cmd.BeginSample(nameof(RenderUIPass));
 
-            int lastColorHandleId,colorHandleId,depthHandleId;
-            SetupTargetTex(ref renderingData, ref cameraData, out lastColorHandleId, out colorHandleId,out depthHandleId);
+            int lastColorHandleId, colorHandleId, depthHandleId;
+            SetupTargetTex(ref renderingData, ref cameraData, out lastColorHandleId, out colorHandleId, out depthHandleId);
 
             //---------------------  1 to gamma tex
-            settings.blitMat.shaderKeywords=null;
+            settings.blitMat.shaderKeywords = null;
             //settings.blitMat.SetFloat("_Double", 0);
 
             SetColorSpace(cmd, ColorSpaceTransform.LinearToSRGB);
-            BlitToGammaTarget(ref context, lastColorHandleId, colorHandleId, depthHandleId);
+            BlitToTarget(ref context, lastColorHandleId, colorHandleId, depthHandleId);
 
             //--------------------- 2 draw ui
-            DrawRenderers(ref context, ref renderingData, colorHandleId,depthHandleId);
+            DrawRenderers(ref context, ref renderingData, colorHandleId, depthHandleId);
 
 
             //--------------------- 3 to colorTarget
             SetColorSpace(cmd, ColorSpaceTransform.SRGBToLinear);
-            Blit(cmd, BuiltinRenderTextureType.CurrentActive, BuiltinRenderTextureType.CameraTarget, settings.blitMat);
+
+            if (settings.isFinalRendering)
+            {
+                // write to CameraTarget
+                Blit(cmd, BuiltinRenderTextureType.CurrentActive, BuiltinRenderTextureType.CameraTarget, settings.blitMat);
+            }
+            else
+            {
+                // write to urp target
+                BlitToTarget(ref context, colorHandleId, lastColorHandleId, depthHandleId);
+            }
 
             //------------- end 
             if (settings.createFullsizeGammaTex)
                 cmd.ReleaseTemporaryRT(_GammaTex);
 
             SetColorSpace(cmd, ColorSpaceTransform.None);
-            
+
             cmd.EndSample(nameof(RenderUIPass));
 
             cmd.Execute(ref context);
         }
 
-        void BlitToGammaTarget(ref ScriptableRenderContext context, int lastColorHandleId, RenderTargetIdentifier colorHandleId, RenderTargetIdentifier depthHandleId)
+        void BlitToTarget(ref ScriptableRenderContext context, int lastColorHandleId, RenderTargetIdentifier colorHandleId, RenderTargetIdentifier depthHandleId)
         {
             // _CameraOpaqueTexture is _CameraColorAttachmentA or _CameraColorAttachmentB
             cmd.SetGlobalTexture(_SourceTex, lastColorHandleId);
@@ -221,7 +230,7 @@ namespace PowerUtilities.Features
             foreach (var cam in Camera.allCameras)
             {
                 var cd = cam.GetComponent<UniversalAdditionalCameraData>();
-                if(cd.renderPostProcessing) return true;
+                if(cd && cd.renderPostProcessing) return true;
             }
             return false;
         }
@@ -248,7 +257,7 @@ namespace PowerUtilities.Features
                 desc.msaaSamples = 1;
                 desc.colorFormat = RenderTextureFormat.Default;
                 desc.sRGB = false;
-                desc.depthBufferBits = settings.useStencilBuffer ? 24 : 0;
+                desc.depthBufferBits = (int)settings.depthBufferBits;
                 cmd.GetTemporaryRT(_GammaTex, desc);
 
                 colorHandleId = _GammaTex;
