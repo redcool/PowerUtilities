@@ -30,7 +30,7 @@ namespace PowerUtilities
         {
             if (!string.IsNullOrEmpty(Version))
             {
-                EditorGUITools.DrawColorLabel(new Rect(100, 8, 100, 16), new GUIContent(Version), Color.cyan);
+                EditorGUITools.DrawColorLabel(new Rect(100, 5, 100, 16), new GUIContent(Version), Color.cyan);
             }
 
             if (NeedDrawDefaultUI())
