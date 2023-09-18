@@ -10,6 +10,7 @@ Shader "UI/Default"
         [Enum(UnityEngine.Rendering.CompareFunction)]_StencilComp ("Stencil Comparison", Float) = 8
         _Stencil ("Stencil ID", Float) = 0
         [Enum(UnityEngine.Rendering.StencilOp)]_StencilOp ("Stencil Operation", Float) = 0
+        [Enum(UnityEngine.Rendering.StencilOp)]_StencilFailOp ("Stencil Fail Operation", Float) = 0
         _StencilWriteMask ("Stencil Write Mask", Float) = 255
         _StencilReadMask ("Stencil Read Mask", Float) = 255
 
@@ -34,6 +35,7 @@ Shader "UI/Default"
              Ref [_Stencil]
              Comp [_StencilComp]
              Pass [_StencilOp]
+             Fail[_StencilFailOp]
              ReadMask [_StencilReadMask]
              WriteMask [_StencilWriteMask]
          }
