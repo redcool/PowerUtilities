@@ -36,8 +36,9 @@ namespace PowerUtilities
         public Material mainMat, trailMat;
     }
 
-
+#if UNITY_EDITOR
     [CanEditMultipleObjects]
+#endif
     [ExecuteInEditMode]
     public class GammaUIParticleControl : MonoBehaviour//,IMaterialModifier
     {
