@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+using static UnityEngine.Experimental.Rendering.Universal.RenderObjects;
 
 namespace PowerUtilities.Features
 {
@@ -26,11 +27,18 @@ namespace PowerUtilities.Features
             public RenderPassEvent passEvent = RenderPassEvent.AfterRendering;
             public int passEventOffset = 10;
 
+            [Header("Filter")]
             [Tooltip("main render object's layer")]
-            public LayerMask layerMask = 32;
+            //public LayerMask layerMask = 32;
+
+            public FilteringSettingsInfo filterInfo = new FilteringSettingsInfo
+            {
+                layers = 32,
+                renderQueueRangeInfo = new RangeInfo(2501,5000)
+            };
 
             [Tooltip("render objects use layers, one by one")]
-            public List<LayerMask> layerList = new List<LayerMask>();
+            public List<FilteringSettingsInfo> filterInfoList = new List<FilteringSettingsInfo>();
 
             [Tooltip("Define ui camera use this tag, otherwise will check automatic(1 linear space,2 overlay camera,3 camera cullingMask is UI)")]
             public string cameraTag;
@@ -129,7 +137,7 @@ namespace PowerUtilities.Features
             if (settings.isFinalRendering)
             {
 
-                if ((cameraData.camera.cullingMask & settings.layerMask) == 0)
+                if ((cameraData.camera.cullingMask & settings.filterInfo.layers) == 0)
                 {
                     settings.logs = "UICamera.cullingMask != settings.layerMask";
                     return;

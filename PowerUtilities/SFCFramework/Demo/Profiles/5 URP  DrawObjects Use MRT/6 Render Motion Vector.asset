@@ -12,13 +12,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b6d46e5148b37904c9f61b224c64feb9, type: 3}
   m_Name: 6 Render Motion Vector
   m_EditorClassIdentifier: 
+  nodeInfo:
+    pos:
+      serializedVersion: 2
+      x: 0
+      y: 0
+      width: 200
+      height: 100
+    guid: 
+    title: 
   enabled: 1
   interrupt: 0
+  isSceneCameraOnly: 0
+  gameCameraCompareType: 0
   gameCameraTag: MainCamera
   renderPassEvent: 400
   renderPassEventOffset: 0
   log: 
-  isFoldout: 0
+  isFoldout: 1
   isRenderCameraMotionVectors: 0
   isCreateMotionVectorTexture: 0
   cameraMotionMat: {fileID: 2100000, guid: 193eeeaf8639c074aafe5e1af3ce72ea, type: 2}

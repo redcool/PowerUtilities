@@ -175,7 +175,7 @@ namespace PowerUtilities.Features
 
             if (settings.createFullsizeGammaTex)
             {
-                cmd.ClearRenderTarget(true, false, Color.black, 1);
+                cmd.ClearRenderTarget(true, false, Color.black,1);
             }
 
             cmd.Blit(BuiltinRenderTextureType.None, colorHandleId, settings.blitMat);
@@ -190,7 +190,8 @@ namespace PowerUtilities.Features
             if (settings.isOverrideUIShader && settings.UIMaterial)
                 drawSettings.overrideMaterial = settings.UIMaterial;
 
-            var filterSettings = new FilteringSettings(RenderQueueRange.transparent, settings.layerMask);
+            //var filterSettings = new FilteringSettings(RenderQueueRange.transparent, settings.filterInfo.layers);
+            FilteringSettings filterSettings = settings.filterInfo;
 #if UNITY_EDITOR
             // When rendering the preview camera, we want the layer mask to be forced to Everything
             if (renderingData.cameraData.isPreviewCamera)
@@ -211,11 +212,17 @@ namespace PowerUtilities.Features
             context.DrawRenderers(renderingData.cullResults, ref drawSettings, ref filterSettings, ref renderStateBlock);
 
             // render objects by layerMasks order
-            if (settings.layerList.Count >0)
+            if (settings.filterInfoList.Count >0)
             {
-                foreach (var layer in settings.layerList)
+                foreach (var info in settings.filterInfoList)
                 {
-                    filterSettings.layerMask = layer;
+                    if (!info.enabled)
+                        continue;
+                    //filterSettings.layerMask = info.layers;
+                    //filterSettings.renderQueueRange = new RenderQueueRange(info.renderQueueRangeInfo.min, info.renderQueueRangeInfo.max);
+
+                    //FilteringSettingsInfo.SetupFilterSettingss(ref filterSettings, info);
+                    filterSettings = info;
 
                     context.DrawRenderers(renderingData.cullResults, ref drawSettings, ref filterSettings, ref renderStateBlock);
                 }

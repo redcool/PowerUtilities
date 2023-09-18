@@ -10,23 +10,34 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f3c6d2cd4defcb49920b98f50d01b66, type: 3}
-  m_Name: 7 Draw Objects mrt 1
+  m_Name: 7 Draw Objects Alpha
   m_EditorClassIdentifier: 
-  enabled: 1
+  nodeInfo:
+    pos:
+      serializedVersion: 2
+      x: 0
+      y: 0
+      width: 200
+      height: 100
+    guid: 
+    title: 
+  enabled: 0
   interrupt: 0
-  gameCameraTag: MainCamera
-  renderPassEvent: 250
-  renderPassEventOffset: 0
+  isSceneCameraOnly: 0
+  gameCameraCompareType: 0
+  gameCameraTag: UICamera
+  renderPassEvent: 1000
+  renderPassEventOffset: 11
   log: 
-  isFoldout: 0
+  isFoldout: 1
   shaderTags:
   - UniversalForwardOnly
   - UniversalForward
   - SRPDefaultUnlit
-  isOpaque: 1
+  isOpaque: 0
   layers:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 256
   stencilData:
     overrideStencilState: 0
     stencilReference: 0
@@ -36,6 +47,7 @@ MonoBehaviour:
     zFailOperation: 0
   overrideMaterial: {fileID: 0}
   overrideMaterialPassIndex: 0
+  fallbackMaterial: {fileID: 0}
   overridePerObjectData: 0
   perObjectData: 0
   overrideMainLightIndex: 0
@@ -49,8 +61,12 @@ MonoBehaviour:
   enableDynamicBatching: 0
   overrideGPUInstancing: 0
   enableGPUInstancing: 0
-  overrideSRPBatch: 0
-  enableSRPBatch: 0
-  isRestoreSRPBatch: 0
+  overrideSRPBatch: 1
+  enableSRPBatch: 1
+  overrideCamera: 0
+  cameraFOV: 60
+  cameraOffset: {x: 0, y: 0, z: 0, w: 0}
   isDrawSkybox: 0
   drawSkyboxEvent: 350
+  isDrawChildrenInstancedOn: 0
+  forceFindDrawChildrenInstanced: 0
