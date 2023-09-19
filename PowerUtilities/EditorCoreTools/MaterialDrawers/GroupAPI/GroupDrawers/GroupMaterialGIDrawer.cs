@@ -32,7 +32,7 @@ namespace PowerUtilities
             {
                 foreach (Material mat in editor.targets)
                 {
-                    mat.globalIlluminationFlags &= ~MaterialGlobalIlluminationFlags.BakedEmissive;
+                    mat.globalIlluminationFlags &= ~MaterialGlobalIlluminationFlags.EmissiveIsBlack;
                 }
             }
             
