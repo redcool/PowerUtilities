@@ -48,7 +48,7 @@ Shader "Hidden/Blur"
             HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-
+            #pragma multi_compile _ _SSPR_BLUR_SINGLE_PASS
 
             half4 frag (v2f i) : SV_Target
             {
@@ -62,9 +62,14 @@ Shader "Hidden/Blur"
                     fading = (1-pos.y)*10;
                     #endif
                 }
-float4 col = SAMPLE_TEXTURE2D(_MainTex,sampler_linear_repeat,i.uv);
+                
+                // float4 col = SAMPLE_TEXTURE2D(_MainTex,sampler_linear_repeat,i.uv);
                 float2 uvOffset = _MainTex_TexelSize.xy * _BlurSize;
                 float4 blurCol = BoxBlur(_MainTex,sampler_linear_repeat,i.uv,uvOffset * float2(1,0),_StepCount);
+                #if defined(_SSPR_BLUR_SINGLE_PASS)
+                    blurCol += BoxBlur(_MainTex,sampler_linear_repeat,i.uv,uvOffset * float2(0,1),_StepCount);
+                    blurCol *= 0.5;
+                #endif
                 return blurCol;
                 // return lerp(col,blurCol,saturate(fading));
             }

@@ -56,7 +56,14 @@ using UnityEngine.Rendering.Universal;
         {
             Hash, // cspass(Hash,Hash Resolve)
             CS_PASS_2,// cspass(csMain,csMain)
-            CS_PASS_1 // cspass(csMain)
+            //CS_PASS_1 // cspass(csMain)
+        }
+
+        public enum BlurPassMode
+        {
+            TwoPasses,
+            SinglePass,
+            SinglePassCalcVerticle
         }
 
         [Serializable]
@@ -83,7 +90,7 @@ using UnityEngine.Rendering.Universal;
             [Range(0,2)]public int downSamples;
             [Header("Blur")]
             public bool isApplyBlur;
-            public bool isSinglePass = true;
+            public BlurPassMode blurPassMode;
             public Material blurMat;
             [Min(1)]public float blurSize=1;
             [Range(2,10)]public int stepCount=10;
@@ -226,7 +233,7 @@ using UnityEngine.Rendering.Universal;
 
                 switch (settings.runMode)
                 {
-                    case RunMode.CS_PASS_1:
+                    //case RunMode.CS_PASS_1:
                     case RunMode.CS_PASS_2:
                         CSClear(cs, cmd, threads);
                         CSMain(cs, cmd, threads, renderer);
@@ -334,8 +341,13 @@ using UnityEngine.Rendering.Universal;
                 settings.blurMat.SetInt(_StepCount, settings.stepCount);
 
                 cmd.Blit(_ReflectionTexture, _BlurReflectTex,settings.blurMat,0);
-                if (settings.isSinglePass)
+                if (settings.blurPassMode != BlurPassMode.TwoPasses)
                 {
+                    if(settings.blurPassMode == BlurPassMode.SinglePassCalcVerticle)
+                        cmd.EnableShaderKeyword("_SSPR_BLUR_SINGLE_PASS");
+                    else
+                        cmd.DisableShaderKeyword("_SSPR_BLUR_SINGLE_PASS");
+
                     cmd.SetGlobalTexture(_ReflectionTexture, _BlurReflectTex);
                     return;
                 }
