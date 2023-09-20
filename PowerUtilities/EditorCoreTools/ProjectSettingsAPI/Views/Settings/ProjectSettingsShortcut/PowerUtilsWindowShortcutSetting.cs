@@ -56,7 +56,7 @@ namespace PowerUtilities
     /// show in Preferences/Windows
     /// </summary>
     [ProjectSettingGroup(ProjectSettingGroupAttribute.POWER_UTILS + "/Windows/"+nameof(PowerUtilsWindowShortcutSetting))]
-    [SOAssetPath(SOAssetPathAttribute.PATH_POWER_UTILITIES+ nameof(PowerUtilsWindowShortcutSetting) +".asset")]
+    [SOAssetPath(nameof(PowerUtilsWindowShortcutSetting))]
     public class PowerUtilsWindowShortcutSetting : ScriptableObject
     {
 

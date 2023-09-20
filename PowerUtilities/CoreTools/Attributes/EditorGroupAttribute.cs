@@ -24,7 +24,7 @@
             if (isGroupOn)
             {
                 return EditorGUI.GetPropertyHeight(property, property.isExpanded);
-                return LINE_HEIGHT;
+                // return LINE_HEIGHT;
             }
 
             return -2;

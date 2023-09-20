@@ -12,9 +12,14 @@ namespace PowerUtilities
     {
         public const string PATH_POWER_UTILITIES = "Assets/PowerUtilities";
         public string path;
-        public SOAssetPathAttribute(string path)
+        public SOAssetPathAttribute(string pathOrName)
         {
-            this.path = path;
+            if (!pathOrName.EndsWith(".asset"))
+            {
+                path = $"{PATH_POWER_UTILITIES}/{pathOrName}.asset";
+            }
+            else
+                path = pathOrName;
         }
 
         public static string GetPath(Type t)
