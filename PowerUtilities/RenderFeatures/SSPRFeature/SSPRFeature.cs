@@ -343,10 +343,11 @@ using UnityEngine.Rendering.Universal;
                 cmd.Blit(_ReflectionTexture, _BlurReflectTex,settings.blurMat,0);
                 if (settings.blurPassMode != BlurPassMode.TwoPasses)
                 {
-                    if(settings.blurPassMode == BlurPassMode.SinglePassCalcVerticle)
-                        cmd.EnableShaderKeyword("_SSPR_BLUR_SINGLE_PASS");
+                    const string _SSPR_BLUR_SINGLE_PASS = "_SSPR_BLUR_SINGLE_PASS";
+                    if (settings.blurPassMode == BlurPassMode.SinglePassCalcVerticle)
+                        cmd.EnableShaderKeyword(_SSPR_BLUR_SINGLE_PASS);
                     else
-                        cmd.DisableShaderKeyword("_SSPR_BLUR_SINGLE_PASS");
+                        cmd.DisableShaderKeyword(_SSPR_BLUR_SINGLE_PASS);
 
                     cmd.SetGlobalTexture(_ReflectionTexture, _BlurReflectTex);
                     return;
