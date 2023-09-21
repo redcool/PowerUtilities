@@ -36,7 +36,10 @@ namespace PowerUtilities
                 SetPos(ref pos, xOffset, propWidth);
 
                 if (prop != null)
+                {
                     EditorGUI.PropertyField(pos, prop, GUIContent.none);
+
+                }
                 else if (prop == null)
                     EditorGUI.LabelField(pos, GUIContentEx.TempContent(propName));
             }
@@ -63,6 +66,10 @@ namespace PowerUtilities
     /// 
     ///     [ListItemDraw("tag,q:,renderQueue,kw:,keywords", "120,10,50,20,")]
     ///     public List<TagInfo> tagInfoList = new List<TagInfo>();
+    ///     
+    ///         tag : 1 propertyName, q: 1 label, renderQueue : 3propertyName, kw: 2 label, keywords : 3 propertyName
+    ///     
+    ///     propNames, this items, if canot found in object, will show as Label
     /// </summary>
     //[AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
     public class ListItemDrawAttribute : PropertyAttribute
