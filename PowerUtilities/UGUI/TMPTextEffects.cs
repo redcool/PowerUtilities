@@ -7,9 +7,17 @@ using Random = UnityEngine.Random;
 
 namespace PowerUtilities
 {
+    [ExecuteAlways]
     public class TMPTextEffects : MonoBehaviour
     {
+        public enum MotionMode
+        {
+            Word,Character, Vertex
+        }
+
         public TMP_Text tmpText;
+
+        public MotionMode motionMode;
 
         [Header("Random")]
         public float speed = 1;
@@ -23,7 +31,7 @@ namespace PowerUtilities
         public List<int> wordIndices;
 
         // Start is called before the first frame update
-        void Start()
+        void OnEnable()
         {
             tmpText = GetComponent<TMP_Text>();
 
@@ -42,10 +50,19 @@ namespace PowerUtilities
             tmpText.ForceMeshUpdate();
 
             var mesh = tmpText.mesh;
-            //UpdateMeshPerVertex(mesh,speed,amplitude);
-            //UpdateMeshPerCharacter(mesh,tmpText,speed,amplitude);
-
-            UpdateMeshPerWord(mesh,tmpText, wordIndices,colorGradient,colorSpeed,speed,amplitude);
+            switch (motionMode)
+            {
+                case MotionMode.Character:
+                    UpdateMeshPerCharacter(mesh, tmpText, speed, amplitude);
+                    break;
+                case MotionMode.Vertex:
+                    UpdateMeshPerVertex(mesh, speed, amplitude);
+                    break;
+                default:
+                    UpdateMeshPerWord(mesh, tmpText, wordIndices, colorGradient, colorSpeed, speed, amplitude);
+                    break;
+            }
+            
             tmpText.canvasRenderer.SetMesh(mesh);
         }
 
