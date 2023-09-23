@@ -126,11 +126,12 @@ namespace PowerUtilities
             var q = AssetDatabase.FindAssets(filter, searchInFolders)
                 .Select(AssetDatabase.GUIDToAssetPath)
                 .Where(path => 
-                    extName == null ? true : Path.GetExtension(path).EndsWith(extName)
-                    && isWholeWordsMatch ? filter == Path.GetFileNameWithoutExtension(path) : true
+                    (extName == null ? true : Path.GetExtension(path).EndsWith(extName))
+                    && (isWholeWordsMatch ? filter == Path.GetFileNameWithoutExtension(path) : true)
                 )
                 ;
-            return q.ToArray();
+            var results = q.ToArray();
+            return results;
         }
         /// <summary>
         /// Find assets in project and load them
