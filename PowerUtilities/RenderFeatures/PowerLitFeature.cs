@@ -70,37 +70,25 @@ namespace PowerUtilities
         //const string MAIN_LIGHT_MODE_ID = "_MainLightMode";
         //const string ADDITIONAL_LIGHT_MODE_ID = "_AdditionalLightMode";
 
-        public static readonly int _MainLightMode,
-            //_AdditionalLightMode,
-            //_MainLightShadowCascadeOn,
-            //_LightmapOn,
-            //_Shadows_ShadowMaskOn,
-            //_MainLightShadowOn,
-            //_DistanceShadowMaskOn,
-            _LightmapParams
+        public static readonly int
+            //_MainLightMode = Shader.PropertyToID("_MainLightMode"),
+            //_AdditionalLightMode = Shader.PropertyToID("_AdditionalLightMode"),
+            //_MainLightShadowCascadeOn = Shader.PropertyToID("_MainLightShadowCascadeOn"),
+            //_LightmapOn = Shader.PropertyToID("_LightmapOn"),
+            _Shadows_ShadowMaskOn = Shader.PropertyToID("_Shadows_ShadowMaskOn"),
+            //_MainLightShadowOn = Shader.PropertyToID("_MainLightShadowOn"),
+            //_DistanceShadowMaskOn = Shader.PropertyToID(nameof(_DistanceShadowMaskOn)),
+            _LightmapParams = Shader.PropertyToID(nameof(_LightmapParams))
             ;
-        static PowerLitShaderVariables()
-        {
-            //_MainLightMode = Shader.PropertyToID("_MainLightMode");
-            //_AdditionalLightMode = Shader.PropertyToID("_AdditionalLightMode");
-            //_MainLightShadowCascadeOn = Shader.PropertyToID("_MainLightShadowCascadeOn");
-            //_LightmapOn = Shader.PropertyToID("_LightmapOn");
-            //_Shadows_ShadowMaskOn = Shader.PropertyToID("_Shadows_ShadowMaskOn");
-            //_MainLightShadowOn = Shader.PropertyToID("_MainLightShadowOn");
-            //_DistanceShadowMaskOn = Shader.PropertyToID(nameof(_DistanceShadowMaskOn));
-            _LightmapParams = Shader.PropertyToID(nameof(_LightmapParams));
-        }
-
-
         public static void SendParams(CommandBuffer cmd, PowerLitFeature.Settings settings,ref RenderingData renderingData)
         {
             var asset = UniversalRenderPipeline.asset;
             var mainLightCastShadows = renderingData.shadowData.supportsMainLightShadows;
-            
+
 
             //cmd.SetGlobalInt(_MainLightShadowCascadeOn, asset.shadowCascadeCount > 1 ? 1 : 0);
             //cmd.SetGlobalInt(_LightmapOn, settings._LightmapOn ? 1 : 0);
-            //cmd.SetGlobalInt(_Shadows_ShadowMaskOn, settings._Shadows_ShadowMaskOn ? 1 : 0);
+            cmd.SetGlobalInt(_Shadows_ShadowMaskOn, settings._Shadows_ShadowMaskOn ? 1 : 0);
             //cmd.SetGlobalInt(_MainLightShadowOn, mainLightCastShadows ? 1 : 0);
             //cmd.SetGlobalInt(_MainLightMode, (int)asset.mainLightRenderingMode);
             //cmd.SetGlobalInt(_AdditionalLightMode, (int)asset.additionalLightsRenderingMode);
@@ -126,7 +114,7 @@ namespace PowerUtilities
             //[NonSerialized] public bool _MainLightShadowCascadeOn;
             //[NonSerialized] public bool _AdditionalVertexLightOn;
 
-            //[Tooltip("enable shadowMask ?")] public bool _Shadows_ShadowMaskOn;
+            [Tooltip("enable shadowMask ?")] public bool _Shadows_ShadowMaskOn;
 
             [Header("GI")]
             //[Tooltip("enabled lightmap ?")] public bool _LightmapOn;
