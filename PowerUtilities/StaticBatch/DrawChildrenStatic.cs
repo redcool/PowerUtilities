@@ -29,7 +29,7 @@ namespace PowerUtilities
             if (GUILayout.Button("Setup Children"))
             {
                 inst.SetupChildren();
-                inst.CreateParents();
+                inst.CreateCombinedParents();
             }
 
         }
@@ -45,10 +45,15 @@ namespace PowerUtilities
     public class DrawChildrenStatic : MonoBehaviour
     {
         public GameObject rootGo;
-        public bool isCloneChildren;
 
         [SerializeField] List<DrawChildrenStaticInfo> infoList = new List<DrawChildrenStaticInfo>();
+        /// <summary>
+        /// combine children (mesh) to this parents
+        /// </summary>
         [SerializeField] List<GameObject> parentGos = new List<GameObject>();
+
+        Transform combineTarget;
+        const string COMBINE_TARGET = "_CombineTarget";
 
         public void Awake()
         {
@@ -82,31 +87,46 @@ namespace PowerUtilities
                     gos = group.Select(r => r.gameObject).ToArray(),
                 });
             }
+
+            SetupCombineTarget();
         }
 
-        public void CreateParents()
+        private void SetupCombineTarget()
         {
+            combineTarget = rootGo.transform.Find(COMBINE_TARGET);
+            if (!combineTarget)
+            {
+                combineTarget = new GameObject(COMBINE_TARGET).transform;
+                combineTarget.SetParent(rootGo.transform, false);
+            }
+        }
+
+        public void CreateCombinedParents()
+        {
+            if (!combineTarget)
+                return;
+
             parentGos.Clear();
-            gameObject.DestroyChildren<Transform>(true);
+            combineTarget.gameObject.DestroyChildren<Transform>(true);
 
             foreach (var info in infoList)
             {
-                var go = new GameObject(gameObject.name+": "+ info.gos.Count());
+                var go = new GameObject("Group: "+ info.gos.Count());
                 parentGos.Add(go);
-                go.transform.SetParent(transform, true);
-
-                if (isCloneChildren)
-                {
-                    foreach (var child in info.gos)
-                    {
-                        var c = Instantiate(child, go.transform);
-                        c.transform.position = child.transform.position;
-                        c.transform.rotation = child.transform.rotation;
-                        c.transform.localScale = child.transform.lossyScale;
-                    }
-
-                }
+                go.transform.SetParent(combineTarget, true);
             }
+
+            //void CloneGroup(DrawChildrenStaticInfo info, GameObject go)
+            //{
+            //    foreach (var child in info.gos)
+            //    {
+            //        var c = Instantiate(child, go.transform);
+            //        c.transform.position = child.transform.position;
+            //        c.transform.rotation = child.transform.rotation;
+            //        c.transform.localScale = child.transform.lossyScale;
+            //    }
+            //}
+
         }
 
     }
