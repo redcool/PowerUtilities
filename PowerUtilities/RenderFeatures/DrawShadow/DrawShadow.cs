@@ -5,6 +5,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+using static UnityEngine.Rendering.DebugUI.Table;
 using TextureResolution = PowerUtilities.TextureResolution;
 
 public class DrawShadow : ScriptableRendererFeature
@@ -50,24 +51,28 @@ public class DrawShadow : ScriptableRendererFeature
 
             var cmd = CommandBufferPool.Get();
             cmd.BeginSampleExecute(nameof(DrawShadow), ref context);
+
             var rot = Quaternion.Euler(settings.rot);
 
             var view = float4x4.LookAt(settings.pos, settings.pos + rot*Vector3.forward, settings.up);
-            view = float4x4.Scale(1, 1, -1) * math.inverse(view);
+            view = math.mul(float4x4.Scale(1, 1, -1) , math.inverse(view));
 
-            var aspect = (float)Screen.width/ Screen.height;
-
+            var aspect = 1;
             var proj = float4x4.Ortho(settings.orthoSize * aspect*2, settings.orthoSize*2, settings.near, settings.far);
             proj = GL.GetGPUProjectionMatrix(proj, false);
 
             CalcShadowTransform(cmd, view, proj);
 
+            cmd.SetViewport(new Rect(0, 0, (int)settings.res, (int)settings.res));
             cmd.SetViewProjectionMatrices(view, proj);
             cmd.Execute(ref context);
+            Debug.Log(((Matrix4x4)view).ToString() + " \n" + ((Matrix4x4)proj).ToString());
 
             context.DrawRenderers(renderingData.cullResults, ref drawSettings, ref filterSettings);
 
+            cmd.DisableScissorRect();
             cmd.SetViewProjectionMatrices(cameraData.GetViewMatrix(), cameraData.GetProjectionMatrix());
+
             cmd.EndSampleExecute(nameof(DrawShadow), ref context);
             CommandBufferPool.Release(cmd);
         }
@@ -136,14 +141,13 @@ public class DrawShadow : ScriptableRendererFeature
     {
         if (!lightObj && !string.IsNullOrEmpty(settings.lightTag))
         {
-            var go = GameObject.FindGameObjectWithTag(settings.lightTag);
-            if (go)
-            {
-                settings.pos = go.transform.position;
-                settings.rot = go.transform.eulerAngles;
-                settings.up = go.transform.up;
-            }
+            lightObj = GameObject.FindGameObjectWithTag(settings.lightTag);
+            if (!lightObj)
+                return;
         }
+        settings.pos = lightObj.transform.position;
+        settings.rot = lightObj.transform.eulerAngles;
+        settings.up = lightObj.transform.up;
     }
 }
 

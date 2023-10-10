@@ -37,8 +37,9 @@ Shader "Hidden/Template/Shadow"
 
             v2f vert (appdata v)
             {
+                float3 worldPos = TransformObjectToWorld(v.vertex.xyz);
                 v2f o;
-                o.vertex = TransformObjectToHClip(v.vertex);
+                o.vertex = TransformWorldToHClip(worldPos);
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
 
                 #if UNITY_REVERSED_Z
