@@ -254,7 +254,8 @@ namespace PowerUtilities.Features
              * **/
             depthHandleId = _CameraDepthAttachment;
 
-            lastColorHandleId = GetLastColorTargetId(ref renderingData);
+            //lastColorHandleId = GetLastColorTargetId(ref renderingData);
+            lastColorHandleId = (int)BuiltinRenderTextureType.CurrentActive;
             colorHandleId = (lastColorHandleId == _CameraColorAttachmentA) ? _CameraColorAttachmentB : _CameraColorAttachmentA;
 
             if (settings.createFullsizeGammaTex)
