@@ -9,7 +9,8 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: Hidden_Template_ReadShadow
   m_Shader: {fileID: 4800000, guid: 4055fc092b67ec34294a094474e3d6cc, type: 3}
-  m_ValidKeywords: []
+  m_ValidKeywords:
+  - _SHADOWS_SOFT
   m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -68,7 +69,9 @@ Material:
     - _PresetBlendMode: 0
     - _ReceiveAdditionalLightShadow: 0
     - _ReceiveShadowOff: 0
+    - _ShadowSoftOn: 1
     - _Smoothness: 0.5
+    - _SoftScale: 3.73
     - _SpecularOn: 1
     - _SrcMode: 1
     - _ZTestMode: 4

@@ -12,18 +12,21 @@ Shader "Hidden/Template/Shadow"
         Pass
         {
             colorMask 0
+            zwrite on
+            
             // Tags{"LightMode"="ShadowCaster"}
             HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
 
             #include "../../../../PowerShaderLib/Lib/UnityLib.hlsl"
-
+            #include "../../../../PowerShaderLib/URPLib/URP_MainLightShadows.hlsl"
 
             struct appdata
             {
                 float4 vertex : POSITION;
                 float2 uv : TEXCOORD0;
+                float3 normal:NORMAL;
             };
 
             struct v2f
@@ -33,12 +36,20 @@ Shader "Hidden/Template/Shadow"
             };
 
             sampler2D _MainTex;
+
+            CBUFFER_START(UnityPerMaterial)
             float4 _MainTex_ST;
+            CBUFFER_END
+            float3 _LightDirection;
 
             v2f vert (appdata v)
             {
                 float3 worldPos = TransformObjectToWorld(v.vertex.xyz);
-                v2f o;
+                float3 worldNormal = TransformObjectToWorldNormal(v.normal);
+
+                v2f o = (v2f)0;
+                worldPos = ApplyShadowBias(worldPos,worldNormal,_LightDirection,0,0);
+
                 o.vertex = TransformWorldToHClip(worldPos);
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
 
