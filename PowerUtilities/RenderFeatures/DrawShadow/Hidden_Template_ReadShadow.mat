@@ -71,7 +71,7 @@ Material:
     - _ReceiveShadowOff: 0
     - _ShadowSoftOn: 1
     - _Smoothness: 0.5
-    - _SoftScale: 3.73
+    - _SoftScale: 1.92
     - _SpecularOn: 1
     - _SrcMode: 1
     - _ZTestMode: 4

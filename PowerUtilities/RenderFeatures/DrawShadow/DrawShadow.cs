@@ -80,8 +80,14 @@ public class DrawShadow : ScriptableRendererFeature
             var forward = rot*Vector3.forward;
 
             view =float4x4.LookAt(settings.pos, settings.pos + forward, settings.up);
-            view = math.fastinverse(view);
-            //view = math.mul(float4x4.Scale(1, 1, 1) , math.fastinverse(view)); 
+            if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLCore || SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLES3)
+            {
+                view = math.mul(float4x4.Scale(1, 1, -1), math.fastinverse(view));
+            }
+            else
+            {
+                view = math.fastinverse(view);
+            }
 
             var aspect = 1;
             proj =float4x4.Ortho(settings.orthoSize * aspect*2, settings.orthoSize*2, settings.near, settings.far);
@@ -93,7 +99,6 @@ public class DrawShadow : ScriptableRendererFeature
 
         float4 CalcShadowBias(float4x4 proj)
         {
-            
             var texelSize = 2f / proj[0][0] / (int)settings.res;
             var bias = new float4(-settings.shadowDepthBias,-settings.shadowNormalBias,0,0);
             bias *= texelSize;

@@ -10,6 +10,8 @@ Shader "Hidden/Template/TestBigShadow"
 
     HLSLINCLUDE
         #include "../../../../PowerShaderLib/Lib/UnityLib.hlsl"
+
+        #define _MainLightShadowmapSize _BigShadowMap_TexelSize
         #include "../../../../PowerShaderLib/URPLib/URP_MainLightShadows.hlsl"
 
         float4x4 _BigShadowVP;
@@ -20,7 +22,7 @@ Shader "Hidden/Template/TestBigShadow"
             return bigShadowCoord;
         }
 
-        float CaclBigShadowAtten(float3 bigShadowCoord,float softScale){
+        float CalcBigShadowAtten(float3 bigShadowCoord,float softScale){
             // float shadow = SAMPLE_TEXTURE2D(_BigShadowMap,sampler_BigShadowMap,bigShadowCoord.xy).x;
             // float shadow = SAMPLE_TEXTURE2D_SHADOW(_BigShadowMap,sampler_BigShadowMap,bigShadowCoord);
 
@@ -81,7 +83,7 @@ Shader "Hidden/Template/TestBigShadow"
             float4 frag (v2f i) : SV_Target
             {
                 float3 bigShadowCoord = TransformWorldToBigShadow(i.worldPos);
-                float shadow = CaclBigShadowAtten(bigShadowCoord,_SoftScale);
+                float shadow = CalcBigShadowAtten(bigShadowCoord,_SoftScale);
                 return shadow;
 
                 float4 tex = tex2D(_MainTex,i.uv);
