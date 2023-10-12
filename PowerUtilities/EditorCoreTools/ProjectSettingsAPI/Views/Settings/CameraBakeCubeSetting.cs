@@ -41,7 +41,9 @@ namespace PowerUtilities {
 
             DestroyImmediate(go);
 
-            AssetDatabase.CreateAsset(cubemap, $"{inst.savePath}/{inst.targetTr.name}.asset");
+            var filePath = $"{inst.savePath}/{inst.targetTr.name}.asset";
+            AssetDatabase.DeleteAsset(filePath);
+            AssetDatabase.CreateAsset(cubemap, filePath);
         }
     }
 

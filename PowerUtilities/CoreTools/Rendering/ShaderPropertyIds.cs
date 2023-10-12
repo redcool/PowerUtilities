@@ -89,7 +89,10 @@ namespace PowerUtilities
 
             //
             _ScalingSetupTexture = Shader.PropertyToID("_ScalingSetupTexture"),
-            _UpscaledTexture = Shader.PropertyToID("_UpscaledTexture")
+            _UpscaledTexture = Shader.PropertyToID("_UpscaledTexture"),
+
+            _ShadowBias = Shader.PropertyToID(nameof(_ShadowBias)),
+            _LightDirection = Shader.PropertyToID(nameof(_LightDirection))
             ;
     }
 

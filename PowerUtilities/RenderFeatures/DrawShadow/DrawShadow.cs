@@ -1,13 +1,10 @@
-using Codice.CM.Common.Serialization.Replication;
 using PowerUtilities;
 using System;
 using Unity.Mathematics;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
-using static UnityEngine.Rendering.DebugUI.Table;
 using TextureResolution = PowerUtilities.TextureResolution;
 
 public class DrawShadow : ScriptableRendererFeature

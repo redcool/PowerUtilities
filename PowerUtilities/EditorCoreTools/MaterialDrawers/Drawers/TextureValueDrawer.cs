@@ -10,9 +10,11 @@ using UnityEngine;
 public class TextureValueDrawer : MaterialPropertyDrawer
 {
     string propName;
+    string propName_ST;
     public TextureValueDrawer(string propName)
     {
         this.propName = propName;
+        propName_ST = propName+"_ST";
     }
     public override float GetPropertyHeight(MaterialProperty prop, string label, MaterialEditor editor)
     {
@@ -26,6 +28,7 @@ public class TextureValueDrawer : MaterialPropertyDrawer
 
         var mat = (Material) editor.target;
         prop.textureValue = mat.GetTexture(propName);
+        prop.textureScaleAndOffset = mat.GetVector(propName_ST);
     }
 }
 #endif
