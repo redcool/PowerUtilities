@@ -13,6 +13,7 @@
 #if UNITY_EDITOR
     using UnityEditor;
     using PowerUtilities.UIElements;
+    using System.Runtime.CompilerServices;
 
     [CanEditMultipleObjects]
     [CustomEditor(typeof(SRPFeature), true)]
@@ -39,7 +40,6 @@
     /// </summary>
     public abstract partial class SRPFeature : ScriptableObject
     {
-
         public enum CameraCompareType
         {
             Tag=0,Name
@@ -49,31 +49,42 @@
         public const string SRP_FEATURE_PASSES_MENU = SRP_FEATURE_MENU + "/Passes";
 
         [EditorBorder(17)]
-        [Header("Pass Options")]
+        [EditorGroup("PassOptions")]
+
+        [EditorGroupItem("PassOptions")]
+        //[Header("Pass Options")]
         [Tooltip("Skip when false")]
         public bool enabled = true;
 
+        [EditorGroupItem("PassOptions")]
         [Tooltip("Interrupt others pass when this pass done")]
         public bool interrupt;
 
+        [EditorGroupItem("PassOptions")]
         [Tooltip("Only work in editor's scene camera")]
         public bool isSceneCameraOnly;
 
-        [Header("Pass Options / Filters")]
+        [EditorGroupItem("PassOptions")]
+        //[Header("Pass Options / Filters")]
         [Tooltip("Compared properties ")]
         public CameraCompareType gameCameraCompareType = CameraCompareType.Tag;
 
+        [EditorGroupItem("PassOptions")]
         [Tooltip("Which camera can run this pass ? only work for Game Camera")]
         public string gameCameraTag = "MainCamera";
 
-        [Header("Pass Options / URP Event")]
+        //[Header("Pass Options / URP Event")]
+        [EditorGroupItem("PassOptions")]
         public RenderPassEvent renderPassEvent = RenderPassEvent.AfterRenderingSkybox;
+
+        [EditorGroupItem("PassOptions")]
         public int renderPassEventOffset = 0;
 
         /// <summary>
         /// output this pass's log,show in inspector
         /// </summary>
-        [Header("Pass Options / Pass Log")]
+        //[Header("Pass Options / Pass Log")]
+        [EditorGroupItem("PassOptions")]
         [Multiline]
         public string log;
 
@@ -81,7 +92,7 @@
         /// is details foldout ? show in inspector
         /// </summary>
         [HideInInspector]
-        public bool isFoldout;
+        public bool isFoldout,isPassOptionsFoldout;
 
         
         // pass instance cache

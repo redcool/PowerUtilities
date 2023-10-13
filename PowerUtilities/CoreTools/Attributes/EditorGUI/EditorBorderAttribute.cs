@@ -6,9 +6,11 @@
     using System.Text;
     using System.Threading.Tasks;
     using UnityEngine;
-    
+
     /// <summary>
-    /// draw box color in editor
+    /// A decorator ,draw box color in editor
+    /// 
+    /// editor : EditorBorderAttributeDecorator
     /// </summary>
     public class EditorBorderAttribute : PropertyAttribute
     {
