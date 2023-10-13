@@ -79,16 +79,17 @@ public class DrawShadow : ScriptableRendererFeature
             var rot = Quaternion.Euler(settings.rot);
             var forward = rot*Vector3.forward;
 
+
             view =float4x4.LookAt(settings.pos, settings.pos + forward, settings.up);
             view = math.fastinverse(view);
 
             if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLCore || SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLES3)
             {
-                //view = math.mul(float4x4.Scale(1, 1, -1), math.fastinverse(view));
-                view[2][0] *=-1;
-                view[2][1] *=-1;
+                //view = math.mul(float4x4.Scale(1, 1, -1), view);
+                view[0][2] *=-1;
+                view[1][2] *=-1;
                 view[2][2] *=-1;
-                view[2][3] *=-1;
+                view[3][2] *=-1;
             }
 
             var aspect = 1;
@@ -96,6 +97,7 @@ public class DrawShadow : ScriptableRendererFeature
             //Debug.Log((Matrix4x4)proj+"\n"+GL.GetGPUProjectionMatrix(proj, false) +"\n"+GL.GetGPUProjectionMatrix(proj, true));
             //proj = GL.GetGPUProjectionMatrix(proj, false); //z from [-1,1] -> [0,1] and reverse z
 
+            // same as GL.GetGPUProjectionMatrix
             if (SystemInfo.usesReversedZBuffer)
             {
                 //proj[0][2] *= -1;
@@ -103,7 +105,7 @@ public class DrawShadow : ScriptableRendererFeature
                 proj[2][2] = (proj[2][2] * -0.5f);
                 proj[3][2] = (proj[3][2] + 0.5f);
             }
-            //Debug.Log((Matrix4x4)proj);
+            
 
             CalcShadowTransform(cmd, view, proj,forward);
         }
