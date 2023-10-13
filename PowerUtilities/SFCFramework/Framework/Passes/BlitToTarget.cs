@@ -18,6 +18,9 @@ namespace PowerUtilities.RenderFeatures
         [Tooltip("When empty will use Camera Target")]
         public string targetName;
 
+        [Tooltip("blit source to [_CameraAttachmentA or B]")]
+        public bool isBlitToNextPostTarget;
+
         [Header("Options")]
         public Material blitMat;
 
@@ -35,6 +38,12 @@ namespace PowerUtilities.RenderFeatures
             var cameraTarget = cameraData.targetTexture ? new RenderTargetIdentifier(cameraData.targetTexture) : BuiltinRenderTextureType.CameraTarget;
             RenderTargetIdentifier sourceId = string.IsNullOrEmpty(Feature.sourceName) ? BuiltinRenderTextureType.CurrentActive : Shader.PropertyToID(Feature.sourceName);
             RenderTargetIdentifier targetId = string.IsNullOrEmpty(Feature.targetName) ? cameraTarget : Shader.PropertyToID(Feature.targetName);
+
+            if (Feature.isBlitToNextPostTarget)
+            {
+                var isA = RenderTargetIdentifierEx.IsTargetIdEquals(BuiltinRenderTextureType.CurrentActive, ShaderPropertyIds._CameraColorAttachmentA);
+                targetId = isA ? ShaderPropertyIds._CameraColorAttachmentB : ShaderPropertyIds._CameraColorAttachmentA;
+            }
 
             if (Feature.blitMat)
                 cmd.BlitTriangle(sourceId, targetId, Feature.blitMat, 0);

@@ -8,16 +8,30 @@ using UnityEngine.Rendering;
 
 namespace PowerUtilities
 {
+    /// <summary>
+    /// open RenderTargetIdentifier fields
+    /// </summary>
     public static class RenderTargetIdentifierEx
     {
-        public static bool IsTargetIdEquals(this RenderTargetIdentifier a, RenderTargetIdentifier b)
+        static FieldInfo 
+            m_NameID,
+            m_Type; //BuiltinRenderTextureType
+
+        static RenderTargetIdentifierEx()
         {
             var t = typeof(RenderTargetIdentifier);
+            m_NameID = t.GetField("m_NameID", BindingFlags.Instance | BindingFlags.NonPublic);
+            m_Type = t.GetField("m_Type", BindingFlags.Instance | BindingFlags.NonPublic);
+        }
 
-            var f = t.GetField("m_NameID", BindingFlags.Instance | BindingFlags.NonPublic);
-            var aId = (int)f.GetValue(a);
-            var bId = (int)f.GetValue(b);
+        public static bool IsTargetIdEquals(this RenderTargetIdentifier a, RenderTargetIdentifier b)
+        {
+            var aId = (int)m_NameID.GetValue(a);
+            var bId = (int)m_NameID.GetValue(b);
             return aId == bId;
         }
+
+        public static int GetNameId(this RenderTargetIdentifier a) => (int)m_NameID.GetValue(a);
+        public static BuiltinRenderTextureType GetBuiltinRenderTextureType(this RenderTargetIdentifier a) => (BuiltinRenderTextureType)m_Type.GetValue(a);
     }
 }
