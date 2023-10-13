@@ -80,19 +80,30 @@ public class DrawShadow : ScriptableRendererFeature
             var forward = rot*Vector3.forward;
 
             view =float4x4.LookAt(settings.pos, settings.pos + forward, settings.up);
+            view = math.fastinverse(view);
+
             if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLCore || SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLES3)
             {
-                view = math.mul(float4x4.Scale(1, 1, -1), math.fastinverse(view));
-            }
-            else
-            {
-                view = math.fastinverse(view);
+                //view = math.mul(float4x4.Scale(1, 1, -1), math.fastinverse(view));
+                view[2][0] *=-1;
+                view[2][1] *=-1;
+                view[2][2] *=-1;
+                view[2][3] *=-1;
             }
 
             var aspect = 1;
             proj =float4x4.Ortho(settings.orthoSize * aspect*2, settings.orthoSize*2, settings.near, settings.far);
             //Debug.Log((Matrix4x4)proj+"\n"+GL.GetGPUProjectionMatrix(proj, false) +"\n"+GL.GetGPUProjectionMatrix(proj, true));
-            proj = GL.GetGPUProjectionMatrix(proj, false);
+            //proj = GL.GetGPUProjectionMatrix(proj, false); //z from [-1,1] -> [0,1] and reverse z
+
+            if (SystemInfo.usesReversedZBuffer)
+            {
+                //proj[0][2] *= -1;
+                //proj[1][2] *= -1;
+                proj[2][2] = (proj[2][2] * -0.5f);
+                proj[3][2] = (proj[3][2] + 0.5f);
+            }
+            //Debug.Log((Matrix4x4)proj);
 
             CalcShadowTransform(cmd, view, proj,forward);
         }
@@ -107,7 +118,7 @@ public class DrawShadow : ScriptableRendererFeature
 
         private void CalcShadowTransform(CommandBuffer cmd, float4x4 view, float4x4 proj,float3 forward)
         {
-            // reverse row2
+            // reverse row2 again, dont need reverse  in shader
             if (SystemInfo.usesReversedZBuffer)
             {
                 proj[0][2] *= -1;

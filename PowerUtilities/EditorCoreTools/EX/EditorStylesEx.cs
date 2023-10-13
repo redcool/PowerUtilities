@@ -667,6 +667,12 @@ namespace PowerUtilities
             }
             return result;
         }
+
+        public static GUIStyle titleStyle = new GUIStyle(EditorStylesEx.BoldLabel)
+        {
+            fontSize=20,
+            margin = new RectOffset(1, 1, 1, 1),
+        };
     }
 }
 #endif

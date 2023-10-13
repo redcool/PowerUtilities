@@ -359,6 +359,20 @@ namespace PowerUtilities
             });
         }
 
+        public static void DrawPage(GUIContent label,Action onDrawDetail)
+        {
+            BeginVerticalBox(() =>
+            {
+                var pos = EditorGUILayout.GetControlRect();
+                EditorGUILayout.LabelField(label, EditorStylesEx.BoldLabel);
+
+                if (onDrawDetail != null)
+                    onDrawDetail();
+
+            },nameof(EditorStylesEx.GroupBox));
+        }
+
+
         public static bool DrawDefaultInspect(SerializedObject obj)
         {
             EditorGUI.BeginChangeCheck();
@@ -393,11 +407,11 @@ namespace PowerUtilities
         public static void DrawBoxColors(Rect position, float borderSize = 2, Color backgroundColor = default, Color leftColor = default, Color upColor = default, Color rightColor = default, Color bottomColor = default)
         {
             var positions = new[] {
-                position,
-                new Rect(position.x, position.y, 2, position.height),
-                new Rect(position.x,position.y,position.width,2),
-                new Rect(position.xMax-borderSize, position.y, position.width, position.height),
-                new Rect(position.x, position.y, position.width, 2)
+                position, // background
+                new Rect(position.x, position.y, borderSize, position.height), // left
+                new Rect(position.x,position.y,position.width,borderSize), // top
+                new Rect(position.xMax-borderSize, position.y, borderSize, position.height), //right
+                new Rect(position.x, position.yMax - borderSize, position.width, borderSize) //bottom
             };
             var colors = new[] {
                 backgroundColor,leftColor, upColor, rightColor, bottomColor
@@ -409,6 +423,12 @@ namespace PowerUtilities
             });
         }
 
+        public static void DrawColorLine(Rect pos, string colorStr = "#749C75")
+        {
+            ColorUtility.TryParseHtmlString(colorStr, out var color);
+            DrawBoxColors(pos, backgroundColor: color);
+        }
+
         public static void DrawHelpURL(Rect position, string url)
         {
             var helpContent = EditorGUIUtility.IconContent("_Help");
@@ -418,6 +438,12 @@ namespace PowerUtilities
             {
                 Help.BrowseURL(url);
             }
+        }
+
+        public static void DrawTitleLabel(GUIContent label)
+        {
+            EditorGUILayout.LabelField(label, EditorStylesEx.titleStyle);
+            EditorGUILayout.Space(5);
         }
     }
 }

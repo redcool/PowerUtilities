@@ -73,7 +73,7 @@ namespace PowerUtilities
             {
                 // show color line
                 var pos = EditorGUILayout.GetControlRect(GUILayout.Height(2));
-                DrawColorLine(pos);
+                EditorGUITools.DrawColorLine(pos);
 
                 var tagManagerSo = TagManager.GetTagLayerManager();
                 var tagEditor = tagManagerEditor.Get(tagManagerSo, () => Editor.CreateEditor(tagManagerSo.targetObject));
@@ -81,7 +81,7 @@ namespace PowerUtilities
             }
 
             // editor extends
-            DrawColorLine(EditorGUILayout.GetControlRect(GUILayout.Height(2)));
+            EditorGUITools.DrawColorLine(EditorGUILayout.GetControlRect(GUILayout.Height(2)));
 
             GUILayout.BeginHorizontal("Editor Extends", "Box");
             if (GUILayout.Button(guiSynnChildrenTag))
@@ -90,12 +90,6 @@ namespace PowerUtilities
             }
             GUILayout.EndHorizontal();
 
-        }
-
-        public static void DrawColorLine(Rect pos,string colorStr= "#749C75")
-        {
-            ColorUtility.TryParseHtmlString(colorStr, out var color);
-            EditorGUITools.DrawBoxColors(pos, backgroundColor: color);
         }
 
         private void SyncChildrenTag()
