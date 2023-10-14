@@ -13,19 +13,26 @@
 #if UNITY_EDITOR
     using UnityEditor;
     using PowerUtilities.UIElements;
-    using System.Runtime.CompilerServices;
 
     [CanEditMultipleObjects]
-    [CustomEditor(typeof(SRPFeature), true)]
-    public class SRPFeatureEditor : PowerEditor<SRPFeature>
+    [CustomPropertyDrawer(typeof(SRPFeature),true)]
+    public class SRPFeatureDrawer : PropertyDrawer
     {
-        public override bool NeedDrawDefaultUI() => true;
-        public override void DrawInspectorUI(SRPFeature inst)
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
-            //DrawDefaultInspector();    
+            return 0;
+            //return EditorGUI.GetPropertyHeight(property, label);
+        }
+
+        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+        {
+            //base.OnGUI(position, property, label);
         }
     }
 
+    /// <summary>
+    /// Graph, node
+    /// </summary>
     public partial class SRPFeature
     {
         public BaseNodeInfo nodeInfo = new BaseNodeInfo();
@@ -40,61 +47,51 @@
     /// </summary>
     public abstract partial class SRPFeature : ScriptableObject
     {
+
         public enum CameraCompareType
         {
-            Tag=0,Name
+            Tag = 0, Name
         }
 
         public const string SRP_FEATURE_MENU = "PowerUtilities/SrpRenderFeatures";
         public const string SRP_FEATURE_PASSES_MENU = SRP_FEATURE_MENU + "/Passes";
 
-        [EditorBorder(17)]
-        [EditorGroup("PassOptions")]
-
-        [EditorGroupItem("PassOptions")]
-        //[Header("Pass Options")]
+        [EditorBorder(15)]
+        [Header("Pass Options")]
         [Tooltip("Skip when false")]
         public bool enabled = true;
 
-        [EditorGroupItem("PassOptions")]
         [Tooltip("Interrupt others pass when this pass done")]
         public bool interrupt;
 
-        [EditorGroupItem("PassOptions")]
         [Tooltip("Only work in editor's scene camera")]
         public bool isSceneCameraOnly;
 
-        [EditorGroupItem("PassOptions")]
-        //[Header("Pass Options / Filters")]
+        [Header("Pass Options / Filters")]
         [Tooltip("Compared properties ")]
         public CameraCompareType gameCameraCompareType = CameraCompareType.Tag;
 
-        [EditorGroupItem("PassOptions")]
         [Tooltip("Which camera can run this pass ? only work for Game Camera")]
         public string gameCameraTag = "MainCamera";
 
-        //[Header("Pass Options / URP Event")]
-        [EditorGroupItem("PassOptions")]
+        [Header("Pass Options / URP Event")]
         public RenderPassEvent renderPassEvent = RenderPassEvent.AfterRenderingSkybox;
-
-        [EditorGroupItem("PassOptions")]
         public int renderPassEventOffset = 0;
 
         /// <summary>
         /// output this pass's log,show in inspector
         /// </summary>
-        //[Header("Pass Options / Pass Log")]
-        [EditorGroupItem("PassOptions")]
-        [Multiline]
+        [Header("Pass Options / Pass Log")]
+        //[Multiline]
         public string log;
 
         /// <summary>
         /// is details foldout ? show in inspector
         /// </summary>
         [HideInInspector]
-        public bool isFoldout,isPassOptionsFoldout;
+        public bool isFoldout;
 
-        
+
         // pass instance cache
         ScriptableRenderPass passInstance;
         TooltipAttribute featureTooltipAttr;
@@ -119,13 +116,14 @@
 
         public string Tooltip
         {
-            get { 
-                if(featureTooltipAttr == null)
+            get
+            {
+                if (featureTooltipAttr == null)
                     featureTooltipAttr = GetType().GetCustomAttribute<TooltipAttribute>();
                 return featureTooltipAttr?.tooltip;
             }
         }
-        
+
         public void DestroyPassInstance()
         {
             passInstance = null;

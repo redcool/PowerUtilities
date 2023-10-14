@@ -4,7 +4,7 @@ namespace PowerUtilities
     using UnityEngine;
     using UnityEditor;
 
-    [CustomPropertyDrawer(typeof(EditorGroupAttribute))]
+    //[CustomPropertyDrawer(typeof(EditorGroupAttribute))]
     public class EditorGroupDecorator : DecoratorDrawer
     {
         (string groupName, bool isOn) groupInfo;
@@ -14,10 +14,6 @@ namespace PowerUtilities
         public override float GetHeight()
         {
             return 18;
-
-            var attr = attribute as EditorGroupAttribute;
-            var isGroupOn = MaterialGroupTools.IsGroupOn(attr.groupName);
-            return isGroupOn ? LINE_HEIGHT * 2 : LINE_HEIGHT;
         }
 
         public static bool DrawTitleFoldout(Rect position,bool isOn,string title,Color titleColor)
