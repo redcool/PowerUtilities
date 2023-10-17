@@ -22,6 +22,8 @@ namespace PowerUtilities
         [Tooltip("get ForwardLights and set _Shadows_ShadowMaskOn")]
         public bool isAutoSetShadowMask;
 
+        public bool setMainCameraInfo;
+
         public override ScriptableRenderPass GetPass() => new SetVarialbesPass(this);
     }
 
@@ -71,6 +73,15 @@ namespace PowerUtilities
             {
                 var isShadowMaskMixing = UniversalRenderPipeline.asset.IsLightmapShadowMixing(ref renderingData);
                 cmd.SetGlobalBool(ShaderPropertyIds.shadows_ShadowMaskOn, isShadowMaskMixing);
+            }
+
+            if(Feature.setMainCameraInfo)
+            {
+                var cam = Camera.main;
+                if(cam)
+                {
+                    cmd.SetGlobalMatrix("_CameraYRot",Matrix4x4.Rotate(Quaternion.Euler(0,cam.transform.eulerAngles.y,0)));
+                }
             }
         }
 

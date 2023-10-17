@@ -41,7 +41,9 @@ namespace PowerUtilities.RenderFeatures
 
             if (Feature.isBlitToNextPostTarget)
             {
-                var isA = RenderTargetIdentifierEx.IsTargetIdEquals(BuiltinRenderTextureType.CurrentActive, ShaderPropertyIds._CameraColorAttachmentA);
+                var isA = cameraData.renderer.cameraColorTarget.IsNameIdEquals(ShaderPropertyIds._CameraColorAttachmentA);
+
+                //var isA = colorAttachment == ShaderPropertyIds._CameraColorAttachmentA;
                 targetId = isA ? ShaderPropertyIds._CameraColorAttachmentB : ShaderPropertyIds._CameraColorAttachmentA;
             }
 

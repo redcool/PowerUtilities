@@ -24,11 +24,9 @@ namespace PowerUtilities
             m_Type = t.GetField("m_Type", BindingFlags.Instance | BindingFlags.NonPublic);
         }
 
-        public static bool IsTargetIdEquals(this RenderTargetIdentifier a, RenderTargetIdentifier b)
+        public static bool IsNameIdEquals(this RenderTargetIdentifier a, RenderTargetIdentifier b)
         {
-            var aId = (int)m_NameID.GetValue(a);
-            var bId = (int)m_NameID.GetValue(b);
-            return aId == bId;
+            return GetNameId(a) == GetNameId(b);
         }
 
         public static int GetNameId(this RenderTargetIdentifier a) => (int)m_NameID.GetValue(a);
