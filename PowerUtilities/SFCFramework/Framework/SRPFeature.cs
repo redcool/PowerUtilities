@@ -15,7 +15,7 @@
     using PowerUtilities.UIElements;
 
     [CanEditMultipleObjects]
-    [CustomPropertyDrawer(typeof(SRPFeature),true)]
+    //[CustomPropertyDrawer(typeof(SRPFeature),true)]
     public class SRPFeatureDrawer : PropertyDrawer
     {
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
