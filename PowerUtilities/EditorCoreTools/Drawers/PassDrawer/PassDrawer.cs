@@ -40,6 +40,7 @@ namespace PowerUtilities
 
         private static void DrawPassTitleRow(SerializedObject passItemSO, SerializedProperty foldoutProp, GUIContent label)
         {
+            GUILayout.BeginHorizontal();
             foldoutProp.boolValue = EditorGUILayout.Foldout(foldoutProp.boolValue, label, true);
             var pos = GUILayoutUtility.GetLastRect();
             pos.width = 200;
@@ -51,12 +52,8 @@ namespace PowerUtilities
             var enabledProp = passItemSO.FindProperty("enabled");
             if (enabledProp != null)
             {
-                enabledProp.boolValue = EditorGUI.ToggleLeft(pos, "", enabledProp.boolValue);
-
-                if (Event.current.IsMouseDown() && pos.Contains(Event.current.mousePosition))
-                {
-                    enabledProp.boolValue = true;
-                }
+                //enabledProp.boolValue = EditorGUI.Toggle(pos, enabledProp.boolValue);
+                enabledProp.boolValue = EditorGUILayout.Toggle(enabledProp.boolValue);
             }
 
             // show pass cameraTag
@@ -67,8 +64,10 @@ namespace PowerUtilities
             if (gameCameraTag != null)
             {
                 var cameraTag = string.IsNullOrEmpty(gameCameraTag.stringValue) ? "All Camera" : gameCameraTag.stringValue;
-                EditorGUI.LabelField(pos, $"{cameraTag} run");
+                //EditorGUI.LabelField(pos, $"{cameraTag} run");
+                EditorGUILayout.LabelField(cameraTag);
             }
+            GUILayout.EndHorizontal();
         }
     }
 }
