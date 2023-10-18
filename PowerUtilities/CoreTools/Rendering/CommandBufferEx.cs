@@ -181,6 +181,18 @@ namespace PowerUtilities
             }
         }
 
+        /// <summary>
+        /// Blit A triangle
+        /// set _SourceTex,_FinalSrcMode,_FinalDstMode
+        /// </summary>
+        /// <param name="cmd"></param>
+        /// <param name="sourceId"></param>
+        /// <param name="targetId"></param>
+        /// <param name="mat"></param>
+        /// <param name="pass"></param>
+        /// <param name="camera"></param>
+        /// <param name="finalSrcMode"></param>
+        /// <param name="finalDstMode"></param>
         public static void BlitTriangle(this CommandBuffer cmd, RenderTargetIdentifier sourceId, RenderTargetIdentifier targetId, Material mat, int pass, Camera camera = null, BlendMode finalSrcMode = BlendMode.One, BlendMode finalDstMode = BlendMode.Zero)
         {
             cmd.SetGlobalTexture(_SourceTex, sourceId);

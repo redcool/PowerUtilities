@@ -80,6 +80,9 @@ namespace PowerUtilities
             billboardCameraParams = Shader.PropertyToID("unity_BillboardCameraParams"),
 
             sourceTex = Shader.PropertyToID("_SourceTex"),
+            sourceTex2 = Shader.PropertyToID("_SourceTex2"),
+            sourceTex3 = Shader.PropertyToID("_SourceTex3"),
+            sourceTex4 = Shader.PropertyToID("_SourceTex4"),
             scaleBias = Shader.PropertyToID("_ScaleBias"),
             scaleBiasRt = Shader.PropertyToID("_ScaleBiasRt"),
 
