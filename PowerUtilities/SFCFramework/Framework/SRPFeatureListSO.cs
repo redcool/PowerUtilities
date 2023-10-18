@@ -9,17 +9,40 @@
 
 #if UNITY_EDITOR
     using UnityEditor;
+    using System.IO;
+    using Object = UnityEngine.Object;
+    using System.Reflection;
 
     [CustomEditor(typeof(SRPFeatureListSO))]
     public class SRPFeatureListEditor : PowerEditor<SRPFeatureListSO>
     {
         List<SerializedObject> featureSOList;
 
+        /// <summary>
+        /// SRPFeatureListSO asset's folder in Assets
+        /// </summary>
+        string targetObjectAssetDir;
+        IEnumerable<Type> srpFeatureTypes;
+
+        GenericMenu createPassMenu;
+
+        private void OnEnable()
+        {
+            var inst = serializedObject.targetObject as SRPFeatureListSO;
+            targetObjectAssetDir = Path.GetDirectoryName(AssetDatabase.GetAssetPath(serializedObject.targetObject));
+            srpFeatureTypes = ReflectionTools.GetTypesDerivedFrom<SRPFeature>();
+
+            createPassMenu = new GenericMenu();
+            SetupMenu(srpFeatureTypes, createPassMenu, targetObjectAssetDir, inst);
+        }
+
         public override void DrawInspectorUI(SRPFeatureListSO inst)
         {
             serializedObject.UpdateIfRequiredOrScript();
 
-            // show list
+            /**
+                show list
+             */
             EditorGUI.BeginChangeCheck();
             DrawDefaultInspector();
             if (EditorGUI.EndChangeCheck() || featureSOList == null || featureSOList.Count != inst.featureList.Count)
@@ -31,7 +54,9 @@
                 return;
             }
 
-            // show details
+            /**
+                show details
+             */
             var isDetailsFoldout = serializedObject.FindProperty("isDetailsFoldout");
             isDetailsFoldout.boolValue = EditorGUILayout.Foldout(isDetailsFoldout.boolValue, "Details", true);
             if (isDetailsFoldout.boolValue)
@@ -57,8 +82,40 @@
                 EditorGUI.indentLevel--;
                 //EditorGUILayout.EndVertical();
             }
-
+            /**
+                create pass asset 
+             */
+            if (GUILayout.Button("Add SFC Pass"))
+            {
+                createPassMenu.ShowAsContext();
+            }
             serializedObject.ApplyModifiedProperties();
+        }
+        public static void SetupMenu(IEnumerable<Type> featureTypes, GenericMenu menu, string curSODir, SRPFeatureListSO inst)
+        {
+            foreach (var passType in featureTypes)
+            {
+                var menuContent = new GUIContent(passType.Name);
+
+                var createAssetMenuAttr = passType.GetCustomAttribute<CreateAssetMenuAttribute>();
+                if (createAssetMenuAttr != null)
+                {
+                    menuContent.text = createAssetMenuAttr.menuName;
+                }
+
+                menu.AddItem(menuContent, false, (passTypeObj) =>
+                {
+                    var passType = (Type)passTypeObj;
+                    var passSO = ScriptableObject.CreateInstance(passType);
+                    var passSavePath = $"{curSODir}/{inst.featureList.Count} {passType.Name}.asset";
+
+                    var passAsset = AssetDatabaseTools.CreateAssetThenLoad<SRPFeature>(passSO, passSavePath);
+                    AssetDatabaseTools.SaveRefresh();
+
+                    inst.featureList.Add(passAsset);
+
+                }, passType);
+            }
         }
 
         private void TryInitFeatureSOList(SRPFeatureListSO inst)
@@ -68,6 +125,7 @@
                 .Select(feature => new SerializedObject(feature))
                 .ToList();
         }
+
     }
 #endif
     [Serializable]

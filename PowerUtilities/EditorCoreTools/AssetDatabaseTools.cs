@@ -212,6 +212,24 @@ namespace PowerUtilities
             var path = $"{sceneFolder}/{pathInSceneFolder}";
             AssetDatabase.CreateAsset(asset, path);
         }
+
+        public static T CreateAssetThenLoad<T>(Object asset,string pathInAssets) where T : Object
+        {
+            if (string.IsNullOrEmpty(pathInAssets))
+                return default;
+
+            AssetDatabase.CreateAsset(asset, pathInAssets);
+            return AssetDatabase.LoadAssetAtPath<T>(pathInAssets);
+        }
+
+        public static bool IsAssetExist(string pathInAssets)
+        {
+            if (string.IsNullOrEmpty(pathInAssets))
+                return default;
+
+            var absPath = PathTools.GetAssetAbsPath(pathInAssets);
+            return File.Exists(absPath);
+        }
     }
 }
 #endif

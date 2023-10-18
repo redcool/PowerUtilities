@@ -99,6 +99,18 @@
                 .ToArray();
         }
 
+        /// <summary>
+        /// Remove count characters from string last.
+        /// 
+        /// str.Substring(0, str.Length - count);
+        /// 
+        /// </summary>
+        /// <param name="str"></param>
+        /// <param name="count"></param>
+        /// <returns></returns>
+        public static string SubstringLast(this string str, int count)
+        => str.Substring(0, str.Length - count);
+
         public static string ToString<T>(IEnumerable<T> items) => string.Join(',', items);
 
     }
