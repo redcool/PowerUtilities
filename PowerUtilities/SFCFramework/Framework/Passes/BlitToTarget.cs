@@ -24,6 +24,9 @@ namespace PowerUtilities.RenderFeatures
         [Header("Options")]
         public Material blitMat;
 
+        [Tooltip("use gamma, linear space")]
+        public ColorSpaceTransform.ColorSpaceMode colorSpaceMode;
+
         public override ScriptableRenderPass GetPass() => new BlitToTargetPass(this);
     }
 
@@ -46,6 +49,8 @@ namespace PowerUtilities.RenderFeatures
                 //var isA = colorAttachment == ShaderPropertyIds._CameraColorAttachmentA;
                 targetId = isA ? ShaderPropertyIds._CameraColorAttachmentB : ShaderPropertyIds._CameraColorAttachmentA;
             }
+
+            ColorSpaceTransform.SetColorSpace(cmd, Feature.colorSpaceMode);
 
             if (Feature.blitMat)
                 cmd.BlitTriangle(sourceId, targetId, Feature.blitMat, 0);

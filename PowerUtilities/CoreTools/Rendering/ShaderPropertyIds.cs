@@ -24,7 +24,9 @@ namespace PowerUtilities
             ;
 
         public const string _DEBUG = nameof(_DEBUG),
-            _CUSTOM_DEPTH_TEXTURE = nameof(_CUSTOM_DEPTH_TEXTURE)
+            _CUSTOM_DEPTH_TEXTURE = nameof(_CUSTOM_DEPTH_TEXTURE),
+            _LINEAR_TO_SRGB_CONVERSION = nameof(_LINEAR_TO_SRGB_CONVERSION),
+            _SRGB_TO_LINEAR_CONVERSION = nameof(_SRGB_TO_LINEAR_CONVERSION)
             ;
 
         /// <summary>

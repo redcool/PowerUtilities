@@ -6,10 +6,7 @@ using UnityEngine.Rendering.Universal;
 
 namespace PowerUtilities.Features
 {
-    public enum ColorSpaceTransform
-    {
-        None,LinearToSRGB,SRGBToLinear
-    }
+
     public class RenderUIPass : ScriptableRenderPass
     {
         static readonly int _GammaTex = Shader.PropertyToID(nameof(_GammaTex));
@@ -20,9 +17,6 @@ namespace PowerUtilities.Features
         static readonly int _CameraColorAttachmentA = Shader.PropertyToID(nameof(_CameraColorAttachmentA));
         static readonly int _CameraColorAttachmentB = Shader.PropertyToID(nameof(_CameraColorAttachmentB));
         static readonly int _CameraDepthAttachment = Shader.PropertyToID(nameof(_CameraDepthAttachment));
-
-        const string _LINEAR_TO_SRGB_CONVERSION = nameof(_LINEAR_TO_SRGB_CONVERSION);
-        const string _SRGB_TO_LINEAR_CONVERSION = nameof(_SRGB_TO_LINEAR_CONVERSION);
 
         CommandBuffer cmd = new CommandBuffer { name=nameof(RenderUIPass) };
 
@@ -52,26 +46,7 @@ namespace PowerUtilities.Features
             return renderStateBlock;
         }
 
-        void SetColorSpace(CommandBuffer cmd, ColorSpaceTransform trans)
-        {
-            switch (trans)
-            {
-                case ColorSpaceTransform.LinearToSRGB:
-                    cmd.EnableShaderKeyword(_LINEAR_TO_SRGB_CONVERSION);
-                    cmd.DisableShaderKeyword(_SRGB_TO_LINEAR_CONVERSION);
-                    break;
 
-                case ColorSpaceTransform.SRGBToLinear:
-                    cmd.EnableShaderKeyword(_SRGB_TO_LINEAR_CONVERSION);
-                    cmd.DisableShaderKeyword(_LINEAR_TO_SRGB_CONVERSION);
-                    break;
-
-                default:
-                    cmd.DisableShaderKeyword(_SRGB_TO_LINEAR_CONVERSION);
-                    cmd.DisableShaderKeyword(_LINEAR_TO_SRGB_CONVERSION);
-                    break;
-            }
-        }
 
         void Blit(CommandBuffer cmd,
                     RenderTargetIdentifier source,
@@ -113,7 +88,7 @@ namespace PowerUtilities.Features
             {
                 if (Display.main.requiresSrgbBlitToBackbuffer)
                 {
-                    SetColorSpace(cmd, ColorSpaceTransform.LinearToSRGB);
+                    ColorSpaceTransform.SetColorSpace(cmd, ColorSpaceTransform.ColorSpaceMode.LinearToSRGB);
                 }
                 DrawRenderers(ref context, ref renderingData, 2, 2);
                 return;
@@ -135,7 +110,7 @@ namespace PowerUtilities.Features
             settings.blitMat.shaderKeywords = null;
             //settings.blitMat.SetFloat("_Double", 0);
 
-            SetColorSpace(cmd, ColorSpaceTransform.LinearToSRGB);
+            ColorSpaceTransform.SetColorSpace(cmd, ColorSpaceTransform.ColorSpaceMode.LinearToSRGB);
             BlitToTarget(ref context, lastColorHandleId, colorHandleId, depthHandleId);
 
             //--------------------- 2 draw ui
@@ -143,7 +118,7 @@ namespace PowerUtilities.Features
 
 
             //--------------------- 3 to colorTarget
-            SetColorSpace(cmd, ColorSpaceTransform.SRGBToLinear);
+            ColorSpaceTransform.SetColorSpace(cmd, ColorSpaceTransform.ColorSpaceMode.SRGBToLinear);
 
             if (settings.isFinalRendering)
             {
@@ -160,7 +135,7 @@ namespace PowerUtilities.Features
             if (settings.createFullsizeGammaTex)
                 cmd.ReleaseTemporaryRT(_GammaTex);
 
-            SetColorSpace(cmd, ColorSpaceTransform.None);
+            ColorSpaceTransform.SetColorSpace(cmd, ColorSpaceTransform.ColorSpaceMode.None);
 
             cmd.EndSample(nameof(RenderUIPass));
 

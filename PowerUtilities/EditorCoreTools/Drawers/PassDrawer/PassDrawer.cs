@@ -13,23 +13,16 @@ namespace PowerUtilities
     {
         public static void DrawPassDetail(SerializedObject passItemSO, Color labelColor, SerializedProperty foldoutProp, GUIContent label)
         {
+            //reset global width
+            EditorGUIUtility.fieldWidth = 200;
+
             passItemSO.UpdateIfRequiredOrScript();
 
             // pass header
             EditorGUITools.DrawColorUI(() =>
             {
-                EditorGUILayout.BeginHorizontal();
-                // show fold label 
-                foldoutProp.boolValue = EditorGUILayout.Foldout(foldoutProp.boolValue, label, true);
+                DrawPassTitleRow(passItemSO, foldoutProp, label);
 
-                // show checker
-                var enabledProp = passItemSO.FindProperty("enabled");
-                if (enabledProp != null)
-                {
-                    enabledProp.boolValue = EditorGUILayout.Toggle(enabledProp.boolValue);
-                }
-
-                EditorGUILayout.EndHorizontal();
             }, GUI.contentColor, labelColor);
 
             // pass details
@@ -43,6 +36,39 @@ namespace PowerUtilities
             }
 
             passItemSO.ApplyModifiedProperties();
+        }
+
+        private static void DrawPassTitleRow(SerializedObject passItemSO, SerializedProperty foldoutProp, GUIContent label)
+        {
+            foldoutProp.boolValue = EditorGUILayout.Foldout(foldoutProp.boolValue, label, true);
+            var pos = GUILayoutUtility.GetLastRect();
+            pos.width = 200;
+
+            // show checker on pass title
+            pos.x += pos.width;
+            pos.width = 20;
+
+            var enabledProp = passItemSO.FindProperty("enabled");
+            if (enabledProp != null)
+            {
+                enabledProp.boolValue = EditorGUI.ToggleLeft(pos, "", enabledProp.boolValue);
+
+                if (Event.current.IsMouseDown() && pos.Contains(Event.current.mousePosition))
+                {
+                    enabledProp.boolValue = true;
+                }
+            }
+
+            // show pass cameraTag
+            pos.x += pos.width;
+            pos.width = 200;
+
+            var gameCameraTag = passItemSO.FindProperty("gameCameraTag");
+            if (gameCameraTag != null)
+            {
+                var cameraTag = string.IsNullOrEmpty(gameCameraTag.stringValue) ? "All Camera" : gameCameraTag.stringValue;
+                EditorGUI.LabelField(pos, $"{cameraTag} run");
+            }
         }
     }
 }

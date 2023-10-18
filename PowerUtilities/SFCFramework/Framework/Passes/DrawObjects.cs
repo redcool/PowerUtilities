@@ -83,13 +83,16 @@
         public float cameraFOV = 60;
         public Vector4 cameraOffset;
 
-        [Header("SkyBox")]
+        [Header("SkyBox Pass")]
         public bool isDrawSkybox;
         public RenderPassEvent drawSkyboxEvent = RenderPassEvent.BeforeRenderingSkybox;
 
         [Header("DrawChildrenInstanced")]
         public bool isDrawChildrenInstancedOn;
         public bool forceFindDrawChildrenInstanced;
+
+        [Header("Color Space")]
+        public ColorSpaceTransform.ColorSpaceMode colorSpaceMode;
 
         public override ScriptableRenderPass GetPass() => new DrawObjectsPassWrapper(this);
     }
@@ -250,7 +253,6 @@
 
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
         {
-
             var drawObjectPassData = new Vector4(0, 0, 0, Feature.isOpaque ? 1 : 0);
             cmd.SetGlobalVector(s_DrawObjectPassDataPropID, drawObjectPassData);
 
@@ -261,6 +263,7 @@
             var flipSign = renderingData.cameraData.IsCameraProjectionMatrixFlipped() ? -1f : 1f;
             var scaleBias = flipSign < 0 ? new Vector4(flipSign, 1, -1, 1) : new Vector4(flipSign, 0, 1, 1);
             cmd.SetGlobalVector(ShaderPropertyIds.scaleBias, scaleBias);
+            ColorSpaceTransform.SetColorSpace(cmd,Feature.colorSpaceMode);
             cmd.Execute(ref context);
 
             ref var cameraData = ref renderingData.cameraData;
@@ -273,7 +276,6 @@
 #endif
             OverrideCamera(ref context, cmd, ref renderingData);
             var drawSettings = GetDrawSettings(context, cmd, ref renderingData, ref cameraData);
-
             context.DrawRenderers(renderingData.cullResults, ref drawSettings, ref filterSetting, ref renderStateBlock);
 
             RenderingTools.DrawErrorObjects(ref context, ref renderingData.cullResults, camera, filterSetting, SortingCriteria.None);
