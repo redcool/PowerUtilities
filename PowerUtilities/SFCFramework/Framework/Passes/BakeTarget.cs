@@ -52,7 +52,6 @@
             //ColorSpaceTransform.SetColorSpace(cmd, ColorSpaceTransform.ColorSpaceMode.LinearToSRGB);
             cmd.SetGlobalTexture(ShaderPropertyIds.sourceTex2, ShaderPropertyIds._CameraDepthTexture);
             cmd.BlitTriangle(ShaderPropertyIds._CameraOpaqueTexture, Feature.tempRT, Feature.combineBlitMat, 0);
-            cmd.Execute(ref context);
 
             if (!Feature.isSave)
                 return;

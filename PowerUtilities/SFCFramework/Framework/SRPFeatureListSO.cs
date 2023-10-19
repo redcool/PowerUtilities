@@ -51,12 +51,29 @@
             if (featureSOList.Count == 0)
             {
                 EditorGUILayout.SelectableLabel("No Features");
-                return;
             }
-
+            else
+            {
+                DrawDetails();
+            }
+            
             /**
-                show details
+                create pass asset 
              */
+            DrawAddPassButton();
+            serializedObject.ApplyModifiedProperties();
+        }
+
+        private void DrawAddPassButton()
+        {
+            if (GUILayout.Button("Add SFC Pass"))
+            {
+                createPassMenu.ShowAsContext();
+            }
+        }
+
+        private void DrawDetails()
+        {
             var isDetailsFoldout = serializedObject.FindProperty("isDetailsFoldout");
             isDetailsFoldout.boolValue = EditorGUILayout.Foldout(isDetailsFoldout.boolValue, "Details", true);
             if (isDetailsFoldout.boolValue)
@@ -66,7 +83,7 @@
                 for (int i = 0; i < featureSOList.Count; i++)
                 {
                     var featureSO = featureSOList[i];
-                    var feature = (SRPFeature) featureSO.targetObject;
+                    var feature = (SRPFeature)featureSO.targetObject;
 
                     var color = feature.enabled ? (feature.interrupt ? Color.red : GUI.color) : Color.gray;
                     var title = feature.name;
@@ -82,15 +99,8 @@
                 EditorGUI.indentLevel--;
                 //EditorGUILayout.EndVertical();
             }
-            /**
-                create pass asset 
-             */
-            if (GUILayout.Button("Add SFC Pass"))
-            {
-                createPassMenu.ShowAsContext();
-            }
-            serializedObject.ApplyModifiedProperties();
         }
+
         public static void SetupMenu(IEnumerable<Type> featureTypes, GenericMenu menu, string curSODir, SRPFeatureListSO inst)
         {
             foreach (var passType in featureTypes)
