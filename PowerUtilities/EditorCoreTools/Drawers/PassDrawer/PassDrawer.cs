@@ -13,8 +13,7 @@ namespace PowerUtilities
     {
         public static void DrawPassDetail(SerializedObject passItemSO, Color labelColor, SerializedProperty foldoutProp, GUIContent label)
         {
-            //reset global width
-            EditorGUIUtility.fieldWidth = 200;
+            EditorGUIUtility.fieldWidth = 50;
 
             passItemSO.UpdateIfRequiredOrScript();
 
@@ -40,34 +39,31 @@ namespace PowerUtilities
 
         private static void DrawPassTitleRow(SerializedObject passItemSO, SerializedProperty foldoutProp, GUIContent label)
         {
-            GUILayout.BeginHorizontal();
-            foldoutProp.boolValue = EditorGUILayout.Foldout(foldoutProp.boolValue, label, true);
-            var pos = GUILayoutUtility.GetLastRect();
-            pos.width = 200;
+            var e = Event.current;
+            var pos = EditorGUILayout.GetControlRect();
+            pos = EditorGUI.IndentedRect(pos);
 
-            // show checker on pass title
+            pos.width = 200;
+            //EditorGUI.DrawRect(pos, Color.red);
+            foldoutProp.boolValue = EditorGUI.Foldout(pos, foldoutProp.boolValue, label,true);
+
             pos.x += pos.width;
-            pos.width = 20;
+            pos.width = 40;
 
             var enabledProp = passItemSO.FindProperty("enabled");
-            if (enabledProp != null)
+            if(enabledProp != null)
             {
-                //enabledProp.boolValue = EditorGUI.Toggle(pos, enabledProp.boolValue);
-                enabledProp.boolValue = EditorGUILayout.Toggle(enabledProp.boolValue);
+                enabledProp.boolValue = EditorGUI.Toggle(pos, enabledProp.boolValue);
             }
 
-            // show pass cameraTag
             pos.x += pos.width;
-            pos.width = 200;
-
+            pos.width = 120;
             var gameCameraTag = passItemSO.FindProperty("gameCameraTag");
-            if (gameCameraTag != null)
+            if(gameCameraTag != null)
             {
                 var cameraTag = string.IsNullOrEmpty(gameCameraTag.stringValue) ? "All Camera" : gameCameraTag.stringValue;
-                //EditorGUI.LabelField(pos, $"{cameraTag} run");
-                EditorGUILayout.LabelField(cameraTag);
+                EditorGUI.LabelField(pos, $"({cameraTag}) run");
             }
-            GUILayout.EndHorizontal();
         }
     }
 }
