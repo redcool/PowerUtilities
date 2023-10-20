@@ -74,6 +74,8 @@
 
         private void DrawDetails()
         {
+            EditorGUIUtility.fieldWidth = 100;
+
             var isDetailsFoldout = serializedObject.FindProperty("isDetailsFoldout");
             isDetailsFoldout.boolValue = EditorGUILayout.Foldout(isDetailsFoldout.boolValue, "Details", true);
             if (isDetailsFoldout.boolValue)

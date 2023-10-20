@@ -8,6 +8,8 @@ using UnityEngine.Rendering.Universal;
 
 #if UNITY_EDITOR
     using UnityEditor;
+    using UnityEngine.SceneManagement;
+
     [CustomEditor(typeof(SRPRenderFeatureControl))]
     public class SRPRenderFeatureControlEditor : Editor
     {
@@ -20,6 +22,8 @@ using UnityEngine.Rendering.Universal;
 
         public override void OnInspectorGUI()
         {
+            var inst = serializedObject.targetObject as SRPRenderFeatureControl;
+
             EditorGUI.BeginChangeCheck();
             DrawDefaultInspector();
             if (EditorGUI.EndChangeCheck())
@@ -29,16 +33,37 @@ using UnityEngine.Rendering.Universal;
 
             serializedObject.UpdateIfRequiredOrScript();
 
-            var isFeatureListFoldout = serializedObject.FindProperty("isFeatureListFoldout");
-            isFeatureListFoldout.boolValue = EditorGUILayout.Foldout(isFeatureListFoldout.boolValue, EditorGUITools.TempContent("featureList Details"), true, EditorStylesEx.FoldoutHeader);
-            if (isFeatureListFoldout.boolValue)
+            if (inst.featureListSO == null)
             {
-                EditorGUI.indentLevel++;
-                featureListEditor?.OnInspectorGUI();
-                EditorGUI.indentLevel--;
+                if (GUILayout.Button("Create SRPFeatureListSO"))
+                {
+                    CreateNewFeatureListAsset(inst);
+                }
+            }
+            else
+            {
+                var isFeatureListFoldout = serializedObject.FindProperty("isFeatureListFoldout");
+                isFeatureListFoldout.boolValue = EditorGUILayout.Foldout(isFeatureListFoldout.boolValue, EditorGUITools.TempContent("featureList Details"), true, EditorStylesEx.FoldoutHeader);
+                if (isFeatureListFoldout.boolValue)
+                {
+                    EditorGUI.indentLevel++;
+                    featureListEditor?.OnInspectorGUI();
+                    EditorGUI.indentLevel--;
+                }
             }
 
             serializedObject.ApplyModifiedProperties();
+        }
+
+        private static void CreateNewFeatureListAsset(SRPRenderFeatureControl inst)
+        {
+            var listSO = ScriptableObject.CreateInstance<SRPFeatureListSO>();
+            var scene = SceneManager.GetActiveScene();
+            var path = $"Assets/{scene.name}_FeatureList.asset";
+
+            var listAsset = AssetDatabaseTools.CreateAssetThenLoad<SRPFeatureListSO>(listSO, path);
+            EditorGUIUtility.PingObject(listAsset);
+            inst.featureListSO = listAsset;
         }
     }
 #endif

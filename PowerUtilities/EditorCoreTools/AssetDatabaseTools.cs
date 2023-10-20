@@ -213,11 +213,21 @@ namespace PowerUtilities
             AssetDatabase.CreateAsset(asset, path);
         }
 
-        public static T CreateAssetThenLoad<T>(Object asset,string pathInAssets) where T : Object
+        public static T CreateAssetThenLoad<T>(Object asset, string pathInAssets, bool deleteExistAsset = false) where T : Object
         {
             if (string.IsNullOrEmpty(pathInAssets))
                 return default;
 
+            if (deleteExistAsset)
+                AssetDatabase.DeleteAsset(pathInAssets);
+            // get exists asset
+            var assetExists = AssetDatabase.LoadAssetAtPath<T>(pathInAssets);
+            if (assetExists)
+            {
+                return assetExists;
+            }
+
+            // create new asset
             AssetDatabase.CreateAsset(asset, pathInAssets);
             return AssetDatabase.LoadAssetAtPath<T>(pathInAssets);
         }

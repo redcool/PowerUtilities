@@ -41,7 +41,6 @@ namespace PowerUtilities
         {
             var e = Event.current;
             var pos = EditorGUILayout.GetControlRect();
-            pos = EditorGUI.IndentedRect(pos);
 
             pos.width = 200;
             //EditorGUI.DrawRect(pos, Color.red);
@@ -57,7 +56,7 @@ namespace PowerUtilities
             }
 
             pos.x += pos.width;
-            pos.width = 120;
+            pos.width = 200;
             var gameCameraTag = passItemSO.FindProperty("gameCameraTag");
             if(gameCameraTag != null)
             {
