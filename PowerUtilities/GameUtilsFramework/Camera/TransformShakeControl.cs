@@ -23,7 +23,9 @@ namespace GameUtilsFramework
         }
     }
 #endif
-
+    /// <summary>
+    /// shake a transform
+    /// </summary>
     public class TransformShakeControl : MonoBehaviour
     {
         //=============Options
@@ -36,7 +38,7 @@ namespace GameUtilsFramework
         public float distance = 1;
 
         [Tooltip("smooth damping, more big more slow")]
-        public AnimationCurve smoothDampingCurve = new AnimationCurve(new Keyframe(0, 0.5f, 0.1f, 0.1f), new Keyframe(1, 1, .1f, .1f));
+        public AnimationCurve smoothDampingCurve = new AnimationCurve(new Keyframe(0, 0.2f, 0.1f, 0.1f), new Keyframe(1, 1, .1f, .1f));
 
         //=============Atten
         [Header("Atten")]
@@ -47,7 +49,7 @@ namespace GameUtilsFramework
         public bool isPlayOnce = false;
 
         [Tooltip("Get random postion per frame")]
-        public bool isUpdatePerFrame = true;
+        public bool isUpdatePosPerFrame = true;
 
         [Tooltip("which axis can random move")]
         public Vector3 axisAtten = Vector3.one;
@@ -91,7 +93,8 @@ namespace GameUtilsFramework
         // Update is called once per frame
         void LateUpdate()
         {
-            if (!target || Time.time - startTime >= time)
+            var elapsedTime = Time.time - startTime;
+            if (!target || elapsedTime >= time)
             {
                 enabled = false;
                 target.localPosition = startLocalPos;
@@ -104,10 +107,11 @@ namespace GameUtilsFramework
             }
 
             // attenuations
-            float rate = CalcRate();
+            var rate01 = Mathf.Clamp01(elapsedTime / time);
+            var rate = 1 - rate01;// 1-0
 
             // get smooth damping
-            float smoothTime = CalcSmoothDamp(rate);
+            float smoothTime = CalcSmoothDamp(rate01);
 
             // update position
             CalcNextPos(rate, smoothTime);
@@ -119,7 +123,7 @@ namespace GameUtilsFramework
 
         private void CalcNextPos(float rate, float smoothTime)
         {
-            if (isUpdatePerFrame)
+            if (isUpdatePosPerFrame)
                 nextPos = GetRandomPos(startLocalPos, distance, rate, smoothTime);
             else
             {
@@ -134,20 +138,15 @@ namespace GameUtilsFramework
 
         private float CalcSmoothDamp(float rate)
         {
-            var smoothTime = 0.02f;
+            var smoothTime = 0.2f;
             if (smoothDampingCurve.length > 0)
             {
-                smoothTime = 0.02f * smoothDampingCurve.Evaluate(rate * smoothDampingCurve[smoothDampingCurve.length - 1].time);
+                smoothTime = smoothDampingCurve.Evaluate(rate * smoothDampingCurve[smoothDampingCurve.length - 1].time);
+                smoothTime *= 0.2f;// low it
             }
 
+            Debug.Log(rate+":"+ smoothTime);
             return smoothTime;
-        }
-
-        private float CalcRate()
-        {
-            var rate01 = Mathf.Clamp01((Time.time - startTime) / time);
-            var rate = 1 - rate01;// 1-0
-            return rate;
         }
 
         public static Vector3 GetRandomPos(Vector3 startLocalPos, float distance, float rate, float smoothTime)
