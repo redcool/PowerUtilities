@@ -1,17 +1,10 @@
 ﻿namespace PowerUtilities.RenderFeatures
 {
-    using Codice.CM.Client.Differences.Graphic;
-    using System;
-    using System.Collections.Generic;
     using System.IO;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
     using UnityEngine;
     using UnityEngine.Rendering;
     using UnityEngine.Rendering.Universal;
     using UnityEngine.SceneManagement;
-    using Object = UnityEngine.Object;
 
     [Tooltip("save (color,depth) to disk")]
     [CreateAssetMenu(menuName = SRP_FEATURE_PASSES_MENU+ "/BakeTarget")]

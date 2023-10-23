@@ -5,10 +5,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
+    using UnityEngine.SceneManagement;
 
 #if UNITY_EDITOR
     using UnityEditor;
-    using UnityEngine.SceneManagement;
 
     [CustomEditor(typeof(SRPRenderFeatureControl))]
     public class SRPRenderFeatureControlEditor : Editor

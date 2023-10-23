@@ -54,7 +54,7 @@ namespace GameUtilsFramework
 
             var startPos = position;
             startPos.height = LINE_HEIGHT;
-            //startPos.y += LINE_HEIGHT;
+            //startLocalPos.y += LINE_HEIGHT;
 
             var sizeProp = boneTrs.FindPropertyRelative("Array.size");
 
@@ -120,7 +120,7 @@ namespace GameUtilsFramework
             //--------- offset
             startPos.x += ITEM_WIDTH;
             //var offsetProp = offsets.GetArrayElementAtIndex(i);
-            //offsetProp.vector3Value = EditorGUI.Vector3Field(startPos, "", offsetProp.vector3Value);
+            //offsetProp.vector3Value = EditorGUI.Vector3Field(startLocalPos, "", offsetProp.vector3Value);
             EditorGUI.LabelField(startPos, targetBonePath.stringValue);
         }
 
