@@ -59,9 +59,15 @@ namespace PowerUtilities
             {
                 return;
             }
+
             var rendererType = renderer.GetType();
             var f = rendererType.GetField(name, BindingFlags.Instance | BindingFlags.NonPublic);
+#if UNITY_2023_1_OR_NEWER
             rth = (RTHandle)f.GetValue(renderer);
+#else
+            var handle = (RenderTargetHandle)f.GetValue(renderer);
+            rth = RTHandles.Alloc(handle.Identifier());
+#endif
         }
 
         public static void TryGetRTHandle(ref RTHandle handle, ScriptableRenderer renderer, URPRTHandleNames name) 
