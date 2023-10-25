@@ -6,6 +6,7 @@ namespace PowerUtilities
     using System.Linq;
     using UnityEditor;
     using UnityEngine;
+    using UnityEngine.Rendering;
 
     /// <summary>
     /// LightExplorer is urp's feature
@@ -13,7 +14,11 @@ namespace PowerUtilities
     /// 
     /// 1 change UniversalRenderPipelineAsset's script to UniversalRenderPipelineAssetEx
     /// </summary>
+    #if UNITY_2023_1_OR_NEWER
+    [SupportedOnRenderPipeline(typeof(UniversalRenderPipelineAssetEx))]
+#else
     [LightingExplorerExtension(typeof(UniversalRenderPipelineAssetEx))]
+#endif
     public class LightExplorerEx : LightExplorer
     {
 

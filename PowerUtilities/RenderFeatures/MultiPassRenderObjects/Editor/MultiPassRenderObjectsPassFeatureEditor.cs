@@ -82,10 +82,10 @@ namespace UnityEditor.Experimental.Rendering.Universal
 
 		static bool FilterRenderPassEvent(int evt)
 		{
-#if UNITY_2020
-			var prepassId = RenderPassEvent.BeforeRenderingPrepasses;
-#elif UNITY_2021
+#if UNITY_2021_1_OR_NEWER
             var prepassId = RenderPassEvent.BeforeRenderingPrePasses;
+#elif UNITY_2020
+			var prepassId = RenderPassEvent.BeforeRenderingPrepasses;
 #endif
 			// Return all monos higher or equal than before rendering prepasses
 			return evt >= (int)prepassId &&

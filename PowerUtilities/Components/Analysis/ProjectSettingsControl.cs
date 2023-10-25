@@ -51,7 +51,11 @@ namespace PowerUtilities
             masterTextureMipmap++;
             masterTextureMipmap %= 2;
 
+#if UNITY_2023_1_OR_NEWER
+            QualitySettings.globalTextureMipmapLimit = masterTextureMipmap;
+#else
             QualitySettings.masterTextureLimit = masterTextureMipmap;
+#endif
         }
 
         public void ToggleShadowMaskMode()

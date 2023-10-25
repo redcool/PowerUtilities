@@ -49,7 +49,7 @@ namespace UnityEngine.Experimental.Rendering.Universal
             // by changing the serialized data.
 #if UNITY_2020
             var prepassId = RenderPassEvent.BeforeRenderingPrepasses;
-#elif UNITY_2021 
+#elif UNITY_2021_1_OR_NEWER
             var prepassId = RenderPassEvent.BeforeRenderingPrePasses;
 #endif
             if (settings.Event < prepassId)
@@ -64,7 +64,11 @@ namespace UnityEngine.Experimental.Rendering.Universal
             renderObjectsPass.overrideMaterialPassIndex = settings.overrideMaterialPassIndex;
 
             if (settings.overrideDepthState)
+#if UNITY_2021
                 renderObjectsPass.SetDetphState(settings.enableWrite, settings.depthCompareFunction);
+#else
+                renderObjectsPass.SetDepthState(settings.enableWrite, settings.depthCompareFunction);
+#endif
 
             if (settings.stencilSettings.overrideStencilState)
                 renderObjectsPass.SetStencilState(settings.stencilSettings.stencilReference,
