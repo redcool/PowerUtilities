@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
@@ -103,7 +104,7 @@ namespace PowerUtilities.Features
 #endif
             cmd.BeginSample(nameof(RenderUIPass));
 
-            int lastColorHandleId, colorHandleId, depthHandleId;
+            RenderTargetIdentifier lastColorHandleId, colorHandleId, depthHandleId;
             SetupTargetTex(ref renderingData, ref cameraData, out lastColorHandleId, out colorHandleId, out depthHandleId);
 
             //---------------------  1 to gamma tex
@@ -142,7 +143,7 @@ namespace PowerUtilities.Features
             cmd.Execute(ref context);
         }
 
-        void BlitToTarget(ref ScriptableRenderContext context, int lastColorHandleId, RenderTargetIdentifier colorHandleId, RenderTargetIdentifier depthHandleId)
+        void BlitToTarget(ref ScriptableRenderContext context, RenderTargetIdentifier lastColorHandleId, RenderTargetIdentifier colorHandleId, RenderTargetIdentifier depthHandleId)
         {
             // _CameraOpaqueTexture is _CameraColorAttachmentA or _CameraColorAttachmentB
             cmd.SetGlobalTexture(_SourceTex, lastColorHandleId);
@@ -184,7 +185,8 @@ namespace PowerUtilities.Features
             }
 
             var renderStateBlock = GetRenderStateBlock();
-            context.DrawRenderers(renderingData.cullResults, ref drawSettings, ref filterSettings, ref renderStateBlock);
+            var arr = new NativeArray<RenderStateBlock>(new[] { renderStateBlock }, Allocator.Temp);
+            context.DrawRenderers(cmd,renderingData.cullResults, ref drawSettings, ref filterSettings,null, arr);
 
             // render objects by layerMasks order
             if (settings.filterInfoList.Count >0)
@@ -199,7 +201,7 @@ namespace PowerUtilities.Features
                     //FilteringSettingsInfo.SetupFilterSettingss(ref filterSettings, info);
                     filterSettings = info;
 
-                    context.DrawRenderers(renderingData.cullResults, ref drawSettings, ref filterSettings, ref renderStateBlock);
+                    context.DrawRenderers(cmd, renderingData.cullResults, ref drawSettings, ref filterSettings, null, arr);
                 }
             }
         }
@@ -217,21 +219,18 @@ namespace PowerUtilities.Features
             return false;
         }
 
-        int GetLastColorTargetId(ref RenderingData renderingData) => (AnyCameraHasPostProcessing() && renderingData.postProcessingEnabled )? _CameraColorAttachmentB : _CameraColorAttachmentA ;
-        private void SetupTargetTex(ref RenderingData renderingData, ref CameraData cameraData,out int lastColorHandleId, out int colorHandleId, out int depthHandleId)
+        RTHandle m_CameraDepthAttachment, m_ActiveCameraColorAttachment, colorAttachmentA, colorAttachmentB;
+        private void SetupTargetTex(ref RenderingData renderingData, ref CameraData cameraData,out RenderTargetIdentifier lastColorHandleId, out RenderTargetIdentifier colorHandleId, out RenderTargetIdentifier depthHandleId)
         {
+            var renderer = cameraData.renderer;
+            RTHandleTools.TryGetRTHandle(ref m_CameraDepthAttachment, renderer, URPRTHandleNames.m_CameraDepthAttachment);
+            RTHandleTools.TryGetRTHandle(ref m_ActiveCameraColorAttachment, renderer, URPRTHandleNames.m_ActiveCameraColorAttachment);
+            RTHandleTools.TryGetRTHandleA_B(ref colorAttachmentA, ref colorAttachmentB, renderer);
 
-            /** =============================================
-             * 
-             * hacking, use target name direct, when urp upgrade this will not work maybe.
-             * 
-             * =============================================
-             * **/
-            depthHandleId = _CameraDepthAttachment;
 
-            //lastColorHandleId = GetLastColorTargetId(ref renderingData);
-            lastColorHandleId = (int)BuiltinRenderTextureType.CurrentActive;
-            colorHandleId = (lastColorHandleId == _CameraColorAttachmentA) ? _CameraColorAttachmentB : _CameraColorAttachmentA;
+            lastColorHandleId = m_ActiveCameraColorAttachment.nameID;
+            colorHandleId = lastColorHandleId == colorAttachmentA.nameID ? colorAttachmentB.nameID : colorAttachmentA.nameID;
+            depthHandleId = m_CameraDepthAttachment.nameID;
 
             if (settings.createFullsizeGammaTex)
             {

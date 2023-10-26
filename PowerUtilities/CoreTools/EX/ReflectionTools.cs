@@ -12,7 +12,7 @@ namespace PowerUtilities
         /// <summary>
         /// flags : private instance
         /// </summary>
-        public const BindingFlags PrivateInstanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
+        public const BindingFlags PrivateInstanceFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Static;
 
         //cache type <-> fieldInfo 
         static CacheTool<Type,FieldInfo> typeFieldCache = new CacheTool<Type, FieldInfo>();
@@ -67,12 +67,45 @@ namespace PowerUtilities
         /// <returns></returns>
         public static T GetFieldValue<T>(this Type type, object instance, string fieldName, BindingFlags flags = PrivateInstanceFlags)
         {
+            var obj = GetFieldValue(type, instance, fieldName, flags);
+            return obj != null ? (T)obj : default;
+        }
+        public static object GetFieldValue(this Type type, object instance, string fieldName, BindingFlags flags = PrivateInstanceFlags)
+        {
             var field = typeFieldCache.Get(type, () => type.GetField(fieldName, flags));
 
             if (field == null)
                 return default;
 
-            return (T)field.GetValue(instance);
+            return field.GetValue(instance);
+        }
+
+        /// <summary>
+        /// Get hierarchy object value use Reflection API(slow)
+        /// like  ( object1.object2.object3.name )
+        /// </summary>
+        /// <param name="instance"></param>
+        /// <param name="fieldNamesPath"></param>
+        /// <returns></returns>
+        public static object GetObjectHierarchy(this object instance,string fieldNamesPath)
+        {
+            if (instance == null || string.IsNullOrEmpty(fieldNamesPath)) 
+                return null;
+
+            var fieldNames = fieldNamesPath.SplitBy('.');
+
+            Type instType = instance.GetType();
+            FieldInfo field = null;
+
+            foreach (var fieldName in fieldNames)
+            {
+                field = instType.GetField(fieldName,BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+                instance = field.GetValue(instance);
+
+                // next field
+                instType = instance.GetType();
+            }
+            return instance;
         }
     }
 }
