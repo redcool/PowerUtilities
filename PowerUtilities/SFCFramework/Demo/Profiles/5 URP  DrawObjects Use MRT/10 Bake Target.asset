@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4885b5aaa127b0d4e957a1ba03c056da, type: 3}
+  m_Name: 10 Bake Target
+  m_EditorClassIdentifier: 
+  nodeInfo:
+    pos:
+      serializedVersion: 2
+      x: 0
+      y: 0
+      width: 200
+      height: 100
+    guid: 
+    title: 
+  enabled: 1
+  interrupt: 0
+  isSceneCameraOnly: 0
+  gameCameraCompareType: 0
+  gameCameraTag: MainCamera
+  renderPassEvent: 600
+  renderPassEventOffset: 0
+  log: 
+  isFoldout: 1
+  width: 1920
+  height: 1080
+  combineBlitMat: {fileID: 2100000, guid: 212f7e57804ac0e4d80ff51715cb1220, type: 2}
+  tempRT: {fileID: 0}
+  isSave: 0
