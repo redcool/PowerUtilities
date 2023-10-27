@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
 using UnityEngine.Rendering;
@@ -10,6 +11,9 @@ using UnityEngine.Rendering.Universal;
 
 namespace PowerUtilities
 {
+    /// <summary>
+    /// srp render path tools
+    /// </summary>
     public static class RenderingTools
     {
         public static List<ShaderTagId> legacyShaderPassNames = new List<ShaderTagId>
@@ -29,10 +33,8 @@ namespace PowerUtilities
             new ShaderTagId("LightweightForward")
         };
 
-
         public static Material ErrorMaterial = new Material(Shader.Find("Hidden/InternalErrorShader"));
-            //=> MaterialCacheTool.GetMaterial("Hidden/InternalErrorShader");
-
+        
         public static void ConvertStringArray<T>(ref T[] results, Func<string, T> onConvert, params string[] names)
         {
             if (onConvert == null || names == null)
@@ -42,11 +44,17 @@ namespace PowerUtilities
                 Select(n => onConvert(n)).
                 ToArray();
         }
-
+        /// <summary>
+        /// Change names to RenderTargetIdentitier(Shader.PropertyToID
+        /// </summary>
+        /// <param name="names"></param>
+        /// <param name="ids"></param>
+        /// <param name="defaultId"></param>
         public static void RenderTargetNameToIdentifier(string[] names, ref RenderTargetIdentifier[] ids, BuiltinRenderTextureType defaultId = BuiltinRenderTextureType.CurrentActive)
         => ConvertStringArray(ref ids,
             (n) => string.IsNullOrEmpty(n)? defaultId : new RenderTargetIdentifier(n),
             names);
+
 
 
         public static void RenderTargetNameToInt(string[] names, ref int[] ids)
@@ -59,7 +67,7 @@ namespace PowerUtilities
         public static bool IsNeedCreateTexture(Texture t, int targetWidth, int targetHeight)
             => !(t && t.width == targetWidth && t.height == targetHeight);
 
-        public static void DrawErrorObjects(ref ScriptableRenderContext context,ref CullingResults cullingResults,Camera cam,FilteringSettings filterSettings,SortingCriteria sortFlags)
+        public static void DrawErrorObjects(CommandBuffer cmd,ref ScriptableRenderContext context,ref CullingResults cullingResults,Camera cam,FilteringSettings filterSettings,SortingCriteria sortFlags)
         {
             var sortingSettings = new SortingSettings(cam) { criteria = sortFlags };
             var drawSettings = new DrawingSettings(legacyShaderPassNames[0], sortingSettings)
@@ -73,7 +81,12 @@ namespace PowerUtilities
                 drawSettings.SetShaderPassName(i, legacyShaderPassNames[i]);
             }
 
+#if UNITY_2023_1_OR_NEWER
+            var arr = new NativeArray<RenderStateBlock>(new[] { default(RenderStateBlock) }, Allocator.Temp);
+            context.DrawRenderers(cmd, cullingResults, ref drawSettings, ref filterSettings, null, arr);
+#else
             context.DrawRenderers(cullingResults, ref drawSettings, ref filterSettings);
+#endif
 
         }
 

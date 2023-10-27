@@ -112,6 +112,10 @@ namespace PowerUtilities.RenderFeatures
                 RenderingTools.RenderTargetNameToIdentifier(Feature.colorTargetNames, ref colorIds);
             }
             ref var cameraData = ref renderingData.cameraData;
+            var renderer = (UniversalRenderer)cameraData.renderer;
+
+            // check urp rthandles
+            renderer.TryReplaceURPRTTargets(Feature.colorTargetNames, ref colorIds);
 
             // set depth target id
             RenderTargetIdentifier depthId = UniversalRenderPipeline.asset.supportsCameraDepthTexture ? ShaderPropertyIds._CameraDepthAttachment : BuiltinRenderTextureType.CameraTarget;
@@ -119,6 +123,10 @@ namespace PowerUtilities.RenderFeatures
             {
                 depthId = Shader.PropertyToID(Feature.depthTargetName);
             }
+
+            // replace URP rtHandle
+            if (depthId == ShaderPropertyIds._CameraDepthAttachment)
+                renderer.TryReplaceURPRTTarget(nameof(ShaderPropertyIds._CameraDepthAttachment), ref depthId);
 
             if (SystemInfo.supportedRenderTargetCount < colorIds.Length)
                 colorIds = colorIds.Take(SystemInfo.supportedRenderTargetCount).ToArray();

@@ -4,6 +4,24 @@ using UnityEngine;
 
 namespace PowerUtilities
 {
+    /// <summary>
+    /// Universal's shader texture property name(use these in shader)
+    /// </summary>
+    public enum URPShaderTexturePropertyNames
+    {
+        _CameraOpaqueTexture,
+        _CameraDepthTexture,
+        _CameraColorAttachmentA,
+        _CameraColorAttachmentB,
+        _CameraDepthAttachment,
+        _CameraNormalsTexture,
+        _MotionVectorTexture,
+        _GBuffer0,
+        _GBuffer1,
+        _GBuffer2,
+        _GBuffer3,
+    }
+
     public static class ShaderPropertyIds
     {
         public static readonly int

@@ -276,9 +276,11 @@
 #endif
             OverrideCamera(ref context, cmd, ref renderingData);
             var drawSettings = GetDrawSettings(context, cmd, ref renderingData, ref cameraData);
-            context.DrawRenderers(renderingData.cullResults, ref drawSettings, ref filterSetting, ref renderStateBlock);
 
-            RenderingTools.DrawErrorObjects(ref context, ref renderingData.cullResults, camera, filterSetting, SortingCriteria.None);
+            var stateBlocks = new NativeArray<RenderStateBlock>(new[] { renderStateBlock }, Allocator.Temp);
+            context.DrawRenderers(cmd, renderingData.cullResults, ref drawSettings, ref filterSetting, null, stateBlocks);
+
+            RenderingTools.DrawErrorObjects(cmd,ref context, ref renderingData.cullResults, camera, filterSetting, SortingCriteria.None);
 
             RestoreDrawSettings(ref renderingData, cmd);
         }

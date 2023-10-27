@@ -34,7 +34,7 @@ public class DrawShadow : ScriptableRendererFeature
             desc.shadowSamplingMode = ShadowSamplingMode.CompareDepths;
             cmd.GetTemporaryRT(_BigShadowMap, desc, FilterMode.Bilinear);
 
-            //ConfigureTarget(RTHandleTools.TryGetRTHandle(_BigShadowMap));
+            //ConfigureTarget(RTHandleTools.GetRTHandle(_BigShadowMap));
             //ConfigureClear(ClearFlag.Depth, Color.clear);
 
             cmd.SetRenderTarget(_BigShadowMap);
