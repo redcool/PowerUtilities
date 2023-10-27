@@ -17,6 +17,7 @@ namespace PowerUtilities.Features
         [Serializable]
         public class Settings
         {
+            [LoadAsset("defaultGammaUICopyColor.mat")]
             public Material blitMat;
 
             [Tooltip("ui objects use")]

@@ -154,7 +154,8 @@ namespace PowerUtilities.Features
                 cmd.ClearRenderTarget(true, false, Color.black,1);
             }
 
-            cmd.Blit(BuiltinRenderTextureType.None, colorHandleId, settings.blitMat);
+            //cmd.Blit(BuiltinRenderTextureType.None, colorHandleId, settings.blitMat); // will set _MainTex
+            cmd.BlitTriangle(lastColorHandleId, colorHandleId, settings.blitMat, 0);
         }
 
         private void DrawRenderers(ref ScriptableRenderContext context, ref RenderingData renderingData, RenderTargetIdentifier targetTexId, RenderTargetIdentifier depthHandleId)
@@ -223,14 +224,20 @@ namespace PowerUtilities.Features
         private void SetupTargetTex(ref RenderingData renderingData, ref CameraData cameraData,out RenderTargetIdentifier lastColorHandleId, out RenderTargetIdentifier colorHandleId, out RenderTargetIdentifier depthHandleId)
         {
             var renderer = cameraData.renderer;
-            RTHandleTools.TryGetRTHandle(ref m_CameraDepthAttachment, renderer, URPRTHandleNames.m_CameraDepthAttachment);
             RTHandleTools.TryGetRTHandle(ref m_ActiveCameraColorAttachment, renderer, URPRTHandleNames.m_ActiveCameraColorAttachment);
+#if UNITY_2023_1_OR_NEWER
+            RTHandleTools.TryGetRTHandle(ref m_CameraDepthAttachment, renderer, URPRTHandleNames.m_CameraDepthAttachment);
             RTHandleTools.TryGetRTHandleA_B(ref colorAttachmentA, ref colorAttachmentB, renderer);
-
 
             lastColorHandleId = m_ActiveCameraColorAttachment.nameID;
             colorHandleId = lastColorHandleId == colorAttachmentA.nameID ? colorAttachmentB.nameID : colorAttachmentA.nameID;
             depthHandleId = m_CameraDepthAttachment.nameID;
+#else
+            depthHandleId = _CameraDepthAttachment;
+            lastColorHandleId = m_ActiveCameraColorAttachment.nameID;
+            colorHandleId = (lastColorHandleId.IsNameIdEquals(_CameraColorAttachmentA)) ? _CameraColorAttachmentB : _CameraColorAttachmentA;
+#endif
+
 
             if (settings.createFullsizeGammaTex)
             {

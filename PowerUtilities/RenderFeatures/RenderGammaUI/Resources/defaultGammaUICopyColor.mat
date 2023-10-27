@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: copyDepthMat
-  m_Shader: {fileID: 4800000, guid: b7af7e53fc3c71d4d9a97f5548cf47fc, type: 3}
+  m_Name: defaultGammaUICopyColor
+  m_Shader: {fileID: 4800000, guid: e642e8dec57af2a4196d8d8127dc76d7, type: 3}
   m_ValidKeywords: []
   m_InvalidKeywords: []
   m_LightmapFlags: 4
