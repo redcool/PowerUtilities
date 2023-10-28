@@ -19,6 +19,7 @@
     public class SRPFeatureListEditor : PowerEditor<SRPFeatureListSO>
     {
         List<SerializedObject> featureSOList;
+        List<Editor> featureEditorList;
 
         /// <summary>
         /// SRPFeatureListSO asset's folder in Assets
@@ -82,11 +83,11 @@
             isDetailsFoldout.boolValue = EditorGUILayout.Foldout(isDetailsFoldout.boolValue, "Details", true);
             if (isDetailsFoldout.boolValue)
             {
-                //EditorGUILayout.BeginVertical("Box");
                 EditorGUI.indentLevel++;
                 for (int i = 0; i < featureSOList.Count; i++)
                 {
                     var featureSO = featureSOList[i];
+                    var featureEditor = featureEditorList[i];
                     var feature = (SRPFeature)featureSO.targetObject;
 
                     var color = feature.enabled ? (feature.interrupt ? Color.red : GUI.color) : Color.gray;
@@ -94,14 +95,16 @@
                     var foldoutProp = featureSO.FindProperty(nameof(SRPFeature.isFoldout));
                     // draw pass details
                     EditorGUI.BeginChangeCheck();
-                    PassDrawer.DrawPassDetail(featureSO, color, foldoutProp, EditorGUITools.TempContent(title, feature.Tooltip));
+
+                    //PassDrawer.DrawPassDetail(featureSO, color, foldoutProp, EditorGUITools.TempContent(title, feature.Tooltip));
+                    PassDrawer.DrawPassDetail(featureEditor, color, foldoutProp, EditorGUITools.TempContent(title, feature.Tooltip));
+
                     if (EditorGUI.EndChangeCheck())
                     {
                         feature.DestroyPassInstance();
                     }
                 }
                 EditorGUI.indentLevel--;
-                //EditorGUILayout.EndVertical();
             }
         }
 
@@ -137,6 +140,10 @@
             featureSOList = inst.featureList
                 .Where(item => item)
                 .Select(feature => new SerializedObject(feature))
+                .ToList();
+
+            featureEditorList = featureSOList
+                .Select(so => Editor.CreateEditor(so.targetObject))
                 .ToList();
         }
 

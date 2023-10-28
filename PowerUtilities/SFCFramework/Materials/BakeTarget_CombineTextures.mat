@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: CombineTextures
+  m_Name: BakeTarget_CombineTextures
   m_Shader: {fileID: 4800000, guid: 56fb816c8b3fbdb4b8589b29b045bdb3, type: 3}
   m_ValidKeywords: []
   m_InvalidKeywords: []

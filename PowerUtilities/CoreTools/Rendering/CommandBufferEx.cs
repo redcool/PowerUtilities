@@ -81,8 +81,10 @@ namespace PowerUtilities
             //targetInfos.ForEach((info, id) =>
             foreach ( var info in targetInfos )
             {
-                if (! info.IsValid())
-                    return;
+                if (!info.IsValid())
+                {
+                    continue;
+                }
 
                 desc.graphicsFormat = info.GetFinalFormat();
                 //desc.colorFormat = info.isHdr ? RenderTextureFormat.DefaultHDR : RenderTextureFormat.Default;

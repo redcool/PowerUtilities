@@ -14,7 +14,7 @@
     public class LoadAssetAttribute : PropertyAttribute
     {
         /// <summary>
-        /// assetPath : start with Assets
+        /// assetPathOrName : start with Assets
         /// relativePath :exclude Assets, need extends name, like xxx.shader
         /// </summary>
         public string assetPathOrName;
@@ -24,9 +24,9 @@
         /// </summary>
         public string searchInFolder;
 
-        public LoadAssetAttribute(string assetPath, string searchInFolder = "")
+        public LoadAssetAttribute(string assetPathOrName, string searchInFolder = "")
         {
-            this.assetPathOrName = assetPath;
+            this.assetPathOrName = assetPathOrName;
             this.searchInFolder = searchInFolder;
 
         }

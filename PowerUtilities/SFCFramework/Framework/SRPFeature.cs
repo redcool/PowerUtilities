@@ -9,26 +9,22 @@
     using UnityEngine;
     using UnityEngine.Rendering.Universal;
     using System.Reflection;
+    using PowerUtilities.UIElements;
 
 #if UNITY_EDITOR
     using UnityEditor;
-    using PowerUtilities.UIElements;
 
-    [CanEditMultipleObjects]
-    //[CustomPropertyDrawer(typeof(SRPFeature),true)]
-    public class SRPFeatureDrawer : PropertyDrawer
-    {
-        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
-        {
-            return 0;
-            //return EditorGUI.GetPropertyHeight(property, label);
-        }
-
-        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
-        {
-            //base.OnGUI(position, property, label);
-        }
-    }
+    //[CanEditMultipleObjects]
+    //[CustomEditor(typeof(SRPFeature))]
+    //public class SRPFeatureEditor : PowerEditor<SRPFeature>
+    //{
+    //    public override void DrawInspectorUI(SRPFeature inst)
+    //    {
+    //        inst.isBaseOptionsFoldout = EditorGUILayout.Foldout(inst.isBaseOptionsFoldout, "Base Pass Options", true);
+    //        if (inst.isBaseOptionsFoldout)
+    //            DrawDefaultInspector();
+    //    }
+    //}
 
     /// <summary>
     /// Graph, node
@@ -67,6 +63,9 @@
         [Tooltip("Only work in editor's scene camera")]
         public bool isSceneCameraOnly;
 
+        [Tooltip("Only work in editor")]
+        public bool isEditorOnly;
+
         [Header("Pass Options / Filters")]
         [Tooltip("Compared properties ")]
         public CameraCompareType gameCameraCompareType = CameraCompareType.Tag;
@@ -91,6 +90,11 @@
         [HideInInspector]
         public bool isFoldout;
 
+        /// <summary>
+        /// SRPFeature's options
+        /// </summary>
+        [HideInInspector]
+        public bool isBaseOptionsFoldout;
 
         // pass instance cache
         ScriptableRenderPass passInstance;

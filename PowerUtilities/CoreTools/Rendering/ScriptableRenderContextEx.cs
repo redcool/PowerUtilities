@@ -34,9 +34,10 @@ namespace PowerUtilities
             NativeArray<RenderStateBlock>? stateBlocks = null)
         {
 
-            if(!tagValues.HasValue)
-                tagValues = new NativeArray<ShaderTagId>(defaultTag, Allocator.Temp);
 #if UNITY_2023_1_OR_NEWER
+            if(!tagValues.HasValue && stateBlocks.HasValue)
+                tagValues = new NativeArray<ShaderTagId>(defaultTag, Allocator.Temp);
+
             var param = new RendererListParams(cullingResults, drawingSettings, filteringSettings);
             param.stateBlocks = stateBlocks;
             param.tagValues = tagValues;
@@ -44,6 +45,8 @@ namespace PowerUtilities
             cmd.DrawRendererList(list);
 #else // below 2021
             // dummy
+            if(!tagValues.HasValue)
+                tagValues = new NativeArray<ShaderTagId>(defaultTag, Allocator.Temp);
             if (!stateBlocks.HasValue)
                 stateBlocks = new NativeArray<RenderStateBlock>(new[] { default(RenderStateBlock) }, Allocator.Temp);
 

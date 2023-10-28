@@ -12,6 +12,9 @@ namespace PowerUtilities
 {
     /// <summary>
     /// UniversalRenderer RTHandle variableName,check UniversalRenderer.cs
+    /// 
+    /// URP's rt use RTHandle(private) , 
+    /// sfc framework use propertyName(Shader.Shader.PropertyToID
     /// </summary>
     public enum URPRTHandleNames
     {
@@ -38,11 +41,11 @@ namespace PowerUtilities
 
     public static class RTHandleTools
     {
-
+        
         /// <summary>
         /// urp texture property name -> UniversalRenderer's rtHandle path
         /// </summary>
-        static Dictionary<string, string> RTHandleFieldPathDict = new Dictionary<string, string>
+        static Dictionary<string, string> rtHandleFieldPathDict = new Dictionary<string, string>
         {
             {nameof(URPRTHandleNames._CameraColorAttachmentA),"m_ColorBufferSystem.m_A.rtResolve" },
             {nameof(URPRTHandleNames._CameraColorAttachmentB),"m_ColorBufferSystem.m_B.rtResolve" },
@@ -69,11 +72,11 @@ namespace PowerUtilities
         {
             if (rth != null && rth.rt)
                 return;
-
+            
         // get variable's path or use URPRTHandleNames
-        if(RTHandleFieldPathDict.ContainsKey(fieldPath))
+        if(rtHandleFieldPathDict.ContainsKey(fieldPath))
         {
-            fieldPath = RTHandleFieldPathDict[fieldPath];
+            fieldPath = rtHandleFieldPathDict[fieldPath];
         }
 
 #if UNITY_2023_1_OR_NEWER

@@ -63,6 +63,9 @@ namespace PowerUtilities.RenderFeatures
             if (camera.cameraType == CameraType.Game &&!string.IsNullOrEmpty(Feature.gameCameraTag))
                 return IsGameCameraValid(camera);
 
+            if (Feature.isEditorOnly)
+                return !Application.isEditor;
+
             return true;
         }
 

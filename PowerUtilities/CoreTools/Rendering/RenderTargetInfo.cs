@@ -26,7 +26,7 @@
             => Shader.PropertyToID(name);
 
         public bool IsValid() 
-            => !string.IsNullOrEmpty(name) && format != default && !isSkip;
+            => !string.IsNullOrEmpty(name) && format != default && !isSkip && RTHandleTools.IsURPRTHandleName(name);
 
         /// <summary>
         /// get final graphics format

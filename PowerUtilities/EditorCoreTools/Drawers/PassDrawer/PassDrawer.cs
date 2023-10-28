@@ -37,6 +37,34 @@ namespace PowerUtilities
             passItemSO.ApplyModifiedProperties();
         }
 
+        public static void DrawPassDetail(Editor passItemEditor, Color labelColor, SerializedProperty foldoutProp, GUIContent label)
+        {
+            EditorGUIUtility.fieldWidth = 50;
+
+            passItemEditor.serializedObject.UpdateIfRequiredOrScript();
+
+            // pass header
+            EditorGUITools.DrawColorUI(() =>
+            {
+                DrawPassTitleRow(passItemEditor.serializedObject, foldoutProp, label);
+
+            }, GUI.contentColor, labelColor);
+
+            // pass details
+            if (foldoutProp.boolValue)
+            {
+                EditorGUI.indentLevel++;
+                GUILayout.BeginVertical("Box");
+
+                //EditorGUITools.DrawDefaultInspect(passItemEditor);
+                passItemEditor.OnInspectorGUI();
+
+                GUILayout.EndVertical();
+                EditorGUI.indentLevel--;
+            }
+
+            passItemEditor.serializedObject.ApplyModifiedProperties();
+        }
         private static void DrawPassTitleRow(SerializedObject passItemSO, SerializedProperty foldoutProp, GUIContent label)
         {
             var e = Event.current;
