@@ -37,6 +37,8 @@ namespace PowerUtilities
         _CameraDepthAttachment,
         _CameraDepthTexture,
         _CameraOpaqueTexture,
+        _CameraNormalsTexture,
+        _MotionVectorTexture,
     }
 
     public static class RTHandleTools
@@ -47,11 +49,19 @@ namespace PowerUtilities
         /// </summary>
         static Dictionary<string, string> rtHandleFieldPathDict = new Dictionary<string, string>
         {
+#if UNITY_2023_1_OR_NEWER
             {nameof(URPRTHandleNames._CameraColorAttachmentA),"m_ColorBufferSystem.m_A.rtResolve" },
             {nameof(URPRTHandleNames._CameraColorAttachmentB),"m_ColorBufferSystem.m_B.rtResolve" },
+#else // 2021,_CameraColorAttachmentA's path
+            {nameof(URPRTHandleNames._CameraColorAttachmentA),"m_ColorBufferSystem.m_A.rt" },
+            {nameof(URPRTHandleNames._CameraColorAttachmentB),"m_ColorBufferSystem.m_B.rt" },
+#endif
+
             {nameof(URPRTHandleNames._CameraDepthAttachment),nameof(URPRTHandleNames.m_CameraDepthAttachment) },
             {nameof(URPRTHandleNames._CameraDepthTexture),nameof(URPRTHandleNames.m_DepthTexture) },
-            {nameof(URPRTHandleNames._CameraOpaqueTexture),nameof(URPRTHandleNames.m_OpaqueColor) }
+            {nameof(URPRTHandleNames._CameraOpaqueTexture),nameof(URPRTHandleNames.m_OpaqueColor) },
+            {nameof(URPRTHandleNames._CameraNormalsTexture),nameof(URPRTHandleNames.m_NormalsTexture) },
+            {nameof(URPRTHandleNames._MotionVectorTexture),nameof(URPRTHandleNames.m_MotionVectorColor) },
         };
 
 
@@ -82,7 +92,8 @@ namespace PowerUtilities
 #if UNITY_2023_1_OR_NEWER
             rth = (RTHandle)renderer.GetObjectHierarchy(fieldPath);
 #else
-            var handle = (RenderTargetHandle)renderer.GetObjectHierarchy(name);
+            Debug.Log(fieldPath);
+            var handle = (RenderTargetHandle)renderer.GetObjectHierarchy(fieldPath);
             rth = RTHandles.Alloc(handle.Identifier());
 #endif
         }

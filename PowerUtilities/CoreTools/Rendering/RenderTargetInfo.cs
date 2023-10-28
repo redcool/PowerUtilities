@@ -25,8 +25,14 @@
         public int GetTextureId()
             => Shader.PropertyToID(name);
 
-        public bool IsValid() 
-            => !string.IsNullOrEmpty(name) && format != default && !isSkip && RTHandleTools.IsURPRTHandleName(name);
+        public bool IsValid()
+        {
+            var isValid = !string.IsNullOrEmpty(name) && format != default && !isSkip;
+#if UNITY_2023_1_OR_NEWER
+            isValid = isValid && !RTHandleTools.IsURPRTHandleName(name);
+#endif
+            return isValid;
+        }
 
         /// <summary>
         /// get final graphics format
