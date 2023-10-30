@@ -227,7 +227,8 @@ namespace PowerUtilities.Features
             RTHandleTools.GetRTHandle(ref m_ActiveCameraColorAttachment, renderer, URPRTHandleNames.m_ActiveCameraColorAttachment);
 #if UNITY_2023_1_OR_NEWER
             RTHandleTools.GetRTHandle(ref m_CameraDepthAttachment, renderer, URPRTHandleNames.m_CameraDepthAttachment);
-            RTHandleTools.GetRTHandleA_B(ref colorAttachmentA, ref colorAttachmentB, renderer);
+            RTHandleTools.GetRTHandle(ref colorAttachmentA, renderer, URPRTHandleNames._CameraColorAttachmentA);
+            RTHandleTools.GetRTHandle(ref colorAttachmentB, renderer, URPRTHandleNames._CameraColorAttachmentB);
 
             lastColorHandleId = m_ActiveCameraColorAttachment.nameID;
             colorHandleId = lastColorHandleId == colorAttachmentA.nameID ? colorAttachmentB.nameID : colorAttachmentA.nameID;

@@ -20,19 +20,6 @@ namespace PowerUtilities
 
         static Dictionary<URPRTHandleNames, RTHandle> urpRTHandleDict = new Dictionary<URPRTHandleNames, RTHandle>();
 
-
-        public static RenderTargetIdentifier Get_CameraColorAttachmentA(this UniversalRenderer renderer)
-        {
-            RTHandleTools.GetRTHandleA_B(ref _CameraColorAttachmentA, ref _CameraColorAttachmentB, renderer);
-            return _CameraColorAttachmentA.nameID;
-        }
-
-        public static RenderTargetIdentifier Get_CameraColorAttachmentB(this UniversalRenderer renderer)
-        {
-            RTHandleTools.GetRTHandleA_B(ref _CameraColorAttachmentA, ref _CameraColorAttachmentB, renderer);
-            return _CameraColorAttachmentB.nameID;
-        }
-
         /// <summary>
         /// Get urp renderTarget and cache it,
         /// when rtHandle changed will get it again.

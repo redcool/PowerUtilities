@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
 using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 
 namespace PowerUtilities
 {
@@ -188,6 +189,7 @@ namespace PowerUtilities
         /// set _SourceTex,_FinalSrcMode,_FinalDstMode
         /// </summary>
         /// <param name="cmd"></param>
+        /// <param name="renderingData"></param>
         /// <param name="sourceId"></param>
         /// <param name="targetId"></param>
         /// <param name="mat"></param>
@@ -197,6 +199,10 @@ namespace PowerUtilities
         /// <param name="finalDstMode"></param>
         public static void BlitTriangle(this CommandBuffer cmd, RenderTargetIdentifier sourceId, RenderTargetIdentifier targetId, Material mat, int pass, Camera camera = null, BlendMode finalSrcMode = BlendMode.One, BlendMode finalDstMode = BlendMode.Zero)
         {
+//#if UNITY_2023_1_OR_NEWER
+//            var render = (UniversalRenderer)renderingData.cameraData.renderer;
+            
+//#endif
             cmd.SetGlobalTexture(_SourceTex, sourceId);
 
             cmd.SetGlobalFloat(_FinalSrcMode, (float)finalSrcMode);

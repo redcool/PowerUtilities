@@ -92,12 +92,17 @@ namespace PowerUtilities
 #if UNITY_2023_1_OR_NEWER
             rth = (RTHandle)renderer.GetObjectHierarchy(fieldPath);
 #else
-            Debug.Log(fieldPath);
             var handle = (RenderTargetHandle)renderer.GetObjectHierarchy(fieldPath);
             rth = RTHandles.Alloc(handle.Identifier());
 #endif
         }
 
+        /// <summary>
+        /// Get URP's rtHandles
+        /// </summary>
+        /// <param name="handle"></param>
+        /// <param name="renderer"></param>
+        /// <param name="name"></param>
         public static void GetRTHandle(ref RTHandle handle, ScriptableRenderer renderer, URPRTHandleNames name)
         {
             GetRTHandle(ref handle, renderer, Enum.GetName(typeof(URPRTHandleNames), name));
@@ -109,13 +114,5 @@ namespace PowerUtilities
         public static RTHandleSystem URPDefaultRTHandleSystem => lazyGetRTHandleSystem.Value;
         static Lazy<RTHandleSystem> lazyGetRTHandleSystem = new Lazy<RTHandleSystem>(() => typeof(RTHandles).GetFieldValue<RTHandleSystem>(null, "s_DefaultInstance"));
 
-        public static void GetRTHandleA_B(ref RTHandle handleA, ref RTHandle handleB, ScriptableRenderer renderer)
-        {
-            if (handleA == null || !handleA.rt)
-                handleA = (RTHandle)renderer.GetObjectHierarchy("m_ColorBufferSystem.m_A.rtResolve");
-
-            if (handleA == null || !handleA.rt)
-                handleB = (RTHandle)renderer.GetObjectHierarchy("m_ColorBufferSystem.m_B.rtResolve");
-        }
     }
 }
