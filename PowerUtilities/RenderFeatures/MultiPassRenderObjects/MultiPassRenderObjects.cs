@@ -47,10 +47,10 @@ namespace UnityEngine.Experimental.Rendering.Universal
             // Events before BeforeRenderingPrepasses should be used for input texture passes (shadow map, LUT, etc) that doesn't depend on the camera.
             // These monos are filtering in the UI, but we still should prevent users from changing it from code or
             // by changing the serialized data.
-#if UNITY_2020
-            var prepassId = RenderPassEvent.BeforeRenderingPrepasses;
-#elif UNITY_2021_1_OR_NEWER
+#if UNITY_2021_1_OR_NEWER
             var prepassId = RenderPassEvent.BeforeRenderingPrePasses;
+#elif UNITY_2020
+            var prepassId = RenderPassEvent.BeforeRenderingPrepasses;
 #endif
             if (settings.Event < prepassId)
                 settings.Event = prepassId;
@@ -64,10 +64,10 @@ namespace UnityEngine.Experimental.Rendering.Universal
             renderObjectsPass.overrideMaterialPassIndex = settings.overrideMaterialPassIndex;
 
             if (settings.overrideDepthState)
-#if UNITY_2021
-                renderObjectsPass.SetDetphState(settings.enableWrite, settings.depthCompareFunction);
-#else
+#if UNITY_2023_1_OR_NEWER
                 renderObjectsPass.SetDepthState(settings.enableWrite, settings.depthCompareFunction);
+#else
+                renderObjectsPass.SetDetphState(settings.enableWrite, settings.depthCompareFunction);
 #endif
 
             if (settings.stencilSettings.overrideStencilState)
