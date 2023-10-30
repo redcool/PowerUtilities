@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace PowerUtilities
 {
+    /// <summary>
+    /// Reinterpret extends 
+    /// </summary>
     public static class ReinterpretEx
     {
         [StructLayout(LayoutKind.Explicit)]
@@ -20,6 +23,11 @@ namespace PowerUtilities
                 return new IntFloat { intValue= v };
             }
         }
+        /// <summary>
+        /// reinterpret int to float
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public static float AsFloat(this int value)
         {
             IntFloat intFloat = value;

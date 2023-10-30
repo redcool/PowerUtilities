@@ -100,6 +100,10 @@ namespace PowerUtilities
             foreach (var fieldName in fieldNames)
             {
                 field = instType.GetField(fieldName,BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+                if (field == null)
+                {
+                    throw new ArgumentException($"{instance} dont have path: {fieldNamesPath}");
+                }
                 instance = field.GetValue(instance);
 
                 // next field
