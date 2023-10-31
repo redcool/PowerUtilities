@@ -124,7 +124,7 @@ namespace PowerUtilities.Features
             if (settings.isFinalRendering)
             {
                 // write to CameraTarget
-                Blit(cmd, BuiltinRenderTextureType.CurrentActive, BuiltinRenderTextureType.CameraTarget, settings.blitMat);
+                cmd.BlitTriangle(BuiltinRenderTextureType.CurrentActive, BuiltinRenderTextureType.CameraTarget, settings.blitMat, 0);
             }
             else
             {
@@ -187,7 +187,7 @@ namespace PowerUtilities.Features
 
             var renderStateBlock = GetRenderStateBlock();
             var arr = new NativeArray<RenderStateBlock>(new[] { renderStateBlock }, Allocator.Temp);
-            context.DrawRenderers(cmd,renderingData.cullResults, ref drawSettings, ref filterSettings,null, arr);
+            context.DrawRenderers(cmd, renderingData.cullResults, ref drawSettings, ref filterSettings, null, arr);
 
             // render objects by layerMasks order
             if (settings.filterInfoList.Count >0)
@@ -220,25 +220,17 @@ namespace PowerUtilities.Features
             return false;
         }
 
-        RTHandle m_CameraDepthAttachment, m_ActiveCameraColorAttachment, colorAttachmentA, colorAttachmentB;
+        RenderTargetIdentifier m_ActiveCameraColorAttachment, colorAttachmentA, colorAttachmentB;
+        
         private void SetupTargetTex(ref RenderingData renderingData, ref CameraData cameraData,out RenderTargetIdentifier lastColorHandleId, out RenderTargetIdentifier colorHandleId, out RenderTargetIdentifier depthHandleId)
         {
-            var renderer = cameraData.renderer;
-            RTHandleTools.GetRTHandle(ref m_ActiveCameraColorAttachment, renderer, URPRTHandleNames.m_ActiveCameraColorAttachment);
-#if UNITY_2023_1_OR_NEWER
-            RTHandleTools.GetRTHandle(ref m_CameraDepthAttachment, renderer, URPRTHandleNames.m_CameraDepthAttachment);
-            RTHandleTools.GetRTHandle(ref colorAttachmentA, renderer, URPRTHandleNames._CameraColorAttachmentA);
-            RTHandleTools.GetRTHandle(ref colorAttachmentB, renderer, URPRTHandleNames._CameraColorAttachmentB);
+            var renderer = (UniversalRenderer)cameraData.renderer;
+            lastColorHandleId = renderer.GetRenderTargetId(URPRTHandleNames.m_ActiveCameraColorAttachment);
+            colorAttachmentA = renderer.GetRenderTargetId(URPRTHandleNames._CameraColorAttachmentA);
+            colorAttachmentB = renderer.GetRenderTargetId(URPRTHandleNames._CameraColorAttachmentB);
+            depthHandleId = renderer.GetRenderTargetId(URPRTHandleNames.m_CameraDepthAttachment);
 
-            lastColorHandleId = m_ActiveCameraColorAttachment.nameID;
-            colorHandleId = lastColorHandleId == colorAttachmentA.nameID ? colorAttachmentB.nameID : colorAttachmentA.nameID;
-            depthHandleId = m_CameraDepthAttachment.nameID;
-#else
-            depthHandleId = _CameraDepthAttachment;
-            lastColorHandleId = m_ActiveCameraColorAttachment.nameID;
-            colorHandleId = (lastColorHandleId.IsNameIdEquals(_CameraColorAttachmentA)) ? _CameraColorAttachmentB : _CameraColorAttachmentA;
-#endif
-
+            colorHandleId = lastColorHandleId == colorAttachmentA ? colorAttachmentB : colorAttachmentA;
 
             if (settings.createFullsizeGammaTex)
             {

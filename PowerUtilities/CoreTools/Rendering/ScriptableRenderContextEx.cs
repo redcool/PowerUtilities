@@ -43,6 +43,7 @@ namespace PowerUtilities
             param.tagValues = tagValues;
             var list = context.CreateRendererList(ref param);
             cmd.DrawRendererList(list);
+            cmd.Execute(ref context);
 #else // below 2021
             // dummy
             if(!tagValues.HasValue)

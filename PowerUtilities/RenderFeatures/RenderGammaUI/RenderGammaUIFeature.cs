@@ -45,7 +45,7 @@ namespace PowerUtilities.Features
             public string cameraTag;
 
             [Header("Blit Options")]
-            [Tooltip("check this when rendering UI")]
+            [Tooltip("blit to CameraTarget,check this when rendering UI")]
             public bool isFinalRendering = true;
 
             /**** 
