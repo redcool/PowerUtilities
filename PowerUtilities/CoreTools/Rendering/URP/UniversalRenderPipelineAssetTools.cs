@@ -22,7 +22,7 @@ namespace PowerUtilities
         });
     */
     /// </summary>
-    public static class UniversalRenderPipelineAssetExtends
+    public static class UniversalRenderPipelineAssetTools
     {
         /// <summary>
         /// UniversalRenderPipelineAsset 's private field
@@ -32,7 +32,7 @@ namespace PowerUtilities
             "m_Renderers"
         };
         static Dictionary<string, Lazy<FieldInfo>> urpAssetFieldDict = new Dictionary<string, Lazy<FieldInfo>>();
-        static UniversalRenderPipelineAssetExtends()
+        static UniversalRenderPipelineAssetTools()
         {
             urpAssetFieldDict.Clear();
 

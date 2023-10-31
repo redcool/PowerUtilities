@@ -9,9 +9,15 @@ using UnityEngine.Rendering.Universal;
 /// <summary>
 /// scriptable render pipeline tools
 /// </summary>
-public static class SRPTools
+public static class ScriptableRenderPipelineEditorTools
 {
-
+    /// <summary>
+    /// Find UniversalRenderPipelineAssets and current use URPAsset in Assets folder
+    /// 
+    /// </summary>
+    /// <param name="urpAssets"></param>
+    /// <param name="defaultAsset"></param>
+    /// <returns></returns>
     public static int GetDefaultPipelineIndex(out UniversalRenderPipelineAsset[] urpAssets, out UniversalRenderPipelineAsset defaultAsset)
     {
         defaultAsset = null;

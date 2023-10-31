@@ -199,10 +199,11 @@ namespace PowerUtilities
         /// <param name="finalDstMode"></param>
         public static void BlitTriangle(this CommandBuffer cmd, RenderTargetIdentifier sourceId, RenderTargetIdentifier targetId, Material mat, int pass, Camera camera = null, BlendMode finalSrcMode = BlendMode.One, BlendMode finalDstMode = BlendMode.Zero)
         {
-//#if UNITY_2023_1_OR_NEWER
-//            var render = (UniversalRenderer)renderingData.cameraData.renderer;
-            
-//#endif
+#if UNITY_2023_1_OR_NEWER
+            var render = (UniversalRenderer)UniversalRenderPipeline.asset.scriptableRenderer;
+            render.TryReplaceURPRTTarget(ref sourceId);
+            render.TryReplaceURPRTTarget(ref targetId);
+#endif
             cmd.SetGlobalTexture(_SourceTex, sourceId);
 
             cmd.SetGlobalFloat(_FinalSrcMode, (float)finalSrcMode);

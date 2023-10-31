@@ -18,7 +18,7 @@ namespace PowerUtilities
     /// </summary>
     public enum URPRTHandleNames
     {
-        //UniversalRenderer RTHandles
+        //UniversalRenderer RTHandle varibles
         m_ActiveCameraColorAttachment,
         m_ActiveCameraDepthAttachment,
         m_CameraDepthAttachment,
@@ -47,65 +47,80 @@ namespace PowerUtilities
         /// <summary>
         /// urp texture property name -> UniversalRenderer's rtHandle path
         /// </summary>
-        static Dictionary<string, string> rtHandleFieldPathDict = new Dictionary<string, string>
+        static Dictionary<URPRTHandleNames, string> urpRTHandleFieldPathDict = new Dictionary<URPRTHandleNames, string>
         {
 #if UNITY_2023_1_OR_NEWER
-            {nameof(URPRTHandleNames._CameraColorAttachmentA),"m_ColorBufferSystem.m_A.rtResolve" },
-            {nameof(URPRTHandleNames._CameraColorAttachmentB),"m_ColorBufferSystem.m_B.rtResolve" },
+            {URPRTHandleNames._CameraColorAttachmentA,"m_ColorBufferSystem.m_A.rtResolve" },
+            {URPRTHandleNames._CameraColorAttachmentB,"m_ColorBufferSystem.m_B.rtResolve" },
 #else // 2021,_CameraColorAttachmentA's path
-            {nameof(URPRTHandleNames._CameraColorAttachmentA),"m_ColorBufferSystem.m_A.rt" },
-            {nameof(URPRTHandleNames._CameraColorAttachmentB),"m_ColorBufferSystem.m_B.rt" },
+            {URPRTHandleNames._CameraColorAttachmentA,"m_ColorBufferSystem.m_A.rt" },
+            {URPRTHandleNames._CameraColorAttachmentB,"m_ColorBufferSystem.m_B.rt" },
 #endif
-
-            {nameof(URPRTHandleNames._CameraDepthAttachment),nameof(URPRTHandleNames.m_CameraDepthAttachment) },
-            {nameof(URPRTHandleNames._CameraDepthTexture),nameof(URPRTHandleNames.m_DepthTexture) },
-            {nameof(URPRTHandleNames._CameraOpaqueTexture),nameof(URPRTHandleNames.m_OpaqueColor) },
-            {nameof(URPRTHandleNames._CameraNormalsTexture),nameof(URPRTHandleNames.m_NormalsTexture) },
-            {nameof(URPRTHandleNames._MotionVectorTexture),nameof(URPRTHandleNames.m_MotionVectorColor) },
+            {URPRTHandleNames._CameraDepthAttachment,nameof(URPRTHandleNames.m_CameraDepthAttachment) },
+            {URPRTHandleNames._CameraDepthTexture,nameof(URPRTHandleNames.m_DepthTexture) },
+            {URPRTHandleNames._CameraOpaqueTexture,nameof(URPRTHandleNames.m_OpaqueColor) },
+            {URPRTHandleNames._CameraNormalsTexture,nameof(URPRTHandleNames.m_NormalsTexture) },
+            {URPRTHandleNames._MotionVectorTexture,nameof(URPRTHandleNames.m_MotionVectorColor) },
         };
 
+        /// <summary>
+        /// {rtId,rtName}
+        /// </summary>
+        public static Dictionary<int, URPRTHandleNames> urpRTIdNameDict = new Dictionary<int, URPRTHandleNames>();
 
+        static RTHandleTools()
+        {
+            var names = Enum.GetNames(typeof(URPRTHandleNames));
+            foreach (var name in names)
+            {
+                urpRTIdNameDict.Add(Shader.PropertyToID(name), Enum.Parse<URPRTHandleNames>(name));
+            }
+        }
         /// <summary>
         /// is rtName UniversalRenderer's rtHanle variables ?
         /// </summary>
         /// <param fieldPath="rtName"></param>
         /// <returns></returns>
         public static bool IsURPRTHandleName(string rtName) => Enum.IsDefined(typeof(URPRTHandleNames), rtName);
- 
+
         /// <summary>
-        /// Get RTHandle from Renderer
+        /// Get urp renderTexture'name by rtId
+        /// 
+        /// false, rtId isn't urp renderTexture
         /// </summary>
-        /// <param fieldPath="rth"></param>
-        /// <param fieldPath="renderer"></param>
-        /// <param fieldPath="fieldPath"> check RTHandleNames </param>
-        public static void GetRTHandle(ref RTHandle rth, ScriptableRenderer renderer, string fieldPath)
+        /// <param name="rtId"></param>
+        /// <param name="handleName"></param>
+        /// <returns></returns>
+        public static bool TryGetURPTextureName(RenderTargetIdentifier rtId,out URPRTHandleNames handleName)
         {
-            if (rth != null && rth.rt)
-                return;
-            
-        // get variable's path or use URPRTHandleNames
-        if(rtHandleFieldPathDict.ContainsKey(fieldPath))
-        {
-            fieldPath = rtHandleFieldPathDict[fieldPath];
-        }
-
-#if UNITY_2023_1_OR_NEWER
-            rth = (RTHandle)renderer.GetObjectHierarchy(fieldPath);
-#else
-            var handle = (RenderTargetHandle)renderer.GetObjectHierarchy(fieldPath);
-            rth = RTHandles.Alloc(handle.Identifier());
-#endif
+            var nameId = rtId.GetNameId();
+            return urpRTIdNameDict.TryGetValue(nameId, out handleName);
         }
 
         /// <summary>
-        /// Get URP's rtHandles
+        /// Get URP's rtHandles from Renderer
         /// </summary>
         /// <param name="handle"></param>
         /// <param name="renderer"></param>
         /// <param name="name"></param>
-        public static void GetRTHandle(ref RTHandle handle, ScriptableRenderer renderer, URPRTHandleNames name)
+        public static void GetRTHandle(ref RTHandle handle, ScriptableRenderer renderer, URPRTHandleNames handleName)
         {
-            GetRTHandle(ref handle, renderer, Enum.GetName(typeof(URPRTHandleNames), name));
+            if (handle != null && handle.rt)
+                return;
+
+            var fieldPath = Enum.GetName(typeof(URPRTHandleNames), handleName);
+            // get variable's path or use URPRTHandleNames
+            if (urpRTHandleFieldPathDict.ContainsKey(handleName))
+            {
+                fieldPath = urpRTHandleFieldPathDict[handleName];
+            }
+
+#if UNITY_2023_1_OR_NEWER
+            handle = (RTHandle)renderer.GetObjectHierarchy(fieldPath);
+#else
+            var handle = (RenderTargetHandle)renderer.GetObjectHierarchy(fieldPath);
+            rth = RTHandles.Alloc(handle.Identifier());
+#endif
         }
 
         /// <summary>
