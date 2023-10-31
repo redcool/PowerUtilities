@@ -118,8 +118,8 @@ namespace PowerUtilities
 #if UNITY_2023_1_OR_NEWER
             handle = (RTHandle)renderer.GetObjectHierarchy(fieldPath);
 #else
-            var handle = (RenderTargetHandle)renderer.GetObjectHierarchy(fieldPath);
-            rth = RTHandles.Alloc(handle.Identifier());
+            var rth = (RenderTargetHandle)renderer.GetObjectHierarchy(fieldPath);
+            handle = RTHandles.Alloc(rth.Identifier());
 #endif
         }
 
