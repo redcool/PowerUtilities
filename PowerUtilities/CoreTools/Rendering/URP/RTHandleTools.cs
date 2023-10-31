@@ -49,7 +49,7 @@ namespace PowerUtilities
         /// </summary>
         static Dictionary<URPRTHandleNames, string> urpRTHandleFieldPathDict = new Dictionary<URPRTHandleNames, string>
         {
-#if UNITY_2023_1_OR_NEWER
+#if UNITY_2022_1_OR_NEWER
             {URPRTHandleNames._CameraColorAttachmentA,"m_ColorBufferSystem.m_A.rtResolve" },
             {URPRTHandleNames._CameraColorAttachmentB,"m_ColorBufferSystem.m_B.rtResolve" },
 #else // 2021,_CameraColorAttachmentA's path
@@ -115,7 +115,7 @@ namespace PowerUtilities
                 fieldPath = urpRTHandleFieldPathDict[handleName];
             }
 
-#if UNITY_2023_1_OR_NEWER
+#if UNITY_2022_1_OR_NEWER
             handle = (RTHandle)renderer.GetObjectHierarchy(fieldPath);
 #else
             var rth = (RenderTargetHandle)renderer.GetObjectHierarchy(fieldPath);

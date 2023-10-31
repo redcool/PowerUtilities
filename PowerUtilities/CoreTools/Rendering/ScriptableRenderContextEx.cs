@@ -34,7 +34,7 @@ namespace PowerUtilities
             NativeArray<RenderStateBlock>? stateBlocks = null)
         {
 
-#if UNITY_2023_1_OR_NEWER
+#if UNITY_2022_1_OR_NEWER
             if(!tagValues.HasValue && stateBlocks.HasValue)
                 tagValues = new NativeArray<ShaderTagId>(defaultTag, Allocator.Temp);
 

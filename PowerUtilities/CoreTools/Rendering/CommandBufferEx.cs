@@ -199,7 +199,7 @@ namespace PowerUtilities
         /// <param name="finalDstMode"></param>
         public static void BlitTriangle(this CommandBuffer cmd, RenderTargetIdentifier sourceId, RenderTargetIdentifier targetId, Material mat, int pass, Camera camera = null, BlendMode finalSrcMode = BlendMode.One, BlendMode finalDstMode = BlendMode.Zero)
         {
-#if UNITY_2023_1_OR_NEWER
+#if UNITY_2022_1_OR_NEWER
             var render = (UniversalRenderer)UniversalRenderPipeline.asset.scriptableRenderer;
             render.TryReplaceURPRTTarget(ref sourceId);
             render.TryReplaceURPRTTarget(ref targetId);

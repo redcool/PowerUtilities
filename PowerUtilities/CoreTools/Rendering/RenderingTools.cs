@@ -81,7 +81,7 @@ namespace PowerUtilities
                 drawSettings.SetShaderPassName(i, legacyShaderPassNames[i]);
             }
 
-#if UNITY_2023_1_OR_NEWER
+#if UNITY_2022_1_OR_NEWER
             var arr = new NativeArray<RenderStateBlock>(new[] { default(RenderStateBlock) }, Allocator.Temp);
             context.DrawRenderers(cmd, cullingResults, ref drawSettings, ref filterSettings, null, arr);
 #else
