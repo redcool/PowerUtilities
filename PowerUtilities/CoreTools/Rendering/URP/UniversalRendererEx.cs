@@ -38,20 +38,31 @@ namespace PowerUtilities
         /// <returns></returns>
         public static RenderTargetIdentifier GetRenderTargetId(this UniversalRenderer renderer, URPRTHandleNames rtIdName)
         {
-            if (!urpRTHandleDict.TryGetValue(rtIdName, out var handle))
-            {
-                urpRTHandleDict[rtIdName] = handle;
-            }
+            urpRTHandleDict.TryGetValue(rtIdName, out var handle);
+            //this function with cache.
             RTHandleTools.GetRTHandle(ref handle, renderer, rtIdName);
+            // save or again
+            urpRTHandleDict[rtIdName] = handle;
             return handle.nameID;
         }
 
+        /// <summary>
+        /// if name is URP renderTarget, replace id to urp renderTarget
+        /// </summary>
+        /// <param name="renderer"></param>
+        /// <param name="name"></param>
+        /// <param name="id"></param>
         public static void TryReplaceURPRTTarget(this UniversalRenderer renderer, string name, ref RenderTargetIdentifier id)
         {
             if (RTHandleTools.IsURPRTHandleName(name))
                 id = renderer.GetRenderTargetId(Enum.Parse<URPRTHandleNames>(name));
         }
 
+        /// <summary>
+        /// if rtId's nameId is urp renderTarget,replace rtId
+        /// </summary>
+        /// <param name="renderer"></param>
+        /// <param name="rtId"></param>
         public static void TryReplaceURPRTTarget(this UniversalRenderer renderer, ref RenderTargetIdentifier rtId)
         {
             if(RTHandleTools.TryGetURPTextureName(rtId, out var rtName))
@@ -60,7 +71,7 @@ namespace PowerUtilities
             }
         }
         /// <summary>
-        /// check rt name, if it is UnviersalRenderer's rtHandle, use urp rtHanlde
+        /// check rt name, if it is UnviersalRenderer's rtHandle, replace to urp rtHanlde
         /// </summary>
         /// <param name="names"></param>
         /// <param name="ids"></param>
