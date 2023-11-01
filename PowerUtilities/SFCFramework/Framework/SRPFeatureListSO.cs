@@ -96,8 +96,8 @@
                     // draw pass details
                     EditorGUI.BeginChangeCheck();
 
-                    //PassDrawer.DrawPassDetail(featureSO, color, foldoutProp, EditorGUITools.TempContent(title, feature.Tooltip));
-                    PassDrawer.DrawPassDetail(featureEditor, color, foldoutProp, EditorGUITools.TempContent(title, feature.Tooltip));
+                    PassDrawer.DrawPassDetail(featureSO, color, foldoutProp, EditorGUITools.TempContent(title, feature.Tooltip));
+                    //PassDrawer.DrawPassDetail(featureEditor, color, foldoutProp, EditorGUITools.TempContent(title, feature.Tooltip));
 
                     if (EditorGUI.EndChangeCheck())
                     {
