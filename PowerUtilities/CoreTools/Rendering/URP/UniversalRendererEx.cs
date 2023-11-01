@@ -30,20 +30,34 @@ namespace PowerUtilities
         static Dictionary<URPRTHandleNames, RTHandle> urpRTHandleDict = new Dictionary<URPRTHandleNames, RTHandle>();
 
         /// <summary>
+        /// Get urp private rtHandle
+        /// </summary>
+        /// <param name="renderer"></param>
+        /// <param name="rtName"></param>
+        /// <returns></returns>
+        public static RTHandle GetRTHandle(this UniversalRenderer renderer, URPRTHandleNames rtName)
+        {
+            urpRTHandleDict.TryGetValue(rtName, out var handle);
+            //this function with cache.
+            RTHandleTools.GetRTHandle(ref handle, renderer, rtName);
+            // save or again
+            urpRTHandleDict[rtName] = handle;
+            return handle;
+        }
+
+        /// <summary>
         /// Get urp renderTarget and cache it,
         /// when rtHandle changed will get it again.
         /// </summary>
         /// <param name="renderer"></param>
-        /// <param name="rtIdName"></param>
+        /// <param name="rtName"></param>
         /// <returns></returns>
-        public static RenderTargetIdentifier GetRenderTargetId(this UniversalRenderer renderer, URPRTHandleNames rtIdName)
+        public static RenderTargetIdentifier GetRenderTargetId(this UniversalRenderer renderer, URPRTHandleNames rtName)
         {
-            urpRTHandleDict.TryGetValue(rtIdName, out var handle);
-            //this function with cache.
-            RTHandleTools.GetRTHandle(ref handle, renderer, rtIdName);
-            // save or again
-            urpRTHandleDict[rtIdName] = handle;
-            return handle.nameID;
+            var handle = GetRTHandle(renderer, rtName);
+            if (handle != null)
+                return handle.nameID;
+            return default;
         }
 
         /// <summary>
@@ -55,7 +69,12 @@ namespace PowerUtilities
         public static void TryReplaceURPRTTarget(this UniversalRenderer renderer, string name, ref RenderTargetIdentifier id)
         {
             if (RTHandleTools.IsURPRTHandleName(name))
+            {
                 id = renderer.GetRenderTargetId(Enum.Parse<URPRTHandleNames>(name));
+                // urp not alloc it, use nameId
+                if(id == default)
+                    id = Shader.PropertyToID(name);
+            }
         }
 
         /// <summary>
