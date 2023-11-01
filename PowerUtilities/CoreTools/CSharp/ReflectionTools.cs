@@ -104,8 +104,11 @@ namespace PowerUtilities
                 {
                     throw new ArgumentException($"{instance} dont have path: {fieldNamesPath}");
                 }
-                instance = field.GetValue(instance);
 
+                instance = field.GetValue(instance);
+                // current object is null
+                if (instance == null)
+                    return null;
                 // next field
                 instType = instance.GetType();
             }
