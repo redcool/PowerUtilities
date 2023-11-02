@@ -66,11 +66,15 @@ namespace PowerUtilities.Features
 
         public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
         {
-            var isUseFSR = UniversalRenderPipeline.asset.upscalingFilter == UpscalingFilterSelection.FSR;
+            var urpAsset = UniversalRenderPipeline.asset;
+            var isUseFSR = urpAsset.upscalingFilter == UpscalingFilterSelection.FSR;
             if(isUseFSR && settings.disableFSR)
             {
-                UniversalRenderPipeline.asset.upscalingFilter = UpscalingFilterSelection.Auto;
+                urpAsset.upscalingFilter = UpscalingFilterSelection.Auto;
             }
+
+            if(settings.useSRPBatcher != urpAsset.useSRPBatcher)
+                urpAsset.useSRPBatcher = settings.useSRPBatcher;
         }
 
         bool IsWriteToCameraTargetDirect()

@@ -68,7 +68,7 @@ namespace PowerUtilities.Features
             [Tooltip("No blit,no gamma texture,draw in linear space,output to camera target")]
             public bool isWriteToCameraTargetDirectly;
 
-
+            public bool useSRPBatcher=true;
 
             [Header("Editor Options")]
             [Multiline]

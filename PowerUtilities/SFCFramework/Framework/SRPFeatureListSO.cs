@@ -31,12 +31,12 @@
 
         private void OnEnable()
         {
+            // setup create sfc pass menu items
             var inst = serializedObject.targetObject as SRPFeatureListSO;
             targetObjectAssetDir = Path.GetDirectoryName(AssetDatabase.GetAssetPath(serializedObject.targetObject));
             srpFeatureTypes = ReflectionTools.GetTypesDerivedFrom<SRPFeature>();
 
-            createPassMenu = new GenericMenu();
-            SetupMenu(srpFeatureTypes, createPassMenu, targetObjectAssetDir, inst);
+            createPassMenu = CreateAddSFCPassMenu(srpFeatureTypes, targetObjectAssetDir, inst);
         }
 
         public override void DrawInspectorUI(SRPFeatureListSO inst)
@@ -44,7 +44,7 @@
             serializedObject.UpdateIfRequiredOrScript();
 
             /**
-                show list
+                1 show pass list
              */
             EditorGUI.BeginChangeCheck();
             DrawDefaultInspector();
@@ -61,9 +61,10 @@
             }
             
             /**
-                create pass asset 
+                2 create pass asset menus
              */
             DrawAddPassButton();
+
             serializedObject.ApplyModifiedProperties();
         }
 
@@ -108,17 +109,17 @@
             }
         }
 
-        public static void SetupMenu(IEnumerable<Type> featureTypes, GenericMenu menu, string curSODir, SRPFeatureListSO inst)
+        public static GenericMenu CreateAddSFCPassMenu(IEnumerable<Type> featureTypes, string curSODir, SRPFeatureListSO inst)
         {
+            GenericMenu menu = new GenericMenu();
             foreach (var passType in featureTypes)
             {
-                var menuContent = new GUIContent(passType.Name);
-
                 var createAssetMenuAttr = passType.GetCustomAttribute<CreateAssetMenuAttribute>();
-                if (createAssetMenuAttr != null)
-                {
-                    menuContent.text = createAssetMenuAttr.menuName;
-                }
+                if (createAssetMenuAttr == null)
+                    continue;
+                // setup menuItem text
+                var menuContent = new GUIContent(passType.Name);
+                menuContent.text = createAssetMenuAttr.menuName;
 
                 menu.AddItem(menuContent, false, (passTypeObj) =>
                 {
@@ -133,6 +134,7 @@
 
                 }, passType);
             }
+            return menu;
         }
 
         private void TryInitFeatureSOList(SRPFeatureListSO inst)

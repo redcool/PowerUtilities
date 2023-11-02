@@ -35,13 +35,22 @@ namespace PowerUtilities
             unsafe
             {
                 int idNum = 0;
-                ByteTools.ReadBytes((byte*)&a, sizeof(int)+sizeof(BuiltinRenderTextureType), 4, (byte*)&idNum);
+                ByteTools.ReadBytes((byte*)&a, sizeof(int)+sizeof(BuiltinRenderTextureType), sizeof(int), (byte*)&idNum);
                 return idNum;
             }
             // 
             //var id = (int)m_NameID.GetValue(a);
             //return id;
         }
-        public static BuiltinRenderTextureType GetBuiltinRenderTextureType(this RenderTargetIdentifier a) => (BuiltinRenderTextureType)m_Type.GetValue(a);
+        public static BuiltinRenderTextureType GetBuiltinRenderTextureType(this RenderTargetIdentifier a)
+        {
+            unsafe
+            {
+                int idNum = 0;
+                ByteTools.ReadBytes((byte*)&a, sizeof(int), sizeof(BuiltinRenderTextureType), (byte*)&idNum);
+                return (BuiltinRenderTextureType)idNum;
+            }
+            //(BuiltinRenderTextureType)m_Type.GetValue(a);
+        } 
     }
 }

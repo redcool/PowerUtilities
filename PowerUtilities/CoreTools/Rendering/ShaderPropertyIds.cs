@@ -8,7 +8,11 @@ namespace PowerUtilities
 
     public static class ShaderPropertyIds
     {
-        public static readonly int
+        /// <summary>
+        /// urp built texture ids,
+        /// before get need call UniversalRenderer.SetupURPShaderPropertyIds
+        /// </summary>
+        public static int
             _MainTex = Shader.PropertyToID(nameof(_MainTex)),
             _CameraOpaqueTexture = Shader.PropertyToID(nameof(_CameraOpaqueTexture)),
             _CameraDepthTexture = Shader.PropertyToID(nameof(_CameraDepthTexture)),
@@ -20,9 +24,8 @@ namespace PowerUtilities
             _GBuffer0 = Shader.PropertyToID(nameof(_GBuffer0)),
             _GBuffer1 = Shader.PropertyToID(nameof(_GBuffer1)),
             _GBuffer2 = Shader.PropertyToID(nameof(_GBuffer2)),
-            _GBuffer3 = Shader.PropertyToID(nameof(_GBuffer3)),
-            _PrevViewProjMatrix = Shader.PropertyToID(nameof(_PrevViewProjMatrix)),
-            _GUIZTestMode = Shader.PropertyToID(nameof(_GUIZTestMode))
+            _GBuffer3 = Shader.PropertyToID(nameof(_GBuffer3))
+
             ;
 
         public const string _DEBUG = nameof(_DEBUG),
@@ -99,7 +102,9 @@ namespace PowerUtilities
             _UpscaledTexture = Shader.PropertyToID("_UpscaledTexture"),
 
             _ShadowBias = Shader.PropertyToID(nameof(_ShadowBias)),
-            _LightDirection = Shader.PropertyToID(nameof(_LightDirection))
+            _LightDirection = Shader.PropertyToID(nameof(_LightDirection)),
+            _PrevViewProjMatrix = Shader.PropertyToID(nameof(_PrevViewProjMatrix)),
+            _GUIZTestMode = Shader.PropertyToID(nameof(_GUIZTestMode))
             ;
 
     }
