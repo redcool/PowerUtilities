@@ -22,7 +22,6 @@ namespace PowerUtilities
         public DepthOnlyPassWrapper(DepthOnly feature) : base(feature) {
         }
 
-
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
         {
             cmd.BeginSampleExecute(Feature.name, ref context);
@@ -45,7 +44,7 @@ namespace PowerUtilities
                 perObjectData = PerObjectData.None,
             };
 
-            context.DrawRenderers(renderingData.cullResults, ref drawingSettings, ref filterSettings);
+            context.DrawRenderers(cmd,renderingData.cullResults, ref drawingSettings, ref filterSettings);
 
             cmd.EndSampleExecute(Feature.name, ref context);
         }
@@ -53,13 +52,20 @@ namespace PowerUtilities
         private void SetupDeptexTarget(ref ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
         {
             ref var cameraData = ref renderingData.cameraData;
-            var desc = cameraData.cameraTargetDescriptor;
-            desc.colorFormat = RenderTextureFormat.Depth;
-            desc.depthBufferBits = 32;
-            desc.msaaSamples = 1;
+            var renderer = (UniversalRenderer)cameraData.renderer;
+            var rth = renderer.GetRTHandle(URPRTHandleNames.m_DepthTexture);
+            var depthId = renderer.GetRenderTargetId(URPRTHandleNames.m_DepthTexture);
 
-            cmd.GetTemporaryRT(ShaderPropertyIds._CameraDepthTexture, desc, FilterMode.Point);
-            cmd.SetRenderTarget(ShaderPropertyIds._CameraDepthTexture);
+
+            if (depthId == default)
+            {
+                var desc = cameraData.cameraTargetDescriptor;
+                desc.colorFormat = RenderTextureFormat.Depth;
+                desc.depthBufferBits = 32;
+                desc.msaaSamples = 1;
+                cmd.GetTemporaryRT(ShaderPropertyIds._CameraDepthTexture, desc, FilterMode.Point);
+            }
+            cmd.SetRenderTarget(depthId);
             cmd.ClearRenderTarget(true, false, Color.clear);
 
             cmd.Execute(ref context);
@@ -67,7 +73,7 @@ namespace PowerUtilities
 
         public override void OnCameraCleanup(CommandBuffer cmd)
         {
-            cmd.ReleaseTemporaryRT(ShaderPropertyIds._CameraDepthTexture);
+            //cmd.ReleaseTemporaryRT(ShaderPropertyIds._CameraDepthTexture);
         }
     }
 }

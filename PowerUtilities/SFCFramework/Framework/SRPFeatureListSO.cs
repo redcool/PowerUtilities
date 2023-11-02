@@ -119,7 +119,7 @@
                     continue;
                 // setup menuItem text
                 var menuContent = new GUIContent(passType.Name);
-                menuContent.text = createAssetMenuAttr.menuName;
+                //menuContent.text = createAssetMenuAttr.menuName;
 
                 menu.AddItem(menuContent, false, (passTypeObj) =>
                 {
