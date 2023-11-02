@@ -68,11 +68,14 @@ namespace PowerUtilities
         /// <param name="id"></param>
         public static void TryReplaceURPRTTarget(this UniversalRenderer renderer, string name, ref RenderTargetIdentifier id)
         {
+            if (string.IsNullOrEmpty(name))
+                return;
+
             if (RTHandleTools.IsURPRTHandleName(name))
             {
                 id = renderer.GetRenderTargetId(Enum.Parse<URPRTHandleNames>(name));
                 // urp not alloc it, use nameId
-                if(id == default)
+                if (id == default)
                     id = Shader.PropertyToID(name);
             }
         }
@@ -102,6 +105,23 @@ namespace PowerUtilities
             }
         }
 
-        
+        public static RTHandle GetCameraColorAttachmentA(this UniversalRenderer renderer)
+        => renderer.GetRTHandle(URPRTHandleNames._CameraColorAttachmentA);
+
+        public static RTHandle GetCameraColorAttachmentB(this UniversalRenderer renderer)
+        => renderer.GetRTHandle(URPRTHandleNames._CameraColorAttachmentB);
+
+        public static RTHandle GetActiveCameraColorAttachment(this UniversalRenderer renderer)
+        => renderer.GetRTHandle(URPRTHandleNames.m_ActiveCameraColorAttachment);
+
+        public static RTHandle GetActiveCameraDepthAttachment(this UniversalRenderer renderer)
+        => renderer.GetRTHandle(URPRTHandleNames.m_ActiveCameraDepthAttachment);
+
+        public static RTHandle GetCameraDepthTexture(this UniversalRenderer renderer)
+        => renderer.GetRTHandle(URPRTHandleNames.m_DepthTexture);
+
+        public static RTHandle GetCameraOpaqueTexture(this UniversalRenderer renderer)
+        => renderer.GetRTHandle(URPRTHandleNames._CameraOpaqueTexture);
     }
+
 }

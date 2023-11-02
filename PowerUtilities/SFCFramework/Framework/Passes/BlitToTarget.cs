@@ -18,7 +18,7 @@ namespace PowerUtilities.RenderFeatures
         [Tooltip("When empty will use Camera Target")]
         public string targetName;
 
-        [Tooltip("blit source to [_CameraAttachmentA or B]")]
+        [Tooltip("blit source to [_CameraAttachmentA or B],if sourceId is A, targetId will set B")]
         public bool isBlitToNextPostTarget;
 
         [Header("Options")]
@@ -38,16 +38,30 @@ namespace PowerUtilities.RenderFeatures
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
         {
             ref var cameraData = ref renderingData.cameraData;
-            var cameraTarget = cameraData.targetTexture ? new RenderTargetIdentifier(cameraData.targetTexture) : BuiltinRenderTextureType.CameraTarget;
+            var renderer = (UniversalRenderer)cameraData.renderer;
+
             RenderTargetIdentifier sourceId = string.IsNullOrEmpty(Feature.sourceName) ? BuiltinRenderTextureType.CurrentActive : Shader.PropertyToID(Feature.sourceName);
+
+            var cameraTarget = cameraData.targetTexture ? new RenderTargetIdentifier(cameraData.targetTexture) : BuiltinRenderTextureType.CameraTarget;
             RenderTargetIdentifier targetId = string.IsNullOrEmpty(Feature.targetName) ? cameraTarget : Shader.PropertyToID(Feature.targetName);
+
+#if UNITY_2022_1_OR_NEWER
+            renderer.TryReplaceURPRTTarget(Feature.sourceName,ref sourceId);
+            renderer.TryReplaceURPRTTarget(Feature.targetName, ref targetId);
+#endif
 
             if (Feature.isBlitToNextPostTarget)
             {
-                var isA = cameraData.renderer.cameraColorTarget.IsNameIdEquals(ShaderPropertyIds._CameraColorAttachmentA);
+#if UNITY_2022_1_OR_NEWER
+                var attachmentA = renderer.GetCameraColorAttachmentA();
+                var attachmentB = renderer.GetCameraColorAttachmentB();
 
-                //var isA = colorAttachment == ShaderPropertyIds._CameraColorAttachmentA;
+                //var currentActive = renderer.GetActiveCameraColorAttachment();
+                targetId = (sourceId.IsNameIdEquals(attachmentA.nameID)) ? attachmentB : attachmentA;
+#else
+                var isA = sourceId.IsNameIdEquals(ShaderPropertyIds._CameraColorAttachmentA);
                 targetId = isA ? ShaderPropertyIds._CameraColorAttachmentB : ShaderPropertyIds._CameraColorAttachmentA;
+#endif
             }
 
             ColorSpaceTransform.SetColorSpace(cmd, Feature.colorSpaceMode);

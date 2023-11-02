@@ -133,7 +133,14 @@ namespace PowerUtilities.RenderFeatures
             if (SystemInfo.supportedRenderTargetCount < colorIds.Length)
                 colorIds = colorIds.Take(SystemInfo.supportedRenderTargetCount).ToArray();
 
+            var colorRTHs = colorIds.Select(item=> RTHandles.Alloc(item)).ToArray();
+            var depthRTH= RTHandles.Alloc(depthId);
+
             cmd.SetRenderTarget(colorIds, depthId);
+
+            // keep rths, then sfc pass can use these rths.
+            RenderingTools.ColorTargetRTs = colorRTHs;
+            RenderingTools.DepthTargetRT = depthRTH;
         }
     }
 }

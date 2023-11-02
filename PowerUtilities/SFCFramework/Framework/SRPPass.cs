@@ -22,10 +22,13 @@ namespace PowerUtilities.RenderFeatures
         protected ScriptableRenderContext context;
         public string featureName;
 
+
+
         public SRPPass(T feature)
         {
             Feature = feature;
             featureName = feature.name;
+
         }
 
         /// <summary>
@@ -43,6 +46,15 @@ namespace PowerUtilities.RenderFeatures
                     return camera.CompareTag(Feature.gameCameraTag);
 
             }
+        }
+
+        public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
+        {
+            // unity 2021, use nameId, dont use this
+#if UNITY_2022_1_OR_NEWER
+            if (RenderingTools.ColorTargetRTs != null && RenderingTools.DepthTargetRT != null)
+                ConfigureTarget(RenderingTools.ColorTargetRTs, RenderingTools.DepthTargetRT);
+#endif
         }
 
         /// <summary>

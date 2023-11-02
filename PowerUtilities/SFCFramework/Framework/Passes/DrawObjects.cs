@@ -140,12 +140,14 @@
 
         public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
         {
+            base.OnCameraSetup(cmd,ref renderingData);
+
             drawObjectsPass.OnCameraSetup(cmd, ref renderingData);
 
             if (drawSkyboxPass != null)
                 drawSkyboxPass.OnCameraSetup(cmd, ref renderingData);
 
-            drawChildrenInstancedPass.OnCameraSetup();
+            drawChildrenInstancedPass.OnCameraSetup(cmd, ref renderingData);
         }
 
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
@@ -191,12 +193,18 @@
             }
         }
 
-        public void OnCameraSetup()
+        public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
         {
+            base.OnCameraSetup(cmd, ref renderingData);
+
             if (findCount <1)
             {
                 findCount ++;
+#if UNITY_2022_1_OR_NEWER
+                drawChildren = Object.FindObjectsByType<DrawChildrenInstanced>(FindObjectsSortMode.None);
+#else
                 drawChildren = Object.FindObjectsOfType<DrawChildrenInstanced>();
+#endif
             }
         }
     }
@@ -240,6 +248,8 @@
 
         public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
         {
+            base.OnCameraSetup(cmd,ref renderingData);
+
             sun = RenderSettings.sun;
 
             lastSRPBatchEnabled = UniversalRenderPipeline.asset.useSRPBatcher;
