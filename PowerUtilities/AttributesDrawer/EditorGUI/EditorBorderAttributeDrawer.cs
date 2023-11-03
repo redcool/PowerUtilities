@@ -21,7 +21,7 @@ namespace PowerUtilities
             pos.y += EditorGUIUtility.singleLineHeight/2;
             pos.width += 4;
             pos.height = EditorGUIUtility.singleLineHeight * attr.lineCount;
-            EditorGUITools.DrawBoxColors(pos, 1, default, attr.color, attr.color, attr.color, attr.color);
+            EditorGUITools.DrawBoxColors(pos, 2, default, attr.color, default,default,default);
         }
         public override float GetHeight()
         {

@@ -32,7 +32,8 @@
 
         public static bool DrawTitleFoldout(Rect position, bool isOn, string title, Color titleColor)
         {
-            EditorGUI.DrawRect(position, titleColor);
+            var colorRect = EditorGUI.IndentedRect(position);
+            EditorGUI.DrawRect(colorRect, titleColor);
 
             return EditorGUI.Foldout(position, isOn, title, true);
         }

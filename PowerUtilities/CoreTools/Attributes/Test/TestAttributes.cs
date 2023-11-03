@@ -17,27 +17,27 @@ namespace PowerUtilities
             c};
 
 
-        [EditorGroup("Group1")]
-        [EditorGroupItem("Group1")]
+        [EditorGroup("Group1",true)]
         public bool Group1On;
 
-        [EditorGroupItem("Group1")]
-        //[EnumFlags]
+        [EditorGroup("Group1")]
         //[Searchable]
+        [EnumFlags]
         public PropEnum propEnum;
+        
 
-        [EditorGroupItem("Group1")]
+        [EditorGroup("Group1")]
         [DisplayName("Ò»¸ö»¬¿é", "slider helps","Assets/Gizmos/img1.png")]
         [Range(0, 1)]
         public float propA;
 
-        [EditorGroup("Group2")]
-        [EditorGroupItem("Group2")]
+        [EditorGroup("Group2",true)]
         public bool Group2On;
 
-        [EditorGroupItem("Group2")]
+        [EditorGroup("Group2")]
         public float a;
 
+        [EditorGroup("Group2")]
         [TexturePreview]
         public Texture tex;
     }
