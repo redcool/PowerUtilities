@@ -28,6 +28,11 @@ namespace PowerUtilities.RenderFeatures
         public ColorSpaceTransform.ColorSpaceMode colorSpaceMode;
 
         public override ScriptableRenderPass GetPass() => new BlitToTargetPass(this);
+
+        public BlitToTarget()
+        {
+            renderPassEvent = RenderPassEvent.AfterRenderingSkybox;
+        }
     }
 
     public class BlitToTargetPass : SRPPass<BlitToTarget>
