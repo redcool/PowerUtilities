@@ -74,7 +74,7 @@
         public string gameCameraTag = "MainCamera";
 
         [Header("Pass Options / URP Event")]
-        public RenderPassEvent renderPassEvent = RenderPassEvent.AfterRenderingSkybox;
+        public RenderPassEvent renderPassEvent = RenderPassEvent.BeforeRenderingSkybox;
         public int renderPassEventOffset = 0;
 
         /// <summary>
