@@ -25,7 +25,7 @@ namespace PowerUtilities
         /// <summary>
         /// Project Setting or Preferences
         /// </summary>
-        public SettingsScope settingsScope = SettingsScope.User;
+        public SettingsScope settingsScope = SettingsScope.Project;
 
         /// <summary>
         /// setting's label, like XXXSettings,shown on left
