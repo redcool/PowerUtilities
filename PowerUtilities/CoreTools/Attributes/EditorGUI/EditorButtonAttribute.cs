@@ -14,14 +14,14 @@ using UnityEngine;
     {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            property.serializedObject.Update();
+            //property.serializedObject.Update();
 
             position = EditorGUI.IndentedRect(position);
             if(GUI.Button(position, label))
             {
                 property.boolValue = true;
             }
-            property.serializedObject.ApplyModifiedPropertiesWithoutUndo();
+            //property.serializedObject.ApplyModifiedPropertiesWithoutUndo();
         }
     }
 #endif
