@@ -5,6 +5,7 @@ namespace PowerUtilities
     using System.Collections;
     using System.Collections.Generic;
     using UnityEngine;
+    using UnityEngine.Experimental.Rendering;
     using UnityEngine.Rendering;
     using UnityEngine.Rendering.Universal;
 
@@ -22,7 +23,12 @@ namespace PowerUtilities
         [Tooltip("get ForwardLights and set _Shadows_ShadowMaskOn")]
         public bool isAutoSetShadowMask;
 
-        public bool setMainCameraInfo;
+        [Tooltip("setup camera's rotation matrix")]
+        public bool isSetMainCameraInfo = true;
+
+        [Header("set unscaled time")]
+        [Tooltip("replace _Time(xyzw) ,use Time.unscaledTime")]
+        public bool isSetUnscaledTime;
 
         public override ScriptableRenderPass GetPass() => new SetVarialbesPass(this);
     }
@@ -75,7 +81,7 @@ namespace PowerUtilities
                 cmd.SetGlobalBool(ShaderPropertyIds.shadows_ShadowMaskOn, isShadowMaskMixing);
             }
 
-            if(Feature.setMainCameraInfo)
+            if(Feature.isSetMainCameraInfo)
             {
                 var cam = Camera.main;
                 if(cam)
@@ -83,11 +89,36 @@ namespace PowerUtilities
                     cmd.SetGlobalMatrix("_CameraYRot",Matrix4x4.Rotate(Quaternion.Euler(0,cam.transform.eulerAngles.y,0)));
                 }
             }
+
+
+        }
+
+        public static void SetShaderTimeValues(CommandBuffer cmd, float time, float deltaTime, float smoothDeltaTime)
+        {
+            //float timeEights = time / 8f;
+            //float timeFourth = time / 4f;
+            //float timeHalf = time / 2f;
+
+            // Time values
+            Vector4 timeVector = time * new Vector4(1f / 20f, 1f, 2f, 3f);
+            //Vector4 sinTimeVector = new Vector4(Mathf.Sin(timeEights), Mathf.Sin(timeFourth), Mathf.Sin(timeHalf), Mathf.Sin(time));
+            //Vector4 cosTimeVector = new Vector4(Mathf.Cos(timeEights), Mathf.Cos(timeFourth), Mathf.Cos(timeHalf), Mathf.Cos(time));
+            //Vector4 deltaTimeVector = new Vector4(deltaTime, 1f / deltaTime, smoothDeltaTime, 1f / smoothDeltaTime);
+            //Vector4 timeParametersVector = new Vector4(time, Mathf.Sin(time), Mathf.Cos(time), 0.0f);
+
+            cmd.SetGlobalVector(ShaderPropertyIds.time, timeVector);
+            //cmd.SetGlobalVector(ShaderPropertyIds.sinTime, sinTimeVector);
+            //cmd.SetGlobalVector(ShaderPropertyIds.cosTime, cosTimeVector);
+            //cmd.SetGlobalVector(ShaderPropertyIds.deltaTime, deltaTimeVector);
+            //cmd.SetGlobalVector(ShaderPropertyIds.timeParameters, timeParametersVector);
         }
 
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
         {
-            
+            if (Feature.isSetUnscaledTime)
+            {
+                SetShaderTimeValues(cmd, Time.unscaledTime, Time.unscaledDeltaTime, Time.smoothDeltaTime);
+            }
         }
 
     }
