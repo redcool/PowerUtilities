@@ -13,7 +13,7 @@ namespace PowerUtilities
     {
         public static void DrawPassDetail(SerializedObject passItemSO, Color labelColor, SerializedProperty foldoutProp, GUIContent label)
         {
-            EditorGUIUtility.fieldWidth = 50;
+            EditorGUIUtility.labelWidth = 200;
 
             passItemSO.UpdateIfRequiredOrScript();
 
