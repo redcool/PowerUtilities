@@ -48,7 +48,7 @@ namespace PowerUtilities.RenderFeatures
             }
         }
 
-        public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
+        public void TryRestoreCameraTargets()
         {
             // unity 2021, use nameId, dont use this
 #if UNITY_2022_1_OR_NEWER
@@ -92,6 +92,8 @@ namespace PowerUtilities.RenderFeatures
 
             var cmd = CommandBufferPool.Get(featureName);
             cmd.Execute(ref context);
+
+            TryRestoreCameraTargets();
 
             OnExecute(context, ref renderingData,cmd);
 
