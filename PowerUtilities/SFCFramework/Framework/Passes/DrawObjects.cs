@@ -1,5 +1,8 @@
 ﻿namespace PowerUtilities.RenderFeatures
 {
+#if UNITY_EDITOR
+    using UnityEditor.SceneManagement;
+#endif
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -11,6 +14,7 @@
     using UnityEngine.Rendering;
     using UnityEngine.Rendering.Universal;
     using UnityEngine.Rendering.Universal.Internal;
+    using UnityEngine.SceneManagement;
     using Object = UnityEngine.Object;
 
     [Tooltip("Draw Objects with full urp powers, use SRPBatch or Instanced need multi cameras")]
@@ -281,8 +285,13 @@
 
             var filterSetting = GetFilterSettings();
 #if UNITY_EDITOR
-            if (camera.cameraType == CameraType.Preview)
+            var scene = SceneManager.GetActiveScene();
+            var stage = StageUtility.GetCurrentStage();
+
+            var isPrefabStage = !string.IsNullOrEmpty(stage.assetPath);
+            if (camera.cameraType == CameraType.Preview || isPrefabStage)
                 filterSetting.layerMask = -1;
+
 #endif
             OverrideCamera(ref context, cmd, ref renderingData);
             var drawSettings = GetDrawSettings(context, cmd, ref renderingData, ref cameraData);

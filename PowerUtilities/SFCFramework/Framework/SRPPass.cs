@@ -82,7 +82,8 @@ namespace PowerUtilities.RenderFeatures
             if (Feature.isEditorOnly)
                 return !Application.isEditor;
 
-            return true;
+            // > sceneView, use urp pass
+            return camera.cameraType <= CameraType.SceneView;
         }
 
         public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)

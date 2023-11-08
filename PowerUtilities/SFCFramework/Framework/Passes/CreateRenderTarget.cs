@@ -31,9 +31,10 @@ namespace PowerUtilities.RenderFeatures
             return base.CanExecute() 
                 && Feature.colorTargetInfos.Count != 0
                 ;
+
         }
 
-        public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
+        public void CreateTargets(CommandBuffer cmd, ref RenderingData renderingData)
         {
             ref var cameraData = ref renderingData.cameraData;
             var camera = cameraData.camera;
@@ -54,6 +55,7 @@ namespace PowerUtilities.RenderFeatures
 
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
         {
+            CreateTargets(cmd, ref renderingData);
         }
     }
 }
