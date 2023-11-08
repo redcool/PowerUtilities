@@ -45,9 +45,13 @@ namespace PowerUtilities
 
     public class SetVarialbesPass : SRPPass<SetVariables>
     {
-        public SetVarialbesPass(SetVariables feature) : base(feature)
-        {
-        }
+        public SetVarialbesPass(SetVariables feature) : base(feature) { }
+
+        /// <summary>
+        /// Try restore camera targets before pass Execute
+        /// </summary>
+        /// <returns></returns>
+        public override bool IsTryRestoreLastTargets() => false;
 
         public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
         {
@@ -58,10 +62,6 @@ namespace PowerUtilities
         {
             var camera = renderingData.cameraData.camera;
 
-            //Feature.floatValues.ForEach(v => cmd.SetGlobalFloat(v.name, v.value), v => v.IsValid);
-            //Feature.vectorValues.ForEach(v => cmd.SetGlobalVector(v.name, v.value), v => v.IsValid);
-            //Feature.intValues.ForEach(v => cmd.SetGlobalInt(v.name, v.value), v => v.IsValid);
-            //Feature.textureValues.ForEach(v => cmd.SetGlobalTexture(v.name, v.value), v => v.IsValid);
             foreach (var v in Feature.floatValues)
                 if (v.IsValid) cmd.SetGlobalFloat(v.name, v.value);
 

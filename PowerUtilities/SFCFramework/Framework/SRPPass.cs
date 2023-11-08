@@ -28,8 +28,9 @@ namespace PowerUtilities.RenderFeatures
         {
             Feature = feature;
             featureName = feature.name;
-
         }
+
+        public virtual bool IsTryRestoreLastTargets() => true;
 
         /// <summary>
         /// Compare with tag or name
@@ -54,7 +55,7 @@ namespace PowerUtilities.RenderFeatures
 #if UNITY_2022_1_OR_NEWER
             if (RenderTargetHolder.LastColorTargetRTs != null && RenderTargetHolder.LastDepthTargetRT != null)
             {
-                ConfigureTarget(RenderTargetHolder.LastColorTargetRTs, RenderTargetHolder.LastDepthTargetRT);
+                //ConfigureTarget(RenderTargetHolder.LastColorTargetRTs, RenderTargetHolder.LastDepthTargetRT);
 
                 cmd.SetRenderTarget(RenderTargetHolder.LastColorTargetIds, RenderTargetHolder.LastDepthTargetRT.nameID);
             }
@@ -99,7 +100,8 @@ namespace PowerUtilities.RenderFeatures
             var cmd = CommandBufferPool.Get(featureName);
             cmd.Execute(ref context);
 
-            TryRestoreCameraTargets(cmd);
+            if(IsTryRestoreLastTargets())
+                TryRestoreCameraTargets(cmd);
 
             OnExecute(context, ref renderingData,cmd);
 
