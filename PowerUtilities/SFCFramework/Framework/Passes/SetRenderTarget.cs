@@ -51,6 +51,9 @@ namespace PowerUtilities.RenderFeatures
     {
         RenderTargetIdentifier[] colorIds;
 
+        string[] lastColorNames;
+        string lastDepthName;
+
         public SetRenderTargetPass(SetRenderTarget feature) : base(feature)
         {
         }
@@ -105,15 +108,50 @@ namespace PowerUtilities.RenderFeatures
             }
         }
 
+        bool IsNeedAllocColorIds()
+        {
+            if (lastColorNames == null || lastColorNames.Length != Feature.colorTargetNames.Length)
+                return true;
+
+            for (int i = 0; i < lastColorNames.Length; i++)
+            {
+                if (lastColorNames[i] != Feature.colorTargetNames[i])
+                    return true;
+            }
+            return false;
+        }
+
+        bool isNeedAllocDepthId()
+        {
+            if (string.IsNullOrEmpty(lastDepthName)) 
+                return true;
+
+            return lastDepthName != Feature.depthTargetName;
+        }
+
         void SetTargets(ref RenderingData renderingData, Camera camera, CommandBuffer cmd)
         {
-            if (colorIds == null || colorIds.Length != Feature.colorTargetNames.Length)
-            {
-                RenderingTools.RenderTargetNameToIdentifier(Feature.colorTargetNames, ref colorIds);
-            }
             ref var cameraData = ref renderingData.cameraData;
             var renderer = (UniversalRenderer)cameraData.renderer;
 
+
+            colorIds = RenderTargetHolder.LastColorTargetIds;
+            var isAllocColorIds = IsNeedAllocColorIds();
+
+            if (isAllocColorIds)
+            {
+                SetupColorIds(renderer);
+            }
+
+            RenderTargetIdentifier depthId = SetupDepthId(renderer);
+            cmd.SetRenderTarget(colorIds, depthId);
+
+            // keep rths, then sfc pass can use these rths.
+            RenderTargetHolder.SaveTargets(colorIds,depthId);
+        }
+
+        private RenderTargetIdentifier SetupDepthId(UniversalRenderer renderer)
+        {
             // set depth target id
             RenderTargetIdentifier depthId = UniversalRenderPipeline.asset.supportsCameraDepthTexture ? ShaderPropertyIds._CameraDepthAttachment : BuiltinRenderTextureType.CameraTarget;
             if (!string.IsNullOrEmpty(Feature.depthTargetName))
@@ -123,22 +161,24 @@ namespace PowerUtilities.RenderFeatures
 
             // check replace URP rtHandle
 #if UNITY_2022_1_OR_NEWER
-            renderer.TryReplaceURPRTTargets(Feature.colorTargetNames, ref colorIds);
             if (depthId == ShaderPropertyIds._CameraDepthAttachment)
                 renderer.TryReplaceURPRTTarget(nameof(ShaderPropertyIds._CameraDepthAttachment), ref depthId);
+#endif
+            return depthId;
+        }
+
+        private void SetupColorIds(UniversalRenderer renderer)
+        {
+            RenderingTools.RenderTargetNameToIdentifier(Feature.colorTargetNames, ref colorIds);
+#if UNITY_2022_1_OR_NEWER
+            renderer.TryReplaceURPRTTargets(Feature.colorTargetNames, ref colorIds);
 #endif
             // limit to 8
             if (SystemInfo.supportedRenderTargetCount < colorIds.Length)
                 colorIds = colorIds.Take(SystemInfo.supportedRenderTargetCount).ToArray();
 
-            cmd.SetRenderTarget(colorIds, depthId);
-
-            // keep rths, then sfc pass can use these rths.
-
-            var colorRTHs = colorIds.Select(item=> RTHandles.Alloc(item)).ToArray();
-            var depthRTH= RTHandles.Alloc(depthId);
-            RenderingTools.ColorTargetRTs = colorRTHs;
-            RenderingTools.DepthTargetRT = depthRTH;
+            // keep
+            lastColorNames = Feature.colorTargetNames;
         }
     }
 }

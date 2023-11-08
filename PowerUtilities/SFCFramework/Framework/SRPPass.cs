@@ -48,12 +48,16 @@ namespace PowerUtilities.RenderFeatures
             }
         }
 
-        public void TryRestoreCameraTargets()
+        public void TryRestoreCameraTargets(CommandBuffer cmd)
         {
             // unity 2021, use nameId, dont use this
 #if UNITY_2022_1_OR_NEWER
-            if (RenderingTools.ColorTargetRTs != null && RenderingTools.DepthTargetRT != null)
-                ConfigureTarget(RenderingTools.ColorTargetRTs, RenderingTools.DepthTargetRT);
+            if (RenderTargetHolder.LastColorTargetRTs != null && RenderTargetHolder.LastDepthTargetRT != null)
+            {
+                ConfigureTarget(RenderTargetHolder.LastColorTargetRTs, RenderTargetHolder.LastDepthTargetRT);
+
+                cmd.SetRenderTarget(RenderTargetHolder.LastColorTargetIds, RenderTargetHolder.LastDepthTargetRT.nameID);
+            }
 #endif
         }
 
@@ -90,10 +94,11 @@ namespace PowerUtilities.RenderFeatures
             if (! CanExecute())
                 return;
 
+
             var cmd = CommandBufferPool.Get(featureName);
             cmd.Execute(ref context);
 
-            TryRestoreCameraTargets();
+            TryRestoreCameraTargets(cmd);
 
             OnExecute(context, ref renderingData,cmd);
 

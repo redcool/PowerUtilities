@@ -26,6 +26,7 @@ namespace PowerUtilities
         static bool lastControlPressed;
 
         static List<Renderer> rendererList = new List<Renderer>();
+        static EditorWindow lightmapPreviewWin;
 
         [InitializeOnLoadMethod]
         static void Init()
@@ -53,6 +54,10 @@ namespace PowerUtilities
 
         static void OnSceneGUIUpdate(SceneView sv)
         {
+            var settings = ScriptableObjectTools.CreateGetInstance<PowerUtilSettings>();
+            if (!settings.isCheckLightmapPreviewWin)
+                return;
+
             var e = Event.current;
             var mousePos = (e.mousePosition); // in sceneView
             //Handles.BeginGUI();
@@ -60,7 +65,9 @@ namespace PowerUtilities
             //GUI.Button(new Rect(0,0,100,100),"test");
             //Handles.EndGUI();
 
-            var lightmapPreviewWin = EditorWindowTools.GetWindow("LightmapPreviewWindow");
+            if(lightmapPreviewWin == null)
+                lightmapPreviewWin = EditorWindowTools.GetWindow("LightmapPreviewWindow");
+
             if (lightmapPreviewWin == null 
                 || !InternalEditorUtility.isApplicationActive 
                 //|| EditorWindow.focusedWindow != lightmapPreviewWin

@@ -35,12 +35,6 @@ namespace PowerUtilities
 
         public static Material ErrorMaterial = new Material(Shader.Find("Hidden/InternalErrorShader"));
 
-        /// <summary>
-        /// keep these colorRTs(8),depthRT
-        /// </summary>
-        public static RTHandle[] ColorTargetRTs;
-        public static RTHandle DepthTargetRT;
-
         public static void ConvertStringArray<T>(ref T[] results, Func<string, T> onConvert, params string[] names)
         {
             if (onConvert == null || names == null)
