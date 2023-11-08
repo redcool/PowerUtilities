@@ -88,8 +88,7 @@
         public Vector4 cameraOffset;
 
         [Header("SkyBox Pass")]
-        public bool isDrawSkybox;
-        public RenderPassEvent drawSkyboxEvent = RenderPassEvent.BeforeRenderingSkybox;
+        public bool IsUpdateSkyboxTarget;
 
         [Header("DrawChildrenInstanced")]
         public bool isDrawChildrenInstancedOn;
@@ -97,6 +96,7 @@
 
         [Header("Color Space")]
         public ColorSpaceTransform.ColorSpaceMode colorSpaceMode;
+
 
         public override ScriptableRenderPass GetPass() => new DrawObjectsPassWrapper(this);
     }
@@ -106,66 +106,51 @@
         FullDrawObjectsPass
             drawObjectsPass;
 
-        DrawSkyboxPass drawSkyboxPass;
         DrawChildrenInstancedPass drawChildrenInstancedPass;
 
         public DrawObjectsPassWrapper(DrawObjects feature) : base(feature)
         {
             drawObjectsPass = new FullDrawObjectsPass(feature);
-
-            if (feature.isDrawSkybox)
-                drawSkyboxPass = new DrawSkyboxPass(feature.drawSkyboxEvent);
-
             drawChildrenInstancedPass = new DrawChildrenInstancedPass(feature);
         }
 
-        #region Get URP DrawObjects
-        public static DrawObjectsPass GetUrpDrawObjectsPass(DrawObjects feature)
-        {
-            UniversalRenderPipelineAsset asset = UniversalRenderPipeline.asset;
-
-            var stencilData = feature.stencilData;
-            var stencilState = StencilState.defaultValue;
-            stencilState.enabled = stencilData.overrideStencilState;
-            stencilState.SetCompareFunction(stencilData.stencilCompareFunction);
-            stencilState.SetFailOperation(stencilData.failOperation);
-            stencilState.SetPassOperation(stencilData.passOperation);
-            stencilState.SetZFailOperation(stencilData.zFailOperation);
-
-            var shaderTagIds = feature.shaderTags
-                .Select(name => new ShaderTagId(name))
-                .ToArray();
-
-            var renderQueueRange = feature.isOpaque ? RenderQueueRange.opaque : RenderQueueRange.transparent;
-
-            return new DrawObjectsPass(feature.name, shaderTagIds, feature.isOpaque, feature.renderPassEvent, renderQueueRange, feature.layers, stencilState, stencilData.stencilReference);
-        }
-        #endregion
+        public override bool IsTryRestoreLastTargets() => true;
 
         public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
         {
-            base.OnCameraSetup(cmd,ref renderingData);
-
             drawObjectsPass.OnCameraSetup(cmd, ref renderingData);
-
-            if (drawSkyboxPass != null)
-                drawSkyboxPass.OnCameraSetup(cmd, ref renderingData);
-
             drawChildrenInstancedPass.OnCameraSetup(cmd, ref renderingData);
         }
 
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
         {
+            ref CameraData cameraData = ref renderingData.cameraData;
+
+            var renderer = (UniversalRenderer)renderingData.cameraData.renderer;
+            // reset skybox 's target in gameview
+            SetupSkyboxTargets(renderer, Feature.IsUpdateSkyboxTarget );
+
             cmd.BeginSampleExecute(featureName, ref context);
 
             drawObjectsPass.OnExecute(context, ref renderingData, cmd);
 
             drawChildrenInstancedPass.OnExecute(context, ref renderingData, cmd);
 
-            if (drawSkyboxPass != null)
-                drawSkyboxPass.Execute(context, ref renderingData);
-
             cmd.EndSampleExecute(featureName, ref context);
+        }
+
+        public static void SetupSkyboxTargets(UniversalRenderer renderer, bool isUpdateSkyboxTarget)
+        {
+            var urpSkyPass = renderer.GetRenderPass<DrawSkyboxPass>(UniversalRendererEx.PassVariableNames.m_DrawSkyboxPass);
+            var colorTarget = renderer.GetCameraColorAttachmentA();
+            var depthTarget = renderer.GetActiveCameraDepthAttachment();
+
+            if (RenderTargetHolder.IsLastTargetValid())
+            {
+                colorTarget = RenderTargetHolder.LastColorTargetRT;
+                depthTarget = RenderTargetHolder.LastDepthTargetRT;
+            }
+            urpSkyPass.ConfigureTarget(colorTarget, depthTarget);
         }
     }
 

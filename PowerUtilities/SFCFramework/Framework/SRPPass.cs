@@ -30,7 +30,7 @@ namespace PowerUtilities.RenderFeatures
             featureName = feature.name;
         }
 
-        public virtual bool IsTryRestoreLastTargets() => true;
+        public virtual bool IsTryRestoreLastTargets() => false;
 
         /// <summary>
         /// Compare with tag or name

@@ -54,6 +54,9 @@ namespace PowerUtilities.RenderFeatures
         string[] lastColorNames;
         string lastDepthName;
 
+        Camera lastCamera;
+        bool isNewCamera;
+
         public SetRenderTargetPass(SetRenderTarget feature) : base(feature)
         {
         }
@@ -61,6 +64,11 @@ namespace PowerUtilities.RenderFeatures
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
         {
             ref var cameraData = ref renderingData.cameraData;
+            var camera = cameraData.camera;
+
+            // keep camera changed
+            isNewCamera = (lastCamera != camera);
+            lastCamera = camera;
 
             TrySetTargets(ref renderingData, cmd);
 
@@ -118,7 +126,8 @@ namespace PowerUtilities.RenderFeatures
                 if (lastColorNames[i] != Feature.colorTargetNames[i])
                     return true;
             }
-            return false;
+
+            return isNewCamera;
         }
 
         bool isNeedAllocDepthId()
@@ -126,7 +135,7 @@ namespace PowerUtilities.RenderFeatures
             if (string.IsNullOrEmpty(lastDepthName)) 
                 return true;
 
-            return lastDepthName != Feature.depthTargetName;
+            return lastDepthName != Feature.depthTargetName && isNewCamera;
         }
 
         void SetTargets(ref RenderingData renderingData, Camera camera, CommandBuffer cmd)
