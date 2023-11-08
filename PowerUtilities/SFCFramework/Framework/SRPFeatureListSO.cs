@@ -88,7 +88,9 @@
                 for (int i = 0; i < featureSOList.Count; i++)
                 {
                     var featureSO = featureSOList[i];
-                    var featureEditor = featureEditorList[i];
+                    if (featureSO == null)
+                        continue;
+
                     var feature = (SRPFeature)featureSO.targetObject;
 
                     var color = feature.enabled ? (feature.interrupt ? Color.red : GUI.color) : Color.gray;
