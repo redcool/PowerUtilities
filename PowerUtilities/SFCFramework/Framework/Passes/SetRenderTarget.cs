@@ -134,10 +134,7 @@ namespace PowerUtilities.RenderFeatures
             ref var cameraData = ref renderingData.cameraData;
             var renderer = (UniversalRenderer)cameraData.renderer;
 
-
-            colorIds = RenderTargetHolder.LastColorTargetIds;
             var isAllocColorIds = IsNeedAllocColorIds();
-
             if (isAllocColorIds)
             {
                 SetupColorIds(renderer);
