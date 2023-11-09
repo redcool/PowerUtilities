@@ -12,10 +12,8 @@ namespace PowerUtilities
         /// <summary>
         /// flags : private instance
         /// </summary>
-        public const BindingFlags PrivateInstanceFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Static;
+        public const BindingFlags PrivateInstanceStaticFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Static;
 
-        //cache type <-> fieldInfo 
-        static CacheTool<Type,FieldInfo> typeFieldCache = new CacheTool<Type, FieldInfo>();
 
         public static IEnumerable<Type> GetTypesDerivedFrom<T>(Func<Type, bool> predication)
         {
@@ -65,19 +63,15 @@ namespace PowerUtilities
         /// <param name="type"></param>
         /// <param name="fieldName"></param>
         /// <returns></returns>
-        public static T GetFieldValue<T>(this Type type, object instance, string fieldName, BindingFlags flags = PrivateInstanceFlags)
+        public static T GetFieldValue<T>(this Type type, object instance, string fieldName, BindingFlags flags = PrivateInstanceStaticFlags)
         {
             var obj = GetFieldValue(type, instance, fieldName, flags);
             return obj != null ? (T)obj : default;
         }
-        public static object GetFieldValue(this Type type, object instance, string fieldName, BindingFlags flags = PrivateInstanceFlags)
+        public static object GetFieldValue(this Type type, object instance, string fieldName, BindingFlags flags = PrivateInstanceStaticFlags)
         {
-            var field = typeFieldCache.Get(type, () => type.GetField(fieldName, flags));
-
-            if (field == null)
-                return default;
-
-            return field.GetValue(instance);
+            var field = type.GetField(fieldName, flags);
+            return field != null ? field.GetValue(instance) : default;
         }
 
         /// <summary>
