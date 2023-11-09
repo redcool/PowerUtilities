@@ -54,36 +54,24 @@ using UnityEngine.Rendering.Universal;
     {
         RenderTargetIdentifier[] colorIds;
 
+        //---------- cache info
         string[] lastColorNames;
         string lastDepthName;
 
-        Camera lastCamera;
-        int lastScreenWidth, lastScreenHeight;
+        RenderTargetIdentifier lastTargetANameId;
 
         // trace urp 's rt changed
         bool isURPRTChanged;
-        static bool isDomainReloaded;
 
         public SetRenderTargetPass(SetRenderTarget feature) : base(feature)
         {
         }
 
-#if UNITY_EDITOR
-        [InitializeOnLoadMethod]
-        static void OnDomainReload()
-        {
-            isDomainReloaded = true;
-        }
-#endif
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
         {
             ref var cameraData = ref renderingData.cameraData;
             var camera = cameraData.camera;
-
-            // keep camera changed
-            isURPRTChanged = CheckURPChangeRT(ref lastCamera,camera) || isDomainReloaded;
-
-            isDomainReloaded = false;
+            var renderer = (UniversalRenderer)cameraData.renderer;
 
             TrySetTargets(ref renderingData, cmd);
 
@@ -98,23 +86,14 @@ using UnityEngine.Rendering.Universal;
             }
         }
 
-        public bool CheckURPChangeRT(ref Camera lastCamera,Camera camera)
+        public bool CheckURPChangeRT(UniversalRenderer renderer)
         {
-            if (lastCamera == null)
-            {
-                lastCamera = camera;
-                return true;
-            }
+            var mainRT = renderer.GetCameraColorAttachmentA();
+            var isRTChanged = (mainRT.nameID != lastTargetANameId);
 
-            var isRTChanged = (lastCamera != camera);
-            var isWidthChanged = camera.pixelWidth != lastScreenWidth;
-            var isHeightChanged = camera.pixelHeight != lastScreenHeight;
+            lastTargetANameId = mainRT.nameID;
 
-            lastScreenWidth = camera.pixelWidth;
-            lastScreenHeight = camera.pixelHeight;
-            lastCamera = camera;
-
-            return isRTChanged || isWidthChanged || isHeightChanged;
+            return isRTChanged;
         }
 
         public void TrySetTargets(ref RenderingData renderingData, CommandBuffer cmd)
@@ -150,7 +129,7 @@ using UnityEngine.Rendering.Universal;
             }
         }
 
-        bool IsNeedAllocColorIds()
+        bool IsNeedAllocColorIds(UniversalRenderer renderer)
         {
             if (lastColorNames == null || lastColorNames.Length != Feature.colorTargetNames.Length)
                 return true;
@@ -160,8 +139,8 @@ using UnityEngine.Rendering.Universal;
                 if (lastColorNames[i] != Feature.colorTargetNames[i])
                     return true;
             }
-            
-            return isURPRTChanged;
+
+            return CheckURPChangeRT(renderer);
         }
 
         bool isNeedAllocDepthId()
@@ -177,7 +156,7 @@ using UnityEngine.Rendering.Universal;
             ref var cameraData = ref renderingData.cameraData;
             var renderer = (UniversalRenderer)cameraData.renderer;
 
-            var isAllocColorIds = IsNeedAllocColorIds();
+            var isAllocColorIds = IsNeedAllocColorIds(renderer);
             if (isAllocColorIds)
             {
                 SetupColorIds(renderer);

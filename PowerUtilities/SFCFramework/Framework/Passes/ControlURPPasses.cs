@@ -24,10 +24,9 @@ namespace PowerUtilities.RenderFeatures
         [Tooltip("Control pass time of run")]
         public ScriptableRenderPassInput passInputType;
 
-        [Header("Remove URP Passes when not BaseCamera")]
+        [Header("Remove URP Pass")]
         public List<UniversalRendererPassTools.UrpPassType> removedPassWhenNotBaseCamera = new List<UniversalRendererPassTools.UrpPassType>();
 
-        [Header("Remove URP Pass")]
         public List<UniversalRendererPassTools.UrpPassType> removedPass = new List<UniversalRendererPassTools.UrpPassType>();
         public override ScriptableRenderPass GetPass() => new ControlURPPassesPass(this);      
     }
