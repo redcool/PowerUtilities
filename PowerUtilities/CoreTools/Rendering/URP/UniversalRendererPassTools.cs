@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
+using UnityEngine;
 using UnityEngine.Rendering.Universal;
 
 namespace PowerUtilities
@@ -10,7 +12,7 @@ namespace PowerUtilities
     public static class UniversalRendererPassTools
     {
         /// <summary>
-        /// UniversalRenderer's private pass variables names
+        /// UniversalRenderer pass's private variables names
         /// </summary>
 
         public enum PassVariableNames
@@ -45,8 +47,37 @@ namespace PowerUtilities
             m_DrawOffscreenUIPass,
             m_DrawOverlayUIPass,
         }
-
         static Dictionary<PassVariableNames, ScriptableRenderPass> passDict = new Dictionary<PassVariableNames, ScriptableRenderPass>();
+
+        /// <summary>
+        /// urp passes, control remove from UnviersalRenderer
+        /// </summary>
+        public enum UrpPassType
+        {
+            CopyDepthPass,
+            FinalBlitPass,
+        }
+        public const string URP_PASS_NAMESPACE_PREFIX = "UnityEngine.Rendering.Universal.Internal.";
+
+        static Dictionary<UrpPassType, Type> urpPassTypeDict = new Dictionary<UrpPassType, Type>();
+
+        static UniversalRendererPassTools()
+        {
+            SetupURPPassTypeDict();
+        }
+
+        private static void SetupURPPassTypeDict()
+        {
+            urpPassTypeDict.Clear();
+            var passTypes = Enum.GetValues(typeof(UrpPassType));
+            var dll = typeof(UniversalRenderer).Assembly;
+
+            foreach (UrpPassType passType in passTypes)
+            {
+                var passName = Enum.GetName(typeof(UrpPassType), passType);
+                urpPassTypeDict[passType] = dll.GetType(URP_PASS_NAMESPACE_PREFIX + passName);
+            }
+        }
 
         /// <summary>
         /// get renderPass with cache
@@ -66,6 +97,61 @@ namespace PowerUtilities
             }
 
             return value != null ? (T)value : default;
+        }
+
+        /// <summary>
+        /// Get UniversalRenderer's m_ActiveRenderPassQueue
+        /// </summary>
+        /// <param name="renderer"></param>
+        /// <returns></returns>
+        public static List<ScriptableRenderPass> GetActiveRenderPassQueue(this ScriptableRenderer renderer)
+        {
+            var list = typeof(ScriptableRenderer).GetFieldValue<List<ScriptableRenderPass>>(renderer, "m_ActiveRenderPassQueue");
+            return list;
+        }
+
+        /// <summary>
+        /// Remove pass from UnviersalRenderer's m_ActiveRenderPassQueue
+        /// </summary>
+        /// <param name="renderer"></param>
+        /// <param name="onPredicate"></param>
+        public static void RemoveRenderPass(this ScriptableRenderer renderer,Func<ScriptableRenderPass,bool> onPredicate)
+        {
+            var list = renderer.GetActiveRenderPassQueue();
+            if (list  == null || onPredicate == null)
+                return;
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                var item = list[i];
+                if (item == null || !onPredicate(item))
+                    continue;
+
+                list.Remove(item);
+                i--;
+            }
+        }
+
+        public static void RemoveRenderPasses(this ScriptableRenderer renderer,List<Type> passTypeList)
+        {
+            var list = renderer.GetActiveRenderPassQueue();
+            if (list == null || passTypeList==null || passTypeList.Count == 0)
+                return;
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                var item = list[i];
+                if(item == null || !passTypeList.Contains(item.GetType()))
+                    continue;
+
+                list.Remove(item);
+                i--;
+            }
+        }
+
+        public static Type GetPassType(UrpPassType passType)
+        {
+            return urpPassTypeDict[passType];
         }
     }
 }

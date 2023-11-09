@@ -25,18 +25,20 @@ namespace PowerUtilities.RenderFeatures
         public ScriptableRenderPassInput passInputType;
 
         [Header("Remove URP Passes when not BaseCamera")]
-        public bool isRemoveCopyDepth;
+        public List<UniversalRendererPassTools.UrpPassType> removedPassWhenNotBaseCamera = new List<UniversalRendererPassTools.UrpPassType>();
 
         [Header("Remove URP Pass")]
-        public bool isRemoveFinalyBlit;
+        public List<UniversalRendererPassTools.UrpPassType> removedPass = new List<UniversalRendererPassTools.UrpPassType>();
         public override ScriptableRenderPass GetPass() => new ControlURPPassesPass(this);      
     }
 
 
     public class ControlURPPassesPass : SRPPass<ControlURPPasses>
     {
-        public List<Type> removedPassListNotBaseCamera = new List<Type> { typeof(CopyDepthPass)};
-        public List<Type> removedPassList = new List<Type> { typeof(FinalBlitPass)};
+        /// <summary>
+        /// remove passes when this pass run
+        /// </summary>
+        public List<Type> removedPassList = new List<Type>();
 
         public ControlURPPassesPass(ControlURPPasses feature) : base(feature)
         {
@@ -53,12 +55,25 @@ namespace PowerUtilities.RenderFeatures
             var cameraData = renderingData.cameraData;
             var renderer = cameraData.renderer;
 
-            if (cameraData.renderType != CameraRenderType.Base && Feature.isRemoveCopyDepth)
-                renderer.RemoveRenderPasses(removedPassListNotBaseCamera);
-
-            if (Feature.isRemoveFinalyBlit)
+            //remove passes not baseCamera
+            if (cameraData.renderType != CameraRenderType.Base)
+            {
+                SetupRemoveList(Feature.removedPassWhenNotBaseCamera);
                 renderer.RemoveRenderPasses(removedPassList);
+            }
+
+            //remove passes
+            SetupRemoveList(Feature.removedPass);
+            renderer.RemoveRenderPasses(removedPassList);
         }
 
+        private void SetupRemoveList(List<UniversalRendererPassTools.UrpPassType> types)
+        {
+            removedPassList.Clear();
+            foreach (var passType in types)
+            {
+                removedPassList.Add(UniversalRendererPassTools.GetPassType(passType));
+            }
+        }
     }
 }
