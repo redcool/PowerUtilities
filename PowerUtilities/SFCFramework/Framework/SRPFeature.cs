@@ -31,6 +31,7 @@
     /// </summary>
     public partial class SRPFeature
     {
+        [HideInInspector]
         public BaseNodeInfo nodeInfo = new BaseNodeInfo();
 
     }
