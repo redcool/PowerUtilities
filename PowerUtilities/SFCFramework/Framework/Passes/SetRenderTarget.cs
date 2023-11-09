@@ -1,12 +1,15 @@
+namespace PowerUtilities.RenderFeatures
+{
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
+#if UNITY_EDITOR
+    using UnityEditor;
+#endif
+    using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
-namespace PowerUtilities.RenderFeatures
-{
     [Tooltip("Set more color target (1 depth )to fill, 8 is max")]
     [CreateAssetMenu(menuName =SRP_FEATURE_PASSES_MENU+ "/SetRenderTarget")]
     public class SetRenderTarget : SRPFeature
@@ -59,18 +62,28 @@ namespace PowerUtilities.RenderFeatures
 
         // trace urp 's rt changed
         bool isURPRTChanged;
+        static bool isDomainReloaded;
 
         public SetRenderTargetPass(SetRenderTarget feature) : base(feature)
         {
         }
 
+#if UNITY_EDITOR
+        [InitializeOnLoadMethod]
+        static void OnDomainReload()
+        {
+            isDomainReloaded = true;
+        }
+#endif
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
         {
             ref var cameraData = ref renderingData.cameraData;
             var camera = cameraData.camera;
 
             // keep camera changed
-            isURPRTChanged = CheckURPChangeRT(ref lastCamera,camera);
+            isURPRTChanged = CheckURPChangeRT(ref lastCamera,camera) || isDomainReloaded;
+
+            isDomainReloaded = false;
 
             TrySetTargets(ref renderingData, cmd);
 
