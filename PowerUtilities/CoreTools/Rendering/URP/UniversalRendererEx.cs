@@ -9,10 +9,9 @@ using UnityEngine.Rendering.Universal.Internal;
 
 namespace PowerUtilities
 {
-    public static class UniversalRendererEx
+    public static partial class UniversalRendererEx 
     {
         static CacheTool<UniversalRenderer, ForwardLights> rendererForwardLightsCache = new CacheTool<UniversalRenderer, ForwardLights>();
-
 
         /// <summary>
         /// Get ForwardLights use reflection

@@ -38,5 +38,12 @@ namespace PowerUtilities
             LastDepthTargetRT = RTHandles.Alloc(depthId);
         }
 
+        /// <summary>
+        /// Exists target?
+        /// </summary>
+        /// <returns></returns>
+        public static bool IsLastTargetValid() => LastColorTargetRTs != null && LastColorTargetRTs.Length > 0 && LastDepthTargetRT != null;
+
+        public static RTHandle LastColorTargetRT => IsLastTargetValid() ? LastColorTargetRTs[0] : default;
     }
 }

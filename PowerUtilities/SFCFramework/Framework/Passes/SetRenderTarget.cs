@@ -55,7 +55,10 @@ namespace PowerUtilities.RenderFeatures
         string lastDepthName;
 
         Camera lastCamera;
-        bool isNewCamera;
+        int lastScreenWidth, lastScreenHeight;
+
+        // trace urp 's rt changed
+        bool isURPRTChanged;
 
         public SetRenderTargetPass(SetRenderTarget feature) : base(feature)
         {
@@ -67,8 +70,7 @@ namespace PowerUtilities.RenderFeatures
             var camera = cameraData.camera;
 
             // keep camera changed
-            isNewCamera = (lastCamera != camera);
-            lastCamera = camera;
+            isURPRTChanged = CheckURPChangeRT(ref lastCamera,camera);
 
             TrySetTargets(ref renderingData, cmd);
 
@@ -81,6 +83,25 @@ namespace PowerUtilities.RenderFeatures
                     TrySetTargets(ref renderingData, cmd);
                 }
             }
+        }
+
+        public bool CheckURPChangeRT(ref Camera lastCamera,Camera camera)
+        {
+            if (lastCamera == null)
+            {
+                lastCamera = camera;
+                return true;
+            }
+
+            var isRTChanged = (lastCamera != camera);
+            var isWidthChanged = camera.pixelWidth != lastScreenWidth;
+            var isHeightChanged = camera.pixelHeight != lastScreenHeight;
+
+            lastScreenWidth = camera.pixelWidth;
+            lastScreenHeight = camera.pixelHeight;
+            lastCamera = camera;
+
+            return isRTChanged || isWidthChanged || isHeightChanged;
         }
 
         public void TrySetTargets(ref RenderingData renderingData, CommandBuffer cmd)
@@ -126,8 +147,8 @@ namespace PowerUtilities.RenderFeatures
                 if (lastColorNames[i] != Feature.colorTargetNames[i])
                     return true;
             }
-
-            return isNewCamera;
+            
+            return isURPRTChanged;
         }
 
         bool isNeedAllocDepthId()
@@ -135,7 +156,7 @@ namespace PowerUtilities.RenderFeatures
             if (string.IsNullOrEmpty(lastDepthName)) 
                 return true;
 
-            return lastDepthName != Feature.depthTargetName && isNewCamera;
+            return (lastDepthName != Feature.depthTargetName) && isURPRTChanged;
         }
 
         void SetTargets(ref RenderingData renderingData, Camera camera, CommandBuffer cmd)
