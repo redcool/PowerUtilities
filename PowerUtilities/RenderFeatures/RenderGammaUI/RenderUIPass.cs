@@ -95,14 +95,14 @@ namespace PowerUtilities.Features
                 {
                     ColorSpaceTransform.SetColorSpace(cmd, ColorSpaceTransform.ColorSpaceMode.LinearToSRGB);
                 }
-                DrawRenderers(ref context, ref renderingData, 2, 2);
+                DrawRenderers(ref context, ref renderingData, BuiltinRenderTextureType.CameraTarget, BuiltinRenderTextureType.CameraTarget);
                 return;
             }
 
 #if UNITY_EDITOR
             if (cameraData.isSceneViewCamera)
             {
-                DrawRenderers(ref context, ref renderingData, 2, 2);
+                DrawRenderers(ref context, ref renderingData, BuiltinRenderTextureType.CameraTarget, BuiltinRenderTextureType.CameraTarget);
                 return;
             }
 #endif
@@ -183,8 +183,10 @@ namespace PowerUtilities.Features
 
             // reset depth buffer(depthHandle), otherwise depth&stencil are missing
             {
-                cmd.SetRenderTarget(targetTexId, RenderBufferLoadAction.Load, RenderBufferStoreAction.Store,
-                 depthHandleId, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store);
+                //cmd.SetRenderTarget(targetTexId, RenderBufferLoadAction.Load, RenderBufferStoreAction.Store,
+                // depthHandleId, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store);
+
+                cmd.SetRenderTarget(targetTexId, depthHandleId);
 
                 cmd.Execute(ref context);
             }
