@@ -23,7 +23,7 @@ namespace PowerUtilities
         [Tooltip("get ForwardLights and set _Shadows_ShadowMaskOn")]
         public bool isAutoSetShadowMask;
 
-        [Tooltip("setup camera's rotation matrix")]
+        [Tooltip("setup camera's rotation matrix(_CameraRot,_CameraYRot)")]
         public bool isSetMainCameraInfo = true;
 
         [Header("set unscaled time")]
@@ -86,6 +86,7 @@ namespace PowerUtilities
                 var cam = Camera.main;
                 if(cam)
                 {
+                    cmd.SetGlobalMatrix("_CameraRot",Matrix4x4.Rotate(Quaternion.Euler(cam.transform.eulerAngles)));
                     cmd.SetGlobalMatrix("_CameraYRot",Matrix4x4.Rotate(Quaternion.Euler(0,cam.transform.eulerAngles.y,0)));
                 }
             }
