@@ -14,10 +14,10 @@ namespace PowerUtilities
     /// 1 not show,
     /// 2 values read from 4 properties
     /// </summary>
-    public class VectorValuesDrawer : MaterialPropertyDrawer
+    public class SyncVectorValuesDrawer : MaterialPropertyDrawer
     {
         string[] props;
-        public VectorValuesDrawer(string propNames)
+        public SyncVectorValuesDrawer(string propNames)
         {
             if(!string.IsNullOrEmpty(propNames))
                 props = propNames.Split(' ').Where(item=> !string.IsNullOrEmpty(item)).ToArray();

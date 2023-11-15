@@ -7,6 +7,7 @@ using System.Linq;
 using System;
 using System.IO;
 using static PowerUtilities.ConfigTool;
+using System.Reflection;
 
 namespace PowerUtilities
 {
@@ -68,6 +69,8 @@ namespace PowerUtilities
         bool isAllGroupsOpen; // groups toggle
         LayoutProfileType layoutProfileType; // Version selection
 
+        MaterialProperty[] properties;
+
         static PowerShaderInspector()
         {
             MaterialGroupTools.SetStateAll(true);
@@ -77,6 +80,7 @@ namespace PowerUtilities
         public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] properties)
         {
             this.materialEditor = materialEditor;
+            this.properties = properties;
 
             var mat = materialEditor.target as Material;
             propDict = ConfigTool.CacheProperties(properties);
@@ -110,6 +114,23 @@ namespace PowerUtilities
                 EditorGUILayout.EndVertical();
             }
             EditorGUILayout.EndVertical();
+
+            DrawSyncProperties(mat);
+        }
+        void DrawSyncProperties(Material mat)
+        {
+            if(!mat || !mat.shader) return;
+
+            var shader = mat.shader;
+            for (int i = 0; i < properties.Length; i++)
+            {
+                var prop = properties[i];
+                var attrNames = shader.GetPropertyAttributes(i);
+
+                var hasSync = attrNames.FindIndex(attrName => attrName.Contains("Sync")) > -1;
+                if (hasSync)
+                    materialEditor.ShaderProperty(prop, "");
+            }
         }
 
         void DrawPageDetails(MaterialEditor materialEditor, Material mat)

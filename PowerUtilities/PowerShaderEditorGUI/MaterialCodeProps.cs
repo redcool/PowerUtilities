@@ -51,7 +51,7 @@ namespace PowerUtilities
 
         public bool IsPropExists(CodePropNames propName)
         {
-            var key = propName.ToString();
+            var key = propName.GetEnumName();
             materialCodePropDict.TryGetValue(key, out var isExist);
             return isExist;
         }
