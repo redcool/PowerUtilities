@@ -17,10 +17,16 @@ namespace PowerUtilities
     public class SyncValueDrawer : MaterialPropertyDrawer
     {
         string propName;
+        string keyword;
         public SyncValueDrawer(string propName)
         {
             this.propName = propName;
         }
+        public SyncValueDrawer(string propName,string keyword) : this(propName)
+        {
+            this.keyword = keyword;
+        }
+
         public override float GetPropertyHeight(MaterialProperty prop, string label, MaterialEditor editor)
         {
             return 0;
@@ -48,6 +54,10 @@ namespace PowerUtilities
                     break;
                 default:
                     prop.floatValue = mat.GetFloat(propName);
+                    if(!string.IsNullOrEmpty(keyword))
+                    {
+                        mat.SetKeyword(keyword, prop.floatValue > 0f);
+                    }
                     break;
             }
 
