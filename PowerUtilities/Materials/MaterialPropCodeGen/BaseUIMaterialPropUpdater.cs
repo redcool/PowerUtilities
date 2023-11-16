@@ -160,6 +160,8 @@ namespace PowerUtilities
         public abstract void UpdateMaterial(Material mat);
         public abstract void UpdateBlock(MaterialPropertyBlock block);
 
+        public virtual void ReadFirstMaterialTextures(Material mat) { }
+
         public Material GetModifiedMaterial(Material baseMaterial)
         {
             if (graphCachedMaterialList.Count == 0

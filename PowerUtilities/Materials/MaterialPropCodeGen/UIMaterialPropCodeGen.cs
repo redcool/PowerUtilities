@@ -100,6 +100,7 @@ namespace PowerUtilities
             var updateMatMethodSb = new StringBuilder();
             var updateBlockMethodSb = new StringBuilder();
             var readMatSb = new StringBuilder();
+            var readMatTexturesSB = new StringBuilder();
 
             var propCount = shader.GetPropertyCount();
             for (int i = 0; i < propCount; i++)
@@ -116,7 +117,7 @@ namespace PowerUtilities
                 var propDefaultValue = GetDefaultValue(i, propType, shader);
 
                 AnalysisProp(i, propFlags, propType, propName, propDefaultValue,
-                    fieldSb, updateMatMethodSb, updateBlockMethodSb, readMatSb);
+                    fieldSb, updateMatMethodSb, updateBlockMethodSb, readMatSb, readMatTexturesSB);
             }
 
             PathTools.CreateAbsFolderPath(PATH);
@@ -127,7 +128,8 @@ namespace PowerUtilities
                 fieldSb.ToString(),
                 updateMatMethodSb.ToString(),
                 updateBlockMethodSb.ToString(),
-                readMatSb.ToString()
+                readMatSb.ToString(),
+                readMatTexturesSB.ToString()
                 );
 
             var path = $"{PathTools.GetAssetAbsPath(PATH)}/{className}.cs";
@@ -179,7 +181,8 @@ namespace PowerUtilities
             StringBuilder fieldSb,
             StringBuilder updateMatSb,
             StringBuilder updateBlockSB,
-            StringBuilder readMatSb
+            StringBuilder readMatSb,
+            StringBuilder readMatTexturesSB
             )
         {
             //Check repeatted propName
@@ -212,7 +215,11 @@ namespace PowerUtilities
 
             // demo: color = mat.GetColor("_Color");
             readMatSb.AppendLine($"{matPropCondition} {propName} = mat.Get{setMethodName}(\"{propName}\");");
+            if(type == ShaderPropertyType.Texture)
+                readMatTexturesSB.AppendLine($"{matPropCondition} {propName} = mat.Get{setMethodName}(\"{propName}\");");
 
+
+            // ===============
             string GetPropCondition(string setMethodName,string propName,string invokerName = "mat")
                 => $"if ({invokerName}.Has{setMethodName} (\"{propName}\"))";
         }
@@ -296,6 +303,13 @@ namespace PowerUtilities
             if (!mat)
                 return;
             {4}
+        }}
+
+        public override void ReadFirstMaterialTextures(Material mat)
+        {{
+            if (!mat)
+                return;
+            {5}
         }}
 
         public override void UpdateMaterial(Material mat)
