@@ -18,13 +18,13 @@
             var isGroupOn = MaterialGroupTools.IsGroupOn(groupAttr.groupName);
             if (groupAttr.isHeader)
             {
-                return isGroupOn ? LINE_HEIGHT * 2 : LINE_HEIGHT;
+                var contentLineCount = property.type.Contains("Texture") ? 5 : 2;
+                return isGroupOn ? LINE_HEIGHT *contentLineCount : LINE_HEIGHT;
             }
 
             if (isGroupOn)
             {
                 return EditorGUI.GetPropertyHeight(property, property.isExpanded);
-                // return LINE_HEIGHT;
             }
 
             return -2;
@@ -32,10 +32,12 @@
 
         public static bool DrawTitleFoldout(Rect position, bool isOn, string title, Color titleColor)
         {
-            var colorRect = EditorGUI.IndentedRect(position);
+            var pos = position;
+            pos.height = LINE_HEIGHT;
+            var colorRect = EditorGUI.IndentedRect(pos);
             EditorGUI.DrawRect(colorRect, titleColor);
 
-            return EditorGUI.Foldout(position, isOn, title, true);
+            return EditorGUI.Foldout(pos, isOn, title, true);
         }
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
