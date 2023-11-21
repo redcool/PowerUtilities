@@ -1,4 +1,6 @@
-﻿namespace PowerUtilities.RenderFeatures
+﻿using UnityEngine.Serialization;
+
+namespace PowerUtilities.RenderFeatures
 {
     using System;
     using System.Collections.Generic;
@@ -66,7 +68,9 @@
 
         [Tooltip("Only work in editor")]
         public bool isEditorOnly;
-
+        
+        [Tooltip("prefab stage show all objects?")]
+        public bool isShowAllInPrefabStage = true;
         [Header("Pass Options / Filters")]
         [Tooltip("Compared properties ")]
         public CameraCompareType gameCameraCompareType = CameraCompareType.Tag;

@@ -274,7 +274,7 @@
             var stage = StageUtility.GetCurrentStage();
 
             var isPrefabStage = !string.IsNullOrEmpty(stage.assetPath);
-            if (camera.cameraType == CameraType.Preview || isPrefabStage)
+            if (camera.cameraType == CameraType.Preview || (isPrefabStage&&Feature.isShowAllInPrefabStage))
                 filterSetting.layerMask = -1;
 
 #endif
