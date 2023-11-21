@@ -64,7 +64,7 @@ namespace PowerUtilities
                 }
             }
             */
-            
+
             var coreModule = lazyCoreModule.Value;
             if (coreModule == null)
                 return false;
@@ -75,17 +75,20 @@ namespace PowerUtilities
             var handlerInst = GetHandleFunc.Invoke(null, new object[] { ((Material)editor.target).shader, prop.name });
             if (handlerInst == null)
                 return false;
+
             // call OnGUI
-            var onGUIFunc = handlerType.GetMethod("OnGUI");
             var paramObjs = new object[] { position, prop, (label.text != null) ? label : new GUIContent(prop.displayName), editor };
-            onGUIFunc.Invoke(handlerInst, paramObjs);
+            //handlerType.GetMethod("OnGUI")?.Invoke(handlerInst, paramObjs);
+
+            handlerType.InvokeMethod("OnGUI", null, handlerInst, paramObjs);
 
             //get result
             position = (Rect)paramObjs[0];
 
             // check propertyDrawer
-            var propertyDrawerGetter = handlerType.GetProperty("propertyDrawer");
-            return propertyDrawerGetter.GetValue(handlerInst) != null;
+            return handlerType.GetPropertyValue("propertyDrawer", handlerInst, null) != null;
+            //var propertyDrawerGetter = handlerType.GetProperty("propertyDrawer");
+            //return propertyDrawerGetter.GetValue(handlerInst) != null;
         }
 
 
