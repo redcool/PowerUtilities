@@ -35,8 +35,9 @@
         [Header("Gizmos")]
         [Min(3)]public int drawLineBoxCount = 10;
 
-        Camera reflectionCam;
-        RenderTexture reflectionRT;
+        [Header("Debug")]
+        [EditorReadonly] public Camera reflectionCam;
+        [EditorReadonly] public RenderTexture reflectionRT;
         int lastWidth, lastHeight;
 
         // Start is called before the first frame update
@@ -67,7 +68,7 @@
             if (!mainCam)
                 return;
 
-            TryCreateReflectionRT(ref reflectionRT, mainCam.pixelWidth, mainCam.pixelHeight, downSamples);
+            TryCreateReflectionRT(ref reflectionRT, mainCam.pixelWidth>>downSamples, mainCam.pixelHeight>>downSamples);
             SetupReflectionCameraStates();
             RenderReflection();
             SendToShader();
@@ -77,15 +78,15 @@
             Destroy(reflectionRT);
         }
 
-        private void TryCreateReflectionRT(ref RenderTexture rt,int width,int height,int downSamples)
+        private void TryCreateReflectionRT(ref RenderTexture rt,int width,int height)
         {
             if (!rt || lastWidth != width || lastHeight != height)
             {
                 lastWidth = width;
                 lastHeight = height;
 
-                var w = Mathf.Max(lastWidth >> downSamples, 2);
-                var h = Mathf.Max(lastHeight >> downSamples, 2);
+                var w = Mathf.Max(lastWidth, 2);
+                var h = Mathf.Max(lastHeight, 2);
 
                 rt = new RenderTexture(w, h, 16);
                 rt.Create();
