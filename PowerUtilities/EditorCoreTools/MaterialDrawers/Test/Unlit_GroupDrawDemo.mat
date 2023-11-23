@@ -62,7 +62,7 @@ Material:
     - _GroupSlider_int: 4
     - _HelpURL: 0
     - _ToggleNoKeyword: 1
-    - _ToggleWithKeyword: 1
+    - _ToggleWithKeyword: 0
     m_Colors:
     - _Vector: {r: 1, g: 1.188, b: 1, a: -0.097}
     - _Vector2: {r: 1, g: 0.1, b: 0, a: 0.569}

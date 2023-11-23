@@ -1,4 +1,6 @@
 ﻿using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.TerrainUtils;
 using Color = UnityEngine.Color;
 using Vector3 = UnityEngine.Vector3;
 
@@ -47,6 +49,49 @@ namespace PowerUtilities
         }
 
         /// <summary>
+        /// spread lines
+        /// </summary>
+        /// <param name="vertices"></param>
+        /// <param name="color"></param>
+        /// <param name="duration"></param>
+        public static void DrawLineSpread(Vector3[] vertices,Color color = default, float duration = 0)
+        {
+            if (vertices.Length < 2)
+                return;
+
+            var start = vertices[0];
+            for (int i = 1;i < vertices.Length; i++)
+            {
+                Debug.DrawLine(start, vertices[i], color, duration);
+            }
+        }
+
+        /// <summary>
+        /// line fans
+        /// </summary>
+        /// <param name="vertices"></param>
+        /// <param name="color"></param>
+        /// <param name="duration"></param>
+        public static void DrawLineFan(Vector3[] vertices, Color color = default, float duration = 0)
+        {
+            if (vertices.Length < 2)
+                return;
+
+            var v0 = vertices[0];
+            var v1 = vertices[1];
+            Debug.DrawLine(v0, v1, color, duration);
+
+            for (int i = 2; i < vertices.Length; i++)
+            {
+                v0 = vertices[i - 2];
+                v1 = vertices[i - 1];
+                var v = vertices[i];
+                Debug.DrawLine(v0, v, color, duration);
+                Debug.DrawLine(v, v1, color, duration);
+            }
+        }
+
+        /// <summary>
         /// 
         /// p4          p5 
         ///     p1 p2
@@ -76,6 +121,25 @@ namespace PowerUtilities
             }, color);
         }
 
+        public static void DrawLineArrow(Vector3 start,Vector3 dir,Color color = default)
+        {
+            var perpendicular = Vector3.Cross(Vector3.right, dir).normalized;
+            //perpendicular = Quaternion.Euler(45, 0, 0) * perpendicular;
+            //perpendicular.y -= 0.5f;
 
+            var end = start + dir;
+            var end7 = start + dir * 0.7f;
+            var e1 = end7 + perpendicular;
+            var e2 = end7 - perpendicular;
+
+            DrawLines(new[] {(start,end),(end,e1),(end,e2)},color);
+        }
+
+        public static void DrawAxis(Vector3 pos, Vector3 right, Vector3 up, Vector3 forward)
+        {
+            Debug.DrawRay(pos, right, Color.red);
+            Debug.DrawRay(pos, up, Color.green);
+            Debug.DrawRay(pos, forward, Color.blue);
+        }
     }
 }
