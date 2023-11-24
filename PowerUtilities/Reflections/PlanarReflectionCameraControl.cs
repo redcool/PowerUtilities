@@ -3,9 +3,7 @@
     using System;
     using System.Collections;
     using System.Collections.Generic;
-    using System.Xml.Schema;
     using UnityEngine;
-    using static UnityEditor.PlayerSettings;
     using Debug = UnityEngine.Debug;
 
     /// <summary>
