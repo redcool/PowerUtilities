@@ -2,7 +2,7 @@ Shader "Hidden/Template/Shadow"
 {
     Properties
     {
-        _MainTex ("Texture", 2D) = "white" {}
+        // _MainTex ("Texture", 2D) = "white" {}
     }
     SubShader
     {
@@ -35,10 +35,9 @@ Shader "Hidden/Template/Shadow"
                 float4 vertex : SV_POSITION;
             };
 
-            sampler2D _MainTex;
 
             CBUFFER_START(UnityPerMaterial)
-            float4 _MainTex_ST;
+            // float4 _MainTex_ST;
             CBUFFER_END
             float3 _LightDirection;
 
@@ -51,7 +50,7 @@ Shader "Hidden/Template/Shadow"
                 worldPos = ApplyShadowBias(worldPos,worldNormal,_LightDirection,0,0);
 
                 o.vertex = TransformWorldToHClip(worldPos);
-                o.uv = TRANSFORM_TEX(v.uv, _MainTex);
+                o.uv = v.uv;
 
                 #if UNITY_REVERSED_Z
                     o.vertex.z = min(o.vertex.z, o.vertex.w * UNITY_NEAR_CLIP_VALUE);

@@ -81,7 +81,7 @@ namespace PowerUtilities.RenderFeatures
                 return IsGameCameraValid(camera);
 
             if (Feature.isEditorOnly)
-                return !Application.isEditor;
+                return Application.isEditor;
 
             return true;
             // > sceneView, use urp pass
