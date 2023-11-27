@@ -13,7 +13,7 @@ namespace PowerUtilities
     public class DrawShadow : ScriptableRendererFeature
     {
 
-        class CustomRenderPass : ScriptableRenderPass
+        class DrawShadowPass : ScriptableRenderPass
         {
             Settings settings;
             public int
@@ -24,7 +24,7 @@ namespace PowerUtilities
 
             RenderTexture bigShadowMap;
 
-            public CustomRenderPass(Settings settings)
+            public DrawShadowPass(Settings settings)
             {
                 this.settings = settings;
             }
@@ -71,7 +71,7 @@ namespace PowerUtilities
                 drawSettings.overrideMaterialPassIndex = 0;
 
                 var filterSettings = new FilteringSettings(RenderQueueRange.opaque, settings.layers);
-                context.DrawRenderers(renderingData.cullResults, ref drawSettings, ref filterSettings);
+                context.DrawRenderers(cmd,renderingData.cullResults, ref drawSettings, ref filterSettings);
 
 
                 cmd.DisableScissorRect();
@@ -158,7 +158,8 @@ namespace PowerUtilities
             }
         }
 
-        CustomRenderPass m_ScriptablePass;
+        DrawShadowPass drawShadowPass;
+
 
         [Serializable]
         public class Settings
@@ -177,9 +178,12 @@ namespace PowerUtilities
 
             [Min(0)] public float shadowDepthBias = 1, shadowNormalBias = 1;
 
-            [Header("RenderCount")]
-            public bool isRenderOnce;
+            [Header("Render control")]
+            [Tooltip("draw shadow frame then stop,when isAutoRendering = false")]
+            public bool isStepRender;
 
+            [Tooltip("draw shadow per frame")]
+            public bool isAutoRendering;
         }
         public Settings settings = new Settings();
 
@@ -191,24 +195,29 @@ namespace PowerUtilities
         /// <inheritdoc/>
         public override void Create()
         {
-            m_ScriptablePass = new CustomRenderPass(settings);
+            drawShadowPass = new DrawShadowPass(settings);
 
             // Configures where the render pass should be injected.
-            m_ScriptablePass.renderPassEvent = RenderPassEvent.BeforeRenderingShadows;
+            drawShadowPass.renderPassEvent = RenderPassEvent.BeforeRenderingShadows;
         }
+
         bool CanExecute(CameraData cameraData)
         {
             if (!cameraData.camera.CompareTag("MainCamera") && !cameraData.isSceneViewCamera)
                 return false;
 
-            if (settings.isRenderOnce && renderCount > -1)
-                return false;
+            var isStepRender = settings.isStepRender;
+            if (isStepRender)
+            {
+                settings.isStepRender = false;
+                renderCount++;
+            }
 
-            return true;
+            return settings.isAutoRendering ? true : isStepRender;
         }
+
         void DrawLightGizmos(ref CameraData cameraData)
         {
-#if UNITY_EDITOR
             if (!lightObj)
                 return;
 
@@ -234,7 +243,6 @@ namespace PowerUtilities
             }
 
             DebugTools.DrawLineCube(vertices);
-#endif
         }
 
         // Here you can inject one or multiple render passes in the renderer.
@@ -246,11 +254,8 @@ namespace PowerUtilities
             if (!CanExecute(cameraData))
                 return;
 
-            renderCount++;
             TrySetupLightCameraInfo(cameraData.camera);
-
-
-            renderer.EnqueuePass(m_ScriptablePass);
+            renderer.EnqueuePass(drawShadowPass);
         }
 
         private void TrySetupLightCameraInfo(Camera mainCam)
