@@ -18,8 +18,8 @@ namespace PowerUtilities
             Settings settings;
             public int
                 _BigShadowMap = Shader.PropertyToID(nameof(_BigShadowMap)),
-                _BigShadowVP = Shader.PropertyToID(nameof(_BigShadowVP))
-
+                _BigShadowVP = Shader.PropertyToID(nameof(_BigShadowVP)),
+                _BigShadowParams = Shader.PropertyToID(nameof(_BigShadowParams))
                 ;
 
             RenderTexture bigShadowMap;
@@ -126,6 +126,13 @@ namespace PowerUtilities
             }
 
             Matrix4x4[] mainLightToShadowMats = new Matrix4x4[4];
+            /// <summary>
+            /// send shader variables once.
+            /// </summary>
+            /// <param name="cmd"></param>
+            /// <param name="view"></param>
+            /// <param name="proj"></param>
+            /// <param name="forward"></param>
             private void CalcShadowTransform(CommandBuffer cmd, float4x4 view, float4x4 proj, float3 forward)
             {
                 // reverse row2 again, dont need reverse  in shader
@@ -146,16 +153,21 @@ namespace PowerUtilities
                 cmd.SetGlobalVector(ShaderPropertyIds._LightDirection, new float4(-forward, 0));
                 cmd.SetGlobalVector(ShaderPropertyIds._ShadowBias, CalcShadowBias(proj));
                 cmd.SetGlobalTexture(_BigShadowMap, bigShadowMap);
-                //
+                
+                //try replace urp
                 mainLightToShadowMats[0] = math.mul(m, math.mul(proj, view));
                 cmd.SetGlobalMatrixArray("_MainLightWorldToShadow", mainLightToShadowMats);
                 cmd.SetGlobalTexture("_MainLightShadowmapTexture", bigShadowMap);
-
             }
 
-            public override void OnFinishCameraStackRendering(CommandBuffer cmd)
+            /// <summary>
+            /// send variables per frame
+            /// </summary>
+            public void UpdateShaderVariables()
             {
+                Shader.SetGlobalVector(_BigShadowParams, new Vector4(settings.shadowIntensity, 0));
             }
+
         }
 
         DrawShadowPass drawShadowPass;
@@ -167,16 +179,22 @@ namespace PowerUtilities
             public TextureResolution res = TextureResolution.x512;
             public Material shadowMat;
             public LayerMask layers = 0;
+
             [Header("Light Camera")]
+            [Tooltip("Find by tag")]
             public string lightTag = "BigShadowLight";
 
             public Vector3 pos, rot, up = Vector3.up;
 
+            [Tooltip("half of height")]
             public float orthoSize = 2;
             public float near = 0.3f;
             public float far = 100;
 
             [Min(0)] public float shadowDepthBias = 1, shadowNormalBias = 1;
+
+            [Header("realtime controls")]
+            [Range(0, 1)] public float shadowIntensity = 1;
 
             [Header("Render control")]
             [Tooltip("draw shadow frame then stop,when isAutoRendering = false")]
@@ -249,6 +267,8 @@ namespace PowerUtilities
         // This method is called when setting up the renderer once per-camera.
         public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
         {
+            drawShadowPass.UpdateShaderVariables();
+
             ref var cameraData = ref renderingData.cameraData;
             DrawLightGizmos(ref cameraData);
             if (!CanExecute(cameraData))

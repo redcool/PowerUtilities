@@ -9,30 +9,7 @@ Shader "Hidden/Template/TestBigShadow"
     }
 
     HLSLINCLUDE
-        #include "../../../../PowerShaderLib/Lib/UnityLib.hlsl"
-
-        #define _MainLightShadowmapSize _BigShadowMap_TexelSize
-        #include "../../../../PowerShaderLib/URPLib/URP_MainLightShadows.hlsl"
-
-        float4x4 _BigShadowVP;
-        TEXTURE2D(_BigShadowMap); SAMPLER_CMP(sampler_BigShadowMap);
-
-        float3 TransformWorldToBigShadow(float3 worldPos){
-            float3 bigShadowCoord = mul(_BigShadowVP,float4(worldPos,1)).xyz;
-            return bigShadowCoord;
-        }
-
-        float CalcBigShadowAtten(float3 bigShadowCoord,float softScale){
-            // float shadow = SAMPLE_TEXTURE2D(_BigShadowMap,sampler_BigShadowMap,bigShadowCoord.xy).x;
-            // float shadow = SAMPLE_TEXTURE2D_SHADOW(_BigShadowMap,sampler_BigShadowMap,bigShadowCoord);
-
-            float shadow = SampleShadowmap(_BigShadowMap,sampler_BigShadowMap,bigShadowCoord.xyzx,softScale);
-
-            if(any(bigShadowCoord <= 0) || any(bigShadowCoord >= 1))
-                shadow = 1;
-            
-            return shadow;
-        }
+        #include "../../../../PowerShaderLib/Lib/BigShadows.hlsl"
 
     ENDHLSL
     SubShader
