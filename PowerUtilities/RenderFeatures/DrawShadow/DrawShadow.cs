@@ -71,7 +71,7 @@ namespace PowerUtilities
                 drawSettings.overrideMaterialPassIndex = 0;
 
                 var filterSettings = new FilteringSettings(RenderQueueRange.opaque, settings.layers);
-                context.DrawRenderers(cmd,renderingData.cullResults, ref drawSettings, ref filterSettings);
+                context.DrawRenderers(cmd, renderingData.cullResults, ref drawSettings, ref filterSettings);
 
 
                 cmd.DisableScissorRect();
@@ -125,7 +125,6 @@ namespace PowerUtilities
                 return bias;
             }
 
-            Matrix4x4[] mainLightToShadowMats = new Matrix4x4[4];
             /// <summary>
             /// send shader variables once.
             /// </summary>
@@ -153,11 +152,6 @@ namespace PowerUtilities
                 cmd.SetGlobalVector(ShaderPropertyIds._LightDirection, new float4(-forward, 0));
                 cmd.SetGlobalVector(ShaderPropertyIds._ShadowBias, CalcShadowBias(proj));
                 cmd.SetGlobalTexture(_BigShadowMap, bigShadowMap);
-                
-                //try replace urp
-                mainLightToShadowMats[0] = math.mul(m, math.mul(proj, view));
-                cmd.SetGlobalMatrixArray("_MainLightWorldToShadow", mainLightToShadowMats);
-                cmd.SetGlobalTexture("_MainLightShadowmapTexture", bigShadowMap);
             }
 
             /// <summary>
@@ -168,6 +162,10 @@ namespace PowerUtilities
                 Shader.SetGlobalVector(_BigShadowParams, new Vector4(settings.shadowIntensity, 0));
             }
 
+            public void Clear()
+            {
+                Shader.SetGlobalTexture(_BigShadowMap, Texture2D.whiteTexture);
+            }
         }
 
         DrawShadowPass drawShadowPass;
@@ -176,18 +174,20 @@ namespace PowerUtilities
         [Serializable]
         public class Settings
         {
+
             public TextureResolution res = TextureResolution.x512;
             public Material shadowMat;
             public LayerMask layers = 0;
 
             [Header("Light Camera")]
             [Tooltip("Find by tag")]
+            public bool isUseLightTransform = true;
             public string lightTag = "BigShadowLight";
 
             public Vector3 pos, rot, up = Vector3.up;
 
             [Tooltip("half of height")]
-            public float orthoSize = 2;
+            public float orthoSize = 20;
             public float near = 0.3f;
             public float far = 100;
 
@@ -198,10 +198,13 @@ namespace PowerUtilities
 
             [Header("Render control")]
             [Tooltip("draw shadow frame then stop,when isAutoRendering = false")]
-            public bool isStepRender;
+            [EditorButton]public bool isStepRender;
 
             [Tooltip("draw shadow per frame")]
             public bool isAutoRendering;
+
+            [Tooltip("false will set _BigShadowMap white tex")]
+            [EditorButton] public bool isClearShadowMap;
         }
         public Settings settings = new Settings();
 
@@ -256,7 +259,7 @@ namespace PowerUtilities
             var vertices = new[] { p0, p1, p2, p3, p4, p5, p6, p7 };
             for (int i = 0; i < vertices.Length; i++)
             {
-                vertices[i] =  (settings.pos + rot * vertices[i]);
+                vertices[i] = (settings.pos + rot * vertices[i]);
             }
 
             DebugTools.DrawLineCube(vertices);
@@ -267,9 +270,14 @@ namespace PowerUtilities
         public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
         {
             drawShadowPass.UpdateShaderVariables();
+            if(settings.isClearShadowMap)
+            {
+                settings.isClearShadowMap = false;
+                drawShadowPass.Clear();
+            }
 
             ref var cameraData = ref renderingData.cameraData;
-            TrySetupLightCameraInfo(cameraData.camera);
+            TrySetupLightCameraInfo();
 
             DrawLightGizmos(ref cameraData);
 
@@ -279,14 +287,22 @@ namespace PowerUtilities
             renderer.EnqueuePass(drawShadowPass);
         }
 
-        private void TrySetupLightCameraInfo(Camera mainCam)
+        
+
+        private void TrySetupLightCameraInfo()
         {
-            if (!lightObj && !string.IsNullOrEmpty(settings.lightTag))
+            if (settings.isUseLightTransform)
             {
-                lightObj = GameObject.FindGameObjectWithTag(settings.lightTag);
-                if (!lightObj)
-                    return;
+                if (!lightObj && !string.IsNullOrEmpty(settings.lightTag))
+                    lightObj = GameObject.FindGameObjectWithTag(settings.lightTag);
             }
+            else
+            {
+                lightObj = null;
+            }
+
+            if (!lightObj)
+                return;
             settings.pos = lightObj.transform.position;
             settings.rot = lightObj.transform.eulerAngles;
             settings.up = lightObj.transform.up;
