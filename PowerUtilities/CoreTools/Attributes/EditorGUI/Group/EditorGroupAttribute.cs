@@ -10,7 +10,7 @@
     {
         (string groupName, bool isOn) groupInfo;
 
-        const float LINE_HEIGHT = 18;
+        const float LINE_HEIGHT = 20;
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
@@ -35,9 +35,12 @@
             var pos = position;
             pos.height = LINE_HEIGHT;
             var colorRect = EditorGUI.IndentedRect(pos);
-            EditorGUI.DrawRect(colorRect, titleColor);
+            //EditorGUI.DrawRect(colorRect, titleColor);
 
-            return EditorGUI.Foldout(pos, isOn, title, true);
+            GUI.BeginGroup(position, (GUIStyle)"Button");
+            var isFold = EditorGUI.Foldout(pos, isOn, title, true);
+            GUI.EndGroup();
+            return isFold;
         }
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
