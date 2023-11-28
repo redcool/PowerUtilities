@@ -58,7 +58,7 @@ using UnityEngine.Rendering.Universal;
         string[] lastColorNames;
         string lastDepthName;
 
-        RenderTargetIdentifier lastTargetANameId;
+        RenderTargetIdentifier lastTargetNameId;
 
         // trace urp 's rt changed
         bool isURPRTChanged;
@@ -70,6 +70,13 @@ using UnityEngine.Rendering.Universal;
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
         {
             ref var cameraData = ref renderingData.cameraData;
+            if (cameraData.isPreviewCamera)
+            {
+                cmd.SetRenderTarget(BuiltinRenderTextureType.CameraTarget);
+                RenderTargetHolder.SaveTargets(new RenderTargetIdentifier[] { BuiltinRenderTextureType.CameraTarget }, BuiltinRenderTextureType.CameraTarget);
+                return;
+            }
+
             var camera = cameraData.camera;
             var renderer = (UniversalRenderer)cameraData.renderer;
 
@@ -89,9 +96,9 @@ using UnityEngine.Rendering.Universal;
         public bool CheckURPChangeRT(UniversalRenderer renderer)
         {
             var mainRT = renderer.GetCameraColorAttachmentA();
-            var isRTChanged = (mainRT.nameID != lastTargetANameId);
+            var isRTChanged = (mainRT.nameID != lastTargetNameId);
 
-            lastTargetANameId = mainRT.nameID;
+            lastTargetNameId = mainRT.nameID;
 
             return isRTChanged;
         }

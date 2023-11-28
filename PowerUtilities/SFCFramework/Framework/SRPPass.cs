@@ -74,14 +74,14 @@ namespace PowerUtilities.RenderFeatures
             if(Feature == null || !Feature.enabled)
                 return false;
 
-            if (Feature.isSceneCameraOnly && camera.cameraType != CameraType.SceneView)
-                return false;
-
-            if (camera.cameraType == CameraType.Game &&!string.IsNullOrEmpty(Feature.gameCameraTag))
-                return IsGameCameraValid(camera);
+            if (Feature.isSceneCameraOnly)
+                return camera.cameraType == CameraType.SceneView;
 
             if (Feature.isEditorOnly)
                 return Application.isEditor;
+
+            if (camera.cameraType == CameraType.Game &&!string.IsNullOrEmpty(Feature.gameCameraTag))
+                return IsGameCameraValid(camera);
 
             return true;
             // > sceneView, use urp pass

@@ -88,6 +88,7 @@
         public Vector4 cameraOffset;
 
         [Header("SkyBox Pass")]
+        [Tooltip("skyboxPass use last target,passEvent <= BeforeRenderingSkybox")]
         public bool IsUpdateSkyboxTarget;
 
         [Header("DrawChildrenInstanced")]
@@ -128,7 +129,8 @@
 
             var renderer = (UniversalRenderer)renderingData.cameraData.renderer;
             // reset skybox 's target in gameview
-            SetupSkyboxTargets(renderer, Feature.IsUpdateSkyboxTarget );
+            if(Feature.IsUpdateSkyboxTarget)
+                SetupSkyboxTargets(renderer);
 
             cmd.BeginSampleExecute(featureName, ref context);
 
@@ -139,7 +141,7 @@
             cmd.EndSampleExecute(featureName, ref context);
         }
 
-        public static void SetupSkyboxTargets(UniversalRenderer renderer, bool isUpdateSkyboxTarget)
+        public static void SetupSkyboxTargets(UniversalRenderer renderer)
         {
             var urpSkyPass = renderer.GetRenderPass<DrawSkyboxPass>(UniversalRendererPassTools.PassVariableNames.m_DrawSkyboxPass);
             var colorTarget = renderer.GetCameraColorAttachmentA();

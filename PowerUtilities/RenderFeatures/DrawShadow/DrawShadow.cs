@@ -176,6 +176,7 @@ namespace PowerUtilities
         {
 
             public TextureResolution res = TextureResolution.x512;
+            [LoadAsset("BigShadowCasterMat.mat")]
             public Material shadowMat;
             public LayerMask layers = 0;
 

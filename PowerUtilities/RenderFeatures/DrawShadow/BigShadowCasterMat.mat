@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: ShadowMat
+  m_Name: BigShadowCasterMat
   m_Shader: {fileID: 4800000, guid: 2045e741ff35f9c4d8199aa843376a4a, type: 3}
   m_ValidKeywords: []
   m_InvalidKeywords: []
