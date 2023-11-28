@@ -1,4 +1,4 @@
-Shader "Hidden/Template/Shadow"
+Shader "Hidden/Template/ShadowCaster"
 {
     Properties
     {

@@ -49,7 +49,7 @@ Shader "Hidden/Template/TestBigShadow"
             v2f vert (appdata v)
             {
                 v2f o = (v2f)0;
-                o.vertex = TransformObjectToHClip(v.vertex);
+                o.vertex = TransformObjectToHClip(v.vertex.xyz);
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
                 
                 float3 worldPos = TransformObjectToWorld(v.vertex.xyz);
