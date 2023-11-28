@@ -236,9 +236,6 @@ namespace PowerUtilities
 
         void DrawLightGizmos(ref CameraData cameraData)
         {
-            if (!lightObj)
-                return;
-
             var h = settings.orthoSize;
             var w = h;
             var n = settings.near;
@@ -254,10 +251,12 @@ namespace PowerUtilities
             var p6 = new Vector3(w, h, f);
             var p7 = new Vector3(w, -h, f);
 
+            var rot = Quaternion.Euler(settings.rot);
+
             var vertices = new[] { p0, p1, p2, p3, p4, p5, p6, p7 };
             for (int i = 0; i < vertices.Length; i++)
             {
-                vertices[i] = lightObj.transform.rotation * (settings.pos + vertices[i]);
+                vertices[i] =  (settings.pos + rot * vertices[i]);
             }
 
             DebugTools.DrawLineCube(vertices);
@@ -270,11 +269,13 @@ namespace PowerUtilities
             drawShadowPass.UpdateShaderVariables();
 
             ref var cameraData = ref renderingData.cameraData;
+            TrySetupLightCameraInfo(cameraData.camera);
+
             DrawLightGizmos(ref cameraData);
+
             if (!CanExecute(cameraData))
                 return;
 
-            TrySetupLightCameraInfo(cameraData.camera);
             renderer.EnqueuePass(drawShadowPass);
         }
 
