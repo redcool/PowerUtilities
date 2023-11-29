@@ -63,16 +63,43 @@ namespace PowerUtilities
 
             return datas.Select(data => (T)data).ToArray();
         }
-
+        /// <summary>
+        /// Get m_RendererDataList
+        /// </summary>
+        /// <param name="asset"></param>
+        /// <returns></returns>
         public static ScriptableRendererData[] GetRendererDatas(this UniversalRenderPipelineAsset asset)
             => GetDatas<ScriptableRendererData>(asset, "m_RendererDataList");
 
+        /// <summary>
+        /// Get first item of m_RendererDataList
+        /// </summary>
+        /// <param name="asset"></param>
+        /// <returns></returns>
+        public static ScriptableRendererData GetRendererData(this UniversalRenderPipelineAsset asset)
+            => GetRendererDatas(asset).FirstOrDefault();
+
+        /// <summary>
+        /// Get UniversalRenderer list
+        /// </summary>
+        /// <param name="asset"></param>
+        /// <returns></returns>
         public static UniversalRenderer[] GetRenderers(this UniversalRenderPipelineAsset asset)
             => GetDatas<UniversalRenderer>(asset, "m_Renderers");
 
+        /// <summary>
+        /// Get default Renderer's index
+        /// </summary>
+        /// <param name="asset"></param>
+        /// <returns></returns>
         public static int GetDefaultRendererIndex(this UniversalRenderPipelineAsset asset)
             => asset.GetType().GetFieldValue<int>(asset, "m_DefaultRendererIndex");
 
+        /// <summary>
+        /// Get default Renderer
+        /// </summary>
+        /// <param name="asset"></param>
+        /// <returns></returns>
         public static UniversalRenderer GetDefaultRenderer(this UniversalRenderPipelineAsset asset)
             => asset.scriptableRenderer as UniversalRenderer;
 
@@ -90,6 +117,12 @@ namespace PowerUtilities
             return asset.supportsMixedLighting && mixedLighting == MixedLightingSetup.ShadowMask;
         }
 
+        /// <summary>
+        /// Is lightmap shadowMask on
+        /// </summary>
+        /// <param name="asset"></param>
+        /// <param name="renderingData"></param>
+        /// <returns></returns>
         public static bool IsLightmapShadowMixing(this UniversalRenderPipelineAsset asset, ref RenderingData renderingData)
         {
             var isShadowMask = IsShadowMask_Substract(asset, ref renderingData, out var isSubstract);
