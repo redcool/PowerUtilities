@@ -92,6 +92,8 @@
                         continue;
 
                     var feature = (SRPFeature)featureSO.targetObject;
+                    if (!feature)
+                        continue;
 
                     var color = feature.enabled ? (feature.interrupt ? Color.red : GUI.color) : Color.gray;
                     var title = feature.name;

@@ -4,6 +4,7 @@
     using System.Collections;
     using System.Collections.Generic;
     using UnityEngine;
+    using UnityEngine.Rendering.Universal;
     using Debug = UnityEngine.Debug;
 
     /// <summary>
@@ -31,7 +32,7 @@
         public Camera mainCam;
 
         [Header("Gizmos")]
-        [Min(3)]public int drawLineBoxCount = 10;
+        [Min(1)]public int drawLineBoxCount = 3;
 
         [Header("Debug")]
         [EditorReadonly] public Camera reflectionCam;
@@ -73,7 +74,8 @@
         }
         private void OnDestroy()
         {
-            Destroy(reflectionRT);
+            if (reflectionRT)
+                reflectionRT.Destroy();
         }
 
         private void TryCreateReflectionRT(ref RenderTexture rt,int width,int height)
@@ -182,7 +184,20 @@
             tr.parent = transform;
             tr.gameObject.tag = cameraTag;
             var cam = tr.gameObject.GetOrAddComponent<Camera>();
+            SetupCameraAdditionalData(cam);
             return cam;
+        }
+
+        private static void SetupCameraAdditionalData(Camera cam)
+        {
+            var addData = cam.GetUniversalAdditionalCameraData();
+            if (!addData)
+                return;
+
+            addData.renderShadows = false;
+            addData.requiresColorOption = CameraOverrideOption.Off;
+            addData.requiresDepthTexture = false;
+            addData.renderPostProcessing = false;
         }
 
 #if UNITY_EDITOR

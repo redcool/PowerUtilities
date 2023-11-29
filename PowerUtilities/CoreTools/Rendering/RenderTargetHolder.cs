@@ -44,6 +44,15 @@ namespace PowerUtilities
         /// <returns></returns>
         public static bool IsLastTargetValid() => LastColorTargetRTs != null && LastColorTargetRTs.Length > 0 && LastDepthTargetRT != null;
 
+        /// <summary>
+        /// clear last targets
+        /// </summary>
+        public static void Clear()
+        {
+            LastColorTargetRTs = default;
+            LastDepthTargetRT = default;
+        }
+
         public static RTHandle LastColorTargetRT => IsLastTargetValid() ? LastColorTargetRTs[0] : default;
     }
 }

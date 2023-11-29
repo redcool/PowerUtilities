@@ -76,7 +76,7 @@ using UnityEngine.Rendering.Universal;
         {
             ref var cameraData = ref renderingData.cameraData;
 
-            if (cameraData.isPreviewCamera || cameraData.camera.IsReflectionCamera())
+            if (cameraData.isPreviewCamera)
             {
                 RenderTargetIdentifier cameraTarget = camera.GetCameraTarget();
                 cmd.SetRenderTarget(cameraTarget);

@@ -22,14 +22,16 @@ namespace PowerUtilities.RenderFeatures
         protected ScriptableRenderContext context;
         public string featureName;
 
-
-
         public SRPPass(T feature)
         {
             Feature = feature;
             featureName = feature.name;
         }
 
+        /// <summary>
+        /// Is pass need reset last render target
+        /// </summary>
+        /// <returns></returns>
         public virtual bool IsTryRestoreLastTargets() => false;
 
         /// <summary>
@@ -49,11 +51,15 @@ namespace PowerUtilities.RenderFeatures
             }
         }
 
+        /// <summary>
+        /// Reset render target to LastColorTargetIds
+        /// </summary>
+        /// <param name="cmd"></param>
         public void TryRestoreCameraTargets(CommandBuffer cmd)
         {
             // unity 2021, use nameId, dont use this
 #if UNITY_2022_1_OR_NEWER
-            if (RenderTargetHolder.LastColorTargetRTs != null && RenderTargetHolder.LastDepthTargetRT != null)
+            if (RenderTargetHolder.IsLastTargetValid())
             {
                 //ConfigureTarget(RenderTargetHolder.LastColorTargetRTs, RenderTargetHolder.LastDepthTargetRT);
 
@@ -107,6 +113,11 @@ namespace PowerUtilities.RenderFeatures
             OnExecute(context, ref renderingData,cmd);
 
             cmd.Execute(ref context);
+        }
+
+        public override void OnFinishCameraStackRendering(CommandBuffer cmd)
+        {
+            RenderTargetHolder.Clear();
         }
 
         public abstract void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd);

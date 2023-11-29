@@ -151,6 +151,15 @@
             }
         }
 
+        public static void Destroy(this Object obj)
+        {
+#if UNITY_EDITOR
+            Object.DestroyImmediate(obj);
+#else
+            Object.Destroy(obj);
+#endif
+        }
+
         public static GameObject[] CreateLinkChildren(this GameObject go, params GameObject[] children)
         {
             if (children == null)
