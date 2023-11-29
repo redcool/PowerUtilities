@@ -22,7 +22,7 @@ namespace PowerUtilities
         });
     */
     /// </summary>
-    public static class UniversalRenderPipelineAssetTools
+    public static class UniversalRenderPipelineAssetEx
     {
         /// <summary>
         /// UniversalRenderPipelineAsset 's private field
@@ -32,13 +32,15 @@ namespace PowerUtilities
             "m_Renderers"
         };
         static Dictionary<string, Lazy<FieldInfo>> urpAssetFieldDict = new Dictionary<string, Lazy<FieldInfo>>();
-        static UniversalRenderPipelineAssetTools()
+        static UniversalRenderPipelineAssetEx()
         {
             urpAssetFieldDict.Clear();
 
+            var assetType = typeof(UniversalRenderPipelineAsset);
+
             foreach (var fieldName in privateFieldNames)
             {
-                urpAssetFieldDict[fieldName] = new Lazy<FieldInfo>(() => typeof(UniversalRenderPipelineAsset).GetField(fieldName, BindingFlags.NonPublic| BindingFlags.Instance));
+                urpAssetFieldDict[fieldName] = new Lazy<FieldInfo>(() => assetType.GetField(fieldName, BindingFlags.NonPublic| BindingFlags.Instance));
             }
         }
 

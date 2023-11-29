@@ -143,7 +143,7 @@
 
         public static void SetupSkyboxTargets(UniversalRenderer renderer)
         {
-            var urpSkyPass = renderer.GetRenderPass<DrawSkyboxPass>(UniversalRendererPassTools.PassVariableNames.m_DrawSkyboxPass);
+            var urpSkyPass = renderer.GetRenderPass<DrawSkyboxPass>(ScriptableRendererEx.PassFieldNames.m_DrawSkyboxPass);
             var colorTarget = renderer.GetCameraColorAttachmentA();
             var depthTarget = renderer.GetActiveCameraDepthAttachment();
 

@@ -7,15 +7,15 @@ using UnityEngine.Rendering.Universal;
 namespace PowerUtilities
 {
     /// <summary>
-    /// handle UniversalRenderer passes by reflections
+    /// handle ScriptableRenderer(UniversalRenderer) passes by reflections
     /// </summary>
-    public static class UniversalRendererPassTools
+    public static class ScriptableRendererEx
     {
         /// <summary>
-        /// UniversalRenderer pass's private variables names
+        /// UniversalRenderer pass's private pass names
         /// </summary>
 
-        public enum PassVariableNames
+        public enum PassFieldNames
         {
             m_DepthPrepass,
             m_DepthNormalPrepass,
@@ -47,8 +47,9 @@ namespace PowerUtilities
             m_DrawOffscreenUIPass,
             m_DrawOverlayUIPass,
         }
-        static Dictionary<PassVariableNames, ScriptableRenderPass> passDict = new Dictionary<PassVariableNames, ScriptableRenderPass>();
 
+        static Dictionary<PassFieldNames, ScriptableRenderPass> passDict = new Dictionary<PassFieldNames, ScriptableRenderPass>();
+        static ScriptableRenderer lastRendererInstance;
         /// <summary>
         /// urp passes, control remove from UnviersalRenderer
         /// </summary>
@@ -61,7 +62,7 @@ namespace PowerUtilities
 
         static Dictionary<UrpPassType, Type> urpPassTypeDict = new Dictionary<UrpPassType, Type>();
 
-        static UniversalRendererPassTools()
+        static ScriptableRendererEx()
         {
             SetupURPPassTypeDict();
         }
@@ -86,17 +87,32 @@ namespace PowerUtilities
         /// <param name="renderer"></param>
         /// <param name="passName"></param>
         /// <returns></returns>
-        public static T GetRenderPass<T>(this UniversalRenderer renderer, PassVariableNames passName) where T : ScriptableRenderPass
+        public static T GetRenderPass<T>(this ScriptableRenderer renderer, PassFieldNames passName) where T : ScriptableRenderPass
         {
-            var varName = Enum.GetName(typeof(PassVariableNames), passName);
+            CheckRendererInstance(renderer);
+
+            var varName = Enum.GetName(typeof(PassFieldNames), passName);
 
             passDict.TryGetValue(passName, out var value);
             if (value == null)
             {
-                value = passDict[passName] = typeof(UniversalRenderer).GetFieldValue<T>(renderer, varName);
+                value = passDict[passName] = renderer.GetType().GetFieldValue<T>(renderer, varName);
             }
 
             return value != null ? (T)value : default;
+        }
+
+        /// <summary>
+        /// renderer vs lastRenderer, if not same instance, clear cached dict
+        /// </summary>
+        /// <param name="renderer"></param>
+        private static void CheckRendererInstance(ScriptableRenderer renderer)
+        {
+            if (renderer != lastRendererInstance)
+            {
+                lastRendererInstance = renderer;
+                passDict.Clear();
+            }
         }
 
         /// <summary>

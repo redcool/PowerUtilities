@@ -25,9 +25,9 @@ namespace PowerUtilities.RenderFeatures
         public ScriptableRenderPassInput passInputType;
 
         [Header("Remove URP Pass")]
-        public List<UniversalRendererPassTools.UrpPassType> removedPassWhenNotBaseCamera = new List<UniversalRendererPassTools.UrpPassType>();
+        public List<ScriptableRendererEx.UrpPassType> removedPassWhenNotBaseCamera = new List<ScriptableRendererEx.UrpPassType>();
 
-        public List<UniversalRendererPassTools.UrpPassType> removedPass = new List<UniversalRendererPassTools.UrpPassType>();
+        public List<ScriptableRendererEx.UrpPassType> removedPass = new List<ScriptableRendererEx.UrpPassType>();
         public override ScriptableRenderPass GetPass() => new ControlURPPassesPass(this);      
     }
 
@@ -66,12 +66,12 @@ namespace PowerUtilities.RenderFeatures
             renderer.RemoveRenderPasses(removedPassList);
         }
 
-        private void SetupRemoveList(List<UniversalRendererPassTools.UrpPassType> types)
+        private void SetupRemoveList(List<ScriptableRendererEx.UrpPassType> types)
         {
             removedPassList.Clear();
             foreach (var passType in types)
             {
-                removedPassList.Add(UniversalRendererPassTools.GetPassType(passType));
+                removedPassList.Add(ScriptableRendererEx.GetPassType(passType));
             }
         }
     }
