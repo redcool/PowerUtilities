@@ -47,7 +47,7 @@ namespace PowerUtilities.RenderFeatures
 
             RenderTargetIdentifier sourceId = string.IsNullOrEmpty(Feature.sourceName) ? BuiltinRenderTextureType.CurrentActive : Shader.PropertyToID(Feature.sourceName);
 
-            var cameraTarget = cameraData.targetTexture ? new RenderTargetIdentifier(cameraData.targetTexture) : BuiltinRenderTextureType.CameraTarget;
+            var cameraTarget = camera.GetCameraTarget();
             RenderTargetIdentifier targetId = string.IsNullOrEmpty(Feature.targetName) ? cameraTarget : Shader.PropertyToID(Feature.targetName);
 
 #if UNITY_2022_1_OR_NEWER

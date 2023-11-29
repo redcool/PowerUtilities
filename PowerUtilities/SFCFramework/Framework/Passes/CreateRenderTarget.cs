@@ -32,6 +32,7 @@ namespace PowerUtilities.RenderFeatures
         {
             return base.CanExecute() 
                 && Feature.colorTargetInfos.Count != 0
+                && !camera.IsReflectionCamera()
                 ;
 
         }

@@ -67,17 +67,23 @@ using UnityEngine.Rendering.Universal;
         {
         }
 
+        public override bool CanExecute()
+        {
+            return base.CanExecute() && !camera.IsReflectionCamera();
+        }
+
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
         {
             ref var cameraData = ref renderingData.cameraData;
-            if (cameraData.isPreviewCamera)
+
+            if (cameraData.isPreviewCamera || cameraData.camera.IsReflectionCamera())
             {
-                cmd.SetRenderTarget(BuiltinRenderTextureType.CameraTarget);
-                RenderTargetHolder.SaveTargets(new RenderTargetIdentifier[] { BuiltinRenderTextureType.CameraTarget }, BuiltinRenderTextureType.CameraTarget);
+                RenderTargetIdentifier cameraTarget = camera.GetCameraTarget();
+                cmd.SetRenderTarget(cameraTarget);
+                RenderTargetHolder.SaveTargets(new RenderTargetIdentifier[] { cameraTarget }, cameraTarget);
                 return;
             }
-
-            var camera = cameraData.camera;
+            
             var renderer = (UniversalRenderer)cameraData.renderer;
 
             TrySetTargets(ref renderingData, cmd);
