@@ -42,9 +42,9 @@ namespace PowerUtilities
 
         List<string[]> propNameList = new List<string[]>();
         //string materialSelectedId => shaderName + "_SeletectedId";
-        string materialToolbarCount => shaderName + "_ToolbarCount";
+        string MaterialToolbarCount => shaderName + "_ToolbarCount";
 
-        string GetMaterialSelectionIdKey(string matName)=> matName + shaderName + "_SeletectedId";
+        string GetMaterialSelectionIdKey(string matName) => matName + shaderName + "_SeletectedId";
 
         //int selectedTabId;
         bool showOriginalPage;
@@ -256,7 +256,7 @@ namespace PowerUtilities
                 tabToggles[selectedId] = true;
             }
 
-            toolbarCount = EditorPrefs.GetInt(materialToolbarCount, tabNamesInConfig.Length);
+            toolbarCount = EditorPrefs.GetInt(MaterialToolbarCount, tabNamesInConfig.Length);
         }
 
         void SaveToCache()
@@ -264,7 +264,7 @@ namespace PowerUtilities
             //cache selectedId
             //EditorPrefs.SetInt(materialSelectedId, selectedTabId);
             EditorPrefTools.SetList(GetMaterialSelectionIdKey(materialEditor.target.name), tabSelectedIds, ",");
-            EditorPrefs.SetInt(materialToolbarCount, toolbarCount);
+            EditorPrefs.SetInt(MaterialToolbarCount, toolbarCount);
         }
 
         private void DrawPageTabs()
@@ -283,6 +283,11 @@ namespace PowerUtilities
 
         private void OnInit(Material mat, MaterialProperty[] properties)
         {
+            if (string.IsNullOrEmpty(shaderName))
+            {
+                shaderName = mat.shader.name.Substring(mat.shader.name.LastIndexOf("/"));
+            }
+
             if (IsTargetShader(mat))
                 presetBlendMode = PresetBlendModeTools.GetPresetBlendMode(mat);
 
