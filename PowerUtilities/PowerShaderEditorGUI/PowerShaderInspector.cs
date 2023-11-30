@@ -256,7 +256,7 @@ namespace PowerUtilities
                 tabToggles[selectedId] = true;
             }
 
-            toolbarCount = EditorPrefs.GetInt(MaterialToolbarCount, tabNamesInConfig.Length);
+            toolbarCount = EditorPrefs.GetInt(MaterialToolbarCount, Mathf.Min(5,tabNamesInConfig.Length));
         }
 
         void SaveToCache()
@@ -285,7 +285,7 @@ namespace PowerUtilities
         {
             if (string.IsNullOrEmpty(shaderName))
             {
-                shaderName = mat.shader.name.Substring(mat.shader.name.LastIndexOf("/"));
+                shaderName = mat.shader.name;
             }
 
             if (IsTargetShader(mat))
