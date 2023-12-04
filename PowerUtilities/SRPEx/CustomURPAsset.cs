@@ -12,7 +12,7 @@ using UnityEngine.Rendering.Universal;
 #if UNITY_EDITOR
     using UnityEditor;
 
-    [CustomEditor(typeof(UniversalRenderPipelineAssetEx)), CanEditMultipleObjects]
+    [CustomEditor(typeof(CustomURPAsset)), CanEditMultipleObjects]
     public class UniversalRenderPipelineAssetExEditor : UniversalRenderPipelineAssetEditor
     {
 
@@ -23,7 +23,7 @@ using UnityEngine.Rendering.Universal;
             var so = new SerializedObject(GraphicsSettings.currentRenderPipeline);
             var script = so.FindProperty("m_Script");
 
-            var urpAssetExScript = AssetDatabase.FindAssets("UniversalRenderPipelineAssetEx")
+            var urpAssetExScript = AssetDatabase.FindAssets("CustomURPAsset")
                 .Select(guid => AssetDatabase.GUIDToAssetPath(guid))
                 .Select(path => AssetDatabase.LoadAssetAtPath<MonoScript>(path))
                 .FirstOrDefault();
@@ -38,13 +38,13 @@ using UnityEngine.Rendering.Universal;
 #endif
     /// <summary>
     /// UniversalRenderPipelineAsset extends,
-    /// change RenderPipelineAsset's script to UniversalRenderPipelineAssetEx
+    /// change RenderPipelineAsset's script to CustomURPAsset
     /// 
     /// LightExplorer is urp's feature
-    /// USE LightExplorerEx need use UniversalRenderPipelineAssetEx
+    /// USE LightExplorerEx need use CustomURPAsset
     /// 
     /// </summary>
-    public class UniversalRenderPipelineAssetEx : UniversalRenderPipelineAsset
+    public class CustomURPAsset : UniversalRenderPipelineAsset
     {
 
     }

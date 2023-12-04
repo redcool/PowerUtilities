@@ -184,6 +184,9 @@ using UnityEngine.Rendering.Universal;
 
         private RenderTargetIdentifier SetupDepthId(UniversalRenderer renderer)
         {
+            if (camera.IsSceneViewCamera())
+                return BuiltinRenderTextureType.CameraTarget;
+
             // set depth target id
             RenderTargetIdentifier depthId = UniversalRenderPipeline.asset.supportsCameraDepthTexture ? ShaderPropertyIds._CameraDepthAttachment : BuiltinRenderTextureType.CameraTarget;
             if (!string.IsNullOrEmpty(Feature.depthTargetName))

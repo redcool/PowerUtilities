@@ -19,7 +19,8 @@ namespace PowerUtilities
             public int
                 _BigShadowMap = Shader.PropertyToID(nameof(_BigShadowMap)),
                 _BigShadowVP = Shader.PropertyToID(nameof(_BigShadowVP)),
-                _BigShadowParams = Shader.PropertyToID(nameof(_BigShadowParams))
+                _BigShadowParams = Shader.PropertyToID(nameof(_BigShadowParams)),
+                _BigShadowOn = Shader.PropertyToID(nameof(_BigShadowOn))
                 ;
 
             RenderTexture bigShadowMap;
@@ -160,6 +161,7 @@ namespace PowerUtilities
             public void UpdateShaderVariables()
             {
                 Shader.SetGlobalVector(_BigShadowParams, new Vector4(settings.shadowIntensity, 0));
+                Shader.SetGlobalFloat(_BigShadowOn, settings.shadowIntensity);
             }
 
             public void Clear()

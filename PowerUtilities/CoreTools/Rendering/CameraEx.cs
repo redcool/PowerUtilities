@@ -15,6 +15,7 @@ namespace PowerUtilities
         public static bool IsReflectionCamera(this Camera c) => c.cameraType == CameraType.Reflection;
         public static bool IsGameCamera(this Camera c) => c.cameraType  == CameraType.Game;
         public static bool IsPreviewCamera(this Camera c) => c.cameraType == CameraType.Preview;
+        public static bool IsSceneViewCamera(this Camera c) => c.cameraType == CameraType.SceneView;
 
         public static RenderTargetIdentifier GetCameraTarget(this Camera c) => c.targetTexture ? c.targetTexture : BuiltinRenderTextureType.CameraTarget;
     }

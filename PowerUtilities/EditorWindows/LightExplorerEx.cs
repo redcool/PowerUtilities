@@ -10,14 +10,14 @@ namespace PowerUtilities
 
     /// <summary>
     /// LightExplorer is urp's feature
-    /// USE LightExplorerEx need use UniversalRenderPipelineAssetEx
+    /// USE LightExplorerEx need use CustomURPAssetEx
     /// 
-    /// 1 change UniversalRenderPipelineAsset's script to UniversalRenderPipelineAssetEx
+    /// 1 change UniversalRenderPipelineAsset's script to CustomURPAssetEx
     /// </summary>
     #if UNITY_2023_1_OR_NEWER
     [SupportedOnRenderPipeline(typeof(UniversalRenderPipelineAssetEx))]
 #else
-    [LightingExplorerExtension(typeof(UniversalRenderPipelineAssetEx))]
+    [LightingExplorerExtension(typeof(CustomURPAsset))]
 #endif
     public class LightExplorerEx : LightExplorer
     {

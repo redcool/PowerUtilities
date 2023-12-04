@@ -8,14 +8,16 @@ namespace PowerUtilities
 {
     public static partial class Consts
     {
-        public const string POWER_UTILITIES = "PowerUtlities";
+        public const string PowerUtlities = nameof(PowerUtlities);
     }
 
     public static partial class Tags
     {
-        public const string Player = "Player",
-            Monster = "Monster",
-            MainCamera = "MainCamera",
+        public const string 
+            Player = nameof(Player),
+            Monster = nameof(Monster),
+            MainCamera = nameof(MainCamera),
+            ReflectionCamera = nameof(ReflectionCamera),
             EditorOnly = nameof(EditorOnly)
             ;
     }
