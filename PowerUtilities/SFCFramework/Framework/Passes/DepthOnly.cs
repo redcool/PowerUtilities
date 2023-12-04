@@ -25,10 +25,6 @@ namespace PowerUtilities
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
         {
             cmd.BeginSampleExecute(Feature.name, ref context);
-
-            SetupDeptexTarget(ref context, ref renderingData, cmd);
-
-            var camera = renderingData.cameraData.camera;
             var filterSettings = new FilteringSettings(RenderQueueRange.opaque, Feature.layerMask);
 
             var sortingSettings = new SortingSettings(camera)
@@ -49,15 +45,14 @@ namespace PowerUtilities
             cmd.EndSampleExecute(Feature.name, ref context);
         }
 
-        private void SetupDeptexTarget(ref ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
+        private void SetupDeptexTarget(ref RenderingData renderingData, CommandBuffer cmd)
         {
             ref var cameraData = ref renderingData.cameraData;
             var renderer = (UniversalRenderer)cameraData.renderer;
             var rth = renderer.GetRTHandle(URPRTHandleNames.m_DepthTexture);
             var depthId = renderer.GetRenderTargetId(URPRTHandleNames.m_DepthTexture);
 
-
-            if (depthId == default)
+            if (depthId.IsNameIdEquals(0))
             {
                 var desc = cameraData.cameraTargetDescriptor;
                 desc.colorFormat = RenderTextureFormat.Depth;
@@ -65,10 +60,16 @@ namespace PowerUtilities
                 desc.msaaSamples = 1;
                 cmd.GetTemporaryRT(ShaderPropertyIds._CameraDepthTexture, desc, FilterMode.Point);
             }
-            cmd.SetRenderTarget(depthId);
-            cmd.ClearRenderTarget(true, false, Color.clear);
+            //cmd.SetRenderTarget(depthId);
+            //cmd.ClearRenderTarget(true, false, Color.clear);
+        }
 
-            cmd.Execute(ref context);
+        public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
+        {
+            SetupDeptexTarget(ref renderingData, cmd);
+
+            ConfigureTarget(ShaderPropertyIds._CameraDepthTexture);
+            ConfigureClear(ClearFlag.Depth, Color.clear);
         }
 
         public override void OnCameraCleanup(CommandBuffer cmd)

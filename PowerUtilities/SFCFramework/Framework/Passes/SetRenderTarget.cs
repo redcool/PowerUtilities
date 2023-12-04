@@ -69,7 +69,7 @@ using UnityEngine.Rendering.Universal;
 
         public override bool CanExecute()
         {
-            return base.CanExecute() && !camera.IsReflectionCamera();
+            return base.CanExecute() && camera.IsGameCamera();
         }
 
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
@@ -184,9 +184,6 @@ using UnityEngine.Rendering.Universal;
 
         private RenderTargetIdentifier SetupDepthId(UniversalRenderer renderer)
         {
-            if (camera.IsSceneViewCamera())
-                return BuiltinRenderTextureType.CameraTarget;
-
             // set depth target id
             RenderTargetIdentifier depthId = UniversalRenderPipeline.asset.supportsCameraDepthTexture ? ShaderPropertyIds._CameraDepthAttachment : BuiltinRenderTextureType.CameraTarget;
             if (!string.IsNullOrEmpty(Feature.depthTargetName))
