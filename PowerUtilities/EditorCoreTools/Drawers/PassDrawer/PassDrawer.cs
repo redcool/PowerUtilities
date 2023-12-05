@@ -70,26 +70,43 @@ namespace PowerUtilities
             var e = Event.current;
             var pos = EditorGUILayout.GetControlRect();
 
+            //------ foldout
             pos.width = 200;
             //EditorGUI.DrawRect(pos, Color.red);
-            foldoutProp.boolValue = EditorGUI.Foldout(pos, foldoutProp.boolValue, label,true);
-
+            foldoutProp.boolValue = EditorGUI.Foldout(pos, foldoutProp.boolValue, label, true);
+            
+            //----- enabled
             pos.x += pos.width;
-            pos.width = 40;
-
+            pos.width = 45;
             var enabledProp = passItemSO.FindProperty("enabled");
-            if(enabledProp != null)
+            if (enabledProp != null)
             {
                 enabledProp.boolValue = EditorGUI.Toggle(pos, enabledProp.boolValue);
             }
-
+            //-----------gameCameraTag
             pos.x += pos.width;
             pos.width = 200;
             var gameCameraTag = passItemSO.FindProperty("gameCameraTag");
-            if(gameCameraTag != null)
+            if (gameCameraTag != null)
             {
                 var cameraTag = string.IsNullOrEmpty(gameCameraTag.stringValue) ? "All Camera" : gameCameraTag.stringValue;
-                EditorGUI.LabelField(pos, $"({cameraTag}) run");
+                EditorGUI.LabelField(pos, $"T: {cameraTag}");
+            }
+
+            //----- scene only
+            ShowSpecialFlags(passItemSO, ref pos, "isSceneCameraOnly", "S");
+            //----- editor only
+            ShowSpecialFlags(passItemSO, ref pos, "isEditorOnly", "E");
+        }
+
+        private static void ShowSpecialFlags(SerializedObject passItemSO, ref Rect pos,string featureFieldName,string flagName)
+        {
+            var boolFieldName = passItemSO.FindProperty(featureFieldName);
+            if (boolFieldName != null && boolFieldName.boolValue)
+            {
+                pos.x += pos.width+3;
+                pos.width = 15;
+                GUI.Label(pos, flagName);
             }
         }
     }
