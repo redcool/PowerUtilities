@@ -18,7 +18,13 @@ namespace PowerUtilities.RenderFeatures
     {
         public T Feature { get; private set; }
 
+        /// <summary>
+        /// current camera, can access from OnExecute
+        /// </summary>
         protected Camera camera;
+        /// <summary>
+        /// current ScriptableRenderContext,can access from OnExecute
+        /// </summary>
         protected ScriptableRenderContext context;
         public string featureName;
 

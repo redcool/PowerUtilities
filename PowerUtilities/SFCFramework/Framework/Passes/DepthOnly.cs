@@ -19,6 +19,7 @@ namespace PowerUtilities
 
     public class DepthOnlyPassWrapper : SRPPass<DepthOnly>
     {
+        RTHandle depthTextureHandle;
         public DepthOnlyPassWrapper(DepthOnly feature) : base(feature) {
         }
 
@@ -49,32 +50,27 @@ namespace PowerUtilities
         {
             ref var cameraData = ref renderingData.cameraData;
             var renderer = (UniversalRenderer)cameraData.renderer;
-            var rth = renderer.GetRTHandle(URPRTHandleNames.m_DepthTexture);
+            depthTextureHandle = renderer.GetRTHandle(URPRTHandleNames.m_DepthTexture);
             var depthId = renderer.GetRenderTargetId(URPRTHandleNames.m_DepthTexture);
 
+            var desc = cameraData.cameraTargetDescriptor;
+            desc.colorFormat = RenderTextureFormat.Depth;
+            desc.depthBufferBits = 24;
+            desc.msaaSamples = 1;
+
+#if UNITY_2022_1_OR_NEWER
+#else
             if (depthId.IsNameIdEquals(0))
-            {
-                var desc = cameraData.cameraTargetDescriptor;
-                desc.colorFormat = RenderTextureFormat.Depth;
-                desc.depthBufferBits = 32;
-                desc.msaaSamples = 1;
                 cmd.GetTemporaryRT(ShaderPropertyIds._CameraDepthTexture, desc, FilterMode.Point);
-            }
-            //cmd.SetRenderTarget(depthId);
-            //cmd.ClearRenderTarget(true, false, Color.clear);
+#endif
+            ConfigureTarget(depthTextureHandle);
+            ConfigureClear(ClearFlag.Depth, Color.clear);
         }
 
         public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
         {
             SetupDeptexTarget(ref renderingData, cmd);
-
-            ConfigureTarget(ShaderPropertyIds._CameraDepthTexture);
-            ConfigureClear(ClearFlag.Depth, Color.clear);
         }
 
-        public override void OnCameraCleanup(CommandBuffer cmd)
-        {
-            //cmd.ReleaseTemporaryRT(ShaderPropertyIds._CameraDepthTexture);
-        }
     }
 }
