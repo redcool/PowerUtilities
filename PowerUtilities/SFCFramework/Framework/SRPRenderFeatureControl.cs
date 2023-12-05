@@ -1,15 +1,17 @@
 namespace PowerUtilities.RenderFeatures
 {
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.Rendering.Universal;
-    using UnityEngine.SceneManagement;
-
 #if UNITY_EDITOR
     using UnityEditor;
+#endif
+    using System;
+    using System.Collections;
+    using System.Collections.Generic;
+    using UnityEngine;
+    using UnityEngine.Rendering.Universal;
+    using UnityEngine.SceneManagement;
+    using UnityEngine.Rendering;
 
+#if UNITY_EDITOR
     [CustomEditor(typeof(SRPRenderFeatureControl))]
     public class SRPRenderFeatureControlEditor : Editor
     {
@@ -71,10 +73,13 @@ using UnityEngine.Rendering.Universal;
     public class SRPRenderFeatureControl : ScriptableRendererFeature
     {
         public SRPFeatureListSO featureListSO;
+        public LayerMask lastOpaqueLayers;
 
         [SerializeField]
         [HideInInspector]
         bool isFeatureListFoldout;
+
+        UniversalRendererData curRendererData;
 
 
         public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
@@ -109,6 +114,37 @@ using UnityEngine.Rendering.Universal;
 
         public override void Create()
         {
+            RenderPipelineManager.beginCameraRendering -= RenderPipelineManager_beginCameraRendering;
+            RenderPipelineManager.beginCameraRendering += RenderPipelineManager_beginCameraRendering;
+
+            RenderPipelineManager.endCameraRendering -= RenderPipelineManager_endCameraRendering;
+            RenderPipelineManager.endCameraRendering += RenderPipelineManager_endCameraRendering;
+        }
+
+        private void RenderPipelineManager_endCameraRendering(ScriptableRenderContext arg1, Camera arg2)
+        {
+            if (curRendererData)
+                curRendererData.opaqueLayerMask = lastOpaqueLayers;
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            RenderPipelineManager.beginCameraRendering -= RenderPipelineManager_beginCameraRendering;
+        }
+
+        private void RenderPipelineManager_beginCameraRendering(ScriptableRenderContext context, Camera camera)
+        {
+            if (!camera.IsGameCamera())
+                return;
+            curRendererData = SetupRendererData();
+        }
+
+        public UniversalRendererData SetupRendererData()
+        {
+            var data = (UniversalRendererData)UniversalRenderPipeline.asset.GetDefaultRendererData();
+            lastOpaqueLayers = data.opaqueLayerMask;
+            data.opaqueLayerMask = 0;// nothing
+            return data;
         }
     }
 }

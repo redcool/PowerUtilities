@@ -57,7 +57,7 @@ namespace PowerUtilities
         }
 
         /// <summary>
-        /// Get a private field(check cache)
+        /// Get a private field
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="type"></param>
@@ -72,6 +72,27 @@ namespace PowerUtilities
         {
             var field = type.GetField(fieldName, flags);
             return field != null ? field.GetValue(instance) : default;
+        }
+
+        /// <summary>
+        /// Get a private Property
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="type"></param>
+        /// <param name="caller"></param>
+        /// <param name="propertyName"></param>
+        /// <param name="flags"></param>
+        /// <returns></returns>
+        public static T GetPropertyValue<T>(this Type type, object caller, string propertyName, BindingFlags flags = instanceBindings)
+        {
+            var obj = GetPropertyValue(type,caller, propertyName, flags);
+            return obj != null ? (T)obj : default;
+        }
+
+        public static object GetPropertyValue(this Type type,object caller,string propertyName,BindingFlags flags = instanceBindings)
+        {
+            var prop = type.GetProperty(propertyName, flags);
+            return prop != null ? prop.GetValue(caller) : default;
         }
 
         /// <summary>

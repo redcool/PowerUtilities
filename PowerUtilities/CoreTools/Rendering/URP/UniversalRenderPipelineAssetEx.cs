@@ -29,9 +29,13 @@ namespace PowerUtilities
         /// </summary>
         static string[] privateFieldNames = new[] {
             "m_RendererDataList",
-            "m_Renderers"
+            "m_Renderers",
+            "m_DefaultRendererIndex"
         };
         static Dictionary<string, Lazy<FieldInfo>> urpAssetFieldDict = new Dictionary<string, Lazy<FieldInfo>>();
+
+        //const string m_DefaultRendererIndex = nameof(m_DefaultRendererIndex);
+        //static Lazy<FieldInfo> m_DefaultRendererIndexField;
         static UniversalRenderPipelineAssetEx()
         {
             urpAssetFieldDict.Clear();
@@ -42,6 +46,8 @@ namespace PowerUtilities
             {
                 urpAssetFieldDict[fieldName] = new Lazy<FieldInfo>(() => assetType.GetField(fieldName, BindingFlags.NonPublic| BindingFlags.Instance));
             }
+
+            //m_DefaultRendererIndexField = new Lazy<FieldInfo>(() => assetType.GetField(m_DefaultRendererIndex, BindingFlags.NonPublic | BindingFlags.Instance));
         }
 
         /// <summary>
@@ -72,12 +78,12 @@ namespace PowerUtilities
             => GetDatas<ScriptableRendererData>(asset, "m_RendererDataList");
 
         /// <summary>
-        /// Get first item of m_RendererDataList
+        /// Get default RendererData
         /// </summary>
         /// <param name="asset"></param>
         /// <returns></returns>
-        public static ScriptableRendererData GetRendererData(this UniversalRenderPipelineAsset asset)
-            => GetRendererDatas(asset).FirstOrDefault();
+        public static ScriptableRendererData GetDefaultRendererData(this UniversalRenderPipelineAsset asset)
+            => asset.GetType().GetPropertyValue<ScriptableRendererData>(asset, "scriptableRendererData");
 
         /// <summary>
         /// Get UniversalRenderer list
@@ -102,6 +108,7 @@ namespace PowerUtilities
         /// <returns></returns>
         public static UniversalRenderer GetDefaultRenderer(this UniversalRenderPipelineAsset asset)
             => asset.scriptableRenderer as UniversalRenderer;
+
 
         /// <summary>
         /// shadowMask or distance shadowMask, call this in OnCameraSetup

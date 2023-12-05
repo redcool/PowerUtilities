@@ -99,23 +99,23 @@
         public ColorSpaceTransform.ColorSpaceMode colorSpaceMode;
 
 
-        public override ScriptableRenderPass GetPass() => new DrawObjectsPassWrapper(this);
+        public override ScriptableRenderPass GetPass() => new DrawObjectsPassControl(this);
     }
 
-    public class DrawObjectsPassWrapper : SRPPass<DrawObjects>
+    public class DrawObjectsPassControl : SRPPass<DrawObjects>
     {
         FullDrawObjectsPass
             drawObjectsPass;
 
         DrawChildrenInstancedPass drawChildrenInstancedPass;
 
-        public DrawObjectsPassWrapper(DrawObjects feature) : base(feature)
+        public DrawObjectsPassControl(DrawObjects feature) : base(feature)
         {
             drawObjectsPass = new FullDrawObjectsPass(feature);
             drawChildrenInstancedPass = new DrawChildrenInstancedPass(feature);
         }
 
-        public override bool IsTryRestoreLastTargets() => true;
+        public override bool IsTryRestoreLastTargets(Camera c) => c.IsGameCamera();
 
         public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
         {
@@ -128,9 +128,10 @@
             ref CameraData cameraData = ref renderingData.cameraData;
 
             var renderer = (UniversalRenderer)renderingData.cameraData.renderer;
+
             // reset skybox 's target in gameview
             if(Feature.IsUpdateSkyboxTarget)
-                SetupSkyboxTargets(renderer);
+                SetupSkyboxTargets(renderer,camera);
 
             cmd.BeginSampleExecute(featureName, ref context);
 
@@ -141,7 +142,7 @@
             cmd.EndSampleExecute(featureName, ref context);
         }
 
-        public static void SetupSkyboxTargets(UniversalRenderer renderer)
+        public static void SetupSkyboxTargets(UniversalRenderer renderer,Camera c)
         {
             var urpSkyPass = renderer.GetRenderPass<DrawSkyboxPass>(ScriptableRendererEx.PassFieldNames.m_DrawSkyboxPass);
             var colorTarget = renderer.GetCameraColorAttachmentA();
@@ -152,6 +153,15 @@
                 colorTarget = RenderTargetHolder.LastColorTargetRT;
                 depthTarget = RenderTargetHolder.LastDepthTargetRT;
             }
+#if UNITY_EDITOR
+            // restore CameraTarget
+            if (c.IsSceneViewCamera())
+            {
+                var rth = RTHandles.Alloc(BuiltinRenderTextureType.CameraTarget);
+                //colorTarget = rth;
+                depthTarget = rth;
+            }
+#endif
             urpSkyPass.ConfigureTarget(colorTarget, depthTarget);
         }
     }

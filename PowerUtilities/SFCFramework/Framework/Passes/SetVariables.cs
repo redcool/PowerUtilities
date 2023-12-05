@@ -47,12 +47,6 @@ namespace PowerUtilities
     {
         public SetVarialbesPass(SetVariables feature) : base(feature) { }
 
-        /// <summary>
-        /// Try restore camera targets before pass Execute
-        /// </summary>
-        /// <returns></returns>
-        public override bool IsTryRestoreLastTargets() => false;
-
         public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
         {
             SerupVariables(cmd, ref renderingData);

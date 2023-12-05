@@ -38,7 +38,7 @@ namespace PowerUtilities.RenderFeatures
         /// Is pass need reset last render target
         /// </summary>
         /// <returns></returns>
-        public virtual bool IsTryRestoreLastTargets() => false;
+        public virtual bool IsTryRestoreLastTargets(Camera c) => false;
 
         /// <summary>
         /// Compare with tag or name
@@ -113,7 +113,7 @@ namespace PowerUtilities.RenderFeatures
             var cmd = CommandBufferPool.Get(featureName);
             cmd.Execute(ref context);
 
-            if(IsTryRestoreLastTargets())
+            if(IsTryRestoreLastTargets(camera))
                 TryRestoreCameraTargets(cmd);
 
             OnExecute(context, ref renderingData,cmd);

@@ -76,13 +76,13 @@ using UnityEngine.Rendering.Universal;
         {
             ref var cameraData = ref renderingData.cameraData;
 
-            if (cameraData.isPreviewCamera)
-            {
-                RenderTargetIdentifier cameraTarget = camera.GetCameraTarget();
-                cmd.SetRenderTarget(cameraTarget);
-                RenderTargetHolder.SaveTargets(new RenderTargetIdentifier[] { cameraTarget }, cameraTarget);
-                return;
-            }
+            //if (cameraData.isPreviewCamera)
+            //{
+            //    RenderTargetIdentifier cameraTarget = camera.GetCameraTarget();
+            //    cmd.SetRenderTarget(cameraTarget);
+            //    RenderTargetHolder.SaveTargets(new RenderTargetIdentifier[] { cameraTarget }, cameraTarget);
+            //    return;
+            //}
             
             var renderer = (UniversalRenderer)cameraData.renderer;
 

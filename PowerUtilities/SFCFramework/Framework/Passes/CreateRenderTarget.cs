@@ -26,8 +26,6 @@ namespace PowerUtilities.RenderFeatures
 
         public CreateRenderTargetPass(CreateRenderTarget feature) : base(feature) { }
 
-        public override bool IsTryRestoreLastTargets() => false;
-
         public override bool CanExecute()
         {
             return base.CanExecute() 
