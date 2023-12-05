@@ -86,6 +86,9 @@ namespace PowerUtilities.RenderFeatures
         {
             if ( featureListSO == null || featureListSO.featureList.Count == 0 || !featureListSO.enabled)
                 return;
+            var camera = renderingData.cameraData.camera;
+            //if (! camera.IsGameCamera())
+            //    return;
 
             // cached last use instance
             SRPFeatureListSO.instance = featureListSO;
@@ -93,14 +96,14 @@ namespace PowerUtilities.RenderFeatures
 
             foreach (var feature in featureListSO.featureList)
             {
-                if (feature == null)
+                if (feature == null || !feature.enabled)
                     continue;
 
                 var pass = feature.PassInstance;
-                if (pass == null || !feature.enabled)
+                if (pass == null)
                     continue;
 
-                if (feature.isSceneCameraOnly && cameraData.camera.cameraType != CameraType.SceneView)
+                if(!feature.IsCameraValid(camera))
                     continue;
 
                 pass.renderPassEvent = feature.renderPassEvent + feature.renderPassEventOffset;
@@ -130,6 +133,7 @@ namespace PowerUtilities.RenderFeatures
         protected override void Dispose(bool disposing)
         {
             RenderPipelineManager.beginCameraRendering -= RenderPipelineManager_beginCameraRendering;
+            RenderPipelineManager.endCameraRendering -= RenderPipelineManager_endCameraRendering;
         }
 
         private void RenderPipelineManager_beginCameraRendering(ScriptableRenderContext context, Camera camera)

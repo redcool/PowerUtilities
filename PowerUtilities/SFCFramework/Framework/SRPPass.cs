@@ -86,18 +86,13 @@ namespace PowerUtilities.RenderFeatures
             if(Feature == null || !Feature.enabled)
                 return false;
 
-            if (Feature.isSceneCameraOnly)
-                return camera.cameraType == CameraType.SceneView;
-
             if (Feature.isEditorOnly)
                 return Application.isEditor;
 
-            if (camera.cameraType == CameraType.Game &&!string.IsNullOrEmpty(Feature.gameCameraTag))
+            if (camera.IsGameCamera() &&!string.IsNullOrEmpty(Feature.gameCameraTag))
                 return IsGameCameraValid(camera);
 
             return true;
-            // > sceneView, use urp pass
-            //return camera.cameraType <= CameraType.SceneView;
         }
 
         public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
@@ -108,7 +103,6 @@ namespace PowerUtilities.RenderFeatures
 
             if (! CanExecute())
                 return;
-
 
             var cmd = CommandBufferPool.Get(featureName);
             cmd.Execute(ref context);

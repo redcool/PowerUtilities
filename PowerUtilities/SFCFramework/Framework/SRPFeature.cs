@@ -52,6 +52,11 @@ namespace PowerUtilities.RenderFeatures
             Tag = 0, Name
         }
 
+        public enum CameraTypeCompareFunc
+        {
+            LessEquals, Equals
+        }
+
         public const string SRP_FEATURE_MENU = "PowerUtilities/SrpRenderFeatures";
         public const string SRP_FEATURE_PASSES_MENU = SRP_FEATURE_MENU + "/Passes";
 
@@ -63,12 +68,14 @@ namespace PowerUtilities.RenderFeatures
         [Tooltip("Interrupt others pass when this pass done")]
         public bool interrupt;
 
-        [Tooltip("Only work in editor's scene camera")]
-        public bool isSceneCameraOnly;
+        [Tooltip("Which camera can run ?")]
+        public CameraType cameraType = CameraType.Game;
+        [Tooltip("Camera compare function")]
+        public CameraTypeCompareFunc cameraTypeCompareFunc;
 
         [Tooltip("Only work in editor")]
         public bool isEditorOnly;
-        
+
         [Tooltip("prefab stage show all objects?")]
         public bool isShowAllInPrefabStage = true;
         [Header("Pass Options / Filters")]
@@ -137,6 +144,10 @@ namespace PowerUtilities.RenderFeatures
         {
             passInstance = null;
         }
+
+        public bool IsCameraValid(Camera c)
+            => cameraTypeCompareFunc == CameraTypeCompareFunc.Equals ? c.cameraType == cameraType : c.cameraType <= cameraType;
+
     }
 
 }

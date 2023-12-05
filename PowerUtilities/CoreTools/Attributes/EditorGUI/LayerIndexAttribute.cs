@@ -19,7 +19,7 @@ using System.Collections.Generic;
     }
 #endif
     /// <summary>
-    /// like GameObject's Layer
+    /// show GameObject's Layer
     /// </summary>
     [AttributeUsage(AttributeTargets.Field)]
     public class LayerIndexAttribute : PropertyAttribute
