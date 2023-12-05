@@ -72,9 +72,10 @@ namespace PowerUtilities
 
             //------ foldout
             pos.width = 200;
+            pos.height = 20;
             //EditorGUI.DrawRect(pos, Color.red);
             foldoutProp.boolValue = EditorGUI.Foldout(pos, foldoutProp.boolValue, label, true);
-            
+
             //----- enabled
             pos.x += pos.width;
             pos.width = 45;
@@ -85,7 +86,7 @@ namespace PowerUtilities
             }
             //-----------gameCameraTag
             pos.x += pos.width;
-            pos.width = 200;
+            pos.width = 150;
             var gameCameraTag = passItemSO.FindProperty("gameCameraTag");
             if (gameCameraTag != null)
             {
@@ -106,7 +107,7 @@ namespace PowerUtilities
             {
                 pos.x += pos.width+3;
                 pos.width = 15;
-                GUI.Label(pos, flagName);
+                GUI.Label(pos, flagName,"Box");
             }
         }
     }
