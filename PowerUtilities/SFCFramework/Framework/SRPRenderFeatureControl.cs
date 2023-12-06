@@ -72,8 +72,14 @@ namespace PowerUtilities.RenderFeatures
 
     public class SRPRenderFeatureControl : ScriptableRendererFeature
     {
+        [Header("--- Layers")]
+        [Tooltip("scene view camera's opaqueLayers")]
+        public LayerMask sceneCameraOpaqueLayers = -1;
+
+        //public LayerMask gameCameraOpaqueLayers = 0;
+
+        [Header("--- FeatureList")]
         public SRPFeatureListSO featureListSO;
-        public LayerMask lastOpaqueLayers;
 
         [SerializeField]
         [HideInInspector]
@@ -120,35 +126,23 @@ namespace PowerUtilities.RenderFeatures
             RenderPipelineManager.beginCameraRendering -= RenderPipelineManager_beginCameraRendering;
             RenderPipelineManager.beginCameraRendering += RenderPipelineManager_beginCameraRendering;
 
-            RenderPipelineManager.endCameraRendering -= RenderPipelineManager_endCameraRendering;
-            RenderPipelineManager.endCameraRendering += RenderPipelineManager_endCameraRendering;
-        }
-
-        private void RenderPipelineManager_endCameraRendering(ScriptableRenderContext arg1, Camera arg2)
-        {
-            if (curRendererData)
-                curRendererData.opaqueLayerMask = lastOpaqueLayers;
         }
 
         protected override void Dispose(bool disposing)
         {
             RenderPipelineManager.beginCameraRendering -= RenderPipelineManager_beginCameraRendering;
-            RenderPipelineManager.endCameraRendering -= RenderPipelineManager_endCameraRendering;
         }
 
-        private void RenderPipelineManager_beginCameraRendering(ScriptableRenderContext context, Camera camera)
+        public  void RenderPipelineManager_beginCameraRendering(ScriptableRenderContext context, Camera camera)
         {
-            if (!camera.IsGameCamera())
-                return;
-            curRendererData = SetupRendererData();
+            var layers = camera.IsGameCamera() ? (LayerMask)0 : sceneCameraOpaqueLayers;
+            SetupRendererData(ref curRendererData, layers);
         }
 
-        public UniversalRendererData SetupRendererData()
+        public void SetupRendererData(ref UniversalRendererData data, LayerMask opaqueLayers)
         {
-            var data = (UniversalRendererData)UniversalRenderPipeline.asset.GetDefaultRendererData();
-            lastOpaqueLayers = data.opaqueLayerMask;
-            data.opaqueLayerMask = 0;// nothing
-            return data;
+            data = (UniversalRendererData)UniversalRenderPipeline.asset.GetDefaultRendererData();
+            data.opaqueLayerMask = opaqueLayers;
         }
     }
 }
