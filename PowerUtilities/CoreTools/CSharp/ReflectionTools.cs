@@ -74,6 +74,13 @@ namespace PowerUtilities
             return field != null ? field.GetValue(instance) : default;
         }
 
+        public static void SetFieldValue(this Type type, object instance, string fieldName, object value, BindingFlags flags = instanceBindings)
+        {
+            var field = type.GetField(fieldName, flags);
+            if (field != null)
+                field.SetValue(instance, value);
+        }
+
         /// <summary>
         /// Get a private Property
         /// </summary>

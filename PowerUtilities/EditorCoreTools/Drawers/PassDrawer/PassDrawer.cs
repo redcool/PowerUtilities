@@ -90,20 +90,30 @@ namespace PowerUtilities
             var gameCameraTag = passItemSO.FindProperty("gameCameraTag");
             if (gameCameraTag != null)
             {
-                var cameraTag = string.IsNullOrEmpty(gameCameraTag.stringValue) ? "All Camera" : gameCameraTag.stringValue;
+                var cameraTag = string.IsNullOrEmpty(gameCameraTag.stringValue) ? "" : gameCameraTag.stringValue;
                 EditorGUI.LabelField(pos, $"T: {cameraTag}");
             }
 
             //----- scene only
-            ShowSpecialFlags(passItemSO, ref pos, "isSceneCameraOnly", "S");
+            ShowSpecialFlags(passItemSO, ref pos, "cameraType", "S");
             //----- editor only
             ShowSpecialFlags(passItemSO, ref pos, "isEditorOnly", "E");
         }
 
         private static void ShowSpecialFlags(SerializedObject passItemSO, ref Rect pos,string featureFieldName,string flagName)
         {
-            var boolFieldName = passItemSO.FindProperty(featureFieldName);
-            if (boolFieldName != null && boolFieldName.boolValue)
+            var prop = passItemSO.FindProperty(featureFieldName);
+            if (prop == null)
+                return;
+
+            var isValid = prop.propertyType switch
+            {
+                SerializedPropertyType.Boolean => prop.boolValue,
+                SerializedPropertyType.Enum => prop.intValue > 1,
+                _ => false
+            };
+            
+            if (isValid)
             {
                 pos.x += pos.width+3;
                 pos.width = 15;

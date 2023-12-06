@@ -72,13 +72,13 @@ namespace PowerUtilities.RenderFeatures
 
     public class SRPRenderFeatureControl : ScriptableRendererFeature
     {
-        [Header("--- Layers")]
-        [Tooltip("scene view camera's opaqueLayers")]
-        public LayerMask sceneCameraOpaqueLayers = -1;
+        //[Header("--- Layers")]
+        //public bool isOverrideOpaqueLayers;
+        //[Tooltip("scene view camera's opaqueLayers")]
+        //public LayerMask sceneCameraOpaqueLayers = -1;
 
         //public LayerMask gameCameraOpaqueLayers = 0;
 
-        [Header("--- FeatureList")]
         public SRPFeatureListSO featureListSO;
 
         [SerializeField]
@@ -118,31 +118,34 @@ namespace PowerUtilities.RenderFeatures
                 if (feature.interrupt)
                     break;
             }
-            
         }
 
         public override void Create()
         {
-            RenderPipelineManager.beginCameraRendering -= RenderPipelineManager_beginCameraRendering;
-            RenderPipelineManager.beginCameraRendering += RenderPipelineManager_beginCameraRendering;
+            //RenderPipelineManager.beginCameraRendering -= RenderPipelineManager_beginCameraRendering;
+            //RenderPipelineManager.beginCameraRendering += RenderPipelineManager_beginCameraRendering;
 
         }
 
-        protected override void Dispose(bool disposing)
-        {
-            RenderPipelineManager.beginCameraRendering -= RenderPipelineManager_beginCameraRendering;
-        }
+        //protected override void Dispose(bool disposing)
+        //{
+        //    RenderPipelineManager.beginCameraRendering -= RenderPipelineManager_beginCameraRendering;
+        //}
 
-        public  void RenderPipelineManager_beginCameraRendering(ScriptableRenderContext context, Camera camera)
-        {
-            var layers = camera.IsGameCamera() ? (LayerMask)0 : sceneCameraOpaqueLayers;
-            SetupRendererData(ref curRendererData, layers);
-        }
+        //public  void RenderPipelineManager_beginCameraRendering(ScriptableRenderContext context, Camera camera)
+        //{
+        //    if (!isOverrideOpaqueLayers)
+        //        return;
+
+        //    var layers = camera.IsGameCamera() ? (LayerMask)0 : sceneCameraOpaqueLayers;
+        //    SetupRendererData(ref curRendererData, sceneCameraOpaqueLayers);
+        //}
 
         public void SetupRendererData(ref UniversalRendererData data, LayerMask opaqueLayers)
         {
             data = (UniversalRendererData)UniversalRenderPipeline.asset.GetDefaultRendererData();
             data.opaqueLayerMask = opaqueLayers;
+
         }
     }
 }
