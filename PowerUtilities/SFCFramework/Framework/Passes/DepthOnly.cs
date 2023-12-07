@@ -14,17 +14,24 @@ namespace PowerUtilities
     {
         [Header("Depth Only")]
         public LayerMask layerMask = -1;
+        public string depthTextureName = "_CameraDepthTexture";
         public override ScriptableRenderPass GetPass() => new DepthOnlyPassWrapper(this);
     }
 
     public class DepthOnlyPassWrapper : SRPPass<DepthOnly>
     {
-        RTHandle depthTextureHandle;
         public DepthOnlyPassWrapper(DepthOnly feature) : base(feature) {
+        }
+
+        public override bool CanExecute()
+        {
+            return base.CanExecute() && !string.IsNullOrEmpty(Feature.depthTextureName);
         }
 
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
         {
+            var depthTexId = Shader.PropertyToID(Feature.depthTextureName);
+
             cmd.BeginSampleExecute(Feature.name, ref context);
             var filterSettings = new FilteringSettings(RenderQueueRange.opaque, Feature.layerMask);
 
@@ -41,35 +48,27 @@ namespace PowerUtilities
                 perObjectData = PerObjectData.None,
             };
 
+            SetupDeptexTarget(ref renderingData, cmd,depthTexId);
+
+            cmd.SetRenderTarget(depthTexId);
+            cmd.ClearRenderTarget(true, false, Color.clear);
+            cmd.Execute(ref context);
+
             context.DrawRenderers(cmd,renderingData.cullResults, ref drawingSettings, ref filterSettings);
 
             cmd.EndSampleExecute(Feature.name, ref context);
         }
 
-        private void SetupDeptexTarget(ref RenderingData renderingData, CommandBuffer cmd)
+        private void SetupDeptexTarget(ref RenderingData renderingData, CommandBuffer cmd,int depthTexId)
         {
             ref var cameraData = ref renderingData.cameraData;
             var renderer = (UniversalRenderer)cameraData.renderer;
-            depthTextureHandle = renderer.GetRTHandle(URPRTHandleNames.m_DepthTexture);
-            var depthId = renderer.GetRenderTargetId(URPRTHandleNames.m_DepthTexture);
 
             var desc = cameraData.cameraTargetDescriptor;
             desc.colorFormat = RenderTextureFormat.Depth;
             desc.depthBufferBits = 24;
             desc.msaaSamples = 1;
-
-#if UNITY_2022_1_OR_NEWER
-#else
-            if (depthId.IsNameIdEquals(0))
-                cmd.GetTemporaryRT(ShaderPropertyIds._CameraDepthTexture, desc, FilterMode.Point);
-#endif
-            ConfigureTarget(depthTextureHandle);
-            ConfigureClear(ClearFlag.Depth, Color.clear);
-        }
-
-        public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
-        {
-            SetupDeptexTarget(ref renderingData, cmd);
+            cmd.GetTemporaryRT(depthTexId, desc);
         }
 
     }
