@@ -14,18 +14,30 @@
     public class PlanarReflectionCameraControl : MonoBehaviour
     {
         [Header("Reflection Camera")]
+        
+        [Tooltip("property name in shader")]
         public string reflectionTextureName = "_ReflectionTexture";
+
+        [Tooltip("which layer reflection camera can see")]
         public LayerMask layers = -1;
+
+        [Tooltip("reflection camera clear options")]
         public CameraClearFlags clearFlags = CameraClearFlags.SolidColor;
         public Color backgroundColor;
+
+        [Tooltip("reflection camera's tag,urp pass use this control pass")]
         public string cameraTag = "ReflectionCamera";
-        [Range(0,4)]public int downSamples = 0;
+
+        [Tooltip("texture's scale")]
+        [Range(0,4)]public int downSamples = 1;
+        [Tooltip("auto generate mipmaps")]
+        public bool isGenerateMips = true;
 
         [Header("Plane ")]
-        [Tooltip("use xz plane")]
+        [Tooltip("water plane's height, when reflectionPlaneTr is empty ")]
         public float planeYOffset;
 
-        [Tooltip("use any plane")]
+        [Tooltip("mirror plane,result mirror effects")]
         public Transform reflectionPlaneTr;
 
         [Header("Main Camera")]
@@ -67,7 +79,7 @@
             if (!mainCam)
                 return;
 
-            TryCreateReflectionRT(ref reflectionRT, mainCam.pixelWidth>>downSamples, mainCam.pixelHeight>>downSamples);
+            TryCreateReflectionRT(ref reflectionRT, mainCam.pixelWidth>>downSamples, mainCam.pixelHeight>>downSamples,isGenerateMips);
             SetupReflectionCameraStates();
             RenderReflection();
             SendToShader();
@@ -78,7 +90,7 @@
                 reflectionRT.Destroy();
         }
 
-        private void TryCreateReflectionRT(ref RenderTexture rt,int width,int height)
+        private void TryCreateReflectionRT(ref RenderTexture rt, int width, int height, bool isGenerateMips)
         {
             if (!rt || lastWidth != width || lastHeight != height)
             {
@@ -89,7 +101,12 @@
                 var h = Mathf.Max(lastHeight, 2);
 
                 rt = new RenderTexture(w, h, 16);
+                rt.useMipMap = isGenerateMips;
+                rt.autoGenerateMips = isGenerateMips;
                 rt.Create();
+            }
+            if (rt)
+            {
             }
         }
 

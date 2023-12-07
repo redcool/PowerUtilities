@@ -68,6 +68,7 @@ namespace PowerUtilities.RenderFeatures
         [Tooltip("Interrupt others pass when this pass done")]
         public bool interrupt;
 
+        [Header("Pass Options / CameraType")]
         [Tooltip("Which camera can run ?")]
         public CameraType cameraType = CameraType.Game;
         [Tooltip("Camera compare function")]
