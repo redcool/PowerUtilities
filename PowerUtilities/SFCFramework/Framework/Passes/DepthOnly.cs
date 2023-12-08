@@ -73,7 +73,9 @@ namespace PowerUtilities
 
             if(!depthTex || depthTex.width != desc.width || depthTex.height != desc.height)
             {
-                depthTex?.Release();
+                if(depthTex)
+                    depthTex.Release();
+
                 depthTex = new RenderTexture(desc);
             }
             cmd.SetGlobalTexture(depthTexId, depthTex);
@@ -81,7 +83,8 @@ namespace PowerUtilities
 
         public override void OnFinishCameraStackRendering(CommandBuffer cmd)
         {
-            depthTex?.Release();
+            if (depthTex)
+                depthTex.Release();
         }
 
     }
