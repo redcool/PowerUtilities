@@ -20,6 +20,7 @@ namespace PowerUtilities
 
     public class DepthOnlyPassWrapper : SRPPass<DepthOnly>
     {
+        RenderTexture depthTex;
         public DepthOnlyPassWrapper(DepthOnly feature) : base(feature) {
         }
 
@@ -50,7 +51,7 @@ namespace PowerUtilities
 
             SetupDeptexTarget(ref renderingData, cmd,depthTexId);
 
-            cmd.SetRenderTarget(depthTexId);
+            cmd.SetRenderTarget(depthTex);
             cmd.ClearRenderTarget(true, false, Color.clear);
             cmd.Execute(ref context);
 
@@ -68,7 +69,19 @@ namespace PowerUtilities
             desc.colorFormat = RenderTextureFormat.Depth;
             desc.depthBufferBits = 24;
             desc.msaaSamples = 1;
-            cmd.GetTemporaryRT(depthTexId, desc);
+            //cmd.GetTemporaryRT(depthTexId, desc);
+
+            if(!depthTex || depthTex.width != desc.width || depthTex.height != desc.height)
+            {
+                depthTex?.Release();
+                depthTex = new RenderTexture(desc);
+            }
+            cmd.SetGlobalTexture(depthTexId, depthTex);
+        }
+
+        public override void OnFinishCameraStackRendering(CommandBuffer cmd)
+        {
+            depthTex?.Release();
         }
 
     }
