@@ -153,8 +153,8 @@
                 colorTarget = RenderTargetHolder.LastColorTargetRT;
                 depthTarget = RenderTargetHolder.LastDepthTargetRT;
             }
-#if UNITY_EDITOR
-            // restore CameraTarget
+#if ! UNITY_2021_1_OR_NEWER
+            // restore CameraTarget ,below 2022
             if (c.IsSceneViewCamera())
             {
                 var rth = RTHandles.Alloc(BuiltinRenderTextureType.CameraTarget);
@@ -163,6 +163,7 @@
             }
 #endif
             urpSkyPass.ConfigureTarget(colorTarget, depthTarget);
+            
         }
     }
 
