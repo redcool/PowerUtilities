@@ -4,7 +4,8 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using PowerUtilities;
-using System.Numerics;
+using System.Linq;
+using Unity.Mathematics;
 
 namespace PowerUtilities.RenderFeatures
 {
@@ -31,7 +32,7 @@ namespace PowerUtilities.RenderFeatures
         /// sv_target3 , xyz:pbrMask, w:mainLightShadow
         /// 
         /// </summary>
-            [Header("Objects")]
+        [Header("Objects")]
         public string _GBuffer0 = nameof(_GBuffer0);
         public string _GBuffer1 = nameof(_GBuffer1);
         public string _GBuffer2 = nameof(_GBuffer2);
@@ -39,6 +40,8 @@ namespace PowerUtilities.RenderFeatures
 
         public string deferedTag = "UniversalGBuffer";
         public int layers = -1;
+        [Header("Lights")]
+        public Material lightMat;
 
         //[Header("Output")]
         //public string targetName;
@@ -59,10 +62,37 @@ namespace PowerUtilities.RenderFeatures
 
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
         {
+
             ref var cameraDate = ref renderingData.cameraData;
+            var renderer = (UniversalRenderer)cameraDate.renderer;
+            var colorAttachmentA = renderer.GetCameraColorAttachmentA();
 
             SetupTargets(ref context, ref renderingData, cmd);
             DrawScene(ref context, ref renderingData, cmd, cameraDate);
+
+            if (!Feature.lightMat)
+                return;
+
+            cmd.SetRenderTarget(colorAttachmentA);
+            cmd.Execute(ref context);
+
+            var lightGroups = Object.FindObjectsByType<Light>(FindObjectsSortMode.None)
+            .GroupBy(light => light.type).ToList();
+
+            foreach (var g in lightGroups)
+            {
+                foreach (var light in g)
+                {
+                    if(light.type == LightType.Directional)
+                        DrawDirLight(ref context,ref renderingData,cmd,light);
+                }
+            }
+        }
+
+        private void DrawDirLight(ref ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd, Light light)
+        {
+            cmd.SetGlobalVector(ShaderPropertyIds._MainLightPosition, new float4(light.transform.forward,0));
+            cmd.BlitTriangle(BuiltinRenderTextureType.None, ShaderPropertyIds._CameraColorAttachmentA, Feature.lightMat, 0);
         }
 
         private void DrawScene(ref ScriptableRenderContext context,ref RenderingData renderingData, CommandBuffer cmd, CameraData cameraDate)
@@ -93,18 +123,20 @@ namespace PowerUtilities.RenderFeatures
             int gbuffer2 = Shader.PropertyToID(Feature._GBuffer2);
             int gbuffer3 = Shader.PropertyToID(Feature._MotionVectorTexture);
 
-            var desc = renderingData.cameraData.cameraTargetDescriptor;
-            desc.msaaSamples = 1;
+            var colorDesc = renderingData.cameraData.cameraTargetDescriptor;
+            colorDesc.depthBufferBits = 0;
+            colorDesc.msaaSamples = 1;
+            colorDesc.graphicsFormat = UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SNorm;
 
-            var motionDesc = desc;
+            var motionDesc = colorDesc;
             motionDesc.graphicsFormat = UnityEngine.Experimental.Rendering.GraphicsFormat.R16G16_SFloat;
 
-            cmd.GetTemporaryRT(gbuffer0, desc);
-            cmd.GetTemporaryRT(gbuffer1, desc);
-            cmd.GetTemporaryRT(gbuffer2, desc);
+            cmd.GetTemporaryRT(gbuffer0, colorDesc);
+            cmd.GetTemporaryRT(gbuffer1, colorDesc);
+            cmd.GetTemporaryRT(gbuffer2, colorDesc);
             cmd.GetTemporaryRT(gbuffer3, motionDesc);
 
-            var depthDesc = desc;
+            var depthDesc = colorDesc;
             depthDesc.colorFormat = RenderTextureFormat.Depth;
             depthDesc.depthBufferBits = 24;
             cmd.GetTemporaryRT(ShaderPropertyIds._CameraDepthAttachment, depthDesc);

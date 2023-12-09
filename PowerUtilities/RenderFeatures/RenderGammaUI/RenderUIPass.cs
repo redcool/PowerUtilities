@@ -47,23 +47,6 @@ namespace PowerUtilities.Features
             return renderStateBlock;
         }
 
-
-
-        void Blit(CommandBuffer cmd,
-                    RenderTargetIdentifier source,
-                    RenderTargetIdentifier destination,
-                    Material material,
-                    int passIndex = 0,
-                    RenderBufferLoadAction colorLoadAction = RenderBufferLoadAction.Load,
-                    RenderBufferStoreAction colorStoreAction = RenderBufferStoreAction.Store,
-                    RenderBufferLoadAction depthLoadAction = RenderBufferLoadAction.Load,
-                    RenderBufferStoreAction depthStoreAction = RenderBufferStoreAction.Store)
-        {
-            cmd.SetGlobalTexture(_SourceTex, source);
-            cmd.SetRenderTarget(destination, colorLoadAction, colorStoreAction, depthLoadAction, depthStoreAction);
-            cmd.Blit(source, BuiltinRenderTextureType.CurrentActive, material, passIndex);
-        }
-
         public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
         {
             var urpAsset = UniversalRenderPipeline.asset;
