@@ -47,23 +47,6 @@ namespace PowerUtilities.Features
             return renderStateBlock;
         }
 
-
-
-        void Blit(CommandBuffer cmd,
-                    RenderTargetIdentifier source,
-                    RenderTargetIdentifier destination,
-                    Material material,
-                    int passIndex = 0,
-                    RenderBufferLoadAction colorLoadAction = RenderBufferLoadAction.Load,
-                    RenderBufferStoreAction colorStoreAction = RenderBufferStoreAction.Store,
-                    RenderBufferLoadAction depthLoadAction = RenderBufferLoadAction.Load,
-                    RenderBufferStoreAction depthStoreAction = RenderBufferStoreAction.Store)
-        {
-            cmd.SetGlobalTexture(_SourceTex, source);
-            cmd.SetRenderTarget(destination, colorLoadAction, colorStoreAction, depthLoadAction, depthStoreAction);
-            cmd.Blit(source, BuiltinRenderTextureType.CurrentActive, material, passIndex);
-        }
-
         public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
         {
             var urpAsset = UniversalRenderPipeline.asset;
@@ -87,14 +70,24 @@ namespace PowerUtilities.Features
 
         public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
         {
+            cmd.BeginSampleExecute(nameof(RenderUIPass),ref context);
+            Draw(ref context, ref renderingData);
+            cmd.EndSampleExecute(nameof(RenderUIPass),ref context);
+        }
+        public void Draw(ref ScriptableRenderContext context, ref RenderingData renderingData)
+        {
             ref var cameraData = ref renderingData.cameraData;
 
+            // ------- wrtie to cameraTarget
             if (IsWriteToCameraTargetDirect())
             {
+                ClearDefaultCameraDepth(ref context,cmd);
+
                 if (Display.main.requiresSrgbBlitToBackbuffer)
                 {
                     ColorSpaceTransform.SetColorSpace(cmd, ColorSpaceTransform.ColorSpaceMode.LinearToSRGB);
                 }
+
                 DrawRenderers(ref context, ref renderingData, BuiltinRenderTextureType.CameraTarget, BuiltinRenderTextureType.CameraTarget);
                 return;
             }
@@ -106,7 +99,7 @@ namespace PowerUtilities.Features
                 return;
             }
 #endif
-            cmd.BeginSample(nameof(RenderUIPass));
+            // ------ gamma ui flow
 
             RenderTargetIdentifier lastColorHandleId, colorHandleId, depthHandleId;
             SetupTargetTex(ref renderingData, ref cameraData, out lastColorHandleId, out colorHandleId, out depthHandleId);
@@ -142,8 +135,13 @@ namespace PowerUtilities.Features
 
             ColorSpaceTransform.SetColorSpace(cmd, ColorSpaceTransform.ColorSpaceMode.None);
 
-            cmd.EndSample(nameof(RenderUIPass));
+            cmd.Execute(ref context);
+        }
 
+        void ClearDefaultCameraDepth(ref ScriptableRenderContext context,CommandBuffer cmd)
+        {
+            cmd.SetRenderTarget(BuiltinRenderTextureType.CameraTarget);
+            cmd.ClearRenderTarget(true, false, Color.clear);
             cmd.Execute(ref context);
         }
 

@@ -15,7 +15,12 @@ namespace PowerUtilities
 {
     public enum TextureResolution
     {
-        x32 = 32, x64 = 64, x128 = 128, x256 = 256, x512 = 512, x1024 = 1024, x2048 = 2048, x4096 = 4096,x8192,x16384
+        x32 = 32, x64 = 64, x128 = 128, x256 = 256, x512 = 512, x1024 = 1024, x2048 = 2048, x4096 = 4096, x8192 = x4096 * 2, x16384 = x8192 * 2
+    }
+
+    public enum DepthBufferBits
+    {
+        _0 = 0, _16 = 16, _24 = 24, _32 = 32
     }
 
     public static class Texture2DEx

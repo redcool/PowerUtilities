@@ -70,6 +70,7 @@ namespace PowerUtilities.RenderFeatures
     }
 #endif
 
+    [Tooltip("Use SFC Passes control renderPipeline")]
     public class SRPRenderFeatureControl : ScriptableRendererFeature
     {
         //[Header("--- Layers")]

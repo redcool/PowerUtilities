@@ -7,12 +7,10 @@ using static UnityEngine.Experimental.Rendering.Universal.RenderObjects;
 
 namespace PowerUtilities.Features
 {
+    [Tooltip("Render scane in linear, Render UI in gamma space")]
     public class RenderGammaUIFeature : ScriptableRendererFeature
     {
-        public enum DepthBufferBits
-        {
-            _0 = 0, _16 = 16, _24 = 24, _32 = 32
-        }
+
 
         [Serializable]
         public class Settings
@@ -112,9 +110,13 @@ namespace PowerUtilities.Features
                 isUICamera = cameraData.camera.CompareTag(cameraTag);
             }
 
-            var isSceneCamera = cameraData.isSceneViewCamera;
+            return isUICamera;
+        }
 
-            return isUICamera || isSceneCamera;
+        private static void SetupUICamera(ref CameraData cameraData)
+        {
+            cameraData.clearDepth = false; // clear depth afterwards
+            cameraData.requiresDepthTexture = false;
         }
 
         // Here you can inject one or multiple render passes in the renderer.
@@ -129,11 +131,20 @@ namespace PowerUtilities.Features
             }
 
             ref var cameraData = ref renderingData.cameraData;
-            if (!IsUICamera(ref cameraData, settings.cameraTag))
+            var isSceneCamera = cameraData.isSceneViewCamera;
+            var isUICamera = IsUICamera(ref cameraData, settings.cameraTag);
+
+            if (!isUICamera && !isSceneCamera)
             {
                 settings.logs = "UICamera not found";
                 return;
             }
+
+            if (isUICamera)
+            {
+                SetupUICamera(ref cameraData);
+            }
+
             // ui rendering checks
             if (settings.isFinalRendering)
             {
