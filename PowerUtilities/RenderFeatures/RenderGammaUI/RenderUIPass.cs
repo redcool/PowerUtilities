@@ -77,18 +77,12 @@ namespace PowerUtilities.Features
         public void Draw(ref ScriptableRenderContext context, ref RenderingData renderingData)
         {
             ref var cameraData = ref renderingData.cameraData;
+            var renderer = (UniversalRenderer)cameraData.renderer;
 
             // ------- wrtie to cameraTarget
             if (IsWriteToCameraTargetDirect())
             {
-                ClearDefaultCameraDepth(ref context, cmd);
-
-                if (Display.main.requiresSrgbBlitToBackbuffer)
-                {
-                    ColorSpaceTransform.SetColorSpace(cmd, ColorSpaceTransform.ColorSpaceMode.LinearToSRGB);
-                }
-
-                DrawRenderers(ref context, ref renderingData, BuiltinRenderTextureType.CameraTarget, BuiltinRenderTextureType.CameraTarget);
+                DrawToCameraTarget(ref context, ref renderingData, renderer);
                 return;
             }
 
@@ -102,6 +96,23 @@ namespace PowerUtilities.Features
             // ------ gamma ui flow
 
             BlitToGammaDrawObjects(ref context, ref renderingData, cameraData);
+        }
+
+        private void DrawToCameraTarget(ref ScriptableRenderContext context, ref RenderingData renderingData, UniversalRenderer renderer)
+        {
+            ClearDefaultCameraTargetDepth(ref context, cmd);
+
+            if (Display.main.requiresSrgbBlitToBackbuffer)
+            {
+                ColorSpaceTransform.SetColorSpace(cmd, ColorSpaceTransform.ColorSpaceMode.LinearToSRGB);
+            }
+
+            // blit current active to camera target
+            var curActive = renderer.GetRTHandle(URPRTHandleNames.m_ActiveCameraColorAttachment);
+            cmd.BlitTriangle(curActive, BuiltinRenderTextureType.CameraTarget, settings.blitMat, 0);
+            
+            // draw object with blend
+            DrawRenderers(ref context, ref renderingData, BuiltinRenderTextureType.CameraTarget, BuiltinRenderTextureType.CameraTarget);
         }
 
         private void BlitToGammaDrawObjects(ref ScriptableRenderContext context, ref RenderingData renderingData, CameraData cameraData)
@@ -143,11 +154,10 @@ namespace PowerUtilities.Features
             cmd.Execute(ref context);
         }
 
-        void ClearDefaultCameraDepth(ref ScriptableRenderContext context,CommandBuffer cmd)
+        void ClearDefaultCameraTargetDepth(ref ScriptableRenderContext context,CommandBuffer cmd)
         {
             cmd.SetRenderTarget(BuiltinRenderTextureType.CameraTarget);
             cmd.ClearRenderTarget(true, false, Color.clear);
-            cmd.Execute(ref context);
         }
 
         void BlitToTarget(ref ScriptableRenderContext context, RenderTargetIdentifier lastColorHandleId, RenderTargetIdentifier colorHandleId, RenderTargetIdentifier depthHandleId, bool clearColor, bool clearDepth)
@@ -229,12 +239,11 @@ namespace PowerUtilities.Features
         {
             var renderer = (UniversalRenderer)cameraData.renderer;
             lastColorHandle = renderer.GetRTHandle(URPRTHandleNames.m_ActiveCameraColorAttachment);
-
             var colorAttachmentA = renderer.GetRTHandle(URPRTHandleNames._CameraColorAttachmentA);
             var colorAttachmentB = renderer.GetRTHandle(URPRTHandleNames._CameraColorAttachmentB);
+            colorHandleId = lastColorHandle == colorAttachmentA ? colorAttachmentB : colorAttachmentA;
 
             depthHandleId = lastDepthHandle = renderer.GetRTHandle(URPRTHandleNames.m_CameraDepthAttachment);
-            colorHandleId = lastColorHandle == colorAttachmentA ? colorAttachmentB : colorAttachmentA;
 
             if (settings.createFullsizeGammaTex)
             {
