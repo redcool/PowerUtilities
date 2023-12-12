@@ -51,7 +51,7 @@ namespace PowerUtilities.Features
              * ***/
 
             [Header("Fullsize Texture")]
-            [Tooltip("create other full size texture,when RenderingScale < 1, rendering objects in fullscreen,FSR need this text")]
+            [Tooltip("create a full size texture,as rendering objects target, otherwise use CameraColor(Depth)Attachment,FSR need this")]
             public bool createFullsizeGammaTex;
 
             [Tooltip("Need use stencil buffer?")]
@@ -63,9 +63,10 @@ namespace PowerUtilities.Features
             [Tooltip("Best option is close for Middle device.")]
             public bool disableFSR = true;
 
-            [Tooltip("No blit,no gamma texture,draw in linear space,output to camera target")]
+            [Tooltip("No blit,no gamma texture,draw objects,output to camera target")]
             public bool isWriteToCameraTargetDirectly;
 
+            [Tooltip("control urp pipeline asset")]
             public bool useSRPBatcher=true;
 
             [Header("Editor Options")]

@@ -81,7 +81,7 @@ namespace PowerUtilities.Features
             // ------- wrtie to cameraTarget
             if (IsWriteToCameraTargetDirect())
             {
-                ClearDefaultCameraDepth(ref context,cmd);
+                ClearDefaultCameraDepth(ref context, cmd);
 
                 if (Display.main.requiresSrgbBlitToBackbuffer)
                 {
@@ -101,18 +101,23 @@ namespace PowerUtilities.Features
 #endif
             // ------ gamma ui flow
 
-            RenderTargetIdentifier lastColorHandleId, colorHandleId, depthHandleId;
-            SetupTargetTex(ref renderingData, ref cameraData, out lastColorHandleId, out colorHandleId, out depthHandleId);
+            BlitToGammaDrawObjects(ref context, ref renderingData, cameraData);
+        }
+
+        private void BlitToGammaDrawObjects(ref ScriptableRenderContext context, ref RenderingData renderingData, CameraData cameraData)
+        {
+            RTHandle lastColorHandle, lastDepthHandle, colorHandle, depthHandle;
+            SetupTargetTex(ref renderingData, ref cameraData, out lastColorHandle, out lastDepthHandle, out colorHandle, out depthHandle);
 
             //---------------------  1 to gamma tex
             settings.blitMat.shaderKeywords = null;
             //settings.blitMat.SetFloat("_Double", 0);
 
             ColorSpaceTransform.SetColorSpace(cmd, ColorSpaceTransform.ColorSpaceMode.LinearToSRGB);
-            BlitToTarget(ref context, lastColorHandleId, colorHandleId, depthHandleId);
+            BlitToTarget(ref context, lastColorHandle, colorHandle, depthHandle, false, true);
 
-            //--------------------- 2 draw ui
-            DrawRenderers(ref context, ref renderingData, colorHandleId, depthHandleId);
+            //--------------------- 2 draw gamma objects
+            DrawRenderers(ref context, ref renderingData, colorHandle, depthHandle);
 
 
             //--------------------- 3 to colorTarget
@@ -126,7 +131,7 @@ namespace PowerUtilities.Features
             else
             {
                 // write to urp target
-                BlitToTarget(ref context, colorHandleId, lastColorHandleId, depthHandleId);
+                BlitToTarget(ref context, colorHandle, lastColorHandle, lastDepthHandle, false, true);
             }
 
             //------------- end 
@@ -145,18 +150,14 @@ namespace PowerUtilities.Features
             cmd.Execute(ref context);
         }
 
-        void BlitToTarget(ref ScriptableRenderContext context, RenderTargetIdentifier lastColorHandleId, RenderTargetIdentifier colorHandleId, RenderTargetIdentifier depthHandleId)
+        void BlitToTarget(ref ScriptableRenderContext context, RenderTargetIdentifier lastColorHandleId, RenderTargetIdentifier colorHandleId, RenderTargetIdentifier depthHandleId, bool clearColor, bool clearDepth)
         {
             // _CameraOpaqueTexture is _CameraColorAttachmentA or _CameraColorAttachmentB
             cmd.SetGlobalTexture(_SourceTex, lastColorHandleId);
-            cmd.SetRenderTarget(colorHandleId,depthHandleId);
+            cmd.SetRenderTarget(colorHandleId, depthHandleId);
+            cmd.ClearRenderTarget(clearDepth, clearColor, Color.clear, 1);
 
-            if (settings.createFullsizeGammaTex)
-            {
-                cmd.ClearRenderTarget(true, false, Color.black,1);
-            }
-
-            //cmd.Blit(BuiltinRenderTextureType.None, colorHandleId, settings.blitMat); // will set _MainTex
+            //cmd.Blit(BuiltinRenderTextureType.None, colorHandle, settings.blitMat); // will set _MainTex
             cmd.BlitTriangle(lastColorHandleId, colorHandleId, settings.blitMat, 0);
         }
 
@@ -182,7 +183,7 @@ namespace PowerUtilities.Features
             // reset depth buffer(depthHandle), otherwise depth&stencil are missing
             {
                 //cmd.SetRenderTarget(targetTexId, RenderBufferLoadAction.Load, RenderBufferStoreAction.Store,
-                // depthHandleId, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store);
+                // depthHandle, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store);
 
                 cmd.SetRenderTarget(targetTexId, depthHandleId);
 
@@ -224,17 +225,16 @@ namespace PowerUtilities.Features
             return false;
         }
 
-        RenderTargetIdentifier m_ActiveCameraColorAttachment, colorAttachmentA, colorAttachmentB;
-        
-        private void SetupTargetTex(ref RenderingData renderingData, ref CameraData cameraData,out RenderTargetIdentifier lastColorHandleId, out RenderTargetIdentifier colorHandleId, out RenderTargetIdentifier depthHandleId)
+        private void SetupTargetTex(ref RenderingData renderingData, ref CameraData cameraData,out RTHandle lastColorHandle,out RTHandle lastDepthHandle, out RTHandle colorHandleId, out RTHandle depthHandleId)
         {
             var renderer = (UniversalRenderer)cameraData.renderer;
-            lastColorHandleId = renderer.GetRenderTargetId(URPRTHandleNames.m_ActiveCameraColorAttachment);
-            colorAttachmentA = renderer.GetRenderTargetId(URPRTHandleNames._CameraColorAttachmentA);
-            colorAttachmentB = renderer.GetRenderTargetId(URPRTHandleNames._CameraColorAttachmentB);
-            depthHandleId = renderer.GetRenderTargetId(URPRTHandleNames.m_CameraDepthAttachment);
+            lastColorHandle = renderer.GetRTHandle(URPRTHandleNames.m_ActiveCameraColorAttachment);
 
-            colorHandleId = lastColorHandleId == colorAttachmentA ? colorAttachmentB : colorAttachmentA;
+            var colorAttachmentA = renderer.GetRTHandle(URPRTHandleNames._CameraColorAttachmentA);
+            var colorAttachmentB = renderer.GetRTHandle(URPRTHandleNames._CameraColorAttachmentB);
+
+            depthHandleId = lastDepthHandle = renderer.GetRTHandle(URPRTHandleNames.m_CameraDepthAttachment);
+            colorHandleId = lastColorHandle == colorAttachmentA ? colorAttachmentB : colorAttachmentA;
 
             if (settings.createFullsizeGammaTex)
             {
@@ -246,8 +246,7 @@ namespace PowerUtilities.Features
                 desc.depthBufferBits = (int)settings.depthBufferBits;
                 cmd.GetTemporaryRT(_GammaTex, desc);
 
-                colorHandleId = _GammaTex;
-                depthHandleId = _GammaTex;
+                colorHandleId = depthHandleId = RTHandles.Alloc(_GammaTex);
             }
         }
     }

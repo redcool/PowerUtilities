@@ -54,12 +54,10 @@ namespace PowerUtilities
         /// <param name="renderer"></param>
         /// <param name="rtName"></param>
         /// <returns></returns>
-        public static RenderTargetIdentifier GetRenderTargetId(this UniversalRenderer renderer, URPRTHandleNames rtName)
+        public static RTHandle GetRenderTargetId(this UniversalRenderer renderer, URPRTHandleNames rtName)
         {
             var handle = GetRTHandle(renderer, rtName);
-            if (handle != null)
-                return handle.nameID;
-            return default;
+            return handle;
         }
 
         /// <summary>
