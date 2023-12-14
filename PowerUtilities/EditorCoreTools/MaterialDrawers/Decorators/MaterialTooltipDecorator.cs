@@ -18,16 +18,28 @@ namespace PowerUtilities
     public class MaterialTooltipDecorator : MaterialPropertyDrawer
     {
         public string tooltip;
+        public Texture tex;
         public MaterialTooltipDecorator(string tooltip)
         {
             this.tooltip = tooltip;
         }
 
+        public MaterialTooltipDecorator(string tooltip,string texPath)
+        {
+            this.tooltip = tooltip;
+#if UNITY_EDITOR
+            if (!string.IsNullOrEmpty(texPath))
+                tex = AssetDatabase.LoadAssetAtPath<Texture>(texPath);
+#endif
+        }
+
         public override void OnGUI(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
         {
-            if(!string.IsNullOrEmpty(tooltip))
-                label.tooltip= tooltip;
+            if (!string.IsNullOrEmpty(tooltip))
+                label.tooltip = tooltip;
 
+            if (tex)
+                label.image = tex;
         }
     }
 }
