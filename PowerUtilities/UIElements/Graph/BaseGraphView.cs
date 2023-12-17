@@ -20,8 +20,22 @@ namespace PowerUtilities.UIElements
 
         public class NodeViewInfo
         {
+            /// <summary>
+            /// Node 's name
+            /// </summary>
             public string name;
-            public Type type;
+
+            /// <summary>
+            /// NodeView's nodeViewType,will auto create a instance
+            /// </summary>
+            public Type nodeViewType;
+
+            /// <summary>
+            /// copy info to nodeView
+            /// 
+            /// setup NodeView(inner GraphView) will call this
+            /// </summary>
+            public Action<BaseNodeView> onSetupView;
         }
 
         /// <summary>
@@ -30,13 +44,13 @@ namespace PowerUtilities.UIElements
         /// </summary>
         public List<NodeViewInfo> appendNodeList = new List<NodeViewInfo>()
         {
-            new NodeViewInfo{name = "TestNode",type = typeof(BaseNodeView) }
+            new NodeViewInfo{name = "TestNode",nodeViewType = typeof(BaseNodeView) }
         };
 
         public List<BaseNodeView> nodeViewList = new List<BaseNodeView>();
 
         /// <summary>
-        /// current selected node id
+        /// current selected nodeInfo id
         /// </summary>
         public int selectedNodeIndex = -1;
 
@@ -60,12 +74,33 @@ namespace PowerUtilities.UIElements
 
         public override void BuildContextualMenu(ContextualMenuPopulateEvent evt)
         {
-            appendNodeList.ForEach(node =>
+            var mousePos = evt.localMousePosition;
+
+            appendNodeList.ForEach(nodeInfo =>
             {
-                evt.menu.AppendAction(node.name,
-                    (action) => AddElement((GraphElement)Activator.CreateInstance(node.type))
+                evt.menu.AppendAction(nodeInfo.name,
+                    (action) =>
+                    {
+                        var guiItem = (GraphElement)Activator.CreateInstance(nodeInfo.nodeViewType);
+                        if (guiItem is BaseNodeView nodeView)
+                        {
+                            nodeInfo.onSetupView?.Invoke(nodeView);
+                        }
+
+                        SetupNodePosition( guiItem, mousePos);
+                        AddElement(guiItem);
+                    }
                 );
             });
+
+            //--------- local methods
+            static void SetupNodePosition( GraphElement item,Vector2 pos)
+            {
+                var itemPos = item.GetPosition();
+                itemPos.position = pos;
+
+                item.SetPosition(itemPos);
+            }
         }
 
         public override List<Port> GetCompatiblePorts(Port startPort, NodeAdapter nodeAdapter)

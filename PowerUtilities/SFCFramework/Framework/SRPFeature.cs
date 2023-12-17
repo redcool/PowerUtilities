@@ -149,6 +149,8 @@ namespace PowerUtilities.RenderFeatures
         public bool IsCameraValid(Camera c)
             => cameraTypeCompareFunc == CameraTypeCompareFunc.Equals ? c.cameraType == cameraType : c.cameraType <= cameraType;
 
+        public static IEnumerable<Type> GetSRPFeatureTypes()
+        => ReflectionTools.GetTypesDerivedFrom<SRPFeature>();
     }
 
 }

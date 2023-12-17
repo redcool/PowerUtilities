@@ -24,6 +24,7 @@ namespace PowerUtilities
         IMGUIContainer inspectorView;
 
         Editor featureSOEditor;
+        IEnumerable<Type> srpFeatureTypes;
 
         [OnOpenAsset]
         static bool OnOpenSFC(int instanceId, int line)
@@ -93,6 +94,8 @@ namespace PowerUtilities
 
         public override void CreateGUI()
         {
+            srpFeatureTypes = ReflectionTools.GetTypesDerivedFrom<SRPFeature>();
+
             base.treeAsset = AssetDatabaseTools.FindAssetPathAndLoad<VisualTreeAsset>(out _, "SFCGraphWindow", "uxml");
             base.CreateGUI();
             ShowSelectedFeatureListSO();
@@ -101,11 +104,25 @@ namespace PowerUtilities
         public void AddEvent(VisualElement root)
         {
             graphView = root.Q<BaseGraphView>();
-            graphView.appendNodeList = new List<BaseGraphView.NodeViewInfo>
-            {
-                new BaseGraphView.NodeViewInfo {name = "SFCNode1",type = typeof(BaseNodeView)},
-                new BaseGraphView.NodeViewInfo {name = "SFCNode2",type = typeof(BaseNodeView)}
-            };
+            //graphView.appendNodeList = new List<BaseGraphView.NodeViewInfo>
+            //{
+            //    new BaseGraphView.NodeViewInfo {name = "SFCNode1",nodeViewType = typeof(BaseNodeView)},
+            //    new BaseGraphView.NodeViewInfo {name = "SFCNode2",nodeViewType = typeof(BaseNodeView)}
+            //};
+
+            graphView.appendNodeList = srpFeatureTypes.Select(sfcFeatureType =>
+                new BaseGraphView.NodeViewInfo
+                {
+                    name = sfcFeatureType.Name,
+                    nodeViewType = typeof(BaseNodeView),
+                    onSetupView = (nodeView) =>
+                    {
+                        nodeView.graphView = graphView;
+                        nodeView.title = sfcFeatureType.Name;
+                    }
+                }
+            ).ToList();
+
 
             inspectorView = root.Q<IMGUIContainer>("Inspector");
             inspectorView.onGUIHandler = OnShowInspector;

@@ -31,7 +31,6 @@ namespace PowerUtilities.UIElements
     public class BaseNodeView : Node
     {
 
-
         [Serializable]
         public class PortInfo
         {
@@ -56,10 +55,6 @@ namespace PowerUtilities.UIElements
 
         public Port input, output;
 
-        /// <summary>
-        /// position in GraphView
-        /// </summary>
-        public Rect pos;
 
         /// <summary>
         /// node index
@@ -112,12 +107,17 @@ namespace PowerUtilities.UIElements
             return CreatePort(info.portName, info.orientation, info.direction, info.capacity, info.portType, info.flexDirection);
         }
 
+        /// <summary>
+        /// GraphView select
+        /// </summary>
+        /// <exception cref="Exception"></exception>
         public override void OnSelected()
         {
+            if (graphView == null)
+                throw new Exception("Graph View is null,need set instance");
+
             graphView.selectedNodeIndex = nodeId;
         }
-
-        
     }
 }
 #endif
