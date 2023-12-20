@@ -104,6 +104,18 @@
             return comps.ToArray();
         }
 
+        public static void DestroyComponent<T>(this GameObject go) where T : Component
+        {
+            var c = go.GetComponent<T>();
+            if (!c)
+                return;
+#if UNITY_EDITOR
+            Object.DestroyImmediate(c);
+#else
+            Object.Destroy(c);
+#endif
+        }
+
         /// <summary>
         /// Destroy children which has component T
         /// with undo in editor
