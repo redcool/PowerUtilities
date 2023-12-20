@@ -33,7 +33,7 @@ namespace PowerUtilities.RenderFeatures
     /// </summary>
     public partial class SRPFeature
     {
-        [HideInInspector]
+        //[HideInInspector]
         public BaseNodeInfo nodeInfo = new BaseNodeInfo();
 
     }

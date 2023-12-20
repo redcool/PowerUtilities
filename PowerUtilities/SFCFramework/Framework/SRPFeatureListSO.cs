@@ -12,6 +12,7 @@
     using System.IO;
     using Object = UnityEngine.Object;
     using System.Reflection;
+    using UnityEngine.Rendering;
 
 
 #if UNITY_EDITOR
@@ -19,12 +20,7 @@
     public class SRPFeatureListEditor : PowerEditor<SRPFeatureListSO>
     {
         List<SerializedObject> featureSOList;
-        List<Editor> featureEditorList;
 
-        /// <summary>
-        /// SRPFeatureListSO asset's folder in Assets
-        /// </summary>
-        string targetObjectAssetDir;
         IEnumerable<Type> srpFeatureTypes;
 
         GenericMenu createPassMenu;
@@ -33,10 +29,9 @@
         {
             // setup create sfc pass menu items
             var inst = serializedObject.targetObject as SRPFeatureListSO;
-            targetObjectAssetDir = Path.GetDirectoryName(AssetDatabase.GetAssetPath(serializedObject.targetObject));
             srpFeatureTypes = ReflectionTools.GetTypesDerivedFrom<SRPFeature>();
 
-            createPassMenu = CreateAddSFCPassMenu(srpFeatureTypes, targetObjectAssetDir, inst);
+            createPassMenu = CreateAddSFCPassMenu(srpFeatureTypes, inst);
         }
 
         public override void DrawInspectorUI(SRPFeatureListSO inst)
@@ -113,7 +108,7 @@
             }
         }
 
-        public static GenericMenu CreateAddSFCPassMenu(IEnumerable<Type> featureTypes, string curSODir, SRPFeatureListSO inst)
+        static GenericMenu CreateAddSFCPassMenu(IEnumerable<Type> featureTypes, SRPFeatureListSO inst)
         {
             GenericMenu menu = new GenericMenu();
             foreach (var passType in featureTypes)
@@ -128,18 +123,35 @@
                 menu.AddItem(menuContent, false, (passTypeObj) =>
                 {
                     var passType = (Type)passTypeObj;
-                    var passSO = ScriptableObject.CreateInstance(passType);
-                    var passSavePath = $"{curSODir}/{inst.featureList.Count} {passType.Name}.asset";
-
-                    var passAsset = AssetDatabaseTools.CreateAssetThenLoad<SRPFeature>(passSO, passSavePath);
-                    AssetDatabaseTools.SaveRefresh();
-
-                    inst.featureList.Add(passAsset);
-
+                    CreateSFCPassAsset(passType, inst);
                 }, passType);
             }
             return menu;
         }
+        
+        /// <summary>
+        /// create sfcPass ,add inst.featureLIST
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="curSODir"></param>
+        /// <param name="inst"></param>
+        public static void CreateSFCPassAsset(Type passType,SRPFeatureListSO inst) {
+            var curSODir = Path.GetDirectoryName(AssetDatabase.GetAssetPath(inst));
+            var passSO = ScriptableObject.CreateInstance(passType);
+            var passSavePath = $"{curSODir}/{inst.featureList.Count} {passType.Name}.asset";
+
+            var passAsset = AssetDatabaseTools.CreateAssetThenLoad<SRPFeature>(passSO, passSavePath);
+            AssetDatabaseTools.SaveRefresh();
+
+            inst.featureList.Add(passAsset);
+        }
+
+        public static void DestroySFCPassAsset(SRPFeatureListSO inst,int id)
+        {
+            if (id >= 0 && id < inst.featureList.Count)
+                inst.featureList[id].Destroy();
+        }
+
 
         private void TryInitFeatureSOList(SRPFeatureListSO inst)
         {
@@ -148,9 +160,6 @@
                 .Select(feature => new SerializedObject(feature))
                 .ToList();
 
-            featureEditorList = featureSOList
-                .Select(so => Editor.CreateEditor(so.targetObject))
-                .ToList();
         }
 
     }

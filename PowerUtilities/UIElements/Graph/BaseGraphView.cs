@@ -50,9 +50,14 @@ namespace PowerUtilities.UIElements
         public List<BaseNodeView> nodeViewList = new List<BaseNodeView>();
 
         /// <summary>
-        /// current selected nodeInfo id
+        /// current selected nodeViewInfo id
         /// </summary>
         public int selectedNodeIndex = -1;
+
+        /// <summary>
+        /// when delete node will call
+        /// </summary>
+        public Action<GraphElement> onDeleteNode;
 
         public BaseGraphView()
         {
@@ -64,6 +69,26 @@ namespace PowerUtilities.UIElements
             this.AddManipulator(new RectangleSelector());
 
             LoadDefaultStyles();
+
+            deleteSelection -= OnDeleteGraphNode;
+            deleteSelection += OnDeleteGraphNode;
+        }
+
+        /// <summary>
+        /// Default remove graph's node
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="ask"></param>
+        void OnDeleteGraphNode(string name,AskUser ask)
+        {
+            var nodes = selection.Select(item => item as GraphElement).ToList();
+
+            for (int i = 0;i<nodes.Count;i++)
+            {
+                var item = nodes[i];
+                onDeleteNode?.Invoke(item);
+                RemoveElement(item);
+            }
         }
 
         public virtual void LoadDefaultStyles()
@@ -76,15 +101,15 @@ namespace PowerUtilities.UIElements
         {
             var mousePos = evt.localMousePosition;
 
-            appendNodeList.ForEach(nodeInfo =>
+            appendNodeList.ForEach(nodeViewInfo =>
             {
-                evt.menu.AppendAction(nodeInfo.name,
+                evt.menu.AppendAction(nodeViewInfo.name,
                     (action) =>
                     {
-                        var guiItem = (GraphElement)Activator.CreateInstance(nodeInfo.nodeViewType);
+                        var guiItem = (GraphElement)Activator.CreateInstance(nodeViewInfo.nodeViewType);
                         if (guiItem is BaseNodeView nodeView)
                         {
-                            nodeInfo.onSetupView?.Invoke(nodeView);
+                            nodeViewInfo.onSetupView?.Invoke(nodeView);
                         }
 
                         SetupNodePosition( guiItem, mousePos);
@@ -142,7 +167,7 @@ namespace PowerUtilities.UIElements
             });
         }
 
-        public GraphViewChange OnGraphViewChanged(GraphViewChange graphViewChange)
+        public virtual GraphViewChange OnGraphViewChanged(GraphViewChange graphViewChange)
         {
             if(graphViewChange.elementsToRemove != null)
             {

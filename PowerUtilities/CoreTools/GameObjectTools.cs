@@ -163,10 +163,10 @@
             }
         }
 
-        public static void Destroy(this Object obj)
+        public static void Destroy(this Object obj,bool allowDestroyingAssets=false)
         {
 #if UNITY_EDITOR
-            Object.DestroyImmediate(obj);
+            Object.DestroyImmediate(obj,allowDestroyingAssets);
 #else
             Object.Destroy(obj);
 #endif

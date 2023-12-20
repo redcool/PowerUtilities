@@ -4,12 +4,14 @@ using PowerUtilities.UIElements;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.Callbacks;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
+using static UnityEditor.Experimental.GraphView.GraphView;
 
 namespace PowerUtilities
 {
@@ -18,7 +20,10 @@ namespace PowerUtilities
     /// </summary>
     public class SFCGraphWindow : BaseUXMLEditorWindow, IUIElementEvent
     {
-        static SRPFeatureListSO srpFeatureList;
+        /// <summary>
+        /// current selected srf feature list
+        /// </summary>
+        static SRPFeatureListSO srpFeatureListSO, lastSrpFeatureListSO;
 
         BaseGraphView graphView;
         IMGUIContainer inspectorView;
@@ -59,14 +64,16 @@ namespace PowerUtilities
         {
             if (Selection.activeObject is SRPFeatureListSO featurelistSO)
             {
-                srpFeatureList = featurelistSO;
+                srpFeatureListSO = featurelistSO;
                 ShowFeatureList(featurelistSO);
             }
         }
 
         private void ShowFeatureList(SRPFeatureListSO listSO)
         {
-            var infos = listSO.featureList.Select((feature, id) =>
+            var featureList = listSO.featureList.Where(item => item);
+
+            var nodeInfos = featureList.Select((feature, id) =>
             {
                 //update y
                 var pos = feature.nodeInfo.pos;
@@ -79,10 +86,9 @@ namespace PowerUtilities
                 return feature.nodeInfo;
             });
 
-            graphView.ShowNodes(infos.ToList(), inspectorView);
+            graphView.ShowNodes(nodeInfos.ToList(), inspectorView);
 
-            var edgeInfos = listSO.featureList
-                .Select((feature, id) =>
+            var edgeInfos = featureList.Select((feature, id) =>
             {
                 if (id==0)
                     return default;
@@ -90,6 +96,59 @@ namespace PowerUtilities
             }).Where(edgeInfo => edgeInfo != default);
 
             graphView.ShowEdges(edgeInfos.ToList());
+
+
+            graphView.graphViewChanged -= OnGraphViewChanged;
+            graphView.graphViewChanged += OnGraphViewChanged;
+
+            graphView.onDeleteNode += OnDeleteNode;
+        }
+
+        private GraphViewChange OnGraphViewChanged(GraphViewChange graphViewChange)
+        {
+            if(graphViewChange.movedElements != null)
+            {
+                OnMoved(graphViewChange);
+            }
+            if (graphViewChange.elementsToRemove != null)
+            {
+                //OnRemoved(graphViewChange);
+            }
+            return graphViewChange;
+
+            //-------------- local functions
+            static void OnMoved(GraphViewChange graphViewChange)
+            {
+                foreach (var item in graphViewChange.movedElements)
+                {
+                    if (item is BaseNodeView nodeView)
+                    {
+                        var feature = srpFeatureListSO.featureList[nodeView.nodeId];
+                        feature.nodeInfo.pos.position += graphViewChange.moveDelta;
+                    }
+                }
+            }
+
+            //static void OnRemoved(GraphViewChange graphViewChange)
+            //{
+            //    foreach (var item in graphViewChange.elementsToRemove)
+            //    {
+            //        RemoveSFCPass(item);
+            //    }
+            //}
+        }
+
+        private void OnDeleteNode(GraphElement item)
+        {
+            if (item is BaseNodeView nodeView)
+            {
+                if (nodeView.nodeId >= srpFeatureListSO.featureList.Count)
+                    return;
+
+                var feature = srpFeatureListSO.featureList[nodeView.nodeId];
+                srpFeatureListSO.featureList.Remove(feature);
+                //feature.Destroy(true);
+            }
         }
 
         public override void CreateGUI()
@@ -119,6 +178,8 @@ namespace PowerUtilities
                     {
                         nodeView.graphView = graphView;
                         nodeView.title = sfcFeatureType.Name;
+
+                        SRPFeatureListEditor.CreateSFCPassAsset(sfcFeatureType, srpFeatureListSO);
                     }
                 }
             ).ToList();
@@ -130,11 +191,11 @@ namespace PowerUtilities
 
         void OnShowInspector()
         {
-            if (!srpFeatureList || graphView.selectedNodeIndex == -1)
+            if (!srpFeatureListSO || graphView.selectedNodeIndex < 0 || graphView.selectedNodeIndex >= srpFeatureListSO.featureList.Count)
             {
                 return;
             }
-            var featureSO = srpFeatureList.featureList[graphView.selectedNodeIndex];
+            var featureSO = srpFeatureListSO.featureList[graphView.selectedNodeIndex];
             if(featureSOEditor == null || featureSOEditor.target != featureSO)
             {
                 featureSOEditor = Editor.CreateEditor(featureSO);
