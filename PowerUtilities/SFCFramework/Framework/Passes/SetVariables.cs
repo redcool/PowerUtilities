@@ -30,6 +30,9 @@ namespace PowerUtilities
         [Tooltip("replace _Time(xyzw) ,use Time.unscaledTime")]
         public bool isSetUnscaledTime;
 
+        [Tooltip("open _MIN_VERSION keyword")]
+        public bool isMinVersionOn;
+
         public override ScriptableRenderPass GetPass() => new SetVarialbesPass(this);
     }
 
@@ -85,7 +88,12 @@ namespace PowerUtilities
                 }
             }
 
+            UpdateMinVersion();
+        }
 
+        private void UpdateMinVersion()
+        {
+            ShaderEx.SetKeywords(Feature.isMinVersionOn, ShaderKeywords._MIN_VERSION);
         }
 
         public static void SetShaderTimeValues(CommandBuffer cmd, float time, float deltaTime, float smoothDeltaTime)
