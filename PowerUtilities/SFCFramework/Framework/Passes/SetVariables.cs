@@ -20,16 +20,28 @@ namespace PowerUtilities
         public List<ShaderValue<Texture>> textureValues = new List<ShaderValue<Texture>>();
 
         [Header("auto variables")]
+        [Tooltip("override isAutoSetShadowMask")]
+        public bool isOverrideAutoSetShadowMask;
         [Tooltip("get ForwardLights and set _Shadows_ShadowMaskOn")]
         public bool isAutoSetShadowMask;
 
-        [Tooltip("setup camera's rotation matrix(_CameraRot,_CameraYRot)")]
+        [Header("Set MainCamera Info")]
+        [Tooltip("override isSetMainCameraInfo")]
+        public bool isOverrideSetMainCameraInfo;
+
+        [Tooltip("setup camera's rotation matrix(_CameraRot,_CameraYRot),Bill.shader use these")]
         public bool isSetMainCameraInfo = true;
 
         [Header("set unscaled time")]
+        [Tooltip("override isOverrideUnscaledTime")]
+        public bool isOverrideUnscaledTime;
+
         [Tooltip("replace _Time(xyzw) ,use Time.unscaledTime")]
         public bool isSetUnscaledTime;
 
+        [Header("_MIN_VERSION")]
+        [Tooltip("override isMinVersionOn")]
+        public bool isOverrideMinVersion;
         [Tooltip("open _MIN_VERSION keyword")]
         public bool isMinVersionOn;
 
@@ -72,13 +84,13 @@ namespace PowerUtilities
                 if (v.IsValid) cmd.SetGlobalTexture(v.name, v.value);
 
             // update vars
-            if (Feature.isAutoSetShadowMask)
+            if (Feature.isOverrideAutoSetShadowMask && Feature.isAutoSetShadowMask)
             {
                 var isShadowMaskMixing = UniversalRenderPipeline.asset.IsLightmapShadowMixing(ref renderingData);
                 cmd.SetGlobalBool(ShaderPropertyIds.shadows_ShadowMaskOn, isShadowMaskMixing);
             }
 
-            if(Feature.isSetMainCameraInfo)
+            if(Feature.isOverrideSetMainCameraInfo && Feature.isSetMainCameraInfo)
             {
                 var cam = Camera.main;
                 if(cam)
@@ -88,7 +100,8 @@ namespace PowerUtilities
                 }
             }
 
-            UpdateMinVersion();
+            if(Feature.isOverrideMinVersion)
+                UpdateMinVersion();
         }
 
         private void UpdateMinVersion()
@@ -118,7 +131,7 @@ namespace PowerUtilities
 
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
         {
-            if (Feature.isSetUnscaledTime)
+            if (Feature.isOverrideUnscaledTime && Feature.isSetUnscaledTime)
             {
                 SetShaderTimeValues(cmd, Time.unscaledTime, Time.unscaledDeltaTime, Time.smoothDeltaTime);
             }
