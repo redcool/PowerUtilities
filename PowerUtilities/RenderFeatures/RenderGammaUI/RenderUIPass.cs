@@ -47,17 +47,14 @@ namespace PowerUtilities.Features
             return renderStateBlock;
         }
 
-        public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
+        private void SetupURPAsset(UniversalRenderPipelineAsset urpAsset)
         {
-            var urpAsset = UniversalRenderPipeline.asset;
+
             var isUseFSR = urpAsset.upscalingFilter == UpscalingFilterSelection.FSR;
-            if(isUseFSR && settings.disableFSR)
+            if (isUseFSR && settings.disableFSR)
             {
                 urpAsset.upscalingFilter = UpscalingFilterSelection.Auto;
             }
-
-            if(settings.useSRPBatcher != urpAsset.useSRPBatcher)
-                urpAsset.useSRPBatcher = settings.useSRPBatcher;
         }
 
         bool IsWriteToCameraTargetDirect()
@@ -70,6 +67,9 @@ namespace PowerUtilities.Features
 
         public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
         {
+            var urpAsset = UniversalRenderPipeline.asset;
+            SetupURPAsset(urpAsset);
+
             cmd.BeginSampleExecute(nameof(RenderUIPass),ref context);
             Draw(ref context, ref renderingData);
             cmd.EndSampleExecute(nameof(RenderUIPass),ref context);

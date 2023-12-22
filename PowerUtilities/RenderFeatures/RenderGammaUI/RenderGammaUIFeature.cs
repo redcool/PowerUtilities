@@ -66,8 +66,6 @@ namespace PowerUtilities.Features
             [Tooltip("No blit,no gamma texture,draw objects,output to camera target")]
             public bool isWriteToCameraTargetDirectly;
 
-            [Tooltip("control urp pipeline asset")]
-            public bool useSRPBatcher=true;
 
             [Header("Editor Options")]
             [Multiline]
