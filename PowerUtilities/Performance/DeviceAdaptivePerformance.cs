@@ -1,5 +1,4 @@
-using Jint;
-using Jint.Runtime.Interop;
+#if UNITY_ADAPTIVE_PERFORMANCE_ENABLED
 using PowerUtilities;
 using System;
 using System.Collections;
@@ -66,3 +65,4 @@ public class DeviceAdaptivePerformance : MonoBehaviour
     }
 
 }
+#endif
