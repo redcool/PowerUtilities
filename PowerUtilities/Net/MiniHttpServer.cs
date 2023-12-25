@@ -12,7 +12,7 @@ namespace PowerUtilities.Net
     public class MiniHttpServer
     {
         public int port = 8000;
-        public event Action<HttpListenerContext> OnAccept;
+        public event Action<HttpListenerContext> OnReceived;
 
         public bool isShowDebugInfo;
 
@@ -81,7 +81,7 @@ namespace PowerUtilities.Net
             if (getContextTask.IsCompleted)
             {
                 var context = getContextTask.Result;
-                OnAccept?.Invoke(context);
+                OnReceived?.Invoke(context);
                 getContextTask = null;
 
                 if (isShowDebugInfo)
