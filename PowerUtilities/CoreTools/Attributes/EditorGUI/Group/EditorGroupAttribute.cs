@@ -37,10 +37,20 @@
             var colorRect = EditorGUI.IndentedRect(pos);
             //EditorGUI.DrawRect(colorRect, titleColor);
 
-            GUI.BeginGroup(position, (GUIStyle)"Button");
-            var isFold = EditorGUI.Foldout(pos, isOn, title, true);
+            // show only a style
+            GUI.BeginGroup(pos,(GUIStyle)"Button");
             GUI.EndGroup();
+
+            var isFold = EditorGUI.Foldout(pos, isOn, title, true);
             return isFold;
+        }
+
+        public static bool DrawTitleFoldout1(Rect position, bool isOn, string title, Color titleColor)
+        {
+            var colorRect = EditorGUI.IndentedRect(position);
+            EditorGUI.DrawRect(colorRect, titleColor);
+
+            return EditorGUI.Foldout(position, isOn, title, true);
         }
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
