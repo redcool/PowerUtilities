@@ -18,6 +18,8 @@ namespace PowerUtilities.Net
         public MiniHttpServer httpServer;
         public bool isWriteFiletemporaryCachePath;
 
+        public string resourceFolder = "resourceFolder";
+
         //public event Action<string,byte[]> OnFileReceived;
 
         private void Awake()
@@ -30,17 +32,14 @@ namespace PowerUtilities.Net
             //OnFileReceived += MiniHttpServerComponent_OnFileReceived;
         }
 
-        //private void MiniHttpServerComponent_OnFileReceived(string filetype,byte[] bytes)
-        //{
-        //    Debug.Log(filetype);
-        //    if(filetype == typeof(Shader).Name)
-        //    {
-        //        var content = Encoding.UTF8.GetString(bytes);
-        //        var path = 
-        //        File.WriteAllText(path, content);
-        //    }
-
-        //}
+        private void MiniHttpServerComponent_OnFileReceived(string fileType, string filePath)
+        {
+            Debug.Log(fileType);
+            if (fileType == typeof(Shader).Name)
+            {
+                
+            }
+        }
 
         /// <summary>
         /// handle a httpListenerRequest
@@ -61,16 +60,21 @@ namespace PowerUtilities.Net
             var bytes = new byte[req.ContentLength64];
             var readCount = req.InputStream.Read(bytes);
 
-            var folder = Application.temporaryCachePath;
+            var folder = $"{Application.dataPath}/{ resourceFolder}";
             var outputPath = $"{folder}/{fileName}";
-            //MiniHttpServerComponent_OnFileReceived(fileType, outputPath);
 
             //-------------- save file
             //if (!isWriteFiletemporaryCachePath)
             //    return;
 
+            if (!Directory.Exists(folder))
+            {
+                Directory.CreateDirectory(folder);
+            }
+
             if (File.Exists(outputPath))
                 File.Delete(outputPath);
+
 
             //File.WriteAllText($"{folder}/req.txt", Encoding.UTF8.GetString(bytes));
             File.WriteAllBytes(outputPath, bytes);
@@ -81,45 +85,13 @@ namespace PowerUtilities.Net
                 resp.Close();
             });
 
+            MiniHttpServerComponent_OnFileReceived(fileType, outputPath);
+
             var sb = new StringBuilder();
             sb.AppendLine("handle file request:");
             sb.AppendLine(req.ContentType);
             sb.AppendLine(outputPath);
             Debug.Log(sb);
-        }
-
-        public static List<List<byte>> MultipartFormDataParse(HttpListenerRequest req)
-        {
-            var list = new List<List<byte>>();
-
-            var reader = new StreamReader(req.InputStream);
-            var boundary = reader.ReadLine();
-
-            List<byte> byteList = null;
-            while (!reader.EndOfStream)
-            {
-                var line = reader.ReadLine();
-
-                if (line.Contains(boundary))
-                {
-
-                    continue;
-                }
-                // new part
-                if (line.StartsWith("\n"))
-                {
-                    byteList = new List<byte>();
-                    list.Add(byteList);
-                    continue;
-                }
-                if(byteList != null)
-                    byteList.AddRange(Encoding.UTF8.GetBytes(line));
-
-
-            }
-
-
-            return list;
         }
 
         void Update()
