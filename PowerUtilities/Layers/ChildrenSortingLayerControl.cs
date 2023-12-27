@@ -91,14 +91,10 @@ namespace PowerUtilities
         /// </summary>
         int sortingOrder = 0;
 
-        private void Update()
+        private void OnTransformChildrenChanged()
         {
-            if (transform.hasChanged)
-            {
-                StartSortChildren();
-            }
+            StartSortChildren();
         }
-
 
         public void StartSortChildren()
         {
