@@ -212,6 +212,8 @@ namespace PowerUtilities
 
             [EditorGroup("Shadow", true)]
             [Min(0)] public float shadowDepthBias = 1;
+
+            [EditorGroup("Shadow")]
             [Min(0)] public float shadowNormalBias = 1;
 
             [EditorGroup("Shadow")]
