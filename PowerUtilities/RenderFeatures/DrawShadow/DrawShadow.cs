@@ -71,7 +71,8 @@ namespace PowerUtilities
                 drawSettings.overrideMaterial = settings.shadowMat;
                 drawSettings.overrideMaterialPassIndex = 0;
 
-                var filterSettings = new FilteringSettings(RenderQueueRange.opaque, settings.layers);
+                var renderQueueRange = settings.drawTransparents ? RenderQueueRange.all : RenderQueueRange.opaque;
+                var filterSettings = new FilteringSettings(renderQueueRange, settings.layers);
                 context.DrawRenderers(cmd, renderingData.cullResults, ref drawSettings, ref filterSettings);
 
 
@@ -176,27 +177,44 @@ namespace PowerUtilities
         [Serializable]
         public class Settings
         {
-
+            [EditorGroup("ShadowMapOptions",true)]
             public TextureResolution res = TextureResolution.x512;
+
+            [EditorGroup("ShadowMapOptions")]
             [LoadAsset("BigShadowCasterMat.mat")]
             public Material shadowMat;
+
+            [EditorGroup("ShadowMapOptions")]
             public LayerMask layers = 0;
 
-            [Header("Light Camera")]
+            [EditorGroup("ShadowMapOptions")]
+            public bool drawTransparents;
+
+            [EditorGroup("Light Camera",true)]
             [Tooltip("Find by tag")]
             public bool isUseLightTransform = true;
+
+            [EditorGroup("Light Camera")]
             public string lightTag = "BigShadowLight";
 
+            [EditorGroup("Light Camera")]
             public Vector3 pos, rot, up = Vector3.up;
 
+            [EditorGroup("Light Camera")]
             [Tooltip("half of height")]
             public float orthoSize = 20;
+
+            [EditorGroup("Light Camera")]
             public float near = 0.3f;
+
+            [EditorGroup("Light Camera")]
             public float far = 100;
 
-            [Min(0)] public float shadowDepthBias = 1, shadowNormalBias = 1;
+            [EditorGroup("Shadow", true)]
+            [Min(0)] public float shadowDepthBias = 1;
+            [Min(0)] public float shadowNormalBias = 1;
 
-            [Header("realtime controls")]
+            [EditorGroup("Shadow")]
             [Range(0, 1)] public float shadowIntensity = 1;
 
             [Header("Render control")]
