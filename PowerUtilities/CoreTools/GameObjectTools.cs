@@ -192,5 +192,26 @@
                 go.transform.GetChild(i).gameObject.SetActive(isActive);
             }
         }
+
+
+        static void FindChildrenRecursive(ref List<Transform> list, Transform tr)
+        {
+            for (int i = 0; i < tr.childCount; i++)
+            {
+                var child = tr.GetChild(i);
+                list.Add(child);
+
+                FindChildrenRecursive(ref list, child);
+            }
+        }
+        /// <summary>
+        /// find children depth first
+        /// </summary>
+        /// <param name="list"></param>
+        /// <param name="tr"></param>
+        public static void FindChildrenRecursive(this GameObject go, ref List<Transform> list)
+        {
+            FindChildrenRecursive(ref list, go.transform);
+        }
     }
 }

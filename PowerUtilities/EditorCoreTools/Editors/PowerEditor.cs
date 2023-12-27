@@ -16,7 +16,7 @@ namespace PowerUtilities
         /// <summary>
         /// Show version in inspector when not empty
         /// </summary>
-        public virtual string Version { get; } ="0.0.1";
+        public virtual string Version { get; } ="";
 
         public (string, bool) foldInfo = ("Options",true);
 

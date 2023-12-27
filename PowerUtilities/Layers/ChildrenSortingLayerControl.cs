@@ -13,6 +13,8 @@ namespace PowerUtilities
     {
         //public override bool NeedDrawDefaultUI() => true;
 
+        public override string Version => "0.0.2";
+
         public override void DrawInspectorUI(ChildrenSortingLayerControl inst)
         {
             EditorGUILayout.BeginVertical("Box");
@@ -23,9 +25,10 @@ namespace PowerUtilities
             {
                 inst.StartSortChildren();
             }
+
             EditorGUILayout.EndVertical();
 
-            if (inst.children == null)
+            if (inst.sortedChildList == null)
                 return;
 
             DrawStatisticsInfo(inst);
@@ -37,10 +40,10 @@ namespace PowerUtilities
             if (!inst.isFoldStatistics)
                 return;
 
-            for (int i = 0; i < inst.children.Length; i++)
+            for (int i = 0; i < inst.sortedChildList.Count; i++)
             {
-                var child = inst.children[i];
-                var childInfo = inst.childrenSortingLayerNames[i];
+                var child = inst.sortedChildList[i];
+                var childInfo = inst.sortedChildInfo[i];
 
                 EditorGUILayout.BeginHorizontal("Box");
                 EditorGUILayout.ObjectField(child, child.GetType(), true);
@@ -63,18 +66,28 @@ namespace PowerUtilities
     [ExecuteAlways]
     public class ChildrenSortingLayerControl : MonoBehaviour
     {
-        [HelpBox()] public string HELP_STR = "Setup children's sortingLayer by children's order";
+        [HelpBox()] public string helpStr = "Auto setup children's sortingLayer by children's order";
         [SortingLayerIndex] public int sortingLayerId = 0;
 
-        [HideInInspector] public Transform[] children;
-        [HideInInspector] public string[] childrenSortingLayerNames;
+        /// <summary>
+        /// all children 
+        /// </summary>
+        [HideInInspector] public List<Transform> childList = new List<Transform>();
+        /// <summary>
+        /// only sorted children
+        /// </summary>
+        [HideInInspector] public List<Transform> sortedChildList = new List<Transform>();
+        /// <summary>
+        /// sorted children's sorting info
+        /// </summary>
+        [HideInInspector] public List<string> sortedChildInfo = new List<string>();
         [HideInInspector] public bool isFoldStatistics;
+
         /// <summary>
         /// sorting index in this group
         /// </summary>
         int startSortingOrder = 0;
 
-#if UNITY_EDITOR
         private void Update()
         {
             if (transform.hasChanged)
@@ -83,21 +96,20 @@ namespace PowerUtilities
             }
         }
 
-#endif
 
         public void StartSortChildren()
         {
+            // reset
             startSortingOrder = 0;
-            //children = GetComponentsInChildren<Transform>();
-            children = new Transform[transform.childCount];
-            for (int i = 0; i < children.Length; i++)
-            {
-                children[i] = transform.GetChild(i);
-            }
+            childList.Clear();
 
-            childrenSortingLayerNames = new string[children.Length];
+            sortedChildInfo.Clear();
+            sortedChildList.Clear();
 
-            SetupChildrenSortingOrder(children, childrenSortingLayerNames);
+            // sorting
+            gameObject.FindChildrenRecursive(ref childList);
+
+            SetupChildrenSortingOrder();
         }
 
         public static SortingLayer GetSortingLayer(int id)
@@ -107,15 +119,15 @@ namespace PowerUtilities
             return SortingLayer.layers[id];
         }
 
-        public void SetupChildrenSortingOrder(Transform[] children,string[] childrenSortingLayerNames)
+        public void SetupChildrenSortingOrder()
         {
             var sortingLayer = GetSortingLayer(sortingLayerId);
 
             var sb = new StringBuilder();
 
-            for (int i = 0; i < children.Length; i++)
+            for (int i = 0; i < childList.Count; i++)
             {
-                var tr = children[i];
+                var tr = childList[i];
                 var canvas = tr.GetComponent<Canvas>();
                 var ps = tr.GetComponent<ParticleSystem>();
                 var sr = tr.GetComponent<SpriteRenderer>();
@@ -127,6 +139,7 @@ namespace PowerUtilities
 
                 if (canvas)
                 {
+                    canvas.overrideSorting = true;
                     canvas.sortingLayerID = sortingLayer.id;
                     canvas.sortingOrder = startSortingOrder;
 
@@ -155,8 +168,10 @@ namespace PowerUtilities
                 }
 
                 // statistics
+                sortedChildList.Add(tr);
+
                 sb.Insert(0,$"{sortingLayer.name} , ");
-                childrenSortingLayerNames[i] = sb.ToString();
+                sortedChildInfo.Add(sb.ToString());
                 sb.Clear();
             }
         }
