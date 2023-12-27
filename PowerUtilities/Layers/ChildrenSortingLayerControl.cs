@@ -56,7 +56,7 @@ namespace PowerUtilities
     }
 #endif
     /// <summary>
-    /// Set startSortingOrder 
+    /// Set sortingOrder 
     /// 
     /// Canvas
     /// ParticleSystem
@@ -67,6 +67,7 @@ namespace PowerUtilities
     public class ChildrenSortingLayerControl : MonoBehaviour
     {
         [HelpBox()] public string helpStr = "Auto setup children's sortingLayer by children's order";
+        [Tooltip("group's sorting layer")]
         [SortingLayerIndex] public int sortingLayerId = 0;
 
         /// <summary>
@@ -83,10 +84,12 @@ namespace PowerUtilities
         [HideInInspector] public List<string> sortedChildInfo = new List<string>();
         [HideInInspector] public bool isFoldStatistics;
 
+        [Tooltip("base sorting index")]
+        public int startSortingOrder = 0;
         /// <summary>
         /// sorting index in this group
         /// </summary>
-        int startSortingOrder = 0;
+        int sortingOrder = 0;
 
         private void Update()
         {
@@ -100,7 +103,7 @@ namespace PowerUtilities
         public void StartSortChildren()
         {
             // reset
-            startSortingOrder = 0;
+            sortingOrder = startSortingOrder;
             childList.Clear();
 
             sortedChildInfo.Clear();
@@ -141,9 +144,8 @@ namespace PowerUtilities
                 {
                     canvas.overrideSorting = true;
                     canvas.sortingLayerID = sortingLayer.id;
-                    canvas.sortingOrder = startSortingOrder;
-
-                    startSortingOrder++;
+                    canvas.sortingOrder = sortingOrder;
+                    sortingOrder++;
 
                     sb.Append($"{canvas.sortingOrder}");
                 }
@@ -152,8 +154,8 @@ namespace PowerUtilities
                 {
                     var psr = ps.GetComponent<ParticleSystemRenderer>();
                     psr.sortingLayerID = sortingLayer.id;
-                    psr.sortingOrder = startSortingOrder;
-                    startSortingOrder++;
+                    psr.sortingOrder = sortingOrder;
+                    sortingOrder++;
 
                     sb.Append($"{psr.sortingOrder}");
                 }
@@ -161,8 +163,8 @@ namespace PowerUtilities
                 if (sr)
                 {
                     sr.sortingLayerID = sortingLayer.id;
-                    sr.sortingOrder = startSortingOrder;
-                    startSortingOrder++;
+                    sr.sortingOrder = sortingOrder;
+                    sortingOrder++;
 
                     sb.Append($"{sr.sortingOrder}");
                 }
