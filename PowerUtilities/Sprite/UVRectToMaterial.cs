@@ -7,6 +7,7 @@ namespace PowerUtilities
     using System.Collections.Generic;
     using UnityEngine;
     using System;
+    using UnityEngine.UI;
 
 #if UNITY_EDITOR
 
@@ -35,6 +36,7 @@ namespace PowerUtilities
         public const string helpStr = "Send sprite's uv in atlas to material";
 
         public Sprite sprite;
+        Sprite lastSprite;
 
         [Header("Material Options")]
         [Tooltip("generate material instance")]
@@ -50,8 +52,10 @@ namespace PowerUtilities
         [Tooltip("use powervfx minVersion")]
         public bool isUseMinVersion = true;
 
-        Renderer render;
 
+        Renderer render; // 
+        Image uiImage; // ui
+        //=========================
         [Header("DebugInfo")]
         //[EditorGroup("DebugInfo",true)]
         [SerializeField]
@@ -65,14 +69,39 @@ namespace PowerUtilities
 
         private UnityEngine.Object lastSelectionObject;
 
+        private void Update()
+        {
+            if(lastSprite != sprite)
+            {
+                lastSprite = sprite;
+                SetUV();
+            }
+        }
+
+
         public void SetUV()
         {
             if (!render)
                 render = GetComponent<Renderer>();
-            if (!sprite || !render)
+
+            if (!uiImage)
+            {
+                uiImage = GetComponent<Image>();
+            }
+
+            // setup Image
+            if (uiImage && uiImage.sprite)
+            {
+                sprite = uiImage.sprite;
+                uiImage.sprite = null; // only use material's texture
+            }
+
+            if (!sprite || ( !render && !uiImage))
                 return;
 
-            var mat = isUseMaterialInstance ? render.material : render.sharedMaterial;
+            var mat = GetMaterial();
+            if (!mat)
+                return;
 
             mat.SetTexture(_MainTexName, sprite.texture);
 
@@ -82,6 +111,23 @@ namespace PowerUtilities
             mat.SetVector($"{_MainTexName}_ST", spriteUVST);
 
             TrySetupPowerVFXMat(mat);
+        }
+
+        Material GetMaterial()
+        {
+            if (render)
+                return isUseMaterialInstance ? render.material : render.sharedMaterial;
+
+            if (uiImage)
+            {
+                // dont change default UI material
+                if (uiImage.materialForRendering == uiImage.defaultMaterial)
+                    return null;
+
+                return uiImage.materialForRendering;
+            }
+
+            return null;
         }
 
         private void TrySetupPowerVFXMat(Material mat)
