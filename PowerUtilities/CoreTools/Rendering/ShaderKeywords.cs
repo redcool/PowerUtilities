@@ -11,6 +11,6 @@ namespace PowerUtilities
     /// </summary>
     public static class ShaderKeywords
     {
-        public const string _MIN_VERSION = "_MIN_VERSION";
+        public const string MIN_VERSION = nameof(MIN_VERSION);
     }
 }

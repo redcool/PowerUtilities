@@ -106,7 +106,7 @@ namespace PowerUtilities
 
         private void UpdateMinVersion()
         {
-            ShaderEx.SetKeywords(Feature.isMinVersionOn, ShaderKeywords._MIN_VERSION);
+            ShaderEx.SetKeywords(Feature.isMinVersionOn, ShaderKeywords.MIN_VERSION);
         }
 
         public static void SetShaderTimeValues(CommandBuffer cmd, float time, float deltaTime, float smoothDeltaTime)

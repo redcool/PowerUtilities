@@ -38,18 +38,20 @@ namespace PowerUtilities
                 if (prop != null)
                 {
                     EditorGUI.PropertyField(pos, prop, GUIContent.none);
-
                 }
                 else if (prop == null)
-                    EditorGUI.LabelField(pos, GUIContentEx.TempContent(propName));
+                {
+                    //EditorGUI.LabelField(pos, GUIContentEx.TempContent(propName));
+                }
+                EditorGUI.LabelField(pos, GUIContentEx.TempContent(propName));
             }
 
             EditorGUI.EndProperty();
         }
-        void SetPos(ref Rect pos, float offsetX, float w)
+        void SetPos(ref Rect pos, float offsetX, float width)
         {
             pos.x += offsetX;
-            pos.width = w;
+            pos.width = width;
         }
         private static void UpdatePropWidth(ref Rect position, ref Rect pos, ref float propWidth)
         {
@@ -67,7 +69,7 @@ namespace PowerUtilities
     ///     [ListItemDraw("tag,q:,renderQueue,kw:,keywords", "120,10,50,20,")]
     ///     public List<TagInfo> tagInfoList = new List<TagInfo>();
     ///     
-    ///         tag : 1 propertyName, q: 1 label, renderQueue : 3propertyName, kw: 2 label, keywords : 3 propertyName
+    ///     tag : 1 TagInfo.propertyName, q: only label, renderQueue : 2 TagInfo.propertyName, kw: only label, keywords : 3 TagInfo.propertyName
     ///     
     ///     propNames, this items, if canot found in object, will show as Label
     /// </summary>
