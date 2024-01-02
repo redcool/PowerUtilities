@@ -8,6 +8,7 @@ namespace PowerUtilities
     using UnityEngine;
     using System;
     using UnityEngine.UI;
+    using Unity.Mathematics;
 
 #if UNITY_EDITOR
 
@@ -45,6 +46,9 @@ namespace PowerUtilities
         [Tooltip("shader corresponding texture name")]
         public string _MainTexName = "_MainTex";
 
+        [Tooltip("sprite's start uv")]
+        public string _SpriteUVStartName = "_SpriteUVStart";
+
         [Header("PowerVFX Options")]
         [Tooltip("disable texture auto offset")]
         public bool isDisableMainTexAutoOffset = true;
@@ -53,8 +57,9 @@ namespace PowerUtilities
         public bool isUseMinVersion = true;
 
 
-        Renderer render; // 
+        Renderer render; // 3d renderer
         Image uiImage; // ui
+        Material mat; // current used material
         //=========================
         [Header("DebugInfo")]
         //[EditorGroup("DebugInfo",true)]
@@ -78,7 +83,14 @@ namespace PowerUtilities
             }
         }
 
-
+        private void OnDisable()
+        {
+            if (mat)
+            {
+                //mat.SetVector($"{_MainTexName}_ST", spriteUVST);
+                mat.SetVector(_SpriteUVStartName, new Vector2(0,0));
+            }
+        }
         public void SetUV()
         {
             if (!render)
@@ -99,7 +111,7 @@ namespace PowerUtilities
             if (!sprite || ( !render && !uiImage))
                 return;
 
-            var mat = GetMaterial();
+            mat = GetMaterial();
             if (!mat)
                 return;
 
@@ -109,6 +121,7 @@ namespace PowerUtilities
             spriteRect = new Vector4(rect.x, rect.y, rect.width, rect.height);
             spriteUVST = sprite.GetSpriteUVScaleOffset();
             mat.SetVector($"{_MainTexName}_ST", spriteUVST);
+            mat.SetVector(_SpriteUVStartName, new Vector2(spriteUVST.z, spriteUVST.w));
 
             TrySetupPowerVFXMat(mat);
         }
