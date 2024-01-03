@@ -85,17 +85,29 @@ namespace PowerUtilities
             if (rendererBlock == null)
                 rendererBlock= new MaterialPropertyBlock();
 
-            MaterialPropCodeGenTools.UpdateComponentsMaterial(graphs, (graph, id) =>
+            for (int i = 0; i < graphs.Length; i++)
             {
-                UpdateGraphMaterial(graph, id);
-            });
-            MaterialPropCodeGenTools.UpdateComponentsMaterial(renderers, (render, id) =>
+                var graph = graphs[i];
+                UpdateGraphMaterial(graph, i);
+            }
+
+            for (int i = 0;i < renderers.Length; i++)
             {
                 rendererBlock.Clear();
+
+                var render = renderers[i];
                 render.GetPropertyBlock(rendererBlock);
                 UpdateBlock(rendererBlock);
                 render.SetPropertyBlock(rendererBlock);
-            });
+            }
+
+            //MaterialPropCodeGenTools.UpdateComponentsMaterial(graphs, (graph, id) =>
+            //{
+                
+            //});
+            //MaterialPropCodeGenTools.UpdateComponentsMaterial(renderers, (render, id) =>
+            //{
+            //});
         }
 
         void SetupRenderers(out bool isRenderersValid,out bool isGraphsValid)
