@@ -34,7 +34,7 @@ namespace PowerUtilities
     public class UVRectToMaterial : MonoBehaviour
     {
         [HelpBox]
-        public const string helpStr = "Send sprite's uv in atlas to material";
+        public string helpStr = "Send sprite's uv in atlas to material";
 
         public Sprite sprite;
         Sprite lastSprite;
@@ -69,7 +69,7 @@ namespace PowerUtilities
 
         //[EditorGroup("DebugInfo")]
         [SerializeField]
-        //[ListItemDraw("x:,x,y:,y,z:,z,w:,w", "15,50,15,80,15,80,15,80")]
+        [ListItemDraw("x:,x,y:,y,z:,z,w:,w", "15,80,15,80,15,80,15,80",isShowTitleRow =true)]
         Vector4 spriteUVST;
 
         private UnityEngine.Object lastSelectionObject;

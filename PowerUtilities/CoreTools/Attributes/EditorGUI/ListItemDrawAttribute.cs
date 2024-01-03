@@ -15,12 +15,31 @@ namespace PowerUtilities
     {
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
+            //default is 1 row
             var rowCount = 1;
+
             var attr = attribute as ListItemDrawAttribute;
-            if(attr.isShowTitleRow && attr.isTitleFold)
-                rowCount++;
+            // show title and title is unfold
+            if (attr.isShowTitleRow && attr.isTitleUnfold)
+                rowCount += GetContentRowCount(attr);
+
+            // dont show tile
+            if (!attr.isShowTitleRow)
+                rowCount += GetContentRowCount(attr);
+
 
             return base.GetPropertyHeight(property, label) * rowCount;
+
+            //---------- methods
+            static int GetContentRowCount(ListItemDrawAttribute attr)
+            {
+                if (attr.countInARow > 0)
+                {
+                    return attr.propNames.Length / attr.countInARow;
+                }
+
+                return 1;
+            }
         }
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
@@ -28,16 +47,17 @@ namespace PowerUtilities
             EditorGUI.BeginProperty(position, label, property);
 
             var attr = attribute as ListItemDrawAttribute;
+
             var pos = position;
             pos.height = EditorGUIUtility.singleLineHeight;
 
             //1 show label
             if (attr.isShowTitleRow)
             {
-                attr.isTitleFold = EditorGUI.Foldout(pos, attr.isTitleFold, label,true);
+                attr.isTitleUnfold = EditorGUI.Foldout(pos, attr.isTitleUnfold, label,true);
                 pos.y += pos.height;
 
-                if (!attr.isTitleFold)
+                if (!attr.isTitleUnfold)
                     return;
             }
 
@@ -53,10 +73,19 @@ namespace PowerUtilities
                 var prop = property.FindPropertyRelative(propName);
 
                 // update pos
-                // first one
                 var xOffset = i == 0 ? 0 : pos.width;
-                SetPos(ref pos, xOffset, propWidth);
+                SetPos(ref pos, xOffset, propWidth,i);
 
+                ShowPropertyOrLabel(pos, propName, prop);
+                //EditorGUI.LabelField(pos, GUIContentEx.TempContent(propName));
+            }
+
+            EditorGUI.EndProperty();
+
+            //-------------- methods
+            
+            static void ShowPropertyOrLabel(Rect pos, string propName, SerializedProperty prop)
+            {
                 if (prop != null)
                 {
                     EditorGUI.PropertyField(pos, prop, GUIContent.none);
@@ -65,16 +94,22 @@ namespace PowerUtilities
                 {
                     EditorGUI.LabelField(pos, GUIContentEx.TempContent(propName));
                 }
-                //EditorGUI.LabelField(pos, GUIContentEx.TempContent(propName));
             }
+            
+            void SetPos(ref Rect pos, float offsetX, float width, int index)
+            {
+                pos.x += offsetX;
+                pos.width = width;
 
-            EditorGUI.EndProperty();
+                // a new row
+                if (attr.countInARow > 0 && index > 0 && (index % attr.countInARow == 0))
+                {
+                    pos.x = position.x;
+                    pos.y += EditorGUIUtility.singleLineHeight;
+                }
+            }
         }
-        void SetPos(ref Rect pos, float offsetX, float width)
-        {
-            pos.x += offsetX;
-            pos.width = width;
-        }
+
         private static void UpdatePropWidth(ref Rect position, ref Rect pos, ref float propWidth)
         {
             if (propWidth <= 0)
@@ -103,6 +138,9 @@ namespace PowerUtilities
     //[AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
     public class ListItemDrawAttribute : PropertyAttribute
     {
+        /// <summary>
+        /// label or propertyNames
+        /// </summary>
         public string[] propNames;
 
         /// <summary>
@@ -111,14 +149,24 @@ namespace PowerUtilities
         /// </summary>
         public float[] propWidths;
 
+        /// <summary>
+        /// show a foldable title
+        /// </summary>
         public bool isShowTitleRow;
-        public bool isTitleFold;
-        public ListItemDrawAttribute(string propNamesStr,string widthStr,char splitChar=',')
+
+        /// <summary>
+        /// is title folded?
+        /// </summary>
+        public bool isTitleUnfold;
+        public int countInARow;
+        public ListItemDrawAttribute(string propNamesStr,string widthStr,char splitChar=',',int countInARow=0)
         {
             propNames = propNamesStr.SplitBy(splitChar);
             propWidths = widthStr.SplitBy(splitChar)
                 .Select(str=> string.IsNullOrEmpty(str) ? 0:Convert.ToSingle(str))
                 .ToArray();
+
+            this.countInARow = countInARow;
         }
     }
 }
