@@ -60,16 +60,17 @@ namespace PowerUtilities
         Renderer render; // 3d renderer
         Image uiImage; // ui
         Material mat; // current used material
+
         //=========================
         [Header("DebugInfo")]
-        //[EditorGroup("DebugInfo",true)]
+        [EditorGroup("DebugInfo", true)]
         [SerializeField]
-        //[ListItemDraw("x,y,z,w", "100,100,100,100")]
+        [ListItemDraw("x:,x,y:,y,z:,z,w:,w", "15,80,15,80,15,80,15,80", isShowTitleRow = true)]
         Vector4 spriteRect;
 
-        //[EditorGroup("DebugInfo")]
+        [EditorGroup("DebugInfo")]
         [SerializeField]
-        [ListItemDraw("x:,x,y:,y,z:,z,w:,w", "15,80,15,80,15,80,15,80",isShowTitleRow =true)]
+        [ListItemDraw("x:,x,y:,y,z:,z,w:,w", "15,80,15,80,15,80,15,80", isShowTitleRow = true)]
         Vector4 spriteUVST;
 
         private UnityEngine.Object lastSelectionObject;
