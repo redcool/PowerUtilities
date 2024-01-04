@@ -90,7 +90,7 @@ namespace PowerUtilities
                 {
                     EditorGUI.PropertyField(pos, prop, GUIContent.none);
                 }
-                else if (prop == null)
+                else
                 {
                     EditorGUI.LabelField(pos, GUIContentEx.TempContent(propName));
                 }

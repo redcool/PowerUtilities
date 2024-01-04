@@ -46,7 +46,7 @@ namespace PowerUtilities
         [Tooltip("shader corresponding texture name")]
         public string _MainTexName = "_MainTex";
 
-        [Tooltip("sprite's start uv")]
+        [Tooltip("sprite's start uv,xy:uv start,z: sprite rendering on?")]
         public string _SpriteUVStartName = "_SpriteUVStart";
 
         [Header("PowerVFX Options")]
@@ -89,7 +89,7 @@ namespace PowerUtilities
             if (mat)
             {
                 //mat.SetVector($"{_MainTexName}_ST", spriteUVST);
-                mat.SetVector(_SpriteUVStartName, new Vector2(0,0));
+                mat.SetVector(_SpriteUVStartName, new Vector4(0,0,0,0));
             }
         }
         public void SetUV()
@@ -113,7 +113,7 @@ namespace PowerUtilities
             mat.SetVector($"{_MainTexName}_ST", spriteUVST);
 
             // xy : offset,powervfx use this ,do sprite uv move
-            mat.SetVector(_SpriteUVStartName, new Vector2(spriteUVST.z, spriteUVST.w));
+            mat.SetVector(_SpriteUVStartName, new Vector4(spriteUVST.z, spriteUVST.w, 1, 0));
 
             TrySetupPowerVFXMat(mat);
         }
