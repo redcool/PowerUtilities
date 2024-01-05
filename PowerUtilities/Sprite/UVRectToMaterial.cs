@@ -9,6 +9,7 @@ namespace PowerUtilities
     using System;
     using UnityEngine.UI;
     using Unity.Mathematics;
+    using Object = UnityEngine.Object;
 
 #if UNITY_EDITOR
 
@@ -72,7 +73,7 @@ namespace PowerUtilities
         //[ListItemDraw("x:,x,y:,y,z:,z,w:,w", "15,50,15,80,15,80,15,80")]
         Vector4 spriteUVST;
 
-        private UnityEngine.Object lastSelectionObject;
+        Object lastSelectionObject;
 
         private void Update()
         {
@@ -154,17 +155,20 @@ namespace PowerUtilities
             {
                 mat.SetKeyword(ShaderKeywords.MIN_VERSION, isUseMinVersion);
 
-                lastSelectionObject = Selection.activeObject;
-                Selection.activeObject = null;
 
+#if UNITY_EDITOR
                 StartCoroutine(WaitForSelectAgain());
+#endif
             }
         }
-
+#if UNITY_EDITOR
         IEnumerator WaitForSelectAgain()
         {
+            lastSelectionObject = Selection.activeObject;
+            Selection.activeObject = null;
             yield return new WaitForEndOfFrame();
             Selection.activeObject = lastSelectionObject;
         }
+#endif
     }
 }
