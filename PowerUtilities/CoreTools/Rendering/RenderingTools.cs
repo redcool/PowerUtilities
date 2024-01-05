@@ -32,6 +32,14 @@ namespace PowerUtilities
             new ShaderTagId("UniversalForwardOnly"),
             new ShaderTagId("LightweightForward")
         };
+        public static List<ShaderTagId> shadowCaster = new List<ShaderTagId>
+        {
+            new ShaderTagId("ShadowCaster")
+        };
+        public static List<ShaderTagId> depthOnly = new List<ShaderTagId>
+        {
+            new ShaderTagId("DepthOnly")
+        };
 
         public static Material ErrorMaterial = new Material(Shader.Find("Hidden/InternalErrorShader"));
 

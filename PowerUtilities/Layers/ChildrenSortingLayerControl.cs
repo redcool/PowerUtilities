@@ -13,7 +13,7 @@ namespace PowerUtilities
     {
         //public override bool NeedDrawDefaultUI() => true;
 
-        public override string Version => "0.0.2";
+        public override string Version => "0.0.3";
 
         public override void DrawInspectorUI(ChildrenSortingLayerControl inst)
         {
