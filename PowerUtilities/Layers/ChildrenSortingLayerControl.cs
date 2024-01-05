@@ -67,6 +67,8 @@ namespace PowerUtilities
     public class ChildrenSortingLayerControl : MonoBehaviour
     {
         [HelpBox()] public string helpStr = "Auto setup children's sortingLayer by children's order";
+
+
         [Tooltip("group's sorting layer")]
         [SortingLayerIndex] public int sortingLayerId = 0;
 
@@ -84,6 +86,9 @@ namespace PowerUtilities
         [HideInInspector] public List<string> sortedChildInfo = new List<string>();
         [HideInInspector] public bool isFoldStatistics;
 
+        [Header("Start Sorting Index")]
+        [Tooltip("sortingLayerId get from base canvas's soringIndex")]
+        public Canvas baseCanvas;
         [Tooltip("base sorting index")]
         public int startSortingOrder = 0;
         /// <summary>
@@ -98,6 +103,10 @@ namespace PowerUtilities
 
         public void StartSortChildren()
         {
+            if (baseCanvas)
+            {
+                startSortingOrder = baseCanvas.sortingOrder;
+            }
             // reset
             sortingOrder = startSortingOrder;
             childList.Clear();
