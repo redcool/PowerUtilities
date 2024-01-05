@@ -16,12 +16,20 @@
         {
             var groupAttr = attribute as EditorGroupAttribute;
             var isGroupOn = MaterialGroupTools.IsGroupOn(groupAttr.groupName);
+            // header path
             if (groupAttr.isHeader)
             {
-                var contentLineCount = property.type.Contains("Texture") ? 5 : 2;
-                return isGroupOn ? LINE_HEIGHT *contentLineCount : LINE_HEIGHT;
+                if(!isGroupOn)
+                    return LINE_HEIGHT;
+
+                // prop height
+                var height = EditorGUI.GetPropertyHeight(property, property.isExpanded);
+                // add header's height
+                    height += EditorGUIUtility.singleLineHeight;
+                return height;
             }
 
+            // other content path
             if (isGroupOn)
             {
                 return EditorGUI.GetPropertyHeight(property, property.isExpanded);
@@ -107,7 +115,6 @@
             this.isHeader = isHeader;
             this.groupName=groupName;
             ColorUtility.TryParseHtmlString(titleColorStr, out titleColor);
-            //titleColor *=0.7f;
         }
     }
 

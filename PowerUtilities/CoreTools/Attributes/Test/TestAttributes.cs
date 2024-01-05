@@ -40,6 +40,15 @@ namespace PowerUtilities
         [EditorGroup("Group2")]
         [TexturePreview]
         public Texture tex;
+
+        [LayerIndex]
+        public int layerId;
+
+        [HelpBox]
+        public string helpStr = "help text";
+
+        [SortingLayerIndex] 
+        public int sortingLayerId;
     }
 }
 #endif

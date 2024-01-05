@@ -61,15 +61,14 @@ namespace PowerUtilities
                 float4x4 view, proj;
                 SetupVp(cmd, out view, out proj);
 
+
                 // --- setup vp,viewport
                 cmd.SetViewport(new Rect(0, 0, (int)settings.res, (int)settings.res));
                 cmd.SetViewProjectionMatrices(view, proj);
                 cmd.Execute(ref context);
 
                 //----------- draw objects
-                var drawSettings = CreateDrawingSettings(RenderingTools.urpForwardShaderPassNames, ref renderingData, SortingCriteria.CommonOpaque);
-                drawSettings.overrideMaterial = settings.shadowMat;
-                drawSettings.overrideMaterialPassIndex = 0;
+                DrawingSettings drawSettings = SetupDrawSettings(ref renderingData);
 
                 var renderQueueRange = settings.drawTransparents ? RenderQueueRange.all : RenderQueueRange.opaque;
                 var filterSettings = new FilteringSettings(renderQueueRange, settings.layers);
@@ -81,6 +80,25 @@ namespace PowerUtilities
 
                 cmd.EndSampleExecute(nameof(DrawShadow), ref context);
                 CommandBufferPool.Release(cmd);
+
+                //====================== methods
+
+                DrawingSettings SetupDrawSettings(ref RenderingData renderingData)
+                {
+                    DrawingSettings drawSettings = default;
+                    if (!settings.isCallShadowCaster && settings.shadowMat)
+                    {
+                        drawSettings = CreateDrawingSettings(RenderingTools.urpForwardShaderPassNames, ref renderingData, SortingCriteria.CommonOpaque);
+                        drawSettings.overrideMaterial = settings.shadowMat;
+                        drawSettings.overrideMaterialPassIndex = 0;
+                    }
+                    else
+                    {
+                        drawSettings = CreateDrawingSettings(RenderingTools.shadowCaster, ref renderingData, SortingCriteria.CommonOpaque);
+                    }
+
+                    return drawSettings;
+                }
             }
 
             private void SetupVp(CommandBuffer cmd, out float4x4 view, out float4x4 proj)
@@ -88,8 +106,7 @@ namespace PowerUtilities
                 var rot = Quaternion.Euler(settings.rot);
                 var forward = rot * Vector3.forward;
 
-
-                view = float4x4.LookAt(settings.pos, settings.pos + forward, settings.up);
+                view = float4x4.LookAt(settings.finalLightPos, settings.finalLightPos + forward, settings.up);
                 view = math.fastinverse(view);
 
                 if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLCore || SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLES3)
@@ -149,11 +166,13 @@ namespace PowerUtilities
                 var m2 = float4x4.Scale(halfVec);
                 var m1 = float4x4.Translate(halfVec);
                 var m = math.mul(m1, m2);
+                var shadowBias = CalcShadowBias(proj);
 
                 cmd.SetGlobalMatrix(_BigShadowVP, math.mul(m, math.mul(proj, view)));
                 cmd.SetGlobalVector(ShaderPropertyIds._LightDirection, new float4(-forward, 0));
-                cmd.SetGlobalVector(ShaderPropertyIds._ShadowBias, CalcShadowBias(proj));
+                cmd.SetGlobalVector(ShaderPropertyIds._ShadowBias,shadowBias);
                 cmd.SetGlobalTexture(_BigShadowMap, bigShadowMap);
+                cmd.SetGlobalVector("_CustomShadowBias",shadowBias);
             }
 
             /// <summary>
@@ -173,7 +192,6 @@ namespace PowerUtilities
 
         DrawShadowPass drawShadowPass;
 
-
         [Serializable]
         public class Settings
         {
@@ -181,6 +199,11 @@ namespace PowerUtilities
             public TextureResolution res = TextureResolution.x512;
 
             [EditorGroup("ShadowMapOptions")]
+            [Tooltip("call renderer's ShadowCaster pass")]
+            public bool isCallShadowCaster;
+
+            [EditorGroup("ShadowMapOptions")]
+            [Tooltip("use override material,dont use ShadowCaster,will cause more srp batches!")]
             [LoadAsset("BigShadowCasterMat.mat")]
             public Material shadowMat;
 
@@ -201,13 +224,20 @@ namespace PowerUtilities
             public Vector3 pos, rot, up = Vector3.up;
 
             [EditorGroup("Light Camera")]
+            [Tooltip("light position'sy in world space")]
+            public float lightHeight = 10;
+
+
+            [EditorGroup("Light Camera")]
             [Tooltip("half of height")]
             public float orthoSize = 20;
 
             [EditorGroup("Light Camera")]
+            [Tooltip("near clip plane ")]
             public float near = 0.3f;
 
             [EditorGroup("Light Camera")]
+            [Tooltip("far clip plane ")]
             public float far = 100;
 
             [EditorGroup("Shadow", true)]
@@ -221,10 +251,15 @@ namespace PowerUtilities
 
             [Header("Render control")]
             [Tooltip("draw shadow frame then stop,when isAutoRendering = false")]
-            [EditorButton]public bool isStepRender;
+            [EditorButton]public bool isStepRender = true;
 
             [Tooltip("draw shadow per frame")]
             public bool isAutoRendering;
+            [Tooltip("Follow camera, when distance > maxDistance, draw shadow once,<=0 disable Follow Camera")]
+            public float maxDistance = -1;
+
+            // light position finally.
+            [HideInInspector] public Vector3 finalLightPos;
 
             [Tooltip("false will set _BigShadowMap white tex")]
             [EditorButton] public bool isClearShadowMap;
@@ -234,8 +269,12 @@ namespace PowerUtilities
         [Header("Debug")]
         [EditorReadonly]
         public GameObject lightObj;
+        [EditorReadonly]
+        public float currentDistance;
+        
 
-        int renderCount = -1;
+        int renderCount = 0;
+
         /// <inheritdoc/>
         public override void Create()
         {
@@ -245,19 +284,59 @@ namespace PowerUtilities
             drawShadowPass.renderPassEvent = RenderPassEvent.BeforeRenderingShadows;
         }
 
+        /// <summary>
+        /// Can call DrawShadowPass?
+        /// 
+        /// Camera : mainCamera or sceneViewCamera
+        /// stepRender is true,
+        /// autoRendering is true
+        /// 
+        /// </summary>
+        /// <param name="cameraData"></param>
+        /// <returns></returns>
         bool CanExecute(CameraData cameraData)
         {
             if (!cameraData.camera.CompareTag("MainCamera") && !cameraData.isSceneViewCamera)
                 return false;
 
-            var isStepRender = settings.isStepRender;
+            var isExceedMaxDistance = IsExceedMaxDistanceAndSaveLightPos(cameraData, out currentDistance,ref settings.finalLightPos);
+
+            var isStepRender = settings.isStepRender || isExceedMaxDistance;
             if (isStepRender)
             {
                 settings.isStepRender = false;
                 renderCount++;
             }
 
-            return settings.isAutoRendering ? true : isStepRender;
+            return settings.isAutoRendering || isStepRender;
+
+            //============== methods
+            bool IsExceedMaxDistanceAndSaveLightPos(CameraData cameraData,out float curDistance,ref Vector3 finalLightPos)
+            {
+                // dont follow camera
+                if (settings.maxDistance <= 0)
+                {
+                    finalLightPos = settings.pos;
+                    curDistance = -1;
+                    return false;
+                }
+
+                // follow camera
+
+                var cameraPos = cameraData.camera.transform.position;
+                cameraPos.y = finalLightPos.y = settings.lightHeight;
+
+                var dir = cameraPos - finalLightPos;
+                curDistance = dir.magnitude;
+
+                var isExceedMaxDistance = curDistance > settings.maxDistance;
+                if (isExceedMaxDistance)
+                {
+                    finalLightPos = cameraPos;
+                }
+
+                return isExceedMaxDistance;
+            }
         }
 
         void DrawLightGizmos(ref CameraData cameraData)
@@ -282,10 +361,11 @@ namespace PowerUtilities
             var vertices = new[] { p0, p1, p2, p3, p4, p5, p6, p7 };
             for (int i = 0; i < vertices.Length; i++)
             {
-                vertices[i] = (settings.pos + rot * vertices[i]);
+                vertices[i] = (settings.finalLightPos + rot * vertices[i]);
             }
-
+            // view frustum
             DebugTools.DrawLineCube(vertices);
+
         }
 
         // Here you can inject one or multiple render passes in the renderer.
@@ -329,6 +409,9 @@ namespace PowerUtilities
             settings.pos = lightObj.transform.position;
             settings.rot = lightObj.transform.eulerAngles;
             settings.up = lightObj.transform.up;
+
+            // use lightHeight
+            settings.pos.Set(settings.pos.x, settings.lightHeight, settings.pos.z);
         }
     }
 

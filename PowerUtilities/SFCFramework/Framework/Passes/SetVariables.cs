@@ -42,7 +42,7 @@ namespace PowerUtilities
         [Header("_MIN_VERSION")]
         [Tooltip("override isMinVersionOn")]
         public bool isOverrideMinVersion;
-        [Tooltip("open _MIN_VERSION keyword")]
+        [Tooltip("open MIN_VERSION keyword")]
         public bool isMinVersionOn;
 
         public override ScriptableRenderPass GetPass() => new SetVarialbesPass(this);

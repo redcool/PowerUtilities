@@ -17,7 +17,7 @@ namespace PowerUtilities
     public class UVRectToMaterialEditor : PowerEditor<UVRectToMaterial>
     {
         public override bool NeedDrawDefaultUI() => true;
-        public override string Version => "0.0.1";
+        public override string Version => "0.0.2";
 
         public override void DrawInspectorUI(UVRectToMaterial inst)
         {
@@ -35,19 +35,19 @@ namespace PowerUtilities
     public class UVRectToMaterial : MonoBehaviour
     {
         [HelpBox]
-        public const string helpStr = "Send sprite's uv in atlas to material";
+        public string helpStr = "Send sprite's uv in atlas to material";
 
         public Sprite sprite;
         Sprite lastSprite;
 
         [Header("Material Options")]
-        [Tooltip("generate material instance")]
+        [Tooltip("generate material instance for 3d mesh")]
         public bool isUseMaterialInstance;
 
         [Tooltip("shader corresponding texture name")]
         public string _MainTexName = "_MainTex";
 
-        [Tooltip("sprite's start uv")]
+        [Tooltip("sprite's start uv,xy:uv start,z: sprite rendering on?")]
         public string _SpriteUVStartName = "_SpriteUVStart";
 
         [Header("PowerVFX Options")]
@@ -61,16 +61,17 @@ namespace PowerUtilities
         Renderer render; // 3d renderer
         Image uiImage; // ui
         Material mat; // current used material
+
         //=========================
         [Header("DebugInfo")]
-        //[EditorGroup("DebugInfo",true)]
+        [EditorGroup("DebugInfo", true)]
         [SerializeField]
-        //[ListItemDraw("x,y,z,w", "100,100,100,100")]
+        [ListItemDraw("x:,x,y:,y,z:,z,w:,w", "15,80,15,80,15,80,15,80", isShowTitleRow = true)]
         Vector4 spriteRect;
 
-        //[EditorGroup("DebugInfo")]
+        [EditorGroup("DebugInfo")]
         [SerializeField]
-        //[ListItemDraw("x:,x,y:,y,z:,z,w:,w", "15,50,15,80,15,80,15,80")]
+        [ListItemDraw("x:,x,y:,y,z:,z,w:,w", "15,80,15,80,15,80,15,80", isShowTitleRow = true)]
         Vector4 spriteUVST;
 
         Object lastSelectionObject;
@@ -89,10 +90,36 @@ namespace PowerUtilities
             if (mat)
             {
                 //mat.SetVector($"{_MainTexName}_ST", spriteUVST);
-                mat.SetVector(_SpriteUVStartName, new Vector2(0,0));
+                mat.SetVector(_SpriteUVStartName, new Vector4(0,0,0,0));
             }
         }
         public void SetUV()
+        {
+            SetupComponents();
+
+            if (!sprite || (!render && !uiImage))
+                return;
+
+            mat = GetMaterial();
+            if (!mat)
+                return;
+
+            mat.SetTexture(_MainTexName, sprite.texture);
+
+            var rect = sprite.rect;
+            // debug
+            spriteRect = new Vector4(rect.x, rect.y, rect.width, rect.height);
+            // xy : tiling, zw:offset
+            spriteUVST = sprite.GetSpriteUVScaleOffset();
+            mat.SetVector($"{_MainTexName}_ST", spriteUVST);
+
+            // xy : offset,powervfx use this ,do sprite uv move
+            mat.SetVector(_SpriteUVStartName, new Vector4(spriteUVST.z, spriteUVST.w, 1, 0));
+
+            TrySetupPowerVFXMat(mat);
+        }
+
+        private void SetupComponents()
         {
             if (!render)
                 render = GetComponent<Renderer>();
@@ -108,23 +135,6 @@ namespace PowerUtilities
                 sprite = uiImage.sprite;
                 uiImage.sprite = null; // only use material's texture
             }
-
-            if (!sprite || ( !render && !uiImage))
-                return;
-
-            mat = GetMaterial();
-            if (!mat)
-                return;
-
-            mat.SetTexture(_MainTexName, sprite.texture);
-
-            var rect = sprite.rect;
-            spriteRect = new Vector4(rect.x, rect.y, rect.width, rect.height);
-            spriteUVST = sprite.GetSpriteUVScaleOffset();
-            mat.SetVector($"{_MainTexName}_ST", spriteUVST);
-            mat.SetVector(_SpriteUVStartName, new Vector2(spriteUVST.z, spriteUVST.w));
-
-            TrySetupPowerVFXMat(mat);
         }
 
         Material GetMaterial()
@@ -149,6 +159,7 @@ namespace PowerUtilities
             if (!mat.shader.name.Contains("PowerVFX"))
                 return;
 
+            mat.SetVector($"{_MainTexName}_ST", new Vector4(spriteUVST.x,spriteUVST.y,0,0)); // dont need offset,offset used for uv move
             mat.SetFloat("_MainTexOffsetStop", isDisableMainTexAutoOffset?1:0);
 
             if(isUseMinVersion != mat.IsKeywordEnabled(ShaderKeywords.MIN_VERSION))
