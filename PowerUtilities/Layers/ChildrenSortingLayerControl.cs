@@ -86,10 +86,11 @@ namespace PowerUtilities
         [HideInInspector] public List<string> sortedChildInfo = new List<string>();
         [HideInInspector] public bool isFoldStatistics;
 
-        [Header("Start Sorting Index")]
-        [Tooltip("sortingLayerId get from base canvas's soringIndex")]
-        public Canvas baseCanvas;
-        [Tooltip("base sorting index")]
+        [Header("Start Sorting Order")]
+        [Tooltip("startSortingOrder use parentCanvas(check overrideSorting or isRootCanvas) sorting order")]
+        public bool isUseParentCanvasSortingOrder = true;
+
+        [Tooltip("base sorting order")]
         public int startSortingOrder = 0;
         /// <summary>
         /// sorting index in this group
@@ -101,12 +102,24 @@ namespace PowerUtilities
             StartSortChildren();
         }
 
+        int FindParentCanvasSortingOrder(Transform tr,int defaultOrder=0)
+        {
+            var paretnCanvases = tr.GetComponentsInParent<Canvas>();
+            foreach (var c in paretnCanvases)
+            {
+                if (c.enabled && (c.overrideSorting || c.isRootCanvas))
+                    return c.sortingOrder;
+            }
+            return defaultOrder;
+        }
+
         public void StartSortChildren()
         {
-            if (baseCanvas)
+            if (isUseParentCanvasSortingOrder)
             {
-                startSortingOrder = baseCanvas.sortingOrder;
+                startSortingOrder = FindParentCanvasSortingOrder(transform, startSortingOrder);
             }
+
             // reset
             sortingOrder = startSortingOrder;
             childList.Clear();
