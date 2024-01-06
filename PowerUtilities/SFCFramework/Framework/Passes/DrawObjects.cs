@@ -293,6 +293,7 @@
 #endif
             OverrideCamera(ref context, cmd, ref renderingData);
             var drawSettings = GetDrawSettings(context, cmd, ref renderingData, ref cameraData);
+            
 
             var stateBlocks = new NativeArray<RenderStateBlock>(new[] { renderStateBlock }, Allocator.Temp);
             context.DrawRenderers(cmd, renderingData.cullResults, ref drawSettings, ref filterSetting, null, stateBlocks);

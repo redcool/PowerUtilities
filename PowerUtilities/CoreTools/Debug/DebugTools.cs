@@ -141,5 +141,24 @@ namespace PowerUtilities
             Debug.DrawRay(pos, up, Color.green);
             Debug.DrawRay(pos, forward, Color.blue);
         }
+
+        public static void DrawCircle(Vector3 start,Vector3 end,int segments = 10)
+        {
+            var halfDir = (end - start) * 0.5f;
+            var center = start + halfDir;
+
+            var angleStep = 360f / segments;
+            var segStart = center + halfDir;
+            var angle = 0f;
+
+            for (int i = 0; i <= segments; i++)
+            {
+                angle = (i+1) * angleStep;
+
+                var segEnd = Quaternion.Euler(0, angle, 0) * halfDir;
+                Debug.DrawLine(segStart, segEnd);
+                segStart = segEnd;
+            }
+        }
     }
 }

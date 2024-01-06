@@ -365,7 +365,6 @@ namespace PowerUtilities
             }
             // view frustum
             DebugTools.DrawLineCube(vertices);
-
         }
 
         // Here you can inject one or multiple render passes in the renderer.

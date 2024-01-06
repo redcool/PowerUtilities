@@ -39,10 +39,15 @@ namespace PowerUtilities
         [Tooltip("replace _Time(xyzw) ,use Time.unscaledTime")]
         public bool isSetUnscaledTime;
 
-        [Header("_MIN_VERSION")]
+        [Header("Global Lod Settings,effect subShader")]
+        public bool isOverrideGlobalMaxLod;
+        public int globalMaxLod = 600;
+
+        [Header("MIN_VERSION")]
         [Tooltip("override isMinVersionOn")]
         public bool isOverrideMinVersion;
-        [Tooltip("open MIN_VERSION keyword")]
+
+        [Tooltip("subshader lod [100,300]")]
         public bool isMinVersionOn;
 
         public override ScriptableRenderPass GetPass() => new SetVarialbesPass(this);
@@ -100,13 +105,17 @@ namespace PowerUtilities
                 }
             }
 
+            if (Feature.isOverrideGlobalMaxLod)
+                Shader.globalMaximumLOD = Feature.globalMaxLod;
+
             if(Feature.isOverrideMinVersion)
                 UpdateMinVersion();
         }
 
         private void UpdateMinVersion()
         {
-            ShaderEx.SetKeywords(Feature.isMinVersionOn, ShaderKeywords.MIN_VERSION);
+            //ShaderEx.SetKeywords(Feature.isMinVersionOn, ShaderKeywords.MIN_VERSION);
+            Shader.globalMaximumLOD = Feature.isMinVersionOn ? 100 : 300;
         }
 
         public static void SetShaderTimeValues(CommandBuffer cmd, float time, float deltaTime, float smoothDeltaTime)
