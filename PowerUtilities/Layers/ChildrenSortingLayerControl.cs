@@ -102,6 +102,11 @@ namespace PowerUtilities
             StartSortChildren();
         }
 
+        private void OnEnable()
+        {
+            StartSortChildren();
+        }
+
         int FindParentCanvasSortingOrder(Transform tr,int defaultOrder=0)
         {
             var paretnCanvases = tr.GetComponentsInParent<Canvas>();
