@@ -1,4 +1,5 @@
 #if UNITY_EDITOR
+using PowerUtilities.UIElements;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -18,6 +19,7 @@ namespace PowerUtilities
         ListView rendererDataListView;
         IMGUIContainer rendererDataDetailImgui;
         IMGUIContainer pipelineAssetDetailImgui;
+        BaseSplitView rootSplitView;
 
         UniversalRenderPipelineAsset[] urpAssets;
 
@@ -66,8 +68,22 @@ namespace PowerUtilities
             rendererDataListView = root.Q<ListView>("RendererDataListView");
             rendererDataDetailImgui = root.Q<IMGUIContainer>("RendererDataDetailIMGUI");
             pipelineAssetDetailImgui = root.Q<IMGUIContainer>("PipelineAssetDetailIMGUI");
+            rootSplitView = root.Q<BaseSplitView>("Root");
 
             SetupSRPPipelineAssetListView();
+
+            rootSplitView.RegisterCallback<GeometryChangedEvent>(OnSizeChanged);
+        }
+
+        private void OnSizeChanged(GeometryChangedEvent evt)
+        {
+            pipelineAssetListView.style.height = evt.newRect.height;
+
+            if(evt.target is BaseSplitView splitView)
+            {
+                splitView.CollapseChild(0);
+                splitView.UnCollapse();
+            }
         }
 
         public void OnProjectChange()

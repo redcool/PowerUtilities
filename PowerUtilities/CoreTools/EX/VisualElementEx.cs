@@ -11,6 +11,17 @@ namespace PowerUtilities.UIElements
                 ve.Clear();
             children.ForEach(child => { if (child != null) ve.Add(child); });
         }
+
+        public static VisualElement GetRootElement(this VisualElement ve)
+        {
+            var p = ve.parent;
+            while(p != null)
+            {
+                ve = p;
+                p = p.parent;
+            }
+            return ve;
+        }
     }
 }
 #endif
