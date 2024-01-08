@@ -296,10 +296,16 @@ namespace PowerUtilities
         /// <returns></returns>
         bool CanExecute(CameraData cameraData)
         {
-            if (!cameraData.camera.CompareTag("MainCamera") && !cameraData.isSceneViewCamera)
+            var isMainCamera = cameraData.camera.IsMainCamera();
+            var isSceneCamera = cameraData.camera.IsSceneViewCamera();
+
+            if (!isMainCamera && !isSceneCamera)
                 return false;
 
-            var isExceedMaxDistance = IsExceedMaxDistanceAndSaveLightPos(cameraData, out currentDistance,ref settings.finalLightPos);
+            // mainCamera follow it,sceneViewCamera dont do follow
+            var isExceedMaxDistance = false;
+            if (isMainCamera)
+                isExceedMaxDistance = IsExceedMaxDistanceAndSaveLightPos(cameraData, out currentDistance, ref settings.finalLightPos);
 
             var isStepRender = settings.isStepRender || isExceedMaxDistance;
             if (isStepRender)
@@ -383,20 +389,26 @@ namespace PowerUtilities
 
             DrawLightGizmos(ref cameraData);
 
-            if (!CanExecute(cameraData))
+            var isUseLightObjButNotExists = settings.isUseLightTransform && !string.IsNullOrEmpty(settings.lightTag) & !lightObj;
+
+            if (!CanExecute(cameraData) && isUseLightObjButNotExists)
                 return;
 
             renderer.EnqueuePass(drawShadowPass);
         }
 
-        
 
         private void TrySetupLightCameraInfo()
         {
             if (settings.isUseLightTransform)
             {
                 if (!lightObj && !string.IsNullOrEmpty(settings.lightTag))
-                    lightObj = GameObject.FindGameObjectWithTag(settings.lightTag);
+                {
+                    try
+                    {
+                        lightObj = GameObject.FindGameObjectWithTag(settings.lightTag);
+                    }catch(Exception ex) { }
+                }
             }
             else
             {
