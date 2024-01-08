@@ -78,11 +78,11 @@ namespace PowerUtilities
         private void OnSizeChanged(GeometryChangedEvent evt)
         {
             pipelineAssetListView.style.height = evt.newRect.height;
-
+            
             if(evt.target is BaseSplitView splitView)
             {
-                splitView.CollapseChild(0);
-                splitView.UnCollapse();
+                //splitView.CollapseChild(0);
+                //splitView.UnCollapse();
             }
         }
 

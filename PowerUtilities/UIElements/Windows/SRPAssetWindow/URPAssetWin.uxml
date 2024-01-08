@@ -6,19 +6,19 @@
                 <ui:Label text="PipelineAssets" display-tooltip-when-elided="true" name="PipelineAssetsLabel" tooltip="right click select asset" class="detail-header" />
                 <ui:ListView focusable="false" name="PipelineAssetListView" show-border="false" horizontal-scrolling="true" header-title="URPAssets" show-foldout-header="false" show-add-remove-footer="false" reorderable="false" show-alternating-row-backgrounds="ContentOnly" selection-type="Single" show-bound-collection-size="false" usage-hints="None" fixed-item-height="30" reorder-mode="Simple" class="listview-row detail-content" style="flex-grow: 1; width: auto; height: auto; flex-shrink: 1; justify-content: center; align-items: flex-start; max-height: none; min-height: auto;" />
             </ui:VisualElement>
-            <ui:VisualElement name="RendererDataGroup" class="box-right-border" style="flex-grow: 1; width: auto; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0; height: 95%; flex-shrink: 1; flex-basis: auto; min-width: 200px;">
+            <ui:VisualElement name="RendererDataGroup" class="box-right-border" style="flex-grow: 1; width: auto; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0; height: 95%; flex-shrink: 1; flex-basis: auto; min-width: 150px;">
                 <ui:Label text="RendererDataList" display-tooltip-when-elided="true" name="RendererDataLabel" tooltip="right click select asset" class="detail-header" />
                 <ui:ListView focusable="false" name="RendererDataListView" show-border="false" horizontal-scrolling="false" show-bound-collection-size="false" fixed-item-height="30" class="detail-content" style="flex-grow: 1; max-height: none; min-height: auto;" />
             </ui:VisualElement>
         </PowerUtilities.UIElements.BaseSplitView>
         <PowerUtilities.UIElements.BaseSplitView fixed-pane-initial-dimension="300" style="min-width: auto; min-height: auto; height: auto; flex-basis: auto;">
-            <ui:VisualElement name="PipelineAssetlGroup" class="box-right-border" style="width: 30%; flex-grow: 1; height: 95%;">
+            <ui:VisualElement name="PipelineAssetlGroup" class="box-right-border" style="width: 30%; flex-grow: 1; height: 95%; min-width: 150px;">
                 <ui:Label text="PipelineAssetDetails" display-tooltip-when-elided="true" name="PipelineAssetDetails" class="detail-header" />
                 <ui:ScrollView class="detail-content" style="flex-grow: 1;">
                     <ui:IMGUIContainer name="PipelineAssetDetailIMGUI" />
                 </ui:ScrollView>
             </ui:VisualElement>
-            <ui:VisualElement name="DetailGroup" class="box-right-border" style="width: 50%; flex-grow: 1; height: 95%;">
+            <ui:VisualElement name="DetailGroup" class="box-right-border" style="width: 50%; flex-grow: 1; height: 95%; min-width: 150px;">
                 <ui:Label text="RendererDataDetails" display-tooltip-when-elided="true" name="RendererDataDetails" class="detail-header" />
                 <ui:ScrollView class="detail-content">
                     <ui:IMGUIContainer name="RendererDataDetailIMGUI" style="flex-grow: 1;" />
