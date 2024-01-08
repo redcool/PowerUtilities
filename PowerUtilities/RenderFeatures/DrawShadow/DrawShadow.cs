@@ -392,7 +392,10 @@ namespace PowerUtilities
             var isUseLightObjButNotExists = settings.isUseLightTransform && !string.IsNullOrEmpty(settings.lightTag) & !lightObj;
 
             if (!CanExecute(cameraData) && isUseLightObjButNotExists)
+            {
+                drawShadowPass.Clear();
                 return;
+            }
 
             renderer.EnqueuePass(drawShadowPass);
         }
