@@ -106,13 +106,17 @@ namespace PowerUtilities
 
         private GraphViewChange OnGraphViewChanged(GraphViewChange graphViewChange)
         {
-            if(graphViewChange.movedElements != null)
+            if (graphViewChange.movedElements != null)
             {
                 OnMoved(graphViewChange);
             }
             if (graphViewChange.elementsToRemove != null)
             {
                 //OnRemoved(graphViewChange);
+            }
+            if (graphViewChange.edgesToCreate != null)
+            {
+                OnCreateEdges(graphViewChange.edgesToCreate);
             }
             return graphViewChange;
 
@@ -136,6 +140,39 @@ namespace PowerUtilities
             //        RemoveSFCPass(item);
             //    }
             //}
+
+            void OnCreateEdges(List<Edge> edgesToCreate)
+            {
+                foreach (var edge in edgesToCreate)
+                {
+                    if (edge.output.node is BaseNodeView node1)
+                    {
+                        var node2 = edge.input.node as BaseNodeView;
+                        var targetId = node1.nodeId + 1;
+
+                        var insertFeature = srpFeatureListSO.featureList[node2.nodeId];
+                        srpFeatureListSO.featureList.Remove(insertFeature);
+                        graphView.nodeViewList.Remove(node2);
+
+                        if (targetId < srpFeatureListSO.featureList.Count)
+                        {
+                            srpFeatureListSO.featureList.Insert(targetId, insertFeature);
+                            graphView.nodeViewList.Insert(targetId, node2);
+                        }
+                        else
+                        {
+                            srpFeatureListSO.featureList.Add(insertFeature);
+                            graphView.nodeViewList.Add(node2);
+                        }
+
+                        // update nodeViews's nodeId
+                        for (int i = 0; i< graphView.nodeViewList.Count; i++)
+                        {
+                            graphView.nodeViewList[i].nodeId = i;
+                        }
+                    }
+                }
+            }
         }
 
         private void OnDeleteNode(GraphElement item)
