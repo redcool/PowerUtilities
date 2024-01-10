@@ -16,9 +16,12 @@ namespace PowerUtilities
         /// <summary>
         /// keep these colorRTs(8),depthRT
         /// </summary>
-        public static RTHandle[] LastColorTargetRTs;
-        public static RTHandle LastDepthTargetRT;
-        public static RenderTargetIdentifier[] LastColorTargetIds;
+        public static RTHandle LastDepthTargetHandle;
+
+        public static RTHandle[] LastColorTargetHandles = new RTHandle[8];
+        public static RenderTargetIdentifier[] LastColorTargetIds = new RenderTargetIdentifier[8];
+
+        static int lastColorIdsLength = 0;
 
         /// <summary>
         /// Save current targets, sfcpass can reuse these
@@ -27,32 +30,43 @@ namespace PowerUtilities
         /// <param name="depthId"></param>
         public static void SaveTargets(RenderTargetIdentifier[] colorIds,RenderTargetIdentifier depthId)
         {
-            LastColorTargetIds = new RenderTargetIdentifier[colorIds.Length];
-            LastColorTargetRTs = new RTHandle[colorIds.Length];
-            for (int i = 0; i < colorIds.Length; i++)
+            if (LastColorTargetHandles == null)
+                LastColorTargetHandles = new RTHandle[8];
+            if (LastColorTargetIds == null)
+                LastColorTargetIds = new RenderTargetIdentifier[8];
+
+            int i = 0;
+            for (; i < colorIds.Length; i++)
             {
                 LastColorTargetIds[i] = colorIds[i];
-                LastColorTargetRTs[i] = RTHandles.Alloc(colorIds[i]);
+                LastColorTargetHandles[i] = RTHandles.Alloc(colorIds[i]);
+            }
+            for (; i < 8; i++)
+            {
+                LastColorTargetIds[i] = 0;
+                LastColorTargetHandles[i] = RTHandles.Alloc(0);
             }
 
-            LastDepthTargetRT = RTHandles.Alloc(depthId);
+            LastDepthTargetHandle = RTHandles.Alloc(depthId);
+            lastColorIdsLength = colorIds.Length;
         }
 
         /// <summary>
         /// Exists target?
         /// </summary>
         /// <returns></returns>
-        public static bool IsLastTargetValid() => LastColorTargetRTs != null && LastColorTargetRTs.Length > 0 && LastDepthTargetRT != null;
+        public static bool IsLastTargetValid() => lastColorIdsLength > 0 && LastDepthTargetHandle != null;
 
         /// <summary>
         /// clear last targets
         /// </summary>
         public static void Clear()
         {
-            LastColorTargetRTs = default;
-            LastDepthTargetRT = default;
+            LastColorTargetHandles = default;
+            LastDepthTargetHandle = default;
+            lastColorIdsLength = 0;
         }
 
-        public static RTHandle LastColorTargetRT => IsLastTargetValid() ? LastColorTargetRTs[0] : default;
+        public static RTHandle LastColorTargetHandle => IsLastTargetValid() ? LastColorTargetHandles[0] : default;
     }
 }

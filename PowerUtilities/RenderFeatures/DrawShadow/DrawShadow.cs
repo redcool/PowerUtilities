@@ -199,7 +199,7 @@ namespace PowerUtilities
             public TextureResolution res = TextureResolution.x512;
 
             [EditorGroup("ShadowMapOptions")]
-            [Tooltip("call renderer's ShadowCaster pass")]
+            [Tooltip("call renderer's ShadowCaster pass, more batch than use override material")]
             public bool isCallShadowCaster;
 
             [EditorGroup("ShadowMapOptions")]
@@ -214,7 +214,7 @@ namespace PowerUtilities
             public bool drawTransparents;
 
             [EditorGroup("Light Camera",true)]
-            [Tooltip("Find by tag")]
+            [Tooltip("Find by tag,disable DrawShadow when lightTransform not found")]
             public bool isUseLightTransform = true;
 
             [EditorGroup("Light Camera")]

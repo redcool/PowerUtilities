@@ -47,6 +47,9 @@ namespace PowerUtilities.UIElements
             new NodeViewInfo{name = "TestNode",nodeViewType = typeof(BaseNodeView) }
         };
 
+        /// <summary>
+        /// current nodeViews
+        /// </summary>
         public List<BaseNodeView> nodeViewList = new List<BaseNodeView>();
 
         /// <summary>
@@ -187,7 +190,6 @@ namespace PowerUtilities.UIElements
             return graphViewChange;
         }
 
-        
     }
 
 
