@@ -180,15 +180,14 @@ using UnityEngine.Rendering.Universal;
 
             // keep rths, then sfc pass can use these rths.
             RenderTargetHolder.SaveTargets(colorIds,depthId);
-
             // update urp renderer's default targets
-            UpdateRendererDefaultTargets(renderer, depthId);
+            //UpdateRendererDefaultTargets(renderer, depthId);
         }
 
         private void UpdateRendererDefaultTargets(UniversalRenderer renderer, RenderTargetIdentifier depthId)
         {
-            var colorHandle = RTHandles.Alloc(colorIds[0]);
-            var depthHandle = RTHandles.Alloc(depthId);
+            var colorHandle = renderer.GetActiveCameraColorAttachment();
+            var depthHandle = renderer.GetActiveCameraDepthAttachment();
             renderer.ConfigureCameraTarget(colorHandle, depthHandle);
         }
 

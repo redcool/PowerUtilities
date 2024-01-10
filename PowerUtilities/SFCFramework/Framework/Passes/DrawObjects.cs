@@ -150,8 +150,8 @@
 
             if (RenderTargetHolder.IsLastTargetValid())
             {
-                colorTarget = RenderTargetHolder.LastColorTargetRT;
-                depthTarget = RenderTargetHolder.LastDepthTargetRT;
+                colorTarget = RenderTargetHolder.LastColorTargetHandle;
+                depthTarget = RenderTargetHolder.LastDepthTargetHandle;
             }
 #if ! UNITY_2021_1_OR_NEWER
             // restore CameraTarget ,below 2022
