@@ -21,7 +21,7 @@ using UnityEngine.Rendering.Universal;
         [Tooltip("use CurrentActive when item empty")]
         public string[] colorTargetNames = new[] { nameof(ShaderPropertyIds._CameraColorAttachmentA) };
 
-        [Tooltip("use CameraTarget(or renderer.cameraDepthTarget) when empty")]
+        [Tooltip("use CameraTarget or _CameraDepthAttachment urp surpport depthTexture when empty")]
         public string depthTargetName;
 
         [Header("Clear ")]
@@ -180,6 +180,16 @@ using UnityEngine.Rendering.Universal;
 
             // keep rths, then sfc pass can use these rths.
             RenderTargetHolder.SaveTargets(colorIds,depthId);
+
+            // update urp renderer's default targets
+            UpdateRendererDefaultTargets(renderer, depthId);
+        }
+
+        private void UpdateRendererDefaultTargets(UniversalRenderer renderer, RenderTargetIdentifier depthId)
+        {
+            var colorHandle = RTHandles.Alloc(colorIds[0]);
+            var depthHandle = RTHandles.Alloc(depthId);
+            renderer.ConfigureCameraTarget(colorHandle, depthHandle);
         }
 
         private RenderTargetIdentifier SetupDepthId(UniversalRenderer renderer)
