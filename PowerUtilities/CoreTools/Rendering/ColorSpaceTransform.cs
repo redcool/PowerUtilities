@@ -8,7 +8,7 @@ using UnityEngine.Rendering;
 namespace PowerUtilities
 {
     /// <summary>
-    /// Change colorSpace 
+    /// Change colorSpace : SRGB <-> Linear
     /// </summary>
     public static class ColorSpaceTransform
     {

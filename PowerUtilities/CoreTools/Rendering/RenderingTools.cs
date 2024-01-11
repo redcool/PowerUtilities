@@ -63,12 +63,7 @@ namespace PowerUtilities
         /// <param name="ids"></param>
         /// <param name="defaultId"></param>
         public static void RenderTargetNameToIdentifier(string[] names, ref RenderTargetIdentifier[] ids, BuiltinRenderTextureType defaultId = BuiltinRenderTextureType.CurrentActive)
-        => ConvertStringArray(ref ids,
-            (n) => 
-                 string.IsNullOrEmpty(n) ? defaultId : n=="CameraTarget" ? BuiltinRenderTextureType.CameraTarget : new RenderTargetIdentifier(n)
-                ,
-            names);
-
+        => ConvertStringArray(ref ids,(n) => NameToId(n),names);
 
 
         public static void RenderTargetNameToInt(string[] names, ref int[] ids)
@@ -116,6 +111,14 @@ namespace PowerUtilities
                 return GraphicsFormat.R16G16B16A16_SFloat;
 
             return GraphicsFormat.R32G32B32A32_SFloat;
+        }
+
+        public static RenderTargetIdentifier NameToId(string rtName,BuiltinRenderTextureType defaultId = BuiltinRenderTextureType.CameraTarget)
+        {
+            if (string.IsNullOrEmpty(rtName))
+                return defaultId;
+
+            return rtName == "CameraTarget" ? BuiltinRenderTextureType.CameraTarget : new RenderTargetIdentifier(rtName);
         }
     }
 }

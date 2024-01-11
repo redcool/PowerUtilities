@@ -11,6 +11,15 @@ namespace PowerUtilities.Features
     public class RenderGammaUIFeature : ScriptableRendererFeature
     {
 
+        public enum OutputTarget
+        {
+            /// <summary>
+            /// device's CameraTarget
+            /// </summary>
+            CameraTarget,
+            UrpColorTarget,
+            None
+        }
 
         [Serializable]
         public class Settings
@@ -28,8 +37,6 @@ namespace PowerUtilities.Features
 
             [Header("Filter")]
             [Tooltip("main render object's layer")]
-            //public LayerMask layerMask = 32;
-
             public FilteringSettingsInfo filterInfo = new FilteringSettingsInfo
             {
                 layers = 32,
@@ -39,16 +46,13 @@ namespace PowerUtilities.Features
             [Tooltip("render objects use layers, one by one")]
             public List<FilteringSettingsInfo> filterInfoList = new List<FilteringSettingsInfo>();
 
+            [Header("Find Camera by tag")]
             [Tooltip("Define ui camera use this tag, otherwise will check automatic(1 linear space,2 overlay camera,3 camera cullingMask is UI)")]
             public string cameraTag;
 
             [Header("Blit Options")]
-            [Tooltip("blit to CameraTarget,check this when rendering UI")]
-            public bool isFinalRendering = true;
-
-            /**** 
-             * ui rendering 
-             * ***/
+            [Tooltip("blit to CameraTarget,URP CurrentActive,or no")]
+            public OutputTarget outputTarget = OutputTarget.CameraTarget;
 
             [Header("Fullsize Texture")]
             [Tooltip("create a full size texture,as rendering objects target, otherwise use CameraColor(Depth)Attachment,FSR need this")]
@@ -145,9 +149,8 @@ namespace PowerUtilities.Features
             }
 
             // ui rendering checks
-            if (settings.isFinalRendering)
+            if (settings.outputTarget == OutputTarget.CameraTarget)
             {
-
                 if ((cameraData.camera.cullingMask & settings.filterInfo.layers) == 0)
                 {
                     settings.logs = "UICamera.cullingMask != settings.layerMask";

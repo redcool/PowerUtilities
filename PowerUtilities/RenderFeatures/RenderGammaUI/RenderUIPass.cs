@@ -134,15 +134,17 @@ namespace PowerUtilities.Features
             //--------------------- 3 to colorTarget
             ColorSpaceTransform.SetColorSpace(cmd, ColorSpaceTransform.ColorSpaceMode.SRGBToLinear);
 
-            if (settings.isFinalRendering)
+            switch (settings.outputTarget)
             {
-                // write to CameraTarget
-                cmd.BlitTriangle(BuiltinRenderTextureType.CurrentActive, BuiltinRenderTextureType.CameraTarget, settings.blitMat, 0);
-            }
-            else
-            {
-                // write to urp target
-                BlitToTarget(ref context, colorHandle, lastColorHandle, lastDepthHandle, false, true);
+                case RenderGammaUIFeature.OutputTarget.CameraTarget:
+                    // write to CameraTarget
+                    cmd.BlitTriangle(BuiltinRenderTextureType.CurrentActive, BuiltinRenderTextureType.CameraTarget, settings.blitMat, 0);
+                    break;
+                case RenderGammaUIFeature.OutputTarget.UrpColorTarget:
+                    // write to urp target
+                    BlitToTarget(ref context, colorHandle, lastColorHandle, lastDepthHandle, false, true);
+                    break;
+                default:break;
             }
 
             //------------- end 
@@ -196,7 +198,6 @@ namespace PowerUtilities.Features
                 // depthHandle, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store);
 
                 cmd.SetRenderTarget(targetTexId, depthHandleId);
-
                 cmd.Execute(ref context);
             }
 
@@ -205,21 +206,46 @@ namespace PowerUtilities.Features
             context.DrawRenderers(cmd, renderingData.cullResults, ref drawSettings, ref filterSettings, null, arr);
 
             // render objects by layerMasks order
-            if (settings.filterInfoList.Count >0)
+            if (settings.filterInfoList.Count > 0)
             {
                 foreach (var info in settings.filterInfoList)
                 {
                     if (!info.enabled)
                         continue;
-                    //filterSettings.layerMask = info.layers;
-                    //filterSettings.renderQueueRange = new RenderQueueRange(info.renderQueueRangeInfo.min, info.renderQueueRangeInfo.max);
 
-                    //FilteringSettingsInfo.SetupFilterSettingss(ref filterSettings, info);
-                    filterSettings = info;
-
-                    context.DrawRenderers(cmd, renderingData.cullResults, ref drawSettings, ref filterSettings, null, arr);
+                    DrawObjectByInfo(ref filterSettings, ref context, renderingData, ref drawSettings, arr, info);
                 }
             }
+        }
+
+        void DrawObjectByInfo(ref FilteringSettings filterSettings, ref ScriptableRenderContext context, RenderingData renderingData, ref DrawingSettings drawSettings, NativeArray<RenderStateBlock> arr, FilteringSettingsInfo info)
+        {
+            //1 retarget
+            if (info.isRetarget && !string.IsNullOrEmpty(info.depthTargetName) && !string.IsNullOrEmpty(info.colorTargetName))
+            {
+                var colorId = info.colorTargetName == "CameraTarget" ? BuiltinRenderTextureType.CameraTarget : new RenderTargetIdentifier(info.colorTargetName);
+                var depthId = info.depthTargetName == "CameraTarget" ? BuiltinRenderTextureType.CameraTarget : new RenderTargetIdentifier(info.depthTargetName);
+
+                cmd.SetRenderTarget(colorId, depthId);
+                cmd.Execute(ref context);
+            }
+            //2 rebind targets
+            foreach (var rebindTargetInfo in info.rebindTargetList)
+            {
+                if (rebindTargetInfo.IsValid())
+                {
+                    cmd.SetGlobalTexture(rebindTargetInfo.originalName, rebindTargetInfo.newName);
+                    ColorSpaceTransform.SetColorSpace(cmd, ColorSpaceTransform.ColorSpaceMode.SRGBToLinear);
+                    cmd.Execute(ref context);
+                }
+            }
+
+            //3 draw items
+            filterSettings = info;
+            context.DrawRenderers(cmd, renderingData.cullResults, ref drawSettings, ref filterSettings, null, arr);
+
+            // reset
+            ColorSpaceTransform.SetColorSpace(cmd, ColorSpaceTransform.ColorSpaceMode.None);
         }
 
         bool AnyCameraHasPostProcessing()

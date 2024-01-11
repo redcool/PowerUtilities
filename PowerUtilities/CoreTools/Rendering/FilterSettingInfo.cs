@@ -20,12 +20,22 @@ namespace PowerUtilities
         }
     }
 
+    [Serializable]
+    public class RebingTargetNameInfo
+    {
+        public string originalName, newName;
+        public bool isGammaToLinear;
+
+        public bool IsValid() => !string.IsNullOrEmpty(originalName) && !string.IsNullOrEmpty(newName);
+    }
+
     /// <summary>
     /// like FilteringSettings,can serialized
     /// </summary>
     [Serializable]
     public class FilteringSettingsInfo
     {
+        public string name="Untitled";
         public bool enabled=true;
         public LayerMask layers;
         public RangeInfo renderQueueRangeInfo = new RangeInfo { min=0, max=5000 };
@@ -33,6 +43,14 @@ namespace PowerUtilities
         public RangeInfo sortingLayerRangeInfo = new RangeInfo { min=short.MinValue, max=short.MaxValue };
         [RenderingLayerMask] public uint renderingLayerMasks = 1;
         public bool excludeMotionVectors;
+
+        [Header("Set Targets")]
+        public bool isRetarget;
+        public string colorTargetName;
+        public string depthTargetName;
+
+        [Header("Rebind Targets")]
+        public List<RebingTargetNameInfo> rebindTargetList = new List<RebingTargetNameInfo> ();
 
         public static implicit operator FilteringSettings(FilteringSettingsInfo info)
         {
