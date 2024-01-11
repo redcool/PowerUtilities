@@ -113,5 +113,23 @@
 
         public static string ToString<T>(IEnumerable<T> items) => string.Join(',', items);
 
+        /// <summary>
+        /// is all of strs not empty
+        /// </summary>
+        /// <param name="strs"></param>
+        /// <returns></returns>
+        public static bool IsAll(params string[] strs)
+        {
+            return strs.All(str => !string.IsNullOrEmpty(str));
+        }
+        /// <summary>
+        /// Is strs  has not empty item at least 1.
+        /// </summary>
+        /// <param name="strs"></param>
+        /// <returns></returns>
+        public static bool IsAny(params string[] strs)
+        {
+            return strs.Any(str => !string.IsNullOrEmpty(str));
+        }
     }
 }

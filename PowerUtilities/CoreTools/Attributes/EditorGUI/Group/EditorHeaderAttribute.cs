@@ -20,7 +20,7 @@
 
             if (isGroupOn)
                 return base.GetHeight();
-            return -2;
+            return -20;
         }
         public override void OnGUI(Rect position)
         {
@@ -29,8 +29,9 @@
 
             if (!isGroupOn)
                 return;
-
-            EditorGUI.LabelField(position,GUIContentEx.TempContent(attr.header));
+            var pos = position;
+            pos.x += 15;
+            EditorGUI.LabelField(pos,GUIContentEx.TempContent(attr.header),EditorStyles.boldLabel);
         }
     }
 

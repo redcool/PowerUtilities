@@ -1,51 +1,60 @@
 namespace PowerUtilities.RenderFeatures
 {
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
+    using System.Collections;
+    using System.Collections.Generic;
+    using System.Linq;
 #if UNITY_EDITOR
     using UnityEditor;
 #endif
     using UnityEngine;
-using UnityEngine.Rendering;
-using UnityEngine.Rendering.Universal;
+    using UnityEngine.Rendering;
+    using UnityEngine.Rendering.Universal;
 
     [Tooltip("Set more color target (1 depth )to fill, 8 is max")]
-    [CreateAssetMenu(menuName =SRP_FEATURE_PASSES_MENU+ "/SetRenderTarget")]
+    [CreateAssetMenu(menuName = SRP_FEATURE_PASSES_MENU + "/SetRenderTarget")]
     public class SetRenderTarget : SRPFeature
     {
         [Header("Targets")]
         [Tooltip("Set colors and depth target,skip setTargets when not check")]
         public bool isSetTargets = true;
 
-        [Tooltip("use CurrentActive when item empty")]
+        [Tooltip("When empty use CurrentActive,type CameraTarget use device's cameraTarget")]
         public string[] colorTargetNames = new[] { nameof(ShaderPropertyIds._CameraColorAttachmentA) };
 
-        [Tooltip("use CameraTarget or _CameraDepthAttachment urp surpport depthTexture when empty")]
+        [Tooltip("When empty use _CameraDepthAttachment,type CameraTarget use device's cameraTarget")]
         public string depthTargetName;
 
+        //==========Clear
+        [EditorGroup("Clear Options", true)]
         [Header("Clear ")]
         public bool clearTarget;
 
-        [Header("--- Override Clear ")]
+        [EditorGroup("Clear Options")]
+        [EditorHeader("Clear Options", "--- Override Clear ")]
         [Tooltip("clear target use camera's setting or settings below")]
         public bool isOverrideClear;
 
+        [EditorGroup("Clear Options")]
         [Space(10)]
         [Tooltip("target 0,use clearColor,otherwise use Color.clear")]
         public bool isClearColor = true;
 
+        [EditorGroup("Clear Options")]
         public Color clearColor = Color.clear;
-       
+
+        [EditorGroup("Clear Options")]
         [Space(10)]
         public bool isClearDepth = true;
-       
-        [Range(0,1)] public float depth = 1;
 
+        [EditorGroup("Clear Options")]
+        [Range(0, 1)] public float depth = 1;
+
+        [EditorGroup("Clear Options")]
         [Space(10)]
         public bool isClearStencil = true;
-        
-        [Range(0,255)]public uint stencil;
+
+        [EditorGroup("Clear Options")]
+        [Range(0, 255)] public uint stencil;
 
         public override ScriptableRenderPass GetPass() => new SetRenderTargetPass(this);
     }
@@ -83,7 +92,7 @@ using UnityEngine.Rendering.Universal;
             //    RenderTargetHolder.SaveTargets(new RenderTargetIdentifier[] { cameraTarget }, cameraTarget);
             //    return;
             //}
-            
+
             var renderer = (UniversalRenderer)cameraData.renderer;
 
             TrySetTargets(ref renderingData, cmd);
@@ -117,7 +126,7 @@ using UnityEngine.Rendering.Universal;
             }
         }
 
-        void ClearTarget(CommandBuffer cmd, CameraData cameraData,out bool needResetTargets)
+        void ClearTarget(CommandBuffer cmd, CameraData cameraData, out bool needResetTargets)
         {
             needResetTargets = false;
 
@@ -127,7 +136,7 @@ using UnityEngine.Rendering.Universal;
                 cmd.ClearRenderTarget(Feature.isClearColor, Color.clear, Feature.isClearDepth, Feature.depth, Feature.isClearStencil, Feature.stencil);
 
                 //clear main target's color
-                if(Feature.isSetTargets && Feature.isClearColor && Feature.clearColor != Color.clear)
+                if (Feature.isSetTargets && Feature.isClearColor && Feature.clearColor != Color.clear)
                 {
                     cmd.SetRenderTarget(colorIds[0]);
                     cmd.ClearRenderTarget(false, true, Feature.clearColor);
@@ -158,7 +167,7 @@ using UnityEngine.Rendering.Universal;
 
         bool isNeedAllocDepthId()
         {
-            if (string.IsNullOrEmpty(lastDepthName)) 
+            if (string.IsNullOrEmpty(lastDepthName))
                 return true;
 
             return (lastDepthName != Feature.depthTargetName) && isURPRTChanged;
@@ -179,7 +188,7 @@ using UnityEngine.Rendering.Universal;
             cmd.SetRenderTarget(colorIds, depthId);
 
             // keep rths, then sfc pass can use these rths.
-            RenderTargetHolder.SaveTargets(colorIds,depthId);
+            RenderTargetHolder.SaveTargets(colorIds, depthId);
             // update urp renderer's default targets
             //UpdateRendererDefaultTargets(renderer, depthId);
         }
@@ -197,7 +206,7 @@ using UnityEngine.Rendering.Universal;
             RenderTargetIdentifier depthId = UniversalRenderPipeline.asset.supportsCameraDepthTexture ? ShaderPropertyIds._CameraDepthAttachment : BuiltinRenderTextureType.CameraTarget;
             if (!string.IsNullOrEmpty(Feature.depthTargetName))
             {
-                depthId = Shader.PropertyToID(Feature.depthTargetName);
+                depthId = Feature.depthTargetName == "CameraTarget" ? BuiltinRenderTextureType.CameraTarget : Shader.PropertyToID(Feature.depthTargetName);
             }
 
             // check replace URP rtHandle

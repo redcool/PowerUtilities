@@ -14,10 +14,14 @@ namespace PowerUtilities
     public class SetVariables : SRPFeature
     {
         [Header("--- Set Variables")]
+        [Tooltip("binding global float variables")]
         public List<ShaderValue<float>> floatValues = new List<ShaderValue<float>>();
         public List<ShaderValue<int>> intValues = new List<ShaderValue<int>>();
         public List<ShaderValue<Vector4>> vectorValues = new List<ShaderValue<Vector4>>();
         public List<ShaderValue<Texture>> textureValues = new List<ShaderValue<Texture>>();
+
+        [Tooltip("rebind rt name")]
+        public List<ShaderValue<string>> rtNames = new List<ShaderValue<string>>();
 
         [Header("auto variables")]
         [Tooltip("override isAutoSetShadowMask")]
@@ -67,10 +71,10 @@ namespace PowerUtilities
     {
         public SetVarialbesPass(SetVariables feature) : base(feature) { }
 
-        public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
-        {
-            SerupVariables(cmd, ref renderingData);
-        }
+        //public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
+        //{
+        //    SerupVariables(cmd, ref renderingData);
+        //}
 
         void SerupVariables(CommandBuffer cmd, ref RenderingData renderingData)
         {
@@ -87,6 +91,14 @@ namespace PowerUtilities
 
             foreach (var v in Feature.textureValues)
                 if (v.IsValid) cmd.SetGlobalTexture(v.name, v.value);
+
+            foreach (var v in Feature.rtNames)
+            {
+                if (v.IsValid && !string.IsNullOrEmpty(v.name) && !string.IsNullOrEmpty(v.value))
+                {
+                    cmd.SetGlobalTexture(v.name, v.value);
+                }
+            }
 
             // update vars
             if (Feature.isOverrideAutoSetShadowMask && Feature.isAutoSetShadowMask)
@@ -140,6 +152,8 @@ namespace PowerUtilities
 
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
         {
+            SerupVariables(cmd, ref renderingData);
+
             if (Feature.isOverrideUnscaledTime && Feature.isSetUnscaledTime)
             {
                 SetShaderTimeValues(cmd, Time.unscaledTime, Time.unscaledDeltaTime, Time.smoothDeltaTime);

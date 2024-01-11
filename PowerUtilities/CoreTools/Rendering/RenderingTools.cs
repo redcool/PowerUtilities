@@ -54,13 +54,19 @@ namespace PowerUtilities
         }
         /// <summary>
         /// Change names to RenderTargetIdentitier(Shader.PropertyToID
+        /// 
+        /// name is empty : return defaultId
+        /// name is CameraTarget : return BuiltinRenderTextureType.CameraTarget
+        /// other : return new RenderTargetIdentifier(n)
         /// </summary>
         /// <param name="names"></param>
         /// <param name="ids"></param>
         /// <param name="defaultId"></param>
         public static void RenderTargetNameToIdentifier(string[] names, ref RenderTargetIdentifier[] ids, BuiltinRenderTextureType defaultId = BuiltinRenderTextureType.CurrentActive)
         => ConvertStringArray(ref ids,
-            (n) => string.IsNullOrEmpty(n)? defaultId : new RenderTargetIdentifier(n),
+            (n) => 
+                 string.IsNullOrEmpty(n) ? defaultId : n=="CameraTarget" ? BuiltinRenderTextureType.CameraTarget : new RenderTargetIdentifier(n)
+                ,
             names);
 
 
