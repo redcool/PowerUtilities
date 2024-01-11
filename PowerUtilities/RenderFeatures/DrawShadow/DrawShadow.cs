@@ -12,6 +12,20 @@ namespace PowerUtilities
 
     public class DrawShadow : ScriptableRendererFeature
     {
+        static RenderTexture emptyShadowMap;
+        /// <summary>
+        /// Defulat empty shadowmap,
+        /// Texture2D.whiteTexture,some device will crash.
+        /// </summary>
+        public static RenderTexture EmptyShadowMap
+        {
+            get
+            {
+                if(emptyShadowMap == null)
+                    emptyShadowMap = ShadowUtils.GetTemporaryShadowTexture(1, 1, 16);
+                return emptyShadowMap;
+            }
+        }
 
         class DrawShadowPass : ScriptableRenderPass
         {
@@ -186,7 +200,7 @@ namespace PowerUtilities
 
             public void Clear()
             {
-                Shader.SetGlobalTexture(_BigShadowMap, Texture2D.whiteTexture);
+                Shader.SetGlobalTexture(_BigShadowMap, DrawShadow.EmptyShadowMap);
             }
         }
 
