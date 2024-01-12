@@ -1,93 +1,68 @@
-using System;
-using System.Collections.Generic;
+namespace PowerUtilities.Features
+{
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
-using static UnityEngine.Experimental.Rendering.Universal.RenderObjects;
 
-namespace PowerUtilities.Features
-{
+#if UNITY_EDITOR
+    using UnityEditor;
+    using System;
+#endif
+#if UNITY_EDITOR
+    [CustomEditor(typeof(RenderGammaUIFeature))]
+    public class RenderGammaUIFeatureEditor : PowerEditor<RenderGammaUIFeature>
+    {
+        Editor settingSOEditor;
+        public override void DrawInspectorUI(RenderGammaUIFeature inst)
+        {
+            //========================================  gammaUISetting header
+            EditorGUILayout.BeginHorizontal();
+            //1 exist
+            EditorGUILayout.PrefixLabel("GammaUISO:");
+            inst.settingSO = (GammaUISettingSO)EditorGUILayout.ObjectField(inst.settingSO, typeof(GammaUISettingSO), false);
+            //2 create new
+            if(GUILayout.Button("Create New"))
+            {
+                var so = CreateInstance<GammaUISettingSO>();
+                var urpAsset = UniversalRenderPipeline.asset;
+                var nextId = Resources.FindObjectsOfTypeAll<GammaUISettingSO>().Length;
+
+                var settingsFolder = AssetDatabaseTools.CreateFolder("Assets/PowerUtilities/", "GammaUISettings",true);
+                var soPath = $"{settingsFolder}/_GammaUISO_{nextId}.asset";
+                AssetDatabase.CreateAsset(so, soPath);
+                AssetDatabaseTools.SaveRefresh();
+
+                //
+                var newAsset = AssetDatabase.LoadAssetAtPath<GammaUISettingSO>(soPath);
+                EditorGUIUtility.PingObject(newAsset);
+
+                inst.settingSO = newAsset;
+            }
+            EditorGUILayout.EndHorizontal();
+
+            //========================================  splitter line 
+            var rect = EditorGUILayout.GetControlRect(false,2);
+            EditorGUITools.DrawColorLine(rect);
+
+            //========================================  draw gammaUISetting 
+            if (inst.settingSO != null)
+            {
+                EditorTools.CreateEditor(inst.settingSO, ref settingSOEditor);
+                settingSOEditor.DrawDefaultInspector();
+            }
+            else
+            {
+                EditorGUILayout.HelpBox("No Details", MessageType.Info);
+            }
+        }
+    }
+#endif
+
     [Tooltip("Render scane in linear, Render UI in gamma space")]
     public class RenderGammaUIFeature : ScriptableRendererFeature
     {
 
-        public enum OutputTarget
-        {
-            /// <summary>
-            /// device's CameraTarget
-            /// </summary>
-            CameraTarget,
-            UrpColorTarget,
-            None
-        }
-
-        [Serializable]
-        public class Settings
-        {
-            [LoadAsset("defaultGammaUICopyColor.mat")]
-            public Material blitMat;
-
-            [Tooltip("ui objects use")]
-            public bool isOverrideUIShader;
-            [LoadAsset("UI-Default.shader")]
-            public Shader overrideUIShader;
-
-            public RenderPassEvent passEvent = RenderPassEvent.AfterRendering;
-            public int passEventOffset = 10;
-
-            [Header("Filter")]
-            [Tooltip("main render object's layer")]
-            public FilteringSettingsInfo filterInfo = new FilteringSettingsInfo
-            {
-                layers = 32,
-                renderQueueRangeInfo = new RangeInfo(2501,5000)
-            };
-
-            [Tooltip("render objects use layers, one by one")]
-            public List<FilteringSettingsInfo> filterInfoList = new List<FilteringSettingsInfo>();
-
-            [Header("Find Camera by tag")]
-            [Tooltip("Define ui camera use this tag, otherwise will check automatic(1 linear space,2 overlay camera,3 camera cullingMask is UI)")]
-            public string cameraTag;
-
-            [Header("Blit Options")]
-            [Tooltip("blit to CameraTarget,URP CurrentActive,or no")]
-            public OutputTarget outputTarget = OutputTarget.CameraTarget;
-
-            [Header("Fullsize Texture")]
-            [Tooltip("create a full size texture,as rendering objects target, otherwise use CameraColor(Depth)Attachment,FSR need this")]
-            public bool createFullsizeGammaTex;
-
-            [Tooltip("Need use stencil buffer?")]
-            public DepthBufferBits depthBufferBits = DepthBufferBits._24;
-
-            public StencilStateData stencilStateData;
-
-            [Header("Performance Options")]
-            [Tooltip("Best option is close for Middle device.")]
-            public bool disableFSR = true;
-
-            [Tooltip("No blit,no gamma texture,draw objects,output to camera target")]
-            public bool isWriteToCameraTargetDirectly;
-
-
-            [Header("Editor Options")]
-            [Multiline]
-            public string logs;
-
-
-            Material uiMat;
-            public Material UIMaterial
-            {
-                get
-                {
-                    if (!uiMat && overrideUIShader)
-                        uiMat = new Material(overrideUIShader);
-                    return uiMat;
-                }
-            }
-        }
-        public Settings settings;
+        public GammaUISettingSO settingSO;
 
         RenderUIPass uiPass;
 
@@ -126,20 +101,23 @@ namespace PowerUtilities.Features
         // This method is called when setting up the renderer once per-camera.
         public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
         {
-            settings.logs = "";
-            if (!settings.blitMat)
+            if (settingSO == null)
+                return;
+
+            settingSO.logs = "";
+            if (!settingSO.blitMat)
             {
-                settings.logs = "settings.blitMat not exists";
+                settingSO.logs = "settings.blitMat not exists";
                 return;
             }
 
             ref var cameraData = ref renderingData.cameraData;
             var isSceneCamera = cameraData.isSceneViewCamera;
-            var isUICamera = IsUICamera(ref cameraData, settings.cameraTag);
+            var isUICamera = IsUICamera(ref cameraData, settingSO.cameraTag);
 
             if (!isUICamera && !isSceneCamera)
             {
-                settings.logs = "UICamera not found";
+                settingSO.logs = "UICamera not found";
                 return;
             }
 
@@ -149,11 +127,11 @@ namespace PowerUtilities.Features
             }
 
             // ui rendering checks
-            if (settings.outputTarget == OutputTarget.CameraTarget)
+            if (settingSO.outputTarget == OutputTarget.CameraTarget)
             {
-                if ((cameraData.camera.cullingMask & settings.filterInfo.layers) == 0)
+                if ((cameraData.camera.cullingMask & settingSO.filterInfo.layers) == 0)
                 {
-                    settings.logs = "UICamera.cullingMask != settings.layerMask";
+                    settingSO.logs = "UICamera.cullingMask != settings.layerMask";
                     return;
                 }
             }
@@ -161,8 +139,8 @@ namespace PowerUtilities.Features
             if (uiPass == null)
                 uiPass = new RenderUIPass();
 
-            uiPass.renderPassEvent = settings.passEvent + settings.passEventOffset;
-            uiPass.settings = settings;
+            uiPass.renderPassEvent = settingSO.passEvent + settingSO.passEventOffset;
+            uiPass.settings = settingSO;
 
             renderer.EnqueuePass(uiPass);
         }

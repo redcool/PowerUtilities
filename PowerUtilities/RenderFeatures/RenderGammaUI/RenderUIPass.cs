@@ -21,7 +21,7 @@ namespace PowerUtilities.Features
 
         CommandBuffer cmd = new CommandBuffer { name=nameof(RenderUIPass) };
 
-        public RenderGammaUIFeature.Settings settings;
+        public GammaUISettingSO settings;
 
         StencilState GetStencilState()
         {
@@ -122,7 +122,7 @@ namespace PowerUtilities.Features
 
             //---------------------  1 to gamma tex
             settings.blitMat.shaderKeywords = null;
-            //settings.blitMat.SetFloat("_Double", 0);
+            //settingSO.blitMat.SetFloat("_Double", 0);
 
             ColorSpaceTransform.SetColorSpace(cmd, ColorSpaceTransform.ColorSpaceMode.LinearToSRGB);
             BlitToTarget(ref context, lastColorHandle, colorHandle, depthHandle, false, true);
@@ -136,11 +136,11 @@ namespace PowerUtilities.Features
 
             switch (settings.outputTarget)
             {
-                case RenderGammaUIFeature.OutputTarget.CameraTarget:
+                case OutputTarget.CameraTarget:
                     // write to CameraTarget
                     cmd.BlitTriangle(BuiltinRenderTextureType.CurrentActive, BuiltinRenderTextureType.CameraTarget, settings.blitMat, 0);
                     break;
-                case RenderGammaUIFeature.OutputTarget.UrpColorTarget:
+                case OutputTarget.UrpColorTarget:
                     // write to urp target
                     BlitToTarget(ref context, colorHandle, lastColorHandle, lastDepthHandle, false, true);
                     break;
@@ -169,7 +169,7 @@ namespace PowerUtilities.Features
             cmd.SetRenderTarget(colorHandleId, depthHandleId);
             cmd.ClearRenderTarget(clearDepth, clearColor, Color.clear, 1);
 
-            //cmd.Blit(BuiltinRenderTextureType.None, colorHandle, settings.blitMat); // will set _MainTex
+            //cmd.Blit(BuiltinRenderTextureType.None, colorHandle, settingSO.blitMat); // will set _MainTex
             cmd.BlitTriangle(lastColorHandleId, colorHandleId, settings.blitMat, 0);
         }
 
@@ -182,7 +182,7 @@ namespace PowerUtilities.Features
             if (settings.isOverrideUIShader && settings.UIMaterial)
                 drawSettings.overrideMaterial = settings.UIMaterial;
 
-            //var filterSettings = new FilteringSettings(RenderQueueRange.transparent, settings.filterInfo.layers);
+            //var filterSettings = new FilteringSettings(RenderQueueRange.transparent, settingSO.filterInfo.layers);
             FilteringSettings filterSettings = settings.filterInfo;
 #if UNITY_EDITOR
             // When rendering the preview camera, we want the layer mask to be forced to Everything

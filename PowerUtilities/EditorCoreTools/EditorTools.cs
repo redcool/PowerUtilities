@@ -111,6 +111,19 @@ namespace PowerUtilities
         }
         #endregion
         
+        /// <summary>
+        /// CreateEditor with cached
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="targetObject"></param>
+        /// <param name="editor"></param>
+        public static void CreateEditor<T>(T targetObject,ref Editor editor) where T : Object
+        {
+            if (editor == null || !ArrayUtility.ArrayEquals(new [] { targetObject }, editor.targets))
+            {
+                editor = Editor.CreateEditor(targetObject);
+            }
+        }
     }
 }
 #endif

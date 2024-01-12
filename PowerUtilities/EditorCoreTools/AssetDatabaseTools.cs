@@ -103,7 +103,9 @@ namespace PowerUtilities
         {
             if (isUseExist)
             {
-                var path = parentFolder + "/" + subFolder;
+                var splitter = parentFolder.LastIndexOf("/") != -1 ? "" : "/";
+
+                var path = parentFolder + splitter + subFolder;
                 PathTools.CreateAbsFolderPath(path);
                 return path;
             }
