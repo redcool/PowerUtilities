@@ -19,7 +19,7 @@
         public Material shadowMat;
 
         [EditorGroup("ShadowMapOptions")]
-        public LayerMask layers = 0;
+        public LayerMask layers = 1;
 
         [EditorGroup("ShadowMapOptions")]
         public bool drawTransparents;

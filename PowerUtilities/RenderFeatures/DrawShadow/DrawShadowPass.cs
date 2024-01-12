@@ -177,7 +177,16 @@
         /// </summary>
         public void UpdateShaderVariables()
         {
-            Shader.SetGlobalVector(_BigShadowParams, new Vector4(settingSO.shadowIntensity, 0));
+            var isDrawShadow = settingSO.layers != 0;
+
+            if (!isDrawShadow)
+            {
+                Clear();
+            }
+            else
+            {
+                Shader.SetGlobalVector(_BigShadowParams, new Vector4(settingSO.shadowIntensity, 0));
+            }
         }
 
         /// <summary>
