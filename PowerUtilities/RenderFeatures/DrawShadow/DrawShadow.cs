@@ -5,6 +5,7 @@ namespace PowerUtilities
     using UnityEditor;
 #endif
     using UnityEngine;
+    using UnityEngine.Rendering;
     using UnityEngine.Rendering.Universal;
 
 #if UNITY_EDITOR
@@ -19,6 +20,7 @@ namespace PowerUtilities
     public class DrawShadow : ScriptableRendererFeature
     {
         static RenderTexture emptyShadowMap;
+        static RTHandle emptyShadowMapHandle;
         /// <summary>
         /// Defulat empty shadowmap,
         /// Texture2D.whiteTexture,some device will crash.
@@ -31,7 +33,14 @@ namespace PowerUtilities
             get
             {
                 if(emptyShadowMap == null)
+                {
+#if UNITY_2022_1_OR_NEWER
+                    emptyShadowMapHandle = ShadowUtils.AllocShadowRT(1, 1, 16, 1, 0, "");
+                    emptyShadowMap = emptyShadowMapHandle.rt;
+#else
                     emptyShadowMap = ShadowUtils.GetTemporaryShadowTexture(1, 1, 16);
+#endif
+                }
                 return emptyShadowMap;
             }
         }
