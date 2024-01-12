@@ -24,7 +24,17 @@
 
         public void SetupBigShadowMap(CommandBuffer cmd, ref RenderingData renderingData)
         {
-            var desc = new RenderTextureDescriptor((int)settingSO.res, (int)settingSO.res, GraphicsFormat.None, GraphicsFormatUtility.GetDepthStencilFormat(24, 0));
+            var res = (int)settingSO.res;
+            var isNeedAlloc = bigShadowMap == null || (bigShadowMap != null && bigShadowMap.width != res);
+            if (!isNeedAlloc)
+                return;
+
+            if(bigShadowMap != null)
+            {
+                bigShadowMap.Destroy();
+            }
+
+            var desc = new RenderTextureDescriptor(res,res, GraphicsFormat.None, GraphicsFormatUtility.GetDepthStencilFormat(24, 0));
             desc.shadowSamplingMode = ShadowSamplingMode.CompareDepths;
 
             bigShadowMap = new RenderTexture(desc);
