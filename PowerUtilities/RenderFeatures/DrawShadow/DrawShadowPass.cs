@@ -13,7 +13,7 @@
     /// </summary>
     public class DrawShadowPass : ScriptableRenderPass
     {
-        DrawShadowSettingSO settingSO;
+        public DrawShadowSettingSO settingSO;
         public int
             _BigShadowMap = Shader.PropertyToID(nameof(_BigShadowMap)),
             _BigShadowVP = Shader.PropertyToID(nameof(_BigShadowVP)),
@@ -21,12 +21,6 @@
             ;
 
         RenderTexture bigShadowMap;
-
-        public DrawShadowPass(DrawShadowSettingSO settings)
-        {
-            this.settingSO = settings;
-        }
-
 
         public void SetupBigShadowMap(CommandBuffer cmd, ref RenderingData renderingData)
         {
@@ -48,6 +42,9 @@
         // You don't have to call ScriptableRenderContext.submit, the render pipeline will call it at specific points in the pipeline.
         public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
         {
+            if (!settingSO)
+                return;
+
             ref var cameraData = ref renderingData.cameraData;
             var cmd = CommandBufferPool.Get();
             cmd.BeginSampleExecute(nameof(DrawShadow), ref context);

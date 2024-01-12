@@ -54,7 +54,7 @@ namespace PowerUtilities
         /// <inheritdoc/>
         public override void Create()
         {
-            drawShadowPass = new DrawShadowPass(settingSO);
+            drawShadowPass = new DrawShadowPass();
 
             // Configures where the render pass should be injected.
             drawShadowPass.renderPassEvent = RenderPassEvent.BeforeRenderingShadows;
@@ -153,7 +153,13 @@ namespace PowerUtilities
         // This method is called when setting up the renderer once per-camera.
         public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
         {
+            if (!settingSO)
+                return;
+
+            drawShadowPass.settingSO = settingSO;
+
             drawShadowPass.UpdateShaderVariables();
+
             if(settingSO.isClearShadowMap)
             {
                 settingSO.isClearShadowMap = false;

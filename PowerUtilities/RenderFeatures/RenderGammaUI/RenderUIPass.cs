@@ -220,6 +220,7 @@ namespace PowerUtilities.Features
 
         void DrawObjectByInfo(ref FilteringSettings filterSettings, ref ScriptableRenderContext context, RenderingData renderingData, ref DrawingSettings drawSettings, NativeArray<RenderStateBlock> arr, FilteringSettingsInfo info)
         {
+            var isGameCamera = renderingData.cameraData.camera.IsGameCamera();
             //1 retarget
             if (info.isRetarget && !string.IsNullOrEmpty(info.depthTargetName) && !string.IsNullOrEmpty(info.colorTargetName))
             {
@@ -234,8 +235,11 @@ namespace PowerUtilities.Features
             {
                 if (rebindTargetInfo.IsValid())
                 {
-                    cmd.SetGlobalTexture(rebindTargetInfo.originalName, rebindTargetInfo.newName);
-                    ColorSpaceTransform.SetColorSpace(cmd, ColorSpaceTransform.ColorSpaceMode.SRGBToLinear);
+                    cmd.SetGlobalTexture(rebindTargetInfo.originalRTName, rebindTargetInfo.otherRTName);
+
+                    if(isGameCamera)
+                        ColorSpaceTransform.SetColorSpace(cmd, rebindTargetInfo.colorSpace);
+
                     cmd.Execute(ref context);
                 }
             }

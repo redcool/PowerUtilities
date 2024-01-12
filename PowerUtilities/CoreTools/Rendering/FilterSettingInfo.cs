@@ -23,10 +23,12 @@ namespace PowerUtilities
     [Serializable]
     public class RebingTargetNameInfo
     {
-        public string originalName, newName;
-        public bool isGammaToLinear;
+        public string originalRTName, otherRTName;
 
-        public bool IsValid() => !string.IsNullOrEmpty(originalName) && !string.IsNullOrEmpty(newName);
+        [Tooltip("draw objects in gamma or linear")]
+        public ColorSpaceTransform.ColorSpaceMode colorSpace;
+
+        public bool IsValid() => !string.IsNullOrEmpty(originalRTName) && !string.IsNullOrEmpty(otherRTName);
     }
 
     /// <summary>
