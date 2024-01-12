@@ -16,6 +16,9 @@ namespace PowerUtilities
         /// <summary>
         /// Defulat empty shadowmap,
         /// Texture2D.whiteTexture,some device will crash.
+        /// 
+        /// not clear, _BigShadowParams.x is shadowIntensity,
+        /// first time need render bigShadow once, otherwist _BigShadowMap is black
         /// </summary>
         public static RenderTexture EmptyShadowMap
         {
@@ -33,8 +36,7 @@ namespace PowerUtilities
             public int
                 _BigShadowMap = Shader.PropertyToID(nameof(_BigShadowMap)),
                 _BigShadowVP = Shader.PropertyToID(nameof(_BigShadowVP)),
-                _BigShadowParams = Shader.PropertyToID(nameof(_BigShadowParams)),
-                _BigShadowOn = Shader.PropertyToID(nameof(_BigShadowOn))
+                _BigShadowParams = Shader.PropertyToID(nameof(_BigShadowParams))
                 ;
 
             RenderTexture bigShadowMap;
@@ -195,12 +197,15 @@ namespace PowerUtilities
             public void UpdateShaderVariables()
             {
                 Shader.SetGlobalVector(_BigShadowParams, new Vector4(settings.shadowIntensity, 0));
-                Shader.SetGlobalFloat(_BigShadowOn, settings.shadowIntensity);
             }
 
+            /// <summary>
+            /// clear bigShadow
+            /// </summary>
             public void Clear()
             {
                 Shader.SetGlobalTexture(_BigShadowMap, DrawShadow.EmptyShadowMap);
+                Shader.SetGlobalVector(_BigShadowParams, Vector4.zero);
             }
         }
 
@@ -285,9 +290,12 @@ namespace PowerUtilities
         public GameObject lightObj;
         [EditorReadonly]
         public float currentDistance;
-        
 
-        int renderCount = 0;
+        /// <summary>
+        /// step render mode's counter
+        /// </summary>
+        [Tooltip("StepMode'counter,set 0 will cause drawBigShadow once")]
+        public int bigShadowRenderCount = 0;
 
         /// <inheritdoc/>
         public override void Create()
@@ -308,7 +316,7 @@ namespace PowerUtilities
         /// </summary>
         /// <param name="cameraData"></param>
         /// <returns></returns>
-        bool CanExecute(CameraData cameraData)
+        bool IsNeedDrawShadow(CameraData cameraData)
         {
             var isMainCamera = cameraData.camera.IsMainCamera();
             var isSceneCamera = cameraData.camera.IsSceneViewCamera();
@@ -321,11 +329,11 @@ namespace PowerUtilities
             if (isMainCamera)
                 isExceedMaxDistance = IsExceedMaxDistanceAndSaveLightPos(cameraData, out currentDistance, ref settings.finalLightPos);
 
-            var isStepRender = settings.isStepRender || isExceedMaxDistance;
+            var isStepRender = settings.isStepRender || isExceedMaxDistance || (bigShadowRenderCount ==0);
             if (isStepRender)
             {
                 settings.isStepRender = false;
-                renderCount++;
+                bigShadowRenderCount++;
             }
 
             return settings.isAutoRendering || isStepRender;
@@ -403,11 +411,17 @@ namespace PowerUtilities
 
             DrawLightGizmos(ref cameraData);
 
+            // dont run draw shadow
             var isUseLightObjButNotExists = settings.isUseLightTransform && !string.IsNullOrEmpty(settings.lightTag) & !lightObj;
-
-            if (!CanExecute(cameraData) && isUseLightObjButNotExists)
+            if (isUseLightObjButNotExists)
             {
                 drawShadowPass.Clear();
+                return;
+            }
+
+            // dont need draw shadow again
+            if (!IsNeedDrawShadow(cameraData))
+            {
                 return;
             }
 
