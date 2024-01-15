@@ -105,8 +105,12 @@ namespace PowerUtilities
         /// <param name="name"></param>
         public static void GetRTHandle(ref RTHandle handle, ScriptableRenderer renderer, URPRTHandleNames handleName)
         {
-            if (handle != null && handle.rt)
+            if (handle != null)
                 return;
+#if UNITY_2022_1_OR_NEWER
+            if (!handle.rt)
+                return;
+#endif
 
             var fieldPath = Enum.GetName(typeof(URPRTHandleNames), handleName);
             // get variable's path or use URPRTHandleNames
