@@ -100,16 +100,14 @@ namespace PowerUtilities.Features
 
         private void DrawToCameraTarget(ref ScriptableRenderContext context, ref RenderingData renderingData, UniversalRenderer renderer)
         {
-            ClearDefaultCameraTargetDepth(ref context, cmd);
-
             if (Display.main.requiresSrgbBlitToBackbuffer)
             {
                 ColorSpaceTransform.SetColorSpace(cmd, ColorSpaceTransform.ColorSpaceMode.LinearToSRGB);
             }
-
+            var clearFlags = settings.isClearCameraTarget? ClearFlag.Depth: ClearFlag.None;
             // blit current active to camera target
             var curActive = renderer.GetRTHandle(URPRTHandleNames.m_ActiveCameraColorAttachment);
-            cmd.BlitTriangle(curActive, BuiltinRenderTextureType.CameraTarget, settings.blitMat, 0);
+            cmd.BlitTriangle(curActive, BuiltinRenderTextureType.CameraTarget, settings.blitMat, 0,clearFlags : clearFlags);
             
             // draw object with blend
             DrawRenderers(ref context, ref renderingData, BuiltinRenderTextureType.CameraTarget, BuiltinRenderTextureType.CameraTarget);

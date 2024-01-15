@@ -64,6 +64,7 @@ namespace PowerUtilities.Features
 
         [Tooltip("No blit,no gamma texture,draw objects,output to camera target")]
         public bool isWriteToCameraTargetDirectly;
+        public bool isClearCameraTarget;
 
 
         [Header("Editor Options")]
