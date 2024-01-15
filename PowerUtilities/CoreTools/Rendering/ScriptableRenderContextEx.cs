@@ -13,11 +13,11 @@ namespace PowerUtilities
     /// </summary>
     public static class ScriptableRenderContextEx
     {
-        public static ShaderTagId[] defaultTag = new ShaderTagId[] { default };
+        public static ShaderTagId[] defaultTags = new ShaderTagId[] { default };
+        public static RenderStateBlock[] defaultBlocks = new[] { new RenderStateBlock(RenderStateMask.Nothing) };
 
         static ScriptableRenderContextEx()
         {
-            var tags = new ShaderTagId[] { default };
         }
 
         /// <summary>
@@ -28,7 +28,7 @@ namespace PowerUtilities
         /// <param name="cullingResults"></param>
         /// <param name="drawingSettings"></param>
         /// <param name="filteringSettings"></param>
-        public static void DrawRenderers(this ScriptableRenderContext context, CommandBuffer cmd,CullingResults cullingResults, 
+        public static void DrawRenderers(this ScriptableRenderContext context, CommandBuffer cmd, CullingResults cullingResults,
             ref DrawingSettings drawingSettings, ref FilteringSettings filteringSettings,
             NativeArray<ShaderTagId>? tagValues = null,
             NativeArray<RenderStateBlock>? stateBlocks = null)
@@ -46,12 +46,13 @@ namespace PowerUtilities
             cmd.Execute(ref context);
 #else // below 2021
             // dummy
-            if(!tagValues.HasValue)
-                tagValues = new NativeArray<ShaderTagId>(defaultTag, Allocator.Temp);
+            if (!tagValues.HasValue)
+                tagValues = new NativeArray<ShaderTagId>(defaultTags, Allocator.Temp);
             if (!stateBlocks.HasValue)
-                stateBlocks = new NativeArray<RenderStateBlock>(new[] { default(RenderStateBlock) }, Allocator.Temp);
+                stateBlocks = new NativeArray<RenderStateBlock>(defaultBlocks, Allocator.Temp);
 
-            context.DrawRenderers(cullingResults, ref drawingSettings, ref filteringSettings, tagValues.Value, stateBlocks??default);
+            //context.DrawRenderers(cullingResults, ref drawingSettings, ref filteringSettings);
+            context.DrawRenderers(cullingResults, ref drawingSettings, ref filteringSettings, tagValues.Value, stateBlocks ?? default);
 #endif
         }
     }

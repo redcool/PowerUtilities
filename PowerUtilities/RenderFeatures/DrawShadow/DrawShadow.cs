@@ -171,6 +171,7 @@ namespace PowerUtilities
 
         void DrawLightGizmos(ref CameraData cameraData)
         {
+#if UNITY_EDITOR
             var h = settingSO.orthoSize;
             var w = h;
             var n = settingSO.near;
@@ -195,6 +196,7 @@ namespace PowerUtilities
             }
             // view frustum
             DebugTools.DrawLineCube(vertices);
+#endif
         }
 
         // Here you can inject one or multiple render passes in the renderer.
@@ -217,7 +219,8 @@ namespace PowerUtilities
             ref var cameraData = ref renderingData.cameraData;
             TrySetupLightCameraInfo();
 
-            DrawLightGizmos(ref cameraData);
+            if(cameraData.isSceneViewCamera)
+                DrawLightGizmos(ref cameraData);
 
             // clear shadowmap
             if (IsNeedClearShadow())
