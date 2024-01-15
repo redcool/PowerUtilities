@@ -17,7 +17,8 @@
         public int
             _BigShadowMap = Shader.PropertyToID(nameof(_BigShadowMap)),
             _BigShadowVP = Shader.PropertyToID(nameof(_BigShadowVP)),
-            _BigShadowParams = Shader.PropertyToID(nameof(_BigShadowParams))
+            _BigShadowParams = Shader.PropertyToID(nameof(_BigShadowParams)),
+            _CustomShadowBias = Shader.PropertyToID(nameof(_CustomShadowBias))
             ;
 
         RenderTexture bigShadowMap;
@@ -176,7 +177,7 @@
             cmd.SetGlobalVector(ShaderPropertyIds._LightDirection, new float4(-forward, 0));
             cmd.SetGlobalVector(ShaderPropertyIds._ShadowBias, shadowBias);
             cmd.SetGlobalTexture(_BigShadowMap, bigShadowMap);
-            cmd.SetGlobalVector("_CustomShadowBias", shadowBias);
+            cmd.SetGlobalVector(_CustomShadowBias, shadowBias);
         }
 
         /// <summary>

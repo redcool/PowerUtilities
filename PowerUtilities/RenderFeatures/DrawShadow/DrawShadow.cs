@@ -7,12 +7,23 @@ namespace PowerUtilities
     using UnityEngine;
     using UnityEngine.Rendering;
     using UnityEngine.Rendering.Universal;
+    using UnityEngine.SceneManagement;
 
 #if UNITY_EDITOR
     [CustomEditor(typeof(DrawShadow))]
     public class DrawShadowEditor : SettingSOEditor
     {
         public override Type SettingSOType => typeof(DrawShadowSettingSO);
+
+        public override void OnInspectorGUI()
+        {
+            base.OnInspectorGUI();
+
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("lightObj"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("currentDistance"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("bigShadowRenderCount"));
+
+        }
     }
 #endif
 
@@ -60,13 +71,31 @@ namespace PowerUtilities
         [Tooltip("StepMode'counter,set 0 will cause drawBigShadow once")]
         public int bigShadowRenderCount = 0;
 
+        public static DrawShadow Instance { private set; get; }
+        
         /// <inheritdoc/>
         public override void Create()
         {
-            drawShadowPass = new DrawShadowPass();
+            //keep a instance
+            Instance = this;
 
+            drawShadowPass = new DrawShadowPass();
             // Configures where the render pass should be injected.
             drawShadowPass.renderPassEvent = RenderPassEvent.BeforeRenderingShadows;
+
+            SceneManager.sceneLoaded -= SceneManager_sceneLoaded;
+            SceneManager.sceneLoaded += SceneManager_sceneLoaded;
+        }
+
+        private void SceneManager_sceneLoaded(Scene scene, LoadSceneMode mode)
+        {
+            StepDrawShadow();
+        }
+
+        public void StepDrawShadow()
+        {
+            if (Instance && Instance.settingSO)
+                Instance.settingSO.isStepRender = true;
         }
 
         /// <summary>
