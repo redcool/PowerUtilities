@@ -65,6 +65,9 @@
             if (!GraphicsDeviceTools.IsDeviceSupportInstancing()) //设备不支持instance 或者 等级为 0
             {
                 enabled = false;
+                
+                if (drawInfoSO == null)
+                    return;
 
                 // show original objects
                 drawInfoSO.SetupRenderers(gameObject, true);
