@@ -197,7 +197,9 @@ namespace PowerUtilities
         /// <param name="camera"></param>
         /// <param name="finalSrcMode"></param>
         /// <param name="finalDstMode"></param>
-        public static void BlitTriangle(this CommandBuffer cmd, RenderTargetIdentifier sourceId, RenderTargetIdentifier targetId, Material mat, int pass, Camera camera = null, BlendMode finalSrcMode = BlendMode.One, BlendMode finalDstMode = BlendMode.Zero)
+        public static void BlitTriangle(this CommandBuffer cmd, RenderTargetIdentifier sourceId, RenderTargetIdentifier targetId, Material mat, int pass,
+            Camera camera = null, BlendMode finalSrcMode = BlendMode.One, BlendMode finalDstMode = BlendMode.Zero,
+            ClearFlag clearFlags = ClearFlag.None,Color clearColor=default)
         {
 #if UNITY_2022_1_OR_NEWER
             var render = (UniversalRenderer)UniversalRenderPipeline.asset.scriptableRenderer;
@@ -211,6 +213,11 @@ namespace PowerUtilities
 
             var loadAction = finalDstMode == BlendMode.Zero ? RenderBufferLoadAction.DontCare : RenderBufferLoadAction.Load;
             cmd.SetRenderTarget(targetId, loadAction, RenderBufferStoreAction.Store);
+
+            if(clearFlags != ClearFlag.None)
+            {
+                cmd.ClearRenderTarget((RTClearFlags)clearFlags, clearColor, 1, 0);
+            }
 
             if (camera)
             {
