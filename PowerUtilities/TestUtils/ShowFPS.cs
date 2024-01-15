@@ -25,6 +25,7 @@ namespace PowerUtilities.Test
         // Update is called once per frame
         void Update()
         {
+            Application.targetFrameRate = maxFps;
             if (Time.time - startTime > 1)
             {
 

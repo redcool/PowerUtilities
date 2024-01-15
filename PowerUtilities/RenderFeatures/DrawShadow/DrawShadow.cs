@@ -108,7 +108,7 @@ namespace PowerUtilities
         /// </summary>
         /// <param name="cameraData"></param>
         /// <returns></returns>
-        bool IsNeedDrawShadow(CameraData cameraData)
+        bool IsNeedDrawShadowOnce(CameraData cameraData)
         {
             var isMainCamera = cameraData.camera.IsMainCamera();
             var isSceneCamera = cameraData.camera.IsSceneViewCamera();
@@ -158,6 +158,16 @@ namespace PowerUtilities
                 return isExceedMaxDistance;
             }
         }
+        /// <summary>
+        /// Clear current big shadowMap
+        /// </summary>
+        /// <returns></returns>
+        private bool IsNeedClearShadow()
+        {
+            var isUseLightObjButNotExists = settingSO.isUseLightTransform && !string.IsNullOrEmpty(settingSO.lightTag) & !lightObj;
+            var isDontNeedDrawShadow = settingSO.layers == 0;
+            return isUseLightObjButNotExists && isDontNeedDrawShadow;
+        }
 
         void DrawLightGizmos(ref CameraData cameraData)
         {
@@ -198,7 +208,7 @@ namespace PowerUtilities
 
             drawShadowPass.UpdateShaderVariables();
 
-            if(settingSO.isClearShadowMap)
+            if (settingSO.isClearShadowMap)
             {
                 settingSO.isClearShadowMap = false;
                 drawShadowPass.Clear();
@@ -209,22 +219,22 @@ namespace PowerUtilities
 
             DrawLightGizmos(ref cameraData);
 
-            // dont run draw shadow
-            var isUseLightObjButNotExists = settingSO.isUseLightTransform && !string.IsNullOrEmpty(settingSO.lightTag) & !lightObj;
-            if (isUseLightObjButNotExists)
+            // clear shadowmap
+            if (IsNeedClearShadow())
             {
                 drawShadowPass.Clear();
                 return;
             }
 
             // dont need draw shadow again
-            if (!IsNeedDrawShadow(cameraData))
+            if (!IsNeedDrawShadowOnce(cameraData) && drawShadowPass.IsBigShadowMapValid())
             {
                 return;
             }
 
             renderer.EnqueuePass(drawShadowPass);
         }
+
 
 
         private void TrySetupLightCameraInfo()

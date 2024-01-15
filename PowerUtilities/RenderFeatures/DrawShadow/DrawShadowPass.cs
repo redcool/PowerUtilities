@@ -18,10 +18,21 @@
             _BigShadowMap = Shader.PropertyToID(nameof(_BigShadowMap)),
             _BigShadowVP = Shader.PropertyToID(nameof(_BigShadowVP)),
             _BigShadowParams = Shader.PropertyToID(nameof(_BigShadowParams)),
+            _BigShadowOn = Shader.PropertyToID(nameof(_BigShadowOn)),
             _CustomShadowBias = Shader.PropertyToID(nameof(_CustomShadowBias))
             ;
 
         RenderTexture bigShadowMap;
+
+        /// <summary>
+        /// when stop play in Editor, bigShadowMap will be destroy
+        /// need call Execute again
+        /// </summary>
+        /// <returns></returns>
+        public bool IsBigShadowMapValid()
+        {
+            return bigShadowMap;
+        }
 
         public void SetupBigShadowMap(CommandBuffer cmd, ref RenderingData renderingData)
         {
@@ -137,8 +148,7 @@
                 proj[3][2] = (proj[3][2] + 0.5f);
             }
 
-
-            CalcShadowTransform(cmd, view, proj, forward);
+            SendBigShadowVariables(cmd, view, proj, forward);
         }
 
         float4 CalcShadowBias(float4x4 proj)
@@ -156,7 +166,7 @@
         /// <param name="view"></param>
         /// <param name="proj"></param>
         /// <param name="forward"></param>
-        private void CalcShadowTransform(CommandBuffer cmd, float4x4 view, float4x4 proj, float3 forward)
+        private void SendBigShadowVariables(CommandBuffer cmd, float4x4 view, float4x4 proj, float3 forward)
         {
             // reverse row2 again, dont need reverse  in shader
             if (SystemInfo.usesReversedZBuffer)
@@ -178,6 +188,7 @@
             cmd.SetGlobalVector(ShaderPropertyIds._ShadowBias, shadowBias);
             cmd.SetGlobalTexture(_BigShadowMap, bigShadowMap);
             cmd.SetGlobalVector(_CustomShadowBias, shadowBias);
+            cmd.SetGlobalInt(_BigShadowOn, 1);
         }
 
         /// <summary>
@@ -185,16 +196,7 @@
         /// </summary>
         public void UpdateShaderVariables()
         {
-            var isDrawShadow = settingSO.layers != 0;
-
-            if (!isDrawShadow)
-            {
-                Clear();
-            }
-            else
-            {
-                Shader.SetGlobalVector(_BigShadowParams, new Vector4(settingSO.shadowIntensity, 0));
-            }
+            Shader.SetGlobalVector(_BigShadowParams, new Vector4(settingSO.shadowIntensity, 0));
         }
 
         /// <summary>
@@ -204,6 +206,7 @@
         {
             Shader.SetGlobalTexture(_BigShadowMap, DrawShadow.EmptyShadowMap);
             Shader.SetGlobalVector(_BigShadowParams, Vector4.zero);
+            Shader.SetGlobalInt(_BigShadowOn, 0);
         }
     }
 }
