@@ -166,7 +166,7 @@ namespace PowerUtilities
         {
             var isUseLightObjButNotExists = settingSO.isUseLightTransform && !string.IsNullOrEmpty(settingSO.lightTag) & !lightObj;
             var isDontNeedDrawShadow = settingSO.layers == 0;
-            return isUseLightObjButNotExists && isDontNeedDrawShadow;
+            return isUseLightObjButNotExists || isDontNeedDrawShadow;
         }
 
         void DrawLightGizmos(ref CameraData cameraData)
