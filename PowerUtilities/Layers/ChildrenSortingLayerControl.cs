@@ -99,6 +99,9 @@ namespace PowerUtilities
 
         private void OnTransformChildrenChanged()
         {
+            if (!enabled)
+                return;
+
             StartSortChildren();
         }
 

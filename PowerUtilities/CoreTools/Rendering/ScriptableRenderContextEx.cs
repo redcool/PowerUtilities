@@ -16,6 +16,8 @@ namespace PowerUtilities
         public static ShaderTagId[] defaultTags = new ShaderTagId[] { default };
         public static RenderStateBlock[] defaultBlocks = new[] { new RenderStateBlock(RenderStateMask.Nothing) };
 
+        static NativeArray<ShaderTagId> defaultTagArr = new NativeArray<ShaderTagId>(defaultTags, Allocator.Persistent);
+        static NativeArray<RenderStateBlock> defaultBlockArr = new NativeArray<RenderStateBlock>(defaultBlocks, Allocator.Persistent);
         static ScriptableRenderContextEx()
         {
         }
@@ -47,12 +49,12 @@ namespace PowerUtilities
 #else // below 2021
             // dummy
             if (!tagValues.HasValue)
-                tagValues = new NativeArray<ShaderTagId>(defaultTags, Allocator.Temp);
+                tagValues = defaultTagArr;// new NativeArray<ShaderTagId>(defaultTags, Allocator.Temp);
             if (!stateBlocks.HasValue)
-                stateBlocks = new NativeArray<RenderStateBlock>(defaultBlocks, Allocator.Temp);
+                stateBlocks = defaultBlockArr;// new NativeArray<RenderStateBlock>(defaultBlocks, Allocator.Temp);
 
             //context.DrawRenderers(cullingResults, ref drawingSettings, ref filteringSettings);
-            context.DrawRenderers(cullingResults, ref drawingSettings, ref filteringSettings, tagValues.Value, stateBlocks ?? default);
+            context.DrawRenderers(cullingResults, ref drawingSettings, ref filteringSettings, tagValues??default, stateBlocks ?? default);
 #endif
         }
     }

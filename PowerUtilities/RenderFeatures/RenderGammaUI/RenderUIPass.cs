@@ -171,6 +171,8 @@ namespace PowerUtilities.Features
             cmd.BlitTriangle(lastColorHandleId, colorHandleId, settings.blitMat, 0);
         }
 
+        NativeArray<RenderStateBlock> curRenderStateArr = new NativeArray<RenderStateBlock>(1, Allocator.Persistent);
+
         private void DrawRenderers(ref ScriptableRenderContext context, ref RenderingData renderingData, RenderTargetIdentifier targetTexId, RenderTargetIdentifier depthHandleId)
         {
             var sortFlags = SortingCriteria.CommonTransparent;
@@ -200,8 +202,9 @@ namespace PowerUtilities.Features
             }
 
             var renderStateBlock = GetRenderStateBlock();
-            var arr = new NativeArray<RenderStateBlock>(new[] { renderStateBlock }, Allocator.Temp);
-            context.DrawRenderers(cmd, renderingData.cullResults, ref drawSettings, ref filterSettings, null, arr);
+            curRenderStateArr[0] = renderStateBlock;
+            context.DrawRenderers(cmd, renderingData.cullResults, ref drawSettings, ref filterSettings, null, curRenderStateArr);
+            //context.DrawRenderers(renderingData.cullResults, ref drawSettings, ref filterSettings, ref renderStateBlock);
 
             // render objects by layerMasks order
             if (settings.filterInfoList.Count > 0)
@@ -211,7 +214,7 @@ namespace PowerUtilities.Features
                     if (!info.enabled)
                         continue;
 
-                    DrawObjectByInfo(ref filterSettings, ref context, renderingData, ref drawSettings, arr, info);
+                    DrawObjectByInfo(ref filterSettings, ref context, renderingData, ref drawSettings, curRenderStateArr, info);
                 }
             }
         }
