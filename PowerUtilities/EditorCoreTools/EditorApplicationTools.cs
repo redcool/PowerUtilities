@@ -63,6 +63,16 @@ namespace PowerUtilities
             var startedMethods = TypeCache.GetMethodsWithAttribute<CompileStartedAttribute>();
             foreach (var method in startedMethods)
             {
+                if (!method.IsStatic)
+                {
+                    Debug.Log(method.Name + "not static!");
+                    continue;
+                }
+                if(method.GetParameters().Length != 1)
+                {
+                    Debug.Log(method.Name + " dont have a parameter!");
+                    continue;
+                }
                 method.Invoke(null, new[] { obj });
             }
         }

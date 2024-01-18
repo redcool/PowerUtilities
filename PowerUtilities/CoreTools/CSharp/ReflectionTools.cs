@@ -15,6 +15,81 @@ namespace PowerUtilities
         public const BindingFlags instanceBindings = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Public;
         public const BindingFlags callBindings = instanceBindings | BindingFlags.InvokeMethod | BindingFlags.GetField | BindingFlags.GetProperty;
 
+
+        /// <summary>
+        /// type's methods has attribute
+        /// 
+        /// {type : [methodInfos]}
+        /// </summary>
+        static Dictionary<Type, MethodInfo[]> typeHasAttributeMethodsDict = new Dictionary<Type, MethodInfo[]>();
+
+        /// <summary>
+        /// types has attributeType
+        /// 
+        /// {attrType : [types]}
+        /// </summary>
+        static Dictionary<Type, Type[]> attributeTypesDict = new Dictionary<Type, Type[]>();
+
+
+        /// <summary>
+        /// Get type's methods have attribute<T> with cached
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static MethodInfo[] GetMethodsHasCustomAttribute<T>(Type type) where T : Attribute
+        {
+            if (!typeHasAttributeMethodsDict.TryGetValue(type, out var methods))
+            {
+                methods = type.GetMethods(callBindings);
+            }
+
+            var methodArr = methods.Where(m => m.GetCustomAttribute<T>() != null).ToArray();
+            typeHasAttributeMethodsDict[type] = methodArr;
+            return methodArr;
+        }
+
+        /// <summary>
+        /// Get types has attribute<T>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static Type[] GetTypesHasAttribute<T>() where T : Attribute
+        {
+            var attrType = typeof(T);
+            if(!attributeTypesDict.TryGetValue(attrType,out var types) || types.Length == 0)
+            {
+                types = typeof(T).Assembly.GetTypes();
+            }
+            var typeArr = types.Where(t => t.GetCustomAttribute<T>() != null)
+                .ToArray();
+
+            attributeTypesDict[attrType] = typeArr;
+            return typeArr;
+        }
+
+        /// <summary>
+        /// Get methodInfo[] from all types
+        /// 
+        /// first time cost 11ms
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static MethodInfo[] GetMethodsHasAttribute<T>() where T : Attribute
+        {
+            var attrType = typeof(T);
+            if (!typeHasAttributeMethodsDict.TryGetValue(attrType, out var methods))
+            {
+                var types = typeof(T).Assembly.GetTypes();
+                methods = types.SelectMany(t => GetMethodsHasCustomAttribute<T>(t))
+                    .Where(ms => ms != null)
+                    .ToArray();
+            }
+
+            typeHasAttributeMethodsDict[attrType] = methods;
+            return methods;
+        }
+
         public static IEnumerable<Type> GetTypesDerivedFrom<T>(Func<Type, bool> predication)
         {
             var types = typeof(T).Assembly.GetTypes();
@@ -47,6 +122,12 @@ namespace PowerUtilities
             ;
         }
 
+        /// <summary>
+        /// Is type implements interface?
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="interfaceType"></param>
+        /// <returns></returns>
         public static bool IsImplementOf(this Type type, Type interfaceType)
         {
             return type.GetInterfaces()
@@ -189,5 +270,6 @@ namespace PowerUtilities
         {
             return type.GetProperty(name).GetValue(caller, args);
         }
+
     }
 }

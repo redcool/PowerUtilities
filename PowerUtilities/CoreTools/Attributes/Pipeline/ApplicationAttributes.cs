@@ -13,13 +13,7 @@ namespace PowerUtilities
     [AttributeUsage(AttributeTargets.Method)]
     public class ApplicationExitAttribute : Attribute
     {
-        public static HashSet<Type> instTypeList = new HashSet<Type>();
-        public Type type;
 
-        public ApplicationExitAttribute(Type instType)
-        {
-            type = instType;
-        }
     }
 
 
