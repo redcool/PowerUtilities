@@ -27,8 +27,8 @@
             "UniversalForward",
             "SRPDefaultUnlit"
         };
-        [Tooltip("render opaque(queue<=2000) or transparent(queue>=3000),need match rebderPassEvent")]
-        public bool isOpaque = true;
+        [Tooltip("render opaque, opque:[0,2500],transparent:[2501,5000],all:[0,5000]")]
+        public RenderQueueType renderQueueType = RenderQueueType.opaque;
         public LayerMask layers = -1;
 
         [Header("--- Override stencil")]
@@ -227,7 +227,7 @@
         public FullDrawObjectsPass(DrawObjects feature) : base(feature)
         {
             shaderTagList.AddRange(feature.shaderTags.Select(n => new ShaderTagId(n)));
-            var renderQueueRange = feature.isOpaque ? RenderQueueRange.opaque : RenderQueueRange.transparent;
+            var renderQueueRange = RenderQueueTools.ToRenderQueueRange(feature.renderQueueType);
             filteringSettings = new FilteringSettings(renderQueueRange, feature.layers);
 
             renderStateBlock = new RenderStateBlock(RenderStateMask.Nothing);
@@ -265,7 +265,7 @@
 
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
         {
-            var drawObjectPassData = new Vector4(0, 0, 0, Feature.isOpaque ? 1 : 0);
+            var drawObjectPassData = new Vector4(0, 0, 0, Feature.renderQueueType == RenderQueueType.opaque ? 1 : 0);
             cmd.SetGlobalVector(s_DrawObjectPassDataPropID, drawObjectPassData);
 
             // scaleBias.x = flipSign
@@ -341,7 +341,7 @@
         {
             var cam = renderingData.cameraData.camera;
 
-            var sortFlags = Feature.isOpaque ? cameraData.defaultOpaqueSortFlags : SortingCriteria.CommonTransparent;
+            var sortFlags = Feature.renderQueueType == RenderQueueType.opaque ? cameraData.defaultOpaqueSortFlags : SortingCriteria.CommonTransparent;
             var drawSettings = CreateDrawingSettings(shaderTagList, ref renderingData, sortFlags);
             drawSettings.overrideMaterial = Feature.overrideMaterial;
             drawSettings.overrideMaterialPassIndex = Feature.overrideMaterialPassIndex;
