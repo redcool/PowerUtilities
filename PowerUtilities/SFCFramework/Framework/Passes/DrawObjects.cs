@@ -234,8 +234,6 @@
         bool lastSRPBatchEnabled;
 
         // keep for restore
-        RenderPassEvent lastRenerPassEvent;
-        Material lastOverrideMat;
         bool isEnterCheckOverdraw;
 
         public FullDrawObjectsPass(DrawObjects feature) : base(feature)
@@ -284,16 +282,13 @@
             // inner methods
             void ExistCheckOverdrawMode()
             {
-                Feature.renderPassEvent = lastRenerPassEvent;
-                Feature.overrideMaterial = lastOverrideMat;
+                Feature.renderPassEvent = RenderPassEvent.BeforeRenderingOpaques;
+                Feature.overrideMaterial = null;
             }
 
             void EnterCheckOverdrawMode()
             {
-                lastRenerPassEvent = Feature.renderPassEvent;
-                lastOverrideMat = Feature.overrideMaterial;
-
-                Feature.renderPassEvent = RenderPassEvent.AfterRenderingTransparents;
+                Feature.renderPassEvent = RenderPassEvent.BeforeRenderingTransparents;
                 Feature.overrideMaterial = Feature.overdrawMat;
             }
         }

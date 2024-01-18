@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Unity.Collections;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
@@ -8,7 +10,7 @@ using UnityEngine.Rendering.Universal;
 namespace PowerUtilities.Features
 {
 
-    public class RenderUIPass : ScriptableRenderPass
+    public class RenderUIPass : ScriptableRenderPass ,IDisposable
     {
         static readonly int _GammaTex = Shader.PropertyToID(nameof(_GammaTex));
 
@@ -22,6 +24,20 @@ namespace PowerUtilities.Features
         CommandBuffer cmd = new CommandBuffer { name=nameof(RenderUIPass) };
 
         public GammaUISettingSO settings;
+
+        static NativeArray<RenderStateBlock> curRenderStateArr = new NativeArray<RenderStateBlock>(1, Allocator.Persistent);
+
+        [CompileStartedAttribute]
+        static void OnDestroyStaticNative(object context)
+        { 
+            if (curRenderStateArr.IsCreated)
+                curRenderStateArr.Dispose();
+        }
+
+        public void Dispose()
+        {
+            OnDestroyStaticNative(null);
+        }
 
         StencilState GetStencilState()
         {
@@ -171,7 +187,7 @@ namespace PowerUtilities.Features
             cmd.BlitTriangle(lastColorHandleId, colorHandleId, settings.blitMat, 0);
         }
 
-        NativeArray<RenderStateBlock> curRenderStateArr = new NativeArray<RenderStateBlock>(1, Allocator.Persistent);
+
 
         private void DrawRenderers(ref ScriptableRenderContext context, ref RenderingData renderingData, RenderTargetIdentifier targetTexId, RenderTargetIdentifier depthHandleId)
         {
@@ -289,5 +305,7 @@ namespace PowerUtilities.Features
                 colorHandleId = depthHandleId = RTHandles.Alloc(_GammaTex);
             }
         }
+
+
     }
 }

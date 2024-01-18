@@ -7,6 +7,7 @@ namespace PowerUtilities.Features
 
 #if UNITY_EDITOR
     using UnityEditor;
+    using UnityEditor.Compilation;
 #endif
 #if UNITY_EDITOR
     [CustomEditor(typeof(RenderGammaUIFeature))]
@@ -28,7 +29,17 @@ namespace PowerUtilities.Features
         /// <inheritdoc/>
         public override void Create()
         {
+        }
 
+        public new void Dispose()
+        {
+            base.Dispose();
+
+            if (uiPass != null)
+            {
+                uiPass.Dispose();
+                uiPass = null;
+            }
         }
 
         public static bool IsUICamera(ref CameraData cameraData, string cameraTag)
@@ -60,6 +71,7 @@ namespace PowerUtilities.Features
         // This method is called when setting up the renderer once per-camera.
         public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
         {
+
             if (settingSO == null)
                 return;
 
