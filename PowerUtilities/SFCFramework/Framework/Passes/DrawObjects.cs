@@ -47,8 +47,7 @@
 
 
         [Header("--- Per Object Data")]
-        [Tooltip("overridePerObjectData,Lightmap : (Lightmaps,LightProbe,LightProbeProxyVolume)" +
-            ",ShadowMask:(ShadowMask,OcclusionProbe,OcclusionProbeProxyVolume)")]
+        [Tooltip("overridePerObjectData,Lightmap : (Lightmaps,LightProbe,LightProbeProxyVolume),ShadowMask:(ShadowMask,OcclusionProbe,OcclusionProbeProxyVolume)")]
         public bool overridePerObjectData;
         public PerObjectData perObjectData;
 
@@ -98,14 +97,22 @@
         [Header("Color Space")]
         public ColorSpaceTransform.ColorSpaceMode colorSpaceMode;
 
+#if UNITY_EDITOR
+        [EditorGroup("DebugTools",true)]
+        [EditorButton()]
+        [Tooltip("show additive overdraw mode")]
+        public bool isSwitchOverdrawMode;
 
+        [EditorGroup("DebugTools")]
+        [LoadAsset("SFC_ShowOverdrawAdd.mat")]
+        public Material overdrawMat;
+#endif
         public override ScriptableRenderPass GetPass() => new DrawObjectsPassControl(this);
     }
 
     public class DrawObjectsPassControl : SRPPass<DrawObjects>
     {
-        FullDrawObjectsPass
-            drawObjectsPass;
+        FullDrawObjectsPass drawObjectsPass;
 
         DrawChildrenInstancedPass drawChildrenInstancedPass;
 
@@ -208,6 +215,8 @@
                 drawChildren = Object.FindObjectsOfType<DrawChildrenInstanced>();
 #endif
             }
+
+
         }
     }
 
@@ -223,6 +232,11 @@
 
         Light sun;
         bool lastSRPBatchEnabled;
+
+        // keep for restore
+        RenderPassEvent lastRenerPassEvent;
+        Material lastOverrideMat;
+        bool isEnterCheckOverdraw;
 
         public FullDrawObjectsPass(DrawObjects feature) : base(feature)
         {
@@ -248,6 +262,43 @@
             }
         }
 
+        void SwitchCheckOverdraw()
+        {
+            if (Feature.isSwitchOverdrawMode)
+            {
+                Feature.isSwitchOverdrawMode = false;
+
+                // switch overdraw mode
+                isEnterCheckOverdraw = !isEnterCheckOverdraw;
+
+                if (isEnterCheckOverdraw)
+                {
+                    EnterCheckOverdrawMode();
+                }
+                else
+                {
+                    ExistCheckOverdrawMode();
+                }
+            }
+            
+            // inner methods
+            void ExistCheckOverdrawMode()
+            {
+                Feature.renderPassEvent = lastRenerPassEvent;
+                Feature.overrideMaterial = lastOverrideMat;
+            }
+
+            void EnterCheckOverdrawMode()
+            {
+                lastRenerPassEvent = Feature.renderPassEvent;
+                lastOverrideMat = Feature.overrideMaterial;
+
+                Feature.renderPassEvent = RenderPassEvent.AfterRenderingTransparents;
+                Feature.overrideMaterial = Feature.overdrawMat;
+            }
+        }
+
+
         public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
         {
             base.OnCameraSetup(cmd,ref renderingData);
@@ -261,6 +312,8 @@
                 renderStateBlock.depthState = new DepthState(true, CompareFunction.LessEqual);
                 renderStateBlock.mask |= RenderStateMask.Depth;
             }
+
+            SwitchCheckOverdraw();
         }
 
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)

@@ -90,6 +90,8 @@
                     if (!feature)
                         continue;
 
+                    //var featureEditor = feature.GetEditor();
+
                     var color = feature.enabled ? (feature.interrupt ? Color.red : GUI.color) : Color.gray;
                     var title = feature.name;
                     var foldoutProp = featureSO.FindProperty(nameof(SRPFeature.isFoldout));
@@ -101,7 +103,8 @@
 
                     if (EditorGUI.EndChangeCheck())
                     {
-                        feature.DestroyPassInstance();
+                        //? temporary disable this
+                        //feature.DestroyPassInstance();
                     }
                 }
                 EditorGUI.indentLevel--;

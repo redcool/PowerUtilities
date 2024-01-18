@@ -28,14 +28,27 @@ namespace PowerUtilities.RenderFeatures
     //    }
     //}
 
+
     /// <summary>
     /// Graph, node
     /// </summary>
     public partial class SRPFeature
     {
+        /// <summary>
+        /// sfc graph's position
+        /// </summary>
         [HideInInspector]
         public BaseNodeInfo nodeInfo = new BaseNodeInfo();
 
+        /// <summary>
+        /// editor 
+        /// </summary>
+        Editor editorInstance;
+        public Editor GetEditor()
+        {
+            EditorTools.CreateEditor(this, ref editorInstance);
+            return editorInstance;
+        }
     }
 #endif
 
@@ -140,7 +153,9 @@ namespace PowerUtilities.RenderFeatures
                 return featureTooltipAttr?.tooltip;
             }
         }
-
+        /// <summary>
+        /// Destory current instance, next time will get new istanced
+        /// </summary>
         public void DestroyPassInstance()
         {
             passInstance = null;

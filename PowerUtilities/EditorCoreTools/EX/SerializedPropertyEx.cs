@@ -1,8 +1,10 @@
 #if UNITY_EDITOR
+using PowerUtilities;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using UnityEditor;
 public static class SerializedPropertyEx
 {
@@ -40,10 +42,15 @@ public static class SerializedPropertyEx
         return prop;
     }
 
-    public static IEnumerable<SerializedProperty> GetElements(this SerializedProperty arrayProp)
+    /// <summary>
+    /// get array 's items
+    /// </summary>
+    /// <param name="arrayProp"></param>
+    /// <returns></returns>
+    public static List<SerializedProperty> GetElements(this SerializedProperty arrayProp)
     {
         if (!arrayProp.isArray)
-            return Enumerable.Empty<SerializedProperty>();
+            return new List<SerializedProperty>();
 
         var elements = new List<SerializedProperty>();
         for (int i = 0; i < arrayProp.arraySize; i++)
@@ -53,7 +60,11 @@ public static class SerializedPropertyEx
         return elements;
     }
 
-
+    /// <summary>
+    /// set value for (p.float,p.integer,p.boolean
+    /// </summary>
+    /// <param name="p"></param>
+    /// <param name="value"></param>
     public static void Set(this SerializedProperty p, float value)
     {
         switch (p.propertyType)
@@ -63,5 +74,6 @@ public static class SerializedPropertyEx
             case SerializedPropertyType.Boolean: p.boolValue = value>0; break;
         }
     }
+
 }
 #endif
