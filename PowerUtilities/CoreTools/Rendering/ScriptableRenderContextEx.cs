@@ -47,8 +47,8 @@ namespace PowerUtilities
         {
 
 #if UNITY_2022_1_OR_NEWER
-            if(!tagValues.HasValue && stateBlocks.HasValue)
-                tagValues = new NativeArray<ShaderTagId>(defaultTag, Allocator.Temp);
+            if (!tagValues.HasValue && stateBlocks.HasValue)
+                tagValues = defaultTagArr;
 
             var param = new RendererListParams(cullingResults, drawingSettings, filteringSettings);
             param.stateBlocks = stateBlocks;
