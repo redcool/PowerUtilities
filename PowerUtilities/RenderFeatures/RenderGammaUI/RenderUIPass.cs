@@ -25,9 +25,9 @@ namespace PowerUtilities.Features
 
         public GammaUISettingSO settings;
 
-        static NativeArray<RenderStateBlock> curRenderStateArr = new NativeArray<RenderStateBlock>(1, Allocator.Persistent);
+        static NativeArray<RenderStateBlock> curRenderStateArr;
 
-        [CompileStartedAttribute]
+        [CompileStarted]
         static void OnDestroyStaticNative(object context)
         { 
             if (curRenderStateArr.IsCreated)
@@ -83,6 +83,8 @@ namespace PowerUtilities.Features
 
         public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
         {
+            NativeArrayTools.CreateIfNull(ref curRenderStateArr, 1, Allocator.Persistent);
+
             var urpAsset = UniversalRenderPipeline.asset;
             SetupURPAsset(urpAsset);
 

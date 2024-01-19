@@ -97,7 +97,7 @@
         [Header("Color Space")]
         public ColorSpaceTransform.ColorSpaceMode colorSpaceMode;
 
-#if UNITY_EDITOR
+
         [EditorGroup("DebugTools",true)]
         [EditorButton()]
         [Tooltip("show additive overdraw mode")]
@@ -106,7 +106,7 @@
         [EditorGroup("DebugTools")]
         [LoadAsset("SFC_ShowOverdrawAdd.mat")]
         public Material overdrawMat;
-#endif
+
         public override ScriptableRenderPass GetPass() => new DrawObjectsPassControl(this);
     }
 

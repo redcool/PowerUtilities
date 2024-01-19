@@ -16,8 +16,10 @@ namespace PowerUtilities
         public static ShaderTagId[] defaultTags = new ShaderTagId[] { default };
         public static RenderStateBlock[] defaultBlocks = new[] { new RenderStateBlock(RenderStateMask.Nothing) };
 
-        static NativeArray<ShaderTagId> defaultTagArr = new NativeArray<ShaderTagId>(defaultTags, Allocator.Persistent);
-        static NativeArray<RenderStateBlock> defaultBlockArr = new NativeArray<RenderStateBlock>(defaultBlocks, Allocator.Persistent);
+        static NativeArray<ShaderTagId> defaultTagArr;
+        static NativeArray<RenderStateBlock> defaultBlockArr;
+
+
         static ScriptableRenderContextEx()
         {
         }
@@ -45,7 +47,8 @@ namespace PowerUtilities
             NativeArray<ShaderTagId>? tagValues = null,
             NativeArray<RenderStateBlock>? stateBlocks = null)
         {
-
+            NativeArrayTools.CreateIfNull(ref defaultTagArr, 1, Allocator.Persistent);
+            NativeArrayTools.CreateIfNull(ref defaultBlockArr, 1, Allocator.Persistent);
 #if UNITY_2022_1_OR_NEWER
             if (!tagValues.HasValue && stateBlocks.HasValue)
                 tagValues = defaultTagArr;
