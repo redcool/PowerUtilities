@@ -105,10 +105,14 @@ namespace PowerUtilities
         /// <param name="name"></param>
         public static void GetRTHandle(ref RTHandle handle, ScriptableRenderer renderer, URPRTHandleNames handleName)
         {
-            if (handle != null)
-                return;
+
 #if UNITY_2022_1_OR_NEWER
-            if (!handle.rt)
+               // check handle and handle.rt
+            if (handle != null && handle.rt)
+                return;
+#else
+            // check handle,use temporaryrt
+            if (handle != null)
                 return;
 #endif
 
