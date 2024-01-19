@@ -67,9 +67,9 @@ namespace PowerUtilities.RenderFeatures
 #if UNITY_2022_1_OR_NEWER
             if (RenderTargetHolder.IsLastTargetValid())
             {
-                //ConfigureTarget(RenderTargetHolder.LastColorTargetRTs, RenderTargetHolder.LastDepthTargetRT);
+                ConfigureTarget(RenderTargetHolder.LastColorTargetHandles, RenderTargetHolder.LastDepthTargetHandle);
 
-                cmd.SetRenderTarget(RenderTargetHolder.LastColorTargetIds, RenderTargetHolder.LastDepthTargetHandle.nameID);
+                //cmd.SetRenderTarget(RenderTargetHolder.LastColorTargetIds, RenderTargetHolder.LastDepthTargetHandle.nameID);
             }
 #endif
         }

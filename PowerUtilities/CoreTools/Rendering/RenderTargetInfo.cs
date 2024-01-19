@@ -16,8 +16,8 @@
         [Tooltip("setup depth buffer")]
         public bool hasDepthBuffer;
 
-        [Tooltip("auto select a normal texture format")]
-        public bool isNormalTexture;
+        [Tooltip("auto select a normal color texture format")]
+        public bool isNormalColorTexture;
 
         [Tooltip("skip this target")]
         public bool isSkip;
@@ -39,6 +39,6 @@
         /// </summary>
         /// <returns></returns>
         public GraphicsFormat GetFinalFormat()
-        => isNormalTexture ? RenderingTools.GetNormalTextureFormat() : format;
+        => isNormalColorTexture ? RenderingTools.GetNormalTextureFormat() : format;
     }
 }

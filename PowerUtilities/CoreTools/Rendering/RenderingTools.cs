@@ -100,7 +100,7 @@ namespace PowerUtilities
         }
 
         /// <summary>
-        /// Get normal texture format auto
+        /// Get normal color texture format auto
         /// </summary>
         /// <returns></returns>
         public static GraphicsFormat GetNormalTextureFormat()

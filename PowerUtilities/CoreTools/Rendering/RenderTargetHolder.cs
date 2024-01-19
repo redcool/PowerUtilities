@@ -12,6 +12,33 @@ namespace PowerUtilities
     /// </summary>
     public static class RenderTargetHolder
     {
+        public readonly static RenderTargetIdentifier[][] allColorIds = new RenderTargetIdentifier[][]
+        {
+            new RenderTargetIdentifier[0],
+            new RenderTargetIdentifier[1],
+            new RenderTargetIdentifier[2],
+            new RenderTargetIdentifier[3],
+            new RenderTargetIdentifier[4],
+            new RenderTargetIdentifier[5],
+            new RenderTargetIdentifier[6],
+            new RenderTargetIdentifier[7],
+            new RenderTargetIdentifier[8],
+    };
+
+        public readonly static RTHandle ZeroHandle = RTHandles.Alloc(0);
+
+        public readonly static RTHandle[][] allHandles = new RTHandle[][]
+        {
+            new RTHandle[0],
+            new RTHandle[1],
+            new RTHandle[2],
+            new RTHandle[3],
+            new RTHandle[4],
+            new RTHandle[5],
+            new RTHandle[6],
+            new RTHandle[7],
+            new RTHandle[8],
+        };
 
         /// <summary>
         /// keep these colorRTs(8),depthRT
@@ -22,6 +49,21 @@ namespace PowerUtilities
         public static RenderTargetIdentifier[] LastColorTargetIds = new RenderTargetIdentifier[8];
 
         static int lastColorIdsLength = 0;
+
+        public static Dictionary<RenderTargetIdentifier, RTHandle> rtIdHandleDict = new Dictionary<RenderTargetIdentifier, RTHandle>();
+        /// <summary>
+        /// Get cacheed rtHandle with rtid
+        /// </summary>
+        /// <param name="rtId"></param>
+        /// <returns></returns>
+        public static RTHandle GetRTHandle(RenderTargetIdentifier rtId)
+        {
+            if(!rtIdHandleDict.TryGetValue(rtId,out var handle))
+            {
+                handle = rtIdHandleDict[rtId] = RTHandles.Alloc(rtId);
+            }
+            return handle;
+        }
 
         /// <summary>
         /// Save current targets, sfcpass can reuse these
@@ -34,6 +76,16 @@ namespace PowerUtilities
                 LastColorTargetHandles = new RTHandle[8];
             if (LastColorTargetIds == null)
                 LastColorTargetIds = new RenderTargetIdentifier[8];
+
+            //var ids = allColorIds[colorIds.Length];
+            //var handles = allHandles[colorIds.Length];
+
+            //for (int i = 0; i < colorIds.Length; i++)
+            //{
+            //    ids[i] = colorIds[i];
+            //    handles[i] = GetRTHandle(colorIds[i]);
+            //}
+
 
             int i = 0;
             for (; i < colorIds.Length; i++)
