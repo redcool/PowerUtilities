@@ -16,6 +16,7 @@
     using UnityEngine.Rendering.Universal.Internal;
     using UnityEngine.SceneManagement;
     using Object = UnityEngine.Object;
+    using static PlasticGui.PlasticTableColumn;
 
     [Tooltip("Draw Objects with full urp powers, use SRPBatch or Instanced need multi cameras")]
     [CreateAssetMenu(menuName = SRP_FEATURE_PASSES_MENU+ "/DrawObjects")]
@@ -126,8 +127,15 @@
 
         public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
         {
+            ref CameraData cameraData = ref renderingData.cameraData;
+            var renderer = (UniversalRenderer)renderingData.cameraData.renderer;
+
             drawObjectsPass.OnCameraSetup(cmd, ref renderingData);
             drawChildrenInstancedPass.OnCameraSetup(cmd, ref renderingData);
+
+            // reset skybox 's target in gameview
+            if (Feature.IsUpdateSkyboxTarget)
+                SetupSkyboxTargets(renderer, camera);
         }
 
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
@@ -135,10 +143,6 @@
             ref CameraData cameraData = ref renderingData.cameraData;
 
             var renderer = (UniversalRenderer)renderingData.cameraData.renderer;
-
-            // reset skybox 's target in gameview
-            if(Feature.IsUpdateSkyboxTarget)
-                SetupSkyboxTargets(renderer,camera);
 
             cmd.BeginSampleExecute(featureName, ref context);
 
