@@ -47,7 +47,9 @@ namespace PowerUtilities
             m_DrawOffscreenUIPass,
             m_DrawOverlayUIPass,
         }
-
+        /// <summary>
+        /// {PassFieldNames : ScriptableRenderPass}
+        /// </summary>
         static Dictionary<PassFieldNames, ScriptableRenderPass> passDict = new Dictionary<PassFieldNames, ScriptableRenderPass>();
         static ScriptableRenderer lastRendererInstance;
         /// <summary>
@@ -91,12 +93,11 @@ namespace PowerUtilities
         {
             CheckRendererInstance(renderer);
 
-            var varName = Enum.GetName(typeof(PassFieldNames), passName);
-
             passDict.TryGetValue(passName, out var value);
             if (value == null)
             {
-                value = passDict[passName] = renderer.GetType().GetFieldValue<T>(renderer, varName);
+                var passNameStr = Enum.GetName(typeof(PassFieldNames), passName);
+                value = passDict[passName] = renderer.GetType().GetFieldValue<T>(renderer, passNameStr);
             }
 
             return value != null ? (T)value : default;

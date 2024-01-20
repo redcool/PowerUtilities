@@ -76,6 +76,15 @@ namespace PowerUtilities
         public static bool IsNeedCreateTexture(Texture t, int targetWidth, int targetHeight)
             => !(t && t.width == targetWidth && t.height == targetHeight);
 
+
+        static NativeArray<RenderStateBlock> errorRenderStateBlockArr;
+
+        [CompileStarted]
+        static void DisposeNativeArray()
+        {
+            if(errorRenderStateBlockArr.IsCreated)
+                errorRenderStateBlockArr.Dispose();
+        }
         public static void DrawErrorObjects(CommandBuffer cmd,ref ScriptableRenderContext context,ref CullingResults cullingResults,Camera cam,FilteringSettings filterSettings,SortingCriteria sortFlags)
         {
             var sortingSettings = new SortingSettings(cam) { criteria = sortFlags };
@@ -91,8 +100,10 @@ namespace PowerUtilities
             }
 
 #if UNITY_2022_1_OR_NEWER
-            var arr = new NativeArray<RenderStateBlock>(new[] { default(RenderStateBlock) }, Allocator.Temp);
-            context.DrawRenderers(cmd, cullingResults, ref drawSettings, ref filterSettings, null, arr);
+            NativeArrayTools.CreateIfNull(ref errorRenderStateBlockArr, 1, Allocator.Persistent);
+            errorRenderStateBlockArr[0] = default;
+
+            context.DrawRenderers(cmd, cullingResults, ref drawSettings, ref filterSettings, null, errorRenderStateBlockArr);
 #else
             context.DrawRenderers(cullingResults, ref drawSettings, ref filterSettings);
 #endif
