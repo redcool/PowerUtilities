@@ -156,8 +156,12 @@ namespace PowerUtilities.RenderFeatures
         /// <summary>
         /// Destory current instance, next time will get new istanced
         /// </summary>
-        public void DestroyPassInstance()
+        public void OnDestroy()
         {
+            if (passInstance is SRPPass srpPass)
+            {
+                srpPass.Dispose();
+            }
             passInstance = null;
         }
 
@@ -166,6 +170,7 @@ namespace PowerUtilities.RenderFeatures
 
         public static IEnumerable<Type> GetSRPFeatureTypes()
         => ReflectionTools.GetTypesDerivedFrom<SRPFeature>();
+
     }
 
 }
