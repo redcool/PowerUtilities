@@ -32,6 +32,11 @@ namespace PowerUtilities
         static Dictionary<URPRTHandleNames, RTHandle> urpRTHandleDict = new Dictionary<URPRTHandleNames, RTHandle>();
 
         /// <summary>
+        /// {rthandleName : URPRTHandleNames}
+        /// </summary>
+        static Dictionary<string, URPRTHandleNames> handleNameToEnumDict = new Dictionary<string, URPRTHandleNames>();
+
+        /// <summary>
         /// Get urp private rtHandle
         /// </summary>
         /// <param name="renderer"></param>
@@ -66,6 +71,8 @@ namespace PowerUtilities
         /// <param name="renderer"></param>
         /// <param name="name"></param>
         /// <param name="id"></param>
+        /// 
+        static Func<string,URPRTHandleNames> ParseNameFunc = (string name) => Enum.Parse<URPRTHandleNames>(name);
         public static void TryReplaceURPRTTarget(this UniversalRenderer renderer, string name, ref RenderTargetIdentifier id)
         {
             if (string.IsNullOrEmpty(name))
@@ -73,7 +80,12 @@ namespace PowerUtilities
 
             if (RTHandleTools.IsURPRTHandleName(name))
             {
-                id = renderer.GetRenderTargetId(Enum.Parse<URPRTHandleNames>(name));
+                if (!handleNameToEnumDict.TryGetValue(name, out var handle))
+                    handle = handleNameToEnumDict[name] = Enum.Parse<URPRTHandleNames>(name);
+
+                //var handle = DictionaryTools.Get(handleNameToEnumDict, name, ParseNameFunc);
+
+                id = renderer.GetRenderTargetId(handle);
                 // urp not alloc it, use nameId
                 if (id == default)
                     id = Shader.PropertyToID(name);

@@ -113,6 +113,7 @@ namespace PowerUtilities.RenderFeatures
             OnExecute(context, ref renderingData,cmd);
 
             cmd.Execute(ref context);
+            CommandBufferPool.Release(cmd);
         }
 
         public override void OnFinishCameraStackRendering(CommandBuffer cmd)

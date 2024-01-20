@@ -13,7 +13,7 @@ namespace PowerUtilities
     /// call Get() will get cached object or find object then cache and return .
     /// </summary>
     /// <typeparam name="V"></typeparam>
-    public class CacheTool<K,V> where K : class where V : class
+    public class CacheTool<K,V>// where K : class where V : class
     {
         Dictionary<K, V> dict = new Dictionary<K, V>();
 

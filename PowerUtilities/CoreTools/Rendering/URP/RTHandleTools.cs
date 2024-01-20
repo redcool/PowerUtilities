@@ -137,5 +137,11 @@ namespace PowerUtilities
         public static RTHandleSystem URPDefaultRTHandleSystem => lazyGetRTHandleSystem.Value;
         static Lazy<RTHandleSystem> lazyGetRTHandleSystem = new Lazy<RTHandleSystem>(() => typeof(RTHandles).GetFieldValue<RTHandleSystem>(null, "s_DefaultInstance"));
 
+        /// <summary>
+        /// RenderTargetIdentifier to RTHandle
+        /// </summary>
+        public static Func<RenderTargetIdentifier, RTHandle> GetRTHandleByID = (rtId) => RTHandles.Alloc(rtId);
+        
+        public readonly static RTHandle ZeroHandle = RTHandles.Alloc(0);
     }
 }
