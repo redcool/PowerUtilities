@@ -13,7 +13,7 @@ namespace PowerUtilities.RenderFeatures
     /// urp renderPass controlled by SRPFeatureControl
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public abstract class SRPPass<T> : ScriptableRenderPass
+    public abstract class SRPPass<T> : ScriptableRenderPass,IDisposable
         where T : SRPFeature
     {
         public T Feature { get; private set; }
@@ -122,5 +122,28 @@ namespace PowerUtilities.RenderFeatures
         }
 
         public abstract void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd);
+
+
+        /// <summary>
+        /// Dispose 
+        /// </summary>
+        bool disposed;
+        public void Dispose()
+        {
+            if (disposed) return;
+            Dispose(true);
+            GC.SuppressFinalize(this);
+            disposed = true;
+        }
+        /// <summary>
+        /// Dispose managed asset
+        /// </summary>
+        protected virtual void Dispose(bool disposing)
+        {
+        }
+        ~ SRPPass()
+        {
+            Dispose(false);
+        }
     }
 }

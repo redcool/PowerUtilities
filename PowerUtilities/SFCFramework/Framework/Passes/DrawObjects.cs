@@ -311,6 +311,8 @@
             SwitchCheckOverdraw();
         }
 
+        static NativeArray<RenderStateBlock> renderStateBlockArr;
+
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
         {
             var drawObjectPassData = new Vector4(0, 0, 0, Feature.renderQueueType == RenderQueueType.opaque ? 1 : 0);
@@ -341,10 +343,11 @@
 #endif
             OverrideCamera(ref context, cmd, ref renderingData);
             var drawSettings = GetDrawSettings(context, cmd, ref renderingData, ref cameraData);
-            
 
-            var stateBlocks = new NativeArray<RenderStateBlock>(new[] { renderStateBlock }, Allocator.Temp);
-            context.DrawRenderers(cmd, renderingData.cullResults, ref drawSettings, ref filterSetting, null, stateBlocks);
+            NativeArrayTools.CreateIfNull(ref renderStateBlockArr, 1, Allocator.Persistent);
+            renderStateBlockArr[0] = renderStateBlock;
+
+            context.DrawRenderers(cmd, renderingData.cullResults, ref drawSettings, ref filterSetting, null, renderStateBlockArr);
 
             RenderingTools.DrawErrorObjects(cmd,ref context, ref renderingData.cullResults, camera, filterSetting, SortingCriteria.None);
 
