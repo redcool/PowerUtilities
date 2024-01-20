@@ -3,6 +3,7 @@
     using System;
     using UnityEngine;
     using UnityEngine.Experimental.Rendering;
+    using UnityEngine.Rendering.Universal;
 
     [Serializable]
     public class RenderTargetInfo
@@ -39,6 +40,7 @@
         /// </summary>
         /// <returns></returns>
         public GraphicsFormat GetFinalFormat()
-        => isNormalColorTexture ? RenderingTools.GetNormalTextureFormat() : format;
+        => isNormalColorTexture || RenderingUtils.SupportsGraphicsFormat(format,FormatUsage.Linear|FormatUsage.Render) 
+            ? RenderingTools.GetNormalTextureFormat() : format;
     }
 }
