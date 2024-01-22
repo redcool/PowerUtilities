@@ -8,6 +8,9 @@ using UnityEngine;
 
 namespace PowerUtilities
 {
+    /// <summary>
+    /// Auto amanage Persistent NativeArray 
+    /// </summary>
     public static class NativeArrayTools
     {
         [RuntimeInitializeOnLoadMethod]
@@ -16,13 +19,21 @@ namespace PowerUtilities
             Application.quitting -= Dispose;
             Application.quitting += Dispose;
         }
-
+         
         [CompileStarted]
+        private static void OnDestroyNative(object context)
+        {
+            Dispose();
+        }
+
         private static void Dispose()
         {
             var arr = allArraySet.ToArray();
             foreach (var item in arr)
             {
+#if UNITY_EDITOR
+                Debug.Log("dispose arr:"+item);
+#endif
                 item.Dispose();
             }
         }

@@ -15,9 +15,9 @@ namespace PowerUtilities
     {
         public static RenderQueueRange ToRenderQueueRange(RenderQueueType type) => type switch
         { 
-             RenderQueueType.opaque => RenderQueueRange.opaque,
              RenderQueueType.transparent => RenderQueueRange.transparent,
              RenderQueueType.all => RenderQueueRange.all,
+             _ => RenderQueueRange.opaque,
         };
             
     }

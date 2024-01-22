@@ -65,12 +65,12 @@ namespace PowerUtilities
             {
                 if (!method.IsStatic)
                 {
-                    Debug.Log(method.Name + "not static!");
+                    Debug.Log($"{method.DeclaringType}.{method.Name} : not static!");
                     continue;
                 }
                 if(method.GetParameters().Length != 1)
                 {
-                    Debug.Log(method.Name + " dont have a parameter!");
+                    Debug.Log($"{method.DeclaringType}.{method.Name} : dont have a parameter!");
                     continue;
                 }
                 method.Invoke(null, new[] { obj });

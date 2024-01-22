@@ -31,16 +31,10 @@ namespace PowerUtilities.Features
 
         static NativeArray<RenderStateBlock> curRenderStateArr;
 
-        [CompileStarted]
-        static void OnDestroyStaticNative(object context)
-        { 
-            if (curRenderStateArr.IsCreated)
-                curRenderStateArr.Dispose();
-        }
 
         public void Dispose()
         {
-            OnDestroyStaticNative(null);
+
         }
 
         StencilState GetStencilState()

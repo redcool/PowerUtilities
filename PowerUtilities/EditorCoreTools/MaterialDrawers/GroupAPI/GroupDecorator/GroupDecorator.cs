@@ -77,7 +77,7 @@ namespace PowerUtilities
         {
             // replace i18n's text
             var groupDisplayStr = MaterialPropertyI18NSO.Instance.isUseMaterialPropertyI18N ? MaterialPropertyI18NSO.Instance.GetText(groupName) : groupName;
-
+            
             if (hasCheckedMark)
             {
                 EditorGUITools.ToggleFoldoutHeader(position, EditorGUITools.TempContent(groupDisplayStr, tooltip),

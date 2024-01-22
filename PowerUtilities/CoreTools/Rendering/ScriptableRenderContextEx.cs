@@ -24,16 +24,6 @@ namespace PowerUtilities
         {
         }
 
-        [CompileStartedAttribute]
-        static void OnDestroyNative(object context)
-        {
-            if (defaultTagArr.IsCreated)
-                defaultTagArr.Dispose();
-
-            if (defaultBlockArr.IsCreated)
-                defaultBlockArr.Dispose();
-        }
-
         /// <summary>
         /// use cmd.DrawRendererList(unity 2023) or context.DrawRenderers(unity 2021)
         /// </summary>
