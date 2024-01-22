@@ -75,9 +75,12 @@ namespace PowerUtilities
 
         private void DrawHeader(Rect position, MaterialProperty prop, MaterialEditor editor, MaterialGroupTools.GroupInfo groupInfo)
         {
+            // replace i18n's text
+            var groupDisplayStr = MaterialPropertyI18NSO.Instance.isUseMaterialPropertyI18N ? MaterialPropertyI18NSO.Instance.GetText(groupName) : groupName;
+
             if (hasCheckedMark)
             {
-                EditorGUITools.ToggleFoldoutHeader(position, EditorGUITools.TempContent(groupName, tooltip),
+                EditorGUITools.ToggleFoldoutHeader(position, EditorGUITools.TempContent(groupDisplayStr, tooltip),
                     ref groupInfo.isOn, ref groupInfo.isChecked);
 
                 if (keywords != null && keywords.Length != 0)
@@ -94,7 +97,7 @@ namespace PowerUtilities
             else
             {
                 groupInfo.isOn = EditorGUI.BeginFoldoutHeaderGroup(position, groupInfo.isOn,
-                    EditorGUITools.TempContent(groupName, tooltip));
+                    EditorGUITools.TempContent(groupDisplayStr, tooltip));
 
                 EditorGUI.EndFoldoutHeaderGroup();
             }

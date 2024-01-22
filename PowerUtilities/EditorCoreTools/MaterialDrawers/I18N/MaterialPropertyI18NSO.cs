@@ -34,6 +34,9 @@ namespace PowerUtilities
         public TextAsset profile;
         public bool forceLoadProfile;
 
+        [Tooltip("GroupAPI use MaterialPropertyI18NSO.txt")]
+        public bool isUseMaterialPropertyI18N;
+
         static Dictionary<string, string> i18nDict = new Dictionary<string, string>();
 
         static MaterialPropertyI18NSO instance;
