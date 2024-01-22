@@ -8,8 +8,12 @@
     using UnityEngine.Rendering;
     using UnityEngine.Rendering.Universal;
     using UnityEngine.SceneManagement;
-
+    using PowerUtilities;
+#if UNITY_2020
+    using Tooltip = PowerUtilities.TooltipAttribute;
+#endif
     [Tooltip("save (color,depth) to disk")]
+
     [CreateAssetMenu(menuName = SRP_FEATURE_PASSES_MENU+ "/BakeTarget")]
     public class BakeTarget : SRPFeature
     {

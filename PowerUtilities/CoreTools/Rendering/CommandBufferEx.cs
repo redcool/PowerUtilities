@@ -18,6 +18,13 @@ namespace PowerUtilities
 
         public readonly static RenderTextureDescriptor defaultDescriptor = new RenderTextureDescriptor(1, 1, RenderTextureFormat.Default, 0, 0);
 
+#if UNITY_2020
+        public static void ClearRenderTarget(this CommandBuffer cmd,RTClearFlags clearFlags, Color backgroundColor, float depth = 1f, uint stencil = 0u)
+        {
+            cmd.ClearRenderTarget(clearFlags >= RTClearFlags.Depth, (clearFlags & RTClearFlags.Color) > 0, backgroundColor, depth);
+        }
+#endif
+
         public static void ClearRenderTarget(this CommandBuffer cmd, Camera camera, float depth = 1, uint stencil = 0)
         {
             var isClearDepth = camera.clearFlags <= CameraClearFlags.Depth;
@@ -61,7 +68,13 @@ namespace PowerUtilities
             desc.SetupColorDescriptor(camera, renderScale, isHdr, samples);
 
             if (hasDepth)
+            {
+#if UNITY_2020
+                desc.depthBufferBits = 24;
+#else
                 desc.depthStencilFormat = GraphicsFormat.D24_UNorm_S8_UInt;
+#endif
+            }
 
             //targetIds.ForEach((item, id) =>
             foreach ( var item in targetIds )
@@ -104,7 +117,13 @@ namespace PowerUtilities
                 }
 
                 if (info.hasDepthBuffer)
+                {
+#if UNITY_2020
+                    desc.depthBufferBits = 24;
+#else
                     desc.depthStencilFormat = GraphicsFormat.D24_UNorm_S8_UInt;
+#endif
+                }
 
                 cmd.GetTemporaryRT(info.GetTextureId(), desc);
             };

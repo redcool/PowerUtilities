@@ -16,7 +16,11 @@ using UnityEditor;
 
             if (GUILayout.Button("Get keywords"))
             {
+#if UNITY_2021_1_OR_NEWER
                 inst.keywords = inst.shader.keywordSpace.keywordNames;
+#else
+                inst.keywords = new[] { "not collected in unity 2020" };
+#endif
             }
             if(GUILayout.Button("Generate Cubes"))
             {

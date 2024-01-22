@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
-
+#if UNITY_2020_3
+using UniversalRenderer = UnityEngine.Rendering.Universal.ForwardRenderer;
+#endif
 namespace PowerUtilities
 {
     /// <summary>

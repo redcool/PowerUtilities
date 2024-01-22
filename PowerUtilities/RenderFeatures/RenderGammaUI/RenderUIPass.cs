@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PowerUtilities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Collections;
@@ -6,6 +7,9 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+#if UNITY_2020
+using UniversalRenderer = UnityEngine.Rendering.Universal.ForwardRenderer;
+#endif
 
 namespace PowerUtilities.Features
 {
@@ -65,12 +69,13 @@ namespace PowerUtilities.Features
 
         private void SetupURPAsset(UniversalRenderPipelineAsset urpAsset)
         {
-
+#if UNITY_2021_1_OR_NEWER
             var isUseFSR = urpAsset.upscalingFilter == UpscalingFilterSelection.FSR;
             if (isUseFSR && settings.disableFSR)
             {
                 urpAsset.upscalingFilter = UpscalingFilterSelection.Auto;
             }
+#endif
         }
 
         bool IsWriteToCameraTargetDirect()

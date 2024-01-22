@@ -7,6 +7,9 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using Object = UnityEngine.Object;
+#if UNITY_2020_3
+using UniversalRenderer = UnityEngine.Rendering.Universal.ForwardRenderer;
+#endif
 
 namespace PowerUtilities
 {

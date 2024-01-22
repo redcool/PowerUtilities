@@ -10,7 +10,9 @@ namespace PowerUtilities.RenderFeatures
     using UnityEngine.Rendering.Universal;
     using UnityEngine.SceneManagement;
     using UnityEngine.Rendering;
-
+#if UNITY_2020
+    using TooltipAttribute = PowerUtilities.TooltipAttribute;
+#endif
 #if UNITY_EDITOR
     [CustomEditor(typeof(SRPRenderFeatureControl))]
     public class SRPRenderFeatureControlEditor : Editor

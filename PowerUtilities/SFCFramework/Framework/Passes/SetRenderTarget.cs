@@ -9,7 +9,10 @@ namespace PowerUtilities.RenderFeatures
     using UnityEngine;
     using UnityEngine.Rendering;
     using UnityEngine.Rendering.Universal;
-
+#if UNITY_2020
+    using UniversalRenderer = UnityEngine.Rendering.Universal.ForwardRenderer;
+    using TooltipAttribute = PowerUtilities.TooltipAttribute;
+#endif
     [Tooltip("Set more color target (1 depth )to fill, 8 is max")]
     [CreateAssetMenu(menuName = SRP_FEATURE_PASSES_MENU + "/SetRenderTarget")]
     public class SetRenderTarget : SRPFeature
@@ -203,10 +206,10 @@ namespace PowerUtilities.RenderFeatures
         private RenderTargetIdentifier SetupDepthId(UniversalRenderer renderer)
         {
             // set depth target id
-            RenderTargetIdentifier depthId = UniversalRenderPipeline.asset.supportsCameraDepthTexture ? ShaderPropertyIds._CameraDepthAttachment : BuiltinRenderTextureType.CameraTarget;
+            RenderTargetIdentifier depthId = UniversalRenderPipeline.asset.supportsCameraDepthTexture ? (RenderTargetIdentifier)ShaderPropertyIds._CameraDepthAttachment : BuiltinRenderTextureType.CameraTarget;
             if (!string.IsNullOrEmpty(Feature.depthTargetName))
             {
-                depthId = Feature.depthTargetName == "CameraTarget" ? BuiltinRenderTextureType.CameraTarget : Shader.PropertyToID(Feature.depthTargetName);
+                depthId = Feature.depthTargetName == "CameraTarget" ? (RenderTargetIdentifier)BuiltinRenderTextureType.CameraTarget : Shader.PropertyToID(Feature.depthTargetName);
             }
 
             // check replace URP rtHandle

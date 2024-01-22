@@ -15,8 +15,12 @@
     using UnityEngine.Rendering.Universal;
     using UnityEngine.Rendering.Universal.Internal;
     using UnityEngine.SceneManagement;
+    using PowerUtilities;
     using Object = UnityEngine.Object;
-
+#if UNITY_2020
+    using UniversalRenderer = UnityEngine.Rendering.Universal.ForwardRenderer;
+    using Tooltip = PowerUtilities.TooltipAttribute;
+#endif
     [Tooltip("Draw Objects with full urp powers, use SRPBatch or Instanced need multi cameras")]
     [CreateAssetMenu(menuName = SRP_FEATURE_PASSES_MENU+ "/DrawObjects")]
     public class DrawObjects : SRPFeature
@@ -160,7 +164,7 @@
                 colorTarget = RenderTargetHolder.LastColorTargetHandle;
                 depthTarget = RenderTargetHolder.LastDepthTargetHandle;
             }
-#if ! UNITY_2021_1_OR_NEWER
+#if !UNITY_2021_1_OR_NEWER
             // restore CameraTarget ,below 2022
             if (c.IsSceneViewCamera())
             {
@@ -396,8 +400,9 @@
             var drawSettings = CreateDrawingSettings(shaderTagList, ref renderingData, sortFlags);
             drawSettings.overrideMaterial = Feature.overrideMaterial;
             drawSettings.overrideMaterialPassIndex = Feature.overrideMaterialPassIndex;
+#if UNITY_2021_1_OR_NEWER
             drawSettings.fallbackMaterial = Feature.fallbackMaterial;
-
+#endif
             if (Feature.overrideMainLightIndex)
             {
                 // show current vl name

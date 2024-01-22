@@ -103,6 +103,6 @@ public class TestTMP_Text : MonoBehaviour
     }
     private Vector2 Wobble(float v)
     {
-        return new Vector2(Mathf.Sin(v * 3.2f), MathF.Cos(v * 2.3f));
+        return new Vector2(Mathf.Sin(v * 3.2f), Mathf.Cos(v * 2.3f));
     }
 }

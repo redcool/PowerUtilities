@@ -6,7 +6,9 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.Rendering.Universal.Internal;
-
+#if UNITY_2020_3
+using UniversalRenderer = UnityEngine.Rendering.Universal.ForwardRenderer;
+#endif
 namespace PowerUtilities
 {
     /// <summary>
@@ -72,7 +74,7 @@ namespace PowerUtilities
         /// <param name="name"></param>
         /// <param name="id"></param>
         /// 
-        static Func<string,URPRTHandleNames> ParseNameFunc = (string name) => Enum.Parse<URPRTHandleNames>(name);
+        static Func<string,URPRTHandleNames> ParseNameFunc = (string name) => EnumEx.Parse<URPRTHandleNames>(name);
         public static void TryReplaceURPRTTarget(this UniversalRenderer renderer, string name, ref RenderTargetIdentifier id)
         {
             if (string.IsNullOrEmpty(name))
@@ -81,7 +83,7 @@ namespace PowerUtilities
             if (RTHandleTools.IsURPRTHandleName(name))
             {
                 if (!handleNameToEnumDict.TryGetValue(name, out var handle))
-                    handle = handleNameToEnumDict[name] = Enum.Parse<URPRTHandleNames>(name);
+                    handle = handleNameToEnumDict[name] = EnumEx.Parse<URPRTHandleNames>(name);
 
                 //var handle = DictionaryTools.Get(handleNameToEnumDict, name, ParseNameFunc);
 

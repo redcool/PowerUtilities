@@ -84,7 +84,11 @@ namespace PowerUtilities
                 {
                     var bakingOutput = lightObj.bakingOutput;
                     bakingOutput.mixedLightingMode = (MixedLightingMode)mixedLightingMode.enumValueIndex;
+#if UNITY_2021_1_OR_NEWER
                     bakingOutput.lightmapBakeType = (LightmapBakeType)lightmapBakeType.enumValueFlag;
+#else
+                    bakingOutput.lightmapBakeType = (LightmapBakeType)lightmapBakeType.enumValueIndex;
+#endif
                     lightObj.bakingOutput = bakingOutput;
 
                 }
@@ -94,7 +98,7 @@ namespace PowerUtilities
 
 #endif
 
-    [Serializable]
+                    [Serializable]
     public class LightintBakingInfo
     {
         public Light light;

@@ -73,7 +73,7 @@ namespace PowerUtilities
             var names = Enum.GetNames(typeof(URPRTHandleNames));
             foreach (var name in names)
             {
-                urpRTIdNameDict.Add(Shader.PropertyToID(name), Enum.Parse<URPRTHandleNames>(name));
+                urpRTIdNameDict.Add(Shader.PropertyToID(name), EnumEx.Parse<URPRTHandleNames>(name));
             }
         }
         /// <summary>

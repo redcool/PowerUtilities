@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using UnityEngine.Rendering.Universal;
 using UnityEngine;
 using UnityEngine.Rendering;
-using UnityEngine.Rendering.RendererUtils;
 
 namespace PowerUtilities.RenderFeatures
 {

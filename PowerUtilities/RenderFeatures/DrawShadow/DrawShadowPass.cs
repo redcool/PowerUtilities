@@ -45,8 +45,11 @@
             {
                 bigShadowMap.Destroy();
             }
-
+#if UNITY_2020
+            var desc = new RenderTextureDescriptor(res, res, RenderTextureFormat.Depth, 24);
+#else
             var desc = new RenderTextureDescriptor(res,res, GraphicsFormat.None, GraphicsFormatUtility.GetDepthStencilFormat(24, 0));
+#endif
             desc.shadowSamplingMode = ShadowSamplingMode.CompareDepths;
 
             bigShadowMap = new RenderTexture(desc);

@@ -157,7 +157,7 @@ namespace PowerUtilities
         public static T FindAssetPathAndLoad<T>(out string path, string filter, string extName = null, bool isWholeWordsMatch = false, params string[] searchInFolders)
             where T : Object
         {
-            if(!string.IsNullOrEmpty(extName) && extName.StartsWith('.')) 
+            if(!string.IsNullOrEmpty(extName) && extName.StartsWith(".")) 
                 extName = extName.Substring(1);
 
             path = FindAssetPath(filter, extName,isWholeWordsMatch, searchInFolders);

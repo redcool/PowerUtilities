@@ -1,14 +1,18 @@
 namespace GameUtilsFramework
 {
+#if UNITY_EDITOR
+    using UnityEditor;
+#endif
     using UnityEngine;
     using System;
     using PowerUtilities;
     using System.Linq;
     using System.Collections.Generic;
-#if UNITY_EDITOR
-    using UnityEditor;
     using static GameUtilsFramework.SkeletonSync;
-
+#if UNITY_2020
+    using Tooltip = PowerUtilities.TooltipAttribute;
+#endif
+#if UNITY_EDITOR
     [CustomEditor(typeof(SkeletonSync))]
     public class SyncSkeletonEditor : PowerEditor<SkeletonSync>
     {

@@ -8,7 +8,7 @@ namespace PowerUtilities
     using UnityEditor;
     using UnityEditorInternal;
     using UnityEngine;
-    using UnityEngine.TerrainUtils;
+    using UnityEngine.UIElements;
 
     public static class EditorGUITools
     {
@@ -434,7 +434,7 @@ namespace PowerUtilities
             var helpContent = EditorGUIUtility.IconContent("_Help");
             var buttonSize = position.height;
             var helpPos = new Rect(position.xMax-buttonSize, position.y, buttonSize, buttonSize);
-            if (EditorGUI.LinkButton(helpPos, helpContent))
+            if (LinkButton(helpPos, helpContent))
             {
                 Help.BrowseURL(url);
             }
@@ -444,6 +444,25 @@ namespace PowerUtilities
         {
             EditorGUILayout.LabelField(label, EditorStylesEx.titleStyle);
             EditorGUILayout.Space(5);
+        }
+
+        /// <summary>
+        /// compatible for 2020
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="label"></param>
+        /// <returns></returns>
+        public static bool LinkButton(Rect position, GUIContent label)
+        {
+#if UNITY_2020
+            Handles.color = EditorStyles.linkLabel.normal.textColor;
+            Handles.DrawLine(new Vector3(position.xMin + (float)EditorStyles.linkLabel.padding.left, position.yMax), new Vector3(position.xMax - (float)EditorStyles.linkLabel.padding.right, position.yMax));
+            Handles.color = Color.white;
+            EditorGUIUtility.AddCursorRect(position, MouseCursor.Link);
+            return GUI.Button(position, label, EditorStyles.linkLabel);
+#else 
+            return EditorGUI.LinkButton(position, label);
+#endif
         }
     }
 }

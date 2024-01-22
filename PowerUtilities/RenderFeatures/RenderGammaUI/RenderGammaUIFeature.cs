@@ -18,7 +18,9 @@ namespace PowerUtilities.Features
     }
 #endif
 
+#if UNITY_2021_1_OR_NEWER
     [Tooltip("Render scane in linear, Render UI in gamma space")]
+#endif
     public class RenderGammaUIFeature : ScriptableRendererFeature
     {
 

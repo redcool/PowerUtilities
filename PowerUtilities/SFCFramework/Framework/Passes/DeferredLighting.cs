@@ -7,6 +7,10 @@ using PowerUtilities;
 using System.Linq;
 using Unity.Mathematics;
 
+#if UNITY_2020
+using UniversalRenderer = UnityEngine.Rendering.Universal.ForwardRenderer;
+#endif
+
 namespace PowerUtilities.RenderFeatures
 {
     /// <summary>
@@ -75,8 +79,11 @@ namespace PowerUtilities.RenderFeatures
 
             cmd.SetRenderTarget(colorAttachmentA);
             cmd.Execute(ref context);
-
+#if UNITY_2021_1_OR_NEWER
             var lightGroups = Object.FindObjectsByType<Light>(FindObjectsSortMode.None)
+#else
+            var lightGroups = Object.FindObjectsOfType<Light>()
+#endif
             .GroupBy(light => light.type).ToList();
 
             foreach (var g in lightGroups)

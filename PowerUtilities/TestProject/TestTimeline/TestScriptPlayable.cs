@@ -27,7 +27,9 @@ namespace PowerUtilities
         {
             return new ClipDrawOptions
             {
+#if UNITY_2021_1_OR_NEWER
                 displayClipName=true,
+#endif
                 errorText= GetErrorText(clip),
                 highlightColor = GetDefaultHighlightColor(clip),
                 tooltip = "test",

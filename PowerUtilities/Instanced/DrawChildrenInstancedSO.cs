@@ -284,7 +284,7 @@ namespace PowerUtilities
             if (isEnableLightmapArray)
             {
                 group.mat.EnableKeyword("UNITY_INSTANCED_LIGHTMAPSTS");
-                block.SetTexture("unity_Lightmaps", lightmapArray!=null ? lightmapArray : Texture2D.blackTexture);
+                block.SetTexture("unity_Lightmaps", lightmapArray!=null ? (Texture)lightmapArray : Texture2D.blackTexture);
                 block.SetFloatArray("unity_LightmapIndexArray", group.lightmapIdList);
             }
             else // use textures

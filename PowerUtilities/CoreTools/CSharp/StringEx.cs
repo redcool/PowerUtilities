@@ -111,7 +111,7 @@
         public static string SubstringLast(this string str, int count)
         => str.Substring(0, str.Length - count);
 
-        public static string ToString<T>(IEnumerable<T> items) => string.Join(',', items);
+        public static string ToString<T>(IEnumerable<T> items) => string.Join(",", items);
 
         /// <summary>
         /// is all of strs not empty

@@ -23,7 +23,7 @@ namespace PowerUtilities
         {
             if(!int.TryParse(indentLevelOffsetStr, out indentLevelOffset))
             {
-                if (indentLevelOffsetStr.StartsWith('m'))
+                if (indentLevelOffsetStr.StartsWith("m"))
                     indentLevelOffset = -1 * int.Parse(indentLevelOffsetStr.Substring(1));
 
             }

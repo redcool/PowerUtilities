@@ -49,7 +49,7 @@ namespace PowerUtilities
                 case MaterialProperty.PropType.Texture:
                     prop.textureValue = mat.GetTexture(propName);
                     var targetTexST = (propName + "_ST");
-                    if (mat.HasVector(targetTexST))
+                    if (mat.HasProperty(targetTexST))
                         prop.textureScaleAndOffset = mat.GetVector(targetTexST);
                     break;
                 default:

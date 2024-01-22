@@ -4,8 +4,13 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
+#if UNITY_2020
+using UniversalRenderer = UnityEngine.Rendering.Universal.ForwardRenderer;
+#endif
+
 namespace PowerUtilities.RenderFeatures
 {
+
     [Tooltip("Blit sourceName to targetName")]
     [CreateAssetMenu(menuName=SRP_FEATURE_PASSES_MENU+ "/BlitToTarget")]
     public class BlitToTarget : SRPFeature
@@ -45,7 +50,7 @@ namespace PowerUtilities.RenderFeatures
             ref var cameraData = ref renderingData.cameraData;
             var renderer = (UniversalRenderer)cameraData.renderer;
 
-            RenderTargetIdentifier sourceId = string.IsNullOrEmpty(Feature.sourceName) ? BuiltinRenderTextureType.CurrentActive : Shader.PropertyToID(Feature.sourceName);
+            RenderTargetIdentifier sourceId = string.IsNullOrEmpty(Feature.sourceName) ? (RenderTargetIdentifier)BuiltinRenderTextureType.CurrentActive : Shader.PropertyToID(Feature.sourceName);
 
             var cameraTarget = camera.GetCameraTarget();
             RenderTargetIdentifier targetId = string.IsNullOrEmpty(Feature.targetName) ? cameraTarget : Shader.PropertyToID(Feature.targetName);

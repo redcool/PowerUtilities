@@ -9,7 +9,9 @@ using UnityEngine.Rendering.Universal;
 
 namespace PowerUtilities
 {
+#if UNITY_2021_1_OR_NEWER
     [Tooltip("Control MotionVectors render,(object ,camera)")]
+#endif
     [CreateAssetMenu(menuName = SRP_FEATURE_PASSES_MENU+"/RenderMotionVector")]
     public class RenderMotionVector : SRPFeature
     {
@@ -79,7 +81,9 @@ namespace PowerUtilities
         {
             var drawSettings = new DrawingSettings(new ShaderTagId("MotionVectors"), new SortingSettings(camera) { criteria = SortingCriteria.CommonOpaque })
             {
+#if UNITY_2021_1_OR_NEWER
                 fallbackMaterial = Feature.objectMotionMaterial,
+#endif
                 perObjectData = PerObjectData.MotionVectors,
                 enableDynamicBatching = renderingData.supportsDynamicBatching,
                 enableInstancing = true,

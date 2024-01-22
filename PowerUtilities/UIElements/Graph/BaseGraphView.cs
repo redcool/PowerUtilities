@@ -141,7 +141,7 @@ namespace PowerUtilities.UIElements
         {
             nodeViewList.Clear();
             graphViewChanged -= OnGraphViewChanged;
-            DeleteElements(graphElements);
+            DeleteElements(graphElements.ToList());
             graphViewChanged += OnGraphViewChanged;
 
             // nodes

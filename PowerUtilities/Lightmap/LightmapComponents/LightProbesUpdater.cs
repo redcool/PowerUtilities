@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.TextCore.Text;
 
 /// <summary>
 /// Update baked light probes 

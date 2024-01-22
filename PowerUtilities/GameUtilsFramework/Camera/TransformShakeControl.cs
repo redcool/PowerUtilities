@@ -1,14 +1,18 @@
 namespace GameUtilsFramework
 {
+#if UNITY_EDITOR
+    using UnityEditor;
+#endif
     using PowerUtilities;
     using System.Collections;
     using System.Collections.Generic;
     using UnityEngine;
     using Debug = UnityEngine.Debug;
+#if UNITY_2020
+    using Tooltip = PowerUtilities.TooltipAttribute;
+#endif
 
 #if UNITY_EDITOR
-    using UnityEditor;
-
     [CustomEditor(typeof(TransformShakeControl))]
     public class TransformShakeControlEditor : PowerEditor<TransformShakeControl>
     {

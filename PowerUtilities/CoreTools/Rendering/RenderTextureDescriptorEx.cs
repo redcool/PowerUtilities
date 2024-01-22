@@ -31,7 +31,11 @@ namespace PowerUtilities
         {
             desc.SetupColorDescriptor(camera, renderScale);
             desc.colorFormat = RenderTextureFormat.Depth;
+#if UNITY_2020
+            desc.depthBufferBits = 24;
+#else
             desc.depthStencilFormat = UnityEngine.Experimental.Rendering.GraphicsFormat.D24_UNorm_S8_UInt;
+#endif
         }
     }
 }

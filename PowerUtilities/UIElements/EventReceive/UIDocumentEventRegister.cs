@@ -1,6 +1,6 @@
+#if UNITY_2021_1_OR_NEWER
 namespace PowerUtilities
 {
-
     using System;
     using System.Linq;
     using System.Collections;
@@ -92,3 +92,4 @@ namespace PowerUtilities
     }
 
 }
+#endif

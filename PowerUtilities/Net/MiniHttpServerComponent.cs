@@ -58,7 +58,7 @@ namespace PowerUtilities.Net
                 return;
 
             var bytes = new byte[req.ContentLength64];
-            var readCount = req.InputStream.Read(bytes);
+            var readCount = req.InputStream.Read(bytes,0, bytes.Length);
 
             var folder = $"{Application.dataPath}/{ resourceFolder}";
             var outputPath = $"{folder}/{fileName}";
@@ -80,10 +80,15 @@ namespace PowerUtilities.Net
             File.WriteAllBytes(outputPath, bytes);
 
             bytes = Encoding.UTF8.GetBytes($"{outputPath}");
+#if UNITY_2020
+            resp.OutputStream.Write(bytes, 0, bytes.Length);
+            resp.Close();
+#else
             resp.OutputStream.WriteAsync(bytes).AsTask().ContinueWith((obj) =>
             {
                 resp.Close();
             });
+#endif
 
             MiniHttpServerComponent_OnFileReceived(fileType, outputPath);
 

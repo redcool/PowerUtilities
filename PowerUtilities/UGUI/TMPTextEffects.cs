@@ -143,7 +143,7 @@ namespace PowerUtilities
 
         public static Vector2 Wobble(float t,float amplitude=1)
         {
-            return new Vector2(Mathf.Cos(t * 3.2f), MathF.Sin(t*2.3f)) * amplitude;
+            return new Vector2(Mathf.Cos(t * 3.2f), Mathf.Sin(t*2.3f)) * amplitude;
         }
 
         public static Color GetVertexColor(Gradient colorGradient, float offset,float speed)
