@@ -104,7 +104,7 @@
                     if (EditorGUI.EndChangeCheck())
                     {
                         //? temporary disable this
-                        //feature.DestroyPassInstance();
+                        feature.DestroyPassInstance();
                     }
                 }
                 EditorGUI.indentLevel--;

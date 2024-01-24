@@ -144,6 +144,11 @@ namespace PowerUtilities.RenderFeatures
             }
         }
 
+        public void DestroyPassInstance()
+        {
+            passInstance = null;
+        }
+
         public string Tooltip
         {
             get

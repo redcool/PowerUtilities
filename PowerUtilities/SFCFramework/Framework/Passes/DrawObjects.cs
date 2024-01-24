@@ -110,6 +110,9 @@
         [EditorGroup("DebugTools")]
         [LoadAsset("SFC_ShowOverdrawAdd.mat")]
         public Material overdrawMat;
+        // keep for restore
+        [HideInInspector]
+        public bool isEnterCheckOverdraw;
 
         public override ScriptableRenderPass GetPass() => new DrawObjectsPassControl(this);
     }
@@ -237,8 +240,7 @@
         Light sun;
         bool lastSRPBatchEnabled;
 
-        // keep for restore
-        bool isEnterCheckOverdraw;
+
 
         public FullDrawObjectsPass(DrawObjects feature) : base(feature)
         {
@@ -271,9 +273,9 @@
                 Feature.isSwitchOverdrawMode = false;
 
                 // switch overdraw mode
-                isEnterCheckOverdraw = !isEnterCheckOverdraw;
+                Feature.isEnterCheckOverdraw = !Feature.isEnterCheckOverdraw;
 
-                if (isEnterCheckOverdraw)
+                if (Feature.isEnterCheckOverdraw)
                 {
                     EnterCheckOverdrawMode();
                 }
