@@ -79,12 +79,17 @@ namespace PowerUtilities
 
         static NativeArray<RenderStateBlock> errorRenderStateBlockArr;
 
-        [ApplicationExit]
-        [CompileStarted]
+        //[ApplicationExit]
+        //[CompileStarted]
         static void DisposeNative()
         {
             if(errorRenderStateBlockArr.IsCreated)
             errorRenderStateBlockArr.Dispose();
+        }
+
+        static RenderingTools()
+        {
+            ApplicationTools.OnDomainUnload += DisposeNative;
         }
 
         public static void DrawErrorObjects(CommandBuffer cmd,ref ScriptableRenderContext context,ref CullingResults cullingResults,Camera cam,FilteringSettings filterSettings,SortingCriteria sortFlags)

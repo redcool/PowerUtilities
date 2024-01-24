@@ -21,8 +21,8 @@ namespace PowerUtilities
         static NativeArray<RenderStateBlock> defaultBlockArr;
 
 
-        [ApplicationExit]
-        [CompileStarted]
+        //[ApplicationExit]
+        //[CompileStarted]
         static void DisposeNative()
         {
             if(defaultTagArr.IsCreated)
@@ -30,6 +30,11 @@ namespace PowerUtilities
 
             if(defaultBlockArr.IsCreated)
             defaultBlockArr.Dispose();
+        }
+
+        static ScriptableRenderContextEx()
+        {
+            ApplicationTools.OnDomainUnload += DisposeNative;
         }
 
         /// <summary>

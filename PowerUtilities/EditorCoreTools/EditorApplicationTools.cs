@@ -45,16 +45,16 @@ namespace PowerUtilities
         private static void CompilationPipeline_compilationFinished(object obj)
         {
             var ms = TypeCache.GetMethodsWithAttribute<CompileFinishedAttribute>();
-            CallMethods(obj, ms,"finished");
+            CallCompileMethods(obj, ms,"finished");
         }
 
         private static void CompilationPipeline_compilationStarted(object obj)
         {
             var ms = TypeCache.GetMethodsWithAttribute<CompileStartedAttribute>();
-            CallMethods(obj, ms,"started");
+            CallCompileMethods(obj, ms,"started");
         }
 
-        private static void CallMethods(object obj, TypeCache.MethodCollection methods,string state)
+        private static void CallCompileMethods(object obj, TypeCache.MethodCollection methods,string state)
         {
 #if UNITY_EDITOR
             Debug.Log($"{state} compile,call methods { methods.Count}");
@@ -74,6 +74,7 @@ namespace PowerUtilities
                     method.Invoke(null, null);
             }
         }
+
         [InitializeOnLoadMethod]
         static void EditorInit()
         {

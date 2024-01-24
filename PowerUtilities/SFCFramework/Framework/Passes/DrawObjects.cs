@@ -319,12 +319,17 @@
 
         static NativeArray<RenderStateBlock> renderStateBlockArr;
 
-        [ApplicationExit]
-        [CompileStarted]
+        //[ApplicationExit]
+        //[CompileStarted]
         static void DisposeNative()
         {
             if (renderStateBlockArr.IsCreated)
                 renderStateBlockArr.Dispose();
+        }
+
+        static FullDrawObjectsPass()
+        {
+            ApplicationTools.OnDomainUnload += DisposeNative;
         }
          
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)

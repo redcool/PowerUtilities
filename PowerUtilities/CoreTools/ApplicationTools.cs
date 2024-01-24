@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -13,33 +14,25 @@ namespace PowerUtilities
 {
     public static class ApplicationTools
     {
-        [RuntimeInitializeOnLoadMethod]
-        static void OnLoad()
+        public static event Action OnDomainUnload;
+
+        static ApplicationTools()
         {
-            Application_quitting();
 
-            Application.wantsToQuit -= Application_quitting;
-            Application.wantsToQuit += Application_quitting;
-
+            AppDomain.CurrentDomain.DomainUnload -= CurrentDomain_DomainUnload;
+            AppDomain.CurrentDomain.DomainUnload += CurrentDomain_DomainUnload;
         }
 
-        private static bool Application_quitting()
+        private static void CurrentDomain_DomainUnload(object sender, EventArgs e)
         {
-            var methods = ReflectionTools.GetMethodsHasAttribute<ApplicationExitAttribute>("Power");
-
 #if UNITY_EDITOR
-            Debug.Log("quit, dispose methods:"+methods.Length);
+            Debug.Log($"[] domain unload");
 #endif
-            foreach (var method in methods)
-            {
-                if (!method.IsStatic)
-                {
-                    continue;
-                }
-
-                method.Invoke(null, null);
-            }
-            return true;
+            if(OnDomainUnload != null) 
+                OnDomainUnload();
+            OnDomainUnload = null;
         }
+
+
     }
 }

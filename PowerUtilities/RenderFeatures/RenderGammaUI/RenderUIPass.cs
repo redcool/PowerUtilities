@@ -31,12 +31,17 @@ namespace PowerUtilities.Features
 
         static NativeArray<RenderStateBlock> curRenderStateArr;
 
-        [ApplicationExit]
-        [CompileStarted]
-        public static void DisposeNative()
+        //[ApplicationExit]
+        //[CompileStarted]
+        static void DisposeNative()
         {
             if (curRenderStateArr.IsCreated)
                 curRenderStateArr.Dispose();
+        }
+
+        static RenderUIPass()
+        {
+            ApplicationTools.OnDomainUnload += DisposeNative;
         }
 
         StencilState GetStencilState()
@@ -84,7 +89,7 @@ namespace PowerUtilities.Features
 
         public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
         {
-            NativeArrayTools.CreateIfNull(ref curRenderStateArr, 1);
+            NativeArrayTools.CreateIfNull(ref curRenderStateArr, 1,Allocator.Persistent);
 
             var urpAsset = UniversalRenderPipeline.asset;
             SetupURPAsset(urpAsset);
