@@ -31,6 +31,12 @@ namespace PowerUtilities
         static Dictionary<Type, Type[]> attributeTypesDict = new Dictionary<Type, Type[]>();
 
 
+        static ReflectionTools()
+        {
+            typeHasAttributeMethodsDict.Clear();
+            attributeTypesDict.Clear();
+        }
+
         /// <summary>
         /// Get type's methods have attribute<T> with cached
         /// </summary>
@@ -75,19 +81,44 @@ namespace PowerUtilities
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static MethodInfo[] GetMethodsHasAttribute<T>() where T : Attribute
+        public static MethodInfo[] GetMethodsHasAttribute<T>(params string[] dllStartWithNames) where T : Attribute
         {
+
+            var list = new List<MethodInfo>();
             var attrType = typeof(T);
             if (!typeHasAttributeMethodsDict.TryGetValue(attrType, out var methods))
             {
-                var types = typeof(T).Assembly.GetTypes();
-                methods = types.SelectMany(t => GetMethodsHasCustomAttribute<T>(t))
-                    .Where(ms => ms != null)
+                var dlls = AppDomain.CurrentDomain.GetAssemblies()
+                    .Where(dll => IsContains(dll.FullName))
                     .ToArray();
+
+                foreach (var dll in dlls)
+                {
+                    var types = dll.GetTypes();
+                    //var types = typeof(T).Assembly.GetTypes();
+                    methods = types.SelectMany(t => GetMethodsHasCustomAttribute<T>(t))
+                        .Where(ms => ms != null)
+                        .ToArray();
+                    list.AddRange(methods);
+                }
             }
 
-            typeHasAttributeMethodsDict[attrType] = methods;
-            return methods;
+            return typeHasAttributeMethodsDict[attrType] = list.ToArray();
+
+            //==========
+            bool IsContains(string fullname)
+            {
+                if (dllStartWithNames.Length == 0)
+                    return true;
+
+                foreach (var name in dllStartWithNames)
+                {
+
+                    if(fullname.StartsWith(name))
+                        return true;
+                }
+                return false;
+            }
         }
 
         public static IEnumerable<Type> GetTypesDerivedFrom<T>(Func<Type, bool> predication)
