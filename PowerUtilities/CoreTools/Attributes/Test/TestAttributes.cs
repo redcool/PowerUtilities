@@ -50,11 +50,13 @@ namespace PowerUtilities
         [SortingLayerIndex] 
         public int sortingLayerId;
 
-        [ApplicationExit]
-        public static void Test()
-        {
-            Debug.Log("test attr");
-        }
+
+        //[ApplicationExit]
+        //public static void Test()
+        //{
+        //    Debug.Log("test attr");
+        //}
+
     }
 }
 #endif

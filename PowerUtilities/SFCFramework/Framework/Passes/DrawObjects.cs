@@ -317,6 +317,14 @@
 
         static NativeArray<RenderStateBlock> renderStateBlockArr;
 
+        [ApplicationExit]
+        [CompileStarted]
+        static void DisposeNative()
+        {
+            if (renderStateBlockArr.IsCreated)
+                renderStateBlockArr.Dispose();
+        }
+         
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
         {
             var drawObjectPassData = new Vector4(0, 0, 0, Feature.renderQueueType == RenderQueueType.opaque ? 1 : 0);

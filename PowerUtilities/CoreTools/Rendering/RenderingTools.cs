@@ -79,6 +79,14 @@ namespace PowerUtilities
 
         static NativeArray<RenderStateBlock> errorRenderStateBlockArr;
 
+        [ApplicationExit]
+        [CompileStarted]
+        static void DisposeNative()
+        {
+            if(errorRenderStateBlockArr.IsCreated)
+            errorRenderStateBlockArr.Dispose();
+        }
+
         public static void DrawErrorObjects(CommandBuffer cmd,ref ScriptableRenderContext context,ref CullingResults cullingResults,Camera cam,FilteringSettings filterSettings,SortingCriteria sortFlags)
         {
             var sortingSettings = new SortingSettings(cam) { criteria = sortFlags };

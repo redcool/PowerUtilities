@@ -16,14 +16,20 @@ namespace PowerUtilities
         [RuntimeInitializeOnLoadMethod]
         static void OnLoad()
         {
-            Application.quitting -= Application_quitting;
-            Application.quitting += Application_quitting;
+            Application_quitting();
+
+            Application.wantsToQuit -= Application_quitting;
+            Application.wantsToQuit += Application_quitting;
+
         }
 
-        private static void Application_quitting()
+        private static bool Application_quitting()
         {
-            var methods = ReflectionTools.GetMethodsHasAttribute<ApplicationExitAttribute>();
+            var methods = ReflectionTools.GetMethodsHasAttribute<ApplicationExitAttribute>("Power");
 
+#if UNITY_EDITOR
+            Debug.Log("quit, dispose methods:"+methods.Length);
+#endif
             foreach (var method in methods)
             {
                 if (!method.IsStatic)
@@ -33,6 +39,7 @@ namespace PowerUtilities
 
                 method.Invoke(null, null);
             }
+            return true;
         }
     }
 }

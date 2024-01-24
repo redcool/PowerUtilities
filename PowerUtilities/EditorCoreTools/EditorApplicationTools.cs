@@ -33,50 +33,57 @@ namespace PowerUtilities
 
         static bool isInited;
 
-        [InitializeOnLoadMethod]
-        static void EditorInit()
+        static EditorApplicationTools()
         {
-            EditorApplication.update -= AddEvent;
-            EditorApplication.update += AddEvent;
-
-            if (OnEditorReload != null)
-                OnEditorReload();
-             
             CompilationPipeline.compilationStarted -= CompilationPipeline_compilationStarted;
             CompilationPipeline.compilationStarted += CompilationPipeline_compilationStarted;
 
             CompilationPipeline.compilationFinished -= CompilationPipeline_compilationFinished;
             CompilationPipeline.compilationFinished += CompilationPipeline_compilationFinished;
         }
-
+         
         private static void CompilationPipeline_compilationFinished(object obj)
         {
-            var startedMethods = TypeCache.GetMethodsWithAttribute<CompileFinishedAttribute>();
-            foreach (var method in startedMethods)
-            {
-                method.Invoke(null, new[] { obj });
-            }
-        }
+            var ms = TypeCache.GetMethodsWithAttribute<CompileFinishedAttribute>();
+            CallMethods(obj, ms);
+        } 
 
         private static void CompilationPipeline_compilationStarted(object obj)
         {
-            var startedMethods = TypeCache.GetMethodsWithAttribute<CompileStartedAttribute>();
-            foreach (var method in startedMethods)
+            var ms = TypeCache.GetMethodsWithAttribute<CompileStartedAttribute>();
+            CallMethods(obj, ms);
+        }
+
+        private static void CallMethods(object obj, TypeCache.MethodCollection methods)
+        {
+#if UNITY_EDITOR
+            Debug.Log("start compile,call methods " + methods.Count);
+#endif
+            foreach (var method in methods)
             {
                 if (!method.IsStatic)
                 {
                     Debug.Log($"{method.DeclaringType}.{method.Name} : not static!");
                     continue;
                 }
-                if(method.GetParameters().Length != 1)
+                if (method.GetParameters().Length == 1)
                 {
-                    Debug.Log($"{method.DeclaringType}.{method.Name} : dont have a parameter!");
-                    continue;
+                    method.Invoke(null, new[] { obj });
                 }
-                method.Invoke(null, new[] { obj });
+                else
+                    method.Invoke(null, new object[] { } );
             }
         }
+        [InitializeOnLoadMethod]
+        static void EditorInit()
+        {
+            EditorApplication.update -= AddEvent;
+            EditorApplication.update += AddEvent;
 
+
+            if (OnEditorReload != null)
+                OnEditorReload();
+        }
 
         static void AddEvent()
         {
