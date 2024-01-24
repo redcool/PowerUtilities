@@ -33,17 +33,6 @@ namespace PowerUtilities.Features
         {
         }
 
-        public new void Dispose()
-        {
-            base.Dispose();
-
-            if (uiPass != null)
-            {
-                uiPass.Dispose();
-                uiPass = null;
-            }
-        }
-
         public static bool IsUICamera(ref CameraData cameraData, string cameraTag)
         {
             var isUICamera = false;

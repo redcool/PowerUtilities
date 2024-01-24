@@ -14,7 +14,7 @@ using UniversalRenderer = UnityEngine.Rendering.Universal.ForwardRenderer;
 namespace PowerUtilities.Features
 {
 
-    public class RenderUIPass : ScriptableRenderPass ,IDisposable
+    public class RenderUIPass : ScriptableRenderPass
     {
         static readonly int _GammaTex = Shader.PropertyToID(nameof(_GammaTex));
 
@@ -31,10 +31,12 @@ namespace PowerUtilities.Features
 
         static NativeArray<RenderStateBlock> curRenderStateArr;
 
-
-        public void Dispose()
+        [ApplicationExit]
+        [CompileStarted]
+        public static void DisposeNative()
         {
-
+            if (curRenderStateArr.IsCreated)
+                curRenderStateArr.Dispose();
         }
 
         StencilState GetStencilState()
@@ -82,7 +84,7 @@ namespace PowerUtilities.Features
 
         public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
         {
-            NativeArrayTools.CreateIfNull(ref curRenderStateArr, 1, Allocator.Persistent);
+            NativeArrayTools.CreateIfNull(ref curRenderStateArr, 1);
 
             var urpAsset = UniversalRenderPipeline.asset;
             SetupURPAsset(urpAsset);

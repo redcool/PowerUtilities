@@ -33,7 +33,7 @@ namespace PowerUtilities
 
         static bool isInited;
 
-        static EditorApplicationTools()
+        static void AddCompileEvents()
         {
             CompilationPipeline.compilationStarted -= CompilationPipeline_compilationStarted;
             CompilationPipeline.compilationStarted += CompilationPipeline_compilationStarted;
@@ -45,19 +45,19 @@ namespace PowerUtilities
         private static void CompilationPipeline_compilationFinished(object obj)
         {
             var ms = TypeCache.GetMethodsWithAttribute<CompileFinishedAttribute>();
-            CallMethods(obj, ms);
-        } 
+            CallMethods(obj, ms,"finished");
+        }
 
         private static void CompilationPipeline_compilationStarted(object obj)
         {
             var ms = TypeCache.GetMethodsWithAttribute<CompileStartedAttribute>();
-            CallMethods(obj, ms);
+            CallMethods(obj, ms,"started");
         }
 
-        private static void CallMethods(object obj, TypeCache.MethodCollection methods)
+        private static void CallMethods(object obj, TypeCache.MethodCollection methods,string state)
         {
 #if UNITY_EDITOR
-            Debug.Log("start compile,call methods " + methods.Count);
+            Debug.Log($"{state} compile,call methods { methods.Count}");
 #endif
             foreach (var method in methods)
             {
@@ -71,12 +71,14 @@ namespace PowerUtilities
                     method.Invoke(null, new[] { obj });
                 }
                 else
-                    method.Invoke(null, new object[] { } );
+                    method.Invoke(null, null);
             }
         }
         [InitializeOnLoadMethod]
         static void EditorInit()
         {
+            AddCompileEvents();
+
             EditorApplication.update -= AddEvent;
             EditorApplication.update += AddEvent;
 

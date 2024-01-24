@@ -102,7 +102,7 @@ namespace PowerUtilities
             }
 
 #if UNITY_2022_1_OR_NEWER
-            NativeArrayTools.CreateIfNull(ref errorRenderStateBlockArr, 1, Allocator.Persistent);
+            NativeArrayTools.CreateIfNull(ref errorRenderStateBlockArr, 1);
             errorRenderStateBlockArr[0] = default;
 
             context.DrawRenderers(cmd, cullingResults, ref drawSettings, ref filterSettings, null, errorRenderStateBlockArr);

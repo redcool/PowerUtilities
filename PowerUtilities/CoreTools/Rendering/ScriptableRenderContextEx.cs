@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Unity.Collections;
+using UnityEngine;
 using UnityEngine.Rendering;
 
 namespace PowerUtilities
@@ -31,10 +32,6 @@ namespace PowerUtilities
             defaultBlockArr.Dispose();
         }
 
-        static ScriptableRenderContextEx()
-        {
-        }
-
         /// <summary>
         /// use cmd.DrawRendererList(unity 2023) or context.DrawRenderers(unity 2021)
         /// </summary>
@@ -48,8 +45,8 @@ namespace PowerUtilities
             NativeArray<ShaderTagId>? tagValues = null,
             NativeArray<RenderStateBlock>? stateBlocks = null)
         {
-            NativeArrayTools.CreateIfNull(ref defaultTagArr, 1, Allocator.Persistent);
-            NativeArrayTools.CreateIfNull(ref defaultBlockArr, 1, Allocator.Persistent);
+            NativeArrayTools.CreateIfNull(ref defaultTagArr, 1);
+            NativeArrayTools.CreateIfNull(ref defaultBlockArr, 1);
 #if UNITY_2022_1_OR_NEWER
             if (!tagValues.HasValue && stateBlocks.HasValue)
                 tagValues = defaultTagArr;
