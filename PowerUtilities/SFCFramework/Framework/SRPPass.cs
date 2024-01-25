@@ -93,9 +93,11 @@ namespace PowerUtilities.RenderFeatures
 #if UNITY_2022_1_OR_NEWER
             if (RenderTargetHolder.IsLastTargetValid())
             {
-                ConfigureTarget(RenderTargetHolder.LastColorTargetHandles, RenderTargetHolder.LastDepthTargetHandle);
+                // (scene,game) will flicker
+                //ConfigureTarget(RenderTargetHolder.LastColorTargetHandles, RenderTargetHolder.LastDepthTargetHandle);
 
-                //cmd.SetRenderTarget(RenderTargetHolder.LastColorTargetIds, RenderTargetHolder.LastDepthTargetHandle.nameID);
+                //smothtimes ,mrt cannot work
+                cmd.SetRenderTarget(RenderTargetHolder.LastColorTargetIds, RenderTargetHolder.LastDepthTargetHandle.nameID);
             }
 #endif
         }

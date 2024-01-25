@@ -29,6 +29,7 @@ namespace PowerUtilities.RenderFeatures
 
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
         {
+            var renderer = (UniversalRenderer)renderingData.cameraData.renderer;
             ref var cameraData = ref renderingData.cameraData;
             var desc = cameraData.cameraTargetDescriptor;
 
@@ -40,10 +41,14 @@ namespace PowerUtilities.RenderFeatures
             {
                 cmd.GetTemporaryRT(colorIds[i], desc.width, desc.height, 0,FilterMode.Bilinear,RenderTextureFormat.Default);
             }
+
             var depthBuffer = Shader.PropertyToID("depthBuffer");
             cmd.GetTemporaryRT(depthBuffer, desc.width, desc.height, 16, FilterMode.Point, RenderTextureFormat.Depth);
 
             var ids = colorIds.Select(id => new RenderTargetIdentifier(id)).ToArray();
+            ids[0] = renderer.GetCameraColorAttachmentA().nameID;
+
+
             cmd.SetRenderTarget(ids, depthBuffer);
             cmd.ClearRenderTarget(true, true, Color.clear, 1);
             cmd.Execute(ref context);

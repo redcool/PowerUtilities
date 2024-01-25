@@ -24,7 +24,7 @@ namespace PowerUtilities
         /// <param name="inst"></param>
         /// <param name="array"></param>
         /// <param name="allocator"></param>
-        public static void CreateIfNull<T>(ref NativeArray<T> inst, T[] array, Allocator allocator=Allocator.Domain) where T : struct
+        public static void CreateIfNull<T>(ref NativeArray<T> inst, T[] array, Allocator allocator=Allocator.Persistent) where T : struct
         {
             if (IsValid(inst))
                 return;
@@ -32,8 +32,8 @@ namespace PowerUtilities
             inst = new NativeArray<T>(array, allocator);
         }
 
-
-        public static void CreateIfNull<T>(ref NativeArray<T> inst, int count, Allocator allocator = Allocator.Domain) where T : struct
+         
+        public static void CreateIfNull<T>(ref NativeArray<T> inst, int count, Allocator allocator = Allocator.Persistent) where T : struct
         {
             
             if (IsValid(inst))
