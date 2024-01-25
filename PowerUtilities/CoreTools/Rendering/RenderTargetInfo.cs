@@ -40,7 +40,7 @@
         /// </summary>
         /// <returns></returns>
         public GraphicsFormat GetFinalFormat()
-        => isNormalColorTexture || RenderingUtils.SupportsGraphicsFormat(format,FormatUsage.Linear|FormatUsage.Render) 
+        => isNormalColorTexture || ! RenderingUtils.SupportsGraphicsFormat(format,FormatUsage.Linear|FormatUsage.Render) 
             ? RenderingTools.GetNormalTextureFormat() : format;
     }
 }
