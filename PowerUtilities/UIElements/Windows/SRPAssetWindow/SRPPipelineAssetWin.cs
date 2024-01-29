@@ -19,7 +19,10 @@ namespace PowerUtilities
         ListView rendererDataListView;
         IMGUIContainer rendererDataDetailImgui;
         IMGUIContainer pipelineAssetDetailImgui;
-        BaseSplitView rootSplitView;
+        BaseSplitView rootSplitView,leftSplitView,rightSplitView;
+
+        ScrollView pipelineAssetDetailScrollView;
+        ScrollView dataDetailScrollView;
 
         UniversalRenderPipelineAsset[] urpAssets;
 
@@ -60,6 +63,7 @@ namespace PowerUtilities
             eventInstance = this;
 
             base.CreateGUI();
+
         }
 
         public void AddEvent(VisualElement root)
@@ -68,22 +72,32 @@ namespace PowerUtilities
             rendererDataListView = root.Q<ListView>("RendererDataListView");
             rendererDataDetailImgui = root.Q<IMGUIContainer>("RendererDataDetailIMGUI");
             pipelineAssetDetailImgui = root.Q<IMGUIContainer>("PipelineAssetDetailIMGUI");
+
             rootSplitView = root.Q<BaseSplitView>("Root");
+            leftSplitView = root.Q<BaseSplitView>("LeftSplitView");
+            rightSplitView = root.Q<BaseSplitView>("RightSplitView");
+
+            pipelineAssetDetailScrollView = root.Q<ScrollView>("PipelineAssetDetailScrollView");
+            dataDetailScrollView = root.Q<ScrollView>("DataDetailScrollView");
+
 
             SetupSRPPipelineAssetListView();
 
+            // add global size changed
             rootSplitView.RegisterCallback<GeometryChangedEvent>(OnSizeChanged);
         }
 
         private void OnSizeChanged(GeometryChangedEvent evt)
         {
-            pipelineAssetListView.style.height = evt.newRect.height;
-            
-            if(evt.target is BaseSplitView splitView)
-            {
-                //splitView.CollapseChild(0);
-                //splitView.UnCollapse();
-            }
+            pipelineAssetListView.parent.style.height = evt.newRect.height;
+            //update, listView'parent(PipelineAssetGroup) and parent's parent(left BaseSplitView)
+            rendererDataListView.parent.style.height = evt.newRect.height;
+            leftSplitView.style.height = evt.newRect.height;
+
+            pipelineAssetDetailScrollView.parent.style.height = evt.newRect.height;
+            //update 
+            dataDetailScrollView.parent.style.height = evt.newRect.height;
+            rightSplitView.style.height = evt.newRect.height;
         }
 
         public void OnProjectChange()
