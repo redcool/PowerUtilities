@@ -35,6 +35,10 @@
         public RenderQueueType renderQueueType = RenderQueueType.opaque;
         public LayerMask layers = -1;
 
+        [Header("--- Override depth")]
+        [Tooltip("depth state control")]
+        public DepthStateInfo depthState;
+
         [Header("--- Override stencil")]
         [Tooltip("stencil state control")]
         public StencilStateData stencilData;
@@ -264,6 +268,12 @@
                 renderStateBlock.mask = RenderStateMask.Stencil;
                 renderStateBlock.stencilReference = stencilData.stencilReference;
             }
+
+            if (feature.depthState.isOverrideDepthState)
+            {
+                renderStateBlock.mask |= RenderStateMask.Depth;
+                renderStateBlock.depthState = new DepthState(feature.depthState.isWriteDepth,feature.depthState.compareFunc);
+            }
         }
 
         void SwitchCheckOverdraw()
@@ -307,12 +317,6 @@
             sun = RenderSettings.sun;
 
             lastSRPBatchEnabled = UniversalRenderPipeline.asset.useSRPBatcher;
-
-            if (renderStateBlock.depthState.compareFunction == CompareFunction.Equal)
-            {
-                renderStateBlock.depthState = new DepthState(true, CompareFunction.LessEqual);
-                renderStateBlock.mask |= RenderStateMask.Depth;
-            }
 
             SwitchCheckOverdraw();
         }
