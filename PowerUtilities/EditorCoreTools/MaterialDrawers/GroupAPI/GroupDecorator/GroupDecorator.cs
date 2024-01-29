@@ -29,12 +29,16 @@ namespace PowerUtilities
         public GroupDecorator(string groupName) : this(groupName, "") { }
         public GroupDecorator(string groupName, string tooltip):this(groupName, tooltip, null) { }
         public GroupDecorator(string groupName, string tooltip,string updateProp) : this(groupName, tooltip, updateProp, null) { }
-        public GroupDecorator(string groupName, string tooltip, string updateProp, string keywordsWhenChecked)
+        public GroupDecorator(string groupName, string tooltip, string updatePropMode, string keywordsWhenChecked)
         {
             this.tooltip = tooltip;
             this.groupName = groupName;
-            this.isUpdateProp = !string.IsNullOrEmpty(updateProp) && updateProp != "false";
-            hasCheckedMark = isUpdateProp ||! string.IsNullOrEmpty(keywordsWhenChecked);
+
+            // synchronize prop
+            this.isUpdateProp = !string.IsNullOrEmpty(updatePropMode) && updatePropMode == "true";
+
+            // show check mark
+            hasCheckedMark = !string.IsNullOrEmpty(updatePropMode) || ! string.IsNullOrEmpty(keywordsWhenChecked);
 
             if (!string.IsNullOrEmpty(keywordsWhenChecked))
                 keywords = keywordsWhenChecked.Split(' ');
@@ -43,7 +47,17 @@ namespace PowerUtilities
             if (groupInfo != null)
                 MaterialGroupTools.SetState(groupName, groupInfo.isOn, groupInfo.hasCheckedMark, groupInfo.isChecked);
         }
-
+        /// <summary>
+        /// updatePropMode 
+        ///     1 not null, will show checkmask
+        ///     2 true : add ,sync prop
+        /// keywordsWhenChecked
+        ///     will check, set keywords
+        /// </summary>
+        /// <param name="groupName"></param>
+        /// <param name="tooltip"></param>
+        /// <param name="updateProp">true : will sync prop,</param>
+        /// <param name="keywordsWhenChecked"></param>
         public GroupDecorator(string groupName, string tooltip, string updateProp, string keywordsWhenChecked, string leftBoxColor)
             : this(groupName, tooltip, updateProp, keywordsWhenChecked)
         {
