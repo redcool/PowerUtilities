@@ -16,17 +16,19 @@ namespace PowerUtilities.RenderFeatures
 #if UNITY_EDITOR
     using UnityEditor;
 
-    //[CanEditMultipleObjects]
-    //[CustomEditor(typeof(SRPFeature))]
-    //public class SRPFeatureEditor : PowerEditor<SRPFeature>
-    //{
-    //    public override void DrawInspectorUI(SRPFeature inst)
-    //    {
-    //        inst.isBaseOptionsFoldout = EditorGUILayout.Foldout(inst.isBaseOptionsFoldout, "Base Pass Options", true);
-    //        if (inst.isBaseOptionsFoldout)
-    //            DrawDefaultInspector();
-    //    }
-    //}
+    [CanEditMultipleObjects]
+    [CustomEditor(typeof(SRPFeature),true)]
+    public class SRPFeatureEditor : PowerEditor<SRPFeature>
+    {
+        public override bool NeedDrawDefaultUI() => true;
+
+        public override void DrawInspectorUI(SRPFeature inst)
+        {
+            //inst.isBaseOptionsFoldout = EditorGUILayout.Foldout(inst.isBaseOptionsFoldout, "Base Pass Options", true);
+            //if (inst.isBaseOptionsFoldout)
+            //    DrawDefaultInspector();
+        }
+    }
 
 
     /// <summary>
@@ -40,15 +42,15 @@ namespace PowerUtilities.RenderFeatures
         [HideInInspector]
         public BaseNodeInfo nodeInfo = new BaseNodeInfo();
 
-        /// <summary>
-        /// editor 
-        /// </summary>
-        Editor editorInstance;
-        public Editor GetEditor()
-        {
-            EditorTools.CreateEditor(this, ref editorInstance);
-            return editorInstance;
-        }
+        ///// <summary>
+        ///// editor 
+        ///// </summary>
+        //Editor editorInstance;
+        //public Editor GetEditor()
+        //{
+        //    EditorTools.CreateEditor(this, ref editorInstance);
+        //    return editorInstance;
+        //}
     }
 #endif
 
