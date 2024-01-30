@@ -8,10 +8,10 @@
     border-right-width: 1px;
     border-top-width: 1px;
     border-bottom-width: 1px;
-    border-top-left-radius: 2px;
-    border-bottom-left-radius: 2px;
-    border-top-right-radius: 2px;
-    border-bottom-right-radius: 2px;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
 }
 
 #input {
@@ -73,7 +73,7 @@
 }
 
 .action #input {
-    background-color: rgba(165, 204, 107, 255);
+    background-color: rgb(165, 204, 107);
 }
 
 .action #output {
