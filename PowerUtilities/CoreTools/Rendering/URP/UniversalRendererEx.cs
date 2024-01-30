@@ -17,7 +17,7 @@ namespace PowerUtilities
     public static partial class UniversalRendererEx 
     {
         static CacheTool<UniversalRenderer, ForwardLights> rendererForwardLightsCache = new CacheTool<UniversalRenderer, ForwardLights>();
-
+        static ScriptableRenderer lastRenderer;
         /// <summary>
         /// Get ForwardLights use reflection
         /// </summary>
@@ -46,6 +46,11 @@ namespace PowerUtilities
         /// <returns></returns>
         public static RTHandle GetRTHandle(this UniversalRenderer renderer, URPRTHandleNames rtName)
         {
+            if(renderer.IsNewRendererInstance(ref lastRenderer))
+            {
+                urpRTHandleDict.Clear();
+            }
+
             urpRTHandleDict.TryGetValue(rtName, out var handle);
             //this function with cache.
             RTHandleTools.GetRTHandle(ref handle, renderer, rtName);

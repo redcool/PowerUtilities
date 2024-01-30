@@ -111,18 +111,25 @@ namespace PowerUtilities
         /// <param name="renderer"></param>
         private static void CheckRendererInstance(ScriptableRenderer renderer)
         {
-            if (IsNewRendererInstance(renderer))
+            if (IsNewRendererInstance(renderer,ref lastRendererInstance))
             {
                 passDict.Clear();
             }
         }
 
-        public static bool IsNewRendererInstance(this ScriptableRenderer renderer)
+
+        /// <summary>
+        /// when new renderer found,need clear caches
+        /// </summary>
+        /// <param name="curRenderer"></param>
+        /// <param name="lastRenderer"></param>
+        /// <returns></returns>
+        public static bool IsNewRendererInstance(this ScriptableRenderer curRenderer, ref ScriptableRenderer lastRenderer)
         {
-            var isNew = renderer != lastRendererInstance;
+            var isNew = curRenderer != lastRenderer;
             if (isNew)
             {
-                lastRendererInstance = renderer;
+                lastRenderer = curRenderer;
             }
             return isNew;
         }
