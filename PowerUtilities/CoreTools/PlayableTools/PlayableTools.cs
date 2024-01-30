@@ -43,14 +43,14 @@ namespace PowerUtilities
             return mixer;
         }
 
-        public static AnimationLayerMixerPlayable CreateLayerMixer(PlayableGraph graph, params (AnimationClip clip, float weight,AvatarMask avatarMask)[] clipInfos)
+        public static AnimationLayerMixerPlayable CreateLayerMixer(PlayableGraph graph, params (Playable play, float weight,AvatarMask avatarMask)[] layerInfos)
         {
-            AnimationLayerMixerPlayable mixer = AnimationLayerMixerPlayable.Create(graph);
-            for (int i = 0; i < clipInfos.Length; i++)
+            AnimationLayerMixerPlayable mixer = AnimationLayerMixerPlayable.Create(graph, layerInfos.Length);
+            for (int i = 0; i < layerInfos.Length; i++)
             {
-                var item = clipInfos[i];
-                var cp = CreateClip(graph,item.clip);
-                mixer.ConnectInput(i, cp, 0,item.weight);
+                var item = layerInfos[i];
+                
+                mixer.ConnectInput(i, item.play, 0,item.weight);
                 if (item.avatarMask)
                     mixer.SetLayerMaskFromAvatarMask((uint)i, item.avatarMask);
             }
