@@ -8,7 +8,7 @@
     using UnityEngine;
 
     /// <summary>
-    /// Load Asset when show in inspector
+    /// Load Asset when show in inspector,target field is null will try find assetPathOrName
     /// </summary>
     [AttributeUsage(AttributeTargets.Field)]
     public class LoadAssetAttribute : PropertyAttribute

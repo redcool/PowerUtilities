@@ -59,7 +59,7 @@ namespace PowerUtilities
 #endif
 
     /// <summary>
-    /// CullingGroup 
+    /// CullingGroup match with DrawChildrenInstanced
     /// </summary>
     [ExecuteInEditMode]
     public class CullingGroupControl : MonoBehaviour
