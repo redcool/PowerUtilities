@@ -13,16 +13,16 @@ namespace PowerUtilities
     {
         /// <summary>
         /// Compare lastValue,currentValue,
-        ///     not equals : 
-        ///         1 do nothing
-        ///         2 return false
-        ///      equals :
+        ///     not equals :
         ///         1 set lastValue = currentValue
         ///         2 return true
+        ///     equals : 
+        ///         1 do nothing
+        ///         2 return false
         /// </summary>
         /// <param name="lastValue"></param>
         /// <param name="currentValue"></param>
-        /// <returns></returns>
+        /// <returns>is changed triggered</returns>
         public static bool CompareAndSet<T>(ref T lastValue,ref T currentValue) where T : IEquatable<T> 
         {
             if(!lastValue.Equals(currentValue))

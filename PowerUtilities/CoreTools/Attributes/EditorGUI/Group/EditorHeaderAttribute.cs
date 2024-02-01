@@ -19,7 +19,7 @@
             var isGroupOn = MaterialGroupTools.IsGroupOn(attr.groupName);
 
             if (isGroupOn)
-                return base.GetHeight();
+                return base.GetHeight() + 5;
             return -20;
         }
         public override void OnGUI(Rect position)
@@ -29,9 +29,19 @@
 
             if (!isGroupOn)
                 return;
+
             var pos = position;
-            pos.x += 15;
-            EditorGUI.LabelField(pos,GUIContentEx.TempContent(attr.header),EditorStyles.boldLabel);
+            pos.x += attr.posOffset;
+            pos.y += 5;
+
+            var style = EditorStyles.boldLabel;
+            style.fontSize = 14;
+
+            var lastColor = GUI.contentColor;
+            GUI.color = attr.color;
+            
+            EditorGUI.LabelField(pos,GUIContentEx.TempContent(attr.header), style);
+            GUI.color = lastColor;
         }
     }
 
@@ -40,6 +50,8 @@
     {
         public string groupName;
         public string header;
+        public Color color = new Color(0.1f, 0.82f, 0.1f);
+        public int posOffset = 0;
         public EditorHeaderAttribute(string groupName,string header)
         {
             this.groupName = groupName; 

@@ -124,6 +124,7 @@ namespace PowerUtilities
                 editor = Editor.CreateEditor(targetObject);
             }
         }
+
     }
 }
 #endif

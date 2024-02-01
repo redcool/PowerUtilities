@@ -8,11 +8,16 @@ namespace PowerUtilities
     {
         public void OnVisibleChanged(CommomCullingInfo info)
         {
-            if(info != null)
+            if (info != null)
                 foreach (var item in info.contentGameObjects)
                 {
                     item.SetActive(info.isVisible);
                 }
+        }
+
+        public void OnVisibleChanged(CullingGroupEvent e)
+        {
+            Debug.Log($"{e.index},visible:{e.isVisible},distanceBands:{e.currentDistance}");
         }
     }
 }

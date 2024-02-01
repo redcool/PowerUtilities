@@ -7,26 +7,78 @@ using UnityEngine;
 
 namespace PowerUtilities
 {
+#if UNITY_EDITOR
+using UnityEditor;
+    using UnityEngine.Events;
+
+    [CustomEditor(typeof(CommonCullingGroupControl))]
+    public class CommonCullingGroupControlEditor : PowerEditor<CommonCullingGroupControl>
+    {
+
+        public override bool NeedDrawDefaultUI() => true;
+
+        public override void OnInspectorGUIChanged(CommonCullingGroupControl inst)
+        {
+            inst.DisposeGroup();
+            inst.TryInitGroup();
+        }
+
+    }
+#endif
+
     /// <summary>
     /// cullingGroup normal use
     /// </summary>
     [ExecuteInEditMode]
     public class CommonCullingGroupControl : MonoBehaviour
     {
+        [Header("--- Culling Info")]
         public Camera cam;
         public List<CommomCullingInfo> cullingInfos = new List<CommomCullingInfo>();
+        public float[] boundingDistances;
 
-        BoundingSphere[] cullingSpheres;
+        [EditorHeader("","--- Shared boundingSpheres")]
+        [Tooltip("share other control's boundingSpheres")]
+        public bool isUseOtherControlBoundingSpheres;
+        public CommonCullingGroupControl otherControl;
+
+        [Header("--- Color Gizmos")]
+        public Color boundingSphereColor = Color.green;
+
+        [Header("Reactions")]
+        public UnityEvent<CullingGroupEvent> OnSphereStateChanged;
+
+        [HideInInspector]
+        public BoundingSphere[] cullingSpheres;
 
         CullingGroup group;
 
         private void OnEnable()
         {
-            TryInitGroup();
+            if (!IsUseSharedBoundingSpheres())
+                TryInitGroup();
         }
         private void OnDisable()
         {
-            if(group != null)
+            DisposeGroup();
+        }
+
+        /// <summary>
+        /// use shared,need delay get boundingSphere
+        /// </summary>
+        private void Start()
+        {
+            if (IsUseSharedBoundingSpheres())
+            {
+                TryInitGroup();
+            }
+        }
+
+        public bool IsUseSharedBoundingSpheres() => isUseOtherControlBoundingSpheres && otherControl != null;
+
+        public void DisposeGroup()
+        {
+            if (group != null)
             {
                 group.onStateChanged = null;
                 group.Dispose();
@@ -36,14 +88,22 @@ namespace PowerUtilities
 
         private void SetBoundingSphere()
         {
-            //group.SetBoundingDistances(new[] { 10f });
-            cullingSpheres = cullingInfos.Select(item => new BoundingSphere(item.pos, item.size)).ToArray();
+            if (IsUseSharedBoundingSpheres())
+            {
+                cullingSpheres = otherControl.cullingSpheres;
+            }
+            else
+            {
+                cullingSpheres = cullingInfos.Select(item => new BoundingSphere(item.pos, item.size)).ToArray();
+            }
+
+
             group.SetBoundingSpheres(cullingSpheres);
+
+            group.SetBoundingDistances(boundingDistances);
         }
 
-
-
-        void TryInitGroup()
+        public void TryInitGroup()
         {
             if (group != null)
                 return;
@@ -66,13 +126,20 @@ namespace PowerUtilities
 
         void OnCullingChanged(CullingGroupEvent e)
         {
-            cullingInfos[e.index].IsVisible = (e.isVisible);
+            if (cullingInfos != null && e.index < cullingInfos.Count)
+            {
+                var info = cullingInfos[e.index];
+                info.IsVisible = (e.isVisible);
+                info.distanceBands = e.currentDistance;
+            }
+
+            OnSphereStateChanged?.Invoke(e);
         }
 
         private void OnDrawGizmosSelected()
         {
             var lastColor = Gizmos.color;
-            Gizmos.color = Color.green;
+            Gizmos.color = boundingSphereColor;
             foreach (var item in cullingInfos)
             {
                 Gizmos.DrawWireSphere(item.pos, item.size);

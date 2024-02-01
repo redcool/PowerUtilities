@@ -20,23 +20,28 @@ namespace PowerUtilities
 
         public (string, bool) foldInfo = ("Options",true);
 
-        /// <summary>
-        /// Draw Default Inspector
-        /// </summary>
-        /// <returns></returns>
-        public virtual bool NeedDrawDefaultUI() => false;
+
 
         public override void OnInspectorGUI()
         {
+            var inst = target as T;
+
             if (!string.IsNullOrEmpty(Version))
             {
                 EditorGUITools.DrawColorLabel(new Rect(100, 5, 100, 16), new GUIContent(Version), Color.cyan);
             }
 
             if (NeedDrawDefaultUI())
+            {
+                EditorGUI.BeginChangeCheck();
                 DrawDefaultInspector();
+                if(EditorGUI.EndChangeCheck())
+                {
+                    OnInspectorGUIChanged(inst);
+                }
 
-            var inst = target as T;
+            }
+            
             serializedObject.UpdateIfRequiredOrScript();
 
             GUILayout.BeginVertical("Box");
@@ -46,7 +51,21 @@ namespace PowerUtilities
             serializedObject.ApplyModifiedProperties();
         }
 
-        public abstract void DrawInspectorUI(T inst);
+        /// <summary>
+        /// draw coding
+        /// </summary>
+        /// <param name="inst"></param>
+        public virtual void DrawInspectorUI(T inst) { }
+        /// <summary>
+        /// Draw Default Inspector
+        /// </summary>
+        /// <returns></returns>
+        public virtual bool NeedDrawDefaultUI() => false;
+
+        /// <summary>
+        /// callback fro EditorGUI.EndChangeCheck() is true
+        /// </summary>
+        public virtual void OnInspectorGUIChanged(T inst) { }
     }
 }
 #endif

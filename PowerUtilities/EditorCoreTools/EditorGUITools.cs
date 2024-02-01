@@ -464,6 +464,101 @@ namespace PowerUtilities
             return EditorGUI.LinkButton(position, label);
 #endif
         }
+
+        #region SettingSO 
+        /// <summary>
+        /// SettingSOType is subclass of ScriptableObject
+        /// </summary>
+        /// <param name="SettingSOType"></param>
+        /// <returns></returns>
+        public static bool IsExtendsScriptableObject(Type SettingSOType)
+        {
+            if (!SettingSOType.IsSubclassOf(typeof(ScriptableObject)) && SettingSOType != typeof(ScriptableObject))
+            {
+                Debug.LogError($"{SettingSOType} need extends ScriptableObject");
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Draw SettingSO(ScriptableObject) row
+        /// </summary>
+        /// <param name="serializedObject"></param>
+        /// <param name="targetEditor"></param>
+        /// <param name="isTargetEditorFolded"></param>
+        /// <param name="SettingSOFieldName"></param>
+        /// <param name="SettingSOType"></param>
+        public static void DrawSettingSOProperty(SerializedObject serializedObject, ref Editor targetEditor, ref bool isTargetEditorFolded, string SettingSOFieldName, Type SettingSOType)
+        {
+            if (!IsExtendsScriptableObject(SettingSOType))
+                return;
+
+            var settingSOProp = serializedObject.FindProperty(SettingSOFieldName);
+            if (settingSOProp == null)
+                return;
+
+            serializedObject.UpdateIfRequiredOrScript();
+            //========================================  settingSO header
+            DrawSettingSO(SettingSOType, settingSOProp);
+
+
+            //========================================  splitter line 
+            var rect = EditorGUILayout.GetControlRect(false, 2);
+            EditorGUITools.DrawColorLine(rect);
+
+            //========================================  draw gammaUISetting 
+            if (settingSOProp.objectReferenceValue != null)
+            {
+                DrawSettingSODetail(ref targetEditor, ref isTargetEditorFolded, settingSOProp);
+
+            }
+            else
+            {
+                EditorGUILayout.HelpBox("No Details", MessageType.Info);
+            }
+
+            serializedObject.ApplyModifiedProperties();
+        }
+
+        static void DrawSettingSO(Type SettingSOType, SerializedProperty settingSOProp)
+        {
+            EditorGUILayout.BeginHorizontal();
+            //1 exist
+            GUILayout.Label("SettingSO:");
+            //2 settingSO
+            settingSOProp.objectReferenceValue = EditorGUILayout.ObjectField(settingSOProp.objectReferenceValue, SettingSOType, false);
+            //3 create new
+            if (GUILayout.Button("Create New"))
+            {
+                var so = ScriptableObject.CreateInstance(SettingSOType);
+                var nextId = Resources.FindObjectsOfTypeAll(SettingSOType).Length;
+
+                var settingsFolder = AssetDatabaseTools.CreateFolder("Assets/PowerUtilities", SettingSOType.Name, true);
+                var soPath = $"{settingsFolder}/_{SettingSOType.Name}_{nextId}.asset";
+                AssetDatabase.CreateAsset(so, soPath);
+                AssetDatabaseTools.SaveRefresh();
+
+                //
+                var newAsset = AssetDatabase.LoadAssetAtPath(soPath, SettingSOType);
+                EditorGUIUtility.PingObject(newAsset);
+
+                settingSOProp.objectReferenceValue = newAsset;
+            }
+            EditorGUILayout.EndHorizontal();
+        }
+
+        static void DrawSettingSODetail(ref Editor targetEditor, ref bool isTargetEditorFolded, SerializedProperty settingSOProp)
+        {
+            EditorTools.CreateEditor(settingSOProp.objectReferenceValue, ref targetEditor);
+
+            isTargetEditorFolded = EditorGUILayout.Foldout(isTargetEditorFolded, settingSOProp.displayName, true);
+            if (isTargetEditorFolded)
+                targetEditor.DrawDefaultInspector();
+        }
+
+        #endregion
     }
 }
 #endif

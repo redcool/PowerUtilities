@@ -14,7 +14,7 @@ namespace PowerUtilities
     [Serializable]
     public class CommomCullingInfo : CullingInfo
     {
-        [Header("game object")]
+        [Header("Reactions game object")]
         public List<GameObject> contentGameObjects = new List<GameObject>();
 
         [Header("Reactions")]
@@ -22,9 +22,9 @@ namespace PowerUtilities
         public bool isSetContentGameObjectsActive = true;
 
         public UnityEvent<CommomCullingInfo> OnVisibleChanged;
-
+        [SerializeField]
         bool lastIsVisible;
-
+        
         /// <summary>
         /// Set IsVisible and trigger reactive events
         /// </summary>
@@ -37,7 +37,9 @@ namespace PowerUtilities
                 isVisible = value;
                 if(CompareTools.CompareAndSet(ref lastIsVisible, ref isVisible))
                 {
-                    SetGameObjectsActive();
+                    if(isSetContentGameObjectsActive)
+                        SetGameObjectsActive();
+
                     TriggerEvents();
                 }
             }

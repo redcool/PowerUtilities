@@ -16,6 +16,10 @@ namespace PowerUtilities
         /// Set field will not trigger visible reaction
         /// </summary>
         public bool isVisible = true;
+        /// <summary>
+        /// current distance level index
+        /// </summary>
+        public int distanceBands;
 
         public CullingInfo(Vector3 pos, float size = 2)
         {
