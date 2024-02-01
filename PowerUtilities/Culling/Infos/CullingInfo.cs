@@ -11,6 +11,10 @@ namespace PowerUtilities
     {
         public float size;
         public Vector3 pos;
+
+        /// <summary>
+        /// Set field will not trigger visible reaction
+        /// </summary>
         public bool isVisible = true;
 
         public CullingInfo(Vector3 pos, float size = 2)

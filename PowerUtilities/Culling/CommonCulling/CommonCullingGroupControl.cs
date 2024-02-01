@@ -60,13 +60,13 @@ namespace PowerUtilities
         {
             for (int i = 0; i < cullingInfos.Count; i++)
             {
-                cullingInfos[i].SetIsVisible(group.IsVisible(i));
+                cullingInfos[i].IsVisible = (group.IsVisible(i));
             }
         }
 
         void OnCullingChanged(CullingGroupEvent e)
         {
-            cullingInfos[e.index].SetIsVisible(e.isVisible);
+            cullingInfos[e.index].IsVisible = (e.isVisible);
         }
 
         private void OnDrawGizmosSelected()

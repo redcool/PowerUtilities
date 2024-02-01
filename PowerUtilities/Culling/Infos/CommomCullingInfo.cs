@@ -21,7 +21,7 @@ namespace PowerUtilities
         [Tooltip("when isVisible change, update gameobjects's active")]
         public bool isSetContentGameObjectsActive = true;
 
-        public UnityEvent triggerEvent;
+        public UnityEvent<CommomCullingInfo> OnVisibleChanged;
 
         bool lastIsVisible;
 
@@ -29,23 +29,23 @@ namespace PowerUtilities
         /// Set IsVisible and trigger reactive events
         /// </summary>
         /// <param name="isVisible"></param>
-        public void SetIsVisible(bool isVisible)
+        public bool IsVisible
         {
-            this.isVisible = isVisible;
-            if(lastIsVisible != isVisible)
+            get { return isVisible; }
+            set
             {
-                SetGameObjectsActive();
-                TriggerEvents();
-                lastIsVisible = isVisible;
+                isVisible = value;
+                if(CompareTools.CompareAndSet(ref lastIsVisible, ref isVisible))
+                {
+                    SetGameObjectsActive();
+                    TriggerEvents();
+                }
             }
         }
 
         private void TriggerEvents()
         {
-            if(triggerEvent != null)
-            {
-                triggerEvent.Invoke();
-            }
+            OnVisibleChanged?.Invoke(this);
         }
 
         private void SetGameObjectsActive()
