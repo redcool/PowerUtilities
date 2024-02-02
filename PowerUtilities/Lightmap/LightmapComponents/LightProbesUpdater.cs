@@ -1,4 +1,7 @@
+using PowerUtilities;
+using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 /// <summary>
 /// Update baked light probes 
@@ -30,17 +33,21 @@ public class LightProbesUpdater : MonoBehaviour
 
             foreach (Light light in lights)
             {
-                var intensity = light.intensity;
-                var dir = -light.transform.forward;
-                if (light.type == LightType.Point)
-                {
-                    dir = light.transform.position - probePos[i];
-                    intensity *= 1f / (1 + 25 * (dir.sqrMagnitude / light.range / light.range));
-                    dir.Normalize();
-                }
-                probes[i].AddDirectionalLight(dir, light.color, intensity);
+                probes[i].AddLight(light, probePos[i]);
+                
+                //var intensity = light.intensity;
+                //var dir = -light.transform.forward;
+                //if (light.type == LightType.Point)
+                //{
+                //    dir = light.transform.position - probePos[i];
+                //    intensity *= 1f / (1 + 25 * (dir.sqrMagnitude / light.range / light.range));
+                //    dir.Normalize();
+                //}
+                //probes[i].AddDirectionalLight(dir, light.color, intensity);
             }
         }
         LightmapSettings.lightProbes.bakedProbes = probes;
     }
+
+
 }

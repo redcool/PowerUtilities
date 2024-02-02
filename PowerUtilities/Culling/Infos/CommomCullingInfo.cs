@@ -22,7 +22,7 @@ namespace PowerUtilities
         public bool isSetContentGameObjectsActive = true;
 
         public UnityEvent<CommomCullingInfo> OnVisibleChanged;
-        [SerializeField]
+        //[SerializeField]
         bool lastIsVisible;
         
         /// <summary>
