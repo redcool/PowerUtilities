@@ -79,33 +79,41 @@ using UnityEngine;
 
         public bool IsHoldLeftWeapon() => isActionHolding && RT;
         public bool IsHoldRightWeapon() => isActionHolding && RB;
+    }
 
-
-        /*
-        InputControlAssets inputControlAsset;
-        public InputControlAssets InputControlAsset
+    /// <summary>
+    /// extends this , assign new inputAssets
+    /// </summary>
+    /// <typeparam name="TInputAssets"></typeparam>
+    public  class BaseInputControl<TInputAssets> : BaseInputControl where TInputAssets : IInputActionCollection2, new()
+    {
+        TInputAssets inputControlAsset;
+        
+        public TInputAssets InputControlAsset
         {
+            set { inputControlAsset = value; }
             get
             {
                 if (inputControlAsset == null)
-                    inputControlAsset = new InputControlAssets();
+                {
+                    inputControlAsset = new TInputAssets();
+                }
                 return inputControlAsset;
             }
         }
 
-        public InputControlAssets.PlayerControlActions PlayerControl => InputControlAsset.PlayerControl;
+        //public InputControlAssets.PlayerControlActions PlayerControl => InputControlAsset.PlayerControl;
 
 
-        private void OnEnable()
+        public void OnEnable()
         {
-            InputControlAsset.Enable();
+            InputControlAsset?.Enable();
         }
 
-        private void OnDisable()
+        public void OnDisable()
         {
-            InputControlAsset.Disable();
+            InputControlAsset?.Disable();
         }
-        */
-
+        
     }
 }
