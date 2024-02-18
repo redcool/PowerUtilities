@@ -8,6 +8,7 @@ namespace PowerUtilities.Features
 #if UNITY_EDITOR
     using UnityEditor;
     using UnityEditor.Compilation;
+    using System.Collections.Generic;
 #endif
 #if UNITY_EDITOR
     [CustomEditor(typeof(RenderGammaUIFeature))]
@@ -23,7 +24,6 @@ namespace PowerUtilities.Features
 #endif
     public class RenderGammaUIFeature : ScriptableRendererFeature
     {
-
         public GammaUISettingSO settingSO;
 
         RenderUIPass uiPass;
@@ -100,6 +100,7 @@ namespace PowerUtilities.Features
 
             if (uiPass == null)
                 uiPass = new RenderUIPass();
+            uiPass.SetProfileName(name);
 
             uiPass.renderPassEvent = settingSO.passEvent + settingSO.passEventOffset;
             uiPass.settings = settingSO;

@@ -482,24 +482,22 @@ namespace PowerUtilities
             return true;
         }
 
+
         /// <summary>
         /// Draw SettingSO(ScriptableObject) row
         /// </summary>
-        /// <param name="serializedObject"></param>
+        /// <param name="settingSOProp"></param>
         /// <param name="targetEditor"></param>
         /// <param name="isTargetEditorFolded"></param>
-        /// <param name="SettingSOFieldName"></param>
         /// <param name="SettingSOType"></param>
-        public static void DrawSettingSOProperty(SerializedObject serializedObject, ref Editor targetEditor, ref bool isTargetEditorFolded, string SettingSOFieldName, Type SettingSOType)
+        public static void DrawSettingSO(SerializedProperty settingSOProp, ref Editor targetEditor, ref bool isTargetEditorFolded, Type SettingSOType)
         {
             if (!IsExtendsScriptableObject(SettingSOType))
                 return;
 
-            var settingSOProp = serializedObject.FindProperty(SettingSOFieldName);
             if (settingSOProp == null)
                 return;
 
-            serializedObject.UpdateIfRequiredOrScript();
             //========================================  settingSO header
             DrawSettingSO(SettingSOType, settingSOProp);
 
@@ -519,8 +517,8 @@ namespace PowerUtilities
                 EditorGUILayout.HelpBox("No Details", MessageType.Info);
             }
 
-            serializedObject.ApplyModifiedProperties();
         }
+
 
         static void DrawSettingSO(Type SettingSOType, SerializedProperty settingSOProp)
         {

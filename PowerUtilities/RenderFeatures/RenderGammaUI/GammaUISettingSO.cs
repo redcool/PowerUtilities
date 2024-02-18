@@ -19,14 +19,21 @@ namespace PowerUtilities.Features
     [Serializable]
     public class GammaUISettingSO : ScriptableObject
     {
+        [Header("Blit options")]
         [LoadAsset("defaultGammaUICopyColor.mat")]
         public Material blitMat;
 
+        [Header("Blit destination options")]
+        [Tooltip("blit to CameraTarget,URP CurrentActive,or no, when rendering done")]
+        public OutputTarget outputTarget = OutputTarget.CameraTarget;
+
+        [Header("UI options")]
         [Tooltip("ui objects use")]
         public bool isOverrideUIShader;
         [LoadAsset("UI-Default.shader")]
         public Shader overrideUIShader;
 
+        [Header("Render event")]
         public RenderPassEvent passEvent = RenderPassEvent.AfterRendering;
         public int passEventOffset = 10;
 
@@ -45,9 +52,7 @@ namespace PowerUtilities.Features
         [Tooltip("Define ui camera use this tag, otherwise will check automatic(1 linear space,2 overlay camera,3 camera cullingMask is UI)")]
         public string cameraTag;
 
-        [Header("Blit Options")]
-        [Tooltip("blit to CameraTarget,URP CurrentActive,or no")]
-        public OutputTarget outputTarget = OutputTarget.CameraTarget;
+
 
         [Header("Fullsize Texture")]
         [Tooltip("create a full size texture,as rendering objects target, otherwise use CameraColor(Depth)Attachment,FSR need this")]
@@ -56,13 +61,14 @@ namespace PowerUtilities.Features
         [Tooltip("Need use stencil buffer?")]
         public DepthBufferBits depthBufferBits = DepthBufferBits._24;
 
+        [Header("Override stencil")]
         public StencilStateData stencilStateData;
 
         [Header("Performance Options")]
         [Tooltip("Best option is close for Middle device.")]
         public bool disableFSR = true;
 
-        [Tooltip("No blit,no gamma texture,draw objects,output to camera target")]
+        [Tooltip("simple rendering flow,No blit,no gamma texture,draw objects,output to camera target")]
         public bool isWriteToCameraTargetDirectly;
         public bool isClearCameraTarget;
 

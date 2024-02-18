@@ -25,11 +25,16 @@ namespace PowerUtilities.Features
         static readonly int _CameraColorAttachmentB = Shader.PropertyToID(nameof(_CameraColorAttachmentB));
         static readonly int _CameraDepthAttachment = Shader.PropertyToID(nameof(_CameraDepthAttachment));
 
-        CommandBuffer cmd = new CommandBuffer { name = nameof(RenderUIPass) };
+        CommandBuffer cmd = new CommandBuffer();
 
         public GammaUISettingSO settings;
 
         static NativeArray<RenderStateBlock> curRenderStateArr;
+
+        public void SetProfileName(string profileName= "RenderUIPass")
+        {
+            cmd.name = profileName;
+        }
 
         //[ApplicationExit]
         //[CompileStarted]
@@ -94,9 +99,9 @@ namespace PowerUtilities.Features
             var urpAsset = UniversalRenderPipeline.asset;
             SetupURPAsset(urpAsset);
 
-            cmd.BeginSampleExecute(nameof(RenderUIPass), ref context);
+            cmd.BeginSampleExecute(cmd.name, ref context);
             Draw(ref context, ref renderingData);
-            cmd.EndSampleExecute(nameof(RenderUIPass), ref context);
+            cmd.EndSampleExecute(cmd.name, ref context);
         }
         public void Draw(ref ScriptableRenderContext context, ref RenderingData renderingData)
         {
@@ -137,17 +142,25 @@ namespace PowerUtilities.Features
             DrawRenderers(ref context, ref renderingData, BuiltinRenderTextureType.CameraTarget, BuiltinRenderTextureType.CameraTarget);
         }
 
+
         private void BlitToGammaDrawObjects(ref ScriptableRenderContext context, ref RenderingData renderingData, CameraData cameraData)
         {
             RTHandle lastColorHandle, lastDepthHandle, colorHandle, depthHandle;
             SetupTargetTex(ref renderingData, ref cameraData, out lastColorHandle, out lastDepthHandle, out colorHandle, out depthHandle);
 
-            //---------------------  1 to gamma tex
-            settings.blitMat.shaderKeywords = null;
-            //settingSO.blitMat.SetFloat("_Double", 0);
 
-            ColorSpaceTransform.SetColorSpace(cmd, ColorSpaceTransform.ColorSpaceMode.LinearToSRGB);
-            BlitToTarget(ref context, lastColorHandle, colorHandle, depthHandle, false, true);
+            if(settings.filterInfo.isNeedGammaBlit)
+            { 
+                //---------------------  1 to gamma tex
+                settings.blitMat.shaderKeywords = null;
+                //settingSO.blitMat.SetFloat("_Double", 0);
+
+                ColorSpaceTransform.SetColorSpace(cmd, ColorSpaceTransform.ColorSpaceMode.LinearToSRGB);
+
+                BlitToTarget(ref context, lastColorHandle, colorHandle, depthHandle, false, true);
+                cmd.Execute(ref context);
+            }
+
 
             //--------------------- 2 draw gamma objects
             DrawRenderers(ref context, ref renderingData, colorHandle, depthHandle);
@@ -177,6 +190,7 @@ namespace PowerUtilities.Features
 
             cmd.Execute(ref context);
         }
+
 
         void ClearDefaultCameraTargetDepth(ref ScriptableRenderContext context, CommandBuffer cmd)
         {
@@ -216,19 +230,11 @@ namespace PowerUtilities.Features
             }
 #endif
 
-            // reset depth buffer(depthHandle), otherwise depth&stencil are missing
-            {
-                //cmd.SetRenderTarget(targetTexId, RenderBufferLoadAction.Load, RenderBufferStoreAction.Store,
-                // depthHandle, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store);
-
-                cmd.SetRenderTarget(targetTexId, depthHandleId);
-                cmd.Execute(ref context);
-            }
-
             var renderStateBlock = GetRenderStateBlock();
             curRenderStateArr[0] = renderStateBlock;
-            context.DrawRenderers(cmd, renderingData.cullResults, ref drawSettings, ref filterSettings, null, curRenderStateArr);
-            //context.DrawRenderers(renderingData.cullResults, ref drawSettings, ref filterSettings, ref renderStateBlock);
+
+            // render main filter
+            DrawObjectByInfo(ref filterSettings, ref context, renderingData, ref drawSettings, curRenderStateArr, settings.filterInfo);
 
             // render objects by layerMasks order
             if (settings.filterInfoList.Count > 0)
@@ -293,8 +299,7 @@ namespace PowerUtilities.Features
         private void SetupTargetTex(ref RenderingData renderingData, ref CameraData cameraData, out RTHandle lastColorHandle, out RTHandle lastDepthHandle, out RTHandle colorHandleId, out RTHandle depthHandleId)
         {
             var renderer = (UniversalRenderer)cameraData.renderer;
-            lastColorHandle = renderer.GetRTHandle(URPRTHandleNames.m_ActiveCameraColorAttachment);
-            // lastColorHandle = RTHandles.Alloc( BuiltinRenderTextureType.CurrentActive);
+            //lastColorHandle = renderer.GetRTHandle(URPRTHandleNames.m_ActiveCameraColorAttachment);
             lastColorHandle = RenderTargetHolder.BaseCameraLastColorTarget;
 
             var colorAttachmentA = renderer.GetRTHandle(URPRTHandleNames._CameraColorAttachmentA);
