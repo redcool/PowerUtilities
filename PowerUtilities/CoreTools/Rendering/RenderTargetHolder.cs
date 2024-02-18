@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 
 namespace PowerUtilities
 {
@@ -52,8 +54,19 @@ namespace PowerUtilities
         /// <summary>
         /// cached funcs
         /// </summary>
-        static Func<int, RenderTargetIdentifier[]> GetIDArray =(lengthAsKey) => new RenderTargetIdentifier[lengthAsKey];
-        static Func<int, RTHandle[]> GetRTHandleArray =(lengthAsKey) => new RTHandle[lengthAsKey];
+        static Func<int, RenderTargetIdentifier[]> GetIDArray = (lengthAsKey) => new RenderTargetIdentifier[lengthAsKey];
+        static Func<int, RTHandle[]> GetRTHandleArray = (lengthAsKey) => new RTHandle[lengthAsKey];
+
+        /// <summary>
+        /// base camera 's color target
+        /// </summary>
+        public static RTHandle BaseCameraLastColorTarget;
+        static RenderTargetHolder()
+        {
+            RenderPipelineManager.endCameraRendering -= SaveBaseCameraInfo;
+            RenderPipelineManager.endCameraRendering += SaveBaseCameraInfo;
+        }
+
         /// <summary>
         /// Save current targets, sfcpass can reuse these
         /// </summary>
@@ -95,5 +108,18 @@ namespace PowerUtilities
         }
 
         public static RTHandle LastColorTargetHandle => IsLastTargetValid() ? LastColorTargetHandles[0] : default;
+
+        public static void SaveBaseCameraInfo(ScriptableRenderContext context, Camera camera)
+        {
+            if (!camera.IsGameCamera())
+                return;
+
+            var addData = camera.GetComponent<UniversalAdditionalCameraData>();
+            if (!addData || addData.renderType != CameraRenderType.Base)
+                return;
+
+            var urpRenderer = (UniversalRenderer)addData.scriptableRenderer;
+            RenderTargetHolder.BaseCameraLastColorTarget = urpRenderer.GetActiveCameraColorAttachment();
+        }
     }
 }
