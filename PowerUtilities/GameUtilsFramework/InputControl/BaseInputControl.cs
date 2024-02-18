@@ -1,12 +1,15 @@
+//#define INPUT_SYSTEM_ENABLED
 namespace GameUtilsFramework
 {
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+    using System.Collections;
+    using System.Collections.Generic;
+    using UnityEngine;
 
 #if INPUT_SYSTEM_ENABLED
     using UnityEngine.InputSystem;
 #else
+    // adapters when no InputSystem
+
     public class InputValue
     {
 
@@ -19,7 +22,13 @@ using UnityEngine;
 
         ////TODO: proper message if value type isn't right
         public bool isPressed => false;
+    }
 
+
+    public interface IInputActionCollection
+    {
+        void Enable();
+        void Disable();
     }
 #endif
 
@@ -85,7 +94,7 @@ using UnityEngine;
     /// extends this , assign new inputAssets
     /// </summary>
     /// <typeparam name="TInputAssets"></typeparam>
-    public  class BaseInputControl<TInputAssets> : BaseInputControl where TInputAssets : IInputActionCollection2, new()
+    public  class BaseInputControl<TInputAssets> : BaseInputControl where TInputAssets : IInputActionCollection, new()
     {
         TInputAssets inputControlAsset;
         
