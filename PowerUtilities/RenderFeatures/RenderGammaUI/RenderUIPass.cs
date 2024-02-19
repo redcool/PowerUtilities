@@ -148,7 +148,8 @@ namespace PowerUtilities.Features
             if (settings.isBlitBaseCameraTarget)
             {
                 var curActive = RenderTargetHolder.BaseCameraLastColorTarget;
-                cmd.BlitTriangle(curActive, BuiltinRenderTextureType.CameraTarget, settings.blitMat, 0, clearFlags: clearFlags);
+                cmd.BlitTriangle(curActive, BuiltinRenderTextureType.CameraTarget, settings.blitMat, 0, 
+                    clearFlags: clearFlags);
             }
             else
             {
@@ -164,38 +165,46 @@ namespace PowerUtilities.Features
             DrawRenderers(ref context, ref renderingData, BuiltinRenderTextureType.CameraTarget, BuiltinRenderTextureType.CameraTarget);
         }
 
-
         private void DrawObjectsGammaFlow(ref ScriptableRenderContext context, ref RenderingData renderingData, CameraData cameraData)
         {
             RTHandle lastColorHandle, lastDepthHandle, colorHandle, depthHandle;
             SetupTargetTex(ref renderingData, ref cameraData, out lastColorHandle, out lastDepthHandle, out colorHandle, out depthHandle);
 
+            // to gamma space
+            ColorSpaceTransform.SetColorSpace(cmd, ColorSpaceTransform.ColorSpaceMode.LinearToSRGB);
 
-            if(settings.isBlitBaseCameraTarget)
-            { 
+            if (settings.isBlitBaseCameraTarget)
+            {
                 //---------------------  1 to gamma tex
                 settings.blitMat.shaderKeywords = null;
                 //settingSO.blitMat.SetFloat("_Double", 0);
-
-                ColorSpaceTransform.SetColorSpace(cmd, ColorSpaceTransform.ColorSpaceMode.LinearToSRGB);
 
                 BlitToTarget(ref context, lastColorHandle, colorHandle, depthHandle, false, true);
                 cmd.Execute(ref context);
             }
 
-
             //--------------------- 2 draw gamma objects
             DrawRenderers(ref context, ref renderingData, colorHandle, depthHandle);
 
-
             //--------------------- 3 to colorTarget
+            // to linear space
             ColorSpaceTransform.SetColorSpace(cmd, ColorSpaceTransform.ColorSpaceMode.SRGBToLinear);
 
+            GammaFlowFinalBlit(ref context, lastColorHandle, lastDepthHandle, colorHandle);
+
+            ColorSpaceTransform.SetColorSpace(cmd, ColorSpaceTransform.ColorSpaceMode.None);
+
+            cmd.Execute(ref context);
+        }
+
+        void GammaFlowFinalBlit(ref ScriptableRenderContext context, RTHandle lastColorHandle, RTHandle lastDepthHandle, RTHandle colorHandle)
+        {
             switch (settings.outputTarget)
             {
                 case OutputTarget.CameraTarget:
                     // write to CameraTarget
-                    cmd.BlitTriangle(BuiltinRenderTextureType.CurrentActive, BuiltinRenderTextureType.CameraTarget, settings.blitMat, 0);
+                    cmd.BlitTriangle(BuiltinRenderTextureType.CurrentActive, BuiltinRenderTextureType.CameraTarget, settings.blitMat, 0,
+                        finalSrcMode: settings.finalBlitSrcMode, finalDstMode: settings.finalBlitDestMode);
                     break;
                 case OutputTarget.UrpColorTarget:
                     // write to urp target
@@ -204,10 +213,6 @@ namespace PowerUtilities.Features
                 default: break;
             }
 
-            //------------- end 
-            ColorSpaceTransform.SetColorSpace(cmd, ColorSpaceTransform.ColorSpaceMode.None);
-
-            cmd.Execute(ref context);
         }
 
         void BlitToTarget(ref ScriptableRenderContext context, RenderTargetIdentifier lastColorHandleId, RenderTargetIdentifier colorHandleId, RenderTargetIdentifier depthHandleId, bool clearColor, bool clearDepth)
@@ -220,8 +225,6 @@ namespace PowerUtilities.Features
             //cmd.Blit(BuiltinRenderTextureType.None, colorHandle, settingSO.blitMat); // will set _MainTex
             cmd.BlitTriangle(lastColorHandleId, colorHandleId, settings.blitMat, 0);
         }
-
-
 
         private void DrawRenderers(ref ScriptableRenderContext context, ref RenderingData renderingData, RenderTargetIdentifier targetTexId, RenderTargetIdentifier depthHandleId)
         {

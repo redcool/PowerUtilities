@@ -35,23 +35,7 @@ namespace PowerUtilities.Features
 
         public static bool IsCameraValid(ref CameraData cameraData, string cameraTag)
         {
-            //return string.IsNullOrEmpty(cameraTag) ? true : cameraData.camera.CompareTag(cameraTag);
-
-            var isValid = false;
-
-            if (string.IsNullOrEmpty(cameraTag))
-            {
-                isValid = QualitySettings.activeColorSpace == ColorSpace.Linear
-                    && cameraData.renderType == CameraRenderType.Overlay
-                    //(cameraData.camera.cullingMask & LayerMask.GetMask("UI")) >= 1
-                    ;
-            }
-            else
-            {
-                isValid = cameraData.camera.CompareTag(cameraTag);
-            }
-
-            return isValid;
+            return string.IsNullOrEmpty(cameraTag) ? true : cameraData.camera.CompareTag(cameraTag);
         }
 
         private static void SetupCameraData(ref CameraData cameraData)
@@ -64,7 +48,6 @@ namespace PowerUtilities.Features
         // This method is called when setting up the renderer once per-camera.
         public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
         {
-
             if (settingSO == null)
                 return;
 
@@ -81,7 +64,7 @@ namespace PowerUtilities.Features
 
             if (!isCameraValid && !isSceneCamera)
             {
-                settingSO.logs = "UICamera not found";
+                settingSO.logs = $"{cameraData.camera} not valid";
                 return;
             }
 

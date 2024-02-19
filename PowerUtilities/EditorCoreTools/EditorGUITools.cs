@@ -510,7 +510,6 @@ namespace PowerUtilities
             if (settingSOProp.objectReferenceValue != null)
             {
                 DrawSettingSODetail(ref targetEditor, ref isTargetEditorFolded, settingSOProp);
-
             }
             else
             {
@@ -520,7 +519,7 @@ namespace PowerUtilities
         }
 
 
-        static void DrawSettingSO(Type SettingSOType, SerializedProperty settingSOProp)
+        public static void DrawSettingSO(Type SettingSOType, SerializedProperty settingSOProp)
         {
             EditorGUILayout.BeginHorizontal();
             //1 exist
@@ -553,7 +552,7 @@ namespace PowerUtilities
 
             isTargetEditorFolded = EditorGUILayout.Foldout(isTargetEditorFolded, settingSOProp.displayName, true);
             if (isTargetEditorFolded)
-                targetEditor.DrawDefaultInspector();
+                targetEditor.OnInspectorGUI();
         }
 
         #endregion
