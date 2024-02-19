@@ -17,7 +17,6 @@ namespace PowerUtilities
     public static partial class UniversalRendererEx 
     {
         static CacheTool<UniversalRenderer, ForwardLights> rendererForwardLightsCache = new CacheTool<UniversalRenderer, ForwardLights>();
-        static ScriptableRenderer lastRenderer;
         /// <summary>
         /// Get ForwardLights use reflection
         /// </summary>
@@ -28,10 +27,7 @@ namespace PowerUtilities
             return rendererForwardLightsCache.Get(r, () => r.GetType().GetFieldValue<ForwardLights>(r, "m_ForwardLights"));
         }
 
-        /// <summary>
-        /// handleName -> RTHandle
-        /// </summary>
-        static Dictionary<URPRTHandleNames, RTHandle> urpRTHandleDict = new Dictionary<URPRTHandleNames, RTHandle>();
+        static Dictionary<ScriptableRenderer, ScriptableRendererRTHandleInfo> rendererRTHandleDict = new Dictionary<ScriptableRenderer, ScriptableRendererRTHandleInfo>();
 
         /// <summary>
         /// {rthandleName : URPRTHandleNames}
@@ -46,16 +42,17 @@ namespace PowerUtilities
         /// <returns></returns>
         public static RTHandle GetRTHandle(this UniversalRenderer renderer, URPRTHandleNames rtName)
         {
-            if(renderer.IsNewRendererInstance(ref lastRenderer))
+            if(!rendererRTHandleDict.TryGetValue(renderer, out var handleInfo))
             {
-                urpRTHandleDict.Clear();
+                handleInfo = rendererRTHandleDict[renderer] = new ScriptableRendererRTHandleInfo();
             }
 
-            urpRTHandleDict.TryGetValue(rtName, out var handle);
+            handleInfo.rtHandleDict.TryGetValue(rtName, out var handle);
+
             //this function with cache.
             RTHandleTools.GetRTHandle(ref handle, renderer, rtName);
-            // save or again
-            urpRTHandleDict[rtName] = handle;
+            // save again
+            handleInfo.rtHandleDict[rtName] = handle;
             return handle;
         }
 
