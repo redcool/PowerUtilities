@@ -167,6 +167,23 @@ namespace PowerUtilities
             }
         }
 
+        public static void RemoveRenderPass(this ScriptableRenderer renderer, Type passType)
+        {
+            var list = renderer.GetActiveRenderPassQueue();
+            if (list == null)
+                return;
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                var item = list[i];
+                if (item == null || item.GetType() !=passType)
+                    continue;
+
+                list.Remove(item);
+                i--;
+            }
+        }
+
         public static void RemoveRenderPasses(this ScriptableRenderer renderer,List<Type> passTypeList)
         {
             var list = renderer.GetActiveRenderPassQueue();

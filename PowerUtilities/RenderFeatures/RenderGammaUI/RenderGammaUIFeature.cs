@@ -33,26 +33,28 @@ namespace PowerUtilities.Features
         {
         }
 
-        public static bool IsUICamera(ref CameraData cameraData, string cameraTag)
+        public static bool IsCameraValid(ref CameraData cameraData, string cameraTag)
         {
-            var isUICamera = false;
+            //return string.IsNullOrEmpty(cameraTag) ? true : cameraData.camera.CompareTag(cameraTag);
+
+            var isValid = false;
 
             if (string.IsNullOrEmpty(cameraTag))
             {
-                isUICamera = QualitySettings.activeColorSpace == ColorSpace.Linear &&
-                    cameraData.renderType == CameraRenderType.Overlay &&
-                    (cameraData.camera.cullingMask & LayerMask.GetMask("UI")) >= 1
+                isValid = QualitySettings.activeColorSpace == ColorSpace.Linear
+                    && cameraData.renderType == CameraRenderType.Overlay
+                    //(cameraData.camera.cullingMask & LayerMask.GetMask("UI")) >= 1
                     ;
             }
             else
             {
-                isUICamera = cameraData.camera.CompareTag(cameraTag);
+                isValid = cameraData.camera.CompareTag(cameraTag);
             }
 
-            return isUICamera;
+            return isValid;
         }
 
-        private static void SetupUICamera(ref CameraData cameraData)
+        private static void SetupCameraData(ref CameraData cameraData)
         {
             cameraData.clearDepth = false; // clear depth afterwards
             cameraData.requiresDepthTexture = false;
@@ -75,18 +77,18 @@ namespace PowerUtilities.Features
 
             ref var cameraData = ref renderingData.cameraData;
             var isSceneCamera = cameraData.isSceneViewCamera;
-            var isUICamera = IsUICamera(ref cameraData, settingSO.cameraTag);
+            var isCameraValid = IsCameraValid(ref cameraData, settingSO.cameraTag);
 
-            if (!isUICamera && !isSceneCamera)
+            if (!isCameraValid && !isSceneCamera)
             {
                 settingSO.logs = "UICamera not found";
                 return;
             }
 
-            if (isUICamera)
-            {
-                SetupUICamera(ref cameraData);
-            }
+            //if (isCameraValid)
+            //{
+            //    SetupCameraData(ref cameraData);
+            //}
 
             // ui rendering checks
             if (settingSO.outputTarget == OutputTarget.CameraTarget)

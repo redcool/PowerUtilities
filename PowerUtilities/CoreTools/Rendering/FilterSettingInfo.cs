@@ -46,14 +46,11 @@ namespace PowerUtilities
         [RenderingLayerMask] public uint renderingLayerMasks = 1;
         public bool excludeMotionVectors;
 
-        [Header("Blit options")]
-        [Tooltip("blit current target to gamma spece,rendering gamme objects need check")]
-        public bool isNeedGammaBlit;
-
         [Header("Set Targets")]
         public bool isRetarget;
         public string colorTargetName;
         public string depthTargetName;
+        public bool isClearDepth;
 
         [Header("Rebind Targets")]
         public List<RebingTargetNameInfo> rebindTargetList = new List<RebingTargetNameInfo> ();

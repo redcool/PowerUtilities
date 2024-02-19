@@ -30,6 +30,7 @@ namespace PowerUtilities
 
         public override void OnInspectorGUI()
         {
+            EditorGUIUtility.labelWidth = 250;
             serializedObject.UpdateIfRequiredOrScript();
 
             var settingProp = serializedObject.FindProperty(SettingSOFieldName);
