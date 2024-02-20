@@ -31,7 +31,7 @@
             {
                 EditorGUI.indentLevel++;
                 EditorGUILayout.LabelField("Flow : ", inst.isWriteToCameraTargetDirectly ? "Linear" : "Gamma");
-                EditorGUILayout.LabelField("Blit baseCamera target", inst.isBlitBaseCameraTarget.ToString());
+                EditorGUILayout.LabelField("Blit baseCamera target", inst.isBlitActiveColorTarget.ToString());
                 EditorGUILayout.LabelField($"Final Blit to ", inst.outputTarget.ToString());
                 EditorGUILayout.LabelField($"Final blit blend", $" src : {inst.finalBlitSrcMode}, dst : {inst.finalBlitDestMode}");
 
@@ -64,15 +64,13 @@
     {
         [EditorHeader("", "------ Base Options ------ ")]
         [Header("URP Pass Control")]
+        [Tooltip("remove urp's final blit pass")]
         public bool isRemoveURPFinalBlit = true;
 
         [Header("Filter/Camera")]
         [Tooltip("which camera can run ,all camera is valid when empty")]
         public string cameraTag;
 
-        [Header("Blit options")]
-        [Tooltip("blit base camera 's target to gamma spece,rendering gamme objects need check")]
-        public bool isBlitBaseCameraTarget = true;
 
         [LoadAsset("defaultGammaUICopyColor.mat")]
         public Material blitMat;
@@ -89,10 +87,14 @@
         public int passEventOffset = 10;
 
         [Header("UI options")]
-        [Tooltip("ui objects use")]
+        [Tooltip("rendering ui objects use overrideUIShader")]
         public bool isOverrideUIShader;
         [LoadAsset("UI-Default.shader")]
         public Shader overrideUIShader;
+
+        [Header("Blit options")]
+        [Tooltip("blit base camera 's target to gamma spece,rendering gamme objects need check")]
+        public bool isBlitActiveColorTarget = true;
 
         [EditorHeader("", "------ Gamma Flow ------ ")]
         [Header("Blit destination options")]

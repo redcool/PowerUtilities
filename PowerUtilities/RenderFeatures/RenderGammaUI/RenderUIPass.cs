@@ -148,7 +148,7 @@ namespace PowerUtilities.Features
             var clearFlags = settings.isClearCameraTarget ? ClearFlag.Depth : ClearFlag.None;
 
             //1  blit current active to camera target
-            if (settings.isBlitBaseCameraTarget)
+            if (settings.isBlitActiveColorTarget)
             {
                 var curActive = renderer.GetActiveCameraColorAttachment(CompareTools.IsSetFirstTime(ref isActiveColorTargetForceGot));
                 cmd.BlitTriangle(curActive, BuiltinRenderTextureType.CameraTarget, settings.blitMat, 0, 
@@ -178,10 +178,9 @@ namespace PowerUtilities.Features
             settings.blitMat.shaderKeywords = null;
 
             //---------------------  1 to gamma tex
-            if (settings.isBlitBaseCameraTarget && lastColorHandle.nameID != colorHandle.nameID)
+            if (settings.isBlitActiveColorTarget && lastColorHandle.nameID != colorHandle.nameID)
             {
-                //settingSO.blitMat.SetFloat("_Double", 0);
-
+                // overwrite target
                 BlitToTarget(ref context, lastColorHandle, colorHandle, depthHandle, false, true);
                 cmd.Execute(ref context);
             }
