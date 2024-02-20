@@ -175,11 +175,11 @@ namespace PowerUtilities.Features
 
             // to gamma space
             ColorSpaceTransform.SetColorSpace(cmd, ColorSpaceTransform.ColorSpaceMode.LinearToSRGB);
+            settings.blitMat.shaderKeywords = null;
 
-            if (settings.isBlitBaseCameraTarget)
+            //---------------------  1 to gamma tex
+            if (settings.isBlitBaseCameraTarget && lastColorHandle.nameID != colorHandle.nameID)
             {
-                //---------------------  1 to gamma tex
-                settings.blitMat.shaderKeywords = null;
                 //settingSO.blitMat.SetFloat("_Double", 0);
 
                 BlitToTarget(ref context, lastColorHandle, colorHandle, depthHandle, false, true);

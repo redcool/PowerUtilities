@@ -27,7 +27,7 @@ namespace PowerUtilities
             return rendererForwardLightsCache.Get(r, () => r.GetType().GetFieldValue<ForwardLights>(r, "m_ForwardLights"));
         }
 
-        static Dictionary<ScriptableRenderer, ScriptableRendererRTHandleInfo> rendererRTHandleDict = new Dictionary<ScriptableRenderer, ScriptableRendererRTHandleInfo>();
+        static Dictionary<ScriptableRenderer, ScriptableRendererRTHandleInfo> rendererRTHandleInfoDict = new Dictionary<ScriptableRenderer, ScriptableRendererRTHandleInfo>();
 
         /// <summary>
         /// {rthandleName : URPRTHandleNames}
@@ -37,11 +37,31 @@ namespace PowerUtilities
         static UniversalRendererEx()
         {
             ApplicationTools.OnDomainUnload += ApplicationTools_OnDomainUnload;
+
+            RenderPipelineManager.endFrameRendering -= RenderPipelineManager_endFrameRendering;
+            RenderPipelineManager.endFrameRendering += RenderPipelineManager_endFrameRendering;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="arg1"></param>
+        /// <param name="arg2"></param>
+        private static void RenderPipelineManager_endFrameRendering(ScriptableRenderContext arg1, Camera[] arg2)
+        {
+            // m_ActiveCameraColorAttachment need get per frame
+            foreach (var info in rendererRTHandleInfoDict)
+            {
+                if (info.Value == null)
+                    continue;
+
+                info.Value.rtHandleDict[URPRTHandleNames.m_ActiveCameraColorAttachment] = null;
+            }
         }
 
         private static void ApplicationTools_OnDomainUnload()
         {
-            rendererRTHandleDict.Clear();
+            rendererRTHandleInfoDict.Clear();
         }
 
         /// <summary>
@@ -53,9 +73,9 @@ namespace PowerUtilities
         /// <returns></returns>
         public static RTHandle GetRTHandle(this UniversalRenderer renderer, URPRTHandleNames rtName,bool forceMode=false)
         {
-            if(!rendererRTHandleDict.TryGetValue(renderer, out var handleInfo))
+            if(!rendererRTHandleInfoDict.TryGetValue(renderer, out var handleInfo))
             {
-                handleInfo = rendererRTHandleDict[renderer] = new ScriptableRendererRTHandleInfo();
+                handleInfo = rendererRTHandleInfoDict[renderer] = new ScriptableRendererRTHandleInfo();
             }
             
             handleInfo.rtHandleDict.TryGetValue(rtName, out var handle);
