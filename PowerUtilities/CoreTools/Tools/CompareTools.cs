@@ -32,7 +32,27 @@ namespace PowerUtilities
             }
             return false;
         }
-
-
+        /// <summary>
+        /// is true frist time, v will set after called
+        /// 
+        /// like this : 
+        /// if(!v){
+        ///     // do actions
+        ///     v = true
+        /// }
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="v"></param>
+        /// <param name="initValue"></param>
+        /// <returns></returns>
+        public static bool IsSetFirstTime(ref bool v)
+        {
+            if (!v)
+            {
+                v = true;
+                return true;
+            }
+            return false;
+        }
     }
 }

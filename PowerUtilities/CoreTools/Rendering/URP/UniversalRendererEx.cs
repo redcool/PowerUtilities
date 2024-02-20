@@ -34,20 +34,33 @@ namespace PowerUtilities
         /// </summary>
         static Dictionary<string, URPRTHandleNames> handleNameToEnumDict = new Dictionary<string, URPRTHandleNames>();
 
+        static UniversalRendererEx()
+        {
+            ApplicationTools.OnDomainUnload += ApplicationTools_OnDomainUnload;
+        }
+
+        private static void ApplicationTools_OnDomainUnload()
+        {
+            rendererRTHandleDict.Clear();
+        }
+
         /// <summary>
         /// Get urp private rtHandle
         /// </summary>
         /// <param name="renderer"></param>
         /// <param name="rtName"></param>
+        /// <param name="forceMode"></param>
         /// <returns></returns>
-        public static RTHandle GetRTHandle(this UniversalRenderer renderer, URPRTHandleNames rtName)
+        public static RTHandle GetRTHandle(this UniversalRenderer renderer, URPRTHandleNames rtName,bool forceMode=false)
         {
             if(!rendererRTHandleDict.TryGetValue(renderer, out var handleInfo))
             {
                 handleInfo = rendererRTHandleDict[renderer] = new ScriptableRendererRTHandleInfo();
             }
-
+            
             handleInfo.rtHandleDict.TryGetValue(rtName, out var handle);
+            if (forceMode)
+                handle = default;
 
             //this function with cache.
             RTHandleTools.GetRTHandle(ref handle, renderer, rtName);
@@ -127,11 +140,11 @@ namespace PowerUtilities
         public static RTHandle GetCameraColorAttachmentB(this UniversalRenderer renderer)
         => renderer.GetRTHandle(URPRTHandleNames._CameraColorAttachmentB);
 
-        public static RTHandle GetActiveCameraColorAttachment(this UniversalRenderer renderer)
-        => renderer.GetRTHandle(URPRTHandleNames.m_ActiveCameraColorAttachment);
+        public static RTHandle GetActiveCameraColorAttachment(this UniversalRenderer renderer,bool forceMode=false)
+        => renderer.GetRTHandle(URPRTHandleNames.m_ActiveCameraColorAttachment,forceMode);
 
-        public static RTHandle GetActiveCameraDepthAttachment(this UniversalRenderer renderer)
-        => renderer.GetRTHandle(URPRTHandleNames.m_ActiveCameraDepthAttachment);
+        public static RTHandle GetActiveCameraDepthAttachment(this UniversalRenderer renderer, bool forceMode = false)
+        => renderer.GetRTHandle(URPRTHandleNames.m_ActiveCameraDepthAttachment, forceMode);
 
         public static RTHandle GetCameraDepthTexture(this UniversalRenderer renderer)
         => renderer.GetRTHandle(URPRTHandleNames.m_DepthTexture);

@@ -32,6 +32,8 @@ namespace PowerUtilities.Features
 
         static NativeArray<RenderStateBlock> curRenderStateArr;
 
+        bool isActiveColorTargetForceGot;
+
         public void SetProfileName(string profileName= "RenderUIPass")
         {
             cmd.name = profileName;
@@ -45,6 +47,7 @@ namespace PowerUtilities.Features
                 renderingData.cameraData.renderer.RemoveRenderPass(typeof(FinalBlitPass));
             }
         }
+
         //[ApplicationExit]
         //[CompileStarted]
         static void DisposeNative()
@@ -147,7 +150,7 @@ namespace PowerUtilities.Features
             //1  blit current active to camera target
             if (settings.isBlitBaseCameraTarget)
             {
-                var curActive = RenderTargetHolder.BaseCameraLastColorTarget;
+                var curActive = renderer.GetActiveCameraColorAttachment(CompareTools.IsSetFirstTime(ref isActiveColorTargetForceGot));
                 cmd.BlitTriangle(curActive, BuiltinRenderTextureType.CameraTarget, settings.blitMat, 0, 
                     clearFlags: clearFlags);
             }
@@ -316,12 +319,11 @@ namespace PowerUtilities.Features
         private void SetupTargetTex(ref RenderingData renderingData, ref CameraData cameraData, out RTHandle lastColorHandle, out RTHandle lastDepthHandle, out RTHandle colorHandleId, out RTHandle depthHandleId)
         {
             var renderer = (UniversalRenderer)cameraData.renderer;
-            //lastColorHandle = renderer.GetRTHandle(URPRTHandleNames.m_ActiveCameraColorAttachment);
-            lastColorHandle = RenderTargetHolder.BaseCameraLastColorTarget;
+            lastColorHandle = renderer.GetActiveCameraColorAttachment(CompareTools.IsSetFirstTime(ref isActiveColorTargetForceGot));
 
-            var colorAttachmentA = renderer.GetRTHandle(URPRTHandleNames._CameraColorAttachmentA);
-            var colorAttachmentB = renderer.GetRTHandle(URPRTHandleNames._CameraColorAttachmentB);
-            colorHandleId = lastColorHandle == colorAttachmentA ? colorAttachmentB : colorAttachmentA;
+            var colorAttachmentA = renderer.GetCameraColorAttachmentA();
+            var colorAttachmentB = renderer.GetCameraColorAttachmentB();
+            colorHandleId = (lastColorHandle == colorAttachmentA) ? colorAttachmentB : colorAttachmentA;
 
             depthHandleId = lastDepthHandle = renderer.GetRTHandle(URPRTHandleNames.m_CameraDepthAttachment);
 

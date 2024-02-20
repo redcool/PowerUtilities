@@ -69,6 +69,14 @@ namespace PowerUtilities
         static ScriptableRendererEx()
         {
             SetupURPPassTypeDict();
+
+            ApplicationTools.OnDomainUnload += ApplicationTools_OnDomainUnload;
+        }
+
+        private static void ApplicationTools_OnDomainUnload()
+        {
+            passDict.Clear();
+
         }
 
         private static void SetupURPPassTypeDict()
