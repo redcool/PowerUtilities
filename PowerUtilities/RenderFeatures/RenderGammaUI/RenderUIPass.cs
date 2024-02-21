@@ -145,7 +145,7 @@ namespace PowerUtilities.Features
             {
                 ColorSpaceTransform.SetColorSpace(cmd, ColorSpaceTransform.ColorSpaceMode.LinearToSRGB);
             }
-            var clearFlags = settings.isClearCameraTarget ? ClearFlag.Depth : ClearFlag.None;
+            var clearFlags = settings.isClearCameraTargetDepth ? ClearFlag.Depth : ClearFlag.None;
 
             //1  blit current active to camera target
             if (settings.isBlitActiveColorTarget)
@@ -157,7 +157,7 @@ namespace PowerUtilities.Features
             else
             {
                 cmd.SetRenderTarget(BuiltinRenderTextureType.CameraTarget);
-                if (settings.isClearCameraTarget)
+                if (settings.isClearCameraTargetDepth)
                 {
                     cmd.ClearRenderTarget(true, false, Color.clear);
                 }

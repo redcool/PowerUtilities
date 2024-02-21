@@ -62,6 +62,7 @@
     [Serializable]
     public partial class GammaUISettingSO : ScriptableObject
     {
+        //=================== Base Options
         [EditorHeader("", "------ Base Options ------ ")]
         [Header("URP Pass Control")]
         [Tooltip("remove urp's final blit pass")]
@@ -70,10 +71,6 @@
         [Header("Filter/Camera")]
         [Tooltip("which camera can run ,all camera is valid when empty")]
         public string cameraTag;
-
-
-        [LoadAsset("defaultGammaUICopyColor.mat")]
-        public Material blitMat;
 
         [Header("Performance Options")]
         [Tooltip("Best option is close for Middle device.")]
@@ -92,12 +89,23 @@
         [LoadAsset("UI-Default.shader")]
         public Shader overrideUIShader;
 
-        [Header("Blit options")]
+        [Header("Blit source")]
         [Tooltip("blit base camera 's target to gamma spece,rendering gamme objects need check")]
         public bool isBlitActiveColorTarget = true;
 
+        [LoadAsset("defaultGammaUICopyColor.mat")]
+        public Material blitMat;
+
+        //=================== Gamma Flow
         [EditorHeader("", "------ Gamma Flow ------ ")]
-        [Header("Blit destination options")]
+        [Header("Fullsize Texture")]
+        [Tooltip("create a full size texture,as rendering objects target, otherwise use CameraColor(Depth)Attachment,FSR need this")]
+        public bool createFullsizeGammaTex;
+
+        [Tooltip("Need use stencil buffer?")]
+        public DepthBufferBits depthBufferBits = DepthBufferBits._24;
+
+        [Header("Blit destination")]
         [Tooltip("blit to CameraTarget,URP CurrentActive,or no, when rendering done")]
         public OutputTarget outputTarget = OutputTarget.CameraTarget;
 
@@ -105,6 +113,14 @@
         public BlendMode finalBlitSrcMode = BlendMode.One;
         public BlendMode finalBlitDestMode = BlendMode.Zero;
 
+        //=================== Linear Flow
+        [EditorHeader("","------ Linear Flow ------ ")]
+        [Tooltip("Linear flow,No blit,no gamma texture,draw objects,output to camera target")]
+        public bool isWriteToCameraTargetDirectly;
+        public bool isClearCameraTargetDepth;
+
+        //=================== Draw
+        [EditorHeader("", "------ Draw Objects ------ ")]
         [Header("Filter/DrawObjects")]
         [Tooltip("main render object's layer")]
         public FilteringSettingsInfo filterInfo = new FilteringSettingsInfo
@@ -116,19 +132,7 @@
         [Tooltip("render objects use layers, one by one")]
         public List<FilteringSettingsInfo> filterInfoList = new List<FilteringSettingsInfo>();
 
-        [Header("Fullsize Texture")]
-        [Tooltip("create a full size texture,as rendering objects target, otherwise use CameraColor(Depth)Attachment,FSR need this")]
-        public bool createFullsizeGammaTex;
-
-        [Tooltip("Need use stencil buffer?")]
-        public DepthBufferBits depthBufferBits = DepthBufferBits._24;
-
-        [EditorHeader("","------ Linear Flow ------ ")]
-        [Tooltip("simple rendering flow,No blit,no gamma texture,draw objects,output to camera target")]
-        public bool isWriteToCameraTargetDirectly;
-        public bool isClearCameraTarget;
-
-
+        //=================== Log
         [Header("Editor Options")]
         [Multiline]
         public string logs;
