@@ -34,7 +34,7 @@ namespace PowerUtilities.Features
 
         static bool isActiveColorTargetForceSet;
 
-        public void SetProfileName(string profileName= "RenderUIPass")
+        public void SetProfileName(string profileName = "RenderUIPass")
         {
             cmd.name = profileName;
         }
@@ -42,7 +42,8 @@ namespace PowerUtilities.Features
 
         public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
         {
-            if (settings.isRemoveURPFinalBlit)
+            ref var cameraData = ref renderingData.cameraData;
+            if (!cameraData.isSceneViewCamera && settings.isRemoveURPFinalBlit)
             {
                 renderingData.cameraData.renderer.RemoveRenderPass(typeof(FinalBlitPass));
             }
@@ -128,13 +129,6 @@ namespace PowerUtilities.Features
             ref var cameraData = ref renderingData.cameraData;
             var renderer = (UniversalRenderer)cameraData.renderer;
 
-            // ------- wrtie to cameraTarget
-            if (IsWriteToCameraTargetDirect())
-            {
-                DrawToCameraTarget(ref context, ref renderingData, renderer);
-                return;
-            }
-
 #if UNITY_EDITOR
             if (cameraData.isSceneViewCamera)
             {
@@ -142,6 +136,13 @@ namespace PowerUtilities.Features
                 return;
             }
 #endif
+            // ------- wrtie to cameraTarget
+            if (IsWriteToCameraTargetDirect())
+            {
+                DrawToCameraTarget(ref context, ref renderingData, renderer);
+                return;
+            }
+
             // ------ gamma ui and fx flow
 
             DrawObjectsGammaFlow(ref context, ref renderingData, cameraData);
@@ -159,7 +160,7 @@ namespace PowerUtilities.Features
             if (settings.isBlitActiveColorTarget)
             {
                 var curActive = renderer.GetActiveCameraColorAttachment(CompareTools.IsSetFirstTime(ref isActiveColorTargetForceSet));
-                cmd.BlitTriangle(curActive, BuiltinRenderTextureType.CameraTarget, settings.blitMat, 0, 
+                cmd.BlitTriangle(curActive, BuiltinRenderTextureType.CameraTarget, settings.blitMat, 0,
                     clearFlags: clearFlags);
             }
             else

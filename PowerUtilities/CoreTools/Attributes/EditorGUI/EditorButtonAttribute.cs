@@ -15,19 +15,34 @@ using UnityEngine;
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             //property.serializedObject.Update();
+            var attr = attribute as EditorButtonAttribute;
 
             position = EditorGUI.IndentedRect(position);
-            if(GUI.Button(position, label))
+            if (GUI.Button(position, label))
             {
                 property.boolValue = true;
+
+                CallTargetMethold(property, attr);
             }
             //property.serializedObject.ApplyModifiedPropertiesWithoutUndo();
+
+
+            //================ inner methods
+            static void CallTargetMethold(SerializedProperty property, EditorButtonAttribute attr)
+            {
+                if (!string.IsNullOrEmpty(attr.onClickCall))
+                {
+                    var inst = property.serializedObject.targetObject;
+                    var instType = inst.GetType();
+                    ReflectionTools.InvokeMember(instType, attr.onClickCall, inst, null);
+                }
+            }
         }
     }
 #endif
 
     public class EditorButtonAttribute : PropertyAttribute
     {
-
+        public string onClickCall;
     }
 }
