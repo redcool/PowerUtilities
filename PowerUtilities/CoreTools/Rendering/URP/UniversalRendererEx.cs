@@ -38,8 +38,8 @@ namespace PowerUtilities
         {
             ApplicationTools.OnDomainUnload += ApplicationTools_OnDomainUnload;
 
-            RenderPipelineManager.endFrameRendering -= RenderPipelineManager_endFrameRendering;
-            RenderPipelineManager.endFrameRendering += RenderPipelineManager_endFrameRendering;
+            //RenderPipelineManager.endFrameRendering -= RenderPipelineManager_endFrameRendering;
+            //RenderPipelineManager.endFrameRendering += RenderPipelineManager_endFrameRendering;
 
             RenderPipelineManager.endCameraRendering -= RenderPipelineManager_endCameraRendering;
             RenderPipelineManager.endCameraRendering += RenderPipelineManager_endCameraRendering;

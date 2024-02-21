@@ -32,7 +32,7 @@ namespace PowerUtilities.Features
 
         static NativeArray<RenderStateBlock> curRenderStateArr;
 
-        bool isActiveColorTargetForceGot;
+        static bool isActiveColorTargetForceSet;
 
         public void SetProfileName(string profileName= "RenderUIPass")
         {
@@ -59,6 +59,14 @@ namespace PowerUtilities.Features
         static RenderUIPass()
         {
             ApplicationTools.OnDomainUnload += DisposeNative;
+
+            RenderPipelineManager.beginFrameRendering -= RenderPipelineManager_beginFrameRendering;
+            RenderPipelineManager.beginFrameRendering += RenderPipelineManager_beginFrameRendering;
+        }
+
+        private static void RenderPipelineManager_beginFrameRendering(ScriptableRenderContext arg1, Camera[] arg2)
+        {
+            isActiveColorTargetForceSet = false;
         }
 
         StencilState GetStencilState()
@@ -150,7 +158,7 @@ namespace PowerUtilities.Features
             //1  blit current active to camera target
             if (settings.isBlitActiveColorTarget)
             {
-                var curActive = renderer.GetActiveCameraColorAttachment(CompareTools.IsSetFirstTime(ref isActiveColorTargetForceGot));
+                var curActive = renderer.GetActiveCameraColorAttachment(CompareTools.IsSetFirstTime(ref isActiveColorTargetForceSet));
                 cmd.BlitTriangle(curActive, BuiltinRenderTextureType.CameraTarget, settings.blitMat, 0, 
                     clearFlags: clearFlags);
             }
@@ -318,7 +326,7 @@ namespace PowerUtilities.Features
         private void SetupTargetTex(ref RenderingData renderingData, ref CameraData cameraData, out RTHandle lastColorHandle, out RTHandle lastDepthHandle, out RTHandle colorHandleId, out RTHandle depthHandleId)
         {
             var renderer = (UniversalRenderer)cameraData.renderer;
-            lastColorHandle = renderer.GetActiveCameraColorAttachment(CompareTools.IsSetFirstTime(ref isActiveColorTargetForceGot));
+            lastColorHandle = renderer.GetActiveCameraColorAttachment(CompareTools.IsSetFirstTime(ref isActiveColorTargetForceSet));
 
             var colorAttachmentA = renderer.GetCameraColorAttachmentA();
             var colorAttachmentB = renderer.GetCameraColorAttachmentB();
