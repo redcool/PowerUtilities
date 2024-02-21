@@ -40,6 +40,15 @@ namespace PowerUtilities
 
             RenderPipelineManager.endFrameRendering -= RenderPipelineManager_endFrameRendering;
             RenderPipelineManager.endFrameRendering += RenderPipelineManager_endFrameRendering;
+
+            RenderPipelineManager.endCameraRendering -= RenderPipelineManager_endCameraRendering;
+            RenderPipelineManager.endCameraRendering += RenderPipelineManager_endCameraRendering;
+        }
+
+        private static void RenderPipelineManager_endCameraRendering(ScriptableRenderContext arg1, Camera arg2)
+        {
+            var cameraData = arg2.GetUniversalAdditionalCameraData();
+            ClearActiveCameraColorAttachmentCache(cameraData.scriptableRenderer);
         }
 
         /// <summary>
@@ -50,12 +59,17 @@ namespace PowerUtilities
         private static void RenderPipelineManager_endFrameRendering(ScriptableRenderContext arg1, Camera[] arg2)
         {
             // m_ActiveCameraColorAttachment need get per frame
-            foreach (var info in rendererRTHandleInfoDict)
+            foreach (var renderer in rendererRTHandleInfoDict.Keys)
             {
-                if (info.Value == null)
-                    continue;
+                ClearActiveCameraColorAttachmentCache(renderer);
+            }
+        }
 
-                info.Value.rtHandleDict[URPRTHandleNames.m_ActiveCameraColorAttachment] = null;
+        public static void ClearActiveCameraColorAttachmentCache(ScriptableRenderer renderer)
+        {
+            if(rendererRTHandleInfoDict.TryGetValue(renderer,out var info))
+            {
+                info.rtHandleDict[URPRTHandleNames.m_ActiveCameraColorAttachment] = null;
             }
         }
 

@@ -7,7 +7,9 @@ using System.Threading.Tasks;
 using UnityEngine.Rendering.Universal;
 using UnityEngine;
 using UnityEngine.Rendering;
-
+#if UNITY_2020
+using UniversalRenderer = UnityEngine.Rendering.Universal.ForwardRenderer;
+#endif
 namespace PowerUtilities.RenderFeatures
 {
     [CreateAssetMenu(menuName = SRP_FEATURE_PASSES_MENU+"/TestSRPFeature")]
