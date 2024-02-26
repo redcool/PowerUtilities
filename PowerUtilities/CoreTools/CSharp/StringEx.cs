@@ -2,6 +2,7 @@
 {
 
     using System;
+    using System.Buffers.Text;
     using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
@@ -130,6 +131,39 @@
         public static bool IsAny(params string[] strs)
         {
             return strs.Any(str => !string.IsNullOrEmpty(str));
+        }
+
+        public static string ToBase64(this string str)
+        {
+            var bytes = Encoding.UTF8.GetBytes(str);
+            return Convert.ToBase64String(bytes);
+        }
+
+        public static string FromBase64(this string str)
+        {
+            var bytes = Convert.FromBase64String(str);
+            return Encoding.UTF8.GetString(bytes);
+        }
+
+
+        public static string Encrypt(this string str)
+        {
+            var sb = new StringBuilder(str);
+            for (var i = 0; i < sb.Length; i++)
+            {
+                sb[i] = (char)((i % 2 != 0) ? sb[i] + 1 : sb[i]);
+            }
+            return sb.ToString();
+        }
+
+        public static string Decrypt(this string str)
+        {
+            var sb = new StringBuilder(str);
+            for (var i = 0; i < sb.Length; i++)
+            {
+                sb[i] = (char)((i % 2 != 0) ? sb[i] - 1 : sb[i]);
+            }
+            return sb.ToString();
         }
     }
 }

@@ -42,6 +42,7 @@ namespace PowerUtilities.Features
 
         public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
         {
+            //GameView,remove FinalBlitPass, 
             ref var cameraData = ref renderingData.cameraData;
             if (!cameraData.isSceneViewCamera && settings.isRemoveURPFinalBlit)
             {
@@ -78,6 +79,7 @@ namespace PowerUtilities.Features
             stencilState.SetPassOperation(settings.stencilStateData.passOperation);
             stencilState.SetZFailOperation(settings.stencilStateData.zFailOperation);
             stencilState.enabled = settings.stencilStateData.overrideStencilState;
+
             return stencilState;
         }
 
