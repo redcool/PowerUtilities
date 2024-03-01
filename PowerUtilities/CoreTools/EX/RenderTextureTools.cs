@@ -14,17 +14,24 @@ namespace PowerUtilities
     {
 
         public static readonly bool m_ForceShadowPointSampling;
+        private static readonly RenderTextureFormat m_ShadowmapFormat;
 
         static RenderTextureTools()
         {
             m_ForceShadowPointSampling = SystemInfo.graphicsDeviceType == GraphicsDeviceType.Metal &&
                 GraphicsSettings.HasShaderDefine(Graphics.activeTier, BuiltinShaderDefine.UNITY_METAL_SHADOWS_USE_POINT_FILTERING);
+
+            m_ShadowmapFormat = RenderingUtils.SupportsRenderTextureFormat(RenderTextureFormat.Shadowmap) && (SystemInfo.graphicsDeviceType != GraphicsDeviceType.OpenGLES2)
+            ? RenderTextureFormat.Shadowmap
+            : RenderTextureFormat.Depth;
         }
 
         public static RenderTexture GetTemporaryShadowTexture(int width, int height, int bits)
         {
-            var format = GraphicsFormatUtility.GetDepthStencilFormat(bits, 0);
-            RenderTextureDescriptor rtd = new RenderTextureDescriptor(width, height, GraphicsFormat.None, format);
+            //var format = GraphicsFormatUtility.GetDepthStencilFormat(bits, 0);
+            //RenderTextureDescriptor rtd = new RenderTextureDescriptor(width, height, GraphicsFormat.None, format);
+
+            RenderTextureDescriptor rtd = new RenderTextureDescriptor(width, height, m_ShadowmapFormat, bits);
             rtd.shadowSamplingMode = (RenderingUtils.SupportsRenderTextureFormat(RenderTextureFormat.Shadowmap)
                 && (SystemInfo.graphicsDeviceType != GraphicsDeviceType.OpenGLES2)) ?
                 ShadowSamplingMode.CompareDepths : ShadowSamplingMode.None;
