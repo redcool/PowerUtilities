@@ -249,6 +249,35 @@ namespace PowerUtilities
             return instance;
         }
 
+        public static FieldInfo GetFieldInfoHierarchy(this object instance, string fieldExpress,out object fieldInst)
+        {
+            fieldInst = null;
+
+            var fieldNames = fieldExpress.SplitBy('.');
+            Type instType = instance.GetType();
+
+            FieldInfo field = null;
+
+            foreach (var fieldName in fieldNames)
+            {
+                // keep last
+                fieldInst  = instance;
+
+                field = instType.GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+                if (field == null)
+                {
+                    throw new ArgumentException($"{instance} dont have path: {fieldExpress}");
+                }
+                instance = field.GetValue(instance);
+                // current object is null
+                if (instance == null)
+                    return null;
+                // next field
+                instType = instance.GetType();
+            }
+            return field;
+        }
+
         /// <summary>
         /// chain call method,field,property.
         /// 

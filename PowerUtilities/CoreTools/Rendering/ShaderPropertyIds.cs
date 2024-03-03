@@ -107,7 +107,10 @@ namespace PowerUtilities
             _GUIZTestMode = Shader.PropertyToID(nameof(_GUIZTestMode)),
 
             _MainLightPosition = Shader.PropertyToID(nameof(_MainLightPosition)),
-            _MainLightColor = Shader.PropertyToID(nameof(_MainLightColor))
+            _MainLightColor = Shader.PropertyToID(nameof(_MainLightColor)),
+
+            _FinalSrcMode = Shader.PropertyToID(nameof(_FinalSrcMode)),
+            _FinalDstMode = Shader.PropertyToID(nameof(_FinalDstMode))
             ;
 
     }

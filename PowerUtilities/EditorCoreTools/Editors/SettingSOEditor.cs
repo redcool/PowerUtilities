@@ -19,6 +19,7 @@ namespace PowerUtilities
         /// </summary>
         public virtual string SettingSOFieldName => "settingSO";
 
+        public virtual string SettingsSOFieldName => "settings";
         /// <summary>
         /// Field Type
         /// </summary>
@@ -29,7 +30,13 @@ namespace PowerUtilities
 
         public override void OnInspectorGUI()
         {
-            EditorGUITools.DrawSettingSOProperty(serializedObject, ref targetEditor, ref isTargetEditorFolded, SettingSOFieldName, SettingSOType);
+            EditorGUIUtility.labelWidth = 250;
+            serializedObject.UpdateIfRequiredOrScript();
+
+            var settingProp = serializedObject.FindProperty(SettingSOFieldName);
+            EditorGUITools.DrawSettingSO(settingProp, ref targetEditor, ref isTargetEditorFolded, SettingSOType);
+
+            serializedObject.ApplyModifiedProperties();
         }
 
     }

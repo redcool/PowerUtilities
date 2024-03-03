@@ -17,7 +17,6 @@ namespace PowerUtilities
     public static partial class UniversalRendererEx 
     {
         static CacheTool<UniversalRenderer, ForwardLights> rendererForwardLightsCache = new CacheTool<UniversalRenderer, ForwardLights>();
-        static ScriptableRenderer lastRenderer;
         /// <summary>
         /// Get ForwardLights use reflection
         /// </summary>
@@ -28,34 +27,79 @@ namespace PowerUtilities
             return rendererForwardLightsCache.Get(r, () => r.GetType().GetFieldValue<ForwardLights>(r, "m_ForwardLights"));
         }
 
-        /// <summary>
-        /// handleName -> RTHandle
-        /// </summary>
-        static Dictionary<URPRTHandleNames, RTHandle> urpRTHandleDict = new Dictionary<URPRTHandleNames, RTHandle>();
+        static Dictionary<ScriptableRenderer, ScriptableRendererRTHandleInfo> rendererRTHandleInfoDict = new Dictionary<ScriptableRenderer, ScriptableRendererRTHandleInfo>();
 
         /// <summary>
         /// {rthandleName : URPRTHandleNames}
         /// </summary>
         static Dictionary<string, URPRTHandleNames> handleNameToEnumDict = new Dictionary<string, URPRTHandleNames>();
 
+        static UniversalRendererEx()
+        {
+            ApplicationTools.OnDomainUnload += ApplicationTools_OnDomainUnload;
+
+            //RenderPipelineManager.endFrameRendering -= RenderPipelineManager_endFrameRendering;
+            //RenderPipelineManager.endFrameRendering += RenderPipelineManager_endFrameRendering;
+
+            RenderPipelineManager.endCameraRendering -= RenderPipelineManager_endCameraRendering;
+            RenderPipelineManager.endCameraRendering += RenderPipelineManager_endCameraRendering;
+        }
+
+        private static void RenderPipelineManager_endCameraRendering(ScriptableRenderContext arg1, Camera arg2)
+        {
+            var cameraData = arg2.GetUniversalAdditionalCameraData();
+            ClearActiveCameraColorAttachmentCache(cameraData.scriptableRenderer);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="arg1"></param>
+        /// <param name="arg2"></param>
+        private static void RenderPipelineManager_endFrameRendering(ScriptableRenderContext arg1, Camera[] arg2)
+        {
+            // m_ActiveCameraColorAttachment need get per frame
+            foreach (var renderer in rendererRTHandleInfoDict.Keys)
+            {
+                ClearActiveCameraColorAttachmentCache(renderer);
+            }
+        }
+
+        public static void ClearActiveCameraColorAttachmentCache(ScriptableRenderer renderer)
+        {
+            if(rendererRTHandleInfoDict.TryGetValue(renderer,out var info))
+            {
+                info.rtHandleDict[URPRTHandleNames.m_ActiveCameraColorAttachment] = null;
+            }
+        }
+
+        private static void ApplicationTools_OnDomainUnload()
+        {
+            rendererRTHandleInfoDict.Clear();
+        }
+
         /// <summary>
         /// Get urp private rtHandle
         /// </summary>
         /// <param name="renderer"></param>
         /// <param name="rtName"></param>
+        /// <param name="forceMode"></param>
         /// <returns></returns>
-        public static RTHandle GetRTHandle(this UniversalRenderer renderer, URPRTHandleNames rtName)
+        public static RTHandle GetRTHandle(this UniversalRenderer renderer, URPRTHandleNames rtName,bool forceMode=false)
         {
-            if(renderer.IsNewRendererInstance(ref lastRenderer))
+            if(!rendererRTHandleInfoDict.TryGetValue(renderer, out var handleInfo))
             {
-                urpRTHandleDict.Clear();
+                handleInfo = rendererRTHandleInfoDict[renderer] = new ScriptableRendererRTHandleInfo();
             }
+            
+            handleInfo.rtHandleDict.TryGetValue(rtName, out var handle);
+            if (forceMode)
+                handle = default;
 
-            urpRTHandleDict.TryGetValue(rtName, out var handle);
             //this function with cache.
             RTHandleTools.GetRTHandle(ref handle, renderer, rtName);
-            // save or again
-            urpRTHandleDict[rtName] = handle;
+            // save again
+            handleInfo.rtHandleDict[rtName] = handle;
             return handle;
         }
 
@@ -130,11 +174,11 @@ namespace PowerUtilities
         public static RTHandle GetCameraColorAttachmentB(this UniversalRenderer renderer)
         => renderer.GetRTHandle(URPRTHandleNames._CameraColorAttachmentB);
 
-        public static RTHandle GetActiveCameraColorAttachment(this UniversalRenderer renderer)
-        => renderer.GetRTHandle(URPRTHandleNames.m_ActiveCameraColorAttachment);
+        public static RTHandle GetActiveCameraColorAttachment(this UniversalRenderer renderer,bool forceMode=false)
+        => renderer.GetRTHandle(URPRTHandleNames.m_ActiveCameraColorAttachment,forceMode);
 
-        public static RTHandle GetActiveCameraDepthAttachment(this UniversalRenderer renderer)
-        => renderer.GetRTHandle(URPRTHandleNames.m_ActiveCameraDepthAttachment);
+        public static RTHandle GetActiveCameraDepthAttachment(this UniversalRenderer renderer, bool forceMode = false)
+        => renderer.GetRTHandle(URPRTHandleNames.m_ActiveCameraDepthAttachment, forceMode);
 
         public static RTHandle GetCameraDepthTexture(this UniversalRenderer renderer)
         => renderer.GetRTHandle(URPRTHandleNames.m_DepthTexture);

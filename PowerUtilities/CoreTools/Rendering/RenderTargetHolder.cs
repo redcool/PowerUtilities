@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 
 namespace PowerUtilities
 {
@@ -52,8 +54,9 @@ namespace PowerUtilities
         /// <summary>
         /// cached funcs
         /// </summary>
-        static Func<int, RenderTargetIdentifier[]> GetIDArray =(lengthAsKey) => new RenderTargetIdentifier[lengthAsKey];
-        static Func<int, RTHandle[]> GetRTHandleArray =(lengthAsKey) => new RTHandle[lengthAsKey];
+        static Func<int, RenderTargetIdentifier[]> GetIDArray = (lengthAsKey) => new RenderTargetIdentifier[lengthAsKey];
+        static Func<int, RTHandle[]> GetRTHandleArray = (lengthAsKey) => new RTHandle[lengthAsKey];
+
         /// <summary>
         /// Save current targets, sfcpass can reuse these
         /// </summary>

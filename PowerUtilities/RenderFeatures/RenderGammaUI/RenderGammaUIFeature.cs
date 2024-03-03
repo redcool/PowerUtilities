@@ -8,6 +8,7 @@ namespace PowerUtilities.Features
 #if UNITY_EDITOR
     using UnityEditor;
     using UnityEditor.Compilation;
+    using System.Collections.Generic;
 #endif
 #if UNITY_EDITOR
     [CustomEditor(typeof(RenderGammaUIFeature))]
@@ -23,7 +24,6 @@ namespace PowerUtilities.Features
 #endif
     public class RenderGammaUIFeature : ScriptableRendererFeature
     {
-
         public GammaUISettingSO settingSO;
 
         RenderUIPass uiPass;
@@ -33,26 +33,12 @@ namespace PowerUtilities.Features
         {
         }
 
-        public static bool IsUICamera(ref CameraData cameraData, string cameraTag)
+        public static bool IsCameraValid(ref CameraData cameraData, string cameraTag)
         {
-            var isUICamera = false;
-
-            if (string.IsNullOrEmpty(cameraTag))
-            {
-                isUICamera = QualitySettings.activeColorSpace == ColorSpace.Linear &&
-                    cameraData.renderType == CameraRenderType.Overlay &&
-                    (cameraData.camera.cullingMask & LayerMask.GetMask("UI")) >= 1
-                    ;
-            }
-            else
-            {
-                isUICamera = cameraData.camera.CompareTag(cameraTag);
-            }
-
-            return isUICamera;
+            return string.IsNullOrEmpty(cameraTag) ? true : cameraData.camera.CompareTag(cameraTag);
         }
 
-        private static void SetupUICamera(ref CameraData cameraData)
+        private static void SetupCameraData(ref CameraData cameraData)
         {
             cameraData.clearDepth = false; // clear depth afterwards
             cameraData.requiresDepthTexture = false;
@@ -62,7 +48,6 @@ namespace PowerUtilities.Features
         // This method is called when setting up the renderer once per-camera.
         public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
         {
-
             if (settingSO == null)
                 return;
 
@@ -75,18 +60,18 @@ namespace PowerUtilities.Features
 
             ref var cameraData = ref renderingData.cameraData;
             var isSceneCamera = cameraData.isSceneViewCamera;
-            var isUICamera = IsUICamera(ref cameraData, settingSO.cameraTag);
+            var isCameraValid = IsCameraValid(ref cameraData, settingSO.cameraTag);
 
-            if (!isUICamera && !isSceneCamera)
+            if (!isCameraValid && !isSceneCamera)
             {
-                settingSO.logs = "UICamera not found";
+                settingSO.logs = $"{cameraData.camera} not valid";
                 return;
             }
 
-            if (isUICamera)
-            {
-                SetupUICamera(ref cameraData);
-            }
+            //if (isCameraValid)
+            //{
+            //    SetupCameraData(ref cameraData);
+            //}
 
             // ui rendering checks
             if (settingSO.outputTarget == OutputTarget.CameraTarget)
@@ -100,6 +85,7 @@ namespace PowerUtilities.Features
 
             if (uiPass == null)
                 uiPass = new RenderUIPass();
+            uiPass.SetProfileName(name);
 
             uiPass.renderPassEvent = settingSO.passEvent + settingSO.passEventOffset;
             uiPass.settings = settingSO;

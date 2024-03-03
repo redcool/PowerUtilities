@@ -80,6 +80,8 @@ namespace PowerUtilities.RenderFeatures
                 cmd.BlitTriangle(sourceId, targetId, Feature.blitMat, 0);
             else
                 cmd.Blit(sourceId, targetId);
+
+            ColorSpaceTransform.SetColorSpace(cmd,  ColorSpaceTransform.ColorSpaceMode.None);
         }
     }
 }

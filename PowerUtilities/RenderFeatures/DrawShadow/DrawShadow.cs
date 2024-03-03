@@ -49,7 +49,7 @@ namespace PowerUtilities
                     emptyShadowMapHandle = ShadowUtils.AllocShadowRT(1, 1, 16, 1, 0, "");
                     emptyShadowMap = emptyShadowMapHandle.rt;
 #else
-                    emptyShadowMap = ShadowUtils.GetTemporaryShadowTexture(1, 1, 16);
+                    emptyShadowMap = RenderTextureTools.GetTemporaryShadowTexture(1, 1, 16);
 #endif
                 }
                 return emptyShadowMap;

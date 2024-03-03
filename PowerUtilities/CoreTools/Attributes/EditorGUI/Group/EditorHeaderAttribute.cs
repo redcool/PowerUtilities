@@ -52,10 +52,13 @@
         public string header;
         public Color color = new Color(0.1f, 0.82f, 0.1f);
         public int posOffset = 0;
-        public EditorHeaderAttribute(string groupName,string header)
+        public EditorHeaderAttribute(string groupName, string header, string colorStr = null)
         {
-            this.groupName = groupName; 
+            this.groupName = groupName;
             this.header = header;
+
+            if (!string.IsNullOrEmpty(colorStr))
+                ColorUtility.TryParseHtmlString(colorStr, out color);
         }
     }
 }

@@ -189,7 +189,7 @@ namespace PowerUtilities
                 , () => (assetDataRowUxml.Value?.CloneTree())
                 , (ve, i) =>
                 {
-                    if (i >= datas.Length)
+                    if (i >= datas.Length || datas[i] == null)
                     {
                         return;
                     }

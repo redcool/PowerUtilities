@@ -14,6 +14,7 @@
     [CustomPropertyDrawer(typeof(RenderingLayerMaskAttribute))]
     public class RenderingLayerMaskDrawer : PropertyDrawer
     {
+        public static string[] emptyRenderingLayerMaskNames = new string[] {""};
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             Draw(position, property, label);
@@ -29,8 +30,9 @@
             {
                 mask =-1;
             }
-            
-            mask = EditorGUI.MaskField(position,label, mask, GraphicsSettings.currentRenderPipeline.renderingLayerMaskNames);
+            string[] options = GraphicsSettings.currentRenderPipeline.renderingLayerMaskNames ?? emptyRenderingLayerMaskNames;
+
+            mask = EditorGUI.MaskField(position,label, mask, options);
             if (EditorGUI.EndChangeCheck())
             {
                 property.intValue = isUint && mask ==-1 ? int.MaxValue : mask;

@@ -7,6 +7,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.Rendering.Universal.Internal;
 #if UNITY_2020
 using UniversalRenderer = UnityEngine.Rendering.Universal.ForwardRenderer;
 #endif
@@ -25,11 +26,29 @@ namespace PowerUtilities.Features
         static readonly int _CameraColorAttachmentB = Shader.PropertyToID(nameof(_CameraColorAttachmentB));
         static readonly int _CameraDepthAttachment = Shader.PropertyToID(nameof(_CameraDepthAttachment));
 
-        CommandBuffer cmd = new CommandBuffer { name=nameof(RenderUIPass) };
+        CommandBuffer cmd = new CommandBuffer();
 
         public GammaUISettingSO settings;
 
         static NativeArray<RenderStateBlock> curRenderStateArr;
+
+        static bool isActiveColorTargetForceSet;
+
+        public void SetProfileName(string profileName = "RenderUIPass")
+        {
+            cmd.name = profileName;
+        }
+
+
+        public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
+        {
+            //GameView,remove FinalBlitPass, 
+            ref var cameraData = ref renderingData.cameraData;
+            if (!cameraData.isSceneViewCamera && settings.isRemoveURPFinalBlit)
+            {
+                renderingData.cameraData.renderer.RemoveRenderPass(typeof(FinalBlitPass));
+            }
+        }
 
         //[ApplicationExit]
         //[CompileStarted]
@@ -42,6 +61,14 @@ namespace PowerUtilities.Features
         static RenderUIPass()
         {
             ApplicationTools.OnDomainUnload += DisposeNative;
+
+            RenderPipelineManager.beginFrameRendering -= RenderPipelineManager_beginFrameRendering;
+            RenderPipelineManager.beginFrameRendering += RenderPipelineManager_beginFrameRendering;
+        }
+
+        private static void RenderPipelineManager_beginFrameRendering(ScriptableRenderContext arg1, Camera[] arg2)
+        {
+            isActiveColorTargetForceSet = false;
         }
 
         StencilState GetStencilState()
@@ -52,6 +79,7 @@ namespace PowerUtilities.Features
             stencilState.SetPassOperation(settings.stencilStateData.passOperation);
             stencilState.SetZFailOperation(settings.stencilStateData.zFailOperation);
             stencilState.enabled = settings.stencilStateData.overrideStencilState;
+
             return stencilState;
         }
 
@@ -89,26 +117,19 @@ namespace PowerUtilities.Features
 
         public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
         {
-            NativeArrayTools.CreateIfNull(ref curRenderStateArr, 1,Allocator.Persistent);
+            NativeArrayTools.CreateIfNull(ref curRenderStateArr, 1, Allocator.Persistent);
 
             var urpAsset = UniversalRenderPipeline.asset;
             SetupURPAsset(urpAsset);
 
-            cmd.BeginSampleExecute(nameof(RenderUIPass),ref context);
+            cmd.BeginSampleExecute(cmd.name, ref context);
             Draw(ref context, ref renderingData);
-            cmd.EndSampleExecute(nameof(RenderUIPass),ref context);
+            cmd.EndSampleExecute(cmd.name, ref context);
         }
         public void Draw(ref ScriptableRenderContext context, ref RenderingData renderingData)
         {
             ref var cameraData = ref renderingData.cameraData;
             var renderer = (UniversalRenderer)cameraData.renderer;
-
-            // ------- wrtie to cameraTarget
-            if (IsWriteToCameraTargetDirect())
-            {
-                DrawToCameraTarget(ref context, ref renderingData, renderer);
-                return;
-            }
 
 #if UNITY_EDITOR
             if (cameraData.isSceneViewCamera)
@@ -117,9 +138,16 @@ namespace PowerUtilities.Features
                 return;
             }
 #endif
-            // ------ gamma ui flow
+            // ------- wrtie to cameraTarget
+            if (IsWriteToCameraTargetDirect())
+            {
+                DrawToCameraTarget(ref context, ref renderingData, renderer);
+                return;
+            }
 
-            BlitToGammaDrawObjects(ref context, ref renderingData, cameraData);
+            // ------ gamma ui and fx flow
+
+            DrawObjectsGammaFlow(ref context, ref renderingData, cameraData);
         }
 
         private void DrawToCameraTarget(ref ScriptableRenderContext context, ref RenderingData renderingData, UniversalRenderer renderer)
@@ -128,60 +156,76 @@ namespace PowerUtilities.Features
             {
                 ColorSpaceTransform.SetColorSpace(cmd, ColorSpaceTransform.ColorSpaceMode.LinearToSRGB);
             }
-            var clearFlags = settings.isClearCameraTarget? ClearFlag.Depth: ClearFlag.None;
-            // blit current active to camera target
-            var curActive = renderer.GetRTHandle(URPRTHandleNames.m_ActiveCameraColorAttachment);
-            cmd.BlitTriangle(curActive, BuiltinRenderTextureType.CameraTarget, settings.blitMat, 0,clearFlags : clearFlags);
-            
-            // draw object with blend
+            var clearFlags = settings.isClearCameraTargetDepth ? ClearFlag.Depth : ClearFlag.None;
+
+            //1  blit current active to camera target
+            if (settings.isBlitActiveColorTarget)
+            {
+                var curActive = renderer.GetActiveCameraColorAttachment(CompareTools.IsSetFirstTime(ref isActiveColorTargetForceSet));
+                cmd.BlitTriangle(curActive, BuiltinRenderTextureType.CameraTarget, settings.blitMat, 0,
+                    clearFlags: clearFlags);
+            }
+            else
+            {
+                cmd.SetRenderTarget(BuiltinRenderTextureType.CameraTarget);
+                if (settings.isClearCameraTargetDepth)
+                {
+                    cmd.ClearRenderTarget(true, false, Color.clear);
+                }
+            }
+            cmd.Execute(ref context);
+
+            //2 draw object with blend
             DrawRenderers(ref context, ref renderingData, BuiltinRenderTextureType.CameraTarget, BuiltinRenderTextureType.CameraTarget);
         }
 
-        private void BlitToGammaDrawObjects(ref ScriptableRenderContext context, ref RenderingData renderingData, CameraData cameraData)
+        private void DrawObjectsGammaFlow(ref ScriptableRenderContext context, ref RenderingData renderingData, CameraData cameraData)
         {
             RTHandle lastColorHandle, lastDepthHandle, colorHandle, depthHandle;
             SetupTargetTex(ref renderingData, ref cameraData, out lastColorHandle, out lastDepthHandle, out colorHandle, out depthHandle);
 
-            //---------------------  1 to gamma tex
-            settings.blitMat.shaderKeywords = null;
-            //settingSO.blitMat.SetFloat("_Double", 0);
-
+            // to gamma space
             ColorSpaceTransform.SetColorSpace(cmd, ColorSpaceTransform.ColorSpaceMode.LinearToSRGB);
-            BlitToTarget(ref context, lastColorHandle, colorHandle, depthHandle, false, true);
+            settings.blitMat.shaderKeywords = null;
+
+            //---------------------  1 to gamma tex
+            if (settings.isBlitActiveColorTarget && lastColorHandle.nameID != colorHandle.nameID)
+            {
+                // overwrite target
+                BlitToTarget(ref context, lastColorHandle, colorHandle, depthHandle, false, true);
+                cmd.Execute(ref context);
+            }
 
             //--------------------- 2 draw gamma objects
             DrawRenderers(ref context, ref renderingData, colorHandle, depthHandle);
 
-
             //--------------------- 3 to colorTarget
+            // to linear space
             ColorSpaceTransform.SetColorSpace(cmd, ColorSpaceTransform.ColorSpaceMode.SRGBToLinear);
 
-            switch (settings.outputTarget)
-            {
-                case OutputTarget.CameraTarget:
-                    // write to CameraTarget
-                    cmd.BlitTriangle(BuiltinRenderTextureType.CurrentActive, BuiltinRenderTextureType.CameraTarget, settings.blitMat, 0);
-                    break;
-                case OutputTarget.UrpColorTarget:
-                    // write to urp target
-                    BlitToTarget(ref context, colorHandle, lastColorHandle, lastDepthHandle, false, true);
-                    break;
-                default:break;
-            }
-
-            //------------- end 
-            if (settings.createFullsizeGammaTex)
-                cmd.ReleaseTemporaryRT(_GammaTex);
+            GammaFlowFinalBlit(ref context, lastColorHandle, lastDepthHandle, colorHandle);
 
             ColorSpaceTransform.SetColorSpace(cmd, ColorSpaceTransform.ColorSpaceMode.None);
 
             cmd.Execute(ref context);
         }
 
-        void ClearDefaultCameraTargetDepth(ref ScriptableRenderContext context,CommandBuffer cmd)
+        void GammaFlowFinalBlit(ref ScriptableRenderContext context, RTHandle lastColorHandle, RTHandle lastDepthHandle, RTHandle colorHandle)
         {
-            cmd.SetRenderTarget(BuiltinRenderTextureType.CameraTarget);
-            cmd.ClearRenderTarget(true, false, Color.clear);
+            switch (settings.outputTarget)
+            {
+                case OutputTarget.CameraTarget:
+                    // write to CameraTarget
+                    cmd.BlitTriangle(BuiltinRenderTextureType.CurrentActive, BuiltinRenderTextureType.CameraTarget, settings.blitMat, 0,
+                        finalSrcMode: settings.finalBlitSrcMode, finalDstMode: settings.finalBlitDestMode);
+                    break;
+                case OutputTarget.UrpColorTarget:
+                    // write to urp target
+                    BlitToTarget(ref context, colorHandle, lastColorHandle, lastDepthHandle, false, true);
+                    break;
+                default: break;
+            }
+
         }
 
         void BlitToTarget(ref ScriptableRenderContext context, RenderTargetIdentifier lastColorHandleId, RenderTargetIdentifier colorHandleId, RenderTargetIdentifier depthHandleId, bool clearColor, bool clearDepth)
@@ -194,8 +238,6 @@ namespace PowerUtilities.Features
             //cmd.Blit(BuiltinRenderTextureType.None, colorHandle, settingSO.blitMat); // will set _MainTex
             cmd.BlitTriangle(lastColorHandleId, colorHandleId, settings.blitMat, 0);
         }
-
-
 
         private void DrawRenderers(ref ScriptableRenderContext context, ref RenderingData renderingData, RenderTargetIdentifier targetTexId, RenderTargetIdentifier depthHandleId)
         {
@@ -216,19 +258,11 @@ namespace PowerUtilities.Features
             }
 #endif
 
-            // reset depth buffer(depthHandle), otherwise depth&stencil are missing
-            {
-                //cmd.SetRenderTarget(targetTexId, RenderBufferLoadAction.Load, RenderBufferStoreAction.Store,
-                // depthHandle, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store);
-
-                cmd.SetRenderTarget(targetTexId, depthHandleId);
-                cmd.Execute(ref context);
-            }
-
             var renderStateBlock = GetRenderStateBlock();
             curRenderStateArr[0] = renderStateBlock;
-            context.DrawRenderers(cmd, renderingData.cullResults, ref drawSettings, ref filterSettings, null, curRenderStateArr);
-            //context.DrawRenderers(renderingData.cullResults, ref drawSettings, ref filterSettings, ref renderStateBlock);
+
+            // render main filter
+            DrawObjectByInfo(ref filterSettings, ref context, renderingData, ref drawSettings, curRenderStateArr, settings.filterInfo);
 
             // render objects by layerMasks order
             if (settings.filterInfoList.Count > 0)
@@ -253,6 +287,8 @@ namespace PowerUtilities.Features
                 var depthId = info.depthTargetName == "CameraTarget" ? BuiltinRenderTextureType.CameraTarget : new RenderTargetIdentifier(info.depthTargetName);
 
                 cmd.SetRenderTarget(colorId, depthId);
+                if (info.isClearDepth)
+                    cmd.ClearRenderTarget(true, false, Color.black);
                 cmd.Execute(ref context);
             }
             //2 rebind targets
@@ -262,7 +298,7 @@ namespace PowerUtilities.Features
                 {
                     cmd.SetGlobalTexture(rebindTargetInfo.originalRTName, rebindTargetInfo.otherRTName);
 
-                    if(isGameCamera)
+                    if (isGameCamera)
                         ColorSpaceTransform.SetColorSpace(cmd, rebindTargetInfo.colorSpace);
 
                     cmd.Execute(ref context);
@@ -285,18 +321,19 @@ namespace PowerUtilities.Features
             foreach (var cam in Camera.allCameras)
             {
                 var cd = cam.GetComponent<UniversalAdditionalCameraData>();
-                if(cd && cd.renderPostProcessing) return true;
+                if (cd && cd.renderPostProcessing) return true;
             }
             return false;
         }
 
-        private void SetupTargetTex(ref RenderingData renderingData, ref CameraData cameraData,out RTHandle lastColorHandle,out RTHandle lastDepthHandle, out RTHandle colorHandleId, out RTHandle depthHandleId)
+        private void SetupTargetTex(ref RenderingData renderingData, ref CameraData cameraData, out RTHandle lastColorHandle, out RTHandle lastDepthHandle, out RTHandle colorHandleId, out RTHandle depthHandleId)
         {
             var renderer = (UniversalRenderer)cameraData.renderer;
-            lastColorHandle = renderer.GetRTHandle(URPRTHandleNames.m_ActiveCameraColorAttachment);
-            var colorAttachmentA = renderer.GetRTHandle(URPRTHandleNames._CameraColorAttachmentA);
-            var colorAttachmentB = renderer.GetRTHandle(URPRTHandleNames._CameraColorAttachmentB);
-            colorHandleId = lastColorHandle == colorAttachmentA ? colorAttachmentB : colorAttachmentA;
+            lastColorHandle = renderer.GetActiveCameraColorAttachment(CompareTools.IsSetFirstTime(ref isActiveColorTargetForceSet));
+
+            var colorAttachmentA = renderer.GetCameraColorAttachmentA();
+            var colorAttachmentB = renderer.GetCameraColorAttachmentB();
+            colorHandleId = (lastColorHandle == colorAttachmentA) ? colorAttachmentB : colorAttachmentA;
 
             depthHandleId = lastDepthHandle = renderer.GetRTHandle(URPRTHandleNames.m_CameraDepthAttachment);
 

@@ -50,6 +50,7 @@ namespace PowerUtilities
         public bool isRetarget;
         public string colorTargetName;
         public string depthTargetName;
+        public bool isClearDepth;
 
         [Header("Rebind Targets")]
         public List<RebingTargetNameInfo> rebindTargetList = new List<RebingTargetNameInfo> ();

@@ -69,6 +69,14 @@ namespace PowerUtilities
         static ScriptableRendererEx()
         {
             SetupURPPassTypeDict();
+
+            ApplicationTools.OnDomainUnload += ApplicationTools_OnDomainUnload;
+        }
+
+        private static void ApplicationTools_OnDomainUnload()
+        {
+            passDict.Clear();
+
         }
 
         private static void SetupURPPassTypeDict()
@@ -160,6 +168,23 @@ namespace PowerUtilities
             {
                 var item = list[i];
                 if (item == null || !onPredicate(item))
+                    continue;
+
+                list.Remove(item);
+                i--;
+            }
+        }
+
+        public static void RemoveRenderPass(this ScriptableRenderer renderer, Type passType)
+        {
+            var list = renderer.GetActiveRenderPassQueue();
+            if (list == null)
+                return;
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                var item = list[i];
+                if (item == null || item.GetType() !=passType)
                     continue;
 
                 list.Remove(item);
