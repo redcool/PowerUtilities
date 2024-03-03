@@ -88,6 +88,8 @@ using UnityEngine;
     public  class BaseInputControl<TInputAssets> : BaseInputControl where TInputAssets : IInputActionCollection2, new()
     {
         TInputAssets inputControlAsset;
+
+        public PlayerInput unityPlayerInput;
         
         public TInputAssets InputControlAsset
         {
@@ -104,14 +106,20 @@ using UnityEngine;
 
         //public InputControlAssets.PlayerControlActions PlayerControl => InputControlAsset.PlayerControl;
 
+        private void Awake()
+        {
+            unityPlayerInput = GetComponent<PlayerInput>();
+        }
 
         public void OnEnable()
         {
+            unityPlayerInput?.ActivateInput();
             InputControlAsset?.Enable();
         }
 
         public void OnDisable()
         {
+            unityPlayerInput?.DeactivateInput();
             InputControlAsset?.Disable();
         }
         
