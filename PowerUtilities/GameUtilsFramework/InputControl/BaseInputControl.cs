@@ -30,6 +30,11 @@ namespace GameUtilsFramework
         void Enable();
         void Disable();
     }
+
+    public interface PlayerInput {
+        void ActivateInput();
+        void DeactivateInput();
+    }
 #endif
 
     /// <summary>
