@@ -26,12 +26,13 @@
         public int GetTextureId()
             => Shader.PropertyToID(name);
 
-        public bool IsValid()
+        public bool IsValid(Camera cam = null)
         {
             var isValid = !string.IsNullOrEmpty(name) && format != default && !isSkip;
-// #if UNITY_2022_1_OR_NEWER
-//             isValid = isValid && !RTHandleTools.IsURPRTHandleName(name);
-// #endif
+#if UNITY_2022_1_OR_NEWER
+            if (cam)
+                isValid = isValid && !RTHandleTools.IsURPRTAlloced(cam, name);
+#endif
             return isValid;
         }
 

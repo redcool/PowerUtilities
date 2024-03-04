@@ -91,11 +91,11 @@ namespace PowerUtilities
 
             var desc = defaultDescriptor;
             desc.SetupColorDescriptor(camera, renderScale, false, samples);
-
+            
             //targetInfos.ForEach((info, id) =>
             foreach ( var info in targetInfos )
             {
-                if (!info.IsValid())
+                if (!info.IsValid(camera))
                 {
                     continue;
                 }

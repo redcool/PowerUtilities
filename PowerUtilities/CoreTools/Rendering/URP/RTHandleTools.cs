@@ -64,25 +64,48 @@ namespace PowerUtilities
         };
 
         /// <summary>
-        /// {rtId,rtName}
+        /// {rtId,rtStrName}
         /// </summary>
         public static Dictionary<int, URPRTHandleNames> urpRTIdNameDict = new Dictionary<int, URPRTHandleNames>();
+        public static Dictionary<string, URPRTHandleNames> urpSrtName2HandleDict = new Dictionary<string, URPRTHandleNames>();
 
         static RTHandleTools()
         {
             var names = Enum.GetNames(typeof(URPRTHandleNames));
             foreach (var name in names)
             {
-                urpRTIdNameDict.Add(Shader.PropertyToID(name), EnumEx.Parse<URPRTHandleNames>(name));
+                var rtHandeName = EnumEx.Parse<URPRTHandleNames>(name);
+
+                urpRTIdNameDict.Add(Shader.PropertyToID(name), rtHandeName);
+                urpSrtName2HandleDict.Add(name, rtHandeName);
             }
         }
         /// <summary>
-        /// is rtName UniversalRenderer's rtHanle variables ?
+        /// is rtStrName UniversalRenderer's rtHanle variables ?
         /// </summary>
-        /// <param fieldPath="rtName"></param>
+        /// <param fieldPath="rtStrName"></param>
         /// <returns></returns>
-        public static bool IsURPRTHandleName(string rtName) => Enum.IsDefined(typeof(URPRTHandleNames), rtName);
+        public static bool IsURPRTHandleName(string rtStrName) => urpSrtName2HandleDict.ContainsKey(rtStrName);
 
+        /// <summary>
+        /// return true(rtStrName niversalRenderer's rtHanle variables &&  rt is allocated)
+        /// otherwise return false
+        /// </summary>
+        /// <param name="cam"></param>
+        /// <param name="rtStrName"></param>
+        /// <returns></returns>
+        public static bool IsURPRTAlloced(Camera cam, string rtStrName)
+        {
+            if (urpSrtName2HandleDict.TryGetValue(rtStrName, out var rtHandleName))
+            {
+                var cameraData = cam.GetUniversalAdditionalCameraData();
+                var render = (UniversalRenderer)cameraData.scriptableRenderer;
+                var rtHandle = render.GetRTHandle(rtHandleName);
+                return rtHandle != null && rtHandle.rt;
+            }
+
+            return false;
+        }
         /// <summary>
         /// Get urp renderTexture'name by rtId
         /// 
