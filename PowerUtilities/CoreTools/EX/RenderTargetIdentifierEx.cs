@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -25,32 +26,65 @@ namespace PowerUtilities
             m_Type = t.GetField("m_Type", BindingFlags.Instance | BindingFlags.NonPublic);
         }
 
+        /// <summary>
+        /// check nameId only
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
         public static bool IsNameIdEquals(this RenderTargetIdentifier a, RenderTargetIdentifier b)
         {
             return GetNameId(a) == GetNameId(b);
         }
 
-        public static int GetNameId(this RenderTargetIdentifier a)
+        /// <summary>
+        /// RenderTargetIdentifier 's textureType
+        /// </summary>
+        /// <param name="rtId"></param>
+        /// <returns></returns>
+        public static BuiltinRenderTextureType GetBuiltinRenderTextureType(this RenderTargetIdentifier rtId)
         {
             unsafe
             {
                 int idNum = 0;
-                ByteTools.ReadBytes((byte*)&a, sizeof(int)+sizeof(BuiltinRenderTextureType), sizeof(int), (byte*)&idNum);
+                ByteTools.ReadBytes((byte*)&rtId, 0, sizeof(BuiltinRenderTextureType), (byte*)&idNum);
+                return (BuiltinRenderTextureType)idNum;
+            }
+            //(BuiltinRenderTextureType)m_Type.GetValue(rtId);
+        }
+
+        /// <summary>
+        /// Get nameId
+        /// </summary>
+        /// <param name="rtId"></param>
+        /// <returns></returns>
+        public static int GetNameId(this RenderTargetIdentifier rtId)
+        {
+            unsafe
+            {
+                int idNum = 0;
+                ByteTools.ReadBytes((byte*)&rtId, sizeof(BuiltinRenderTextureType), sizeof(int), (byte*)&idNum);
                 return idNum;
             }
             // 
-            //var id = (int)m_NameID.GetValue(a);
+            //var id = (int)m_NameID.GetValue(rtId);
             //return id;
         }
-        public static BuiltinRenderTextureType GetBuiltinRenderTextureType(this RenderTargetIdentifier a)
+
+        /// <summary>
+        /// Get instanceId
+        /// </summary>
+        /// <param name="rtId"></param>
+        /// <returns></returns>
+        public static int GetInstanceId(this RenderTargetIdentifier rtId)
         {
             unsafe
             {
                 int idNum = 0;
-                ByteTools.ReadBytes((byte*)&a, sizeof(int), sizeof(BuiltinRenderTextureType), (byte*)&idNum);
-                return (BuiltinRenderTextureType)idNum;
+                ByteTools.ReadBytes((byte*)&rtId, sizeof(int) + sizeof(BuiltinRenderTextureType), sizeof(int), (byte*)&idNum);
+                return idNum;
             }
-            //(BuiltinRenderTextureType)m_Type.GetValue(a);
-        } 
+        }
+
     }
 }
