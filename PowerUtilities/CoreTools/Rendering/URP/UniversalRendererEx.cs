@@ -20,7 +20,7 @@ namespace PowerUtilities
         /// <summary>
         /// Get ForwardLights use reflection
         /// </summary>
-        /// <param name="r"></param>
+        /// <param strName="r"></param>
         /// <returns></returns>
         public static ForwardLights GetForwardLights(this UniversalRenderer r)
         {
@@ -28,11 +28,6 @@ namespace PowerUtilities
         }
 
         static Dictionary<ScriptableRenderer, ScriptableRendererRTHandleInfo> rendererRTHandleInfoDict = new Dictionary<ScriptableRenderer, ScriptableRendererRTHandleInfo>();
-
-        /// <summary>
-        /// {rthandleName : URPRTHandleNames}
-        /// </summary>
-        static Dictionary<string, URPRTHandleNames> handleNameToEnumDict = new Dictionary<string, URPRTHandleNames>();
 
         static UniversalRendererEx()
         {
@@ -54,8 +49,8 @@ namespace PowerUtilities
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="arg1"></param>
-        /// <param name="arg2"></param>
+        /// <param strName="arg1"></param>
+        /// <param strName="arg2"></param>
         private static void RenderPipelineManager_endFrameRendering(ScriptableRenderContext arg1, Camera[] arg2)
         {
             // m_ActiveCameraColorAttachment need get per frame
@@ -81,9 +76,9 @@ namespace PowerUtilities
         /// <summary>
         /// Get urp private rtHandle
         /// </summary>
-        /// <param name="renderer"></param>
-        /// <param name="rtName"></param>
-        /// <param name="forceMode"></param>
+        /// <param strName="renderer"></param>
+        /// <param strName="rtName"></param>
+        /// <param strName="forceMode"></param>
         /// <returns></returns>
         public static RTHandle GetRTHandle(this UniversalRenderer renderer, URPRTHandleNames rtName,bool forceMode=false)
         {
@@ -107,8 +102,8 @@ namespace PowerUtilities
         /// Get urp renderTarget and cache it,
         /// when rtHandle changed will get it again.
         /// </summary>
-        /// <param name="renderer"></param>
-        /// <param name="rtName"></param>
+        /// <param strName="renderer"></param>
+        /// <param strName="rtName"></param>
         /// <returns></returns>
         public static RTHandle GetRenderTargetId(this UniversalRenderer renderer, URPRTHandleNames rtName)
         {
@@ -117,37 +112,31 @@ namespace PowerUtilities
         }
 
         /// <summary>
-        /// if name is URP renderTarget, replace id to urp renderTarget
+        /// if strName is URP renderTarget, replace id to urp renderTarget
         /// </summary>
-        /// <param name="renderer"></param>
-        /// <param name="name"></param>
-        /// <param name="id"></param>
+        /// <param strName="renderer"></param>
+        /// <param strName="name"></param>
+        /// <param strName="id"></param>
         /// 
-        static Func<string,URPRTHandleNames> ParseNameFunc = (string name) => EnumEx.Parse<URPRTHandleNames>(name);
-        public static void TryReplaceURPRTTarget(this UniversalRenderer renderer, string name, ref RenderTargetIdentifier id)
+        public static void TryReplaceURPRTTarget(this UniversalRenderer renderer, string strName, ref RenderTargetIdentifier id)
         {
-            if (string.IsNullOrEmpty(name))
+            if (string.IsNullOrEmpty(strName))
                 return;
 
-            if (RTHandleTools.IsURPRTHandleName(name))
+            if (RTHandleTools.urpStrName2HandleDict.TryGetValue(strName, out var rtHandle))
             {
-                if (!handleNameToEnumDict.TryGetValue(name, out var handle))
-                    handle = handleNameToEnumDict[name] = EnumEx.Parse<URPRTHandleNames>(name);
-
-                //var handle = DictionaryTools.Get(handleNameToEnumDict, name, ParseNameFunc);
-
-                id = renderer.GetRenderTargetId(handle);
+                id = renderer.GetRenderTargetId(rtHandle);
                 // urp not alloc it, use nameId
                 if (id == default)
-                    id = Shader.PropertyToID(name);
+                    id = Shader.PropertyToID(strName);
             }
         }
 
         /// <summary>
         /// if rtId's nameId is urp renderTarget,replace rtId
         /// </summary>
-        /// <param name="renderer"></param>
-        /// <param name="rtId"></param>
+        /// <param strName="renderer"></param>
+        /// <param strName="rtId"></param>
         public static void TryReplaceURPRTTarget(this UniversalRenderer renderer, ref RenderTargetIdentifier rtId)
         {
             if(RTHandleTools.TryGetURPTextureName(rtId, out var rtName))
@@ -156,10 +145,10 @@ namespace PowerUtilities
             }
         }
         /// <summary>
-        /// check rt name, if it is UnviersalRenderer's rtHandle, replace to urp rtHanlde
+        /// check rt strName, if it is UnviersalRenderer's rtHandle, replace to urp rtHanlde
         /// </summary>
-        /// <param name="names"></param>
-        /// <param name="ids"></param>
+        /// <param strName="names"></param>
+        /// <param strName="ids"></param>
         public static void TryReplaceURPRTTargets(this UniversalRenderer renderer, string[] names, ref RenderTargetIdentifier[] ids)
         {
             for (int i = 0; i < names.Length; i++)
@@ -182,6 +171,9 @@ namespace PowerUtilities
 
         public static RTHandle GetCameraDepthTexture(this UniversalRenderer renderer)
         => renderer.GetRTHandle(URPRTHandleNames.m_DepthTexture);
+
+        public static RTHandle GetCameraDepthAttachment(this UniversalRenderer renderer)
+        => renderer.GetRTHandle(URPRTHandleNames._CameraDepthAttachment);
 
         public static RTHandle GetCameraOpaqueTexture(this UniversalRenderer renderer)
         => renderer.GetRTHandle(URPRTHandleNames._CameraOpaqueTexture);

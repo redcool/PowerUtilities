@@ -67,7 +67,7 @@ namespace PowerUtilities
         /// {rtId,rtStrName}
         /// </summary>
         public static Dictionary<int, URPRTHandleNames> urpRTIdNameDict = new Dictionary<int, URPRTHandleNames>();
-        public static Dictionary<string, URPRTHandleNames> urpSrtName2HandleDict = new Dictionary<string, URPRTHandleNames>();
+        public static Dictionary<string, URPRTHandleNames> urpStrName2HandleDict = new Dictionary<string, URPRTHandleNames>();
 
         static RTHandleTools()
         {
@@ -77,7 +77,7 @@ namespace PowerUtilities
                 var rtHandeName = EnumEx.Parse<URPRTHandleNames>(name);
 
                 urpRTIdNameDict.Add(Shader.PropertyToID(name), rtHandeName);
-                urpSrtName2HandleDict.Add(name, rtHandeName);
+                urpStrName2HandleDict.Add(name, rtHandeName);
             }
         }
         /// <summary>
@@ -85,7 +85,7 @@ namespace PowerUtilities
         /// </summary>
         /// <param fieldPath="rtStrName"></param>
         /// <returns></returns>
-        public static bool IsURPRTHandleName(string rtStrName) => urpSrtName2HandleDict.ContainsKey(rtStrName);
+        public static bool IsURPRTHandleName(string rtStrName) => urpStrName2HandleDict.ContainsKey(rtStrName);
 
         /// <summary>
         /// return true(rtStrName niversalRenderer's rtHanle variables &&  rt is allocated)
@@ -96,7 +96,7 @@ namespace PowerUtilities
         /// <returns></returns>
         public static bool IsURPRTAlloced(Camera cam, string rtStrName)
         {
-            if (urpSrtName2HandleDict.TryGetValue(rtStrName, out var rtHandleName))
+            if (urpStrName2HandleDict.TryGetValue(rtStrName, out var rtHandleName))
             {
                 var cameraData = cam.GetUniversalAdditionalCameraData();
                 var render = (UniversalRenderer)cameraData.scriptableRenderer;

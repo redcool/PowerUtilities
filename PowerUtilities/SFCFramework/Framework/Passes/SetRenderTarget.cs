@@ -65,12 +65,13 @@ namespace PowerUtilities.RenderFeatures
     public class SetRenderTargetPass : SRPPass<SetRenderTarget>
     {
         RenderTargetIdentifier[] colorIds;
+        RenderTargetIdentifier depthId;
 
         //---------- cache info
         string[] lastColorNames;
         string lastDepthName;
 
-        RenderTargetIdentifier lastTargetNameId;
+        RenderTargetIdentifier lastColorTargetNameId;
 
         // trace urp 's rt changed
         bool isURPRTChanged;
@@ -111,13 +112,12 @@ namespace PowerUtilities.RenderFeatures
             }
         }
 
-        public bool CheckURPChangeRT(UniversalRenderer renderer)
+        public bool IsURPRTChanged(UniversalRenderer renderer)
         {
             var mainRT = renderer.GetCameraColorAttachmentA();
-            var isRTChanged = (mainRT.nameID != lastTargetNameId);
+            var isRTChanged = (mainRT.nameID != lastColorTargetNameId);
 
-            lastTargetNameId = mainRT.nameID;
-
+            lastColorTargetNameId = mainRT.nameID;
             return isRTChanged;
         }
 
@@ -165,7 +165,7 @@ namespace PowerUtilities.RenderFeatures
                     return true;
             }
 
-            return CheckURPChangeRT(renderer);
+            return IsURPRTChanged(renderer);
         }
 
         bool isNeedAllocDepthId()
@@ -185,22 +185,14 @@ namespace PowerUtilities.RenderFeatures
             if (isAllocColorIds)
             {
                 SetupColorIds(renderer);
+
+                depthId = SetupDepthId(renderer);
             }
 
-            RenderTargetIdentifier depthId = SetupDepthId(renderer);
             cmd.SetRenderTarget(colorIds, depthId);
 
             // keep rths, then sfc pass can use these rths.
             RenderTargetHolder.SaveTargets(colorIds, depthId);
-            // update urp renderer's default targets
-            //UpdateRendererDefaultTargets(renderer, depthId);
-        }
-
-        private void UpdateRendererDefaultTargets(UniversalRenderer renderer, RenderTargetIdentifier depthId)
-        {
-            var colorHandle = renderer.GetActiveCameraColorAttachment();
-            var depthHandle = renderer.GetActiveCameraDepthAttachment();
-            renderer.ConfigureCameraTarget(colorHandle, depthHandle);
         }
 
         private RenderTargetIdentifier SetupDepthId(UniversalRenderer renderer)
