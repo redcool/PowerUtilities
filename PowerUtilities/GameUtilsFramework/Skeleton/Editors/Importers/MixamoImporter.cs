@@ -11,7 +11,7 @@ namespace GameUtilsFramework
 {
     public class MixamoImporter : AssetPostprocessor
     {
-        private void OnPostprocessModel(GameObject gameObject)
+        public static void RemoveMixamoRig(GameObject gameObject)
         {
             var setting = ScriptableObjectTools.CreateGetInstance<PowerAssetImporterSetting>();
             if (!setting.isRemoveMixamoRig)
@@ -24,6 +24,28 @@ namespace GameUtilsFramework
                 tr.gameObject.name = nameName;
             });
         }
+
+        private void OnPostprocessModel(GameObject gameObject)
+        {
+            RemoveMixamoRig(gameObject);
+        }
+
+        private static void OnPostprocessAllAssets__(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)
+        {
+            foreach (var asset in importedAssets)
+            {
+                var imp = AssetImporter.GetAtPath(asset);
+                var type = imp.GetType().Name;
+
+                // model, prefab
+                if(type.Contains("ModelImporter") || type.Contains("PrefabImporter") )
+                {
+                    var go = AssetDatabase.LoadAssetAtPath<GameObject>(asset);
+                    RemoveMixamoRig(go);
+                }
+            }
+        }
+
     }
 }
 #endif
