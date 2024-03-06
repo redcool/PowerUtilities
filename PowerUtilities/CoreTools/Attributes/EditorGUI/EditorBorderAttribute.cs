@@ -17,12 +17,10 @@
         public int lineCount = 1;
         public Color color = default;
 
-        public EditorBorderAttribute(int lineCount = 1)
+        public EditorBorderAttribute(int lineCount = 1, string colorStr = "#749C75")
         {
             this.lineCount = lineCount;
-
-            if (color == default)
-                ColorUtility.TryParseHtmlString("#749C75", out color);
+            ColorUtility.TryParseHtmlString(colorStr, out color);
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿namespace PowerUtilities
 {
+    using System;
     using System.Collections;
     using System.Collections.Generic;
     using System.IO;
@@ -73,6 +74,26 @@
                 Directory.CreateDirectory(dirPath);
             }
         }
+        /// <summary>
+        /// a/b.fbx => a/b
+        /// </summary>
+        /// <param name="assetPath"></param>
+        /// <returns></returns>
+        public static string RemoveExtName(string assetPath)
+        {
+            var extName = Path.GetExtension(assetPath);
+            if (string.IsNullOrEmpty(extName))
+                return assetPath;
 
+            return assetPath.SubstringLast(extName.Length);
+        }
+        /// <summary>
+        /// a/b.fbx => a/b.newExtName
+        /// </summary>
+        /// <param name="assetPath"></param>
+        /// <param name="newExtName"></param>
+        /// <returns></returns>
+        public static string ChangeExtName(string assetPath,string newExtName)
+        => RemoveExtName(assetPath) + newExtName;
     }
 }

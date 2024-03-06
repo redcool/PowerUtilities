@@ -188,5 +188,32 @@
                 colors[i] = originalMesh.colors[refTriangle];
             }
         }
+
+        public static void CopyFrom(this Mesh a,Mesh b)
+        {
+            if (!a || !b)
+                return;
+
+            a.Clear();
+            a.vertices = b.vertices;
+            a.uv = b.uv;
+            a.uv2 = b.uv2;
+            a.uv3 = b.uv3;
+            a.uv4 = b.uv4;
+            a.uv5 = b.uv5;
+            a.uv6 = b.uv6;
+            a.uv7 = b.uv7;
+            a.uv8 = b.uv8;
+            a.colors = b.colors;
+            a.triangles = b.triangles;
+            a.normals = b.normals;
+            a.tangents = b.tangents;
+            a.bindposes = b.bindposes;
+            a.boneWeights = b.boneWeights;
+            a.bounds = b.bounds;
+            a.subMeshCount = b.subMeshCount;
+            a.indexFormat = b.indexFormat;
+            a.indexBufferTarget = b.indexBufferTarget;
+        }
     }
 }
