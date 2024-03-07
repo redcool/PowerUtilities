@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.Rendering.Universal.Internal;
-#if UNITY_2020_3
+#if UNITY_2020
 using UniversalRenderer = UnityEngine.Rendering.Universal.ForwardRenderer;
 #endif
 namespace PowerUtilities

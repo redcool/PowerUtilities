@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿#if UNITY_EDITOR
+using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.Build;
@@ -13,8 +14,12 @@ namespace PowerUtilities
         /// <returns></returns>
         public static List<string> GetDefineMacroList()
         {
+#if UNITY_2021_1_OR_NEWER
             var buildTarget = NamedBuildTarget.FromBuildTargetGroup(EditorUserBuildSettings.selectedBuildTargetGroup);
             var defineStr = PlayerSettings.GetScriptingDefineSymbols(buildTarget);
+#else
+            var defineStr = PlayerSettings.GetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup);
+#endif
 
             return defineStr.SplitBy(';').ToList();
         }
@@ -24,10 +29,13 @@ namespace PowerUtilities
             if (defineList == null)
                 return;
 
-            var buildTarget = NamedBuildTarget.FromBuildTargetGroup(EditorUserBuildSettings.selectedBuildTargetGroup);
-
             var defineStr = string.Join(";", defineList);
+#if UNITY_2021_1_OR_NEWER
+            var buildTarget = NamedBuildTarget.FromBuildTargetGroup(EditorUserBuildSettings.selectedBuildTargetGroup);
             PlayerSettings.SetScriptingDefineSymbols(buildTarget, defineStr);
+#else
+            PlayerSettings.SetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup, defineStr);
+#endif
         }
 
         public static void AddMacroDefines(params string[] macros)
@@ -60,3 +68,4 @@ namespace PowerUtilities
         }
     }
 }
+#endif

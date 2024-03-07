@@ -213,7 +213,9 @@
             a.bounds = b.bounds;
             a.subMeshCount = b.subMeshCount;
             a.indexFormat = b.indexFormat;
+#if UNITY_2021_1_OR_NEWER
             a.indexBufferTarget = b.indexBufferTarget;
+#endif
         }
     }
 }
