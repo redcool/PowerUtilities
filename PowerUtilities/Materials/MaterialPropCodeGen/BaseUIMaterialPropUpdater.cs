@@ -113,6 +113,11 @@ namespace PowerUtilities
 
         private void OnDestroy()
         {
+            DestroyCachedMaterialInstance();
+        }
+
+        public void DestroyCachedMaterialInstance()
+        {
             for (int i = graphCachedMaterialList.Count - 1; i >= 0; i--)
             {
                 graphCachedMaterialList[i].Destroy();
@@ -190,7 +195,7 @@ namespace PowerUtilities
                 || !graphCachedMaterialList[0]
                 || baseMaterial.shader != graphCachedMaterialList[0].shader)
             {
-                graphCachedMaterialList.Clear();
+                DestroyCachedMaterialInstance();
                 graphCachedMaterialList.Add(Instantiate(baseMaterial));
             }
 
