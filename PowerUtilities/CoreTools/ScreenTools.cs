@@ -17,7 +17,7 @@ namespace PowerUtilities
         /// <summary>
         /// Call this when Screen size changed
         /// </summary>
-        public static event Action OnCameraSizeChanged;
+        public static event Action OnScreenSizeChanged;
 
         static int2 lastCameraRes;
 #if UNITY_EDITOR
@@ -33,12 +33,12 @@ namespace PowerUtilities
 
         private static void CheckScreenSize(ScriptableRenderContext ctx, Camera[] cameras)
         {
-            if (OnCameraSizeChanged == null)
+            if (OnScreenSizeChanged == null)
                 return;
 
             if (lastCameraRes.x != Screen.width || lastCameraRes.y != Screen.height)
             {
-                OnCameraSizeChanged();
+                OnScreenSizeChanged();
 
                 lastCameraRes.x = Screen.width;
                 lastCameraRes.y = Screen.height;

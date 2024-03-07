@@ -31,6 +31,7 @@ namespace PowerUtilities
 
         static UniversalRendererEx()
         {
+            ApplicationTools.OnDomainUnload -= ClearCachedRTHandles;
             ApplicationTools.OnDomainUnload += ClearCachedRTHandles;
 
             //RenderPipelineManager.endFrameRendering -= RenderPipelineManager_endFrameRendering;
@@ -39,8 +40,8 @@ namespace PowerUtilities
             RenderPipelineManager.endCameraRendering -= RenderPipelineManager_endCameraRendering;
             RenderPipelineManager.endCameraRendering += RenderPipelineManager_endCameraRendering;
 
-            ScreenTools.OnCameraSizeChanged -= ClearCachedRTHandles;
-            ScreenTools.OnCameraSizeChanged += ClearCachedRTHandles;
+            ScreenTools.OnScreenSizeChanged -= ClearCachedRTHandles;
+            ScreenTools.OnScreenSizeChanged += ClearCachedRTHandles;
         }
 
         private static void RenderPipelineManager_endCameraRendering(ScriptableRenderContext arg1, Camera arg2)
