@@ -14,7 +14,7 @@ namespace PowerUtilities
     /// <summary>
     /// Extends UniversalRenderer,special for private RTHandles
     /// </summary>
-    public static partial class UniversalRendererEx 
+    public static partial class UniversalRendererEx
     {
         static CacheTool<UniversalRenderer, ForwardLights> rendererForwardLightsCache = new CacheTool<UniversalRenderer, ForwardLights>();
         /// <summary>
@@ -31,13 +31,16 @@ namespace PowerUtilities
 
         static UniversalRendererEx()
         {
-            ApplicationTools.OnDomainUnload += ApplicationTools_OnDomainUnload;
+            ApplicationTools.OnDomainUnload += ClearCachedRTHandles;
 
             //RenderPipelineManager.endFrameRendering -= RenderPipelineManager_endFrameRendering;
             //RenderPipelineManager.endFrameRendering += RenderPipelineManager_endFrameRendering;
 
             RenderPipelineManager.endCameraRendering -= RenderPipelineManager_endCameraRendering;
             RenderPipelineManager.endCameraRendering += RenderPipelineManager_endCameraRendering;
+
+            ScreenTools.OnCameraSizeChanged -= ClearCachedRTHandles;
+            ScreenTools.OnCameraSizeChanged += ClearCachedRTHandles;
         }
 
         private static void RenderPipelineManager_endCameraRendering(ScriptableRenderContext arg1, Camera arg2)
@@ -62,31 +65,31 @@ namespace PowerUtilities
 
         public static void ClearActiveCameraColorAttachmentCache(ScriptableRenderer renderer)
         {
-            if(rendererRTHandleInfoDict.TryGetValue(renderer,out var info))
+            if (rendererRTHandleInfoDict.TryGetValue(renderer, out var info))
             {
                 info.rtHandleDict[URPRTHandleNames.m_ActiveCameraColorAttachment] = null;
             }
         }
 
-        private static void ApplicationTools_OnDomainUnload()
+        public static void ClearCachedRTHandles()
         {
             rendererRTHandleInfoDict.Clear();
         }
 
         /// <summary>
-        /// Get urp private rtHandle
+        /// Get urp private rtHandleName
         /// </summary>
         /// <param strName="renderer"></param>
         /// <param strName="rtName"></param>
         /// <param strName="forceMode"></param>
         /// <returns></returns>
-        public static RTHandle GetRTHandle(this UniversalRenderer renderer, URPRTHandleNames rtName,bool forceMode=false)
+        public static RTHandle GetRTHandle(this UniversalRenderer renderer, URPRTHandleNames rtName, bool forceMode = false)
         {
-            if(!rendererRTHandleInfoDict.TryGetValue(renderer, out var handleInfo))
+            if (!rendererRTHandleInfoDict.TryGetValue(renderer, out var handleInfo))
             {
                 handleInfo = rendererRTHandleInfoDict[renderer] = new ScriptableRendererRTHandleInfo();
             }
-            
+
             handleInfo.rtHandleDict.TryGetValue(rtName, out var handle);
             if (forceMode)
                 handle = default;
@@ -100,7 +103,7 @@ namespace PowerUtilities
 
         /// <summary>
         /// Get urp renderTarget and cache it,
-        /// when rtHandle changed will get it again.
+        /// when rtHandleName changed will get it again.
         /// </summary>
         /// <param strName="renderer"></param>
         /// <param strName="rtName"></param>
@@ -123,9 +126,9 @@ namespace PowerUtilities
             if (string.IsNullOrEmpty(strName))
                 return;
 
-            if (RTHandleTools.urpStrName2HandleDict.TryGetValue(strName, out var rtHandle))
+            if (RTHandleTools.urpStrName2HandleDict.TryGetValue(strName, out var rtHandleName))
             {
-                id = renderer.GetRenderTargetId(rtHandle);
+                id = renderer.GetRenderTargetId(rtHandleName);
                 // urp not alloc it, use nameId
                 if (id == default)
                     id = Shader.PropertyToID(strName);
@@ -139,13 +142,13 @@ namespace PowerUtilities
         /// <param strName="rtId"></param>
         public static void TryReplaceURPRTTarget(this UniversalRenderer renderer, ref RenderTargetIdentifier rtId)
         {
-            if(RTHandleTools.TryGetURPTextureName(rtId, out var rtName))
+            if (RTHandleTools.TryGetURPTextureName(rtId, out var rtName))
             {
                 rtId = GetRenderTargetId(renderer, rtName);
             }
         }
         /// <summary>
-        /// check rt strName, if it is UnviersalRenderer's rtHandle, replace to urp rtHanlde
+        /// check rt strName, if it is UnviersalRenderer's rtHandleName, replace to urp rtHanlde
         /// </summary>
         /// <param strName="names"></param>
         /// <param strName="ids"></param>
@@ -157,26 +160,26 @@ namespace PowerUtilities
             }
         }
 
-        public static RTHandle GetCameraColorAttachmentA(this UniversalRenderer renderer)
-        => renderer.GetRTHandle(URPRTHandleNames._CameraColorAttachmentA);
+        public static RTHandle GetCameraColorAttachmentA(this UniversalRenderer renderer, bool forceMode = false)
+        => renderer.GetRTHandle(URPRTHandleNames._CameraColorAttachmentA, forceMode);
 
-        public static RTHandle GetCameraColorAttachmentB(this UniversalRenderer renderer)
-        => renderer.GetRTHandle(URPRTHandleNames._CameraColorAttachmentB);
+        public static RTHandle GetCameraColorAttachmentB(this UniversalRenderer renderer, bool forceMode = false)
+        => renderer.GetRTHandle(URPRTHandleNames._CameraColorAttachmentB, forceMode);
 
-        public static RTHandle GetActiveCameraColorAttachment(this UniversalRenderer renderer,bool forceMode=false)
-        => renderer.GetRTHandle(URPRTHandleNames.m_ActiveCameraColorAttachment,forceMode);
+        public static RTHandle GetActiveCameraColorAttachment(this UniversalRenderer renderer, bool forceMode = false)
+        => renderer.GetRTHandle(URPRTHandleNames.m_ActiveCameraColorAttachment, forceMode);
 
         public static RTHandle GetActiveCameraDepthAttachment(this UniversalRenderer renderer, bool forceMode = false)
         => renderer.GetRTHandle(URPRTHandleNames.m_ActiveCameraDepthAttachment, forceMode);
 
-        public static RTHandle GetCameraDepthTexture(this UniversalRenderer renderer)
-        => renderer.GetRTHandle(URPRTHandleNames.m_DepthTexture);
+        public static RTHandle GetCameraDepthTexture(this UniversalRenderer renderer, bool forceMode = false)
+        => renderer.GetRTHandle(URPRTHandleNames.m_DepthTexture, forceMode);
 
-        public static RTHandle GetCameraDepthAttachment(this UniversalRenderer renderer)
-        => renderer.GetRTHandle(URPRTHandleNames._CameraDepthAttachment);
+        public static RTHandle GetCameraDepthAttachment(this UniversalRenderer renderer, bool forceMode = false)
+        => renderer.GetRTHandle(URPRTHandleNames._CameraDepthAttachment, forceMode);
 
-        public static RTHandle GetCameraOpaqueTexture(this UniversalRenderer renderer)
-        => renderer.GetRTHandle(URPRTHandleNames._CameraOpaqueTexture);
+        public static RTHandle GetCameraOpaqueTexture(this UniversalRenderer renderer, bool forceMode = false)
+        => renderer.GetRTHandle(URPRTHandleNames._CameraOpaqueTexture, forceMode);
     }
 
 }
