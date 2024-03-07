@@ -24,14 +24,14 @@ namespace PowerUtilities
         public bool isDisableGenerateUV2 = true;
 
         [Tooltip("write generated lightmapUV to disk")]
-        [EditorButton(onClickCall = "SaveUV2")]
+        [EditorButton(onClickCall = "SaveUV2",text = "Save Models LightmapUV")]
         public bool isSaveProjectModelsLightmapUV;
 
         // -------- uv2 restore
         [Header("Lightmap UV(mesh uv2) Restore ")]
         [EditorBorder()]
         [Tooltip("restore generated lightmapUV")]
-        [EditorButton(onClickCall = "RestoreUV2")]
+        [EditorButton(onClickCall = "RestoreUV2", text = "Restore Models LightmapUV")]
         public bool isRestoreProjectmodelsLightmapUV;
 
 

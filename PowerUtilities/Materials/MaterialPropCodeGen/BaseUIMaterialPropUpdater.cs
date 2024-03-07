@@ -109,13 +109,15 @@ namespace PowerUtilities
                 }
             }
 
-            //MaterialPropCodeGenTools.UpdateComponentsMaterial(graphs, (graph, id) =>
-            //{
-                
-            //});
-            //MaterialPropCodeGenTools.UpdateComponentsMaterial(renderers, (render, id) =>
-            //{
-            //});
+        }
+
+        private void OnDestroy()
+        {
+            for (int i = graphCachedMaterialList.Count - 1; i >= 0; i--)
+            {
+                graphCachedMaterialList[i].Destroy();
+            }
+            graphCachedMaterialList.Clear();
         }
 
         void SetupRenderers(out bool isRenderersValid,out bool isGraphsValid)
@@ -194,5 +196,6 @@ namespace PowerUtilities
 
             return graphCachedMaterialList[0];
         }
+
     }
 }

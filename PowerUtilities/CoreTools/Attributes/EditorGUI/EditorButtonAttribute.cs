@@ -16,6 +16,12 @@ using UnityEngine;
         {
             //property.serializedObject.Update();
             var attr = attribute as EditorButtonAttribute;
+            
+            if (!string.IsNullOrEmpty(attr.text))
+                label.text = attr.text;
+
+            if (!string.IsNullOrEmpty(attr.imageAssetPath))
+                label.image = AssetDatabase.LoadAssetAtPath<Texture>(attr.imageAssetPath);
 
             position = EditorGUI.IndentedRect(position);
             if (GUI.Button(position, label))
@@ -44,5 +50,7 @@ using UnityEngine;
     public class EditorButtonAttribute : PropertyAttribute
     {
         public string onClickCall;
+        public string text;
+        public string imageAssetPath;
     }
 }
