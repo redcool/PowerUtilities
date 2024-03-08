@@ -1,16 +1,22 @@
 ﻿#if UNITY_EDITOR
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
-
 namespace PowerUtilities
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
+    using UnityEditor;
+    using UnityEngine;
+
+    [CustomEditor(typeof(PowerUtilSettings))]
+    public class PowerUtilSettingsEditor : Editor
+    {
+    }
+
     [ProjectSettingGroup("PowerUtils/PowerUtilSettings")]
     [SOAssetPath("Assets/PowerUtilities/PowerUtilSettings.asset")]
-    public class PowerUtilSettings :ScriptableObject
+    public class PowerUtilSettings : ScriptableObject
     {
         // -------- lightmap preview
         [Header("LightmapPreview Window")]
@@ -24,7 +30,7 @@ namespace PowerUtilities
         public bool isDisableGenerateUV2 = true;
 
         [Tooltip("write generated lightmapUV to disk")]
-        [EditorButton(onClickCall = "SaveUV2",text = "Save Models LightmapUV")]
+        [EditorButton(onClickCall = "SaveUV2", text = "Save Models LightmapUV")]
         public bool isSaveProjectModelsLightmapUV;
 
         // -------- uv2 restore
