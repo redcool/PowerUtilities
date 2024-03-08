@@ -29,20 +29,20 @@ namespace PowerUtilities
         [Tooltip("disable ModelImport's GenerateLightmapUVS when save done")]
         public bool isDisableGenerateUV2 = true;
 
-        [Tooltip("write generated lightmapUV to disk")]
+        [Tooltip("write generated lightmapUV to disk, \n select nothing will use assets Folder")]
         [EditorButton(onClickCall = "SaveUV2", text = "Save Models LightmapUV")]
         public bool isSaveProjectModelsLightmapUV;
 
         // -------- uv2 restore
         [Header("Lightmap UV(mesh uv2) Restore ")]
         [EditorBorder()]
-        [Tooltip("restore generated lightmapUV")]
+        [Tooltip("restore generated lightmapUV, \n select nothing will use assets Folder")]
         [EditorButton(onClickCall = "RestoreUV2", text = "Restore Models LightmapUV")]
         public bool isRestoreProjectmodelsLightmapUV;
 
         [Header("Clear Lightmap UV info  ")]
         [EditorBorder()]
-        [Tooltip("clear generated lightmapUV objects")]
+        [Tooltip("clear generated lightmapUV objects, \n select nothing will use assets Folder")]
         [EditorButton(onClickCall = "ClearModelExtendInfos", text = "Clear LightmapUV objects")]
         public bool isClearModelExtendInfos;
 

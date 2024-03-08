@@ -262,6 +262,25 @@ namespace PowerUtilities
                 AssetDatabase.RemoveObjectFromAsset(item);
             }
         }
+
+        /// <summary>
+        /// Get Asset folder path
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public static string GetAssetFolder(Object obj)
+        {
+            if (!obj)
+                return "";
+
+            var path = AssetDatabase.GetAssetPath(obj);
+            var isFolder = AssetDatabase.IsValidFolder(path);
+            if (!isFolder)
+                path = Path.GetDirectoryName(path);
+
+            return path;
+        }
+
     }
 }
 #endif

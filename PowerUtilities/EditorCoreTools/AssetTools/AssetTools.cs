@@ -12,10 +12,10 @@ namespace PowerUtilities
         /// Get Models generate UV2 enabled from  Assets folder
         /// </summary>
         /// <returns></returns>
-        public static IEnumerable<(GameObject gameObject, ModelImporter modelImporter)> GetModelsGenerateUV2()
+        public static IEnumerable<(GameObject gameObject, ModelImporter modelImporter)> GetModelsGenerateUV2(params string[] folders)
         {
             var q =
-                from go in AssetDatabaseTools.FindAssetsInProject<GameObject>("t:GameObject")
+                from go in AssetDatabaseTools.FindAssetsInProject<GameObject>("t:GameObject",folders)
                 where go.GetComponentInChildren<MeshFilter>()
                 let imp = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(go)) as ModelImporter
                 where imp != null && imp.generateSecondaryUV

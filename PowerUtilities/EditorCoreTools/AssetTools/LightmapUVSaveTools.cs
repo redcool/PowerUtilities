@@ -11,7 +11,8 @@ namespace PowerUtilities
 
         public static void SaveUV2(bool disableGenerateUV2)
         {
-            var infos = AssetTools.GetModelsGenerateUV2();
+            var folders = SelectionTools.GetSelectedFolders();
+            var infos = AssetTools.GetModelsGenerateUV2(folders);
 
             foreach (var objInfo in infos)
             {
@@ -52,7 +53,7 @@ namespace PowerUtilities
 
         public static void RestoreMesh()
         {
-            var extInfos = AssetDatabaseTools.FindAssetsInProject<ModelExtendInfo>("t:MeshExtendInfo")
+            var extInfos = AssetDatabaseTools.FindAssetsInProject<ModelExtendInfo>("t:MeshExtendInfo",SelectionTools.GetSelectedFolders())
                 .Where(info => !string.IsNullOrEmpty(info.assetPath));
 
             foreach (var extInfo in extInfos)
@@ -85,7 +86,7 @@ namespace PowerUtilities
 
         public static void ClearModelExtendInfos()
         {
-            var paths = AssetDatabaseTools.FindAssetsPath("t:ModelExtendInfo", "asset");
+            var paths = AssetDatabaseTools.FindAssetsPath("t:ModelExtendInfo", "asset", searchInFolders: SelectionTools.GetSelectedFolders());
 
             var list = new List<string>();
             AssetDatabase.DeleteAssets(paths, list);
