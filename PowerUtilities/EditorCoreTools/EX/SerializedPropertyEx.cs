@@ -75,5 +75,24 @@ public static class SerializedPropertyEx
         }
     }
 
+    /// <summary>
+    /// Get property(Object's type) when cachedType is null
+    /// 
+    /// </summary>
+    /// <param name="property"></param>
+    /// <param name="cachedType"></param>
+    public static void TryGetType(this SerializedProperty property, ref Type cachedType)
+    {
+        if (cachedType != null)
+            return;
+
+        if (property.objectReferenceValue != null)
+            cachedType = property.objectReferenceValue.GetType();
+        else
+        {
+            var typeName = property.type.Replace("PPtr<$", "").SubstringLast(1);
+            cachedType = AssemblyTools.GetType(typeName);
+        }
+    }
 }
 #endif

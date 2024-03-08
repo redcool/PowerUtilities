@@ -13,8 +13,6 @@ namespace PowerUtilities
     [CustomEditor(typeof(DrawShadow))]
     public class DrawShadowEditor : SettingSOEditor
     {
-        public override Type SettingSOType => typeof(DrawShadowSettingSO);
-
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
@@ -22,7 +20,6 @@ namespace PowerUtilities
             EditorGUILayout.PropertyField(serializedObject.FindProperty("lightObj"));
             EditorGUILayout.PropertyField(serializedObject.FindProperty("currentDistance"));
             EditorGUILayout.PropertyField(serializedObject.FindProperty("bigShadowRenderCount"));
-
         }
     }
 #endif

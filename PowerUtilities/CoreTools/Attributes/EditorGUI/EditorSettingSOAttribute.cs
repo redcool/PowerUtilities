@@ -1,25 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
-
-namespace PowerUtilities
+﻿namespace PowerUtilities
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
+    using UnityEngine;
+
     /// <summary>
     /// Draw MonoBehaviour or RenderFeature 's settingSO(ScriptableObject)
+    /// <br/>
+    /// ! need a CustomEditor which can be empty  otherwise unity IMGUI will error
     /// </summary>
     [AttributeUsage(AttributeTargets.Field)]
     public class EditorSettingSOAttribute : PropertyAttribute
     {
-        public string settingFieldName = "settingSO";
-        public Type settingType = typeof(ScriptableObject);
-
-        public EditorSettingSOAttribute(Type settingType ,string settingFieldName= "settingSO")
+        public EditorSettingSOAttribute()
         {
-            this.settingType = settingType;
-            this.settingFieldName = settingFieldName;
         }
     }
 }

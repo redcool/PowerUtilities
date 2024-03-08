@@ -4,18 +4,15 @@ namespace PowerUtilities.Features
     using UnityEngine.Rendering;
     using UnityEngine.Rendering.Universal;
     using System;
+    using System.Collections.Generic;
 
 #if UNITY_EDITOR
     using UnityEditor;
-    using UnityEditor.Compilation;
-    using System.Collections.Generic;
 #endif
 #if UNITY_EDITOR
     [CustomEditor(typeof(RenderGammaUIFeature))]
-    public class RenderGammaUIFeatureEditor : SettingSOEditor
+    public class RenderGammaUIFeatureEditor : Editor
     {
-        public override string SettingSOFieldName => base.SettingSOFieldName;
-        public override Type SettingSOType => typeof(GammaUISettingSO);
     }
 #endif
 
@@ -24,6 +21,7 @@ namespace PowerUtilities.Features
 #endif
     public class RenderGammaUIFeature : ScriptableRendererFeature
     {
+        [EditorSettingSO]
         public GammaUISettingSO settingSO;
 
         RenderUIPass uiPass;

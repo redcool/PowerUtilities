@@ -19,14 +19,13 @@ namespace PowerUtilities
         /// </summary>
         public virtual string SettingSOFieldName => "settingSO";
 
-        public virtual string SettingsSOFieldName => "settings";
         /// <summary>
         /// Field Type
         /// </summary>
-        public virtual Type SettingSOType => typeof(ScriptableObject);
 
         Editor targetEditor;
         bool isTargetEditorFolded = true;
+        Type settingSOType;
 
         public override void OnInspectorGUI()
         {
@@ -34,7 +33,10 @@ namespace PowerUtilities
             serializedObject.UpdateIfRequiredOrScript();
 
             var settingProp = serializedObject.FindProperty(SettingSOFieldName);
-            EditorGUITools.DrawSettingSO(settingProp, ref targetEditor, ref isTargetEditorFolded, SettingSOType);
+
+            settingProp.TryGetType(ref settingSOType);
+
+            EditorGUITools.DrawSettingSO(settingProp, ref targetEditor, ref isTargetEditorFolded, settingSOType);
 
             serializedObject.ApplyModifiedProperties();
         }
