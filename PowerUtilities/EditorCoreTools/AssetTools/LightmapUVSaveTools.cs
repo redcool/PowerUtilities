@@ -31,7 +31,7 @@ namespace PowerUtilities
 
         public static void SaveUV2(GameObject gameObject, ModelImporter imp)
         {
-            var path = PathTools.ChangeExtName(imp.assetPath, ".asset");
+            var path = imp.assetPath+ ".asset";
 
             var extInfo = ScriptableObjectTools.CreateGetInstance<ModelExtendInfo>(path);
             extInfo.meshList.Clear();
