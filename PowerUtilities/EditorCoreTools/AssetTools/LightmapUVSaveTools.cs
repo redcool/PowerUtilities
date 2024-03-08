@@ -1,14 +1,7 @@
 #if UNITY_EDITOR
-using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
 using System.Linq;
 using UnityEditor;
-using UnityEditor.EditorTools;
-using UnityEditor.PackageManager;
-using UnityEditor.VersionControl;
-using UnityEditorInternal.Profiling.Memory.Experimental;
 using UnityEngine;
 
 namespace PowerUtilities
@@ -35,24 +28,26 @@ namespace PowerUtilities
             AssetDatabaseTools.SaveRefresh();
         }
 
-        public static void SaveUV2(GameObject gameObject,ModelImporter imp)
+        public static void SaveUV2(GameObject gameObject, ModelImporter imp)
         {
-            var path = PathTools.ChangeExtName(imp.assetPath , ".asset");
+            var path = PathTools.ChangeExtName(imp.assetPath, ".asset");
 
             var extInfo = ScriptableObjectTools.CreateGetInstance<ModelExtendInfo>(path);
             extInfo.meshList.Clear();
+
 
             var mfs = gameObject.GetComponentsInChildren<MeshFilter>();
             foreach (var mf in mfs)
             {
                 var mesh = Object.Instantiate(mf.sharedMesh);
-                AssetDatabase.AddObjectToAsset(mesh,extInfo);
+                AssetDatabase.AddObjectToAsset(mesh, extInfo);
+                //AssetDatabaseTools.AddObjectToAsset(mesh, extInfo,true);
 
                 extInfo.meshList.Add(mesh);
             }
             extInfo.assetPath = imp.assetPath;
 
-            EditorUtility.SetDirty(extInfo);
+            //EditorUtility.SetDirty(extInfo);
         }
 
         public static void RestoreMesh()
@@ -64,7 +59,7 @@ namespace PowerUtilities
             {
                 // need load and instantiate
                 var goAsset = AssetDatabase.LoadAssetAtPath<GameObject>(extInfo.assetPath);
-                var go = Object.Instantiate(goAsset) ;
+                var go = Object.Instantiate(goAsset);
 
                 var mfs = go.GetComponentsInChildren<MeshFilter>();
                 if (mfs.Length != extInfo.meshList.Count)
@@ -86,6 +81,14 @@ namespace PowerUtilities
             }
 
             AssetDatabaseTools.SaveRefresh();
+        }
+
+        public static void ClearModelExtendInfos()
+        {
+            var paths = AssetDatabaseTools.FindAssetsPath("t:ModelExtendInfo", "asset");
+
+            var list = new List<string>();
+            AssetDatabase.DeleteAssets(paths, list);
         }
     }
 }

@@ -242,6 +242,26 @@ namespace PowerUtilities
             var absPath = PathTools.GetAssetAbsPath(pathInAssets);
             return File.Exists(absPath);
         }
+
+        public static void AddObjectToAsset(Object objectToAdd, Object assetObject,bool isClearSubAsset=false)
+        {
+            if (isClearSubAsset)
+            {
+                RemoveSubAssets(assetObject);
+            }
+
+            AssetDatabase.AddObjectToAsset(objectToAdd, assetObject);
+        }
+
+        public static void RemoveSubAssets(Object assetObject)
+        {
+            var path = AssetDatabase.GetAssetPath(assetObject);
+            var items = AssetDatabase.LoadAllAssetRepresentationsAtPath(path);
+            foreach (var item in items)
+            {
+                AssetDatabase.RemoveObjectFromAsset(item);
+            }
+        }
     }
 }
 #endif
