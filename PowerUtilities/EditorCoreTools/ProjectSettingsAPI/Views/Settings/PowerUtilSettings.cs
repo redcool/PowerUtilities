@@ -40,6 +40,12 @@ namespace PowerUtilities
         [EditorButton(onClickCall = "RestoreUV2", text = "Restore Models LightmapUV")]
         public bool isRestoreProjectmodelsLightmapUV;
 
+        [Header("Clear Lightmap UV info  ")]
+        [EditorBorder()]
+        [Tooltip("clear generated lightmapUV objects")]
+        [EditorButton(onClickCall = "ClearModelExtendInfos", text = "Clear LightmapUV objects")]
+        public bool isClearModelExtendInfos;
+
 
         void SaveUV2()
         {
@@ -49,6 +55,11 @@ namespace PowerUtilities
         void RestoreUV2()
         {
             LightmapUVSaveTools.RestoreMesh();
+        }
+
+        void ClearModelExtendInfos()
+        {
+            LightmapUVSaveTools.ClearModelExtendInfos();
         }
     }
 }
