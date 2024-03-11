@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
+using UnityEditor.VersionControl;
 using UnityEngine;
 
 namespace PowerUtilities
@@ -50,6 +51,47 @@ namespace PowerUtilities
 
             //EditorUtility.SetDirty(extInfo);
         }
+        private void OnPostprocessModel(GameObject go)
+        {
+            var imp = assetImporter as ModelImporter;
+
+            var extInfo = AssetDatabase.LoadAssetAtPath<ModelExtendInfo>(assetPath + ".asset");
+            if (!extInfo)
+                return;
+
+            RestoreMesh(go, extInfo);
+        }
+
+        public static void RestoreMesh(GameObject go,ModelExtendInfo extInfo)
+        {
+            if (!go || !extInfo)
+                return;
+
+            var mfs = go.GetComponentsInChildren<MeshFilter>();
+            if (mfs.Length != extInfo.meshList.Count)
+            {
+                Debug.LogWarning($"skip {extInfo.assetPath} ,not same model structure");
+                return;
+            }
+
+            for (int i = 0; i < mfs.Length; i++)
+            {
+                var mesh = extInfo.meshList[i];
+                var mf = mfs[i];
+                // set readable
+                if(!mf.sharedMesh.isReadable)
+                    mf.sharedMesh.SetIsReadable(true);
+
+                if (!mesh.isReadable)
+                    mesh.SetIsReadable(true);
+
+                mf.sharedMesh.CopyFrom(mesh);
+
+                // reset readable
+                mf.sharedMesh.SetIsReadable(false);
+                mesh.SetIsReadable(false);
+            }
+        }
 
         public static void RestoreMesh()
         {
@@ -59,14 +101,13 @@ namespace PowerUtilities
             foreach (var extInfo in extInfos)
             {
                 // need load and instantiate
-                var goAsset = AssetDatabase.LoadAssetAtPath<GameObject>(extInfo.assetPath);
-                var go = Object.Instantiate(goAsset);
+                var go = AssetDatabase.LoadAssetAtPath<GameObject>(extInfo.assetPath);
 
                 var mfs = go.GetComponentsInChildren<MeshFilter>();
                 if (mfs.Length != extInfo.meshList.Count)
                 {
                     Debug.LogWarning($"skip {extInfo.assetPath} ,not same model structure");
-                    continue;
+                    return;
                 }
 
                 for (int i = 0; i < mfs.Length; i++)
@@ -74,14 +115,13 @@ namespace PowerUtilities
                     var mesh = extInfo.meshList[i];
                     var mf = mfs[i];
                     //mf.sharedMesh = mesh;
+                    AssetDatabase.TryGetGUIDAndLocalFileIdentifier(mf, out var guid, out long localId);
 
-                    mf.sharedMesh.CopyFrom(mesh);
+
+                    Debug.Log(guid +":"+ localId);
+                    //mf.sharedMesh.CopyFrom(mesh);
                 }
-
-                go.Destroy();
             }
-
-            AssetDatabaseTools.SaveRefresh();
         }
 
         public static void ClearModelExtendInfos()

@@ -33,6 +33,7 @@ namespace PowerUtilities
         {
             return Selection.objects
                 .Select(AssetDatabaseTools.GetAssetFolder)
+                .Where(str => !string.IsNullOrEmpty(str))
                 .ToArray();
         }
     }

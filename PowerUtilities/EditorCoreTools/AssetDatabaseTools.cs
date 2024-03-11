@@ -274,6 +274,9 @@ namespace PowerUtilities
                 return "";
 
             var path = AssetDatabase.GetAssetPath(obj);
+            if (string.IsNullOrEmpty(path))
+                return "";
+
             var isFolder = AssetDatabase.IsValidFolder(path);
             if (!isFolder)
                 path = Path.GetDirectoryName(path);
