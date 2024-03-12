@@ -1,4 +1,5 @@
 ﻿#if UNITY_EDITOR
+using AsciiFBXExporter;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -56,6 +57,11 @@ namespace PowerUtilities
             {
                 RemoveMixamoRig(go);
             }
+        }
+
+        public static void ExportFBX(GameObject rootGo, string assetPath)
+        {
+            FBXExporter.ExportGameObjToFBX(rootGo, assetPath);
         }
     }
 }
