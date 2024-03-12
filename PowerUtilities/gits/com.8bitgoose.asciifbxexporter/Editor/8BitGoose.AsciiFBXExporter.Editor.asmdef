@@ -1,12 +1,12 @@
 {
-    "name": "PowerEditorUtilities",
+    "name": "8BitGoose.AsciiFBXExporter.Editor",
     "rootNamespace": "",
     "references": [
-        "GUID:5a5cc6c9cee917248a0beb2ae4b4170f",
-        "GUID:d8b63aba1907145bea998dd612889d6b",
         "GUID:752a913767bd2c741938044be47ab13b"
     ],
-    "includePlatforms": [],
+    "includePlatforms": [
+        "Editor"
+    ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,
