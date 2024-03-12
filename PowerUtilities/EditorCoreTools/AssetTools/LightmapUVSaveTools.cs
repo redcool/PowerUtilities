@@ -93,34 +93,14 @@ namespace PowerUtilities
             }
         }
 
-        public static void RestoreMesh()
+        public static void RestoreMeshFromSelectedFolder()
         {
-            var extInfos = AssetDatabaseTools.FindAssetsInProject<ModelExtendInfo>("t:MeshExtendInfo",SelectionTools.GetSelectedFolders())
+            var extInfos = AssetDatabaseTools.FindAssetsInProject<ModelExtendInfo>("t:MeshExtendInfo", SelectionTools.GetSelectedFolders())
                 .Where(info => !string.IsNullOrEmpty(info.assetPath));
 
             foreach (var extInfo in extInfos)
             {
-                // need load and instantiate
-                var go = AssetDatabase.LoadAssetAtPath<GameObject>(extInfo.assetPath);
-
-                var mfs = go.GetComponentsInChildren<MeshFilter>();
-                if (mfs.Length != extInfo.meshList.Count)
-                {
-                    Debug.LogWarning($"skip {extInfo.assetPath} ,not same model structure");
-                    return;
-                }
-
-                for (int i = 0; i < mfs.Length; i++)
-                {
-                    var mesh = extInfo.meshList[i];
-                    var mf = mfs[i];
-                    //mf.sharedMesh = mesh;
-                    AssetDatabase.TryGetGUIDAndLocalFileIdentifier(mf, out var guid, out long localId);
-
-
-                    Debug.Log(guid +":"+ localId);
-                    //mf.sharedMesh.CopyFrom(mesh);
-                }
+                AssetDatabase.ImportAsset(extInfo.assetPath);
             }
         }
 

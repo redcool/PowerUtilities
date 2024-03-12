@@ -54,7 +54,7 @@ namespace PowerUtilities
 
         void RestoreUV2()
         {
-            LightmapUVSaveTools.RestoreMesh();
+            LightmapUVSaveTools.RestoreMeshFromSelectedFolder();
         }
 
         void ClearModelExtendInfos()
