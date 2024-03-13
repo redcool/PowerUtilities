@@ -6,6 +6,7 @@
     using System.ComponentModel.Design.Serialization;
     using System.Linq;
     using System.Text;
+    using System.Text.RegularExpressions;
     using UnityEditor;
     using UnityEngine;
     using Object = UnityEngine.Object;
@@ -212,6 +213,18 @@
         public static void FindChildrenRecursive(this GameObject go, ref List<Transform> list)
         {
             FindChildrenRecursive(ref list, go.transform);
+        }
+
+        public static void RenameHierarchy(this GameObject go,string replacedName,string newName)
+        {
+            if (string.IsNullOrEmpty(replacedName))
+                return;
+
+            var trs = go.GetComponentsInChildren<Transform>();
+            trs.ForEach(tr =>
+            {
+                tr.gameObject.name = Regex.Replace(tr.gameObject.name, replacedName, newName);
+            });
         }
     }
 }

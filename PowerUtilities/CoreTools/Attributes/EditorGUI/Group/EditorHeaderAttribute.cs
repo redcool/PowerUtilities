@@ -35,13 +35,15 @@
             pos.y += 5;
 
             var style = EditorStyles.boldLabel;
-            style.fontSize = 14;
+            style.fontSize = 16;
+            style.alignment = TextAnchor.UpperLeft;
 
             var lastColor = GUI.contentColor;
             GUI.color = attr.color;
             
             EditorGUI.LabelField(pos,GUIContentEx.TempContent(attr.header), style);
             GUI.color = lastColor;
+            
         }
     }
 
