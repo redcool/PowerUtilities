@@ -35,7 +35,7 @@
             pos.y += 5;
 
             var style = EditorStyles.boldLabel;
-            style.fontSize = 16;
+            //style.fontSize = 16;
             style.alignment = TextAnchor.UpperLeft;
 
             var lastColor = GUI.contentColor;
