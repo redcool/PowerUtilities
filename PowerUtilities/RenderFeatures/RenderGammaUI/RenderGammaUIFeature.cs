@@ -21,7 +21,7 @@ namespace PowerUtilities.Features
 #endif
     public class RenderGammaUIFeature : ScriptableRendererFeature
     {
-        [EditorSettingSO]
+        [EditorSettingSO(typeof(GammaUISettingSO))]
         public GammaUISettingSO settingSO;
 
         RenderUIPass uiPass;

@@ -13,6 +13,7 @@ namespace PowerUtilities
     [CustomEditor(typeof(DrawShadow))]
     public class DrawShadowEditor : SettingSOEditor
     {
+        public override Type SettingSOType => typeof(DrawShadowSettingSO);
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();

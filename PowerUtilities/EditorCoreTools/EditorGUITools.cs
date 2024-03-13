@@ -506,7 +506,7 @@ namespace PowerUtilities
             var rect = EditorGUILayout.GetControlRect(false, 2);
             EditorGUITools.DrawColorLine(rect);
 
-            //========================================  draw gammaUISetting 
+            //========================================  draw settingSO detail 
             if (settingSOProp.objectReferenceValue != null)
             {
                 DrawSettingSODetail(ref targetEditor, ref isTargetEditorFolded, settingSOProp);

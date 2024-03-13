@@ -18,25 +18,34 @@ namespace PowerUtilities
         /// FieldName of MonoBehaviour or ScriptableObject
         /// </summary>
         public virtual string SettingSOFieldName => "settingSO";
-
         /// <summary>
-        /// Field Type
+        /// Type for create instance
         /// </summary>
+        public virtual Type SettingSOType { get; set; }
+
 
         Editor targetEditor;
         bool isTargetEditorFolded = true;
-        Type settingSOType;
 
         public override void OnInspectorGUI()
         {
+            if(SettingSOType == null)
+            {
+                EditorGUILayout.SelectableLabel("SettingSOType is null, need assign subclass of ScriptableObject");
+                return;
+            }
+
+            var settingProp = serializedObject.FindProperty(SettingSOFieldName);
+            if(settingProp == null)
+            {
+                EditorGUILayout.SelectableLabel($"{SettingSOFieldName} not found, is name error?");
+                return;
+            }
+
             EditorGUIUtility.labelWidth = 250;
             serializedObject.UpdateIfRequiredOrScript();
 
-            var settingProp = serializedObject.FindProperty(SettingSOFieldName);
-
-            settingProp.TryGetType(ref settingSOType);
-
-            EditorGUITools.DrawSettingSO(settingProp, ref targetEditor, ref isTargetEditorFolded, settingSOType);
+            EditorGUITools.DrawSettingSO(settingProp, ref targetEditor, ref isTargetEditorFolded, SettingSOType);
 
             serializedObject.ApplyModifiedProperties();
         }

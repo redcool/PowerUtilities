@@ -15,8 +15,10 @@
     [AttributeUsage(AttributeTargets.Field)]
     public class EditorSettingSOAttribute : PropertyAttribute
     {
-        public EditorSettingSOAttribute()
+        public Type settingType;
+        public EditorSettingSOAttribute(Type settingType)
         {
+            this.settingType = settingType;
         }
     }
 }
