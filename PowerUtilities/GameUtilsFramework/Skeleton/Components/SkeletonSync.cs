@@ -153,7 +153,7 @@ namespace GameUtilsFramework
         }
     }
 #endif
-   
+
     public class SkeletonSync : MonoBehaviour
     {
         [Header("Reference Skeleton")]
@@ -166,11 +166,11 @@ namespace GameUtilsFramework
 
         [Header("Options")]
         [Tooltip("< syncPositionMinBoneDepth will sync position")]
-        public int syncPositionMinBoneDepth =2;
+        public int syncPositionMinBoneDepth = 2;
 
         public SkeletonSyncInfo info;
 
-        [Serializable]public class SkeletonSyncInfo
+        [Serializable] public class SkeletonSyncInfo
         {
             public Transform[] boneTrs;
             public Vector3[] offsets;
@@ -192,7 +192,7 @@ namespace GameUtilsFramework
         }
 
 
-        public static SkeletonSyncInfo MappingSkeleton(Transform rootBone,Transform targetRootBone)
+        public static SkeletonSyncInfo MappingSkeleton(Transform rootBone, Transform targetRootBone)
         {
             if (!rootBone || !targetRootBone)
                 throw new ArgumentNullException("rootBone is null");
@@ -203,7 +203,7 @@ namespace GameUtilsFramework
 
             var curBonePaths = rootBone.GetComponentsInChildren<Transform>()
                 .Where(tr => tr != rootBone)
-                .Select(tr=>tr.GetHierarchyPath(rootBone))
+                .Select(tr => tr.GetHierarchyPath(rootBone))
                 .ToArray();
 
 
@@ -225,7 +225,7 @@ namespace GameUtilsFramework
                 // find bone by name
                 if (!targetBone)
                 {
-                    if(targetBonesDict.TryGetValue(curBone.name, out targetBone))
+                    if (targetBonesDict.TryGetValue(curBone.name, out targetBone))
                     {
                         targetBonesDict[curBone.name] = targetBone;
                         targetBonePath = targetBone.GetHierarchyPath(targetRootBone);
@@ -252,7 +252,7 @@ namespace GameUtilsFramework
             return info;
         }
 
-        public static void ReassignSkeleton(Transform rootBone,SkeletonSyncInfo info)
+        public static void ReassignSkeleton(Transform rootBone, SkeletonSyncInfo info)
         {
             if (!rootBone || info == null)
                 return;
@@ -266,16 +266,19 @@ namespace GameUtilsFramework
 
         public void Start()
         {
-            if (info == null || info.boneTrs == null)
+            if (info == null || info.boneTrs == null || info.boneTrs.Length == 0)
                 info = MappingSkeleton(rootBone, targetRootBone);
         }
 
         void LateUpdate()
         {
-            if (info ==null || info.boneTrs == null)
+            if (info == null || info.boneTrs == null)
                 return;
 
-            info.boneTrs.ForEach((boneTr, i) =>
+            info.boneTrs.ForEach(SyncBoneTransform);
+
+            // inner methods
+            void SyncBoneTransform(Transform boneTr, int i)
             {
                 if (boneTr && info.targetBoneTrs[i])
                 {
@@ -283,7 +286,7 @@ namespace GameUtilsFramework
                     if (info.boneDepths[i] < syncPositionMinBoneDepth)
                         boneTr.position = info.targetBoneTrs[i].position - info.offsets[i];
                 }
-            });
+            }
         }
         
 
