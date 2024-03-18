@@ -161,6 +161,7 @@ namespace PowerUtilities
         /// Get Handles.s_DefaultInstance
         /// </summary>
         public static RTHandleSystem URPDefaultRTHandleSystem => lazyGetRTHandleSystem.Value;
+
         static Lazy<RTHandleSystem> lazyGetRTHandleSystem = new Lazy<RTHandleSystem>(() => typeof(RTHandles).GetFieldValue<RTHandleSystem>(null, "s_DefaultInstance"));
 
         /// <summary>
@@ -169,5 +170,6 @@ namespace PowerUtilities
         public static Func<RenderTargetIdentifier, RTHandle> GetRTHandleByID = (rtId) => RTHandles.Alloc(rtId);
         
         public readonly static RTHandle ZeroHandle = RTHandles.Alloc(0);
+        public readonly static RTHandle CameraTargetHandle = RTHandles.Alloc(BuiltinRenderTextureType.CameraTarget);
     }
 }

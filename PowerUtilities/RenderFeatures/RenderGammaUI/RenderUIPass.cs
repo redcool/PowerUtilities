@@ -50,6 +50,14 @@ namespace PowerUtilities.Features
             }
         }
 
+        public override void OnCameraCleanup(CommandBuffer cmd)
+        {
+            base.OnCameraCleanup(cmd);
+
+            // set camera target for (ugui overlay,OnGUI)
+            cmd.SetRenderTarget(BuiltinRenderTextureType.CameraTarget);
+        }
+
         //[ApplicationExit]
         //[CompileStarted]
         static void DisposeNative()
