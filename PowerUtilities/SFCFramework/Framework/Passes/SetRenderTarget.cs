@@ -186,8 +186,9 @@ namespace PowerUtilities.RenderFeatures
             {
                 SetupColorIds(renderer);
 
-                depthId = SetupDepthId(renderer);
             }
+            //* unity 2022,urp's bug(RenderingUtils.cs line 599(TextureDesc currentRTDesc = RTHandleResourcePool.CreateTextureDesc(handle.rt.descriptor, 
+            depthId = SetupDepthId(renderer);
 
             cmd.SetRenderTarget(colorIds, depthId);
 
@@ -198,7 +199,11 @@ namespace PowerUtilities.RenderFeatures
         private RenderTargetIdentifier SetupDepthId(UniversalRenderer renderer)
         {
             // set depth target id
+#if UNITY_2022_1_OR_NEWER
+            RenderTargetIdentifier depthId = UniversalRenderPipeline.asset.supportsCameraDepthTexture ? renderer.cameraDepthTargetHandle : BuiltinRenderTextureType.CameraTarget;
+#else
             RenderTargetIdentifier depthId = UniversalRenderPipeline.asset.supportsCameraDepthTexture ? (RenderTargetIdentifier)ShaderPropertyIds._CameraDepthAttachment : BuiltinRenderTextureType.CameraTarget;
+#endif
             if (!string.IsNullOrEmpty(Feature.depthTargetName))
             {
                 depthId = Feature.depthTargetName == "CameraTarget" ? (RenderTargetIdentifier)BuiltinRenderTextureType.CameraTarget : Shader.PropertyToID(Feature.depthTargetName);
