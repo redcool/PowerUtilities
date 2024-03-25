@@ -27,7 +27,7 @@ namespace PowerUtilities
         {
             return new ClipDrawOptions
             {
-#if UNITY_2021_1_OR_NEWER
+#if UNITY_2021_3_OR_NEWER
                 displayClipName=true,
 #endif
                 errorText= GetErrorText(clip),

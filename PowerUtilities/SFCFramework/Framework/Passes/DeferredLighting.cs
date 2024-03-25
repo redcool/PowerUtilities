@@ -79,7 +79,7 @@ namespace PowerUtilities.RenderFeatures
 
             cmd.SetRenderTarget(colorAttachmentA);
             cmd.Execute(ref context);
-#if UNITY_2021_1_OR_NEWER
+#if UNITY_2021_3_OR_NEWER
             var lightGroups = Object.FindObjectsByType<Light>(FindObjectsSortMode.None)
 #else
             var lightGroups = Object.FindObjectsOfType<Light>()
