@@ -57,10 +57,13 @@ Shader "UI/Default"
 
             #include "UnityCG.cginc"
             #include "UnityUI.cginc"
+            
+            // gamma linear space
+            #include "../../../../../PowerShaderLib/Lib/ColorSpace.hlsl"
+            #pragma multi_compile_fragment _ _SRGB_TO_LINEAR_CONVERSION _LINEAR_TO_SRGB_CONVERSION
 
             #pragma multi_compile_local _ UNITY_UI_CLIP_RECT
             #pragma multi_compile_local _ UNITY_UI_ALPHACLIP
-            #pragma multi_compile_fragment _ _SRGB_TO_LINEAR_CONVERSION _LINEAR_TO_SRGB_CONVERSION
 
             struct appdata_t
             {
@@ -131,17 +134,11 @@ Shader "UI/Default"
                 float alpha = color.a;
 
                 #if defined(_SRGB_TO_LINEAR_CONVERSION)
-                // return float4(1,0,0,1);
-                color.xyz = color.xyz * color.xyz;
+                color.xyz = LinearToGamma(color.xyz);
                 #endif
 
                 #if _LINEAR_TO_SRGB_CONVERSION
-                // return float4(0,1,0,1);
-                float4 gammaColor = sqrt(color);
-                color.xyz = gammaColor.xyz;
-
-                // improve white color
-                alpha = lerp(color.w,gammaColor.w,color.w);
+                GammaToLinear(color/**/,alpha/**/);
                 #endif
 
                 color.rgb *= alpha;
