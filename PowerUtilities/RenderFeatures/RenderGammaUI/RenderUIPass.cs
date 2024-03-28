@@ -201,7 +201,7 @@ namespace PowerUtilities.Features
             {
                 // overwrite target
                 BlitToTarget(ref context, lastColorHandle, colorHandle, depthHandle, false, true);
-                cmd.Execute(ref context);
+                //cmd.Execute(ref context);
             }
 
             //--------------------- 2 draw gamma objects
@@ -238,13 +238,20 @@ namespace PowerUtilities.Features
 
         void BlitToTarget(ref ScriptableRenderContext context, RenderTargetIdentifier lastColorHandleId, RenderTargetIdentifier colorHandleId, RenderTargetIdentifier depthHandleId, bool clearColor, bool clearDepth)
         {
-            // _CameraOpaqueTexture is _CameraColorAttachmentA or _CameraColorAttachmentB
-            cmd.SetGlobalTexture(_SourceTex, lastColorHandleId);
-            cmd.SetRenderTarget(colorHandleId, depthHandleId);
-            cmd.ClearRenderTarget(clearDepth, clearColor, Color.clear, 1);
+            //? need twice setRenderTarget( otherwist RenderBufferLoadAction.Load not work
+            cmd.SetRenderTarget(colorHandleId,depthHandleId);
+
+            var clearFlags = ClearFlag.None;
+            if ( clearColor ) clearFlags |= ClearFlag.Color;
+            if ( clearDepth ) clearFlags |= ClearFlag.DepthStencil;
 
             //cmd.Blit(BuiltinRenderTextureType.None, colorHandle, settingSO.blitMat); // will set _MainTex
-            cmd.BlitTriangle(lastColorHandleId, colorHandleId, settings.blitMat, 0);
+            cmd.BlitTriangle(lastColorHandleId, colorHandleId, settings.blitMat, 0,
+                finalSrcMode: BlendMode.SrcAlpha,
+                finalDstMode: BlendMode.OneMinusSrcAlpha,
+                clearFlags :clearFlags,
+                depthTargetId : depthHandleId
+                );
         }
 
         private void DrawRenderers(ref ScriptableRenderContext context, ref RenderingData renderingData, RenderTargetIdentifier targetTexId, RenderTargetIdentifier depthHandleId)

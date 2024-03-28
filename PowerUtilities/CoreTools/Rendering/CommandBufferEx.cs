@@ -210,38 +210,51 @@ namespace PowerUtilities
         /// <param name="cmd"></param>
         /// <param name="renderingData"></param>
         /// <param name="sourceId"></param>
-        /// <param name="targetId"></param>
+        /// <param name="colorTargetId"></param>
         /// <param name="mat"></param>
         /// <param name="pass"></param>
         /// <param name="camera"></param>
         /// <param name="finalSrcMode"></param>
         /// <param name="finalDstMode"></param>
-        public static void BlitTriangle(this CommandBuffer cmd, RenderTargetIdentifier sourceId, RenderTargetIdentifier targetId, Material mat, int pass,
+        public static void BlitTriangle(this CommandBuffer cmd, RenderTargetIdentifier sourceId, RenderTargetIdentifier colorTargetId, Material mat, int pass,
             Camera camera = null, BlendMode finalSrcMode = BlendMode.One, BlendMode finalDstMode = BlendMode.Zero,
-            ClearFlag clearFlags = ClearFlag.None,Color clearColor=default)
+            ClearFlag clearFlags = ClearFlag.None,Color clearColor=default,RenderTargetIdentifier depthTargetId=default)
         {
 #if UNITY_2022_1_OR_NEWER
             var render = (UniversalRenderer)UniversalRenderPipeline.asset.scriptableRenderer;
             render.TryReplaceURPRTTarget(ref sourceId);
-            render.TryReplaceURPRTTarget(ref targetId);
+            render.TryReplaceURPRTTarget(ref colorTargetId);
+            render.TryReplaceURPRTTarget(ref depthTargetId);
 #endif
+            // set source
             cmd.SetGlobalTexture(_SourceTex, sourceId);
 
+            // set blendmode
             cmd.SetGlobalFloat(_FinalSrcMode, (float)finalSrcMode);
             cmd.SetGlobalFloat(_FinalDstMode, (float)finalDstMode);
 
+            // set render target
             var loadAction = finalDstMode == BlendMode.Zero ? RenderBufferLoadAction.DontCare : RenderBufferLoadAction.Load;
-            cmd.SetRenderTarget(targetId, loadAction, RenderBufferStoreAction.Store);
+            if (depthTargetId == default)
+            {
+                cmd.SetRenderTarget(colorTargetId, loadAction, RenderBufferStoreAction.Store);
+            }
+            else
+            {
+                cmd.SetRenderTarget(colorTargetId, loadAction, RenderBufferStoreAction.Store, depthTargetId, loadAction, RenderBufferStoreAction.Store);
+            }
 
-            if(clearFlags != ClearFlag.None)
+            // set clear
+            if (clearFlags != ClearFlag.None)
             {
                 cmd.ClearRenderTarget((RTClearFlags)clearFlags, clearColor, 1, 0);
             }
-
+            // set viewport
             if (camera)
             {
                 cmd.SetViewport(camera.pixelRect);
             }
+            // draw trangle
             cmd.DrawProcedural(Matrix4x4.identity, mat, pass, MeshTopology.Triangles, 3);
         }
 
