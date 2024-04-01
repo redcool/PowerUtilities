@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace PowerUtilities
 {
-    public static class AnimationTools
+    public static class AnimationEx
     {
         public static AnimationState UseFirstState(this Animation anim)
         {

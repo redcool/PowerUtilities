@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace GameUtilsFramework
 {
-    public static class AnimatorTools
+    public static class AnimatorEx
     {
         static Dictionary<string, int> animatorLayerIdDict = new Dictionary<string, int>();
 
@@ -62,6 +62,31 @@ namespace GameUtilsFramework
             float speedZ = Vector3.Dot(anim.transform.forward, inputDir.normalized);
             anim.SetFloat(idX, speedX, damplingTime,Time.deltaTime);
             anim.SetFloat(idZ, speedZ, damplingTime, Time.deltaTime);
+        }
+        /// <summary>
+        /// Set all layers
+        /// </summary>
+        /// <param name="anim"></param>
+        /// <param name="weight"></param>
+        public static void SetLayersWeight(this Animator anim, float weight)
+        {
+            for (int i = 0; i < anim.layerCount; i++)
+            {
+                anim.SetLayerWeight(i, weight);
+            }
+
+        }
+
+        public static void SetLayersWeight(this Animator anim,int[] layers, float[] weights)
+        {
+            if (layers.Length != weights.Length)
+                return;
+
+            for (int i = 0; i < layers.Length; i++)
+            {
+                anim.SetLayerWeight(layers[i], weights[i]);
+            }
+
         }
     }
 }
