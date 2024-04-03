@@ -239,18 +239,23 @@ namespace PowerUtilities.Features
         void BlitToTarget(ref ScriptableRenderContext context, RenderTargetIdentifier lastColorHandleId, RenderTargetIdentifier colorHandleId, RenderTargetIdentifier depthHandleId, bool clearColor, bool clearDepth)
         {
             //? need twice setRenderTarget( otherwist RenderBufferLoadAction.Load not work
-            cmd.SetRenderTarget(colorHandleId,depthHandleId);
+            cmd.SetRenderTarget(colorHandleId, depthHandleId);
 
             var clearFlags = ClearFlag.None;
-            if ( clearColor ) clearFlags |= ClearFlag.Color;
-            if ( clearDepth ) clearFlags |= ClearFlag.DepthStencil;
+            if (clearColor) clearFlags |= ClearFlag.Color;
+
+#if UNITY_2021_1_OR_NEWER
+            if (clearDepth) clearFlags |= ClearFlag.DepthStencil;
+#else
+            if (clearDepth) clearFlags |= ClearFlag.Depth;
+#endif
 
             //cmd.Blit(BuiltinRenderTextureType.None, colorHandle, settingSO.blitMat); // will set _MainTex
             cmd.BlitTriangle(lastColorHandleId, colorHandleId, settings.blitMat, 0,
                 finalSrcMode: BlendMode.SrcAlpha,
                 finalDstMode: BlendMode.OneMinusSrcAlpha,
-                clearFlags :clearFlags,
-                depthTargetId : depthHandleId
+                clearFlags: clearFlags,
+                depthTargetId: depthHandleId
                 );
         }
 
