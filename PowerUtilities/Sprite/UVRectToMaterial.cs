@@ -183,6 +183,9 @@ namespace PowerUtilities
             mat.SetVector($"{_MainTexName}_ST", new Vector4(spriteUVST.x, spriteUVST.y, 0, 0), block); // dont need offset,offset used for uv move
             mat.SetFloat("_MainTexOffsetStop", isDisableMainTexAutoOffset ? 1 : 0, block);
 
+            // set again
+            render?.SetPropertyBlock(block);
+
             if (isUseMinVersion != mat.IsKeywordEnabled(ShaderKeywords.MIN_VERSION))
             {
                 mat.SetKeyword(ShaderKeywords.MIN_VERSION, isUseMinVersion);
