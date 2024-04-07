@@ -39,8 +39,17 @@ namespace PowerUtilities
         public T GetTopInstance(T defaultInst)
             => topInstance ?? defaultInst;
 
+        /// <summary>
+        /// Inst is used?
+        /// </summary>
+        /// <param name="inst"></param>
+        /// <returns></returns>
         public bool IsUsed(T inst)
-            => topInstance.Equals(inst);
+        {
+            if (topInstance != null)
+                return topInstance.Equals(inst);
+            return true;
+        }
 
         public List<T> InstanceList
             => instanceList;
