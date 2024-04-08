@@ -20,63 +20,51 @@ namespace PowerUtilities
     {
         // trace instances
         List<T> instanceList = new List<T>();
-        T topInstance;
+        public T TopInstance { get; set; }
 
+        public void SetAllEnable(bool enabled)
+        {
+            for (int i = 0; i < instanceList.Count; i++)
+            {
+                var item = instanceList[i];
+                item.enabled = enabled;
+            }
+        }
+
+        /// <summary>
+        /// call when Start
+        /// </summary>
+        /// <param name="instance"></param>
         public void Add(T instance)
         {
+            if (instanceList.Contains(instance))
+                return;
+
+            SetAllEnable(false);
+
             instanceList.Add(instance);
-            topInstance = instanceList[instanceList.Count - 1];
+            TopInstance = instanceList[instanceList.Count - 1];
+
+            TopInstance.enabled = true;
         }
 
+        /// <summary>
+        /// call when OnDestroy
+        /// </summary>
+        /// <param name="instance"></param>
         public void Remove(T instance)
         {
-            topInstance = default;
+            TopInstance = default;
             instanceList.Remove(instance);
 
+            SetAllEnable(false);
+
             if (instanceList.Count > 0)
-                topInstance = instanceList[instanceList.Count - 1];
-        }
+            {
+                TopInstance = instanceList[instanceList.Count - 1];
 
-        /// <summary>
-        /// Get topInstance or defaultInst 
-        /// </summary>
-        /// <param name="defaultInst"> topInstance not exist use defaultInst </param>
-        /// <returns></returns>
-        public T GetTopInstanceOrDefault(T defaultInst)
-            => topInstance ?? defaultInst;
-
-        /// <summary>
-        /// Inst is used?
-        /// </summary>
-        /// <param name="inst"></param>
-        /// <returns></returns>
-        public bool IsUsed(T inst)
-        {
-            if (topInstance != null)
-                return topInstance.Equals(inst);
-            return true;
-        }
-        /// <summary>
-        /// Update mono's enable,
-        /// return false when inst not used
-        /// </summary>
-        /// <param name="inst"></param>
-        /// <returns></returns>
-        public bool UpdateMonoEnable(T inst)
-        {
-            return inst.enabled = IsUsed(inst);
-        }
-
-        /// <summary>
-        /// Update mono's enable first,
-        /// when enable is true invoke action
-        /// </summary>
-        /// <param name="inst"></param>
-        /// <param name="action"></param>
-        public void UpdateMonoEnable(T inst, Action action)
-        {
-            if (UpdateMonoEnable(inst))
-                action?.Invoke();
+                TopInstance.enabled = true;
+            }
         }
 
         public List<T> InstanceList
