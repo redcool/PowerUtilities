@@ -3,14 +3,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace PowerUtilities
 {
     /// <summary>
-    /// for Manager objects(like monoBehaviour instance)
+    /// Manager objects(like monoBehaviour instance)
+    /// 
+    /// 1 Add 
+    /// 2 Remove
+    /// 3 UpdateMonoEnable
+    /// 
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class InstanceManager<T>
+    public class MonoInstanceManager<T> where T : MonoBehaviour
     {
         // trace instances
         List<T> instanceList = new List<T>();
@@ -36,7 +42,7 @@ namespace PowerUtilities
         /// </summary>
         /// <param name="defaultInst"> topInstance not exist use defaultInst </param>
         /// <returns></returns>
-        public T GetTopInstance(T defaultInst)
+        public T GetTopInstanceOrDefault(T defaultInst)
             => topInstance ?? defaultInst;
 
         /// <summary>
@@ -49,6 +55,28 @@ namespace PowerUtilities
             if (topInstance != null)
                 return topInstance.Equals(inst);
             return true;
+        }
+        /// <summary>
+        /// Update mono's enable,
+        /// return false when inst not used
+        /// </summary>
+        /// <param name="inst"></param>
+        /// <returns></returns>
+        public bool UpdateMonoEnable(T inst)
+        {
+            return inst.enabled = IsUsed(inst);
+        }
+
+        /// <summary>
+        /// Update mono's enable first,
+        /// when enable is true invoke action
+        /// </summary>
+        /// <param name="inst"></param>
+        /// <param name="action"></param>
+        public void UpdateMonoEnable(T inst, Action action)
+        {
+            if (UpdateMonoEnable(inst))
+                action?.Invoke();
         }
 
         public List<T> InstanceList
