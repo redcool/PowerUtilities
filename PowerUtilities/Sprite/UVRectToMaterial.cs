@@ -76,6 +76,8 @@ namespace PowerUtilities
 
         Object lastSelectionObject;
 
+        MaterialPropertyBlock block; // block will break srp batch, will apply in EditorMode
+
         private void Update()
         {
             if (lastSprite != sprite)
@@ -97,6 +99,9 @@ namespace PowerUtilities
         {
             SetupComponents();
 
+            if (block == null)
+                block = new MaterialPropertyBlock();
+
             if (!sprite || (!render && !uiImage))
                 return;
 
@@ -104,19 +109,33 @@ namespace PowerUtilities
             if (!mat)
                 return;
 
-            mat.SetTexture(_MainTexName, sprite.texture);
+            mat.SetTexture(_MainTexName, sprite.texture, block);
 
             var rect = sprite.rect;
             // debug
             spriteRect = new Vector4(rect.x, rect.y, rect.width, rect.height);
             // xy : tiling, zw:offset
             spriteUVST = sprite.GetSpriteUVScaleOffset();
-            mat.SetVector($"{_MainTexName}_ST", spriteUVST);
+            mat.SetVector($"{_MainTexName}_ST", spriteUVST, block);
 
             // xy : offset,powervfx use this ,do sprite uv move
-            mat.SetVector(_SpriteUVStartName, new Vector4(spriteUVST.z, spriteUVST.w, 1, 0));
+            mat.SetVector(_SpriteUVStartName, new Vector4(spriteUVST.z, spriteUVST.w, 1, 0), block);
 
             TrySetupPowerVFXMat(mat);
+
+#if UNITY_EDITOR
+            ApplyBlock();
+
+            //========= inner methods
+            void ApplyBlock()
+            {
+                if (render && !Application.isPlaying)
+                {
+                    render.SetPropertyBlock(block);
+                }
+            }
+#endif
+
         }
 
         private void SetupComponents()
@@ -143,6 +162,7 @@ namespace PowerUtilities
             {
                 if (!Application.isPlaying)
                     return render.sharedMaterial;
+
                 return isUseMaterialInstance ? render.material : render.sharedMaterial;
             }
 
@@ -163,8 +183,8 @@ namespace PowerUtilities
             if (!mat.shader.name.Contains("PowerVFX"))
                 return;
 
-            mat.SetVector($"{_MainTexName}_ST", new Vector4(spriteUVST.x, spriteUVST.y, 0, 0)); // dont need offset,offset used for uv move
-            mat.SetFloat("_MainTexOffsetStop", isDisableMainTexAutoOffset ? 1 : 0);
+            mat.SetVector($"{_MainTexName}_ST", new Vector4(spriteUVST.x, spriteUVST.y, 0, 0), block); // dont need offset,offset used for uv move
+            mat.SetFloat("_MainTexOffsetStop", isDisableMainTexAutoOffset ? 1 : 0,block);
 
             if (isUseMinVersion != mat.IsKeywordEnabled(ShaderKeywords.MIN_VERSION))
             {
