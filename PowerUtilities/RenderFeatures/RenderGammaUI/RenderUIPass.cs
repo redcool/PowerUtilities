@@ -282,7 +282,7 @@ namespace PowerUtilities.Features
             curRenderStateArr[0] = renderStateBlock;
 
             // render main filter
-            DrawObjectByInfo(ref filterSettings, ref context, renderingData, ref drawSettings, curRenderStateArr, settings.filterInfo);
+            DrawObjectByInfo(ref filterSettings, ref context,ref renderingData, ref drawSettings, curRenderStateArr, settings.filterInfo, targetTexId);
 
             // render objects by layerMasks order
             if (settings.filterInfoList.Count > 0)
@@ -292,13 +292,15 @@ namespace PowerUtilities.Features
                     if (!info.enabled)
                         continue;
 
-                    DrawObjectByInfo(ref filterSettings, ref context, renderingData, ref drawSettings, curRenderStateArr, info);
+                    DrawObjectByInfo(ref filterSettings, ref context,ref renderingData, ref drawSettings, curRenderStateArr, info, targetTexId);
                 }
             }
         }
 
-        void DrawObjectByInfo(ref FilteringSettings filterSettings, ref ScriptableRenderContext context, RenderingData renderingData, ref DrawingSettings drawSettings, NativeArray<RenderStateBlock> arr, FilteringSettingsInfo info)
+        void DrawObjectByInfo(ref FilteringSettings filterSettings, ref ScriptableRenderContext context, ref RenderingData renderingData, ref DrawingSettings drawSettings, NativeArray<RenderStateBlock> arr, FilteringSettingsInfo info,RenderTargetIdentifier colorTargetId)
         {
+
+            //------------- draw objects
             var isGameCamera = renderingData.cameraData.camera.IsGameCamera();
             //1 retarget
             if (info.isRetarget && !string.IsNullOrEmpty(info.depthTargetName) && !string.IsNullOrEmpty(info.colorTargetName))
@@ -329,8 +331,35 @@ namespace PowerUtilities.Features
             filterSettings = info;
             context.DrawRenderers(cmd, renderingData.cullResults, ref drawSettings, ref filterSettings, null, arr);
 
-            // reset
+
+            // reset 
             ColorSpaceTransform.SetColorSpace(cmd, ColorSpaceTransform.ColorSpaceMode.None);
+
+            //------------- blit op
+            if (info.isBlitToTarget)
+            {
+                BlitToTarget(info, ref renderingData, ref context, cmd, colorTargetId);
+            }
+        }
+
+        void BlitToTarget(FilteringSettingsInfo info, ref RenderingData renderingData, ref ScriptableRenderContext context, CommandBuffer cmd, RenderTargetIdentifier colorTargetId)
+        {
+            if (string.IsNullOrEmpty(info.srcName) || string.IsNullOrEmpty(info.dstName))
+            {
+                return;
+            }
+
+            var renderer = renderingData.cameraData.renderer as UniversalRenderer;
+            RenderTargetIdentifier srcId = Shader.PropertyToID(info.srcName);
+            RenderTargetIdentifier dstId = Shader.PropertyToID(info.dstName);
+
+            renderer.TryReplaceURPRTTarget(ref srcId);
+            renderer.TryReplaceURPRTTarget(ref dstId);
+
+            cmd.BlitTriangle(srcId, dstId, settings.blitMat, 0);
+            
+            cmd.SetRenderTarget(colorTargetId);
+            cmd.Execute(ref context);
         }
 
         bool AnyCameraHasPostProcessing()

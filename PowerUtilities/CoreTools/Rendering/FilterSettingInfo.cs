@@ -55,6 +55,12 @@ namespace PowerUtilities
         [Header("Rebind Targets")]
         public List<RebingTargetNameInfo> rebindTargetList = new List<RebingTargetNameInfo> ();
 
+        [EditorHeader("","------ Copy Screen Color")]
+        [Tooltip("blit srcName to dstName,when draw done")]
+        public bool isBlitToTarget;
+        public string srcName = "_GammaTex";
+        public string dstName = "_CameraOpaqueTexture";
+
         public static implicit operator FilteringSettings(FilteringSettingsInfo info)
         {
             return new FilteringSettings
