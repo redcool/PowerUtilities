@@ -17,7 +17,7 @@ namespace PowerUtilities
     public class UVRectToMaterialEditor : PowerEditor<UVRectToMaterial>
     {
         public override bool NeedDrawDefaultUI() => true;
-        public override string Version => "0.0.2";
+        public override string Version => "0.0.3";
 
         public override void DrawInspectorUI(UVRectToMaterial inst)
         {
@@ -50,6 +50,11 @@ namespace PowerUtilities
         [Tooltip("sprite's start uv,xy:uv start,z: sprite rendering on?")]
         public string _SpriteUVStartName = "_SpriteUVStart";
 
+        [EditorHeader("","--- Color")]
+        [Tooltip("change material's color")]
+        public string _ColorName = "_Color";
+        public Color color = Color.white;
+
         [Header("PowerVFX Options")]
         [Tooltip("disable texture auto offset")]
         public bool isDisableMainTexAutoOffset = true;
@@ -80,11 +85,26 @@ namespace PowerUtilities
 
         private void Update()
         {
+            if (block == null)
+                block = new MaterialPropertyBlock();
+
             if (lastSprite != sprite)
             {
                 lastSprite = sprite;
                 SetUV();
             }
+
+            if (mat)
+            {
+                mat.SetColor(_ColorName, color, block);
+            }
+        }
+
+        private void OnEnable()
+        {
+            SetupMeshFilter(this);
+
+            SetUV();
         }
 
         private void OnDisable()
@@ -95,13 +115,20 @@ namespace PowerUtilities
                 mat.SetVector(_SpriteUVStartName, new Vector4(0, 0, 0, 0));
             }
         }
+
+        public static void SetupMeshFilter(UVRectToMaterial inst)
+        {
+            var mf = inst.GetComponent<MeshFilter>();
+            if (!mf)
+            {
+                mf = inst.gameObject.AddComponent<MeshFilter>();
+                mf.sharedMesh = Resources.GetBuiltinResource<Mesh>("Quad.fbx");
+            }
+        }
+
         public void SetUV()
         {
             SetupComponents();
-
-            if (block == null)
-                block = new MaterialPropertyBlock();
-
             if (!sprite || (!render && !uiImage))
                 return;
 
@@ -120,6 +147,7 @@ namespace PowerUtilities
 
             // xy : offset,powervfx use this ,do sprite uv move
             mat.SetVector(_SpriteUVStartName, new Vector4(spriteUVST.z, spriteUVST.w, 1, 0), block);
+            
 
             TrySetupPowerVFXMat(mat);
 
