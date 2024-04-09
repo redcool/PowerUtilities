@@ -119,6 +119,15 @@ namespace PowerUtilities
             if (block != null) block.SetMatrixArray(nameId, value);
         }
 
+        public static void SetColor(this Material mat, string name, Color value, MaterialPropertyBlock block)
+            => SetColor(mat, Shader.PropertyToID(name), value, block);
+
+        public static void SetColor(this Material mat, int nameId, Color value, MaterialPropertyBlock block)
+        {
+            mat.SetColor(nameId, value);
+            if (block != null)
+                block.SetColor(nameId, value);
+        }
 
         #endregion
 
