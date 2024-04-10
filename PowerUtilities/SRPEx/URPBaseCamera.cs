@@ -18,10 +18,9 @@ namespace PowerUtilities
             base.OnInspectorGUI();
             var inst = target as URPBaseCamera;
 
-            if (GUILayout.Button("Auto Set Overlay Cameras"))
+            if (GUILayout.Button("Set Other Overlay Cameras"))
             {
                 inst.SetCameras();
-                Selection.activeGameObject = null;
                 Selection.activeGameObject = inst.gameObject;
             }
         }
@@ -68,12 +67,12 @@ namespace PowerUtilities
         /// <returns></returns>
         bool IsCameraValid(Camera cam)
         {
-            if (string.IsNullOrEmpty(filterTag))
+            if (!string.IsNullOrEmpty(filterTag))
             {
                 return !cam.gameObject.CompareTag(filterTag);
             }
 
-            if (string.IsNullOrEmpty(filterName))
+            if (!string.IsNullOrEmpty(filterName))
             {
                 return gameObject.name.IsMatch(filterName, matchMode);
             }

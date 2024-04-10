@@ -13,7 +13,7 @@ namespace PowerUtilities
     class UniversalAdditionalCameraDataEditorEx : Editor
     {
 
-        readonly GUIContent CamerasContent = new GUIContent("Camera Stack", "setup overlay cameras,will sync CameraEditor");
+        readonly GUIContent CamerasContent = new GUIContent("Cameras", "setup overlay cameras,will sync CameraEditor");
 
         public override void OnInspectorGUI()
         {
@@ -33,6 +33,8 @@ namespace PowerUtilities
         {
             var m_Cameras = serializedObject.FindProperty("m_Cameras");
             EditorGUILayout.PropertyField(m_Cameras, CamerasContent);
+
+            m_Cameras.RemoveDuplicateItems();
 
             //change Overlay
             for (int i = 0; i < m_Cameras.arraySize; i++)
