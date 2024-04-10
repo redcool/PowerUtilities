@@ -6,6 +6,10 @@ using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.Rendering.Universal.Internal;
 
+#if UNITY_2020_3
+using UniversalRenderer = UnityEngine.Rendering.Universal.ForwardRenderer;
+#endif
+
 namespace PowerUtilities.RenderFeatures
 {
     [Tooltip("Copy _CameraColorAttachmentA to _CameraOpaqueTexture, can control execution order ")]
@@ -54,7 +58,15 @@ namespace PowerUtilities.RenderFeatures
 
         public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
         {
-            copyPass.Setup(ShaderPropertyIds._CameraColorAttachmentA,new RenderTargetHandle(ShaderPropertyIds._CameraOpaqueTexture), Feature.downSampling);
+#if UNITY_2022_1_OR_NEWER
+            var renderer = renderingData.cameraData.renderer as UniversalRenderer;
+
+            var srcHandle = renderer.GetCameraColorAttachmentA();
+            var dstHandle = RTHandles.Alloc(ShaderPropertyIds._CameraOpaqueTexture);
+            copyPass.Setup(srcHandle, dstHandle, Feature.downSampling);
+#else
+            copyPass.Setup(ShaderPropertyIds._CameraColorAttachmentA, new RenderTargetHandle(ShaderPropertyIds._CameraOpaqueTexture), Feature.downSampling);
+#endif
 
             // like CopyColorPass.OnCameraSetup, canot call it directly.
             ref var cameraData = ref renderingData.cameraData;
