@@ -14,7 +14,7 @@
         <PowerUtilities.UIElements.BaseSplitView fixed-pane-initial-dimension="300" name="RightSplitView" style="min-width: auto; min-height: auto; height: 100%; flex-basis: auto; flex-shrink: 1; width: 50%;">
             <ui:VisualElement name="PipelineAssetGroup" class="box-right-border" style="width: 30%; flex-grow: 1; height: 95%; min-width: 150px; flex-shrink: 1;">
                 <ui:Label text="PipelineAssetDetails" display-tooltip-when-elided="true" name="PipelineAssetDetails" class="detail-header" />
-                <ui:ScrollView name="PipelineAssetDetailScrollView" class="detail-content" style="flex-grow: 1;">
+                <ui:ScrollView name="PipelineAssetDetailScrollView" class="detail-content">
                     <ui:IMGUIContainer name="PipelineAssetDetailIMGUI" />
                 </ui:ScrollView>
             </ui:VisualElement>

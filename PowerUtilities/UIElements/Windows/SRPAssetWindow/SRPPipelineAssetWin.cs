@@ -143,22 +143,21 @@ namespace PowerUtilities
                 {
                     SetupSRPRendererDataListView();
 
-                    ShowPipelineAssetDetails();
+                    ShowDetails(pipelineAssetDetailImgui, (Object)pipelineAssetListView.selectedItem);
                 }
                 , selectedId
             );
         }
 
-        void ShowPipelineAssetDetails()
+        void ShowDetails(IMGUIContainer imgui,Object item)
         {
-            if (pipelineAssetDetailImgui == null)
+            if (imgui == null)
                 return;
 
-            var editor = Editor.CreateEditor((Object)pipelineAssetListView.selectedItem);
-            pipelineAssetDetailImgui.onGUIHandler =() =>
-            {
-                editor?.OnInspectorGUI();
-            };
+            imgui.pickingMode = PickingMode.Position;
+
+            var editor = Editor.CreateEditor(item);
+            imgui.onGUIHandler = editor.OnInspectorGUI;
         }
 
         public static void SetupListView(ListView listView, IList itemsSource, Func<VisualElement> makeItem
@@ -169,8 +168,13 @@ namespace PowerUtilities
             listView.itemsSource = itemsSource;
             listView.makeItem = makeItem;
             listView.bindItem = bindItem;
+#if UNITY_2022_3_OR_NEWER
+            listView.selectionChanged -= onSelectionChange;
+            listView.selectionChanged += onSelectionChange;
+#else
             listView.onSelectionChange -= onSelectionChange;
             listView.onSelectionChange += onSelectionChange;
+#endif
             listView.selectedIndex = selectedId;
         }
 
@@ -212,23 +216,12 @@ namespace PowerUtilities
                 }
                 , (IEnumerable<object> obj) =>
                 {
-                    ShowRendererDataDetails();
+                    //ShowRendererDataDetails();
+                    ShowDetails(rendererDataDetailImgui, (Object)rendererDataListView.selectedItem);
                 }
                 ,selectedId
             );
 
-            void ShowRendererDataDetails()
-            {
-                if (rendererDataDetailImgui == null)
-                    return;
-
-                var editor = Editor.CreateEditor((Object)rendererDataListView.selectedItem);
-
-                rendererDataDetailImgui.onGUIHandler = () =>
-                {
-                    editor?.OnInspectorGUI();
-                };
-            }
         }
     }
 }
