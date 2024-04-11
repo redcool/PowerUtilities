@@ -1,8 +1,10 @@
 #if UNITY_EDITOR
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
 namespace PowerUtilities
@@ -15,6 +17,11 @@ namespace PowerUtilities
 
         readonly GUIContent CamerasContent = new GUIContent("Cameras", "setup overlay cameras,will sync CameraEditor");
 
+        TransparencySortMode transparentSortMode;
+        Vector3 transparentSortAxis = Vector3.forward;
+
+        OpaqueSortMode opaqueSortMode;
+
         public override void OnInspectorGUI()
         {
             //DrawDefaultInspector();
@@ -24,9 +31,32 @@ namespace PowerUtilities
             EditorGUI.indentLevel++;
             DrawCameras();
 
+
+            DrawCameraSortMode();
+
             EditorGUI.indentLevel--;
 
             serializedObject.ApplyModifiedProperties();
+        }
+
+        private void DrawCameraSortMode()
+        {
+            var data = target as UniversalAdditionalCameraData;
+            var cam = data.GetComponent<Camera>();
+
+            EditorGUILayout.LabelField("Sort Mode", EditorStyles.boldLabel);
+            transparentSortMode = (TransparencySortMode)EditorGUILayout.EnumPopup("TransparentSortMode", transparentSortMode);
+            cam.transparencySortMode = transparentSortMode;
+
+            if (transparentSortMode == TransparencySortMode.CustomAxis)
+            {
+                transparentSortAxis = EditorGUILayout.Vector3Field("transparentSortAxis", transparentSortAxis);
+                cam.transparencySortAxis = transparentSortAxis;
+            }
+
+
+            opaqueSortMode = (OpaqueSortMode)EditorGUILayout.EnumPopup("opaqueSortMode", opaqueSortMode);
+            cam.opaqueSortMode = opaqueSortMode;
         }
 
         private void DrawCameras()
