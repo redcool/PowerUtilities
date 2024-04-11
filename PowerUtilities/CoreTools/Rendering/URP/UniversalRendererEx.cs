@@ -122,10 +122,10 @@ namespace PowerUtilities
         /// <param strName="name"></param>
         /// <param strName="id"></param>
         /// 
-        public static void TryReplaceURPRTTarget(this UniversalRenderer renderer, string strName, ref RenderTargetIdentifier id)
+        public static bool TryReplaceURPRTTarget(this UniversalRenderer renderer, string strName, ref RenderTargetIdentifier id)
         {
             if (string.IsNullOrEmpty(strName))
-                return;
+                return false;
 
             if (RTHandleTools.urpStrName2HandleDict.TryGetValue(strName, out var rtHandleName))
             {
@@ -133,7 +133,10 @@ namespace PowerUtilities
                 // urp not alloc it, use nameId
                 if (id == default)
                     id = Shader.PropertyToID(strName);
+
+                return id != default;
             }
+            return false;
         }
 
         /// <summary>

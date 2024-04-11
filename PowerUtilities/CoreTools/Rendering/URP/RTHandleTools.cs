@@ -35,6 +35,7 @@ namespace PowerUtilities
         m_MotionVectorDepth,
 
         // also shader property
+        _CameraColorAttachment,
         _CameraColorAttachmentA,
         _CameraColorAttachmentB,
         _CameraDepthAttachment,
