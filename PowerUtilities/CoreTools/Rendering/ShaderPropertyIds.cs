@@ -21,14 +21,14 @@ namespace PowerUtilities
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        public static int PropertyToID(string name)
+        public static RenderTargetIdentifier GetURPRTID(string name)
         {
             var id = Shader.PropertyToID(name);
 #if UNITY_2022_3_OR_NEWER
             var renderer = UniversalRenderPipeline.asset.GetDefaultRenderer();
             RenderTargetIdentifier rtId = id;
             if (renderer.TryReplaceURPRTTarget(name, ref rtId))
-                return rtId.GetNameId();
+                return rtId;
 #endif
             return id;
         }
@@ -39,21 +39,21 @@ namespace PowerUtilities
         /// </summary>
         public static int
             _MainTex = Shader.PropertyToID(nameof(_MainTex)),
-            _CameraOpaqueTexture = PropertyToID(nameof(_CameraOpaqueTexture)),
-            _CameraDepthTexture = PropertyToID(nameof(_CameraDepthTexture)),
-            _CameraColorTexture = PropertyToID(nameof(_CameraColorTexture)),
-            _CameraColorAttachmentA = PropertyToID(nameof(_CameraColorAttachmentA)),
-            _CameraColorAttachmentB = PropertyToID(nameof(_CameraColorAttachmentB)),
-            _CameraDepthAttachment = PropertyToID(nameof(_CameraDepthAttachment)),
-            _CameraNormalsTexture = PropertyToID(nameof(_CameraNormalsTexture)),
-            _MotionVectorTexture = PropertyToID(nameof(_MotionVectorTexture)),
-            _AfterPostProcessTexture = PropertyToID(nameof(_AfterPostProcessTexture)),
-            _GBuffer0 = PropertyToID(nameof(_GBuffer0)),
-            _GBuffer1 = PropertyToID(nameof(_GBuffer1)),
-            _GBuffer2 = PropertyToID(nameof(_GBuffer2)),
-            _GBuffer3 = PropertyToID(nameof(_GBuffer3))
-
+            _CameraOpaqueTexture = Shader.PropertyToID(nameof(_CameraOpaqueTexture)),
+            _CameraDepthTexture = Shader.PropertyToID(nameof(_CameraDepthTexture)),
+            _CameraColorTexture = Shader.PropertyToID(nameof(_CameraColorTexture)),
+            _CameraColorAttachmentA = Shader.PropertyToID(nameof(_CameraColorAttachmentA)),
+            _CameraColorAttachmentB = Shader.PropertyToID(nameof(_CameraColorAttachmentB)),
+            _CameraDepthAttachment = Shader.PropertyToID(nameof(_CameraDepthAttachment)),
+            _CameraNormalsTexture = Shader.PropertyToID(nameof(_CameraNormalsTexture)),
+            _MotionVectorTexture = Shader.PropertyToID(nameof(_MotionVectorTexture)),
+            _AfterPostProcessTexture = Shader.PropertyToID(nameof(_AfterPostProcessTexture)),
+            _GBuffer0 = Shader.PropertyToID(nameof(_GBuffer0)),
+            _GBuffer1 = Shader.PropertyToID(nameof(_GBuffer1)),
+            _GBuffer2 = Shader.PropertyToID(nameof(_GBuffer2)),
+            _GBuffer3 = Shader.PropertyToID(nameof(_GBuffer3))
             ;
+
 
         public const string _DEBUG = nameof(_DEBUG),
             _CUSTOM_DEPTH_TEXTURE = nameof(_CUSTOM_DEPTH_TEXTURE),
