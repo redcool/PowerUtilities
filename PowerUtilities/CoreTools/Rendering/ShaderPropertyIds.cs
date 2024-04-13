@@ -12,6 +12,24 @@ using UnityEngine.Rendering.Universal;
 namespace PowerUtilities
 {
 
+    public static class ShaderPropertyIdentifier
+    {
+        public static RenderTargetIdentifier
+            _CameraOpaqueTexture = ShaderPropertyIds.PropertyToID(nameof(_CameraOpaqueTexture)),
+            _CameraDepthTexture = ShaderPropertyIds.PropertyToID(nameof(_CameraDepthTexture)),
+            _CameraColorTexture = ShaderPropertyIds.PropertyToID(nameof(_CameraColorTexture)),
+            _CameraColorAttachmentA = ShaderPropertyIds.PropertyToID(nameof(_CameraColorAttachmentA)),
+            _CameraColorAttachmentB = ShaderPropertyIds.PropertyToID(nameof(_CameraColorAttachmentB)),
+            _CameraDepthAttachment = ShaderPropertyIds.PropertyToID(nameof(_CameraDepthAttachment)),
+            _CameraNormalsTexture = ShaderPropertyIds.PropertyToID(nameof(_CameraNormalsTexture)),
+            _MotionVectorTexture = ShaderPropertyIds.PropertyToID(nameof(_MotionVectorTexture)),
+            _AfterPostProcessTexture = ShaderPropertyIds.PropertyToID(nameof(_AfterPostProcessTexture)),
+            _GBuffer0 = ShaderPropertyIds.PropertyToID(nameof(_GBuffer0)),
+            _GBuffer1 = ShaderPropertyIds.PropertyToID(nameof(_GBuffer1)),
+            _GBuffer2 = ShaderPropertyIds.PropertyToID(nameof(_GBuffer2)),
+            _GBuffer3 = ShaderPropertyIds.PropertyToID(nameof(_GBuffer3))
+            ;
+    }
     public static class ShaderPropertyIds
     {
 
@@ -21,7 +39,7 @@ namespace PowerUtilities
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        public static RenderTargetIdentifier GetURPRTID(string name)
+        public static RenderTargetIdentifier PropertyToID(string name)
         {
             var id = Shader.PropertyToID(name);
 #if UNITY_2022_3_OR_NEWER
