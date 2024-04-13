@@ -153,7 +153,10 @@ public class TestBRG : MonoBehaviour
 
         // Finally, create a batch for the instances and make the batch use the GraphicsBuffer with the
         // instance data as well as the metadata values that specify where the properties are.
-        m_BatchID = m_BRG.AddBatch(metadata, m_InstanceData.bufferHandle,0,(uint)BatchRendererGroup.GetConstantBufferMaxWindowSize());
+        if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLES3)
+            m_BatchID = m_BRG.AddBatch(metadata, m_InstanceData.bufferHandle, 0, (uint)BatchRendererGroup.GetConstantBufferMaxWindowSize());
+        else
+            m_BatchID = m_BRG.AddBatch(metadata, m_InstanceData.bufferHandle);
     }
 
     // Raw buffers are allocated in ints. This is a utility method that calculates
