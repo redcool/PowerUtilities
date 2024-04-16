@@ -89,12 +89,16 @@
         [LoadAsset("UI-Default.shader")]
         public Shader overrideUIShader;
 
+        //=================== blit current active
         [Header("Blit source")]
         [Tooltip("blit base camera 's target to gamma spece,rendering gamme objects need check")]
         public bool isBlitActiveColorTarget = true;
 
         [LoadAsset("defaultGammaUICopyColor.mat")]
         public Material blitMat;
+        [Tooltip("blit BlitActiveColorTarget blend mode")]
+        public BlendMode blitSrcMode = BlendMode.One;
+        public BlendMode blitDestMode = BlendMode.Zero;
 
         //=================== Gamma Flow
         [EditorHeader("", "------ Gamma Flow ------ ")]

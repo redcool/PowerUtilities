@@ -252,8 +252,8 @@ namespace PowerUtilities.Features
 
             //cmd.Blit(BuiltinRenderTextureType.None, colorHandle, settingSO.blitMat); // will set _MainTex
             cmd.BlitTriangle(lastColorHandleId, colorHandleId, settings.blitMat, 0,
-                finalSrcMode: BlendMode.SrcAlpha,
-                finalDstMode: BlendMode.OneMinusSrcAlpha,
+                finalSrcMode: settings.blitSrcMode,
+                finalDstMode: settings.blitDestMode,
                 clearFlags: clearFlags,
                 depthTargetId: depthHandleId
                 );
