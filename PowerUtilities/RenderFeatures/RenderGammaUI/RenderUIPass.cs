@@ -200,7 +200,8 @@ namespace PowerUtilities.Features
             if (settings.isBlitActiveColorTarget && lastColorHandle.nameID != colorHandle.nameID)
             {
                 // overwrite target
-                BlitToTarget(ref context, lastColorHandle, colorHandle, depthHandle, false, true);
+                var isClearColor = renderingData.cameraData.renderType == CameraRenderType.Base;
+                BlitToTarget(ref context, lastColorHandle, colorHandle, depthHandle, isClearColor, true);
                 //cmd.Execute(ref context);
             }
 

@@ -96,9 +96,9 @@
 
         [LoadAsset("defaultGammaUICopyColor.mat")]
         public Material blitMat;
-        [Tooltip("blit BlitActiveColorTarget blend mode")]
-        public BlendMode blitSrcMode = BlendMode.One;
-        public BlendMode blitDestMode = BlendMode.Zero;
+        [Tooltip("blit BlitActiveColorTarget blend mode(will change RenderTarget's LoadAction")]
+        public BlendMode blitSrcMode = BlendMode.SrcAlpha;
+        public BlendMode blitDestMode = BlendMode.OneMinusSrcAlpha;
 
         //=================== Gamma Flow
         [EditorHeader("", "------ Gamma Flow ------ ")]
