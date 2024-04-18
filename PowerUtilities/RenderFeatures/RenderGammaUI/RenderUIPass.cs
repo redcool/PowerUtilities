@@ -142,7 +142,7 @@ namespace PowerUtilities.Features
 #if UNITY_EDITOR
             if (cameraData.isSceneViewCamera)
             {
-                DrawRenderers(ref context, ref renderingData, BuiltinRenderTextureType.CameraTarget, BuiltinRenderTextureType.CameraTarget);
+                DrawRenderers(ref context, ref renderingData);
                 return;
             }
 #endif
@@ -184,7 +184,7 @@ namespace PowerUtilities.Features
             cmd.Execute(ref context);
 
             //2 draw object with blend
-            DrawRenderers(ref context, ref renderingData, BuiltinRenderTextureType.CameraTarget, BuiltinRenderTextureType.CameraTarget);
+            DrawRenderers(ref context, ref renderingData);
         }
 
         private void DrawObjectsGammaFlow(ref ScriptableRenderContext context, ref RenderingData renderingData, CameraData cameraData)
@@ -206,7 +206,7 @@ namespace PowerUtilities.Features
             }
 
             //--------------------- 2 draw gamma objects
-            DrawRenderers(ref context, ref renderingData, colorHandle, depthHandle);
+            DrawRenderers(ref context, ref renderingData);
 
             //--------------------- 3 to colorTarget
             // to linear space
@@ -227,6 +227,10 @@ namespace PowerUtilities.Features
                     // write to CameraTarget
                     cmd.BlitTriangle(BuiltinRenderTextureType.CurrentActive, BuiltinRenderTextureType.CameraTarget, settings.blitMat, 0,
                         finalSrcMode: settings.finalBlitSrcMode, finalDstMode: settings.finalBlitDestMode);
+
+                    // reset to urp targets
+                    //cmd.SetRenderTarget(lastColorHandle, lastDepthHandle);
+                    //cmd.Execute(ref context);
                     break;
                 case OutputTarget.UrpColorTarget:
                     // write to urp target
@@ -260,7 +264,7 @@ namespace PowerUtilities.Features
                 );
         }
 
-        private void DrawRenderers(ref ScriptableRenderContext context, ref RenderingData renderingData, RenderTargetIdentifier targetTexId, RenderTargetIdentifier depthHandleId)
+        private void DrawRenderers(ref ScriptableRenderContext context, ref RenderingData renderingData)
         {
             var sortFlags = SortingCriteria.CommonTransparent;
 
@@ -283,7 +287,7 @@ namespace PowerUtilities.Features
             curRenderStateArr[0] = renderStateBlock;
 
             // render main filter
-            DrawObjectByInfo(ref filterSettings, ref context,ref renderingData, ref drawSettings, curRenderStateArr, settings.filterInfo, targetTexId);
+            DrawObjectByInfo(ref filterSettings, ref context,ref renderingData, ref drawSettings, curRenderStateArr, settings.filterInfo);
 
             // render objects by layerMasks order
             if (settings.filterInfoList.Count > 0)
@@ -293,12 +297,12 @@ namespace PowerUtilities.Features
                     if (!info.enabled)
                         continue;
 
-                    DrawObjectByInfo(ref filterSettings, ref context,ref renderingData, ref drawSettings, curRenderStateArr, info, targetTexId);
+                    DrawObjectByInfo(ref filterSettings, ref context,ref renderingData, ref drawSettings, curRenderStateArr, info);
                 }
             }
         }
 
-        void DrawObjectByInfo(ref FilteringSettings filterSettings, ref ScriptableRenderContext context, ref RenderingData renderingData, ref DrawingSettings drawSettings, NativeArray<RenderStateBlock> arr, FilteringSettingsInfo info,RenderTargetIdentifier colorTargetId)
+        void DrawObjectByInfo(ref FilteringSettings filterSettings, ref ScriptableRenderContext context, ref RenderingData renderingData, ref DrawingSettings drawSettings, NativeArray<RenderStateBlock> arr, FilteringSettingsInfo info)
         {
 
             //------------- draw objects
@@ -339,11 +343,12 @@ namespace PowerUtilities.Features
             //------------- blit op
             if (info.isBlitToTarget)
             {
-                BlitToTarget(info, ref renderingData, ref context, cmd, colorTargetId);
+                BlitToTarget(info, ref renderingData, ref context, cmd);
             }
         }
 
-        void BlitToTarget(FilteringSettingsInfo info, ref RenderingData renderingData, ref ScriptableRenderContext context, CommandBuffer cmd, RenderTargetIdentifier colorTargetId)
+
+        void BlitToTarget(FilteringSettingsInfo info, ref RenderingData renderingData, ref ScriptableRenderContext context, CommandBuffer cmd)
         {
             if (string.IsNullOrEmpty(info.srcName) || string.IsNullOrEmpty(info.dstName))
             {
@@ -358,9 +363,6 @@ namespace PowerUtilities.Features
             renderer.TryReplaceURPRTTarget(ref dstId);
 
             cmd.BlitTriangle(srcId, dstId, settings.blitMat, 0);
-            
-            cmd.SetRenderTarget(colorTargetId);
-            cmd.Execute(ref context);
         }
 
         bool AnyCameraHasPostProcessing()
