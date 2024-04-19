@@ -304,7 +304,6 @@ namespace PowerUtilities.Features
 
         void DrawObjectByInfo(ref FilteringSettings filterSettings, ref ScriptableRenderContext context, ref RenderingData renderingData, ref DrawingSettings drawSettings, NativeArray<RenderStateBlock> arr, FilteringSettingsInfo info)
         {
-
             //------------- draw objects
             var isGameCamera = renderingData.cameraData.camera.IsGameCamera();
             //1 retarget
@@ -336,7 +335,6 @@ namespace PowerUtilities.Features
             filterSettings = info;
             context.DrawRenderers(cmd, renderingData.cullResults, ref drawSettings, ref filterSettings, null, arr);
 
-
             // reset 
             ColorSpaceTransform.SetColorSpace(cmd, ColorSpaceTransform.ColorSpaceMode.None);
 
@@ -352,6 +350,12 @@ namespace PowerUtilities.Features
         {
             var srcId = ShaderPropertyIds.PropertyToID(info.srcName);
             var dstId = ShaderPropertyIds.PropertyToID(info.dstName);
+
+            if (info.isWriteTargetTextureOnce && info.targetTexture)
+            {
+                info.isWriteTargetTextureOnce = false;
+                dstId = info.targetTexture;
+            }
 
             cmd.BlitTriangle(srcId, dstId, settings.blitMat, 0);
         }
