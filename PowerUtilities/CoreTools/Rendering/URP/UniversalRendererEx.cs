@@ -116,7 +116,9 @@ namespace PowerUtilities
         }
 
         /// <summary>
-        /// if strName is URP renderTarget, replace id to urp renderTarget
+        /// if strName is URP renderTarget, replace id to urp renderTarget,
+        /// 
+        /// can call ShaderPropertyIds.PropertyToID(rtName) also,its use default Renderer
         /// </summary>
         /// <param strName="renderer"></param>
         /// <param strName="name"></param>

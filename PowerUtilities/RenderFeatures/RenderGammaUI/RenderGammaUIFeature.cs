@@ -74,9 +74,9 @@ namespace PowerUtilities.Features
             // ui rendering checks
             if (settingSO.outputTarget == OutputTarget.CameraTarget)
             {
-                if ((cameraData.camera.cullingMask < settingSO.filterInfo.layers) )
+                if ((cameraData.camera.cullingMask & settingSO.filterInfo.layers) == 0)
                 {
-                    settingSO.logs = "UICamera.cullingMask < settings.layerMask, some objects will filter out";
+                    settingSO.logs = "UICamera.cullingMask != settings.layerMask, some objects will filter out";
                     //return;
                 }
             }

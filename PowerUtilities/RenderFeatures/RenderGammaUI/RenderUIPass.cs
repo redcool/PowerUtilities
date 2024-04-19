@@ -310,8 +310,8 @@ namespace PowerUtilities.Features
             //1 retarget
             if (info.isRetarget && !string.IsNullOrEmpty(info.depthTargetName) && !string.IsNullOrEmpty(info.colorTargetName))
             {
-                var colorId = info.colorTargetName == "CameraTarget" ? BuiltinRenderTextureType.CameraTarget : new RenderTargetIdentifier(info.colorTargetName);
-                var depthId = info.depthTargetName == "CameraTarget" ? BuiltinRenderTextureType.CameraTarget : new RenderTargetIdentifier(info.depthTargetName);
+                var colorId = ShaderPropertyIds.PropertyToID(info.colorTargetName);
+                var depthId = ShaderPropertyIds.PropertyToID(info.depthTargetName);
 
                 cmd.SetRenderTarget(colorId, depthId);
                 if (info.isClearDepth)
@@ -343,24 +343,15 @@ namespace PowerUtilities.Features
             //------------- blit op
             if (info.isBlitToTarget)
             {
-                BlitToTarget(info, ref renderingData, ref context, cmd);
+                BlitToTarget(info, cmd);
             }
         }
 
 
-        void BlitToTarget(FilteringSettingsInfo info, ref RenderingData renderingData, ref ScriptableRenderContext context, CommandBuffer cmd)
+        void BlitToTarget(FilteringSettingsInfo info, CommandBuffer cmd)
         {
-            if (string.IsNullOrEmpty(info.srcName) || string.IsNullOrEmpty(info.dstName))
-            {
-                return;
-            }
-
-            var renderer = renderingData.cameraData.renderer as UniversalRenderer;
-            RenderTargetIdentifier srcId = Shader.PropertyToID(info.srcName);
-            RenderTargetIdentifier dstId = Shader.PropertyToID(info.dstName);
-
-            renderer.TryReplaceURPRTTarget(ref srcId);
-            renderer.TryReplaceURPRTTarget(ref dstId);
+            var srcId = ShaderPropertyIds.PropertyToID(info.srcName);
+            var dstId = ShaderPropertyIds.PropertyToID(info.dstName);
 
             cmd.BlitTriangle(srcId, dstId, settings.blitMat, 0);
         }

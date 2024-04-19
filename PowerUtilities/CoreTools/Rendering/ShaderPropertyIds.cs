@@ -39,10 +39,13 @@ namespace PowerUtilities
         /// if name is urp builtin rtName,use urp rtName(unity2022+),
         /// otherwise return Shader.PropertyToID(below unity2022)
         /// </summary>
-        /// <param name="name"></param>
+        /// <param name="name">empty or CameraTarget return BuiltinRenderTextureType.CameraTarget</param>
         /// <returns></returns>
         public static RenderTargetIdentifier PropertyToID(string name)
         {
+            if (string.IsNullOrEmpty(name) || name == "CameraTarget")
+                return BuiltinRenderTextureType.CameraTarget;
+
             var id = Shader.PropertyToID(name);
 #if UNITY_2022_3_OR_NEWER
             var renderer = UniversalRenderPipeline.asset.GetDefaultRenderer();
