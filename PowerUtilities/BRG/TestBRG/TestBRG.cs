@@ -1,6 +1,8 @@
+#if UNITY_2022_2_OR_NEWER
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
@@ -8,6 +10,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
 using UnityEngine.Rendering;
+
 
 public class TestBRG : MonoBehaviour
 {
@@ -249,3 +252,4 @@ public class TestBRG : MonoBehaviour
 
     }
 }
+#endif

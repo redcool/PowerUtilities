@@ -52,6 +52,7 @@ namespace PowerUtilities
         public string depthTargetName;
         public bool isClearDepth;
 
+
         [Header("Rebind Targets")]
         public List<RebingTargetNameInfo> rebindTargetList = new List<RebingTargetNameInfo> ();
 
@@ -60,6 +61,10 @@ namespace PowerUtilities
         public bool isBlitToTarget;
         public string srcName = "_GammaTex";
         public string dstName = "_CameraOpaqueTexture";
+
+        [Tooltip("blit to renderTexture if rt exists")]
+        public RenderTexture targetTexture;
+        public bool isWriteTargetTextureOnce;
 
         public static implicit operator FilteringSettings(FilteringSettingsInfo info)
         {
