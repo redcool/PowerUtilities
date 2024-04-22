@@ -24,6 +24,7 @@ using UnityEngine;
                 label.image = AssetDatabase.LoadAssetAtPath<Texture>(attr.imageAssetPath);
 
             position = EditorGUI.IndentedRect(position);
+            
             if (GUI.Button(position, label))
             {
                 property.boolValue = true;
@@ -46,7 +47,14 @@ using UnityEngine;
         }
     }
 #endif
-
+    /// <summary>
+    /// show GUI.Button for bool,(int [0,1])
+    /// 
+    ///     [EditorButton(onClickCall ="Test")]
+    ///     public bool isTest;
+    ///     
+    ///     Test(){}
+    /// </summary>
     public class EditorButtonAttribute : PropertyAttribute
     {
         public string onClickCall;

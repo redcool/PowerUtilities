@@ -16,6 +16,12 @@
     public class EditorSettingSOAttribute : PropertyAttribute
     {
         public Type settingType;
+
+        /// <summary>
+        /// EditorGUIUtility.labelWidth = labelWidth
+        /// </summary>
+        public int labelWidth = 250;
+
         public EditorSettingSOAttribute(Type settingType)
         {
             this.settingType = settingType;

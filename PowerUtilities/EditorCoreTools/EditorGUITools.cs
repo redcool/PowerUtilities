@@ -552,7 +552,11 @@ namespace PowerUtilities
 
             isTargetEditorFolded = EditorGUILayout.Foldout(isTargetEditorFolded, settingSOProp.displayName, true);
             if (isTargetEditorFolded)
+            {
+                EditorGUI.indentLevel++;
                 targetEditor.OnInspectorGUI();
+                EditorGUI.indentLevel--;
+            }
         }
 
         #endregion
