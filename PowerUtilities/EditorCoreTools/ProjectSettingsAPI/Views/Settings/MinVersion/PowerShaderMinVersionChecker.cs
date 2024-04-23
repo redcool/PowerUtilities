@@ -1,4 +1,5 @@
-﻿namespace PowerUtilities
+﻿#if UNITY_EDITOR
+namespace PowerUtilities
 {
     using System;
     using System.Collections.Generic;
@@ -80,3 +81,4 @@
         }
     }
 }
+#endif

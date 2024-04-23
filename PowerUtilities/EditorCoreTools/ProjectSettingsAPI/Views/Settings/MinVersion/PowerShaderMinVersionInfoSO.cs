@@ -1,15 +1,13 @@
+#if UNITY_EDITOR
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.EditorTools;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace PowerUtilities
 {
-
-
-
     [Serializable]
     public class PowerShaderMinVersionInfoSO : ScriptableObject
     {
@@ -54,3 +52,5 @@ namespace PowerUtilities
 
     }
 }
+
+#endif
