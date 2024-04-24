@@ -76,7 +76,6 @@ namespace PowerUtilities
             MaterialGroupTools.SetStateAll(true);
         }
 
-
         public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] properties)
         {
             this.materialEditor = materialEditor;
@@ -410,7 +409,10 @@ namespace PowerUtilities
                 layoutProfileType = (LayoutProfileType)EditorGUILayout.EnumPopup("Version",layoutProfileType);
             }, mat =>
             {
-                mat.SetKeywords(new[] { MIN_VERSION }, layoutProfileType == LayoutProfileType.MIN_VERSION);
+                foreach(Material m in materialEditor.targets)
+                {
+                    m.SetKeywords(new[] { MIN_VERSION }, layoutProfileType == LayoutProfileType.MIN_VERSION);
+                }
                 isFirstRunOnGUI = true; // force reInit
             });
         }
