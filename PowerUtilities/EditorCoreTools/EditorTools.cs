@@ -125,6 +125,29 @@ namespace PowerUtilities
             }
         }
 
+        /// <summary>
+        /// Get Untiy'sEditor from UnityEditor.dll
+        /// like:
+        /// EditorTools. GetUnityEditor(ref spriteRendererEditor,target, "SpriteRendererEditor");
+        /// </summary>
+        /// <param name="editorInst"></param>
+        /// <param name="inst"></param>
+        /// <param name="editorTypeName"></param>
+        public static void GetUnityEditor(ref Editor editorInst, Object inst, string editorTypeName)
+        {
+            if (editorInst)
+            {
+                return;
+            }
+
+            var t = typeof(Editor).Assembly.GetTypes()
+                .Where(t => t.Name == editorTypeName)
+                .FirstOrDefault()
+                ;
+            editorInst = Editor.CreateEditor(inst, t);
+        }
+
+        
     }
 }
 #endif
