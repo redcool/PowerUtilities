@@ -26,21 +26,9 @@ namespace PowerUtilities.Features
 
         RenderUIPass uiPass;
 
-        public static List<RenderGammaUIFeature> instanceList = new List<RenderGammaUIFeature>();
-
         /// <inheritdoc/>
         public override void Create()
         {
-            if (!instanceList.Contains(this))
-            {
-                instanceList.Add(this);
-            }
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            base.Dispose(disposing);
-            instanceList.Remove(this);
         }
 
         public static bool IsCameraValid(ref CameraData cameraData, string cameraTag)

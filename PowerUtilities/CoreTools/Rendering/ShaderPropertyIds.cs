@@ -21,15 +21,15 @@ namespace PowerUtilities
         public static RenderTargetIdentifier _CameraDepthTexture => ShaderPropertyIds.PropertyToID(nameof(_CameraDepthTexture));
         public static RenderTargetIdentifier _CameraColorTexture => ShaderPropertyIds.PropertyToID(nameof(_CameraColorTexture));
         public static RenderTargetIdentifier _CameraColorAttachmentA => ShaderPropertyIds.PropertyToID(nameof(_CameraColorAttachmentA));
-        public static RenderTargetIdentifier _CameraColorAttachmentB = ShaderPropertyIds.PropertyToID(nameof(_CameraColorAttachmentB));
-        public static RenderTargetIdentifier _CameraDepthAttachment = ShaderPropertyIds.PropertyToID(nameof(_CameraDepthAttachment));
-        public static RenderTargetIdentifier _CameraNormalsTexture = ShaderPropertyIds.PropertyToID(nameof(_CameraNormalsTexture));
-        public static RenderTargetIdentifier _MotionVectorTexture = ShaderPropertyIds.PropertyToID(nameof(_MotionVectorTexture));
-        public static RenderTargetIdentifier _AfterPostProcessTexture = ShaderPropertyIds.PropertyToID(nameof(_AfterPostProcessTexture));
-        public static RenderTargetIdentifier _GBuffer0 = ShaderPropertyIds.PropertyToID(nameof(_GBuffer0));
-        public static RenderTargetIdentifier _GBuffer1 = ShaderPropertyIds.PropertyToID(nameof(_GBuffer1));
-        public static RenderTargetIdentifier _GBuffer2 = ShaderPropertyIds.PropertyToID(nameof(_GBuffer2));
-        public static RenderTargetIdentifier _GBuffer3 = ShaderPropertyIds.PropertyToID(nameof(_GBuffer3));
+        public static RenderTargetIdentifier _CameraColorAttachmentB => ShaderPropertyIds.PropertyToID(nameof(_CameraColorAttachmentB));
+        public static RenderTargetIdentifier _CameraDepthAttachment => ShaderPropertyIds.PropertyToID(nameof(_CameraDepthAttachment));
+        public static RenderTargetIdentifier _CameraNormalsTexture => ShaderPropertyIds.PropertyToID(nameof(_CameraNormalsTexture));
+        public static RenderTargetIdentifier _MotionVectorTexture => ShaderPropertyIds.PropertyToID(nameof(_MotionVectorTexture));
+        public static RenderTargetIdentifier _AfterPostProcessTexture => ShaderPropertyIds.PropertyToID(nameof(_AfterPostProcessTexture));
+        public static RenderTargetIdentifier _GBuffer0 => ShaderPropertyIds.PropertyToID(nameof(_GBuffer0));
+        public static RenderTargetIdentifier _GBuffer1 => ShaderPropertyIds.PropertyToID(nameof(_GBuffer1));
+        public static RenderTargetIdentifier _GBuffer2 => ShaderPropertyIds.PropertyToID(nameof(_GBuffer2));
+        public static RenderTargetIdentifier _GBuffer3 => ShaderPropertyIds.PropertyToID(nameof(_GBuffer3));
     }
 
     public static class ShaderPropertyIds
