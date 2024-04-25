@@ -1,0 +1,36 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using UnityEngine.Rendering.Universal;
+
+namespace PowerUtilities
+{
+    public static class UniversalAdditionalCameraDataEx
+    {
+        /// <summary>
+        /// Get current Renderer's index
+        /// </summary>
+        /// <param name="cameraData"></param>
+        /// <returns></returns>
+        public static int GetRendererIndex(this UniversalAdditionalCameraData cameraData)
+        {
+            var cr = cameraData.scriptableRenderer;
+            var rs = UniversalRenderPipeline.asset.GetRenderers();
+            return rs.FindIndex(r => r == cr);
+        }
+
+        /// <summary>
+        /// Get current RendererData
+        /// </summary>
+        /// <param name="cameraData"></param>
+        /// <returns></returns>
+        public static ScriptableRendererData GetRendererData(this UniversalAdditionalCameraData cameraData)
+        {
+            var id = GetRendererIndex(cameraData);
+            var datas = UniversalRenderPipeline.asset.GetRendererDatas();
+            return datas[id];
+        }
+    }
+}
