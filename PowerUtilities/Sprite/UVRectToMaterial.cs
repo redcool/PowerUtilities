@@ -17,14 +17,25 @@ namespace PowerUtilities
     public class UVRectToMaterialEditor : PowerEditor<UVRectToMaterial>
     {
         public override bool NeedDrawDefaultUI() => true;
-        public override string Version => "0.0.3";
+        public override string Version => "0.0.4";
+
+        readonly GUIContent SetUVBySpriteRect = new GUIContent("SetUVBySprite", "Set material uv by sprite size ");
+        readonly GUIContent SetScaleBySpriteSize = new GUIContent("SetTransform", "Set (Scale,Position) by sprite size");
 
         public override void DrawInspectorUI(UVRectToMaterial inst)
         {
-            if (GUILayout.Button("Set sprite uv"))
+            GUILayout.Label("Options", EditorStyles.boldLabel);
+
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button(SetUVBySpriteRect))
             {
                 inst.SetUV();
             }
+            if (GUILayout.Button(SetScaleBySpriteSize))
+            {
+                inst.SetTransform();
+            }
+            GUILayout.EndHorizontal();
         }
     }
 #endif
@@ -163,7 +174,27 @@ namespace PowerUtilities
                 }
             }
 #endif
+        }
 
+        public void SetTransform()
+        {
+            if (!sprite)
+                return;
+
+            var w = sprite.rect.width;
+            var h = sprite.rect.height;
+            var sx = w / sprite.pixelsPerUnit;
+            var sy = h / sprite.pixelsPerUnit;
+
+            var scale = transform.localScale;
+            scale.Set(sx, sy, scale.z);
+            transform.localScale = scale;
+
+            var offset = new Vector2(sprite.pivot.x/sprite.rect.width-0.5f, sprite.pivot.y/sprite.rect.height-0.5f);
+            var pos = transform.localPosition;
+            pos.x = -scale.x * offset.x;
+            pos.y = -scale.y * offset.y;
+            transform.localPosition = pos;
         }
 
         private void SetupComponents()
