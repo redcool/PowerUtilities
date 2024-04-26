@@ -10,7 +10,7 @@ using Object = UnityEngine.Object;
 
 namespace PowerUtilities
 {
-    [CustomEditor(typeof(SpriteRenderer))]
+    //[CustomEditor(typeof(SpriteRenderer))]
     public class SpriteRendererEditorEx : Editor
     {
         Editor spriteRendererEditor;
@@ -40,11 +40,6 @@ namespace PowerUtilities
             serializedObject.ApplyModifiedProperties();
         }
 
-        [ContextMenu("Test context")]
-        public void TestContext()
-        {
-            Debug.Log("test");
-        }
     }
 }
 #endif
