@@ -30,6 +30,12 @@ namespace PowerUtilities.Features
 
         public GammaUISettingSO settings;
 
+        /// <summary>
+        /// (info.isWriteTargetTextureOnce && info.targetTexture) is true,
+        /// will call this callback
+        /// </summary>
+        public static Action OnWriteTargetTextureOnceDone;
+
         static NativeArray<RenderStateBlock> curRenderStateArr;
 
         static bool isActiveColorTargetForceSet;
@@ -339,9 +345,11 @@ namespace PowerUtilities.Features
             ColorSpaceTransform.SetColorSpace(cmd, ColorSpaceTransform.ColorSpaceMode.None);
 
             //------------- blit op
-            if (info.isBlitToTarget)
+            if (info.isBlitToTarget || (info.isWriteTargetTextureOnce && info.targetTexture))
             {
                 BlitToTarget(info, cmd);
+
+                OnWriteTargetTextureOnceDone?.Invoke();
             }
         }
 
