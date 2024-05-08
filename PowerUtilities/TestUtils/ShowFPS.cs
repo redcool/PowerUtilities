@@ -42,5 +42,10 @@ namespace PowerUtilities.Test
 
             fps++;
         }
+
+        public void OnSetShaderLod(int lod)
+        {
+            Shader.globalMaximumLOD = lod;
+        }
     }
 }
