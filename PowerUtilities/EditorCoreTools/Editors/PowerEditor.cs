@@ -17,6 +17,7 @@ namespace PowerUtilities
         /// Show version in inspector when not empty
         /// </summary>
         public virtual string Version { get; } ="";
+        public virtual string TitleHelpStr { get; } = "";
 
         public (string, bool) foldInfo = ("Options",true);
 
@@ -26,10 +27,29 @@ namespace PowerUtilities
         {
             var inst = target as T;
 
+            if(!string.IsNullOrEmpty(TitleHelpStr))
+            {
+                EditorGUILayout.BeginVertical("Box");
+                EditorGUILayout.HelpBox(TitleHelpStr, MessageType.Info);
+                EditorGUILayout.EndVertical();
+            }
+
             if (!string.IsNullOrEmpty(Version))
             {
-                EditorGUITools.DrawColorLabel(new Rect(100, 5, 100, 16), new GUIContent(Version), Color.cyan);
+                if (!string.IsNullOrEmpty(Version))
+                {
+                    var rect = new Rect(100, 4, 100, 18);
+                    if (!string.IsNullOrEmpty(TitleHelpStr))
+                    {
+                        var lastRect = GUILayoutUtility.GetLastRect();
+                        rect.y += lastRect.max.y;
+                    }
+
+                    EditorGUITools.DrawColorLabel(rect, new GUIContent(Version), Color.cyan);
+                }
+
             }
+
 
             if (NeedDrawDefaultUI())
             {

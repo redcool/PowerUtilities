@@ -11,6 +11,14 @@ namespace PowerUtilities.Test
 
         [Range(30,2000)]public int maxFps=2000;
 
+        [Header("ShaderLod")]
+        public int shaderLod = 600;
+        [EditorButton(onClickCall = "OnSetShaderLod")]public bool isSetShaderLod;
+
+        [Header("Texture Lod")]
+        [Range(0,3)]public int textureLod = 0;
+        [EditorButton(onClickCall = "OnSetTextureLod")] public bool isSetTextureLod;
+
         int fps;
         float startTime;
         // Start is called before the first frame update
@@ -46,6 +54,20 @@ namespace PowerUtilities.Test
         public void OnSetShaderLod(int lod)
         {
             Shader.globalMaximumLOD = lod;
+        }
+
+        public void OnSetShaderLod()
+        {
+            Shader.globalMaximumLOD = shaderLod;
+        }
+
+        public void OnSetTextureLod()
+        {
+            QualitySettings.globalTextureMipmapLimit = textureLod;
+        }
+        public void OnSetTextureLod(int textureLod)
+        {
+            QualitySettings.globalTextureMipmapLimit = textureLod;
         }
     }
 }
