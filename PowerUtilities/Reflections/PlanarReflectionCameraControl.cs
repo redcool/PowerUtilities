@@ -78,8 +78,16 @@
 #endif
             if (!mainCam)
                 return;
+            var addData = mainCam.GetUniversalAdditionalCameraData();
+            var renderScale = UniversalRenderPipeline.asset.renderScale;
 
-            TryCreateReflectionRT(ref reflectionRT, mainCam.pixelWidth>>downSamples, mainCam.pixelHeight>>downSamples,isGenerateMips);
+            // avoid console error
+            var samples = Application.isPlaying ? downSamples : 0;
+
+            var width = mainCam.pixelWidth>> samples;
+            var height = mainCam.pixelHeight >> samples;
+
+            TryCreateReflectionRT(ref reflectionRT, width, height, isGenerateMips);
             SetupReflectionCameraStates();
             RenderReflection();
             SendToShader();
@@ -103,7 +111,8 @@
                 rt = new RenderTexture(w, h, 16);
                 rt.useMipMap = isGenerateMips;
                 rt.autoGenerateMips = isGenerateMips;
-                rt.Create();
+                //rt.Create();
+                Debug.Log("create "+ lastWidth);
             }
             if (rt)
             {
