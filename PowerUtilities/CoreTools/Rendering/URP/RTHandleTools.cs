@@ -47,9 +47,9 @@ namespace PowerUtilities
 
     public static class RTHandleTools
     {
-        
+
         /// <summary>
-        /// urp texture property name -> UniversalRenderer's rtHandle path
+        /// URPRTHandleNames -> UniversalRenderer's rtHandle path
         /// </summary>
         static Dictionary<URPRTHandleNames, string> urpRTHandleFieldPathDict = new Dictionary<URPRTHandleNames, string>
         {
@@ -143,12 +143,7 @@ namespace PowerUtilities
                 return;
 #endif
 
-            var fieldPath = Enum.GetName(typeof(URPRTHandleNames), handleName);
-            // get variable's path or use URPRTHandleNames
-            if (urpRTHandleFieldPathDict.ContainsKey(handleName))
-            {
-                fieldPath = urpRTHandleFieldPathDict[handleName];
-            }
+            var fieldPath = DictionaryTools.Get(urpRTHandleFieldPathDict, handleName, handleName => handleName.ToString());
 
 #if UNITY_2022_1_OR_NEWER
             handle = (RTHandle)renderer.GetObjectHierarchy(fieldPath);

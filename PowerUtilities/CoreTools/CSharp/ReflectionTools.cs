@@ -30,6 +30,11 @@ namespace PowerUtilities
         /// </summary>
         static Dictionary<Type, Type[]> attributeTypesDict = new Dictionary<Type, Type[]>();
 
+        /// <summary>
+        /// field string split fields
+        /// </summary>
+        static Dictionary<string, string[]> fieldPathDict = new Dictionary<string, string[]>();
+
 
         static ReflectionTools()
         {
@@ -226,7 +231,8 @@ namespace PowerUtilities
             if (instance == null || string.IsNullOrEmpty(fieldExpress))
                 return null;
 
-            var fieldNames = fieldExpress.SplitBy('.');
+            var fieldNames = DictionaryTools.Get(fieldPathDict, fieldExpress, fieldExpress => fieldExpress.SplitBy('.'));
+            //var fieldNames = fieldExpress.SplitBy('.');
 
             Type instType = instance.GetType();
             FieldInfo field = null;
