@@ -26,7 +26,11 @@ namespace PowerUtilities.Features
         static readonly int _CameraColorAttachmentB = Shader.PropertyToID(nameof(_CameraColorAttachmentB));
         static readonly int _CameraDepthAttachment = Shader.PropertyToID(nameof(_CameraDepthAttachment));
 
-        CommandBuffer cmd = new CommandBuffer();
+        public CommandBuffer cmd = new CommandBuffer();
+        /// <summary>
+        /// used for framedebugger
+        /// </summary>
+        public string profilerName = nameof(RenderUIPass);
 
         public GammaUISettingSO settings;
 
@@ -39,12 +43,6 @@ namespace PowerUtilities.Features
         static NativeArray<RenderStateBlock> curRenderStateArr;
 
         static bool isActiveColorTargetForceSet;
-
-        public void SetProfileName(string profileName = "RenderUIPass")
-        {
-            cmd.name = profileName;
-        }
-
 
         public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
         {
@@ -136,9 +134,9 @@ namespace PowerUtilities.Features
             var urpAsset = UniversalRenderPipeline.asset;
             SetupURPAsset(urpAsset);
 
-            cmd.BeginSampleExecute(cmd.name, ref context);
+            cmd.BeginSampleExecute(profilerName, ref context);
             Draw(ref context, ref renderingData);
-            cmd.EndSampleExecute(cmd.name, ref context);
+            cmd.EndSampleExecute(profilerName, ref context);
         }
         public void Draw(ref ScriptableRenderContext context, ref RenderingData renderingData)
         {

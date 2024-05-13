@@ -83,7 +83,7 @@ namespace PowerUtilities.Features
 
             if (uiPass == null)
                 uiPass = new RenderUIPass();
-            uiPass.SetProfileName(name);
+            uiPass.profilerName = name;
 
             uiPass.renderPassEvent = settingSO.passEvent + settingSO.passEventOffset;
             uiPass.settings = settingSO;
