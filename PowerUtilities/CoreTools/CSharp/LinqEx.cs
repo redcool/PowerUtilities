@@ -24,8 +24,11 @@
             if (q == null || action == null)
                 return;
 
-            foreach (var item in q) {
-                if (validPredicate!=null ? validPredicate.Invoke(item) : true)
+            var count = q.Count();
+            for (var i = 0; i < count; i++)
+            {
+                var item = q.ElementAt(i);
+                if (validPredicate != null ? validPredicate.Invoke(item) : true)
                     action(item);
             }
         }
@@ -35,13 +38,12 @@
             if (q == null || action == null)
                 return;
 
-            var id = 0;
-            foreach (var item in q)
+            var count = q.Count();
+            for (var i = 0; i < count; i++)
             {
-                if (validPredicate!=null ? validPredicate.Invoke(item, id) : true)
-                    action(item, id);
-
-                id++;
+                var item = q.ElementAt(i);
+                if (validPredicate != null ? validPredicate.Invoke(item, i) : true)
+                    action(item, i);
             }
         }
 
