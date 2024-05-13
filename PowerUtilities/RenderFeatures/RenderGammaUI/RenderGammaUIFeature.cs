@@ -26,9 +26,15 @@ namespace PowerUtilities.Features
 
         RenderUIPass uiPass;
 
+        public string featureName;
         /// <inheritdoc/>
         public override void Create()
         {
+        }
+
+        private void Awake()
+        {
+            featureName = name; // cache it, otherwise cause gc
         }
 
         public static bool IsCameraValid(ref CameraData cameraData, string cameraTag)
@@ -83,7 +89,7 @@ namespace PowerUtilities.Features
 
             if (uiPass == null)
                 uiPass = new RenderUIPass();
-            uiPass.profilerName = name;
+            uiPass.profilerName = featureName;
 
             uiPass.renderPassEvent = settingSO.passEvent + settingSO.passEventOffset;
             uiPass.settings = settingSO;
