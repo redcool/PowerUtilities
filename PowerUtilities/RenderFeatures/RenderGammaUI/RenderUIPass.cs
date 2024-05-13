@@ -18,13 +18,7 @@ namespace PowerUtilities.Features
     public class RenderUIPass : ScriptableRenderPass
     {
         static readonly int _GammaTex = Shader.PropertyToID(nameof(_GammaTex));
-
-        static readonly int _SourceTex = Shader.PropertyToID(nameof(_SourceTex));
-        static readonly int _CameraOpaqueTexture = Shader.PropertyToID(nameof(_CameraOpaqueTexture));
-        static readonly int _CameraDepthTexture = Shader.PropertyToID(nameof(_CameraDepthTexture));
-        static readonly int _CameraColorAttachmentA = Shader.PropertyToID(nameof(_CameraColorAttachmentA));
-        static readonly int _CameraColorAttachmentB = Shader.PropertyToID(nameof(_CameraColorAttachmentB));
-        static readonly int _CameraDepthAttachment = Shader.PropertyToID(nameof(_CameraDepthAttachment));
+        static readonly RTHandle _GammaTexHandle = RTHandles.Alloc(_GammaTex);
 
         public CommandBuffer cmd = new CommandBuffer();
         /// <summary>
@@ -400,7 +394,7 @@ namespace PowerUtilities.Features
                 desc.depthBufferBits = (int)settings.depthBufferBits;
                 cmd.GetTemporaryRT(_GammaTex, desc);
 
-                colorHandleId = depthHandleId = RTHandles.Alloc(_GammaTex);
+                colorHandleId = depthHandleId = _GammaTexHandle;
             }
         }
 
