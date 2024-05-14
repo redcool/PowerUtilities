@@ -48,9 +48,16 @@ namespace PowerUtilities
             if (onConvert == null || names == null)
                 return;
 
-            results = names.
-                Select(n => onConvert(n)).
-                ToArray();
+            if(results == null || results.Length != names.Length)
+                results = new T[names.Length];
+
+            for(int i = 0; i < names.Length; i++)
+            {
+                results[i] = onConvert(names[i]);
+            }
+            //results = names.
+            //    Select(n => onConvert(n)).
+            //    ToArray();
         }
         /// <summary>
         /// Change names to RenderTargetIdentitier(Shader.PropertyToID
