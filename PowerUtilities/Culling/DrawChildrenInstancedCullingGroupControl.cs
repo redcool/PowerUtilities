@@ -12,14 +12,14 @@ using Object = UnityEngine.Object;
 namespace PowerUtilities
 {
 #if UNITY_EDITOR
-    [CustomEditor(typeof(CullingGroupControl))]
-    public class CullingGroupControlEditor : PowerEditor<CullingGroupControl>
+    [CustomEditor(typeof(DrawChildrenInstancedCullingGroupControl))]
+    public class DrawChildrenInstancedCullingGroupControlEditor : PowerEditor<DrawChildrenInstancedCullingGroupControl>
     {
         Editor cullingInfoEditor;
         public override bool NeedDrawDefaultUI() => true;
         public override string Version => "0.0.1";
 
-        public override void DrawInspectorUI(CullingGroupControl inst)
+        public override void DrawInspectorUI(DrawChildrenInstancedCullingGroupControl inst)
         {
             if (!inst.cullingProfile)
             {
@@ -50,8 +50,8 @@ namespace PowerUtilities
                 inst.InitSceneProfileVisibles();
             }
 
-            EditorGUILayout.LabelField("OnInitSceneProfileVisiblesLength :" + CullingGroupControl.OnInitSceneProfileVisiblesLength);
-            EditorGUILayout.LabelField("OnVisibleChangedLength :" + CullingGroupControl.OnVisibleChangedLength);
+            EditorGUILayout.LabelField("OnInitSceneProfileVisiblesLength :" + DrawChildrenInstancedCullingGroupControl.OnInitSceneProfileVisiblesLength);
+            EditorGUILayout.LabelField("OnVisibleChangedLength :" + DrawChildrenInstancedCullingGroupControl.OnVisibleChangedLength);
         }
 
     }
@@ -62,7 +62,7 @@ namespace PowerUtilities
     /// CullingGroup match with DrawChildrenInstanced
     /// </summary>
     [ExecuteInEditMode]
-    public class CullingGroupControl : MonoBehaviour
+    public class DrawChildrenInstancedCullingGroupControl : MonoBehaviour
     {
         public CullingGroupSO cullingProfile;
 
@@ -82,9 +82,9 @@ namespace PowerUtilities
         public static int OnInitSceneProfileVisiblesLength => OnInitSceneProfileVisibles.GetInvocationListSafe().Length;
         public static int OnVisibleChangedLength => OnVisibleChanged.GetInvocationListSafe().Length;
 
-        static CullingGroupControl instance;
+        static DrawChildrenInstancedCullingGroupControl instance;
 
-        public static CullingGroupControl GetInstance() => SingletonTools.GetInstance(ref instance);
+        public static DrawChildrenInstancedCullingGroupControl GetInstance() => SingletonTools.GetInstance(ref instance);
 
         private void Awake()
         {

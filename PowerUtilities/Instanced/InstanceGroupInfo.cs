@@ -14,7 +14,7 @@ namespace PowerUtilities
         public List<Matrix4x4> transforms = new List<Matrix4x4>();
         /// <summary>
         /// camera see transform ? 
-        /// CullingGroupControl will update this array
+        /// DrawChildrenInstancedCullingGroupControl will update this array
         /// </summary>
         public List<bool> transformVisibleList = new List<bool>();
 

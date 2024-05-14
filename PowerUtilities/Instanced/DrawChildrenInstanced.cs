@@ -29,24 +29,24 @@
 
         private void AddEvents()
         {
-            CullingGroupControl.OnVisibleChanged -= CullingGroupControl_OnVisibleChanged;
-            CullingGroupControl.OnVisibleChanged += CullingGroupControl_OnVisibleChanged;
+            DrawChildrenInstancedCullingGroupControl.OnVisibleChanged -= CullingGroupControl_OnVisibleChanged;
+            DrawChildrenInstancedCullingGroupControl.OnVisibleChanged += CullingGroupControl_OnVisibleChanged;
 
-            CullingGroupControl.OnInitSceneProfileVisibles -= CullingGroupControl_OnInitAllVisibles;
-            CullingGroupControl.OnInitSceneProfileVisibles += CullingGroupControl_OnInitAllVisibles;
+            DrawChildrenInstancedCullingGroupControl.OnInitSceneProfileVisibles -= CullingGroupControl_OnInitAllVisibles;
+            DrawChildrenInstancedCullingGroupControl.OnInitSceneProfileVisibles += CullingGroupControl_OnInitAllVisibles;
 
         }
         private void RemoveEvents()
         {
-            CullingGroupControl.OnVisibleChanged -= CullingGroupControl_OnVisibleChanged;
-            CullingGroupControl.OnInitSceneProfileVisibles -= CullingGroupControl_OnInitAllVisibles;
+            DrawChildrenInstancedCullingGroupControl.OnVisibleChanged -= CullingGroupControl_OnVisibleChanged;
+            DrawChildrenInstancedCullingGroupControl.OnInitSceneProfileVisibles -= CullingGroupControl_OnInitAllVisibles;
         }
 
         public void Awake()
         {
             CheckSupports();
 
-            //AddEvents,must first register, CullingGroupControl onEnable will call
+            //AddEvents,must first register, DrawChildrenInstancedCullingGroupControl onEnable will call
             if (enabled)
                 AddEvents();
         }
@@ -89,7 +89,7 @@
 
         private void CullingGroupControl_OnInitAllVisibles()
         {
-            CullingGroupControl.SceneProfile.cullingInfos.ForEach((cullingInfo ,infoId)=>
+            DrawChildrenInstancedCullingGroupControl.SceneProfile.cullingInfos.ForEach((cullingInfo ,infoId)=>
             {
                 if (drawInfoSO.drawChildrenId != cullingInfo.drawChildrenId)
                     return;
@@ -103,7 +103,7 @@
 
         private void CullingGroupControl_OnVisibleChanged(CullingGroupEvent e)
         {
-            if (CullingGroupControl.SceneProfile.cullingInfos[e.index] is InstancedGroupCullingInfo cullingInfo)
+            if (DrawChildrenInstancedCullingGroupControl.SceneProfile.cullingInfos[e.index] is InstancedGroupCullingInfo cullingInfo)
             {
                 //Debug.Log(e.index+":"+e.isVisible+":"+cullingInfo.ToString());
 

@@ -17,10 +17,10 @@ namespace PowerUtilities
             if (GUILayout.Button("add"))
             {
 
-                CullingGroupControl.SceneProfile.cullingInfos.Clear();
+                DrawChildrenInstancedCullingGroupControl.SceneProfile.cullingInfos.Clear();
                 var q = inst.list.Select(x => new CullingInfo(x.position));
 
-                //CullingGroupControl.SceneProfile.cullingInfos.AddRange(q);
+                //DrawChildrenInstancedCullingGroupControl.SceneProfile.cullingInfos.AddRange(q);
             }
         }
     }
