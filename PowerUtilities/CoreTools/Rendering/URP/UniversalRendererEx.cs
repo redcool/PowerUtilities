@@ -93,7 +93,15 @@ namespace PowerUtilities
 
             handleInfo.rtHandleDict.TryGetValue(rtName, out var handle);
             if (forceMode)
+            {
                 handle = default;
+            }
+            else
+            {
+                // checked already(rt in dict), urp rt not exists
+                if (handleInfo.rtHandleDict.ContainsKey(rtName) && handle == default)
+                    return default;
+            }
 
             //this function with cache.
             RTHandleTools.GetRTHandle(ref handle, renderer, rtName);

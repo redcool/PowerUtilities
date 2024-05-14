@@ -16,6 +16,8 @@ namespace PowerUtilities
             _FinalDstMode = Shader.PropertyToID(nameof(_FinalDstMode))
         ;
 
+        public static Dictionary<CommandBuffer, string> nameDict = new Dictionary<CommandBuffer, string>();
+
         public readonly static RenderTextureDescriptor defaultDescriptor = new RenderTextureDescriptor(1, 1, RenderTextureFormat.Default, 0, 0);
 
 #if UNITY_2020
@@ -24,6 +26,13 @@ namespace PowerUtilities
             cmd.ClearRenderTarget(clearFlags >= RTClearFlags.Depth, (clearFlags & RTClearFlags.Color) > 0, backgroundColor, depth);
         }
 #endif
+        /// <summary>
+        /// get CommandBuffer name with cache
+        /// </summary>
+        /// <param name="cmd"></param>
+        /// <returns></returns>
+        public static string GetName(this CommandBuffer cmd)
+            => DictionaryTools.Get(nameDict, cmd, cmd => cmd.name);
 
         public static void ClearRenderTarget(this CommandBuffer cmd, Camera camera, float depth = 1, uint stencil = 0)
         {

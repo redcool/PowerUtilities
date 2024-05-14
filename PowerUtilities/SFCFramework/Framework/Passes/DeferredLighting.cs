@@ -20,6 +20,9 @@ namespace PowerUtilities.RenderFeatures
     /// spot : cone
     /// point : sphere
     /// other : use texture
+    /// 
+    /// 
+    /// * GBuffer, check PowerLit's GBuffer pass
     /// </summary>
     [Tooltip("Defered Lighting")]
     [CreateAssetMenu(menuName = SRP_FEATURE_PASSES_MENU + "/DeferedLighting")]
@@ -54,6 +57,9 @@ namespace PowerUtilities.RenderFeatures
 
     public class DeferedLightingPass : SRPPass<DeferredLighting>
     {
+
+        RenderTargetIdentifier[] colorTargets = new RenderTargetIdentifier[4];
+
         public DeferedLightingPass(DeferredLighting feature) : base(feature)
         {
         }
@@ -146,12 +152,16 @@ namespace PowerUtilities.RenderFeatures
             var depthDesc = colorDesc;
             depthDesc.colorFormat = RenderTextureFormat.Depth;
             depthDesc.depthBufferBits = 24;
-            cmd.GetTemporaryRT(ShaderPropertyIds._CameraDepthAttachment, depthDesc);
+            //cmd.GetTemporaryRT(ShaderPropertyIds._CameraDepthAttachment, depthDesc);
 
-            var colorIds = new RenderTargetIdentifier[] { gbuffer0, gbuffer1, gbuffer2 , gbuffer3 };
-            var depthId = ShaderPropertyIds._CameraDepthAttachment;
+            colorTargets[0] = gbuffer0;
+            colorTargets[1] = gbuffer1;
+            colorTargets[2] = gbuffer2;
+            colorTargets[3] = gbuffer3;
 
-            cmd.SetRenderTarget(colorIds, depthId);
+            var depthId = ShaderPropertyIdentifier._CameraDepthAttachment;
+
+            cmd.SetRenderTarget(colorTargets, depthId);
             cmd.ClearRenderTarget(true, true, Color.clear);
             cmd.Execute(ref context);
         }
