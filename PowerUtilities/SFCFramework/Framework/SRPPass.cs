@@ -58,6 +58,7 @@ namespace PowerUtilities.RenderFeatures
         {
             Feature = feature;
             featureName = feature.name;
+
         }
 
         /// <summary>
@@ -132,7 +133,9 @@ namespace PowerUtilities.RenderFeatures
             if (! CanExecute())
                 return;
 
-            var cmd = CommandBufferPool.Get(featureName);
+            //var cmd = CommandBufferPool.Get(featureName);
+            var cmd = CommandBufferEx.defaultCmd;
+            cmd.name = featureName;
             cmd.Execute(ref context);
 
             if(IsTryRestoreLastTargets(camera))
@@ -141,7 +144,7 @@ namespace PowerUtilities.RenderFeatures
             OnExecute(context, ref renderingData,cmd);
 
             cmd.Execute(ref context);
-            CommandBufferPool.Release(cmd);
+            //CommandBufferPool.Release(cmd);
         }
 
         public override void OnFinishCameraStackRendering(CommandBuffer cmd)

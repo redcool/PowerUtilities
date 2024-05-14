@@ -20,6 +20,8 @@ namespace PowerUtilities
 
         public readonly static RenderTextureDescriptor defaultDescriptor = new RenderTextureDescriptor(1, 1, RenderTextureFormat.Default, 0, 0);
 
+        public readonly static CommandBuffer defaultCmd = new CommandBuffer();
+
 #if UNITY_2020
         public static void ClearRenderTarget(this CommandBuffer cmd,RTClearFlags clearFlags, Color backgroundColor, float depth = 1f, uint stencil = 0u)
         {
