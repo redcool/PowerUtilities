@@ -58,16 +58,20 @@ namespace PowerUtilities.Test
 
         public void OnSetShaderLod()
         {
-            Shader.globalMaximumLOD = shaderLod;
+            OnSetShaderLod(shaderLod);
         }
 
         public void OnSetTextureLod()
         {
-            QualitySettings.globalTextureMipmapLimit = textureLod;
+            OnSetTextureLod(textureLod);
         }
         public void OnSetTextureLod(int textureLod)
         {
+#if UNITY_2022_1_OR_NEWER
             QualitySettings.globalTextureMipmapLimit = textureLod;
+#else
+            QualitySettings.masterTextureLimit = textureLod;
+#endif
         }
     }
 }
