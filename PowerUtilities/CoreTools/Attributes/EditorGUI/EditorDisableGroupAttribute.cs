@@ -11,8 +11,8 @@ using System.Threading.Tasks;
     using UnityEngine;
 
 #if UNITY_EDITOR
-    [CustomPropertyDrawer(typeof(EditorReadonlyAttribute))]
-    public class EditorReadonlyAttributeEditor : PropertyDrawer
+    [CustomPropertyDrawer(typeof(EditorDisableGroupAttribute))]
+    public class EditorDisableGroupEditor : PropertyDrawer
     {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
@@ -26,7 +26,7 @@ using System.Threading.Tasks;
     /// <summary>
     /// show editor gui in disable mode
     /// </summary>
-    public class EditorReadonlyAttribute : PropertyAttribute
+    public class EditorDisableGroupAttribute : PropertyAttribute
     {
 
     }

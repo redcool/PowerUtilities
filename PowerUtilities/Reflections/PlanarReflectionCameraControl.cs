@@ -47,8 +47,8 @@
         [Min(1)]public int drawLineBoxCount = 3;
 
         [Header("Debug")]
-        [EditorReadonly] public Camera reflectionCam;
-        [EditorReadonly] public RenderTexture reflectionRT;
+        [EditorDisableGroup] public Camera reflectionCam;
+        [EditorDisableGroup] public RenderTexture reflectionRT;
         int lastWidth, lastHeight;
 
         // Start is called before the first frame update

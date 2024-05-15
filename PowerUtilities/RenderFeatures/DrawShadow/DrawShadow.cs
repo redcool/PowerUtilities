@@ -58,9 +58,9 @@ namespace PowerUtilities
         public DrawShadowSettingSO settingSO;
 
         [Header("Debug")]
-        [EditorReadonly]
+        [EditorDisableGroup]
         public GameObject lightObj;
-        [EditorReadonly]
+        [EditorDisableGroup]
         public float currentDistance;
 
         /// <summary>

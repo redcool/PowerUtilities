@@ -44,6 +44,7 @@ namespace PowerUtilities
 
     public class DrawChildrenStatic : MonoBehaviour
     {
+        [EditorHeader("","DrawInfo")]
         public GameObject rootGo;
 
         [SerializeField] List<DrawChildrenStaticInfo> infoList = new List<DrawChildrenStaticInfo>();
@@ -52,10 +53,25 @@ namespace PowerUtilities
         /// </summary>
         [SerializeField] List<GameObject> parentGos = new List<GameObject>();
 
+        [EditorHeader("","shader variables")]
+        public string _DrawChildrenStaticOn = "_DrawChildrenStaticOn";
+
+        [EditorHeader("","Conditions")]
+        [Tooltip("> qualityLevel,not work")]
+
+        [EnumFlags(isFlags =false,namesFieldType =typeof(QualitySettings),namesFieldName ="names")]
+        public int qualityLevel = 3;
+
         Transform combineTarget;
         const string COMBINE_TARGET = "_CombineTarget";
 
         public void Awake()
+        {
+            if(QualitySettings.GetQualityLevel() <= qualityLevel)
+                StartCombine();
+        }
+
+        private void StartCombine()
         {
             for (int i = 0; i < parentGos.Count; i++)
             {
@@ -63,6 +79,16 @@ namespace PowerUtilities
                 var childrenGos = infoList[i].gos;
                 StaticBatchingUtility.Combine(childrenGos, go);
             }
+        }
+
+        public void Start()
+        {
+            Shader.SetGlobalFloat(_DrawChildrenStaticOn, 1);
+        }
+
+        private void OnDestroy()
+        {
+            Shader.SetGlobalFloat(_DrawChildrenStaticOn, 0);
         }
 
         public void SetupChildren()
