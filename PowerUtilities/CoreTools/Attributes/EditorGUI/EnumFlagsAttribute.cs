@@ -15,11 +15,19 @@
     {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            var names = property.enumNames;
+            string[] names = default;
 
             var attr = attribute as EnumFlagsAttribute;
 
-            SetupNamesFromType(ref names, attr);
+            // use enum property 
+            if(attr.namesFieldType == null)
+            {
+                names = property.enumNames;
+            }
+            else
+            {
+                SetupNamesFromType(ref names, attr);
+            }
 
             if (attr.isFlags)
             {
