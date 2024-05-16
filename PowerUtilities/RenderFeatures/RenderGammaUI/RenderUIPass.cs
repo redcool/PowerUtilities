@@ -36,8 +36,6 @@ namespace PowerUtilities.Features
 
         static NativeArray<RenderStateBlock> curRenderStateArr;
 
-        static bool isActiveColorTargetForceSet;
-
         public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
         {
             //GameView,remove FinalBlitPass, 
@@ -74,7 +72,7 @@ namespace PowerUtilities.Features
 
         private static void RenderPipelineManager_beginFrameRendering(ScriptableRenderContext arg1, Camera[] arg2)
         {
-            isActiveColorTargetForceSet = false;
+            //isActiveColorTargetForceSet = false;
         }
 
         StencilState GetStencilState()
@@ -167,7 +165,7 @@ namespace PowerUtilities.Features
             //1  blit current active to camera target
             if (settings.isBlitActiveColorTarget)
             {
-                var curActive = renderer.GetActiveCameraColorAttachment(CompareTools.IsSetFirstTime(ref isActiveColorTargetForceSet));
+                var curActive = renderer.cameraColorTargetHandle;
                 cmd.BlitTriangle(curActive, BuiltinRenderTextureType.CameraTarget, settings.blitMat, 0,
                     clearFlags: clearFlags);
             }
@@ -376,7 +374,7 @@ namespace PowerUtilities.Features
         private void SetupTargetTex(ref RenderingData renderingData, ref CameraData cameraData, out RTHandle lastColorHandle, out RTHandle lastDepthHandle, out RTHandle colorHandleId, out RTHandle depthHandleId)
         {
             var renderer = (UniversalRenderer)cameraData.renderer;
-            lastColorHandle = renderer.GetActiveCameraColorAttachment(CompareTools.IsSetFirstTime(ref isActiveColorTargetForceSet));
+            lastColorHandle = renderer.cameraColorTargetHandle;
 
             var colorAttachmentA = renderer.GetCameraColorAttachmentA();
             var colorAttachmentB = renderer.GetCameraColorAttachmentB();
