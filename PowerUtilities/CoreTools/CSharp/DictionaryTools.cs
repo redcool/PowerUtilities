@@ -15,13 +15,13 @@ namespace PowerUtilities
         /// <typeparam name="TValue"></typeparam>
         /// <param name="dict"></param>
         /// <param name="key"></param>
-        /// <param name="onNotExists">use a cached func, otherwise cause gc</param>
+        /// <param name="onNotExists">call when key not exists or value is null</param>
         /// <returns></returns>
-        
-        public static TValue Get<TKey, TValue>(Dictionary<TKey, TValue> dict, TKey key,Func<TKey,TValue> onNotExists)
+
+        public static TValue Get<TKey, TValue>(Dictionary<TKey, TValue> dict, TKey key, Func<TKey, TValue> onNotExists)
         {
             var isExists = dict.TryGetValue(key, out TValue value);
-            if (!isExists || value == null)
+            if ((onNotExists != null) && (!isExists || value == null))
                 value = dict[key] = onNotExists(key);
             return value;
         }

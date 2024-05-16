@@ -66,6 +66,11 @@ namespace PowerUtilities
 
         static Dictionary<UrpPassType, Type> urpPassTypeDict = new Dictionary<UrpPassType, Type>();
 
+        /// <summary>
+        /// {ScriptableRenderer,m_ActiveRenderPassQueue}
+        /// </summary>
+        static Dictionary<ScriptableRenderer, List<ScriptableRenderPass>> rendererPassQueueDict = new Dictionary<ScriptableRenderer, List<ScriptableRenderPass>>();
+
         static ScriptableRendererEx()
         {
             SetupURPPassTypeDict();
@@ -143,14 +148,18 @@ namespace PowerUtilities
         }
 
         /// <summary>
-        /// Get UniversalRenderer's m_ActiveRenderPassQueue
+        /// Get UniversalRenderer's m_ActiveRenderPassQueue with cache
         /// </summary>
         /// <param name="renderer"></param>
         /// <returns></returns>
         public static List<ScriptableRenderPass> GetActiveRenderPassQueue(this ScriptableRenderer renderer)
         {
-            var list = typeof(ScriptableRenderer).GetFieldValue<List<ScriptableRenderPass>>(renderer, "m_ActiveRenderPassQueue");
-            return list;
+            return DictionaryTools.Get(rendererPassQueueDict, renderer, r => GetRenderQueue(r));
+            //return GetRenderQueue(renderer);
+
+            //=========== inner methods
+            List<ScriptableRenderPass> GetRenderQueue(ScriptableRenderer r)
+            => typeof(ScriptableRenderer).GetFieldValue<List<ScriptableRenderPass>>(r, "m_ActiveRenderPassQueue");
         }
 
         /// <summary>
