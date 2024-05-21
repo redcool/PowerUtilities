@@ -19,7 +19,7 @@ Shader "Hidden/Universal Render Pipeline/Blit"
             #pragma multi_compile _ _USE_DRAW_PROCEDURAL
             #pragma multi_compile_fragment _ DEBUG_DISPLAY
 
-            #include "../../../../../../PowerShaderLib/URPLib/Fullscreen.hlsl"
+            #include "../../../../../PowerShaderLib/URPLib/Fullscreen.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Debug/DebuggingFullscreen.hlsl"
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
 
