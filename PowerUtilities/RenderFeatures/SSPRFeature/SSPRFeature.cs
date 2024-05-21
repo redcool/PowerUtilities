@@ -281,7 +281,7 @@ using UnityEngine.Rendering.Universal;
                 cmd.SetComputeTextureParam(cs, csMain, _ReflectionHeightBuffer, _ReflectionHeightBuffer);
 
                 cmd.SetComputeTextureParam(cs, csMain, _CameraDepthTexture, _CameraDepthTexture);
-                cmd.SetComputeTextureParam(cs, csMain, _CameraOpaqueTexture, renderer.cameraColorTarget);
+                cmd.SetComputeTextureParam(cs, csMain, _CameraOpaqueTexture, renderer.CameraColorTargetHandle());
                 //// main 1
                 WaitDispatchCS(cs, csMain, cmd, threads);
                 ////main 2, reduce flickers
@@ -327,7 +327,7 @@ using UnityEngine.Rendering.Universal;
                     cmd.SetComputeTextureParam(cs, csResolve, _HashResult, _HashResult);
 
                 cmd.SetComputeTextureParam(cs, csResolve, _ReflectionTexture, _ReflectionTexture);
-                cmd.SetComputeTextureParam(cs, csResolve, _CameraOpaqueTexture, renderer.cameraColorTarget);
+                cmd.SetComputeTextureParam(cs, csResolve, _CameraOpaqueTexture, renderer.CameraColorTargetHandle());
                 WaitDispatchCS(cs, csResolve, cmd, threads);
             }
 

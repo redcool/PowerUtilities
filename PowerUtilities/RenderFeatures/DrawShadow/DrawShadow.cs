@@ -247,7 +247,7 @@ namespace PowerUtilities
                     try
                     {
                         lightObj = GameObject.FindGameObjectWithTag(settingSO.lightTag);
-                    }catch(Exception ex) { }
+                    }catch (Exception) { }
                 }
             }
             else
