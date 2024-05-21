@@ -231,7 +231,7 @@ namespace PowerUtilities
         /// <returns></returns>
         public static RTHandle CameraColorTargetHandle(this ScriptableRenderer r)
 #if UNITY_2022_1_OR_NEWER
-        => r.CameraColorTargetHandle;
+        => r.cameraColorTargetHandle;
 #else
         => r.cameraColorTarget.Convert();
 #endif
@@ -243,7 +243,7 @@ namespace PowerUtilities
         /// <returns></returns>
         public static RTHandle CameraDepthTargetHandle(this ScriptableRenderer r)
 #if UNITY_2022_1_OR_NEWER
-        => r.CameraDepthTargetHandle;
+        => r.cameraDepthTargetHandle;
 #else
         => r.cameraDepthTarget.Convert();
 #endif

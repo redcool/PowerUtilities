@@ -9,7 +9,7 @@ Shader "Hidden/Utils/DrawScreenSpaceShadow"
     }
 
     HLSLINCLUDE
-    #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+    #include "../../../../../PowerShaderLib/Lib/UnityLib.hlsl"
     #include "../../../../../PowerShaderLib/Lib/BlitLib.hlsl"
     #include "../../../../../PowerShaderLib/Lib/Colors.hlsl"
     #include "../../../../../PowerShaderLib/Lib/DepthLib.hlsl"
@@ -41,7 +41,6 @@ Shader "Hidden/Utils/DrawScreenSpaceShadow"
         float3 worldPos = ScreenToWorldPos(uv,rawDepth,UNITY_MATRIX_I_VP);
         float4 shadowCoord = TransformWorldToShadowCoord(worldPos);
         float shadow = CalcShadow(shadowCoord,worldPos,1,1);
-// return shadow;
         float4 col = tex2D(_CameraOpaqueTexture,uv);
         return col * shadow;
     }
