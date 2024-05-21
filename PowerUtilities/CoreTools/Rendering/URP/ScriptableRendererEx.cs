@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 #if UNITY_2020_3
 using UniversalRenderer = UnityEngine.Rendering.Universal.ForwardRenderer;
@@ -222,5 +223,30 @@ namespace PowerUtilities
         {
             return urpPassTypeDict[passType];
         }
+
+        /// <summary>
+        /// Get cameraColorTargetHandle with unity compatibility
+        /// </summary>
+        /// <param name="r"></param>
+        /// <returns></returns>
+        public static RTHandle CameraColorTargetHandle(this ScriptableRenderer r)
+#if UNITY_2022_1_OR_NEWER
+        => r.CameraColorTargetHandle;
+#else
+        => r.cameraColorTarget.Convert();
+#endif
+
+        /// <summary>
+        /// Get cameraDepthTargetHandle with unity compatibility
+        /// </summary>
+        /// <param name="r"></param>
+        /// <returns></returns>
+        public static RTHandle CameraDepthTargetHandle(this ScriptableRenderer r)
+#if UNITY_2022_1_OR_NEWER
+        => r.CameraDepthTargetHandle;
+#else
+        => r.cameraDepthTarget.Convert();
+#endif
+
     }
 }

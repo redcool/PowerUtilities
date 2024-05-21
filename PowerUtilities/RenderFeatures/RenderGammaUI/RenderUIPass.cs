@@ -378,11 +378,8 @@ namespace PowerUtilities.Features
         private void SetupTargetTex(ref RenderingData renderingData, ref CameraData cameraData, out RTHandle lastColorHandle, out RTHandle lastDepthHandle, out RTHandle colorHandleId, out RTHandle depthHandleId)
         {
             var renderer = (UniversalRenderer)cameraData.renderer;
-#if UNITY_2022_1_OR_NEWER
-            lastColorHandle = renderer.cameraColorTargetHandle;
-#else
-            lastColorHandle = renderer.cameraColorTarget.Convert();
-#endif
+
+            lastColorHandle = renderer.CameraColorTargetHandle();
 
             var colorAttachmentA = renderer.GetCameraColorAttachmentA();
             var colorAttachmentB = renderer.GetCameraColorAttachmentB();

@@ -32,7 +32,7 @@ namespace PowerUtilities
         Matrix4x4[] mainLightShadows = new Matrix4x4[4];
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
         {
-            var colorTarget = renderingData.cameraData.renderer.cameraColorTargetHandle;
+            var colorTarget = renderingData.cameraData.renderer.CameraColorTargetHandle();
 
             cmd.EnableShaderKeyword("_MAIN_LIGHT_SHADOWS_SCREEN");
             cmd.BlitTriangle(BuiltinRenderTextureType.None, colorTarget.nameID, Feature.screenShadowMat, 0);

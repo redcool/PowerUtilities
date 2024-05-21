@@ -183,18 +183,10 @@ namespace PowerUtilities
 
         public static RTHandle GetActiveCameraColorAttachment(this UniversalRenderer renderer, bool forceMode = false)
         //=> renderer.GetRTHandle(URPRTHandleNames.m_ActiveCameraColorAttachment, forceMode);
-#if UNITY_2022_1_OR_NEWER
-        => renderer.cameraColorTargetHandle;
-#else
-        => renderer.cameraColorTarget.Convert();
-#endif
+        => renderer.CameraColorTargetHandle();
 
         public static RTHandle GetActiveCameraDepthAttachment(this UniversalRenderer renderer, bool forceMode = false)
-#if UNITY_2022_1_OR_NEWER
-        => renderer.cameraDepthTargetHandle;
-#else
-        => renderer.cameraDepthTarget.Convert();
-#endif
+        => renderer.CameraDepthTargetHandle();
 
         public static RTHandle GetCameraDepthTexture(this UniversalRenderer renderer, bool forceMode = false)
         => renderer.GetRTHandle(URPRTHandleNames.m_DepthTexture, forceMode);
