@@ -50,12 +50,13 @@ Shader "UI/Default"
         Pass
         {
             Name "Default"
-        CGPROGRAM
+        HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
             #pragma target 2.0
 
-            #include "UnityCG.cginc"
+            // #include "UnityCG.cginc"
+            #include "../../../../../PowerShaderLib/Lib/UnityLib.hlsl"
             #include "UnityUI.cginc"
             
             // gamma linear space
@@ -83,15 +84,15 @@ Shader "UI/Default"
                 UNITY_VERTEX_OUTPUT_STEREO
             };
 
+            CBUFFER_START(UnityPerMaterial)
             sampler2D _MainTex;
+            float4 _MainTex_ST;
             fixed4 _Color;
+            CBUFFER_END
             fixed4 _TextureSampleAdd;
             float4 _ClipRect;
-            float4 _MainTex_ST;
             float _UIMaskSoftnessX;
             float _UIMaskSoftnessY;
-
-            float _GammeValue;
 
             v2f vert(appdata_t v)
             {
@@ -145,7 +146,7 @@ Shader "UI/Default"
 
                 return color;
             }
-        ENDCG
+        ENDHLSL
         }
     }
 }
