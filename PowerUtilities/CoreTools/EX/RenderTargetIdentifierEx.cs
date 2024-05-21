@@ -26,6 +26,18 @@ namespace PowerUtilities
             m_Type = t.GetField("m_Type", BindingFlags.Instance | BindingFlags.NonPublic);
         }
 
+        static Dictionary<RenderTargetIdentifier, RTHandle> handleDict = new Dictionary<RenderTargetIdentifier, RTHandle>();
+
+        /// <summary>
+        /// Convert RenderTargetIdentifier to RTHandle with cache
+        /// </summary>
+        /// <param name="target"></param>
+        /// <returns></returns>
+        public static RTHandle Convert(this RenderTargetIdentifier target)
+        {
+            return DictionaryTools.Get(handleDict, target, id => RTHandles.Alloc(id));
+        }
+
         /// <summary>
         /// check nameId only
         /// </summary>

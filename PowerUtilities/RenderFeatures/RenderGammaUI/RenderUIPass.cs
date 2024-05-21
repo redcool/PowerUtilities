@@ -165,7 +165,11 @@ namespace PowerUtilities.Features
             //1  blit current active to camera target
             if (settings.isBlitActiveColorTarget)
             {
+#if UNITY_2022_1_OR_NEWER
                 var curActive = renderer.cameraColorTargetHandle;
+#else
+                var curActive = renderer.cameraColorTarget;
+#endif
                 cmd.BlitTriangle(curActive, BuiltinRenderTextureType.CameraTarget, settings.blitMat, 0,
                     clearFlags: clearFlags);
             }
@@ -374,7 +378,11 @@ namespace PowerUtilities.Features
         private void SetupTargetTex(ref RenderingData renderingData, ref CameraData cameraData, out RTHandle lastColorHandle, out RTHandle lastDepthHandle, out RTHandle colorHandleId, out RTHandle depthHandleId)
         {
             var renderer = (UniversalRenderer)cameraData.renderer;
+#if UNITY_2022_1_OR_NEWER
             lastColorHandle = renderer.cameraColorTargetHandle;
+#else
+            lastColorHandle = renderer.cameraColorTarget.Convert();
+#endif
 
             var colorAttachmentA = renderer.GetCameraColorAttachmentA();
             var colorAttachmentB = renderer.GetCameraColorAttachmentB();
