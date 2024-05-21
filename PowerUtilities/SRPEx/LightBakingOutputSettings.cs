@@ -13,7 +13,8 @@ namespace PowerUtilities
         [EditorButton(onClickCall = "Start")]
         public bool isTest;
 
-        public bool isSetOnStart;
+        [Tooltip("SetupLightBakingOutput when Start")]
+        public bool isSetOnStart = true;
 
         public MixedLightingMode mixedLightingMode = MixedLightingMode.IndirectOnly;
         public LightmapBakeType lightmapBakeType = LightmapBakeType.Mixed;
