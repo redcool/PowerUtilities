@@ -120,7 +120,7 @@ namespace PowerUtilities
 
             instanceBuffer.SetData(zero, 0, 0, 1);
             instanceBuffer.SetData(objectToWorld, 0, byteAddressObjectToWorld / sizeOfPackedMatrix, objectToWorld.Length);
-            instanceBuffer.SetData(worldToObject,0,byteAddressWorldToObject/sizeOfPackedMatrix,worldToObject.Length);
+            instanceBuffer.SetData(worldToObject, 0, byteAddressWorldToObject / sizeOfPackedMatrix, worldToObject.Length);
             instanceBuffer.SetData(colors, 0, byteAddressColor / sizeOfFloat4, colors.Length);
 
             var metas = new MetadataValue[]
@@ -132,7 +132,14 @@ namespace PowerUtilities
             var metadata = new NativeArray<MetadataValue>(3, Allocator.Temp);
             metadata.CopyFrom(metas);
 
-            batchId = brg.AddBatch(metadata, instanceBuffer.bufferHandle);
+            if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLES3)
+            {
+                batchId = brg.AddBatch(metadata, instanceBuffer.bufferHandle, 0, (uint)BatchRendererGroup.GetConstantBufferMaxWindowSize());
+            }
+            else
+            {
+                batchId = brg.AddBatch(metadata, instanceBuffer.bufferHandle);
+            }
         }
 
         private void RegisterChildren()
