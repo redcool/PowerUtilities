@@ -1,53 +1,63 @@
-Shader "Hidden/Universal Render Pipeline/Blit"
+/**
+    cmd.BlitTriangle
+*/
+Shader "Hidden/Utils/DrawScreenSpaceShadow"
 {
+    Properties
+    {
+        // _SourceTex ("Texture", 2D) = "white" {}
+    }
+
+    HLSLINCLUDE
+    #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+    #include "../../../../../PowerShaderLib/Lib/BlitLib.hlsl"
+    #include "../../../../../PowerShaderLib/Lib/Colors.hlsl"
+    #include "../../../../../PowerShaderLib/Lib/DepthLib.hlsl"
+    #define _MAIN_LIGHT_SHADOWS_SCREEN
+    #include "../../../../../PowerShaderLib/URPLib/URP_MainLightShadows.hlsl"
+
+    struct v2f
+    {
+        float2 uv : TEXCOORD0;
+        float4 vertex : SV_POSITION;
+    };
+
+    sampler2D _SourceTex;
+    sampler2D _CameraOpaqueTexture;
+    sampler2D _CameraDepthTexture;
+
+    v2f vert (uint vid:SV_VERTEXID)
+    {
+        v2f o;
+        FullScreenTriangleVert(vid,o.vertex/**/,o.uv/**/);
+
+        return o;
+    }
+
+    float4 frag (v2f i) : SV_Target
+    {
+        float2 uv = i.uv;
+        float rawDepth = tex2D(_CameraDepthTexture,uv);
+        float3 worldPos = ScreenToWorldPos(uv,rawDepth,UNITY_MATRIX_I_VP);
+        float4 shadowCoord = TransformWorldToShadowCoord(worldPos);
+        float shadow = CalcShadow(shadowCoord,worldPos,1,1);
+// return shadow;
+        float4 col = tex2D(_CameraOpaqueTexture,uv);
+        return col * shadow;
+    }
+    ENDHLSL
+
     SubShader
     {
-        Tags { "RenderType" = "Opaque" "RenderPipeline" = "UniversalPipeline"}
-        LOD 100
+        Cull off
+        zwrite off
+        ztest always
 
         Pass
         {
-            Name "Blit"
-            ZTest Always
-            ZWrite Off
-            Cull Off
-
             HLSLPROGRAM
-            #pragma vertex FullscreenVert
-            #pragma fragment Fragment
-            #pragma multi_compile_fragment _ _LINEAR_TO_SRGB_CONVERSION
-            #pragma multi_compile _ _USE_DRAW_PROCEDURAL
-            #pragma multi_compile_fragment _ DEBUG_DISPLAY
-
-            #include "../../../../../../PowerShaderLib/URPLib/Fullscreen.hlsl"
-            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Debug/DebuggingFullscreen.hlsl"
-            #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
-
-            TEXTURE2D_X(_SourceTex);
-            SAMPLER(sampler_SourceTex);
-
-            half4 Fragment(Varyings input) : SV_Target
-            {
-                UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
-                float2 uv = input.uv;
-
-                half4 col = SAMPLE_TEXTURE2D_X(_SourceTex, sampler_SourceTex, uv);
-
-                #ifdef _LINEAR_TO_SRGB_CONVERSION
-                col = LinearToSRGB(col);
-                #endif
-
-                #if defined(DEBUG_DISPLAY)
-                half4 debugColor = 0;
-
-                if(CanDebugOverrideOutputColor(col, uv, debugColor))
-                {
-                    return debugColor;
-                }
-                #endif
-
-                return col;
-            }
+            #pragma vertex vert
+            #pragma fragment frag
             ENDHLSL
         }
     }
