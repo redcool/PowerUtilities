@@ -118,7 +118,7 @@ namespace GameUtilsFramework
             }
         }
 
-        //public InputControlAssets.PlayerControlActions PlayerControl => InputControlAsset.PlayerControl;
+        //public InputControlAssets.PlayerControlActions TopDownShooterPlayerControl => InputControlAsset.TopDownShooterPlayerControl;
 
         private void Awake()
         {

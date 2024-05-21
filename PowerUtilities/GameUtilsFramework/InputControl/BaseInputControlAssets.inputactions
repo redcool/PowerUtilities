@@ -1,5 +1,5 @@
 {
-    "name": "InputControlAssets",
+    "name": "BaseInputControlAssets",
     "maps": [
         {
             "name": "PlayerControl",
@@ -115,7 +115,7 @@
                 },
                 {
                     "name": "LookPosition",
-                    "type": "Value",
+                    "type": "PassThrough",
                     "id": "6b69025b-12ce-46f8-8bb4-22928bae51a6",
                     "expectedControlType": "Vector2",
                     "processors": "",
@@ -385,6 +385,17 @@
                     "processors": "",
                     "groups": "KeyboardMouse",
                     "action": "ActionHolding",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "4e80badd-5a30-4830-82a1-4c9bfae71ad6",
+                    "path": "<Mouse>/position",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "KeyboardMouse",
+                    "action": "LookPosition",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

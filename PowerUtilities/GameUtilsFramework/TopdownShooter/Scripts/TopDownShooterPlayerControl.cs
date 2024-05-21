@@ -5,7 +5,7 @@ namespace TopdownShooter
     using System.Collections.Generic;
     using UnityEngine;
 
-    public class PlayerControl : MonoBehaviour
+    public class TopDownShooterPlayerControl : MonoBehaviour
     {
         public float speed = 4;
         public float rotateLerpSpeed = 0.2f;
@@ -16,7 +16,7 @@ namespace TopdownShooter
 
         [Header("Shoot")]
         public GameObject bulletPrefab;
-        public Transform GunDir;
+        public Transform muzzleTr;
         public float shootInterval = 0.5f;
 
         Camera cam;
@@ -39,7 +39,7 @@ namespace TopdownShooter
         void Update()
         {
 
-            var targetForwardDir = MouseAim();
+            var targetForwardDir = GetMouseAimPos();
 
             var hv = playerInput.movement;
 
@@ -110,7 +110,7 @@ namespace TopdownShooter
             anim.SetFloat("SpeedZ", speedZ, 0.1f, Time.deltaTime);
         }
 
-        private Vector3 MouseAim()
+        private Vector3 GetMouseAimPos()
         {
             var dir = transform.forward;
             var ray = cam.ScreenPointToRay(playerInput.lookPosition);
@@ -146,7 +146,7 @@ namespace TopdownShooter
 
         private void ShootABullet()
         {
-            var b = Instantiate(bulletPrefab, GunDir.position, GunDir.rotation);
+            var b = Instantiate(bulletPrefab, muzzleTr.position, muzzleTr.rotation);
             b.GetComponent<Rigidbody>().AddForce(b.transform.forward * 100, ForceMode.Impulse);
             Destroy(b, 1);
         }
