@@ -962,7 +962,7 @@ GameObject:
   - component: {fileID: 256212590}
   - component: {fileID: 256212589}
   m_Layer: 0
-  m_Name: New Text
+  m_Name: unity 3d Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2061,7 +2061,7 @@ GameObject:
   - component: {fileID: 841851172}
   - component: {fileID: 841851171}
   m_Layer: 0
-  m_Name: Text (TMP)
+  m_Name: 3d Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
