@@ -1,6 +1,7 @@
 namespace TopdownShooter
 {
     using GameUtilsFramework;
+    using PowerUtilities;
     using System.Collections;
     using System.Collections.Generic;
     using UnityEngine;
@@ -33,16 +34,22 @@ namespace TopdownShooter
             playerInput = GetComponent<BaseInputControl>();
             cam = Camera.main;
             anim = GetComponentInChildren<Animator>();
+
         }
 
         // Update is called once per frame
         void Update()
         {
+            anim.SetLayersWeight(1);
 
             var targetForwardDir = GetMouseAimPos();
 
             var hv = playerInput.movement;
-
+            var isRightButtonAttack = playerInput.RT;
+            if (isRightButtonAttack)
+            {
+                UpdateBeHit();
+            }
 
             //hv.x = AnimatorTools.QuantifyInputValue(hv.x);
             //hv.y = AnimatorTools.QuantifyInputValue(hv.y);
@@ -80,6 +87,11 @@ namespace TopdownShooter
             transform.position += deltaPos;
         }
 
+        private void LateUpdate()
+        {
+            anim.ResetTrigger("IsBeHit");
+        }
+
         float CalcLeftTurnRate(Vector3 targetForwardDir)
         {
             Debug.DrawRay(transform.position, transform.forward * 10);
@@ -97,17 +109,13 @@ namespace TopdownShooter
         {
             anim.speed = animSpeed;
 
-            // move
-            var speedX = Vector3.Dot(moveDir, transform.right) + leftTurnRate;
-            var speedZ = Vector3.Dot(moveDir, transform.forward);
+            anim.PlayBlendMove("SpeedX", "SpeedZ", moveDir, xOffset: leftTurnRate);
+        }
 
-            if (Mathf.Abs(speedX) < 0.001)
-                speedX = 0;
-            if (Mathf.Abs(speedZ) < 0.001)
-                speedZ = 0;
+        void UpdateBeHit()
+        {
+            anim.SetTrigger("IsBeHit");
 
-            anim.SetFloat("SpeedX", speedX, 0.1f, Time.deltaTime);
-            anim.SetFloat("SpeedZ", speedZ, 0.1f, Time.deltaTime);
         }
 
         private Vector3 GetMouseAimPos()

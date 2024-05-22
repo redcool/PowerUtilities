@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PowerUtilities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,14 +11,16 @@ namespace GameUtilsFramework
     public static class AnimatorEx
     {
         static Dictionary<string, int> animatorLayerIdDict = new Dictionary<string, int>();
+        static Dictionary<string, int> animatorParamaterIdDict = new Dictionary<string, int>();
 
-        public static int GetLayerIndexFromCache(this Animator anim, string layerName)
+        public static int GetLayerIndex(this Animator anim, string layerName)
         {
-           if(!animatorLayerIdDict.TryGetValue(layerName,out var id))
-            {
-                id = animatorLayerIdDict[layerName] = anim.GetLayerIndex(layerName);
-            }
-            return id;
+            return DictionaryTools.Get(animatorLayerIdDict, layerName, layerName => anim.GetLayerIndex(layerName));
+        }
+
+        public static int GetParameterId(string paramName)
+        {
+            return DictionaryTools.Get(animatorParamaterIdDict, paramName, paramName => Animator.StringToHash(paramName));
         }
 
         public static float QuantifyInputValue(float v)
@@ -35,7 +38,7 @@ namespace GameUtilsFramework
 
         public static AnimatorStateInfo GetCurrentStateInfo(this Animator anim,string layerName)
         {
-            return anim.GetCurrentAnimatorStateInfo(anim.GetLayerIndexFromCache(layerName));
+            return anim.GetCurrentAnimatorStateInfo(GetLayerIndex(anim, layerName));
         }
 
         public static bool IsInState(this Animator anim,string layerName,string stateName)
@@ -56,13 +59,28 @@ namespace GameUtilsFramework
         /// <param name="idZ"></param>
         /// <param name="inputDir"></param>
         /// <param name="damplingTime"></param>
-        public static void PlayBlendMove(this Animator anim,int idX,int idZ, Vector3 inputDir,float damplingTime=0.1f)
+        public static void PlayBlendMove(this Animator anim, int idX, int idZ, Vector3 inputDir, float damplingTime = 0.1f, float xOffset = 0, float zOffset = 0)
         {
-            float speedX = Vector3.Dot(anim.transform.right, inputDir.normalized);
-            float speedZ = Vector3.Dot(anim.transform.forward, inputDir.normalized);
-            anim.SetFloat(idX, speedX, damplingTime,Time.deltaTime);
+            float speedX = Vector3.Dot(anim.transform.right, inputDir.normalized) + xOffset;
+            float speedZ = Vector3.Dot(anim.transform.forward, inputDir.normalized) + zOffset;
+
+            //if (Mathf.Abs(speedX) < 0.001f)
+            //    speedX = 0;
+
+            //if (Mathf.Abs(speedZ) < 0.001f)
+            //    speedZ = 0;
+
+            anim.SetFloat(idX, speedX, damplingTime, Time.deltaTime);
             anim.SetFloat(idZ, speedZ, damplingTime, Time.deltaTime);
         }
+
+        public static void PlayBlendMove(this Animator anim, string nameX, string nameZ, Vector3 inputDir, float damplingTime = 0.1f, float xOffset = 0, float zOffset = 0)
+        {
+            int idX = GetParameterId(nameX);
+            var idZ = GetParameterId(nameZ);
+            PlayBlendMove(anim, idX, idZ, inputDir, damplingTime,xOffset,zOffset);
+        }
+
         /// <summary>
         /// Set all layers
         /// </summary>
