@@ -11,6 +11,8 @@ namespace PowerUtilities
         public bool isTest;
 
         public PresetBlendMode blendMode = PresetBlendMode.AlphaBlend;
+        [Range(0, 1)] public float _GlyphMin = 0.4f;
+        [Range(0, 1)] public float _GlyphMax = 0.6f;
 
         // Start is called before the first frame update
         void Start()
@@ -22,7 +24,9 @@ namespace PowerUtilities
         // Update is called once per frame
         public void UpdateUGUIDefaultMat()
         {
-            Graphic.defaultGraphicMaterial.SetPresetBlendMode(blendMode);
+            var mat = Graphic.defaultGraphicMaterial;
+            mat.SetPresetBlendMode(blendMode);
+            mat.SetVector("_GlyphRange", new Vector4(_GlyphMin, _GlyphMax));
         }
     }
 }
