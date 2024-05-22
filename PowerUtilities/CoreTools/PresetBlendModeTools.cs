@@ -44,8 +44,14 @@ namespace PowerUtilities
                 Where(kv => kv.Value[0] == srcMode && kv.Value[1] == dstMode)
                 .FirstOrDefault().Key;
         }
-
-        public static PresetBlendMode GetPresetBlendMode(Material mat, string srcModeName = SRC_MODE, string dstModeName = DST_MODE)
+        /// <summary>
+        /// Get presetBlendMode by material's _SrcMode and _DstMode
+        /// </summary>
+        /// <param name="mat"></param>
+        /// <param name="srcModeName"></param>
+        /// <param name="dstModeName"></param>
+        /// <returns></returns>
+        public static PresetBlendMode GetPresetBlendMode(this Material mat, string srcModeName = SRC_MODE, string dstModeName = DST_MODE)
         {
             var srcMode = mat.GetInt(srcModeName);
             var dstMode = mat.GetInt(dstModeName);
@@ -59,6 +65,24 @@ namespace PowerUtilities
         public static BlendMode[] GetBlendMode(PresetBlendMode presetBlendMode)
         {
             return blendModeDict[presetBlendMode];
+        }
+
+        /// <summary>
+        /// Apply presetBlendMode to material
+        /// </summary>
+        /// <param name="mat"></param>
+        /// <param name="blendMode"></param>
+        /// <param name="srcModeName"></param>
+        /// <param name="dstModeName"></param>
+        public static void SetPresetBlendMode(this Material mat, PresetBlendMode blendMode, string srcModeName = SRC_MODE, string dstModeName = DST_MODE)
+        {
+            if (!mat)
+                return;
+            if (blendModeDict.TryGetValue(blendMode,out var blendPair))
+            {
+                mat.SetInt(srcModeName, (int)blendPair[0]);
+                mat.SetInt(dstModeName, (int)blendPair[1]);
+            }
         }
     }
 }
