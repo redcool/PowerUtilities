@@ -17,6 +17,14 @@ Shader "UI/Default"
         _ColorMask ("Color Mask", Float) = 15
 
         [Toggle(UNITY_UI_ALPHACLIP)] _UseUIAlphaClip ("Use Alpha Clip", Float) = 0
+
+
+        [Group(Alpha)]
+        [GroupVectorSlider(Alpha,min max,0_1 0_1,glyph edge smooth)] _GlyphRange("_GlyphRange",vector) = (0.1,0.5,0,0)
+        [GroupPresetBlendMode(Alpha,,_SrcMode,_DstMode)]_PresetBlendMode("_PresetBlendMode",int)=0
+        // [GroupEnum(Alpha,UnityEngine.Rendering.BlendMode)]
+        [HideInInspector]_SrcMode("_SrcMode",int) = 1
+        [HideInInspector]_DstMode("_DstMode",int) = 10  
     }
 
     SubShader
@@ -44,7 +52,8 @@ Shader "UI/Default"
         Lighting Off
         ZWrite Off
         ZTest [unity_GUIZTestMode]
-        Blend One OneMinusSrcAlpha
+        // Blend One OneMinusSrcAlpha
+        blend [_SrcMode][_DstMode]
         ColorMask [_ColorMask]
 
         Pass
@@ -88,6 +97,7 @@ Shader "UI/Default"
             sampler2D _MainTex;
             float4 _MainTex_ST;
             fixed4 _Color;
+            float2 _GlyphRange;
             CBUFFER_END
             fixed4 _TextureSampleAdd;
             float4 _ClipRect;
@@ -117,7 +127,10 @@ Shader "UI/Default"
 
             half4 frag(v2f IN) : SV_Target
             {
-                half4 color = IN.color * (tex2D(_MainTex, IN.texcoord) + _TextureSampleAdd);
+                float4 mainTex = tex2D(_MainTex, IN.texcoord);
+                mainTex.w = smoothstep(_GlyphRange.x,_GlyphRange.y,mainTex.w);
+
+                half4 color = IN.color * (mainTex + _TextureSampleAdd);
 
                 #ifdef UNITY_UI_CLIP_RECT
                 half2 m = saturate((_ClipRect.zw - _ClipRect.xy - abs(IN.mask.xy)) * IN.mask.zw);

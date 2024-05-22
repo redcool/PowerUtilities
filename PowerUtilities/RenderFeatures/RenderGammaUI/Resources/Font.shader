@@ -5,7 +5,12 @@ Shader "GUI/Text Shader" {
         [PerRenderer]_MainTex ("Font Texture", 2D) = "white" {}
         _Color ("Text Color", Color) = (1,1,1,1)
 
-        [GroupVectorSlider(_,min max,0_1 0_1,glyph edge smooth)] _GlyphRange("_GlyphRange",vector) = (0.05,0.1,0,0)
+        [Group(Alpha)]
+        [GroupVectorSlider(Alpha,min max,0_1 0_1,glyph edge smooth)] _GlyphRange("_GlyphRange",vector) = (0.1,0.5,0,0)
+        [GroupPresetBlendMode(Alpha,,_SrcMode,_DstMode)]_PresetBlendMode("_PresetBlendMode",int)=0
+        // [GroupEnum(Alpha,UnityEngine.Rendering.BlendMode)]
+        [HideInInspector]_SrcMode("_SrcMode",int) = 5
+        [HideInInspector]_DstMode("_DstMode",int) = 10  
     }
 
     SubShader {
@@ -17,7 +22,8 @@ Shader "GUI/Text Shader" {
             "PreviewType"="Plane"
         }
         Lighting Off Cull Off ZTest Always ZWrite Off
-        Blend SrcAlpha OneMinusSrcAlpha
+        // Blend SrcAlpha OneMinusSrcAlpha
+        blend [_SrcMode][_DstMode]
 
         Pass {
             HLSLPROGRAM
