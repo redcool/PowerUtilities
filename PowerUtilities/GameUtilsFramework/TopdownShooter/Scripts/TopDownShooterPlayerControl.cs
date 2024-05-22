@@ -20,10 +20,6 @@ namespace TopdownShooter
         public Transform muzzleTr;
         public float shootInterval = 0.5f;
 
-        [Header("BeHit")]
-        [EditorButton(onClickCall ="UpdateBeHit")]
-        public bool isBeHit;
-
         Camera cam;
         Animator anim;
 
