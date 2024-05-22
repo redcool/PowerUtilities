@@ -124,6 +124,11 @@ namespace PowerUtilities
 
             if(Feature.isOverrideMinVersion)
                 UpdateMinVersion();
+
+            if (Feature.isOverrideUnscaledTime && Feature.isSetUnscaledTime)
+            {
+                SetShaderTimeValues(cmd, Time.unscaledTime, Time.unscaledDeltaTime, Time.smoothDeltaTime);
+            }
         }
 
         private void UpdateMinVersion()
@@ -156,10 +161,7 @@ namespace PowerUtilities
         {
             SerupVariables(cmd, ref renderingData);
 
-            if (Feature.isOverrideUnscaledTime && Feature.isSetUnscaledTime)
-            {
-                SetShaderTimeValues(cmd, Time.unscaledTime, Time.unscaledDeltaTime, Time.smoothDeltaTime);
-            }
+
         }
 
     }
