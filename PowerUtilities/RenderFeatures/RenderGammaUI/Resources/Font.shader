@@ -4,6 +4,8 @@ Shader "GUI/Text Shader" {
     Properties {
         [PerRenderer]_MainTex ("Font Texture", 2D) = "white" {}
         _Color ("Text Color", Color) = (1,1,1,1)
+
+        [GroupVectorSlider(_,min max,0_1 0_1,glyph edge smooth)] _GlyphRange("_GlyphRange",vector) = (0.05,0.1,0,0)
     }
 
     SubShader {
@@ -44,6 +46,7 @@ Shader "GUI/Text Shader" {
             sampler2D _MainTex;
             uniform float4 _MainTex_ST;
             uniform fixed4 _Color;
+            float4 _GlyphRange;
             CBUFFER_END
 
             v2f vert (appdata_t v)
@@ -60,7 +63,9 @@ Shader "GUI/Text Shader" {
             fixed4 frag (v2f i) : SV_Target
             {
                 fixed4 col = i.color;
-                col.a *= tex2D(_MainTex, i.texcoord).a;
+                float alpha = tex2D(_MainTex, i.texcoord).a;
+                alpha = smoothstep(_GlyphRange.x,_GlyphRange.y,alpha);
+                col.a *= alpha;
                 return col;
             }
             ENDHLSL
