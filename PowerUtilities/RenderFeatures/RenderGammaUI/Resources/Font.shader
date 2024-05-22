@@ -10,7 +10,15 @@ Shader "GUI/Text Shader" {
         [GroupPresetBlendMode(Alpha,,_SrcMode,_DstMode)]_PresetBlendMode("_PresetBlendMode",int)=0
         // [GroupEnum(Alpha,UnityEngine.Rendering.BlendMode)]
         [HideInInspector]_SrcMode("_SrcMode",int) = 5
-        [HideInInspector]_DstMode("_DstMode",int) = 10  
+        [HideInInspector]_DstMode("_DstMode",int) = 10
+
+        [Group(Settings)]
+		[GroupToggle(Settings)]_ZWriteMode("ZWriteMode",int) = 0
+		/*
+		Disabled,Never,Less,Equal,LessEqual,Greater,NotEqual,GreaterEqual,Always
+		*/
+		[GroupEnum(Settings,UnityEngine.Rendering.CompareFunction)]_ZTestMode("_ZTestMode",float) = 8
+        [GroupEnum(Settings,UnityEngine.Rendering.CullMode)]_CullMode("_CullMode",int) = 2
     }
 
     SubShader {
@@ -21,7 +29,10 @@ Shader "GUI/Text Shader" {
             "RenderType"="Transparent"
             "PreviewType"="Plane"
         }
-        Lighting Off Cull Off ZTest Always ZWrite Off
+        Lighting Off 
+        Cull[_CullMode]
+        ZTest [_ZTestMode]
+        ZWrite [_ZWriteMode]
         // Blend SrcAlpha OneMinusSrcAlpha
         blend [_SrcMode][_DstMode]
 
