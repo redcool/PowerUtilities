@@ -132,17 +132,7 @@ Shader "UI/Default"
                     1 DrawObjectsPass, enable _SRGB_TO_LINEAR_CONVERSION
                     2 texture enable SRGB
                 **/
-                float alpha = color.a;
-
-                #if defined(_SRGB_TO_LINEAR_CONVERSION)
-                color.xyz = LinearToGamma(color.xyz);
-                #endif
-
-                #if _LINEAR_TO_SRGB_CONVERSION
-                GammaToLinear(color/**/,alpha/**/);
-                #endif
-
-                color.rgb *= alpha;
+			    LinearGammaAutoChange(color/**/);
 
                 return color;
             }
