@@ -6,6 +6,7 @@ Shader "GUI/Text Shader" {
         _Color ("Text Color", Color) = (1,1,1,1)
 
         [Group(Alpha)]
+        [GroupToggle(Alpha,_GLYPH_ON)]_GlyphOn("_GlyphOn",float) = 0
         [GroupVectorSlider(Alpha,min max,0_1 0_1,glyph edge smooth)] _GlyphRange("_GlyphRange",vector) = (0.1,0.5,0,0)
         [GroupPresetBlendMode(Alpha,,_SrcMode,_DstMode)]_PresetBlendMode("_PresetBlendMode",int)=0
         // [GroupEnum(Alpha,UnityEngine.Rendering.BlendMode)]
@@ -18,7 +19,7 @@ Shader "GUI/Text Shader" {
 		Disabled,Never,Less,Equal,LessEqual,Greater,NotEqual,GreaterEqual,Always
 		*/
 		[GroupEnum(Settings,UnityEngine.Rendering.CompareFunction)]_ZTestMode("_ZTestMode",float) = 8
-        [GroupEnum(Settings,UnityEngine.Rendering.CullMode)]_CullMode("_CullMode",int) = 2
+        [GroupEnum(Settings,UnityEngine.Rendering.CullMode)]_CullMode("_CullMode",int) = 0
     }
 
     SubShader {
@@ -42,6 +43,7 @@ Shader "GUI/Text Shader" {
             #pragma fragment frag
             #pragma multi_compile _ UNITY_SINGLE_PASS_STEREO STEREO_INSTANCING_ON STEREO_MULTIVIEW_ON
             #pragma multi_compile_fragment _ _SRGB_TO_LINEAR_CONVERSION _LINEAR_TO_SRGB_CONVERSION
+            #pragma shader_feature _GLYPH_ON
 
             #include "../../../../../PowerShaderLib/Lib/UnityLib.hlsl"
             #include "../../../../../PowerShaderLib/Lib/ColorSpace.hlsl"
@@ -81,7 +83,11 @@ Shader "GUI/Text Shader" {
             {
                 fixed4 col = i.color;
                 float alpha = tex2D(_MainTex, i.texcoord).a;
+                
+                #if defined(_GLYPH_ON)
                 alpha = smoothstep(_GlyphRange.x,_GlyphRange.y,alpha);
+                #endif
+
                 col.a *= alpha;
                 return col;
             }
