@@ -20,6 +20,7 @@ Shader "UI/Default"
 
 
         [Group(Alpha)]
+        [GroupToggle(Alpha,_GLYPH_ON)]_GlyphOn("_GlyphOn",float) = 0
         [GroupVectorSlider(Alpha,min max,0_1 0_1,glyph edge smooth)] _GlyphRange("_GlyphRange",vector) = (0.1,0.5,0,0)
         [GroupPresetBlendMode(Alpha,,_SrcMode,_DstMode)]_PresetBlendMode("_PresetBlendMode",int)=0
         // [GroupEnum(Alpha,UnityEngine.Rendering.BlendMode)]
@@ -82,6 +83,7 @@ Shader "UI/Default"
 
             #pragma multi_compile_local _ UNITY_UI_CLIP_RECT
             #pragma multi_compile_local _ UNITY_UI_ALPHACLIP
+            #pragma shader_feature _GLYPH_ON
 
             struct appdata_t
             {
@@ -136,7 +138,9 @@ Shader "UI/Default"
             half4 frag(v2f IN) : SV_Target
             {
                 float4 mainTex = tex2D(_MainTex, IN.texcoord);
+                #if defined(_GLYPH_ON)
                 mainTex.w = smoothstep(_GlyphRange.x,_GlyphRange.y,mainTex.w);
+                #endif
 
                 half4 color = IN.color * (mainTex + _TextureSampleAdd);
 
