@@ -19,13 +19,6 @@ namespace PowerUtilities
         }
         public override void DrawInspectorUI(DrawChildrenStatic inst)
         {
-            if (!inst.rootGo)
-            {
-                EditorGUILayout.HelpBox("assign a RootGO", MessageType.Warning);
-                return;
-            }
-
-
             if (GUILayout.Button("Setup Children"))
             {
                 inst.SetupChildren();
@@ -45,6 +38,7 @@ namespace PowerUtilities
     public class DrawChildrenStatic : MonoBehaviour
     {
         [EditorHeader("","DrawInfo")]
+        [Tooltip("use current gameObject when empty")]
         public GameObject rootGo;
 
         [SerializeField] List<DrawChildrenStaticInfo> infoList = new List<DrawChildrenStaticInfo>();
@@ -62,13 +56,25 @@ namespace PowerUtilities
         [EnumFlags(isFlags =false,namesFieldType =typeof(QualitySettings),namesFieldName ="names")]
         public int qualityLevel = 3;
 
+        [Tooltip("setup children in awake")]
+        public bool isForceSetupInAwake;
+        public bool isIncludeInactive;
+
         Transform combineTarget;
         const string COMBINE_TARGET = "_CombineTarget";
 
         public void Awake()
         {
             if(QualitySettings.GetQualityLevel() <= qualityLevel)
+            {
+                if (isForceSetupInAwake || infoList.Count == 0)
+                {
+                    SetupChildren();
+                    CreateCombinedParents();
+                }
+
                 StartCombine();
+            }
         }
 
         private void StartCombine()
@@ -100,8 +106,8 @@ namespace PowerUtilities
                 rootGo = gameObject;
             }
 
-            var renders = rootGo.GetComponentsInChildren<Renderer>(true);
-            var groups = renders.Where(r => !r.gameObject.CompareTag(Tags.EditorOnly))
+            var renders = rootGo.GetComponentsInChildren<Renderer>(isIncludeInactive);
+            var groups = renders.Where(r => !r.gameObject.CompareTag(Tags.EditorOnly) && r.GetComponent<MeshFilter>() && r.GetComponent<MeshFilter>().sharedMesh)
                 .GroupBy(r => r.sharedMaterial);
 
             foreach (var group in groups)
