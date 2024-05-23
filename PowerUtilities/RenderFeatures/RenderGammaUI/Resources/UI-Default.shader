@@ -18,6 +18,8 @@ Shader "UI/Default"
 
         [Toggle(UNITY_UI_ALPHACLIP)] _UseUIAlphaClip ("Use Alpha Clip", Float) = 0
 
+        [Group(Effects)]
+        [GroupToggle(Effects)]_GrayOn("_GrayOn",int) = 0
 
         [Group(Alpha)]
         [GroupToggle(Alpha,_GLYPH_ON)]_GlyphOn("_GlyphOn",float) = 0
@@ -108,6 +110,7 @@ Shader "UI/Default"
             float4 _MainTex_ST;
             fixed4 _Color;
             float2 _GlyphRange;
+            half _GrayOn;
             CBUFFER_END
             fixed4 _TextureSampleAdd;
             float4 _ClipRect;
@@ -144,6 +147,7 @@ Shader "UI/Default"
 
                 half4 color = IN.color * (mainTex + _TextureSampleAdd);
 
+
                 #ifdef UNITY_UI_CLIP_RECT
                 half2 m = saturate((_ClipRect.zw - _ClipRect.xy - abs(IN.mask.xy)) * IN.mask.zw);
                 color.a *= m.x * m.y;
@@ -159,6 +163,7 @@ Shader "UI/Default"
                 **/
 			    LinearGammaAutoChange(color/**/);
 
+                color.xyz = lerp(color.xyz,dot(float3(0.2,0.7,0.02),color.xyz),_GrayOn);
                 return color;
             }
         ENDHLSL
