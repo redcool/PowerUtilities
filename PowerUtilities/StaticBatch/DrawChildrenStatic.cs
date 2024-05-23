@@ -65,7 +65,7 @@ namespace PowerUtilities
 
         public void Awake()
         {
-            if(QualitySettings.GetQualityLevel() <= qualityLevel)
+            if(QualitySettings.GetQualityLevel() <= qualityLevel && enabled)
             {
                 if (isForceSetupInAwake || infoList.Count == 0)
                 {
