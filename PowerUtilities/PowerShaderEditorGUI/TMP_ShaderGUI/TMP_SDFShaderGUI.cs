@@ -10,36 +10,46 @@ using UnityEngine.Rendering;
 
 namespace PowerUtilities
 {
+    /// <summary>
+    /// Show in * States
+    /// 
+    /// Edit in ProjectSettings/PowerUtils/TMP Shader/TMPShaderPropertiesSetting
+    /// </summary>
     public class TMP_SDFShaderGUI : TMPro.EditorUtilities.TMP_SDFShaderGUI
     {
         bool isStateOn;
 
-        GUIContent[] stateNames = new[]
-        {
-            new GUIContent("_PresetBlendMode"),
-            new GUIContent("_ZWriteMode"),
-            new GUIContent("_ZTestMode"),
-            new GUIContent("_CullMode"),
-            new GUIContent("_GrayOn"),
-        };
+        //GUIContent[] contents = new[]
+        //{
+        //    new GUIContent("_PresetBlendMode"),
+        //    new GUIContent("_ZWriteMode"),
+        //    new GUIContent("_ZTestMode"),
+        //    new GUIContent("_CullMode"),
+        //    new GUIContent("_GrayOn"),
+        //};
 
         protected override void DoGUI()
         {
             base.DoGUI();
 
+            var settings = ScriptableObjectTools.CreateGetInstance<TMPShaderPropertiesSetting>();
+
             isStateOn = BeginPanel("* States", isStateOn);
             if (isStateOn)
-                DrawStates(stateNames);
+                DrawStates(settings.stateContents);
 
             EndPanel();
         }
 
-        private void DrawStates(params GUIContent[] stateNames)
+        private void DrawStates(params GUIContent[] contents)
         {
-            foreach (GUIContent stateName in stateNames)
+            foreach (GUIContent content in contents)
             {
-                var prop = FindProperty(stateName.text, m_Properties);
-                m_Editor.ShaderProperty(prop, stateName);
+                if (!m_Material.HasProperty(content.text))
+                    continue;
+
+                var prop = FindProperty(content.text, m_Properties);
+                m_Editor.ShaderProperty(prop, content);
 
             }
         }

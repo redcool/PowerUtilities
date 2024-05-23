@@ -81,7 +81,7 @@ namespace PowerUtilities
             }
 
             // editor extends
-            EditorGUITools.DrawColorLine(EditorGUILayout.GetControlRect(GUILayout.Height(2)));
+            EditorGUITools.DrawColorLine();
 
             GUILayout.BeginHorizontal("Editor Extends", "Box");
             if (GUILayout.Button(guiSynnChildrenTag))

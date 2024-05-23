@@ -429,6 +429,11 @@ namespace PowerUtilities
             DrawBoxColors(pos, backgroundColor: color);
         }
 
+        public static void DrawColorLine(int height =2, string colorStr = "#749C75")
+        {
+            DrawColorLine(EditorGUILayout.GetControlRect(GUILayout.Height(height)), colorStr);
+        }
+
         public static void DrawHelpURL(Rect position, string url)
         {
             var helpContent = EditorGUIUtility.IconContent("_Help");

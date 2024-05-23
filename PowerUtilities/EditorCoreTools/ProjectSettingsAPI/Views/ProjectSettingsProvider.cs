@@ -52,7 +52,15 @@ namespace PowerUtilities
                 EditorGUILayout.SelectableLabel($"{type} cannot load.");
                 return;
             }
+            // show so object 
+            EditorGUITools.BeginHorizontalBox(() => { 
+                EditorGUILayout.LabelField("SO:",GUILayout.Width(148));
+                EditorGUILayout.ObjectField(setting.targetObject, typeof(ScriptableObject), false);
+            });
+            
+            EditorGUITools.DrawColorLine();
 
+            // show so properties
             var settingEditor = cachedEditors.Get(type, () => Editor.CreateEditor(setting.targetObject));
             settingEditor.OnInspectorGUI();
             setting.ApplyModifiedProperties();

@@ -33,7 +33,7 @@ namespace PowerUtilities
     /// <summary>
     /// Unity Recorder extends
     /// </summary>
-    [ProjectSettingGroup(ProjectSettingGroupAttribute.POWER_UTILS+"/UnityRecorderEx")]
+    [ProjectSettingGroup(ProjectSettingGroupAttribute.POWER_UTILS+"/Tools/UnityRecorderEx")]
     [SOAssetPath("Assets/PowerUtilities/UnityRecorderEx.asset")]
     public class UnityRecorderSetting : ScriptableObject
     {
