@@ -15,10 +15,11 @@ namespace PowerUtilities
     [CreateAssetMenu(menuName = SRP_FEATURE_PASSES_MENU+"/RenderMotionVector")]
     public class RenderMotionVector : SRPFeature
     {
+        [Header("Texture")]
+        public bool isCreateMotionVectorTexture;
+
         [Header("Camera Motion Vectors")]
         public bool isRenderCameraMotionVectors = true;
-
-        public bool isCreateMotionVectorTexture;
 
         [Header("--- cameraMotion material options")]
         public Material cameraMotionMat;
@@ -50,7 +51,9 @@ namespace PowerUtilities
         
         public override bool CanExecute()
         {
-            return Feature.cameraMotionMat && base.CanExecute();
+            var isRenderValid = (Feature.isRenderCameraMotionVectors && Feature.cameraMotionMat) || (Feature.isDrawObjectMotionVectors && Feature.objectMotionMaterial);
+
+            return isRenderValid && base.CanExecute();
         }
         public RenderMotionVectorPass(RenderMotionVector feature) : base(feature)
         {
@@ -64,14 +67,21 @@ namespace PowerUtilities
             if (camera.cameraType == CameraType.Preview)
                 return;
 
+            if (Feature.isDrawObjectMotionVectors || Feature.isRenderCameraMotionVectors)
+            {
+                //ConfigureTarget(ShaderPropertyIds._MotionVectorTexture, ShaderPropertyIds._MotionVectorTexture);
+                cmd.SetRenderTarget(ShaderPropertyIdentifier._MotionVectorTexture);
+                cmd.Execute(ref context);
+            }
+
             Shader.SetGlobalMatrix(ShaderPropertyIds._PrevViewProjMatrix, MotionVectorData.Instance().GetPreviousVP(camera));
             MotionVectorData.Instance().Update(camera);
             camera.depthTextureMode |= DepthTextureMode.MotionVectors | DepthTextureMode.Depth; // great importance
             
             UpdateMotionMaterial();
 
-            DrawCameraMotionVectors(cmd);
-            cmd.Execute(ref context);
+            if (Feature.isRenderCameraMotionVectors)
+                DrawCameraMotionVectors(cmd);
 
             if (Feature.isDrawObjectMotionVectors && Feature.objectMotionMaterial)
                 DrawObjectMotionVectors(ref context, ref renderingData, camera);
@@ -79,23 +89,25 @@ namespace PowerUtilities
 
         private void DrawObjectMotionVectors(ref ScriptableRenderContext context,ref RenderingData renderingData, Camera camera)
         {
-            var drawSettings = new DrawingSettings(new ShaderTagId("MotionVectors"), new SortingSettings(camera) { criteria = SortingCriteria.CommonOpaque })
+            var drawSettings = new DrawingSettings(ShaderTagIdEx.urpForwardShaderPassNames[0], new SortingSettings(camera) { criteria = SortingCriteria.CommonOpaque })
             {
 #if UNITY_2021_1_OR_NEWER
-                fallbackMaterial = Feature.objectMotionMaterial,
+                overrideMaterial = Feature.objectMotionMaterial,
 #endif
                 perObjectData = PerObjectData.MotionVectors,
                 enableDynamicBatching = renderingData.supportsDynamicBatching,
                 enableInstancing = true,
+                mainLightIndex = renderingData.lightData.mainLightIndex,
             };
-            var filterSettings = new FilteringSettings(RenderQueueRange.opaque, camera.cullingMask);
+            drawSettings.SetShaderPassNames(ShaderTagIdEx.urpForwardShaderPassNames);
+
+            var filterSettings = new FilteringSettings(RenderQueueRange.opaque);
             context.DrawRenderers(renderingData.cullResults, ref drawSettings, ref filterSettings);
         }
 
         private void DrawCameraMotionVectors(CommandBuffer cmd)
         {
-            if (Feature.isRenderCameraMotionVectors)
-                cmd.DrawProcedural(Matrix4x4.identity, Feature.cameraMotionMat, 0, MeshTopology.Triangles, 3);
+            cmd.DrawProcedural(Matrix4x4.identity, Feature.cameraMotionMat, 0, MeshTopology.Triangles, 3);
         }
 
         private void UpdateMotionMaterial()
@@ -114,11 +126,7 @@ namespace PowerUtilities
                 cmd.GetTemporaryRT(ShaderPropertyIds._MotionVectorTexture, desc);
             }
 
-            if (Feature.isDrawObjectMotionVectors || Feature.isRenderCameraMotionVectors)
-            {
-                //ConfigureTarget(ShaderPropertyIds._MotionVectorTexture, ShaderPropertyIds._MotionVectorTexture);
-                cmd.SetRenderTarget(ShaderPropertyIds._MotionVectorTexture);
-            }
+
         }
 
         public override void OnFinishCameraStackRendering(CommandBuffer cmd)

@@ -107,13 +107,13 @@
                 DrawingSettings drawSettings = default;
                 if (!settingSO.isCallShadowCaster && settingSO.shadowMat)
                 {
-                    drawSettings = CreateDrawingSettings(RenderingTools.urpForwardShaderPassNames, ref renderingData, SortingCriteria.CommonOpaque);
+                    drawSettings = CreateDrawingSettings(ShaderTagIdEx.urpForwardShaderPassNames, ref renderingData, SortingCriteria.CommonOpaque);
                     drawSettings.overrideMaterial = settingSO.shadowMat;
                     drawSettings.overrideMaterialPassIndex = 0;
                 }
                 else
                 {
-                    drawSettings = CreateDrawingSettings(RenderingTools.shadowCaster, ref renderingData, SortingCriteria.CommonOpaque);
+                    drawSettings = CreateDrawingSettings(ShaderTagIdEx.shadowCaster, ref renderingData, SortingCriteria.CommonOpaque);
                 }
 
                 return drawSettings;

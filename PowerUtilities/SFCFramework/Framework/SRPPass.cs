@@ -141,7 +141,12 @@ namespace PowerUtilities.RenderFeatures
             if(IsTryRestoreLastTargets(camera))
                 TryRestoreCameraTargets(cmd);
 
+            //cmd.BeginSampleExecute(featureName, ref context);
+            cmd.BeginSample(featureName);
+
             OnExecute(context, ref renderingData,cmd);
+            //cmd.EndSampleExecute(featureName, ref context);
+            cmd.EndSample(featureName);
 
             cmd.Execute(ref context);
             //CommandBufferPool.Release(cmd);

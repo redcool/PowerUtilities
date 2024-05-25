@@ -16,30 +16,7 @@ namespace PowerUtilities
     /// </summary>
     public static class RenderingTools
     {
-        public static List<ShaderTagId> legacyShaderPassNames = new List<ShaderTagId>
-        {
-            new ShaderTagId("Always"),
-            new ShaderTagId("ForwardBase"),
-            new ShaderTagId("PrepassBase"),
-            new ShaderTagId("Vertex"),
-            new ShaderTagId("VertexLMRGBM"),
-            new ShaderTagId("VertexLM"),
-        };
 
-        public static List<ShaderTagId> urpForwardShaderPassNames= new List<ShaderTagId>{
-            new ShaderTagId("SRPDefaultUnlit"),
-            new ShaderTagId("UniversalForward"),
-            new ShaderTagId("UniversalForwardOnly"),
-            new ShaderTagId("LightweightForward")
-        };
-        public static List<ShaderTagId> shadowCaster = new List<ShaderTagId>
-        {
-            new ShaderTagId("ShadowCaster")
-        };
-        public static List<ShaderTagId> depthOnly = new List<ShaderTagId>
-        {
-            new ShaderTagId("DepthOnly")
-        };
 
         public static Material ErrorMaterial = new Material(Shader.Find("Hidden/InternalErrorShader"));
 
@@ -102,15 +79,15 @@ namespace PowerUtilities
         public static void DrawErrorObjects(CommandBuffer cmd,ref ScriptableRenderContext context,ref CullingResults cullingResults,Camera cam,FilteringSettings filterSettings,SortingCriteria sortFlags)
         {
             var sortingSettings = new SortingSettings(cam) { criteria = sortFlags };
-            var drawSettings = new DrawingSettings(legacyShaderPassNames[0], sortingSettings)
+            var drawSettings = new DrawingSettings(ShaderTagIdEx.legacyShaderPassNames[0], sortingSettings)
             {
                 perObjectData = PerObjectData.None,
                 overrideMaterial = ErrorMaterial,
                 overrideMaterialPassIndex = 0
             };
-            for (int i = 1; i < legacyShaderPassNames.Count; i++)
+            for (int i = 1; i < ShaderTagIdEx.legacyShaderPassNames.Count; i++)
             {
-                drawSettings.SetShaderPassName(i, legacyShaderPassNames[i]);
+                drawSettings.SetShaderPassName(i, ShaderTagIdEx.legacyShaderPassNames[i]);
             }
 
 #if UNITY_2022_1_OR_NEWER

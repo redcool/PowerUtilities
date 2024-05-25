@@ -268,7 +268,7 @@ namespace PowerUtilities.Features
         {
             var sortFlags = SortingCriteria.CommonTransparent;
 
-            var drawSettings = CreateDrawingSettings(RenderingTools.urpForwardShaderPassNames, ref renderingData, sortFlags);
+            var drawSettings = CreateDrawingSettings(ShaderTagIdEx.urpForwardShaderPassNames, ref renderingData, sortFlags);
 
             if (settings.isOverrideUIShader && settings.UIMaterial)
                 drawSettings.overrideMaterial = settings.UIMaterial;
