@@ -6,11 +6,11 @@ Shader "Hidden/Utils/MRTComposite"
     }
 
     HLSLINCLUDE
-    #include "../../../../../PowerShaderLib/Lib/UnityLib.hlsl"
-    #include "../../../../../PowerShaderLib/URPLib/Lighting.hlsl"
-    #include "../../../../../PowerShaderLib/Lib/ScreenTextures.hlsl"
-    #include "../../../../../PowerShaderLib/Lib/BlitLib.hlsl"
-    #include "../../../../../PowerShaderLib/Lib/Colors.hlsl"
+    #include "../../../../PowerShaderLib/Lib/UnityLib.hlsl"
+    #include "../../../../PowerShaderLib/URPLib/Lighting.hlsl"
+    #include "../../../../PowerShaderLib/Lib/ScreenTextures.hlsl"
+    #include "../../../../PowerShaderLib/Lib/BlitLib.hlsl"
+    #include "../../../../PowerShaderLib/Lib/Colors.hlsl"
 
     struct v2f
     {

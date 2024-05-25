@@ -19,7 +19,7 @@ Shader "Hidden/Universal Render Pipeline/Sampling"
 
             #pragma multi_compile _ _USE_DRAW_PROCEDURAL
 
-            #include "../../../../../../PowerShaderLib/URPLib/Fullscreen.hlsl"
+            #include "../../../../../PowerShaderLib/URPLib/Fullscreen.hlsl"
 
             TEXTURE2D_X(_SourceTex);
             SAMPLER(sampler_SourceTex);
