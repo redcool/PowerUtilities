@@ -27,6 +27,7 @@ namespace PowerUtilities.RenderFeatures
         public bool isBlitToNextPostTarget;
 
         [Header("Options")]
+        // PowerShaderLib/CopyColor.mat
         public Material blitMat;
 
         [Tooltip("use gamma, linear space")]

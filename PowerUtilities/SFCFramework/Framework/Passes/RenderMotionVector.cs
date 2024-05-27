@@ -89,17 +89,16 @@ namespace PowerUtilities
 
         private void DrawObjectMotionVectors(ref ScriptableRenderContext context,ref RenderingData renderingData, Camera camera)
         {
-            var drawSettings = new DrawingSettings(ShaderTagIdEx.urpForwardShaderPassNames[0], new SortingSettings(camera) { criteria = SortingCriteria.CommonOpaque })
+            var drawSettings = new DrawingSettings(ShaderTagIdEx.motionVectors, new SortingSettings(camera) { criteria = SortingCriteria.CommonOpaque })
             {
 #if UNITY_2021_1_OR_NEWER
-                overrideMaterial = Feature.objectMotionMaterial,
+                fallbackMaterial = Feature.objectMotionMaterial,
 #endif
                 perObjectData = PerObjectData.MotionVectors,
                 enableDynamicBatching = renderingData.supportsDynamicBatching,
                 enableInstancing = true,
                 mainLightIndex = renderingData.lightData.mainLightIndex,
             };
-            drawSettings.SetShaderPassNames(ShaderTagIdEx.urpForwardShaderPassNames);
 
             var filterSettings = new FilteringSettings(RenderQueueRange.opaque);
             context.DrawRenderers(renderingData.cullResults, ref drawSettings, ref filterSettings);

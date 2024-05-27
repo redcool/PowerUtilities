@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 using UnityEngine.Rendering;
 
 namespace PowerUtilities
@@ -33,5 +34,6 @@ namespace PowerUtilities
         {
             new ShaderTagId("DepthOnly")
         };
+        public static ShaderTagId motionVectors = new ShaderTagId("MotionVectors");
     }
 }
