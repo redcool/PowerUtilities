@@ -20,10 +20,10 @@ namespace PowerUtilities
         };
 
         public static List<ShaderTagId> urpForwardShaderPassNames = new List<ShaderTagId>{
-            new ShaderTagId("SRPDefaultUnlit"),
             new ShaderTagId("UniversalForward"),
             new ShaderTagId("UniversalForwardOnly"),
-            new ShaderTagId("LightweightForward")
+            new ShaderTagId("LightweightForward"),
+            new ShaderTagId("SRPDefaultUnlit"),
         };
         public static List<ShaderTagId> shadowCaster = new List<ShaderTagId>
         {
