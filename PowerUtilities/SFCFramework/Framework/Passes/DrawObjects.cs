@@ -187,13 +187,9 @@
             if(Feature.IsUpdateSkyboxTarget)
                 SetupSkyboxTargets(renderer,camera);
 
-            cmd.BeginSampleExecute(featureName, ref context);
-
             drawObjectsPass.OnExecute(context, ref renderingData, cmd);
 
             drawChildrenInstancedPass.OnExecute(context, ref renderingData, cmd);
-
-            cmd.EndSampleExecute(featureName, ref context);
         }
 
         public static void SetupSkyboxTargets(UniversalRenderer renderer,Camera c)

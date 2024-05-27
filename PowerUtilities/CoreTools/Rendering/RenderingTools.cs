@@ -16,18 +16,6 @@ namespace PowerUtilities
     /// </summary>
     public static class RenderingTools
     {
-        /// <summary>
-        /// Initial first(
-        /// </summary>
-        [RuntimeInitializeOnLoadMethod]
-        public static void InitEmptyTextures()
-        {
-            Shader.SetGlobalTexture(ShaderPropertyIds._MainLightShadowmapTexture, RenderingTools.EmptyShadowMap);
-            Shader.SetGlobalTexture(ShaderPropertyIds._AdditionalLightsShadowmapTexture, RenderingTools.EmptyShadowMap);
-        }
-
-
-
         public static Material ErrorMaterial = new Material(Shader.Find("Hidden/InternalErrorShader"));
 
         public static void ConvertStringArray<T>(ref T[] results, Func<string, T> onConvert, params string[] names)
