@@ -80,6 +80,7 @@ namespace PowerUtilities
 
         /// <summary>
         /// Get urp private rtHandleName
+        /// if rtName -> RTHandle dont exist return default
         /// </summary>
         /// <param strName="renderer"></param>
         /// <param strName="rtName"></param>
@@ -159,7 +160,9 @@ namespace PowerUtilities
         {
             if (RTHandleTools.TryGetURPTextureName(rtId, out var rtName))
             {
-                rtId = GetRenderTargetId(renderer, rtName);
+                var urpId = GetRenderTargetId(renderer, rtName);
+                if (urpId != default)
+                    rtId = urpId;
             }
         }
         /// <summary>
