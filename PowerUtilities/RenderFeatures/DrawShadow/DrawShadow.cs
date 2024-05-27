@@ -28,31 +28,6 @@ namespace PowerUtilities
 
     public class DrawShadow : ScriptableRendererFeature
     {
-        static RenderTexture emptyShadowMap;
-        static RTHandle emptyShadowMapHandle;
-        /// <summary>
-        /// Defulat empty shadowmap,
-        /// Texture2D.whiteTexture,some device will crash.
-        /// 
-        /// not clear, _BigShadowParams.x is shadowIntensity,
-        /// first time need render bigShadow once, otherwist _BigShadowMap is black
-        /// </summary>
-        public static RenderTexture EmptyShadowMap
-        {
-            get
-            {
-                if(emptyShadowMap == null)
-                {
-#if UNITY_2022_1_OR_NEWER
-                    emptyShadowMapHandle = ShadowUtils.AllocShadowRT(1, 1, 16, 1, 0, "");
-                    emptyShadowMap = emptyShadowMapHandle.rt;
-#else
-                    emptyShadowMap = RenderTextureTools.GetTemporaryShadowTexture(1, 1, 16);
-#endif
-                }
-                return emptyShadowMap;
-            }
-        }
 
         DrawShadowPass drawShadowPass;
         public DrawShadowSettingSO settingSO;

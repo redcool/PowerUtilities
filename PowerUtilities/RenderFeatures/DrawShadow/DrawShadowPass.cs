@@ -207,7 +207,7 @@
         /// </summary>
         public void Clear()
         {
-            Shader.SetGlobalTexture(_BigShadowMap, DrawShadow.EmptyShadowMap);
+            Shader.SetGlobalTexture(_BigShadowMap, RenderingTools.EmptyShadowMap);
             Shader.SetGlobalVector(_BigShadowParams, Vector4.zero);
             Shader.SetGlobalInt(_BigShadowOn, 0);
         }

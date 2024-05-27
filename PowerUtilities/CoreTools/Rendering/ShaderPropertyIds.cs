@@ -34,7 +34,6 @@ namespace PowerUtilities
 
     public static class ShaderPropertyIds
     {
-
         /// <summary>
         /// if name is urp builtin rtName,use urp rtName(unity2022+),
         /// otherwise return Shader.PropertyToID(below unity2022)
@@ -74,7 +73,9 @@ namespace PowerUtilities
             _GBuffer0 = Shader.PropertyToID(nameof(_GBuffer0)),
             _GBuffer1 = Shader.PropertyToID(nameof(_GBuffer1)),
             _GBuffer2 = Shader.PropertyToID(nameof(_GBuffer2)),
-            _GBuffer3 = Shader.PropertyToID(nameof(_GBuffer3))
+            _GBuffer3 = Shader.PropertyToID(nameof(_GBuffer3)),
+            _MainLightShadowmapTexture = Shader.PropertyToID(nameof(_MainLightShadowmapTexture)),
+            _AdditionalLightsShadowmapTexture = Shader.PropertyToID(nameof(_AdditionalLightsShadowmapTexture))
             ;
 
 

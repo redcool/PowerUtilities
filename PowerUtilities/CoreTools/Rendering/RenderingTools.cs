@@ -16,6 +16,16 @@ namespace PowerUtilities
     /// </summary>
     public static class RenderingTools
     {
+        /// <summary>
+        /// Initial first(
+        /// </summary>
+        [RuntimeInitializeOnLoadMethod]
+        public static void InitEmptyTextures()
+        {
+            Shader.SetGlobalTexture(ShaderPropertyIds._MainLightShadowmapTexture, RenderingTools.EmptyShadowMap);
+            Shader.SetGlobalTexture(ShaderPropertyIds._AdditionalLightsShadowmapTexture, RenderingTools.EmptyShadowMap);
+        }
+
 
 
         public static Material ErrorMaterial = new Material(Shader.Find("Hidden/InternalErrorShader"));
@@ -121,6 +131,37 @@ namespace PowerUtilities
                 return defaultId;
 
             return rtName == "CameraTarget" ? BuiltinRenderTextureType.CameraTarget : new RenderTargetIdentifier(rtName);
+        }
+
+        static RenderTexture emptyShadowMap;
+        /// <summary>
+        /// Defulat empty shadowmap,
+        /// Texture2D.whiteTexture,some device will crash.
+        /// 
+        /// not clear, _BigShadowParams.x is shadowIntensity,
+        /// first time need render bigShadow once, otherwist _BigShadowMap is black
+        /// </summary>
+        public static RenderTexture GetEmptyShadowMap(ref RTHandle emptyShadowMapHandle)
+        {
+            if (emptyShadowMap == null)
+            {
+#if UNITY_2022_1_OR_NEWER
+                emptyShadowMapHandle = ShadowUtils.AllocShadowRT(1, 1, 16, 1, 0, "");
+                emptyShadowMap = emptyShadowMapHandle.rt;
+#else
+                emptyShadowMap = RenderTextureTools.GetTemporaryShadowTexture(1, 1, 16);
+#endif
+            }
+            return emptyShadowMap;
+        }
+
+        public static RenderTexture EmptyShadowMap
+        {
+            get
+            {
+                RTHandle emptyShadowMapHandle = null;
+                return GetEmptyShadowMap(ref emptyShadowMapHandle);
+            }
         }
     }
 }
