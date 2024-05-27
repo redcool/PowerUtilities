@@ -67,7 +67,7 @@ namespace PowerUtilities
             if (camera.cameraType == CameraType.Preview)
                 return;
 
-            if (Feature.isDrawObjectMotionVectors || Feature.isRenderCameraMotionVectors)
+            if (Feature.isDrawObjectMotionVectors)
             {
                 //ConfigureTarget(ShaderPropertyIds._MotionVectorTexture, ShaderPropertyIds._MotionVectorTexture);
                 cmd.SetRenderTarget(ShaderPropertyIdentifier._MotionVectorTexture);
@@ -83,7 +83,7 @@ namespace PowerUtilities
             if (Feature.isRenderCameraMotionVectors)
                 DrawCameraMotionVectors(cmd);
 
-            if (Feature.isDrawObjectMotionVectors && Feature.objectMotionMaterial)
+            if (Feature.isDrawObjectMotionVectors)
                 DrawObjectMotionVectors(ref context, ref renderingData, camera);
         }
 

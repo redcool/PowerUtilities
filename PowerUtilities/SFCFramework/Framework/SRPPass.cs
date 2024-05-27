@@ -133,7 +133,6 @@ namespace PowerUtilities.RenderFeatures
             if (! CanExecute())
                 return;
 
-            //var cmd = CommandBufferPool.Get(featureName);
             var cmd = CommandBufferEx.defaultCmd;
             cmd.name = featureName;
             cmd.Execute(ref context);
@@ -142,14 +141,11 @@ namespace PowerUtilities.RenderFeatures
                 TryRestoreCameraTargets(cmd);
 
             //cmd.BeginSampleExecute(featureName, ref context);
-            cmd.BeginSample(featureName);
 
             OnExecute(context, ref renderingData,cmd);
             //cmd.EndSampleExecute(featureName, ref context);
-            cmd.EndSample(featureName);
 
             cmd.Execute(ref context);
-            //CommandBufferPool.Release(cmd);
         }
 
         public override void OnFinishCameraStackRendering(CommandBuffer cmd)
