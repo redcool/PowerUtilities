@@ -7,6 +7,7 @@ namespace PowerUtilities
 
 #if UNITY_EDITOR
     using UnityEditor;
+    using System;
 
     [CustomEditor(typeof(ChildrenSortingLayerControl))]
     public class ChildrenSortingLayerControlEditor : PowerEditor<ChildrenSortingLayerControl>
@@ -14,6 +15,8 @@ namespace PowerUtilities
         //public override bool NeedDrawDefaultUI() => true;
 
         public override string Version => "0.0.3";
+
+        public bool isShowParentCanvases;
 
         public override void DrawInspectorUI(ChildrenSortingLayerControl inst)
         {
@@ -32,25 +35,45 @@ namespace PowerUtilities
                 return;
 
             DrawStatisticsInfo(inst);
+            DrawParentCanvases(inst);
+        }
+
+        private void DrawParentCanvases(ChildrenSortingLayerControl inst)
+        {
+            isShowParentCanvases = EditorGUILayout.BeginFoldoutHeaderGroup(isShowParentCanvases, "Parent Canvases");
+            if (isShowParentCanvases)
+            {
+                var canvases = inst.GetComponentsInParent<Canvas>();
+                canvases.ForEach((c, id) =>
+                {
+                    EditorGUITools.BeginHorizontalBox(() =>
+                    {
+                        EditorGUILayout.LabelField("id : " + id,GUILayout.Width(40));
+                        EditorGUILayout.ObjectField(c, c.GetType(), true);
+                    });
+                });
+            }
+            EditorGUILayout.EndFoldoutHeaderGroup();
         }
 
         private void DrawStatisticsInfo(ChildrenSortingLayerControl inst)
         {
-            inst.isFoldStatistics = EditorGUILayout.BeginFoldoutHeaderGroup(inst.isFoldStatistics, "StatisticsInfo");
-            if (!inst.isFoldStatistics)
-                return;
-
-            for (int i = 0; i < inst.sortedChildList.Count; i++)
+            inst.isFoldStatistics = EditorGUILayout.BeginFoldoutHeaderGroup(inst.isFoldStatistics, "Statistics Info");
+            if (inst.isFoldStatistics)
             {
-                var child = inst.sortedChildList[i];
-                var childInfo = inst.sortedChildInfo[i];
 
-                EditorGUILayout.BeginHorizontal("Box");
-                EditorGUILayout.ObjectField(child, child.GetType(), true);
-                EditorGUILayout.LabelField(childInfo);
-                EditorGUILayout.EndHorizontal();
+                for (int i = 0; i < inst.sortedChildList.Count; i++)
+                {
+                    var child = inst.sortedChildList[i];
+                    var childInfo = inst.sortedChildInfo[i];
+
+                    EditorGUILayout.BeginHorizontal("Box");
+                    EditorGUILayout.ObjectField(child, child.GetType(), true);
+                    EditorGUILayout.LabelField(childInfo);
+                    EditorGUILayout.EndHorizontal();
+                }
+
             }
-
             EditorGUILayout.EndFoldoutHeaderGroup();
         }
     }
@@ -111,7 +134,7 @@ namespace PowerUtilities
             StartSortChildren();
         }
 
-        int FindParentCanvasSortingOrder(Transform tr,int defaultOrder=0)
+        int FindParentCanvasSortingOrder(Transform tr, int defaultOrder=0)
         {
             var paretnCanvases = tr.GetComponentsInParent<Canvas>();
             foreach (var c in paretnCanvases)
