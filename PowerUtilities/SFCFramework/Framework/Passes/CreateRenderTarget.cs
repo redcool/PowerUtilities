@@ -8,6 +8,7 @@ using UnityEngine.Rendering.Universal;
 
 namespace PowerUtilities.RenderFeatures
 {
+
     [Tooltip("Create RenderTargets (Color or depth)")]
     [CreateAssetMenu(menuName = SRP_FEATURE_PASSES_MENU+"/CreateRenderTarget")]
     public class CreateRenderTarget : SRPFeature
@@ -19,6 +20,18 @@ namespace PowerUtilities.RenderFeatures
         public bool overrideURPRenderScale=false;
         [Range(0.1f,2)]public float renderScale = 1;
         public override ScriptableRenderPass GetPass() => new CreateRenderTargetPass(this);
+
+        public static List<CreateRenderTarget> instanceList = new List<CreateRenderTarget>();
+        public CreateRenderTarget()
+        {
+            if (!instanceList.Contains(this))
+                instanceList.Add(this);
+        }
+        /// <summary>
+        /// colorTarget name list
+        /// updte by CreateRenderTargetPass
+        /// </summary>
+        public static string[] GetColorTargetNames => instanceList.SelectMany( item=> item.colorTargetInfos,(item, targetInfo )=> targetInfo.name).ToArray();
     }
 
     public class CreateRenderTargetPass : SRPPass<CreateRenderTarget>
@@ -57,6 +70,10 @@ namespace PowerUtilities.RenderFeatures
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
         {
             CreateTargets(cmd);
+        }
+        public override void OnFinishCameraStackRendering(CommandBuffer cmd)
+        {
+            base.OnFinishCameraStackRendering(cmd);
         }
     }
 }

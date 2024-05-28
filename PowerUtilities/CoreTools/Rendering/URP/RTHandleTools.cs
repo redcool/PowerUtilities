@@ -98,13 +98,14 @@ namespace PowerUtilities
         /// <param name="cam"></param>
         /// <param name="rtStrName"></param>
         /// <returns></returns>
-        public static bool IsURPRTAlloced(Camera cam, string rtStrName)
+        public static bool IsURPRTAlloced(Camera cam,string rtStrName)
         {
             if (urpStrName2HandleDict.TryGetValue(rtStrName, out var rtHandleName))
             {
                 var cameraData = cam.GetUniversalAdditionalCameraData();
-                var render = (UniversalRenderer)cameraData.scriptableRenderer;
-                var rtHandle = render.GetRTHandle(rtHandleName);
+                var renderer = (UniversalRenderer)cameraData.scriptableRenderer;
+                //var renderer = RenderPipelineTools.UrpAsset.GetDefaultRenderer(
+                var rtHandle = renderer.GetRTHandle(rtHandleName);
                 return rtHandle != null && rtHandle.rt;
             }
 

@@ -17,7 +17,7 @@ namespace PowerUtilities.RenderFeatures
     using UnityEditor;
 
     [CanEditMultipleObjects]
-    [CustomEditor(typeof(SRPFeature),true)]
+    [CustomEditor(typeof(SRPFeature))]
     public class SRPFeatureEditor : PowerEditor<SRPFeature>
     {
         public override bool NeedDrawDefaultUI() => true;

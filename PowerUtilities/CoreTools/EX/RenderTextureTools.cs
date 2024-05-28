@@ -40,5 +40,10 @@ namespace PowerUtilities
             shadowTexture.wrapMode = TextureWrapMode.Clamp;
             return shadowTexture;
         }
+
+        public static bool IsNeedRealloc(this RenderTexture rt, int width, int height)
+        {
+            return (!rt || rt.width != width || rt.height != height);
+        }
     }
 }

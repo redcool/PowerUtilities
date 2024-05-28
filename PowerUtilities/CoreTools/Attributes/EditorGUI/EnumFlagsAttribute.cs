@@ -1,15 +1,16 @@
 ﻿namespace PowerUtilities
 {
+#if UNITY_EDITOR
+    using UnityEditor;
+#endif
     using System.Collections;
     using System.Collections.Generic;
     using UnityEngine;
     using System;
-
-#if UNITY_EDITOR
-    using UnityEditor;
     using System.Linq;
     using System.Reflection;
 
+#if UNITY_EDITOR
     [CustomPropertyDrawer(typeof(EnumFlagsAttribute))]
     public class EnumFlagsAttributeDrawer : PropertyDrawer
     {
@@ -20,13 +21,14 @@
             var attr = attribute as EnumFlagsAttribute;
 
             // use enum property 
-            if(attr.namesFieldType == null)
+            if (attr.type == null)
             {
                 names = property.enumNames;
             }
             else
             {
-                SetupNamesFromType(ref names, attr);
+                if (!string.IsNullOrEmpty(attr.memberName))
+                    names = attr.type.GetMemberValue<string[]>(attr.memberName, null, null);
             }
 
             if (attr.isFlags)
@@ -38,29 +40,8 @@
                 var contents = names.Select(n => new GUIContent(n)).ToArray();
                 property.intValue = EditorGUI.Popup(position, label, property.intValue, contents);
             }
-
-
-            //============= inner methods
-            static void SetupNamesFromType(ref string[] names, EnumFlagsAttribute attr)
-            {
-                if (attr.namesFieldType != null)
-                {
-                    var info = attr.namesFieldType.GetMember(attr.namesFieldName).FirstOrDefault();
-                    if (info == null)
-                        return;
-
-                    if (info is PropertyInfo propertyInfo)
-                    {
-                        names = propertyInfo.GetValue(null) as string[];
-                    }
-
-                    if (info is FieldInfo fieldInfo)
-                    {
-                        names = fieldInfo.GetValue(null) as string[];
-                    }
-                }
-            }
         }
+
     }
 
 #endif
@@ -80,12 +61,12 @@
         /// <summary>
         /// get names from this Type
         /// </summary>
-        public Type namesFieldType;
+        public Type type;
 
         /// <summary>
         /// get names from Type.fieldName,like QualitySettings.names
         /// </summary>
-        public string namesFieldName;
+        public string memberName;
         public EnumFlagsAttribute(bool IsFlags = true)
         {
             this.isFlags = IsFlags;

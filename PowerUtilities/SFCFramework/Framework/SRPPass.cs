@@ -15,7 +15,7 @@ namespace PowerUtilities.RenderFeatures
         /// <summary>
         /// Dispose 
         /// </summary>
-        bool disposed;
+        protected bool disposed;
         public void Dispose()
         {
             if (disposed) return;

@@ -102,41 +102,11 @@ namespace PowerUtilities
 
             var desc = defaultDescriptor;
             desc.SetupColorDescriptor(camera, renderScale, false, samples);
-            
+
             //targetInfos.ForEach((info, id) =>
-            foreach ( var info in targetInfos )
+            foreach (var info in targetInfos)
             {
-                if (!info.IsValid(camera))
-                {
-                    continue;
-                }
-
-                desc.graphicsFormat = info.GetFinalFormat();
-                //desc.colorFormat = info.isHdr ? RenderTextureFormat.DefaultHDR : RenderTextureFormat.Default;
-
-                // depth format
-                if (GraphicsFormatUtility.IsDepthFormat(desc.graphicsFormat))
-                {
-                    desc.colorFormat = RenderTextureFormat.Depth;
-                    info.hasDepthBuffer = true;
-                }
-
-                // sync info's format 
-                if(info.format != desc.graphicsFormat)
-                {
-                    info.format = desc.graphicsFormat;
-                }
-
-                if (info.hasDepthBuffer)
-                {
-#if UNITY_2020
-                    desc.depthBufferBits = 24;
-#else
-                    desc.depthStencilFormat = GraphicsFormat.D24_UNorm_S8_UInt;
-#endif
-                }
-
-                cmd.GetTemporaryRT(info.GetTextureId(), desc);
+                info.CreateRT(cmd, desc, camera);
             };
         }
 

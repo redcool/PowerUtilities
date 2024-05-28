@@ -337,5 +337,42 @@ namespace PowerUtilities
             return type.GetProperty(name).GetValue(caller, args);
         }
 
+        /// <summary>
+        /// Get FirstMemberInfo(PropertyInfo or FieldInfo)'s value
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="type"></param>
+        /// <param name="memberName"></param>
+        /// <param name="caller"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public static T GetMemberValue<T>(this Type type,string memberName,object caller, object[] args)
+        {
+            var m = type.GetMember(memberName, instanceBindings).FirstOrDefault();
+            if(m == null)
+                return default(T);
+
+            if(m is PropertyInfo propertyInfo)
+                return (T) propertyInfo.GetValue(caller,args);
+            if (m is FieldInfo fieldInfo)
+                return (T)fieldInfo.GetValue(caller);
+            if(m is MethodInfo methodInfo)
+                return (T) methodInfo.Invoke(caller,args);
+
+            return default(T);
+        }
+
+        public static void SetMemberValue(this Type type,string memberName,object caller, object[] args)
+        {
+            var m = type.GetMember(memberName, instanceBindings).FirstOrDefault();
+            if (m == null)
+                return;
+
+            if (m is PropertyInfo propertyInfo)
+                propertyInfo.SetValue(caller, args);
+            if (m is FieldInfo fieldInfo)
+                fieldInfo.SetValue(caller,args);
+            
+        }
     }
 }

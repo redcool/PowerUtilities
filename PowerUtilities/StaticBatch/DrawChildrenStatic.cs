@@ -53,7 +53,7 @@ namespace PowerUtilities
         [EditorHeader("","Conditions")]
         [Tooltip("> qualityLevel,not work")]
 
-        [EnumFlags(isFlags =false,namesFieldType =typeof(QualitySettings),namesFieldName ="names")]
+        [EnumFlags(isFlags =false,type =typeof(QualitySettings),memberName ="names")]
         public int qualityLevel = 3;
 
         [Tooltip("setup children in awake")]
