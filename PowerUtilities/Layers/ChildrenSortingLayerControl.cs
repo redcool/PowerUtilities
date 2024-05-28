@@ -92,6 +92,7 @@ namespace PowerUtilities
 
         [Tooltip("base sorting order")]
         public int startSortingOrder = 0;
+        public int startSortingOrderOffset = 1;
         /// <summary>
         /// sorting index in this group
         /// </summary>
@@ -129,7 +130,7 @@ namespace PowerUtilities
             }
 
             // reset
-            sortingOrder = startSortingOrder;
+            sortingOrder = startSortingOrder + startSortingOrderOffset;
             childList.Clear();
 
             sortedChildInfo.Clear();
