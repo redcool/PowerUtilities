@@ -18,7 +18,7 @@ namespace PowerUtilities
 
             var pos = EditorGUI.IndentedRect(position);
             pos.x -= 2;
-            pos.y += EditorGUIUtility.singleLineHeight/2;
+            //pos.y += EditorGUIUtility.singleLineHeight/2;
             pos.width += 4;
             pos.height = EditorGUIUtility.singleLineHeight * attr.lineCount;
             EditorGUITools.DrawBoxColors(pos, 2, default, attr.color, default,default,default);

@@ -12,8 +12,8 @@ namespace PowerUtilities
 {
 
 #if UNITY_EDITOR
-    [CustomPropertyDrawer(typeof(EditorTextFieldEnum))]
-    public class EditorTextFieldPopupDrawer : PropertyDrawer
+    [CustomPropertyDrawer(typeof(EditorTextFieldWithMenu))]
+    public class EditorTextFieldWithMenuDrawer : PropertyDrawer
     {
         static GenericMenu menu = new GenericMenu();
 
@@ -21,7 +21,7 @@ namespace PowerUtilities
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            var attr = attribute as EditorTextFieldEnum;
+            var attr = attribute as EditorTextFieldWithMenu;
 
             var pos = position;
             pos.width = position.width - 20;
@@ -63,9 +63,11 @@ namespace PowerUtilities
     }
 #endif
 
-
+    /// <summary>
+    /// Draw property with dropdownList(string[] from (type.memberName)
+    /// </summary>
     [AttributeUsage(AttributeTargets.Field)]
-    public class EditorTextFieldEnum : PropertyAttribute
+    public class EditorTextFieldWithMenu : PropertyAttribute
     {
         /// <summary>
         /// get names from this Type

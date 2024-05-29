@@ -346,20 +346,25 @@ namespace PowerUtilities
         /// <param name="caller"></param>
         /// <param name="args"></param>
         /// <returns></returns>
-        public static T GetMemberValue<T>(this Type type,string memberName,object caller, object[] args)
+        public static object GetMemberValue(this Type type,string memberName,object caller, object[] args)
         {
             var m = type.GetMember(memberName, instanceBindings).FirstOrDefault();
             if(m == null)
-                return default(T);
+                return default;
 
             if(m is PropertyInfo propertyInfo)
-                return (T) propertyInfo.GetValue(caller,args);
+                return propertyInfo.GetValue(caller,args);
             if (m is FieldInfo fieldInfo)
-                return (T)fieldInfo.GetValue(caller);
+                return fieldInfo.GetValue(caller);
             if(m is MethodInfo methodInfo)
-                return (T) methodInfo.Invoke(caller,args);
+                return methodInfo.Invoke(caller,args);
 
-            return default(T);
+            return default;
+        }
+
+        public static T GetMemberValue<T>(this Type type, string memberName, object caller, object[] args)
+        {
+            return (T)GetMemberValue(type, memberName, caller, args);
         }
 
         public static void SetMemberValue(this Type type,string memberName,object caller, object[] args)

@@ -23,11 +23,6 @@ namespace PowerUtilities
             if (attr.isShowTitleRow && attr.isTitleUnfold)
                 rowCount += GetContentRowCount(attr);
 
-            // dont show tile
-            if (!attr.isShowTitleRow)
-                rowCount += GetContentRowCount(attr);
-
-
             return base.GetPropertyHeight(property, label) * rowCount;
 
             //---------- methods
@@ -44,7 +39,7 @@ namespace PowerUtilities
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            EditorGUI.BeginProperty(position, label, property);
+            label = EditorGUI.BeginProperty(position, label, property);
 
             var attr = attribute as ListItemDrawAttribute;
 
