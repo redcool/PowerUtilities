@@ -17,7 +17,7 @@ namespace PowerUtilities.RenderFeatures
     using UnityEditor;
 
     [CanEditMultipleObjects]
-    [CustomEditor(typeof(SRPFeature))]
+    //[CustomEditor(typeof(SRPFeature),true)]
     public class SRPFeatureEditor : PowerEditor<SRPFeature>
     {
         public override bool NeedDrawDefaultUI() => true;
@@ -132,7 +132,10 @@ namespace PowerUtilities.RenderFeatures
         /// </summary>
         /// <returns></returns>
         public abstract ScriptableRenderPass GetPass();
-
+        private void OnValidate()
+        {
+            DestroyPassInstance();
+        }
         /// <summary>
         /// get cached pass instance
         /// </summary>
@@ -146,6 +149,9 @@ namespace PowerUtilities.RenderFeatures
             }
         }
 
+        /// <summary>
+        /// Destroy current instance, will create new next time
+        /// </summary>
         public void DestroyPassInstance()
         {
             passInstance = null;
