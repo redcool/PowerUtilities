@@ -28,9 +28,8 @@ namespace PowerUtilities.RenderFeatures
         {
             var inst = serializedObject.targetObject as SRPRenderFeatureControl;
 
-            EditorGUI.BeginChangeCheck();
-            DrawDefaultInspector();
-            if (EditorGUI.EndChangeCheck())
+            var isUpdated = DrawDefaultInspector();
+            if (isUpdated)
             {
                 OnEnable();
             }

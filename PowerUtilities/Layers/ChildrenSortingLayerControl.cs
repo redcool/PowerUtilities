@@ -14,9 +14,11 @@ namespace PowerUtilities
     {
         //public override bool NeedDrawDefaultUI() => true;
 
-        public override string Version => "0.0.3";
+        public override string Version => "0.0.4";
 
-        public bool isShowParentCanvases;
+        public (string info, bool isShowParentCanvases) parentCanvasesFoldInfo = ("Parent Canvases", false);
+        public (string info,bool isStatisticsFolded) statisticsFoldInfo = ("Statistics Info",false);
+
 
         public override void DrawInspectorUI(ChildrenSortingLayerControl inst)
         {
@@ -40,28 +42,24 @@ namespace PowerUtilities
 
         private void DrawParentCanvases(ChildrenSortingLayerControl inst)
         {
-            isShowParentCanvases = EditorGUILayout.BeginFoldoutHeaderGroup(isShowParentCanvases, "Parent Canvases");
-            if (isShowParentCanvases)
+            EditorGUITools.DrawFoldContent(ref parentCanvasesFoldInfo, () =>
             {
                 var canvases = inst.GetComponentsInParent<Canvas>();
                 canvases.ForEach((c, id) =>
                 {
                     EditorGUITools.BeginHorizontalBox(() =>
                     {
-                        EditorGUILayout.LabelField("id : " + id,GUILayout.Width(40));
+                        EditorGUILayout.LabelField("id : " + id,GUILayout.Width(50));
                         EditorGUILayout.ObjectField(c, c.GetType(), true);
                     });
                 });
-            }
-            EditorGUILayout.EndFoldoutHeaderGroup();
+            });
         }
 
         private void DrawStatisticsInfo(ChildrenSortingLayerControl inst)
         {
-            inst.isFoldStatistics = EditorGUILayout.BeginFoldoutHeaderGroup(inst.isFoldStatistics, "Statistics Info");
-            if (inst.isFoldStatistics)
+            EditorGUITools.DrawFoldContent(ref statisticsFoldInfo, () =>
             {
-
                 for (int i = 0; i < inst.sortedChildList.Count; i++)
                 {
                     var child = inst.sortedChildList[i];
@@ -72,9 +70,7 @@ namespace PowerUtilities
                     EditorGUILayout.LabelField(childInfo);
                     EditorGUILayout.EndHorizontal();
                 }
-
-            }
-            EditorGUILayout.EndFoldoutHeaderGroup();
+            });
         }
     }
 #endif
