@@ -22,10 +22,9 @@ namespace PowerUtilities
 
         public override void DrawInspectorUI(ChildrenSortingLayerControl inst)
         {
-            EditorGUILayout.BeginVertical("Box");
-            
             DrawDefaultInspector();
 
+            EditorGUILayout.BeginVertical("Box");
             if (GUILayout.Button("Sort Children"))
             {
                 inst.StartSortChildren();
@@ -103,7 +102,6 @@ namespace PowerUtilities
         /// sorted children's sorting info
         /// </summary>
         [HideInInspector] public List<string> sortedChildInfo = new List<string>();
-        [HideInInspector] public bool isFoldStatistics;
 
         [Header("Start Sorting Order")]
         [Tooltip("startSortingOrder use parentCanvas(check overrideSorting or isRootCanvas) sorting order")]
@@ -111,6 +109,7 @@ namespace PowerUtilities
 
         [Tooltip("base sorting order")]
         public int startSortingOrder = 0;
+        [Tooltip("child sortOrder = startSortingOrder + startSortingOrderOffset")]
         public int startSortingOrderOffset = 1;
         /// <summary>
         /// sorting index in this group

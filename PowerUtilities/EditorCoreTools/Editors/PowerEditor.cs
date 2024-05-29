@@ -29,44 +29,38 @@ namespace PowerUtilities
 
             if(!string.IsNullOrEmpty(TitleHelpStr))
             {
-                EditorGUILayout.BeginVertical("Box");
-                EditorGUILayout.HelpBox(TitleHelpStr, MessageType.Info);
-                EditorGUILayout.EndVertical();
+                EditorGUITools.BeginVerticalBox(() =>
+                {
+                    EditorGUILayout.HelpBox(TitleHelpStr, MessageType.Info);
+                });
             }
 
             if (!string.IsNullOrEmpty(Version))
             {
-                if (!string.IsNullOrEmpty(Version))
+                var rect = new Rect(80, 8, 100, 18);
+                if (!string.IsNullOrEmpty(TitleHelpStr))
                 {
-                    var rect = new Rect(100, 4, 100, 18);
-                    if (!string.IsNullOrEmpty(TitleHelpStr))
-                    {
-                        var lastRect = GUILayoutUtility.GetLastRect();
-                        rect.y += lastRect.max.y;
-                    }
-
-                    EditorGUITools.DrawColorLabel(rect, new GUIContent(Version), Color.cyan);
+                    var lastRect = GUILayoutUtility.GetLastRect();
+                    rect.y += lastRect.max.y;
                 }
 
+                EditorGUITools.DrawColorLabel(rect, new GUIContent(Version), Color.cyan);
             }
 
+            serializedObject.UpdateIfRequiredOrScript();
 
             if (NeedDrawDefaultUI())
             {
-                EditorGUI.BeginChangeCheck();
-                DrawDefaultInspector();
-                if(EditorGUI.EndChangeCheck())
+                if(DrawDefaultInspector())
                 {
                     OnInspectorGUIChanged(inst);
                 }
-
             }
-            
-            serializedObject.UpdateIfRequiredOrScript();
 
-            GUILayout.BeginVertical("Box");
-            DrawInspectorUI(inst);
-            GUILayout.EndVertical();
+            EditorGUITools.BeginVerticalBox(() =>
+            {
+                DrawInspectorUI(inst);
+            });
 
             serializedObject.ApplyModifiedProperties();
         }
