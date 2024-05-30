@@ -66,8 +66,8 @@ namespace PowerUtilities.Features
         {
             ApplicationTools.OnDomainUnload += DisposeNative;
 
-            RenderPipelineManager.beginFrameRendering -= RenderPipelineManager_beginFrameRendering;
-            RenderPipelineManager.beginFrameRendering += RenderPipelineManager_beginFrameRendering;
+            //RenderPipelineManager.beginFrameRendering -= RenderPipelineManager_beginFrameRendering;
+            //RenderPipelineManager.beginFrameRendering += RenderPipelineManager_beginFrameRendering;
         }
 
         private static void RenderPipelineManager_beginFrameRendering(ScriptableRenderContext arg1, Camera[] arg2)

@@ -159,6 +159,7 @@
 
     public class DrawObjectsPassControl : SRPPass<DrawObjects>
     {
+        
         FullDrawObjectsPass drawObjectsPass;
 
         DrawChildrenInstancedPass drawChildrenInstancedPass;
@@ -174,7 +175,9 @@
         public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
         {
             drawObjectsPass.OnCameraSetup(cmd, ref renderingData);
-            drawChildrenInstancedPass.OnCameraSetup(cmd, ref renderingData);
+
+            if (Feature.isDrawChildrenInstancedOn)
+                drawChildrenInstancedPass.OnCameraSetup(cmd, ref renderingData);
         }
 
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
@@ -189,7 +192,8 @@
 
             drawObjectsPass.OnExecute(context, ref renderingData, cmd);
 
-            drawChildrenInstancedPass.OnExecute(context, ref renderingData, cmd);
+            if (Feature.isDrawChildrenInstancedOn)
+                drawChildrenInstancedPass.OnExecute(context, ref renderingData, cmd);
         }
 
         public static void SetupSkyboxTargets(UniversalRenderer renderer,Camera c)
@@ -229,9 +233,6 @@
 
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
         {
-            if (!Feature.isDrawChildrenInstancedOn)
-                return;
-
             if (Feature.forceFindDrawChildrenInstanced)
             {
                 Feature.forceFindDrawChildrenInstanced = false;
