@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Hidden_Blur
+  m_Name: Hidden_SSPR_Blur
   m_Shader: {fileID: 4800000, guid: 16518171baa855047b3eaebabe81ee2e, type: 3}
   m_ValidKeywords: []
   m_InvalidKeywords: []

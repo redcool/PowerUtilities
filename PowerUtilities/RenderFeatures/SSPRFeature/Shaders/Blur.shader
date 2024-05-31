@@ -1,4 +1,4 @@
-Shader "Hidden/Blur"
+Shader "Hidden/SSPR/Blur"
 {
     Properties
     {

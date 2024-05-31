@@ -1,11 +1,10 @@
-namespace PowerUtilities
+namespace PowerUtilities.SSPR
 {
-using System;
-using System.Threading;
-using UnityEditor.Rendering;
-using UnityEngine;
-using UnityEngine.Rendering;
-using UnityEngine.Rendering.Universal;
+    using System.Threading;
+    using UnityEditor.Rendering;
+    using UnityEngine;
+    using UnityEngine.Rendering;
+    using UnityEngine.Rendering.Universal;
 
 #if UNITY_EDITOR
     using UnityEditor;
@@ -32,6 +31,20 @@ using UnityEngine.Rendering.Universal;
     }
 #endif
 
+    public enum RunMode
+    {
+        Hash, // cspass(Hash,Hash Resolve)
+        CS_PASS_2,// cspass(csMain,csMain)
+                  //CS_PASS_1 // cspass(csMain)
+    }
+
+    public enum BlurPassMode
+    {
+        TwoPasses,
+        SinglePass,
+        SinglePassCalcVerticle
+    }
+
     /// <summary>
     /// implements Screen Space Planar Reflection
     /// 
@@ -50,59 +63,12 @@ using UnityEngine.Rendering.Universal;
     ///     
     /// 
     /// </summary>
-    public class SSPRFeature : ScriptableRendererFeature
+    public partial class SSPRFeature : ScriptableRendererFeature
     {
-        public enum RunMode
-        {
-            Hash, // cspass(Hash,Hash Resolve)
-            CS_PASS_2,// cspass(csMain,csMain)
-            //CS_PASS_1 // cspass(csMain)
-        }
 
-        public enum BlurPassMode
-        {
-            TwoPasses,
-            SinglePass,
-            SinglePassCalcVerticle
-        }
-
-        [Serializable]
-        public class Settings
-        {
-            public ComputeShader ssprCS;
-
-            [Header("Options")]
-            public string reflectionTextureName = "_ReflectionTexture";
-            public Vector3 planeLocation = new Vector3(0,0.01f,0);
-            public Quaternion planeRotation = Quaternion.identity;
-            public float fading = 10;
-
-            [Header("Stretch Options")]
-            public bool isApplyStretch;
-            public float stretchThreshold = 0.95f, stretchIntensity = 1;
-
-            [Header("Key Options")]
-            public RunMode runMode;
-            public bool runModeAuto = true;
-            public bool isFixedHoleInHashMode;
-
-            [Header("control buffer's resolution")]
-            [Range(0,2)]public int downSamples;
-            [Header("Blur")]
-            public bool isApplyBlur;
-            public BlurPassMode blurPassMode;
-            public Material blurMat;
-            [Min(1)]public float blurSize=1;
-            [Range(2,10)]public int stepCount=10;
-
-            [Header("Render")]
-            public RenderPassEvent renderEvent = RenderPassEvent.AfterRenderingSkybox;
-            public int renderEventOffset = 0;
-            public string gameCameraTag = "MainCamera";
-        }
         class SSPRPass : ScriptableRenderPass
         {
-            public Settings settings;
+            public SSPRSettingSO settings;
 
             int 
                 _TexSize = Shader.PropertyToID(nameof(_TexSize)),
@@ -423,26 +389,33 @@ using UnityEngine.Rendering.Universal;
         }
 
         SSPRPass ssprPass;
-        public Settings settings = new Settings();
+
+        [EditorSettingSO(typeof(SSPRSettingSO))]
+        public SSPRSettingSO settingSO;
 
         /// <inheritdoc/>
         public override void Create()
         {
-            ssprPass = new SSPRPass() { settings = settings };
-
-            // Configures where the render pass should be injected.
-            ssprPass.renderPassEvent = settings.renderEvent + settings.renderEventOffset;
         }
 
         // Here you can inject one or multiple render passes in the renderer.
-        // This method is called when settings up the renderer once per-camera.
+        // This method is called when settingSO up the renderer once per-camera.
         public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
         {
+            if (settingSO == null)
+                return;
+
             ref var cameraData = ref renderingData.cameraData;
-            var enabled = string.IsNullOrEmpty(settings.gameCameraTag) ? true:cameraData.camera.CompareTag(settings.gameCameraTag) ;
+            var enabled = string.IsNullOrEmpty(settingSO.gameCameraTag) ? true:cameraData.camera.CompareTag(settingSO.gameCameraTag) ;
             enabled = enabled || cameraData.cameraType != CameraType.Game;
             if (!enabled)
                 return;
+
+            if (ssprPass == null)
+                ssprPass = new SSPRPass();
+
+            ssprPass.settings = settingSO;
+            ssprPass.renderPassEvent = settingSO.renderEvent + settingSO.renderEventOffset;
 
             renderer.EnqueuePass(ssprPass);
         }
