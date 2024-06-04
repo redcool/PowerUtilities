@@ -21,7 +21,8 @@ namespace PowerUtilities.RenderFeatures
         [Range(0.1f,2)]public float renderScale = 1;
         public override ScriptableRenderPass GetPass() => new CreateRenderTargetPass(this);
 
-        public static List<CreateRenderTarget> instanceList = new List<CreateRenderTarget>();
+#if UNITY_EDITOR
+        static List<CreateRenderTarget> instanceList = new List<CreateRenderTarget>();
         public CreateRenderTarget()
         {
             if (!instanceList.Contains(this))
@@ -32,6 +33,9 @@ namespace PowerUtilities.RenderFeatures
         /// updte by CreateRenderTargetPass
         /// </summary>
         public static string[] GetColorTargetNames => instanceList.SelectMany( item=> item.colorTargetInfos,(item, targetInfo )=> targetInfo.name).ToArray();
+#else
+        public static string[] GetColorTargetNames => default;
+#endif
     }
 
     public class CreateRenderTargetPass : SRPPass<CreateRenderTarget>
