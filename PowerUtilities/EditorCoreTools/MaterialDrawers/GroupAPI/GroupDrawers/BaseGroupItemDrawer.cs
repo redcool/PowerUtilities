@@ -8,6 +8,7 @@ namespace PowerUtilities
     using System.Linq;
     using System;
     using UnityEngine.UIElements;
+    using Codice.Client.Common;
 
     /// <summary>
     /// Group Item ui
@@ -40,12 +41,18 @@ namespace PowerUtilities
             return MIN_LINE_HEIGHT;
         }
 
+
         public override void OnGUI(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
         {
             if (!MaterialGroupTools.IsGroupOn(groupName))
                 return;
 
+            var mat = (editor.target as Material);
             var isDisabled = MaterialGroupTools.IsGroupDisabled(groupName);
+
+            //check MaterialDisableGroupDecorator
+            isDisabled = isDisabled || MaterialDisableGroupDecorator.IsPropertyDisabled(editor, prop.name);
+
             EditorGUI.BeginDisabledGroup(isDisabled);
             {
                 if (!string.IsNullOrEmpty(tooltip))
@@ -59,7 +66,7 @@ namespace PowerUtilities
                 // box colors
                 var pos = position;
                 pos.height += 2;
-                EditorGUITools.DrawBoxColors(pos, 2,MaterialGroupTools.GetBackgroundColor(groupName),MaterialGroupTools.GetColumnColor(groupName));
+                EditorGUITools.DrawBoxColors(pos, 2, MaterialGroupTools.GetBackgroundColor(groupName), MaterialGroupTools.GetColumnColor(groupName));
 
                 EditorGUI.indentLevel -= MaterialGroupTools.GroupIndentLevel(groupName);
                 EditorGUIUtility.labelWidth = lastLabelWidth;

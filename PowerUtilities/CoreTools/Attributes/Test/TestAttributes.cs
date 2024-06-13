@@ -105,7 +105,7 @@ namespace PowerUtilities
          EditorDisableGroup
          */
         [EditorHeader("", "EditorDisableGroup")]
-        [EditorDisableGroup]
+        [EditorDisableGroup(targetPropName = "group1On")]
         public string disabledText = "readonly info";
 
         /**

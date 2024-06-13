@@ -17,6 +17,7 @@
     using UnityEngine.SceneManagement;
     using PowerUtilities;
     using Object = UnityEngine.Object;
+    using RenderQueueType = RenderQueueType;
 #if UNITY_2020
     using UniversalRenderer = UnityEngine.Rendering.Universal.ForwardRenderer;
     using Tooltip = PowerUtilities.TooltipAttribute;

@@ -16,7 +16,15 @@ using System.Threading.Tasks;
     {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            EditorGUI.BeginDisabledGroup(true);
+            var attr = attribute as EditorDisableGroupAttribute;
+            var isDisable = string.IsNullOrEmpty(attr.targetPropName);
+            if(!isDisable)
+            {
+                var prop = property.serializedObject.FindProperty(attr.targetPropName);
+                isDisable = prop.intValue == 0;
+            }
+
+            EditorGUI.BeginDisabledGroup(isDisable);
             EditorGUI.PropertyField(position, property, label);
             EditorGUI.EndDisabledGroup();
         }
@@ -28,6 +36,6 @@ using System.Threading.Tasks;
     /// </summary>
     public class EditorDisableGroupAttribute : PropertyAttribute
     {
-
+        public string targetPropName;
     }
 }

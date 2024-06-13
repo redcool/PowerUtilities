@@ -20,31 +20,31 @@ namespace PowerUtilities
         /// <summary>
         /// GetPropertyRect
         /// </summary>
-        static Lazy<MethodInfo> lazyGetPropertyRect = new Lazy<MethodInfo>(() =>
-            typeof(MaterialEditor).GetMethod("GetPropertyRect", BindingFlags.Instance| BindingFlags.NonPublic, null,
+        public static Lazy<MethodInfo> lazyGetPropertyRect = new Lazy<MethodInfo>(() =>
+            typeof(MaterialEditor).GetMethod("GetPropertyRect", BindingFlags.Instance | BindingFlags.NonPublic, null,
                 new[] { typeof(MaterialProperty), typeof(string), typeof(bool) }, null)
         );
-        public static Rect GetPropertyRect(this MaterialEditor editor, MaterialProperty prop, GUIContent label, bool ignoreDrawer) 
+        public static Rect GetPropertyRect(this MaterialEditor editor, MaterialProperty prop, GUIContent label, bool ignoreDrawer)
             => (Rect)lazyGetPropertyRect.Value.Invoke(editor, new object[] { prop, label.text, ignoreDrawer });
 
 
         /// <summary>
         /// DefaultShaderPropertyInternal
         /// </summary>
-        static Lazy<MethodInfo> lazyDefaultShaderPropertyInternal = new Lazy<MethodInfo>(() =>
-            typeof(MaterialEditor).GetMethod("DefaultShaderPropertyInternal", BindingFlags.Instance|BindingFlags.NonPublic, null,
+        public static Lazy<MethodInfo> lazyDefaultShaderPropertyInternal = new Lazy<MethodInfo>(() =>
+            typeof(MaterialEditor).GetMethod("DefaultShaderPropertyInternal", BindingFlags.Instance | BindingFlags.NonPublic, null,
                 new[] { typeof(MaterialProperty), typeof(GUIContent) }, null)
             );
-        static Lazy<MethodInfo> lazyDefaultShaderPropertyInternal3 = new Lazy<MethodInfo>(() =>
-            typeof(MaterialEditor).GetMethod("DefaultShaderPropertyInternal", BindingFlags.Instance|BindingFlags.NonPublic, null,
-                new[] {typeof(Rect), typeof(MaterialProperty), typeof(GUIContent) }, null)
+        public static Lazy<MethodInfo> lazyDefaultShaderPropertyInternal3 = new Lazy<MethodInfo>(() =>
+            typeof(MaterialEditor).GetMethod("DefaultShaderPropertyInternal", BindingFlags.Instance | BindingFlags.NonPublic, null,
+                new[] { typeof(Rect), typeof(MaterialProperty), typeof(GUIContent) }, null)
             );
         public static void DefaultShaderPropertyInternal(this MaterialEditor editor, MaterialProperty prop, GUIContent label)
             => lazyDefaultShaderPropertyInternal.Value.Invoke(editor, new object[] { prop, label });
-        public static void DefaultShaderPropertyInternal(this MaterialEditor editor,Rect position, MaterialProperty prop, GUIContent label)
-            => lazyDefaultShaderPropertyInternal3.Value.Invoke(editor, new object[] { position,prop, label });
+        public static void DefaultShaderPropertyInternal(this MaterialEditor editor, Rect position, MaterialProperty prop, GUIContent label)
+            => lazyDefaultShaderPropertyInternal3.Value.Invoke(editor, new object[] { position, prop, label });
 
-        static Lazy<Assembly> lazyCoreModule = new Lazy<Assembly>(() =>
+        public static Lazy<Assembly> lazyCoreModule = new Lazy<Assembly>(() =>
             AppDomain.CurrentDomain.GetAssemblies().Where(item => item.FullName.Contains("UnityEditor.CoreModule")).FirstOrDefault()
         );
 
@@ -65,16 +65,20 @@ namespace PowerUtilities
             }
             */
 
-            var coreModule = lazyCoreModule.Value;
-            if (coreModule == null)
-                return false;
+            //var coreModule = lazyCoreModule.Value;
+            //if (coreModule == null)
+            //    return false;
 
-            var handlerType = coreModule.GetType("UnityEditor.MaterialPropertyHandler");
-            // get handler
-            var GetHandleFunc = handlerType.GetMethod("GetHandler", BindingFlags.Static| BindingFlags.NonPublic, null, new[] { typeof(Shader), typeof(string) }, null);
-            var handlerInst = GetHandleFunc.Invoke(null, new object[] { ((Material)editor.target).shader, prop.name });
-            if (handlerInst == null)
-                return false;
+            //var handlerType = coreModule.GetType("UnityEditor.MaterialPropertyHandler");
+            //// get handler
+            //var GetHandleFunc = handlerType.GetMethod("GetHandler", BindingFlags.Static| BindingFlags.NonPublic, null, new[] { typeof(Shader), typeof(string) }, null);
+            //var handlerInst = GetHandleFunc.Invoke(null, new object[] { ((Material)editor.target).shader, prop.name });
+            //if (handlerInst == null)
+            //    return false;
+
+            object handlerInst = null;
+            Type handlerType = null;
+            MaterialPropertyHandlerTools.TryGetMaterialPropertyHandler(ref handlerType, ref handlerInst, ((Material)editor.target).shader, prop.name);
 
             // call OnGUI
             var paramObjs = new object[] { position, prop, (label.text != null) ? label : new GUIContent(prop.displayName), editor };
@@ -109,11 +113,11 @@ namespace PowerUtilities
         /// <param name="label"></param>
         /// <param name="indent"></param>
         /// <param name="applyMaterialPropertyDraw">true, MaterialPropertyDraw call will dead loop,unity crash</param>
-        public static void ShaderProperty(this MaterialEditor editor,Rect position, MaterialProperty prop, GUIContent label, int indent = 0, bool applyMaterialPropertyDraw = true)
+        public static void ShaderProperty(this MaterialEditor editor, Rect position, MaterialProperty prop, GUIContent label, int indent = 0, bool applyMaterialPropertyDraw = true)
         {
-            EditorGUI.indentLevel+=indent;
+            EditorGUI.indentLevel += indent;
             DrawShaderProperty();
-            EditorGUI.indentLevel-=indent;
+            EditorGUI.indentLevel -= indent;
 
             void DrawShaderProperty()
             {
@@ -171,11 +175,52 @@ namespace PowerUtilities
             bool scaleOffset = (prop.flags & MaterialProperty.PropFlags.NoScaleOffset) == 0;
             return TextureProperty(editor, position, prop, label);
         }
-        public static Texture TextureProperty(this MaterialEditor editor,Rect position, MaterialProperty prop, GUIContent label)
+        public static Texture TextureProperty(this MaterialEditor editor, Rect position, MaterialProperty prop, GUIContent label)
         {
             bool scaleOffset = (prop.flags & MaterialProperty.PropFlags.NoScaleOffset) == 0;
             return editor.TextureProperty(position, prop, label.text, label.tooltip, scaleOffset);
         }
+
+        public static bool HasPropertyAttribute(this MaterialEditor editor, string propName,string attrName)
+        {
+            var shader = ((Material)editor.target).shader;
+            return shader.HasPropertyAttribute(propName, attrName);
+        }
+
+        public static T[] GetPropertyAttributes<T>(this MaterialEditor editor, string propName)
+            where T : MaterialPropertyDrawer
+        {
+            object handlerInst = null;
+            Type handlerType = null;
+            MaterialPropertyHandlerTools.TryGetMaterialPropertyHandler(ref handlerType, ref handlerInst, ((Material)editor.target).shader, propName);
+
+            var drawers = MaterialPropertyHandlerTools.GetMaterialDecoratorDrawers(handlerInst);
+            return drawers.Where(drawer => drawer.GetType() == typeof(T))
+                .Select(d => (T)d)
+                .ToArray();
+        }
+        /// <summary>
+        /// Get Material property attribute (Decorator)
+        /// </summary>
+        /// <param name="editor"></param>
+        /// <param name="propName"></param>
+        /// <param name="decoratorType"></param>
+        /// <returns></returns>
+        public static T GetPropertyAttribute<T>(this MaterialEditor editor, string propName)
+        where T : MaterialPropertyDrawer
+        {
+            var drawers = GetPropertyAttributes<T>(editor, propName);
+            return drawers.FirstOrDefault();
+        }
+
+
+
+        public static MaterialProperty GetProperty(this MaterialEditor editor, string propName)
+        => MaterialEditor.GetMaterialProperty(editor.targets, propName);
+
+        public static MaterialProperty[] GetProperties(this MaterialEditor editor)
+        => MaterialEditor.GetMaterialProperties(editor.targets);
+
     }
 }
 #endif

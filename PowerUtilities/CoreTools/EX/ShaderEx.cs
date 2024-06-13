@@ -57,5 +57,37 @@ namespace PowerUtilities
                     Shader.DisableKeyword(item);
             }
         }
+
+        /// <summary>
+        /// get materialProperty's attributes
+        /// </summary>
+        /// <param name="shader"></param>
+        /// <param name="propName"></param>
+        /// <returns></returns>
+        public static string[] GetPropertyAttributes(this Shader shader, string propName)
+        {
+            var propIndex = shader.FindPropertyIndex(propName);
+            return shader.GetPropertyAttributes(propIndex);
+        }
+
+        /// <summary>
+        /// materialProperty 's attributes has targetAttribute?
+        /// </summary>
+        /// <param name="shader"></param>
+        /// <param name="propName"></param>
+        /// <param name="attributeName"></param>
+        /// <returns></returns>
+        public static bool HasPropertyAttribute(this Shader shader, string propName, string attributeName)
+        {
+            var attrs = GetPropertyAttributes(shader, propName);
+            foreach (var attr in attrs)
+            {
+                if(attr.Contains(attributeName))
+                    return true;
+            }
+            return false;
+        }
+
+
     }
 }
