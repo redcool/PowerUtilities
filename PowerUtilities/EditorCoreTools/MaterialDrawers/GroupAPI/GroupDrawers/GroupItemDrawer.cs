@@ -12,6 +12,7 @@ namespace PowerUtilities
     /// </summary>
     public class GroupItemDrawer : BaseGroupItemDrawer
     {
+        public GroupItemDrawer() : base("",null) {}
         public GroupItemDrawer(string groupName) : base(groupName, null) { }
         public GroupItemDrawer(string groupName,string tooltip) : base(groupName,tooltip) { }
 

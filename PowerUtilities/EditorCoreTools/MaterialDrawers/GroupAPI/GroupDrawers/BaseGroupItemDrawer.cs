@@ -1,14 +1,8 @@
 #if UNITY_EDITOR
 namespace PowerUtilities
 {
-    using System.Collections;
-    using System.Collections.Generic;
-    using UnityEngine;
     using UnityEditor;
-    using System.Linq;
-    using System;
-    using UnityEngine.UIElements;
-    using Codice.Client.Common;
+    using UnityEngine;
 
     /// <summary>
     /// Group Item ui
