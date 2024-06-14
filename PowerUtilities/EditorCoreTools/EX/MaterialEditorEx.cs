@@ -73,12 +73,13 @@ namespace PowerUtilities
             //// get handler
             //var GetHandleFunc = handlerType.GetMethod("GetHandler", BindingFlags.Static| BindingFlags.NonPublic, null, new[] { typeof(Shader), typeof(string) }, null);
             //var handlerInst = GetHandleFunc.Invoke(null, new object[] { ((Material)editor.target).shader, prop.name });
-            //if (handlerInst == null)
-            //    return false;
 
             object handlerInst = null;
-            Type handlerType = null;
-            MaterialPropertyHandlerTools.TryGetMaterialPropertyHandler(ref handlerType, ref handlerInst, ((Material)editor.target).shader, prop.name);
+            MaterialPropertyHandlerTools.TryGetMaterialPropertyHandler(ref handlerInst, ((Material)editor.target).shader, prop.name);
+            if (handlerInst == null)
+                return false;
+
+            Type handlerType = handlerInst.GetType();
 
             // call OnGUI
             var paramObjs = new object[] { position, prop, (label.text != null) ? label : new GUIContent(prop.displayName), editor };
@@ -175,32 +176,49 @@ namespace PowerUtilities
             bool scaleOffset = (prop.flags & MaterialProperty.PropFlags.NoScaleOffset) == 0;
             return TextureProperty(editor, position, prop, label);
         }
+
         public static Texture TextureProperty(this MaterialEditor editor, Rect position, MaterialProperty prop, GUIContent label)
         {
             bool scaleOffset = (prop.flags & MaterialProperty.PropFlags.NoScaleOffset) == 0;
             return editor.TextureProperty(position, prop, label.text, label.tooltip, scaleOffset);
         }
 
+        /// <summary>
+        /// Check material property has custom attribute (name attrName)
+        /// </summary>
+        /// <param name="editor"></param>
+        /// <param name="propName"></param>
+        /// <param name="attrName"></param>
+        /// <returns></returns>
         public static bool HasPropertyAttribute(this MaterialEditor editor, string propName,string attrName)
         {
             var shader = ((Material)editor.target).shader;
             return shader.HasPropertyAttribute(propName, attrName);
         }
 
+        /// <summary>
+        /// Get material property 's custom attributes (MaterialPropertyDrawer, endWith Decorator)
+        ///
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="editor"></param>
+        /// <param name="propName"></param>
+        /// <returns></returns>
         public static T[] GetPropertyAttributes<T>(this MaterialEditor editor, string propName)
             where T : MaterialPropertyDrawer
         {
             object handlerInst = null;
-            Type handlerType = null;
-            MaterialPropertyHandlerTools.TryGetMaterialPropertyHandler(ref handlerType, ref handlerInst, ((Material)editor.target).shader, propName);
+            var isExist = MaterialPropertyHandlerTools.TryGetMaterialPropertyHandler(ref handlerInst, ((Material)editor.target).shader, propName);
+            if (!isExist)
+                return default;
 
             var drawers = MaterialPropertyHandlerTools.GetMaterialDecoratorDrawers(handlerInst);
             return drawers.Where(drawer => drawer.GetType() == typeof(T))
-                .Select(d => (T)d)
+                .Cast<T>()
                 .ToArray();
         }
         /// <summary>
-        /// Get Material property attribute (Decorator)
+        /// Get Material property first attribute (Decorator)
         /// </summary>
         /// <param name="editor"></param>
         /// <param name="propName"></param>
@@ -214,10 +232,20 @@ namespace PowerUtilities
         }
 
 
-
+        /// <summary>
+        /// Get material property by propName
+        /// </summary>
+        /// <param name="editor"></param>
+        /// <param name="propName"></param>
+        /// <returns></returns>
         public static MaterialProperty GetProperty(this MaterialEditor editor, string propName)
         => MaterialEditor.GetMaterialProperty(editor.targets, propName);
 
+        /// <summary>
+        /// Get material properties
+        /// </summary>
+        /// <param name="editor"></param>
+        /// <returns></returns>
         public static MaterialProperty[] GetProperties(this MaterialEditor editor)
         => MaterialEditor.GetMaterialProperties(editor.targets);
 

@@ -12,15 +12,26 @@ namespace PowerUtilities
 {
     public static class MaterialPropertyHandlerTools
     {
+        static Type handlerType;
         public static Type GetMaterialPropertyHandlerType()
         {
+            if (handlerType != null)
+                return handlerType;
+
             var coreModule = MaterialEditorEx.lazyCoreModule.Value;
-            var handlerType = coreModule.GetType("UnityEditor.MaterialPropertyHandler");
+            handlerType = coreModule.GetType("UnityEditor.MaterialPropertyHandler");
             return handlerType;
         }
 
-
-        public static bool TryGetMaterialPropertyHandler(ref Type handlerType,ref object handlerInst, Shader shader,string propName)
+        /// <summary>
+        /// Get shader.property 's MaterialPropertyHandler
+        /// return false(handlerInst null) when no custom material attribute
+        /// </summary>
+        /// <param name="handlerInst"></param>
+        /// <param name="shader"></param>
+        /// <param name="propName"></param>
+        /// <returns></returns>
+        public static bool TryGetMaterialPropertyHandler(ref object handlerInst, Shader shader,string propName)
         {
             /** ( draw material attribute ) original version
             MaterialPropertyHandler handler = MaterialPropertyHandler.GetHandler(((Material)base.target).shader, prop.name);
@@ -38,10 +49,11 @@ namespace PowerUtilities
             if (coreModule == null)
                 return false;
 
-            handlerType = GetMaterialPropertyHandlerType();
+            var handlerType = GetMaterialPropertyHandlerType();
+            handlerInst = handlerType.InvokeMethod("GetHandler", new[] { typeof(Shader), typeof(string) } , null, new object[] { shader, propName });
             // get handler
-            var GetHandleFunc = handlerType.GetMethod("GetHandler", BindingFlags.Static | BindingFlags.NonPublic, null, new[] { typeof(Shader), typeof(string) }, null);
-            handlerInst = GetHandleFunc.Invoke(null, new object[] { shader,propName});
+            //var GetHandleFunc = handlerType.GetMethod("GetHandler", BindingFlags.Static | BindingFlags.NonPublic, null, new[] { typeof(Shader), typeof(string) }, null);
+            //handlerInst = GetHandleFunc.Invoke(null, new object[] { shader,propName});
             return handlerInst != null;
         }
         /// <summary>
