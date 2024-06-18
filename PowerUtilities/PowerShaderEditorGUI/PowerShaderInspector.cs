@@ -104,7 +104,7 @@ namespace PowerUtilities
                 return;
             }
 
-            EditorGUILayout.BeginVertical("Box");
+            //EditorGUILayout.BeginVertical("Box");
             {
                 DrawPageTabs();
 
@@ -112,7 +112,7 @@ namespace PowerUtilities
                 DrawPageDetails(materialEditor, mat);
                 EditorGUILayout.EndVertical();
             }
-            EditorGUILayout.EndVertical();
+            //EditorGUILayout.EndVertical();
 
             DrawSyncProperties(mat);
         }

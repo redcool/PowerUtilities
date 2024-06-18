@@ -24,6 +24,8 @@
 
         RenderTexture bigShadowMap;
 
+        CommandBuffer cmd;
+
         /// <summary>
         /// when stop play in Editor, bigShadowMap will be destroy
         /// need call Execute again
@@ -69,38 +71,74 @@
         {
             if (!settingSO)
                 return;
+            
+            if (cmd == null)
+                cmd = new CommandBuffer { name = nameof(DrawShadow) };
 
-            ref var cameraData = ref renderingData.cameraData;
-            var cmd = CommandBufferPool.Get();
+
             cmd.BeginSampleExecute(nameof(DrawShadow), ref context);
 
             SetupBigShadowMap(cmd, ref renderingData);
             SetBigShadowMapTarget(cmd);
-
-            float4x4 view, proj;
-            SetupVp(cmd, out view, out proj);
-
-
-            // --- setup vp,viewport
-            cmd.SetViewport(new Rect(0, 0, (int)settingSO.res, (int)settingSO.res));
-            cmd.SetViewProjectionMatrices(view, proj);
-            cmd.Execute(ref context);
-
-            //----------- draw objects
-            DrawingSettings drawSettings = SetupDrawSettings(ref renderingData);
-
-            var renderQueueRange = settingSO.drawTransparents ? RenderQueueRange.all : RenderQueueRange.opaque;
-            var filterSettings = new FilteringSettings(renderQueueRange, settingSO.layers);
-            context.DrawRenderers(cmd, renderingData.cullResults, ref drawSettings, ref filterSettings);
-
-
-            cmd.DisableScissorRect();
-            cmd.SetViewProjectionMatrices(cameraData.GetViewMatrix(), cameraData.GetProjectionMatrix());
+            DrawShadows(context,ref renderingData);
 
             cmd.EndSampleExecute(nameof(DrawShadow), ref context);
-            CommandBufferPool.Release(cmd);
+        }
 
-            //====================== methods
+        public void DrawShadows(ScriptableRenderContext context, ref RenderingData renderingData)
+        {
+            /*** 
+             * rowCount {1,2,4,8}, tileCount = rowCount * rowCount
+             * 
+             * rowId,colId
+             *  2 3
+             *  0 1
+             * */
+            var rowCount = 1;
+            var tileRes = (int)settingSO.res / rowCount;
+            var tileStart = new Vector2Int(0, 0);
+            var rowId = tileStart.x / tileRes;
+            var colId = tileStart.y / tileRes;
+
+            /**
+             Setup view,proj,
+
+             */
+            float4x4 view, proj;
+            SetupVp(cmd, out view, out proj, out var lightForward);
+
+
+            DrawShadowRenderers(ref renderingData);
+
+            /**
+             transform (proj,view) to shadowMapTexture' space[0,tileRes]
+             */
+            var atlasMat = TransformVPToShadowTextureSpace(ref view, ref proj, rowCount, rowId, colId);
+            SendBigShadowVariables(cmd, atlasMat, proj, lightForward);
+
+            //====================== inner methods
+
+            void DrawShadowRenderers(ref RenderingData renderingData)
+            {
+                ref var cameraData = ref renderingData.cameraData;
+
+                // --- setup vp,viewport
+                cmd.SetViewport(new Rect(tileStart.x, tileStart.y, tileRes, tileRes));
+                cmd.SetViewProjectionMatrices(view, proj);
+                cmd.Execute(ref context);
+
+                //----------- draw objects
+                DrawingSettings drawSettings = SetupDrawSettings(ref renderingData);
+
+                var renderQueueRange = settingSO.drawTransparents ? RenderQueueRange.all : RenderQueueRange.opaque;
+                var filterSettings = new FilteringSettings(renderQueueRange, settingSO.layers);
+                context.DrawRenderers(cmd, renderingData.cullResults, ref drawSettings, ref filterSettings);
+
+
+                cmd.DisableScissorRect();
+                cmd.SetViewProjectionMatrices(cameraData.GetViewMatrix(), cameraData.GetProjectionMatrix());
+
+            }
 
             DrawingSettings SetupDrawSettings(ref RenderingData renderingData)
             {
@@ -120,12 +158,12 @@
             }
         }
 
-        private void SetupVp(CommandBuffer cmd, out float4x4 view, out float4x4 proj)
+        private void SetupVp(CommandBuffer cmd, out float4x4 view, out float4x4 proj,out Vector3 lightForward)
         {
             var rot = Quaternion.Euler(settingSO.rot);
-            var forward = rot * Vector3.forward;
+            lightForward = rot * Vector3.forward;
 
-            view = float4x4.LookAt(settingSO.finalLightPos, settingSO.finalLightPos + forward, settingSO.up);
+            view = float4x4.LookAt(settingSO.finalLightPos, settingSO.finalLightPos + lightForward, settingSO.up);
             view = math.fastinverse(view);
 
             if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLCore || SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLES3)
@@ -149,9 +187,11 @@
                 //proj[1][2] *= -1;
                 proj[2][2] = (proj[2][2] * -0.5f);
                 proj[3][2] = (proj[3][2] + 0.5f);
+
             }
 
-            SendBigShadowVariables(cmd, view, proj, forward);
+
+           
         }
 
         float4 CalcShadowBias(float4x4 proj)
@@ -162,6 +202,32 @@
             return bias;
         }
 
+        float4x4 TransformVPToShadowTextureSpace(ref float4x4 view, ref float4x4 proj, int rowCount = 1, int rowId = 0, int colId = 0)
+        {
+            // reverse row2 again, dont need reverse  in shader
+            if (SystemInfo.usesReversedZBuffer)
+            {
+                //proj[0][2] *= -1;
+                //proj[1][2] *= -1;
+                proj[2][2] *= -1;
+                proj[3][2] *= -1;
+            }
+            /*
+             
+             [-w,w] -> [0,1] or tile tileRes in atlasTextureSpace
+             */
+            var tileUVSize = 0.5f;
+            var uvScale = Mathf.Pow(tileUVSize, rowCount);
+            var m = new float4x4(
+                uvScale, 0, 0, uvScale + tileUVSize * rowId,
+                0, uvScale, 0, uvScale + tileUVSize * colId,
+                0, 0, .5f, 0.5f,
+                0, 0, 0, 1
+                );
+
+            return math.mul(m, math.mul(proj, view));
+        }
+
         /// <summary>
         /// send shader variables once.
         /// </summary>
@@ -169,28 +235,14 @@
         /// <param name="view"></param>
         /// <param name="proj"></param>
         /// <param name="forward"></param>
-        private void SendBigShadowVariables(CommandBuffer cmd, float4x4 view, float4x4 proj, float3 forward)
+        private void SendBigShadowVariables(CommandBuffer cmd, float4x4 atlasVPMat, float4x4 proj, float3 forward)
         {
-            // reverse row2 again, dont need reverse  in shader
-            if (SystemInfo.usesReversedZBuffer)
-            {
-                proj[0][2] *= -1;
-                proj[1][2] *= -1;
-                proj[2][2] *= -1;
-                proj[3][2] *= -1;
-            }
-            var halfVec = new float3(.5f, .5f, .5f);
+            cmd.SetGlobalMatrix(_BigShadowVP, atlasVPMat);
 
-            var m2 = float4x4.Scale(halfVec);
-            var m1 = float4x4.Translate(halfVec);
-            var m = math.mul(m1, m2);
             var shadowBias = CalcShadowBias(proj);
-
-            cmd.SetGlobalMatrix(_BigShadowVP, math.mul(m, math.mul(proj, view)));
-            cmd.SetGlobalVector(ShaderPropertyIds._LightDirection, new float4(-forward, 0));
             cmd.SetGlobalVector(ShaderPropertyIds._ShadowBias, shadowBias);
+            cmd.SetGlobalVector(ShaderPropertyIds._LightDirection, new float4(-forward, 0));
             cmd.SetGlobalTexture(_BigShadowMap, bigShadowMap);
-            cmd.SetGlobalVector(_CustomShadowBias, shadowBias);
             cmd.SetGlobalInt(_BigShadowOn, 1);
         }
 
