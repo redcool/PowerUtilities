@@ -7,14 +7,21 @@
     using UnityEngine;
 
     /// <summary>
-    /// show GraphicsFormat in SearchWindow
+    /// show Enum in SearchWindow(like GraphicsFormat)
     /// </summary>
     [AttributeUsage(AttributeTargets.Field)]
-    public class GraphicsFormatSearchableAttribute : PropertyAttribute
+    public class EnumSearchableAttribute : PropertyAttribute
     {
+        public Type enumType;
+
         /// <summary>
         /// read GraphicsFormat.txt
         /// </summary>
         public bool isReadTextFile=true;
+
+        public EnumSearchableAttribute(Type enumType)
+        {
+            this.enumType = enumType;
+        }
     }
 }

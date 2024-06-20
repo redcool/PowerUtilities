@@ -13,7 +13,12 @@ namespace PowerUtilities
 
     //[SOAssetPath("Assets/PowerUtilities/GraphicsFormatSearchProvider.asset")]
     //[ProjectSettingGroup(ProjectSettingGroupAttribute.POWER_UTILS + "/SearchWindows/GraphicsFormatSearchProvider")]
-    public class GraphicsFormatSearchProvider :ScriptableObject, ISearchWindowProvider
+    /// <summary>
+    /// Show Enum in SearchWindow
+    /// 
+    /// GraphicsFormat can use GraphicsFormat.txt specially
+    /// </summary>
+    public class EnumSearchProvider : ScriptableObject, ISearchWindowProvider
     {
         //[LoadAsset("GraphicsFormat.txt")]
         public TextAsset formatTxt;
@@ -24,11 +29,16 @@ namespace PowerUtilities
         public bool isReadTextFile = true;
 
         /// <summary>
+        /// show enum to SearchWindow
+        /// </summary>
+        public Type enumType;
+
+        /// <summary>
         /// int is GraphicsFormat's value
         /// </summary>
         public Action<int> onSelectedChanged;
 
-        public List<SearchTreeEntry> treeList = new();
+        public List<SearchTreeEntry> graphicsFormatTreeList = new();
 
         public class GraphicsFormatInfo
         {
@@ -66,7 +76,7 @@ namespace PowerUtilities
             formatTxt = AssetDatabaseTools.FindAssetPathAndLoad<TextAsset>(out _, "GraphicsFormat", ".txt", true);
         }
 
-        public void ParseTxt(string formatText,out Dictionary<GraphicsFormatType,List<GraphicsFormatInfo>> infoDict)
+        public void ParseTxt(string formatText, out Dictionary<GraphicsFormatType, List<GraphicsFormatInfo>> infoDict)
         {
             infoDict = new();
 
@@ -90,7 +100,7 @@ namespace PowerUtilities
 
                     // normal format str
                     var kv = line.Split('=');
-                    if(kv.Length == 2)
+                    if (kv.Length == 2)
                     {
                         var formatName = kv[0];
                         var formatValueStr = kv[1];
@@ -118,7 +128,7 @@ namespace PowerUtilities
         /// </summary>
         /// <param name="infoDict"></param>
         /// <param name="formatInfo"></param>
-        private void AddToInfoDict(Dictionary<GraphicsFormatType, List<GraphicsFormatInfo>> infoDict,GraphicsFormatInfo formatInfo)
+        private void AddToInfoDict(Dictionary<GraphicsFormatType, List<GraphicsFormatInfo>> infoDict, GraphicsFormatInfo formatInfo)
         {
             var formatName = formatInfo.name;
 
@@ -133,12 +143,12 @@ namespace PowerUtilities
 
             // combine type to array
             var formatEnumId = new[] { isColorFormat, isDepthFormat, isVideoFormat, isDXT, isPVRTC, isETC, isASTC }
-            .Select((isFormat,id)=> isFormat? id+1 : 0)
+            .Select((isFormat, id) => isFormat ? id + 1 : 0)
             .Sum();
-            
+
             var formatType = (GraphicsFormatType)formatEnumId;
 
-            if(!infoDict.ContainsKey(formatType) )
+            if (!infoDict.ContainsKey(formatType))
             {
                 infoDict[formatType] = new List<GraphicsFormatInfo>();
             }
@@ -159,7 +169,8 @@ namespace PowerUtilities
 
             //// show in first page
             var noneFormat = infoDict[GraphicsFormatType.None].FirstOrDefault();
-            list.Add(new SearchTreeEntry(new GUIContent(noneFormat.name, noneFormat.desc)) {
+            list.Add(new SearchTreeEntry(new GUIContent(noneFormat.name, noneFormat.desc))
+            {
                 level = 1,
                 userData = 0
             });
@@ -186,32 +197,24 @@ namespace PowerUtilities
             return true;
         }
 
-        public void FillWithGraphicsFormatNames(ref  List<SearchTreeEntry> list)
-        {
-            var names = Enum.GetNames(typeof(GraphicsFormat));
-            list.Add(new SearchTreeGroupEntry(new GUIContent("GraphicsFormat")));
-
-            foreach (var name in names)
-            {
-                list.Add(new SearchTreeEntry(new GUIContent(name,name))
-                {
-                    level = 1,
-                    userData = Enum.Parse(typeof(GraphicsFormat), name)
-                });
-            }
-        }
 
         public List<SearchTreeEntry> CreateSearchTree(SearchWindowContext context)
         {
-            if (treeList.Count > 0)
-                return treeList;
-
-            if (!isReadTextFile || !TryParseGraphicsFormatTxtFillList(ref treeList))
+            // for GraphicsFormat
+            if (enumType == typeof(GraphicsFormat) && isReadTextFile)
             {
-                FillWithGraphicsFormatNames(ref treeList);
+                if (graphicsFormatTreeList.Count == 0)
+                    TryParseGraphicsFormatTxtFillList(ref graphicsFormatTreeList);
+                return graphicsFormatTreeList;
+            }
+            else
+            {
+                var list = new List<SearchTreeEntry>();
+                // Enum
+                SearchWindowProviderTools.FillWithEnum(ref list, enumType);
+                return list;
             }
 
-            return treeList;
         }
 
         public bool OnSelectEntry(SearchTreeEntry SearchTreeEntry, SearchWindowContext context)
