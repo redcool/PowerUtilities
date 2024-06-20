@@ -16,14 +16,14 @@ namespace PowerUtilities
     {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            TryLoadAsset(property);
+            TryLoadAsset(property, attribute);
 
             EditorGUI.BeginProperty(position, label, property);
             EditorGUI.PropertyField(position, property, label, true);
             EditorGUI.EndProperty();
         }
 
-        private void TryLoadAsset(SerializedProperty prop)
+        public static void TryLoadAsset(SerializedProperty prop,PropertyAttribute attribute)
         {
             if (prop.objectReferenceValue)
                 return;
@@ -32,14 +32,19 @@ namespace PowerUtilities
 
             var pathOrName = attr.assetPathOrName;
 
+            // load with name
             if (!pathOrName.StartsWith("Assets"))
             {
                 var name = Path.GetFileNameWithoutExtension(pathOrName);
                 var extName = Path.GetExtension(pathOrName);
 
-                AssetDatabaseTools.FindAssetPathAndLoad<Object>(out pathOrName, name, extName, true);
+                prop.objectReferenceValue = AssetDatabaseTools.FindAssetPathAndLoad<Object>(out pathOrName, name, extName, true);
             }
-            prop.objectReferenceValue = AssetDatabase.LoadAssetAtPath<Object>(pathOrName);
+            else
+            {
+                // load with Assets path
+                prop.objectReferenceValue = AssetDatabase.LoadAssetAtPath<Object>(pathOrName);
+            }
         }
     }
 }

@@ -13,6 +13,7 @@
         public string name;
 
         [Tooltip("rt format")]
+        [GraphicsFormatSearchable]
         public GraphicsFormat format = GraphicsFormat.R8G8B8A8_SNorm;
 
         [Tooltip("create renderTexture when check,otherwist GetTemporaryRT")]
