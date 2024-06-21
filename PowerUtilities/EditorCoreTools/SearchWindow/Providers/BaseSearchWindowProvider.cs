@@ -29,6 +29,7 @@ namespace PowerUtilities
 
         public override bool OnSelectEntry(SearchTreeEntry SearchTreeEntry, SearchWindowContext context)
         {
+            //Debug.Log(SearchTreeEntry.userData +"  : "+typeof(T) +":"+ SearchTreeEntry.userData.GetType());
             onSelectedChanged?.Invoke((T)SearchTreeEntry.userData);
             return true;
         }

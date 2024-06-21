@@ -11,22 +11,23 @@ namespace PowerUtilities
     public class StringListSearchProvider<T> : BaseSearchWindowProvider<(string,T)>
     {
 
-        public List<(string name,T userData)> itemList = new();
         /// <summary>
         /// fill List<SearchTreeEntry> 
         /// </summary>
-        public List<(string name,object userData)> itemListTest = new ()
-        {
-            new (){name="a/b/1",userData= 1 },
-            new (){name="a/b/2",userData= 2 },
-            new() { name = "a/1", userData = 3 },
-        };
+        public List<(string name,T userData)> itemList = new();
+
+        //public List<(string name,object userData)> itemListTest = new ()
+        //{
+        //    new (){name="a/b/1",userData= 1 },
+        //    new (){name="a/b/2",userData= 2 },
+        //    new() { name = "a/1", userData = 3 },
+        //};
 
 
         public List<SearchTreeEntry> Parse(List<(string name,T userData)> strList)
         {
             var sb = new StringBuilder();
-            Dictionary<string, (string name, int levelId, bool isGroup,object userData)> groupNameIdDict = new();
+            Dictionary<string, (string name, int levelId, bool isGroup,T userData)> groupNameIdDict = new();
 
             var list = new List<SearchTreeEntry>();
             // fill search window title

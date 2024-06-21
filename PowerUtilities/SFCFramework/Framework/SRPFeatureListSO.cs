@@ -86,10 +86,9 @@
                 {
                     windowTitle = "SFC Feature",
                     itemList = featureNameTypeList,
-                    onSelectedChanged = item =>
+                    onSelectedChanged = ((string name,Type type)itemInfo) =>
                     {
-                        var info = ((string name, object type))item;
-                        var passType = (Type)info.type;
+                        var passType = itemInfo.type;
                         CreateSFCPassAsset(passType, inst);
                     },
                 });
