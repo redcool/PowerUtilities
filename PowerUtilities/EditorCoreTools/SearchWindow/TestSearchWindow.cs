@@ -1,5 +1,6 @@
 namespace PowerUtilities
 {
+    using System;
     using System.Collections;
     using System.Collections.Generic;
 #if UNITY_EDITOR
@@ -21,12 +22,20 @@ namespace PowerUtilities
             GUILayout.EndHorizontal();
             if (isClicked)
             {
-                SearchWindow.Open(new SearchWindowContext(GUIUtility.GUIToScreenPoint(Event.current.mousePosition)), new StringListSearchProvider()
+                SearchWindowTools.OpenSearchWindow( new StringListSearchProvider<object>()
                 {
-                    onSetIndex = (name) =>
+                    windowTitle = "stringList",
+                    itemList = new()
                     {
-                        selectedItem = name;
-                        Debug.Log(name);
+                        new (){name="a/b/1",userData= 1 },
+                        new (){name="a/b/2",userData= 2 },
+                        new() { name = "a/1", userData = 3 },
+                    },
+                    
+                    onSelectedChanged = ((string name,object userData)infoItem) =>
+                    {
+                        selectedItem = infoItem.name +":"+ infoItem.userData;
+                        Debug.Log(selectedItem);
                     }
                 });
             }

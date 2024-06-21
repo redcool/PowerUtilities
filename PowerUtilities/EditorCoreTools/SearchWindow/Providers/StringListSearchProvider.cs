@@ -8,29 +8,33 @@ namespace PowerUtilities
     using UnityEditor.Experimental.GraphView;
     using UnityEngine;
 
-    public class StringListSearchProvider : ScriptableObject, ISearchWindowProvider
+    public class StringListSearchProvider<T> : BaseSearchWindowProvider<(string,T)>
     {
-        public List<string> items = new()
+
+        public List<(string name,T userData)> itemList = new();
+        /// <summary>
+        /// fill List<SearchTreeEntry> 
+        /// </summary>
+        public List<(string name,object userData)> itemListTest = new ()
         {
-            "a/b/1",
-            "a/b/2",
-            "a/1",
+            new (){name="a/b/1",userData= 1 },
+            new (){name="a/b/2",userData= 2 },
+            new() { name = "a/1", userData = 3 },
         };
 
-        public Action<string> onSetIndex;
 
-
-        public List<SearchTreeEntry> GetSearchTreeList(List<string> strList, string title = "No Title")
+        public List<SearchTreeEntry> Parse(List<(string name,T userData)> strList)
         {
             var sb = new StringBuilder();
-            Dictionary<string, (string name, int id, bool isGroup)> groupNameIdDict = new();
+            Dictionary<string, (string name, int levelId, bool isGroup,object userData)> groupNameIdDict = new();
 
             var list = new List<SearchTreeEntry>();
             // fill search window title
-            list.Add(new SearchTreeGroupEntry(new GUIContent(title), 0));
+            list.Add(new SearchTreeGroupEntry(new GUIContent(windowTitle), 0));
 
-            foreach (var strItem in strList)
+            foreach (var infoItem in strList)
             {
+                var strItem = infoItem.name;
                 var items = strItem.SplitBy('/');
 
                 for (int i = 0; i < items.Length; i++)
@@ -42,7 +46,7 @@ namespace PowerUtilities
                     {
                         sb.Append(items[j]);
                     }
-                    groupNameIdDict[sb.ToString()] = (itemName, i + 1, i < items.Length - 1);
+                    groupNameIdDict[sb.ToString()] = (itemName, i + 1, i < items.Length - 1,infoItem.userData);
                     sb.Clear();
                 }
             }
@@ -50,24 +54,19 @@ namespace PowerUtilities
             foreach (var infoItem in groupNameIdDict.Values)
             {
                 var entry = infoItem.isGroup ? new SearchTreeGroupEntry(new GUIContent(infoItem.name)) : new SearchTreeEntry(new GUIContent(infoItem.name));
-                entry.level = infoItem.id;
-                entry.userData = infoItem.name;
+                entry.level = infoItem.levelId;
+                entry.userData = (infoItem.name, infoItem.userData);
                 list.Add(entry);
             }
             return list;
         }
 
-        public List<SearchTreeEntry> CreateSearchTree(SearchWindowContext context)
+        public override List<SearchTreeEntry> CreateSearchTree(SearchWindowContext context)
         {
-            var list = GetSearchTreeList(items);
+            var list = Parse(itemList);
             return list;
         }
 
-        public bool OnSelectEntry(SearchTreeEntry searchTreeEntry, SearchWindowContext context)
-        {
-            onSetIndex?.Invoke((string)searchTreeEntry.userData);
-            return true;
-        }
     }
 }
 #endif

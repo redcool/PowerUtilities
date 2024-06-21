@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace PowerUtilities
 {
-    public static class SearchWindowProviderTools
+    public static class SearchWindowTools
     {
 
         public static void FillWithEnum(ref List<SearchTreeEntry> list, Type enumType)
@@ -25,6 +25,17 @@ namespace PowerUtilities
                     userData = Enum.Parse(enumType, name)
                 });
             }
+        }
+
+        public static void OpenSearchWindow<T>(Vector2 screenPos,T provider) where T : BaseSearchWindowProvider
+        {
+            SearchWindow.Open(new SearchWindowContext(screenPos), provider);
+        }
+
+        public static void OpenSearchWindow<T>(T provider) where T : BaseSearchWindowProvider
+        {
+            var pos = GUIUtility.GUIToScreenPoint(Event.current.mousePosition);
+            SearchWindow.Open(new SearchWindowContext(pos), provider);
         }
     }
 }

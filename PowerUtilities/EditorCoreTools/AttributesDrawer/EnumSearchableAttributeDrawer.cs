@@ -28,12 +28,12 @@ namespace PowerUtilities
             {
                 var provider = new EnumSearchProvider()
                 {
-
+                    windowTitle = attr.enumType.Name,
                     isReadTextFile = attr.isReadTextFile,
                     onSelectedChanged = enumValue =>
                     {
                         property.serializedObject.Update();
-                        property.enumValueIndex = enumValue;
+                        property.enumValueIndex = (int)enumValue;
                         property.serializedObject.ApplyModifiedProperties();
                     },
                     enumType = attr.enumType,

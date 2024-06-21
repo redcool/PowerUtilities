@@ -23,7 +23,10 @@
 
         IEnumerable<Type> srpFeatureTypes;
 
-        GenericMenu createPassMenu;
+        //GenericMenu createPassMenu;
+
+        //{typeName for display, type : for userData}
+        List<(string featureName,Type featureType)> featureNameTypeList = new();
 
         private void OnEnable()
         {
@@ -31,7 +34,17 @@
             var inst = serializedObject.targetObject as SRPFeatureListSO;
             srpFeatureTypes = ReflectionTools.GetTypesDerivedFrom<SRPFeature>();
 
-            createPassMenu = CreateAddSFCPassMenu(srpFeatureTypes, inst);
+            //createPassMenu = CreateAddSFCPassMenu(srpFeatureTypes, inst);
+            SetupFreatureNameList();
+        }
+
+        private void SetupFreatureNameList()
+        {
+            featureNameTypeList.Clear();
+            foreach (var type in srpFeatureTypes)
+            {
+                featureNameTypeList.Add((type.Name,type));
+            }
         }
 
         public override void DrawInspectorUI(SRPFeatureListSO inst)
@@ -67,7 +80,19 @@
         {
             if (GUILayout.Button("Add SFC Pass"))
             {
-                createPassMenu.ShowAsContext();
+                var inst = serializedObject.targetObject as SRPFeatureListSO;
+                //createPassMenu.ShowAsContext();
+                SearchWindowTools.OpenSearchWindow(new StringListSearchProvider<Type>()
+                {
+                    windowTitle = "SFC Feature",
+                    itemList = featureNameTypeList,
+                    onSelectedChanged = item =>
+                    {
+                        var info = ((string name, object type))item;
+                        var passType = (Type)info.type;
+                        CreateSFCPassAsset(passType, inst);
+                    },
+                });
             }
         }
 

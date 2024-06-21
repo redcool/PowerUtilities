@@ -18,7 +18,7 @@ namespace PowerUtilities
     /// 
     /// GraphicsFormat can use GraphicsFormat.txt specially
     /// </summary>
-    public class EnumSearchProvider : ScriptableObject, ISearchWindowProvider
+    public class EnumSearchProvider : BaseSearchWindowProvider<int>
     {
         //[LoadAsset("GraphicsFormat.txt")]
         public TextAsset formatTxt;
@@ -34,10 +34,8 @@ namespace PowerUtilities
         public Type enumType;
 
         /// <summary>
-        /// int is GraphicsFormat's value
+        /// cached GraphicsFormat.txt
         /// </summary>
-        public Action<int> onSelectedChanged;
-
         public List<SearchTreeEntry> graphicsFormatTreeList = new();
 
         public class GraphicsFormatInfo
@@ -165,7 +163,7 @@ namespace PowerUtilities
 
             ParseTxt(formatTxt.text, out var infoDict);
 
-            list.Add(new SearchTreeGroupEntry(new GUIContent("GraphicsFormat")));
+            list.Add(new SearchTreeGroupEntry(new GUIContent(windowTitle)));
 
             //// show in first page
             var noneFormat = infoDict[GraphicsFormatType.None].FirstOrDefault();
@@ -198,7 +196,7 @@ namespace PowerUtilities
         }
 
 
-        public List<SearchTreeEntry> CreateSearchTree(SearchWindowContext context)
+        public override List<SearchTreeEntry> CreateSearchTree(SearchWindowContext context)
         {
             // for GraphicsFormat
             if (enumType == typeof(GraphicsFormat) && isReadTextFile)
@@ -211,17 +209,12 @@ namespace PowerUtilities
             {
                 var list = new List<SearchTreeEntry>();
                 // Enum
-                SearchWindowProviderTools.FillWithEnum(ref list, enumType);
+                SearchWindowTools.FillWithEnum(ref list, enumType);
                 return list;
             }
 
         }
 
-        public bool OnSelectEntry(SearchTreeEntry SearchTreeEntry, SearchWindowContext context)
-        {
-            onSelectedChanged?.Invoke((int)SearchTreeEntry.userData);
-            return true;
-        }
     }
 }
 #endif
