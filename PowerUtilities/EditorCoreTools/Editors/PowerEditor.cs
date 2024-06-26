@@ -27,22 +27,18 @@ namespace PowerUtilities
         {
             var inst = target as T;
 
-            if(!string.IsNullOrEmpty(TitleHelpStr))
+            if (!string.IsNullOrEmpty(TitleHelpStr))
             {
-                EditorGUITools.BeginVerticalBox(() =>
-                {
+                //EditorGUITools.BeginVerticalBox(() =>
+                //{
                     EditorGUILayout.HelpBox(TitleHelpStr, MessageType.Info);
-                });
+                //});
             }
 
             if (!string.IsNullOrEmpty(Version))
             {
-                var rect = new Rect(80, 8, 100, 18);
-                if (!string.IsNullOrEmpty(TitleHelpStr))
-                {
-                    var lastRect = GUILayoutUtility.GetLastRect();
-                    rect.y += lastRect.max.y;
-                }
+                var lastRect = GUILayoutUtility.GetLastRect();
+                var rect = new Rect(80, lastRect.yMax + 3, 100, 18);
 
                 EditorGUITools.DrawColorLabel(rect, new GUIContent(Version), Color.cyan);
             }
@@ -51,15 +47,14 @@ namespace PowerUtilities
 
             if (NeedDrawDefaultUI())
             {
-                if(DrawDefaultInspector())
+                if (DrawDefaultInspector())
                 {
                     OnInspectorGUIChanged(inst);
                 }
             }
-
+                DrawInspectorUI(inst);
             EditorGUITools.BeginVerticalBox(() =>
             {
-                DrawInspectorUI(inst);
             });
 
             serializedObject.ApplyModifiedProperties();
