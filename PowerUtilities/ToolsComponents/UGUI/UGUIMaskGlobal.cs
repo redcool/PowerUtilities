@@ -45,9 +45,9 @@ using UnityEngine.UI;
         
         public Graphic graphic;
 
-        [Header("Update Partcile")]
-        public bool isUpdateParticleMaterial;
-        bool isUpdateParticleMaterialLast;
+        [Header("Update Renderer's material stencil")]
+        public bool isUpdateRenderersMaterial;
+        bool isUpdateRenderersMatLast;
 
         // Start is called before the first frame update
         void Start()
@@ -57,27 +57,25 @@ using UnityEngine.UI;
 
         void Update()
         {
-            if(isUpdateParticleMaterialLast != isUpdateParticleMaterial)
+            if (CompareTools.CompareAndSet(ref isUpdateRenderersMatLast, ref isUpdateRenderersMaterial))
             {
-                if (!isUpdateParticleMaterial)
-                    UpdateParticleMaterial(CompareFunction.Disabled);
-
-                isUpdateParticleMaterialLast = isUpdateParticleMaterial;
+                if (!isUpdateRenderersMaterial)
+                    UpdateRenderersMaterial(CompareFunction.Disabled);
             }
+
         }
+
 
 #if UNITY_EDITOR
         private void OnValidate()
         {
             UpdateStencilMat();
-            Debug.Log("validate");
         }
 #endif
 
         private void OnTransformChildrenChanged()
         {
             UpdateStencilMat();
-            Debug.Log("children changed");
         }
 
         private void OnDestroy()
@@ -89,7 +87,26 @@ using UnityEngine.UI;
                 uiMatStencilReadInst.Destroy();
         }
 
-        private void UpdateStencilMat()
+
+        private void OnEnable()
+        {
+            SetupStencilMaterials();
+
+            graphic = GetComponent<Graphic>();
+            if (!graphic)
+                graphic = gameObject.AddComponent<RawImage>();
+
+            graphic.material = uiMatStencilWriteInst;
+
+            UpdateStencilMat();
+        }
+
+        private void OnDisable()
+        {
+            UpdateChildrenMat(null);
+        }
+
+        public void UpdateStencilMat()
         {
             if (!uiMatStencilWriteInst || !uiMatStencilReadInst)
                 return;
@@ -108,23 +125,18 @@ using UnityEngine.UI;
         {
             UpdateUIMaterial(stencilMat);
 
-            if(isUpdateParticleMaterial)
-                UpdateParticleMaterial(CompareFunction.Equal);
+            var comp = stencilMat ? CompareFunction.Equal : CompareFunction.Disabled;
+            if (isUpdateRenderersMaterial)
+                UpdateRenderersMaterial(comp);
         }
 
-        private void UpdateParticleMaterial(CompareFunction comp)
+        private void UpdateRenderersMaterial(CompareFunction comp)
         {
-
-            var ps = GetComponentsInChildren<ParticleSystem>();
-            for (int i = 0; i < ps.Length; i++)
+            var rs = GetComponentsInChildren<Renderer>();
+            for (int i = 0; i < rs.Length; i++)
             {
-                var p = ps[i];
-                var pr = p.GetComponent<ParticleSystemRenderer>();
-                var mat = pr.sharedMaterial;
-                if (mat.HasProperty("_Stencil"))
-                    mat.SetFloat("_Stencil", stencilValue);
-                if (mat.HasProperty("_StencilComp"))
-                    mat.SetFloat("_StencilComp",(int)comp);
+                var r = rs[i];
+                r.sharedMaterial.SetStencil(comp, stencilValue);
             }
         }
 
@@ -137,27 +149,6 @@ using UnityEngine.UI;
 
                 item.material = stencilMat;
             }
-        }
-
-        private void OnEnable()
-        {
-            SetupStencilMaterials();
-
-            graphic = GetComponent<Graphic>();
-            if (!graphic)
-                graphic = gameObject.AddComponent<RawImage>();
-
-            graphic.material = uiMatStencilWriteInst;
-
-            UpdateStencilMat();
-        }
-
-        private void OnDisable()
-        {
-            UpdateChildrenMat(null);
-
-            if (isUpdateParticleMaterial)
-                UpdateParticleMaterial(CompareFunction.Disabled);
         }
 
 

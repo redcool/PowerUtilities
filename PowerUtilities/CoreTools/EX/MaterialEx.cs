@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace PowerUtilities
 {
@@ -131,6 +132,16 @@ namespace PowerUtilities
 
         #endregion
 
+        public static void SetStencil(this Material mat, CompareFunction comp, int stencilValue,
+            string stencilPropName = "_Stencil", string stencilCompPropName = "_StencilComp")
+        {
+            if (!mat)
+                return;
 
+            if (mat.HasProperty(stencilPropName))
+                mat.SetFloat(stencilPropName, stencilValue);
+            if (mat.HasProperty(stencilCompPropName))
+                mat.SetFloat(stencilCompPropName, (int)comp);
+        }
     }
 }
