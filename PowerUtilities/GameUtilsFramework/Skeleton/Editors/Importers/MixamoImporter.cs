@@ -9,7 +9,10 @@ using UnityEngine;
 
 namespace GameUtilsFramework
 {
-    public class MixamoImporter : AssetPostprocessor
+    public class MixamoImporter
+    #if MIXAMO_RENAME
+        : AssetPostprocessor
+    #endif
     {
         public static void RemoveMixamoRig(GameObject gameObject)
         {

@@ -18,7 +18,7 @@
         /// </summary>
         public bool isReadTextFile=true;
 
-        public EnumSearchableAttribute(Type enumType)
+        public EnumSearchableAttribute(Type enumType=null)
         {
             this.enumType = enumType;
         }

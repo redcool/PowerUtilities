@@ -3,15 +3,15 @@ namespace PowerUtilities
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+    using System;
 
 #if UNITY_EDITOR
     using UnityEditor;
-    using System;
 
     [CustomPropertyDrawer(typeof(SearchableAttribute))]
     public class SearchableAttributeDrawer : PropertyDrawer
     {
-        private string search;
+        private string search = "";
         private string[] options;
         private GUIStyle searchTextFieldStyle;
 
@@ -27,16 +27,20 @@ using UnityEngine;
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
+            if (position.width < 2)
+                return;
+
             if (property.propertyType == SerializedPropertyType.Enum)
             {
                 if (searchTextFieldStyle == null)
-                    searchTextFieldStyle = GUI.skin.FindStyle("ToolbarSeachTextField");
+                    searchTextFieldStyle = GUI.skin.FindStyle("ToolbarSearchTextField");
 
                 if (options == null)
                     UpdateOptions(property.enumDisplayNames);
 
-                Rect searchRect = new Rect(position.x, position.y, position.width/2, EditorGUIUtility.singleLineHeight);
+                Rect searchRect = new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight);
                 DrawSearchBar(searchRect, label, property.enumDisplayNames);
+            return;
 
                 Rect popupRect = new Rect(position.x + searchRect.height + EditorGUIUtility.standardVerticalSpacing, position.y, position.width/2, EditorGUIUtility.singleLineHeight);
                 DrawEnumPopup(popupRect, property);

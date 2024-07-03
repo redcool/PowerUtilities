@@ -8,7 +8,8 @@ namespace PowerUtilities
 {
     public class TestAttributes : MonoBehaviour
     {
-
+        [Searchable]
+        public PropEnum propEnum1;
         /**
          EditorGroup and EditorGroup(Item)
          */

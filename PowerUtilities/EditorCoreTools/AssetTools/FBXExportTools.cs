@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace PowerUtilities
 {
-    public class FBXExportTools : AssetPostprocessor
+    public class FBXExportTools
     {
 
         public static void ExportModels(bool disableGenerateUV2)

@@ -14,12 +14,16 @@ namespace PowerUtilities
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             var attr = attribute as EnumSearchableAttribute;
-
+            if(attr.enumType == null && property.propertyType == SerializedPropertyType.Enum)
+            {
+                attr.enumType = fieldInfo.FieldType;
+            }
 
             var pos = position;
             pos.width = EditorGUIUtility.labelWidth;
 
             EditorGUI.LabelField(pos, label);
+
             pos.x += pos.width;
             pos.width = position.width - pos.width;
             var isClicked = GUI.Button(pos, Enum.GetName(attr.enumType, property.enumValueIndex), EditorStyles.popup);
@@ -39,7 +43,8 @@ namespace PowerUtilities
                     enumType = attr.enumType,
                 };
 
-                SearchWindow.Open(new SearchWindowContext(GUIUtility.GUIToScreenPoint(Event.current.mousePosition)), provider);
+                var winPos = GUIUtility.GUIToScreenPoint(Event.current.mousePosition);
+                SearchWindow.Open(new SearchWindowContext(winPos), provider);
             }
         }
     }
