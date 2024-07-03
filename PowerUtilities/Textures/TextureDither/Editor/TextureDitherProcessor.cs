@@ -5,13 +5,17 @@ namespace PowerUtilities{
     using System.Collections;
     using System.IO;
 
-    class TextureDitherProcessor : AssetPostprocessor
+    public class TextureDitherProcessor
+#if TEXTURE_DITHER
+        : AssetPostprocessor
+#endif
     {
         bool IsDither(string name)
         {
             var path = Path.GetFileNameWithoutExtension(name);
             return path.EndsWith("Dither");
         }
+#if TEXTURE_DITHER
         void OnPreprocessTexture()
         {
             var importer = (assetImporter as TextureImporter);
@@ -21,7 +25,6 @@ namespace PowerUtilities{
                 importer.textureCompression = TextureImporterCompression.Uncompressed;
             }
         }
-
         void OnPostprocessTexture(Texture2D texture)
         {
             if (!IsDither(assetPath))
@@ -33,8 +36,8 @@ namespace PowerUtilities{
 
             EditorUtility.CompressTexture(texture, TextureFormat.RGBA4444, 100);
         }
-
-        private static void Dither(Texture2D texture)
+#endif
+        public static void Dither(Texture2D texture)
         {
             var texw = texture.width;
             var texh = texture.height;
@@ -117,4 +120,4 @@ namespace PowerUtilities{
         }
     }
 #endif
-}
+    }
