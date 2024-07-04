@@ -38,14 +38,21 @@ namespace PowerUtilities
 
         [Tooltip("Camera's RenderType not Overlay will be filtered")]
         public bool isOverlayCameraOnly=true;
+        [Tooltip("check overley cameras interval time,0 : disable")]
+        [Min(0)]public float updateInterval = 0;
 
         [Header("Cameras Filter")]
-        [Tooltip("gameObject's tag will be filtered, when not empty")]
+        [Tooltip("gameObject's tag will be filtered out, when not empty")]
         public string filterTag;
 
+        [EditorHeader("","Camera's Name")]
         [Tooltip("compare with gameObject's name, when not empty")]
         public string filterName;
         public NameMatchMode matchMode = NameMatchMode.Contains;
+
+
+        Camera mainCam;
+        UniversalAdditionalCameraData mainCamData;
         // Start is called before the first frame update
         void Start()
         {
@@ -53,11 +60,25 @@ namespace PowerUtilities
                 SetCameras();
         }
 
+        private void OnEnable()
+        {
+            if (updateInterval > 0f)
+                InvokeRepeating(nameof(SetCameras), 1, updateInterval);
+        }
+
+        private void OnDisable()
+        {
+            CancelInvoke(nameof(SetCameras));
+        }
+
         public void SetCameras()
         {
-            SetupMain(gameObject,out var mainCam, out var maincamData);
+            if (!enabled)
+                return;
 
-            SetupOverlays(mainCam, maincamData,isOverlayCameraOnly, IsCameraValid);
+            SetupMain(gameObject,out  mainCam, out mainCamData);
+
+            SetupOverlays(mainCam, mainCamData, isOverlayCameraOnly, IsCameraValid);
         }
 
         /// <summary>
