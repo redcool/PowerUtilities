@@ -70,16 +70,19 @@ namespace PowerUtilities
             CancelInvoke(nameof(SetCameras));
         }
 
-        public void SetCameras(bool isForceUpdate=false)
+        public void SetCameras(bool isForceUpdate)
         {
             if (!enabled && !isForceUpdate)
                 return;
-
+            
             SetupMain(gameObject, out mainCam, out mainCamData);
 
             SetupOverlays(mainCam, mainCamData, isOverlayCameraOnly, IsCameraValid);
             SortOverlays(mainCamData.cameraStack);
         }
+
+        public void SetCameras() => SetCameras(false);
+        
 
         /// <summary>
         /// 
