@@ -14,11 +14,19 @@ namespace PowerUtilities
     [CustomEditor(typeof(UniversalAdditionalCameraData))]
     class UniversalAdditionalCameraDataEditorEx : Editor
     {
-
-        readonly GUIContent CamerasContent = new GUIContent("Cameras", "setup overlay cameras,will sync CameraEditor");
+        readonly GUIContent
+            transparentSortModeContent = new GUIContent("TransparentSortMode", "transparent items sorting mode"),
+            transparentSortAxis = new GUIContent("transparentSortAxis", "transparentSort Axis"),
+            opaqueSortModeContent = new GUIContent("opaqueSortMode", "opaque items sorting mode"),
+            cameraDepthContent = new GUIContent("Depth","camera 's rendering order"),
+            camerasContent = new GUIContent("Cameras", "setup overlay cameras,will sync CameraEditor")
+            ;
 
         public override void OnInspectorGUI()
         {
+            var data = target as UniversalAdditionalCameraData;
+            var cam = data.GetComponent<Camera>();
+
             //DrawDefaultInspector();
 
             serializedObject.UpdateIfRequiredOrScript();
@@ -26,34 +34,33 @@ namespace PowerUtilities
             EditorGUI.indentLevel++;
             DrawCameras();
 
+            DrawCameraSortMode(data,cam);
 
-            DrawCameraSortMode();
+            // draw depth
+            cam.depth = EditorGUILayout.FloatField(cameraDepthContent, cam.depth);
 
             EditorGUI.indentLevel--;
 
             serializedObject.ApplyModifiedProperties();
         }
 
-        private void DrawCameraSortMode()
+        private void DrawCameraSortMode(UniversalAdditionalCameraData data, Camera cam)
         {
-            var data = target as UniversalAdditionalCameraData;
-            var cam = data.GetComponent<Camera>();
-
             EditorGUILayout.LabelField("Sort Mode", EditorStyles.boldLabel);
-            cam.transparencySortMode = (TransparencySortMode)EditorGUILayout.EnumPopup("TransparentSortMode", cam.transparencySortMode);
+            cam.transparencySortMode = (TransparencySortMode)EditorGUILayout.EnumPopup(transparentSortModeContent, cam.transparencySortMode);
 
             if (cam.transparencySortMode == TransparencySortMode.CustomAxis)
             {
-                cam.transparencySortAxis = EditorGUILayout.Vector3Field("transparentSortAxis", cam.transparencySortAxis);
+                cam.transparencySortAxis = EditorGUILayout.Vector3Field(transparentSortAxis, cam.transparencySortAxis);
             }
 
-            cam.opaqueSortMode = (OpaqueSortMode)EditorGUILayout.EnumPopup("opaqueSortMode", cam.opaqueSortMode);
+            cam.opaqueSortMode = (OpaqueSortMode)EditorGUILayout.EnumPopup(opaqueSortModeContent, cam.opaqueSortMode);
         }
 
         private void DrawCameras()
         {
             var m_Cameras = serializedObject.FindProperty("m_Cameras");
-            EditorGUILayout.PropertyField(m_Cameras, CamerasContent);
+            EditorGUILayout.PropertyField(m_Cameras, camerasContent);
 
             m_Cameras.RemoveDuplicateItems();
 

@@ -20,7 +20,7 @@ namespace PowerUtilities
 
             if (GUILayout.Button("Set Other Overlay Cameras"))
             {
-                inst.SetCameras();
+                inst.SetCameras(true);
                 Selection.activeGameObject = inst.gameObject;
             }
         }
@@ -37,7 +37,7 @@ namespace PowerUtilities
         public bool autoSetOverlays;
 
         [Tooltip("Camera's RenderType not Overlay will be filtered")]
-        public bool isOverlayCameraOnly=true;
+        public bool isOverlayCameraOnly = false;
         [Tooltip("check overley cameras interval time,0 : disable")]
         [Min(0)]public float updateInterval = 0;
 
@@ -49,7 +49,6 @@ namespace PowerUtilities
         [Tooltip("compare with gameObject's name, when not empty")]
         public string filterName;
         public NameMatchMode matchMode = NameMatchMode.Contains;
-
 
         Camera mainCam;
         UniversalAdditionalCameraData mainCamData;
@@ -71,14 +70,15 @@ namespace PowerUtilities
             CancelInvoke(nameof(SetCameras));
         }
 
-        public void SetCameras()
+        public void SetCameras(bool isForceUpdate=false)
         {
-            if (!enabled)
+            if (!enabled && !isForceUpdate)
                 return;
 
-            SetupMain(gameObject,out  mainCam, out mainCamData);
+            SetupMain(gameObject, out mainCam, out mainCamData);
 
             SetupOverlays(mainCam, mainCamData, isOverlayCameraOnly, IsCameraValid);
+            SortOverlays(mainCamData.cameraStack);
         }
 
         /// <summary>
@@ -100,9 +100,18 @@ namespace PowerUtilities
             return true;
         }
 
-        public static void SetupOverlays(Camera mainCam, UniversalAdditionalCameraData maincamData,bool isOnlyOverlayCamera=false,Func<Camera,bool> isCamValid=null)
+        public static void SortOverlays(List<Camera> camList)
         {
-            var cams = FindObjectsOfType<Camera>();
+            if (camList == null)
+                return;
+
+            camList.Sort((a, b) => Mathf.CeilToInt(a.depth - a.depth));
+        }
+
+        public static void SetupOverlays(Camera mainCam, UniversalAdditionalCameraData mainCamData,bool isOnlyOverlayCamera=false,Func<Camera,bool> isCamValid=null)
+        {
+            var cams = Camera.allCameras;
+            //var cams = FindObjectsOfType<Camera>();
             foreach (var cam in cams)
             {
                 // check filter
@@ -120,7 +129,7 @@ namespace PowerUtilities
 
                 camData.renderType = CameraRenderType.Overlay;
 
-                maincamData.cameraStack.Add(cam);
+                mainCamData.cameraStack.Add(cam);
             }
         }
 

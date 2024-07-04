@@ -40,7 +40,6 @@ using UnityEngine;
 
                 Rect searchRect = new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight);
                 DrawSearchBar(searchRect, label, property.enumDisplayNames);
-            return;
 
                 Rect popupRect = new Rect(position.x + searchRect.height + EditorGUIUtility.standardVerticalSpacing, position.y, position.width/2, EditorGUIUtility.singleLineHeight);
                 DrawEnumPopup(popupRect, property);
