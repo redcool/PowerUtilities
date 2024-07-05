@@ -9,11 +9,17 @@ using UnityEngine;
 
 namespace GameUtilsFramework
 {
-    public class MixamoImporter
-    #if MIXAMO_RENAME
-        : AssetPostprocessor
-    #endif
+    public static class MixamoImporter
     {
+        [InitializeOnLoadMethod]
+        static void OnInit()
+        {
+            AssetPostProcessorControl.onPostProcessAsset += (imp, obj) =>
+            {
+                RemoveMixamoRig(obj as GameObject);
+            };
+        }
+
         public static void RemoveMixamoRig(GameObject gameObject)
         {
             var setting = ScriptableObjectTools.CreateGetInstance<PowerAssetImporterSetting>();
@@ -27,13 +33,6 @@ namespace GameUtilsFramework
                 tr.gameObject.name = nameName;
             });
         }
-
-#if MIXAMO_RENAME
-        private void OnPostprocessModel(GameObject gameObject)
-        {
-            RemoveMixamoRig(gameObject);
-        }
-#endif
 
     }
 }
