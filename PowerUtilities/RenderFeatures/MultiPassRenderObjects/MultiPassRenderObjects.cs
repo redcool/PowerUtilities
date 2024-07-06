@@ -1,7 +1,12 @@
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+#if UNITY_6000_0_OR_NEWER
+using static UnityEngine.Rendering.Universal.RenderObjects;
+
+#else
 using CustomCameraSettings = UnityEngine.Experimental.Rendering.Universal.RenderObjects.CustomCameraSettings;
 using FilterSettings = UnityEngine.Experimental.Rendering.Universal.RenderObjects.FilterSettings;
+#endif
 
 namespace UnityEngine.Experimental.Rendering.Universal
 {
