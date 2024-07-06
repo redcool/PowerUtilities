@@ -97,8 +97,11 @@ namespace GameUtilsFramework
                 vecY += gravity * Time.fixedDeltaTime;
                 inAirTime += Time.fixedDeltaTime;
             }
-
+#if UNITY_6000_0_OR_NEWER
+            rigid.linearVelocity = moveDir;
+#else
             rigid.velocity = moveDir;
+#endif
         }
     }
 }
