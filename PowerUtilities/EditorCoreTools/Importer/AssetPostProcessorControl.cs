@@ -10,7 +10,7 @@ using Object = UnityEngine.Object;
 namespace PowerUtilities
 {
     /// <summary>
-    /// register assetImport callback 
+    /// register assetImport callback ,avoid unity's full reimport bug
     /// </summary>
     public class AssetPostProcessorControl : AssetPostprocessor
     {
