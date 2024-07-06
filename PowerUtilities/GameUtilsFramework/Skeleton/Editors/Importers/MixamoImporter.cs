@@ -9,8 +9,15 @@ using UnityEngine;
 
 namespace GameUtilsFramework
 {
-    public static class MixamoImporter
+    public class MixamoImporter
+#if !POWER_UTILS
+        // keep old version, stop unity full reimport model
+        : AssetPostprocessor
     {
+        private void OnPostprocessModel(GameObject gameObject) { }
+#else
+    {
+#endif
         [InitializeOnLoadMethod]
         static void OnInit()
         {

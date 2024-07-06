@@ -6,37 +6,61 @@ namespace PowerUtilities{
     using System.IO;
 
     public class TextureDitherProcessor
-#if TEXTURE_DITHER
+#if !POWER_UTILS
         : AssetPostprocessor
-#endif
     {
-        bool IsDither(string name)
+        // keep old version, stop unity full reimport textures
+        private void OnPreprocessTexture() { }
+        private void OnPostprocessTexture(Texture2D texture) { }
+#else
+    {
+#endif
+        public static bool isEnabled = true;   
+        
+        [InitializeOnLoadMethod]
+        static void OnInit()
+        {
+            if (!isEnabled)
+                return;
+
+            AssetPostProcessorControl.onPreprocessAsset += OnPreprocessTexture;
+            AssetPostProcessorControl.onPostProcessAsset += OnPostprocessTexture;
+        }
+        public static bool IsDither(string name)
         {
             var path = Path.GetFileNameWithoutExtension(name);
             return path.EndsWith("Dither");
         }
-#if TEXTURE_DITHER
-        void OnPreprocessTexture()
-        {
-            var importer = (assetImporter as TextureImporter);
 
-            if (IsDither(assetPath)) {
-                //importer.textureFormat = TextureImporterFormat.RGBA32;
-                importer.textureCompression = TextureImporterCompression.Uncompressed;
+        static void OnPreprocessTexture(AssetImporter assetImporter)
+        {
+            if (assetImporter is TextureImporter importer)
+            {
+                var path = importer.assetPath;
+
+                if (IsDither(path))
+                {
+                    //importer.textureFormat = TextureImporterFormat.RGBA32;
+                    importer.textureCompression = TextureImporterCompression.Uncompressed;
+                }
             }
         }
-        void OnPostprocessTexture(Texture2D texture)
+        static void OnPostprocessTexture(AssetImporter importer, Object obj)
         {
-            if (!IsDither(assetPath))
+            if (importer is not TextureImporter)
+                return;
+
+            if (!IsDither(importer.assetPath))
             {
                 return;
             }
+            var texture = (Texture2D)obj;
 
             Dither(texture);
 
             EditorUtility.CompressTexture(texture, TextureFormat.RGBA4444, 100);
         }
-#endif
+
         public static void Dither(Texture2D texture)
         {
             var texw = texture.width;

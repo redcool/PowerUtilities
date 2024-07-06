@@ -46,6 +46,14 @@ namespace PowerUtilities
                 }
             }
         }
+        /**
+         will full  reimport 
+
+         OnPreprocessTexture()
+         OnPostprocessModel(GameObject gameObject)
+         OnPostprocessPrefab(GameObject gameObject)
+         
+         */
 
     }
 }
