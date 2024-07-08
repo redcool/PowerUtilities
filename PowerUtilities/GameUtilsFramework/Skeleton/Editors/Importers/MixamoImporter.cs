@@ -10,25 +10,28 @@ using UnityEngine;
 namespace GameUtilsFramework
 {
     public class MixamoImporter
-#if !POWER_UTILS
-        // keep old version, stop unity full reimport model
-        : AssetPostprocessor
+//#if !POWER_UTILS
+//        // keep old version, stop unity full reimport model
+//        : AssetPostprocessor
+//    {
+//        private void OnPostprocessModel(GameObject gameObject) { }
+//#else
+//#endif
     {
-        private void OnPostprocessModel(GameObject gameObject) { }
-#else
-    {
-#endif
         [InitializeOnLoadMethod]
         static void OnInit()
         {
             AssetPostProcessorControl.onPostProcessAsset += (imp, obj) =>
             {
-                RemoveMixamoRig(obj as GameObject);
+                if(imp is ModelImporter modelImp)
+                    RemoveMixamoRig(obj as GameObject);
             };
         }
 
         public static void RemoveMixamoRig(GameObject gameObject)
         {
+            if (!gameObject) return;
+
             var setting = ScriptableObjectTools.CreateGetInstance<PowerAssetImporterSetting>();
             if (!setting.isRemoveMixamoRig)
                 return;

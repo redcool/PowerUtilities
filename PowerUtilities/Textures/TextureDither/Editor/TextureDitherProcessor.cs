@@ -6,15 +6,15 @@ namespace PowerUtilities{
     using System.IO;
 
     public class TextureDitherProcessor
-#if !POWER_UTILS
-        : AssetPostprocessor
+//#if !POWER_UTILS
+//        : AssetPostprocessor
+//    {
+//        // keep old version, stop unity full reimport textures
+//        private void OnPreprocessTexture() { }
+//        private void OnPostprocessTexture(Texture2D texture) { }
+//#else
+//#endif
     {
-        // keep old version, stop unity full reimport textures
-        private void OnPreprocessTexture() { }
-        private void OnPostprocessTexture(Texture2D texture) { }
-#else
-    {
-#endif
         public static bool isEnabled = true;   
         
         [InitializeOnLoadMethod]
