@@ -199,13 +199,17 @@ namespace PowerUtilities
         /// <param name="finalDstMode"></param>
         public static void BlitTriangle(this CommandBuffer cmd, RenderTargetIdentifier sourceId, RenderTargetIdentifier colorTargetId, Material mat, int pass,
             Camera camera = null, BlendMode finalSrcMode = BlendMode.One, BlendMode finalDstMode = BlendMode.Zero,
-            ClearFlag clearFlags = ClearFlag.None,Color clearColor=default,RenderTargetIdentifier depthTargetId=default)
+            ClearFlag clearFlags = ClearFlag.None,Color clearColor=default,RenderTargetIdentifier depthTargetId=default,
+            bool isTryReplaceUrpTarget=true)
         {
 #if UNITY_2022_1_OR_NEWER
-            var render = (UniversalRenderer)UniversalRenderPipeline.asset.scriptableRenderer;
-            render.TryReplaceURPRTTarget(ref sourceId);
-            render.TryReplaceURPRTTarget(ref colorTargetId);
-            render.TryReplaceURPRTTarget(ref depthTargetId);
+            if (isTryReplaceUrpTarget)
+            {
+                var render = (UniversalRenderer)UniversalRenderPipeline.asset.scriptableRenderer;
+                render.TryReplaceURPRTTarget(ref sourceId);
+                render.TryReplaceURPRTTarget(ref colorTargetId);
+                render.TryReplaceURPRTTarget(ref depthTargetId);
+            }
 #endif
             // set source
             cmd.SetGlobalTexture(_SourceTex, sourceId);

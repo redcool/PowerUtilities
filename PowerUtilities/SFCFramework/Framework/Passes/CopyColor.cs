@@ -88,7 +88,7 @@ namespace PowerUtilities.RenderFeatures
             var srcHandle = renderer.GetCameraColorAttachmentA();
             var dstHandle = ShaderPropertyIds._CameraOpaqueTexture;
 
-            cmd.BlitTriangle(srcHandle, dstHandle, Feature.blitMat, 0);
+            cmd.BlitTriangle(srcHandle, dstHandle, Feature.blitMat, 0, isTryReplaceUrpTarget: false);
         }
 
         public override void OnCameraCleanup(CommandBuffer cmd)
