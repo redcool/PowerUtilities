@@ -17,7 +17,11 @@ namespace PowerUtilities.RenderFeatures
     public class CopyColor : SRPFeature
     {
         [Header("CopyColor Options")]
+
+        [LoadAsset("CopyColor.mat")]
         public Material blitMat;
+
+        [LoadAsset("Sampling Mat.mat")]
         public Material samplingMat;
 
         [Tooltip("diable urp asset 's opaque texture")]
@@ -26,17 +30,15 @@ namespace PowerUtilities.RenderFeatures
 
         public override ScriptableRenderPass GetPass()
         {
-            return new CopyColorPassWrapper(this);
+            return new CopyColorPass(this);
         }
     }
 
-    public class CopyColorPassWrapper : SRPPass<CopyColor>
+    public class CopyColorPass : SRPPass<CopyColor>
     {
-        CopyColorPass copyPass;
-        public CopyColorPassWrapper(CopyColor feature) : base(feature)
+        //CopyColorPass copyPass;
+        public CopyColorPass(CopyColor feature) : base(feature)
         {
-            copyPass = new CopyColorPass(renderPassEvent, Feature.samplingMat, Feature.blitMat);
-            
             var asset = UniversalRenderPipeline.asset;
             if(Feature.disableURPOpaqueTexture)
                 asset.supportsCameraOpaqueTexture = false;
@@ -58,16 +60,6 @@ namespace PowerUtilities.RenderFeatures
 
         public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
         {
-#if UNITY_2022_1_OR_NEWER
-            var renderer = renderingData.cameraData.renderer as UniversalRenderer;
-
-            var srcHandle = renderer.GetCameraColorAttachmentA();
-            var dstHandle = RTHandles.Alloc(ShaderPropertyIds._CameraOpaqueTexture);
-            copyPass.Setup(srcHandle, dstHandle, Feature.downSampling);
-#else
-            copyPass.Setup(ShaderPropertyIds._CameraColorAttachmentA, new RenderTargetHandle(ShaderPropertyIds._CameraOpaqueTexture), Feature.downSampling);
-#endif
-
             // like CopyColorPass.OnCameraSetup, canot call it directly.
             ref var cameraData = ref renderingData.cameraData;
             var desc = cameraData.cameraTargetDescriptor;
@@ -91,12 +83,17 @@ namespace PowerUtilities.RenderFeatures
 
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
         {
-            copyPass.Execute(context, ref renderingData);
+            var renderer = renderingData.cameraData.renderer as UniversalRenderer;
+
+            var srcHandle = renderer.GetCameraColorAttachmentA();
+            var dstHandle = ShaderPropertyIds._CameraOpaqueTexture;
+
+            cmd.BlitTriangle(srcHandle, dstHandle, Feature.blitMat, 0);
         }
 
         public override void OnCameraCleanup(CommandBuffer cmd)
         {
-            copyPass.OnCameraCleanup(cmd);
+
         }
     }
 }
