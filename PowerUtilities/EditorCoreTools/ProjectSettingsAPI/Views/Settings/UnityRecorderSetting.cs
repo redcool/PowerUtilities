@@ -26,18 +26,21 @@ namespace PowerUtilities
 
             // 2 TRANSPARENCY_ON
             ShaderEx.SetKeywords(inst.isTransparencyKeywordOn, "TRANSPARENCY_ON");
-            
+
             var cam = Camera.main;
 
             if (inst.isOverrideUberPostShader && inst.urpUberShader && cam)
             {
-                    var postData = PostProcessDataEx.GetDefaultPostProcessData();
+                var postData = PostProcessDataEx.GetDefaultPostProcessData();
+                if (postData)
                     postData.shaders.uberPostPS = inst.urpUberShader;
             }
 
             if (inst.isOverrideMainCameraAntiAlise && cam)
             {
-                cam.GetUniversalAdditionalCameraData().antialiasing = AntialiasingMode.None;
+                var addData = cam.GetUniversalAdditionalCameraData();
+                if (addData) 
+                    addData.antialiasing = inst.aaMode;
             }
         }
 
@@ -51,17 +54,21 @@ namespace PowerUtilities
     [SOAssetPath("Assets/PowerUtilities/UnityRecorderEx.asset")]
     public class UnityRecorderSetting : ScriptableObject
     {
+        [Header("URP FrameBuffer")]
         [Tooltip("Graphics.preserverCameraTargetAlpha ")]
         public bool preserverCameraTargetAlpha;
 
+        [Header("Recorder")]
         [Tooltip("open shader keyword TRANSPARENCY_ON")]
         public bool isTransparencyKeywordOn = true;
 
+        [Header("PostProcess ")]
         [Tooltip("override urp's UberPost.shader")]
         public bool isOverrideUberPostShader;
         [LoadAsset("UberPostEx.shader")]
         public Shader urpUberShader;
 
+        [Header("Camera's AA")]
         [Tooltip("Set MainCamera's Anti-Aliasing to no")]
         public bool isOverrideMainCameraAntiAlise;
         public AntialiasingMode aaMode;
