@@ -26,11 +26,11 @@ namespace PowerUtilities
         /// </summary>
         /// <param name="cameraData"></param>
         /// <returns></returns>
-        public static ScriptableRendererData GetRendererData(this UniversalAdditionalCameraData cameraData)
+        public static T GetRendererData<T>(this UniversalAdditionalCameraData cameraData) where T: ScriptableRendererData
         {
             var id = GetRendererIndex(cameraData);
             var datas = UniversalRenderPipeline.asset.GetRendererDatas();
-            return datas[id];
+            return (T)datas[id];
         }
     }
 }

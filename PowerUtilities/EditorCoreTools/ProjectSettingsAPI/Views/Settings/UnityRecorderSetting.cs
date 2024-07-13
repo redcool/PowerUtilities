@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 
 namespace PowerUtilities
 {
@@ -25,6 +26,19 @@ namespace PowerUtilities
 
             // 2 TRANSPARENCY_ON
             ShaderEx.SetKeywords(inst.isTransparencyKeywordOn, "TRANSPARENCY_ON");
+            
+            var cam = Camera.main;
+
+            if (inst.isOverrideUberPostShader && inst.urpUberShader && cam)
+            {
+                    var postData = PostProcessDataEx.GetDefaultPostProcessData();
+                    postData.shaders.uberPostPS = inst.urpUberShader;
+            }
+
+            if (inst.isOverrideMainCameraAntiAlise && cam)
+            {
+                cam.GetUniversalAdditionalCameraData().antialiasing = AntialiasingMode.None;
+            }
         }
 
 
@@ -42,6 +56,15 @@ namespace PowerUtilities
 
         [Tooltip("open shader keyword TRANSPARENCY_ON")]
         public bool isTransparencyKeywordOn = true;
+
+        [Tooltip("override urp's UberPost.shader")]
+        public bool isOverrideUberPostShader;
+        [LoadAsset("UberPostEx.shader")]
+        public Shader urpUberShader;
+
+        [Tooltip("Set MainCamera's Anti-Aliasing to no")]
+        public bool isOverrideMainCameraAntiAlise;
+        public AntialiasingMode aaMode;
     }
 }
 #endif

@@ -27,6 +27,7 @@ namespace PowerUtilities
     /// </summary>
     public static class UniversalRenderPipelineAssetEx
     {
+        public const string PACKAGE_PATH = "Packages/com.unity.render-pipelines.universal";
         /// <summary>
         /// UniversalRenderPipelineAsset 's private field
         /// </summary>
