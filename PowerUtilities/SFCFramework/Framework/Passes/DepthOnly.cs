@@ -1,5 +1,3 @@
-using PowerUtilities.RenderFeatures;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -10,7 +8,7 @@ using UnityEngine.Rendering.Universal.Internal;
     using UniversalRenderer = UnityEngine.Rendering.Universal.ForwardRenderer;
 #endif
 
-namespace PowerUtilities
+namespace PowerUtilities.RenderFeatures
 {
     [Tooltip("Fill _CamerDepthTexture render scene once")]
     [CreateAssetMenu(menuName = SRP_FEATURE_PASSES_MENU+ "/DepthOnly")]
@@ -19,6 +17,10 @@ namespace PowerUtilities
         [Header("Depth Only")]
         public LayerMask layerMask = -1;
         public string depthTextureName = "_CameraDepthTexture";
+
+        [Header("Depth Material")]
+        public Material overrideDepthOnlyMat;
+        public int passId ;
         public override ScriptableRenderPass GetPass() => new DepthOnlyPassWrapper(this);
     }
 
@@ -51,6 +53,8 @@ namespace PowerUtilities
                 enableDynamicBatching = renderingData.supportsDynamicBatching,
                 mainLightIndex = renderingData.lightData.mainLightIndex,
                 perObjectData = PerObjectData.None,
+                overrideMaterial = Feature.overrideDepthOnlyMat,
+                overrideMaterialPassIndex = Feature.passId,
             };
 
             SetupDeptexTarget(ref renderingData, cmd,depthTexId);

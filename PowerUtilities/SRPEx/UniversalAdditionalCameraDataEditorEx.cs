@@ -19,7 +19,8 @@ namespace PowerUtilities
             transparentSortAxis = new GUIContent("transparentSortAxis", "transparentSort Axis"),
             opaqueSortModeContent = new GUIContent("opaqueSortMode", "opaque items sorting mode"),
             cameraDepthContent = new GUIContent("Depth","camera 's rendering order"),
-            camerasContent = new GUIContent("Cameras", "setup overlay cameras,will sync CameraEditor")
+            camerasContent = new GUIContent("Cameras", "setup overlay cameras,will sync CameraEditor"),
+            opaqueTextureContent = new GUIContent("Opaque Texture","setup opaque Texture override")
             ;
 
         public override void OnInspectorGUI()
@@ -38,6 +39,9 @@ namespace PowerUtilities
 
             // draw depth
             cam.depth = EditorGUILayout.FloatField(cameraDepthContent, cam.depth);
+
+            // show opaque texture
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("m_RequiresOpaqueTextureOption"), opaqueTextureContent);
 
             EditorGUI.indentLevel--;
 

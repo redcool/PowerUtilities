@@ -1,4 +1,3 @@
-using PowerUtilities.RenderFeatures;
 using System;
 using System.Collections;
 using System.Reflection;
@@ -7,7 +6,7 @@ using UnityEngine.Experimental.Rendering;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
-namespace PowerUtilities
+namespace PowerUtilities.RenderFeatures
 {
 #if UNITY_2021_1_OR_NEWER
     [Tooltip("Control MotionVectors render,(object ,camera)")]

@@ -77,9 +77,9 @@ namespace PowerUtilities.RenderFeatures
             switch (Feature.gameCameraCompareType)
             {
                 case SRPFeature.CameraCompareType.Name:
-                    return camera.gameObject.name.IsMatch(Feature.gameCameraTag, StringEx.NameMatchMode.Full);
+                    return cam.name.IsMatch(Feature.gameCameraTag, StringEx.NameMatchMode.Full);
                 default:
-                    return camera.CompareTag(Feature.gameCameraTag);
+                    return cam.CompareTag(Feature.gameCameraTag);
 
             }
         }

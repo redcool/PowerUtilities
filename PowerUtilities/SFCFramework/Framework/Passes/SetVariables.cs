@@ -1,6 +1,5 @@
-namespace PowerUtilities
+namespace PowerUtilities.RenderFeatures
 {
-    using PowerUtilities.RenderFeatures;
     using System;
     using System.Collections;
     using System.Collections.Generic;
@@ -57,15 +56,6 @@ namespace PowerUtilities
         public bool isMinVersionOn;
 
         public override ScriptableRenderPass GetPass() => new SetVarialbesPass(this);
-    }
-
-    [Serializable]
-    public class ShaderValue<T> 
-    {
-        public string name;
-        public T value;
-
-        public bool IsValid => !string.IsNullOrEmpty(name) && (typeof(T).IsClass ? value != null : true);
     }
 
 
