@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Unity.Mathematics;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
@@ -12,6 +14,12 @@ namespace PowerUtilities.RenderFeatures
 {
     public class MainLightShadowCaster : SRPFeature
     {
+        [Header("Shadow Light ")]
+        public float orthoSize = 10;
+        public float near = 0.1f;
+        public float far = 1000;
+        public Vector3 camPosOffset;
+
         public override ScriptableRenderPass GetPass()
         {
             return new MainLightShadowCasterPass(this);
@@ -109,6 +117,19 @@ namespace PowerUtilities.RenderFeatures
             renderingData.cameraData.renderer.RemoveRenderPass(typeof(URPMainLightShadowPass));
 
             Setup(ref renderingData);
+            DrawMainLightGizmos(ref renderingData);
+        }
+        void DrawMainLightGizmos(ref RenderingData renderingData)
+        {
+            int shadowLightIndex = renderingData.lightData.mainLightIndex;
+            if (shadowLightIndex == -1)
+                return;
+
+            VisibleLight shadowLight = renderingData.lightData.visibleLights[shadowLightIndex];
+            Light light = shadowLight.light;
+            var camTr = Camera.main.transform;
+
+            ShadowUtilsEx.DrawLightGizmos(light,camTr.position, Feature.orthoSize, Feature.near, Feature.far);
         }
         /// <summary>
         /// Sets up the pass.
@@ -121,7 +142,7 @@ namespace PowerUtilities.RenderFeatures
             //if (!renderingData.shadowData.mainLightShadowsEnabled)
             //    return false;
 
-            using var profScope = new ProfilingScope(null, m_ProfilingSetupSampler);
+            //using var profScope = new ProfilingScope(null, m_ProfilingSetupSampler);
 
             if (!renderingData.shadowData.supportsMainLightShadows)
                 return SetupForEmptyRendering(ref renderingData);
@@ -156,9 +177,11 @@ namespace PowerUtilities.RenderFeatures
 
             for (int cascadeIndex = 0; cascadeIndex < m_ShadowCasterCascadesCount; ++cascadeIndex)
             {
-                bool success = ShadowUtils.ExtractDirectionalLightMatrix(ref renderingData.cullResults, ref renderingData.shadowData,
+                bool success = ShadowUtilsEx.ExtractDirectionalLightMatrix(ref renderingData.cullResults, ref renderingData.shadowData,
                     shadowLightIndex, cascadeIndex, renderTargetWidth, renderTargetHeight, shadowResolution, light.shadowNearPlane,
-                    out m_CascadeSplitDistances[cascadeIndex], out m_CascadeSlices[cascadeIndex]);
+                    out m_CascadeSplitDistances[cascadeIndex], out m_CascadeSlices[cascadeIndex],
+                    (light,Feature.orthoSize,Feature.near,Feature.far,Feature.camPosOffset)
+                    );
 
                 if (!success)
                     return SetupForEmptyRendering(ref renderingData);
@@ -249,6 +272,7 @@ namespace PowerUtilities.RenderFeatures
             int shadowLightIndex = lightData.mainLightIndex;
             if (shadowLightIndex == -1)
                 return;
+            var asset = UniversalRenderPipeline.asset;
 
             VisibleLight shadowLight = lightData.visibleLights[shadowLightIndex];
 
@@ -273,7 +297,10 @@ namespace PowerUtilities.RenderFeatures
                 //renderingData.shadowData.isKeywordSoftShadowsEnabled = shadowLight.light.shadows == LightShadows.Soft && renderingData.shadowData.supportsSoftShadows;
                 CoreUtils.SetKeyword(cmd, ShaderKeywordStrings.MainLightShadows, renderingData.shadowData.mainLightShadowCascadesCount == 1);
                 CoreUtils.SetKeyword(cmd, ShaderKeywordStrings.MainLightShadowCascades, renderingData.shadowData.mainLightShadowCascadesCount > 1);
-                //ShadowUtils.SetSoftShadowQualityShaderKeywords(cmd, ref renderingData.shadowData);
+                //var isSoft = Feature.isSoftShadow;
+                var isSoft = renderingData.shadowData.supportsSoftShadows && shadowLight.light.shadows == LightShadows.Soft;
+                var softQuality = asset.GetSoftShadowQuality();
+                ShadowUtilsEx.SetSoftShadowQualityShaderKeywords(cmd, isSoft, softQuality);
 
                 SetupMainLightShadowReceiverConstants(cmd, ref shadowLight, ref renderingData.shadowData);
             }

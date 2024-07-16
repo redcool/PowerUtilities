@@ -141,5 +141,8 @@ namespace PowerUtilities
             return isShadowMaskAlways || isSubstract;
         }
 
+        public static SoftShadowQuality GetSoftShadowQuality(this UniversalRenderPipelineAsset asset)
+            => (SoftShadowQuality)(asset.GetMemberValue<int>("m_SoftShadowQuality", null) + 1);
+        
     }
 }

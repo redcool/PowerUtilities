@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Palmmedia.ReportGenerator.Core.Reporting.Builders.Rendering;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -365,6 +366,19 @@ namespace PowerUtilities
         public static T GetMemberValue<T>(this Type type, string memberName, object caller, object[] args)
         {
             return (T)GetMemberValue(type, memberName, caller, args);
+        }
+        /// <summary>
+        /// call caller.member with args
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="caller"></param>
+        /// <param name="memberName"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public static T GetMemberValue<T>(this object caller,string memberName, object[] args)
+        {
+            var type = caller.GetType();
+            return GetMemberValue<T>(type, memberName, caller, args);
         }
 
         public static void SetMemberValue(this Type type,string memberName,object caller, object[] args)
