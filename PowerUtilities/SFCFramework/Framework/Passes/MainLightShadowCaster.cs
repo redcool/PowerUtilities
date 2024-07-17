@@ -15,10 +15,23 @@ namespace PowerUtilities.RenderFeatures
     public class MainLightShadowCaster : SRPFeature
     {
         [Header("Shadow Light ")]
-        public float orthoSize = 10;
+
+        [Tooltip("half of y distance ortho(box ")]
+        public float orthoSize = 20;
+
+        [Tooltip("near plane")]
         public float near = 0.1f;
+
+        [Tooltip("far plane ")]
         public float far = 1000;
+
+        [Tooltip("start postion(camera pos)'s offset")]
         public Vector3 camPosOffset;
+
+        [EditorHeader("", "Distance")]
+        public bool isOverrideShadowDistance;
+        [Tooltip("urp shadow max distance")]
+        public float shadowDistance = 100;
 
         public override ScriptableRenderPass GetPass()
         {
@@ -115,10 +128,18 @@ namespace PowerUtilities.RenderFeatures
             base.OnCameraSetup(cmd, ref renderingData);
 
             renderingData.cameraData.renderer.RemoveRenderPass(typeof(URPMainLightShadowPass));
-
+            OverrideURPParams(ref renderingData);
             Setup(ref renderingData);
             DrawMainLightGizmos(ref renderingData);
         }
+
+        private void OverrideURPParams(ref RenderingData renderingData)
+        {
+            ref var cameraData = ref renderingData.cameraData;
+            if (Feature.isOverrideShadowDistance)
+                cameraData.maxShadowDistance = Mathf.Min(cameraData.camera.farClipPlane, Feature.shadowDistance);
+        }
+
         void DrawMainLightGizmos(ref RenderingData renderingData)
         {
             int shadowLightIndex = renderingData.lightData.mainLightIndex;
