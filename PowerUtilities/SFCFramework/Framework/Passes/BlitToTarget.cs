@@ -15,18 +15,19 @@ namespace PowerUtilities.RenderFeatures
     [CreateAssetMenu(menuName=SRP_FEATURE_PASSES_MENU+ "/BlitToTarget")]
     public class BlitToTarget : SRPFeature
     {
-        [Header("Source")]
+        [EditorHeader("","--- Source")]
         [Tooltip("When empty will use Current Active")]
         public string sourceName;
+        public bool isShowCurMainLightShadowMapTexture;
 
-        [Header("Target")]
+        [EditorHeader("","--- Target")]
         [Tooltip("When empty will use Camera Target")]
         public string targetName;
 
         [Tooltip("blit source to [_CameraAttachmentA or B],if sourceId is A, targetId will set B")]
         public bool isBlitToNextPostTarget;
 
-        [Header("Options")]
+        [EditorHeader("","--- Options")]
         // PowerShaderLib/CopyColor.mat
         public Material blitMat;
 
@@ -51,7 +52,16 @@ namespace PowerUtilities.RenderFeatures
             ref var cameraData = ref renderingData.cameraData;
             var renderer = (UniversalRenderer)cameraData.renderer;
 
-            RenderTargetIdentifier sourceId = string.IsNullOrEmpty(Feature.sourceName) ? (RenderTargetIdentifier)BuiltinRenderTextureType.CurrentActive : Shader.PropertyToID(Feature.sourceName);
+            RenderTargetIdentifier sourceId = default;
+            if (Feature.isShowCurMainLightShadowMapTexture)
+            {
+                sourceId = ShadowUtilsEx.currentMainLightShadowMapTexture;
+            }
+            else
+            {
+                sourceId = string.IsNullOrEmpty(Feature.sourceName) ? (RenderTargetIdentifier)BuiltinRenderTextureType.CurrentActive : Shader.PropertyToID(Feature.sourceName);
+
+            }
 
             var cameraTarget = camera.GetCameraTarget();
             RenderTargetIdentifier targetId = string.IsNullOrEmpty(Feature.targetName) ? cameraTarget : Shader.PropertyToID(Feature.targetName);

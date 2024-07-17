@@ -28,7 +28,7 @@ namespace PowerUtilities.RenderFeatures
         [Tooltip("start postion(camera pos)'s offset")]
         public Vector3 camPosOffset;
 
-        [EditorHeader("", "Distance")]
+        [EditorHeader("", "--- Distance")]
         public bool isOverrideShadowDistance;
         [Tooltip("urp shadow max distance")]
         public float shadowDistance = 100;
@@ -67,7 +67,7 @@ namespace PowerUtilities.RenderFeatures
         int m_ShadowCasterCascadesCount;
 
         int m_MainLightShadowmapID;
-        internal RTHandle m_MainLightShadowmapTexture;
+        public RTHandle m_MainLightShadowmapTexture;
         private RTHandle m_EmptyLightShadowmapTexture;
         private const int k_EmptyShadowMapDimensions = 1;
         private const string k_EmptyShadowMapName = "_EmptyLightShadowmapTexture";
@@ -122,6 +122,22 @@ namespace PowerUtilities.RenderFeatures
             m_MainLightShadowmapTexture?.Release();
             m_EmptyLightShadowmapTexture?.Release();
         }
+        public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
+        {
+            if (m_CreateEmptyShadowmap)
+            {
+                SetEmptyMainLightCascadeShadowmap(ref context, ref renderingData);
+                cmd.SetGlobalTexture(m_MainLightShadowmapID, m_EmptyLightShadowmapTexture.nameID);
+
+                return;
+            }
+
+            RenderMainLightCascadeShadowmap(ref context, ref renderingData, cmd);
+            cmd.SetGlobalTexture(m_MainLightShadowmapID, m_MainLightShadowmapTexture.nameID);
+
+            // keep rthandle for others purpose
+            ShadowUtilsEx.currentMainLightShadowMapTexture = m_MainLightShadowmapTexture;
+        }
 
         public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
         {
@@ -130,7 +146,9 @@ namespace PowerUtilities.RenderFeatures
             renderingData.cameraData.renderer.RemoveRenderPass(typeof(URPMainLightShadowPass));
             OverrideURPParams(ref renderingData);
             Setup(ref renderingData);
+#if UNITY_EDITOR
             DrawMainLightGizmos(ref renderingData);
+#endif
         }
 
         private void OverrideURPParams(ref RenderingData renderingData)
@@ -149,8 +167,10 @@ namespace PowerUtilities.RenderFeatures
             VisibleLight shadowLight = renderingData.lightData.visibleLights[shadowLightIndex];
             Light light = shadowLight.light;
             var camTr = Camera.main.transform;
+            if (!camTr)
+                return;
 
-            ShadowUtilsEx.DrawLightGizmos(light,camTr.position, Feature.orthoSize, Feature.near, Feature.far);
+            ShadowUtilsEx.DrawLightGizmos(light, camTr.position + Feature.camPosOffset, Feature.orthoSize, Feature.near, Feature.far);
         }
         /// <summary>
         /// Sets up the pass.
@@ -175,6 +195,7 @@ namespace PowerUtilities.RenderFeatures
 
             VisibleLight shadowLight = renderingData.lightData.visibleLights[shadowLightIndex];
             Light light = shadowLight.light;
+            var camera = renderingData.cameraData.camera;
             if (light.shadows == LightShadows.None)
                 return SetupForEmptyRendering(ref renderingData);
 
@@ -201,7 +222,8 @@ namespace PowerUtilities.RenderFeatures
                 bool success = ShadowUtilsEx.ExtractDirectionalLightMatrix(ref renderingData.cullResults, ref renderingData.shadowData,
                     shadowLightIndex, cascadeIndex, renderTargetWidth, renderTargetHeight, shadowResolution, light.shadowNearPlane,
                     out m_CascadeSplitDistances[cascadeIndex], out m_CascadeSlices[cascadeIndex],
-                    (light,Feature.orthoSize,Feature.near,Feature.far,Feature.camPosOffset)
+                    (light, camera, Feature.orthoSize,Feature.near,Feature.far,Feature.camPosOffset),
+                    cascadeIndex == 0 // only main
                     );
 
                 if (!success)
@@ -242,19 +264,7 @@ namespace PowerUtilities.RenderFeatures
         }
 
 
-        public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
-        {
-            if (m_CreateEmptyShadowmap)
-            {
-                SetEmptyMainLightCascadeShadowmap(ref context, ref renderingData);
-                cmd.SetGlobalTexture(m_MainLightShadowmapID, m_EmptyLightShadowmapTexture.nameID);
 
-                return;
-            }
-
-            RenderMainLightCascadeShadowmap(ref context, ref renderingData,cmd);
-            cmd.SetGlobalTexture(m_MainLightShadowmapID, m_MainLightShadowmapTexture.nameID);
-        }
 
         void Clear()
         {

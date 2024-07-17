@@ -13,7 +13,7 @@ namespace PowerUtilities
 {
     public static class ShadowUtilsEx
     {
-
+        public static RTHandle currentMainLightShadowMapTexture;
         public static float SoftShadowQualityToShaderProperty(Light light, bool softShadowsEnabled)
         {
             float softShadows = softShadowsEnabled ? 1.0f : 0.0f;
@@ -65,25 +65,23 @@ namespace PowerUtilities
 
 
         public static bool ExtractDirectionalLightMatrix(ref CullingResults cullResults, ref ShadowData shadowData, int shadowLightIndex, int cascadeIndex, int shadowmapWidth, int shadowmapHeight, int shadowResolution, float shadowNearPlane, out Vector4 cascadeSplitDistance, out ShadowSliceData shadowSliceData
-            ,(Light shadowLight, float orthoSize, float near, float far, Vector3 camPosOffset) shadowInfo
+            ,(Light shadowLight,Camera cam, float orthoSize, float near, float far, Vector3 camPosOffset) shadowInfo,bool isOverrideVP
             )
         {
             bool success = cullResults.ComputeDirectionalShadowMatricesAndCullingPrimitives(shadowLightIndex,
                 cascadeIndex, shadowData.mainLightShadowCascadesCount, shadowData.mainLightShadowCascadesSplit, shadowResolution, shadowNearPlane, out shadowSliceData.viewMatrix, out shadowSliceData.projectionMatrix,
                 out shadowSliceData.splitData);
 
-            // calc vp
-            var camTr = Camera.main.transform;
-            var lightTr = shadowInfo.shadowLight.transform;
-            float4x4 view, proj;
-            SetupVP(shadowInfo, Camera.main, lightTr, out view, out proj);
+            if (isOverrideVP)
+            {
+                // calc vp
+                //var lightTr = shadowInfo.shadowLight.transform;
+                float4x4 view, proj;
+                SetupVP(shadowInfo, out view, out proj);
 
-            //view = shadowSliceData.viewMatrix;
-            //view.c3 = view.c3 + new float4(shadowInfo.camPosOffset,0);
-            //shadowSliceData.viewMatrix = view;
-
-            shadowSliceData.viewMatrix = math.fastinverse(view);
-            shadowSliceData.projectionMatrix = proj;
+                shadowSliceData.viewMatrix = math.fastinverse(view);
+                shadowSliceData.projectionMatrix = proj;
+            }
 
             cascadeSplitDistance = shadowSliceData.splitData.cullingSphere;
             shadowSliceData.offsetX = (cascadeIndex % 2) * shadowResolution;
@@ -103,9 +101,11 @@ namespace PowerUtilities
             return success;
         }
 
-        private static void SetupVP((Light shadowLight, float orthoSize, float near, float far,Vector3 camPosOffset) shadowInfo, Camera cam, Transform lightTr, out float4x4 view, out float4x4 proj)
+        private static void SetupVP((Light shadowLight,Camera cam, float orthoSize, float near, float far,Vector3 camPosOffset) shadowInfo, out float4x4 view, out float4x4 proj)
         {
-            var camTr = cam.transform;
+            var lightTr = shadowInfo.shadowLight.transform;
+            var camTr = shadowInfo.cam.transform;
+
             var pos = camTr.position + shadowInfo.camPosOffset;
 
             view = float4x4.LookAt(pos, pos + lightTr.forward, lightTr.up);
