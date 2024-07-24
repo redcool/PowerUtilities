@@ -34,6 +34,10 @@ namespace PowerUtilities
             }
         }
 
+        public static void SetKeywords(this Material mat, bool isOn,params string[] keywords)
+        {
+            SetKeywords(mat, keywords, isOn);
+        }
 
         #region Sync Set Material and MaterialPropertyBlock
 
