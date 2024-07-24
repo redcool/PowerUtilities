@@ -1,3 +1,4 @@
+#if INPUT_SYSTEM_ENABLED && CINEMACHINE_ENABLED
 namespace GameUtilsFramework
 {
 #if UNITY_6000_0_OR_NEWER
@@ -10,14 +11,11 @@ namespace GameUtilsFramework
     using System.Collections.Generic;
     using UnityEngine;
 
-#if INPUT_SYSTEM_ENABLED
     using UnityEngine.InputSystem;
-#endif
 
     public static class CinemachineTools
     {
 
-#if INPUT_SYSTEM_ENABLED
 
         /// <summary>
         /// reset cinemachine Input
@@ -36,6 +34,6 @@ namespace GameUtilsFramework
             };
         }
 
-#endif
     }
 }
+#endif
