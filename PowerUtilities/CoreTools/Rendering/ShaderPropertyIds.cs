@@ -77,8 +77,7 @@ namespace PowerUtilities
             _MainLightShadowmapTexture = Shader.PropertyToID(nameof(_MainLightShadowmapTexture)),
             _AdditionalLightsShadowmapTexture = Shader.PropertyToID(nameof(_AdditionalLightsShadowmapTexture))
             ;
-
-
+        
         public const string _DEBUG = nameof(_DEBUG),
             _CUSTOM_DEPTH_TEXTURE = nameof(_CUSTOM_DEPTH_TEXTURE),
             _LINEAR_TO_SRGB_CONVERSION = nameof(_LINEAR_TO_SRGB_CONVERSION),
@@ -149,8 +148,8 @@ namespace PowerUtilities
             shadows_ShadowMaskOn = Shader.PropertyToID("_Shadows_ShadowMaskOn"),
 
             //
-            _ScalingSetupTexture = Shader.PropertyToID("_ScalingSetupTexture"),
-            _UpscaledTexture = Shader.PropertyToID("_UpscaledTexture"),
+            _ScalingSetupTexture = Shader.PropertyToID(nameof(_ScalingSetupTexture)),
+            _UpscaledTexture = Shader.PropertyToID(nameof(_UpscaledTexture)),
 
             _ShadowBias = Shader.PropertyToID(nameof(_ShadowBias)),
             _LightDirection = Shader.PropertyToID(nameof(_LightDirection)),
@@ -161,8 +160,13 @@ namespace PowerUtilities
             _MainLightColor = Shader.PropertyToID(nameof(_MainLightColor)),
 
             _FinalSrcMode = Shader.PropertyToID(nameof(_FinalSrcMode)),
-            _FinalDstMode = Shader.PropertyToID(nameof(_FinalDstMode))
+            _FinalDstMode = Shader.PropertyToID(nameof(_FinalDstMode)),
+            _LightAttenuation = Shader.PropertyToID(nameof(_LightAttenuation)),
+            _ZTestMode = Shader.PropertyToID(nameof(_ZTestMode)),
+            _ZWriteMode = Shader.PropertyToID(nameof(_ZWriteMode)),
+            _CullMode = Shader.PropertyToID(nameof(_CullMode))
             ;
+
 
     }
 

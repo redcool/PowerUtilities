@@ -68,7 +68,7 @@ namespace PowerUtilities.RenderFeatures
         //    SerupVariables(cmd, ref renderingData);
         //}
 
-        void SerupVariables(CommandBuffer cmd, ref RenderingData renderingData)
+        void SetupVariables(CommandBuffer cmd, ref RenderingData renderingData)
         {
             var camera = renderingData.cameraData.camera;
 
@@ -149,7 +149,7 @@ namespace PowerUtilities.RenderFeatures
 
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
         {
-            SerupVariables(cmd, ref renderingData);
+            SetupVariables(cmd, ref renderingData);
 
 
         }

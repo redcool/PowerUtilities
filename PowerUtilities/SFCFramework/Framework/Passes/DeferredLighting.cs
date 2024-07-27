@@ -6,6 +6,9 @@ using UnityEngine.Rendering.Universal;
 using PowerUtilities;
 using System.Linq;
 using Unity.Mathematics;
+using UnityEngine.Experimental.GlobalIllumination;
+using LightType = UnityEngine.LightType;
+using Unity.Collections;
 
 #if UNITY_2020
 using UniversalRenderer = UnityEngine.Rendering.Universal.ForwardRenderer;
@@ -39,16 +42,26 @@ namespace PowerUtilities.RenderFeatures
         /// sv_target3 , xyz:pbrMask, w:mainLightShadow
         /// 
         /// </summary>
-        [Header("Objects")]
+        [Header("RT Names")]
+        public bool IsCreateAndSetRTs = true;
         public string _GBuffer0 = nameof(_GBuffer0);
         public string _GBuffer1 = nameof(_GBuffer1);
         public string _GBuffer2 = nameof(_GBuffer2);
         public string _MotionVectorTexture = nameof(_MotionVectorTexture);
 
+        [Header("Objects")]
         public string deferedTag = "UniversalGBuffer";
         public int layers = -1;
+        [Header("Override Shader")]
+        public Shader objectShader;
+        public int objectShaderPass;
+
         [Header("Lights")]
         public Material lightMat;
+
+        public Mesh dirLightMesh;
+        public Mesh pointLightMesh;
+        public Mesh spotLightMesh;
 
         //[Header("Output")]
         //public string targetName;
@@ -85,29 +98,56 @@ namespace PowerUtilities.RenderFeatures
 
             cmd.SetRenderTarget(colorAttachmentA);
             cmd.Execute(ref context);
+
+            var lightGroups = renderingData.lightData.visibleLights
+                .OrderBy(vl => vl.lightType == LightType.Directional ? -1 : 0)
+                .Select(vl => vl.light)
+                .GroupBy(l => l.type)
+                .ToArray()
+                ;
+            /**
 #if UNITY_2021_3_OR_NEWER
             var lightGroups = Object.FindObjectsByType<Light>(FindObjectsSortMode.None)
 #else
             var lightGroups = Object.FindObjectsOfType<Light>()
 #endif
+            .OrderBy(l => l.type == LightType.Directional ? -1 : 0)
             .GroupBy(light => light.type).ToList();
+            */
+
 
             foreach (var g in lightGroups)
             {
                 foreach (var light in g)
                 {
-                    if(light.type == LightType.Directional)
-                        DrawDirLight(ref context,ref renderingData,cmd,light);
+                    var passId = light.type == LightType.Directional ? 0 : 1;
+                    var lightDir = light.type == LightType.Directional ? -light.transform.forward : light.transform.position;
+                    var lightW = light.type == LightType.Directional ? 0 : 1;
+                    cmd.SetGlobalVector(ShaderPropertyIds._MainLightPosition, new float4(lightDir, lightW));
+
+                    cmd.SetGlobalColor(ShaderPropertyIds._MainLightColor, light.color * light.intensity);
+
+
+                    Vector4 lightAtten = Vector4.one;
+                    GetPunctualLightDistanceAttenuation(light.range, ref lightAtten);
+
+                    cmd.SetGlobalVector(ShaderPropertyIds._LightAttenuation, lightAtten);
+                    var lightTr =  light.type == LightType.Directional ? float4x4.identity : float4x4.TRS(light.transform.position, light.transform.rotation, new float3(1) * (light.range * 2));
+
+                    var targetMesh = GetTargetMesh(light);
+                    cmd.DrawMesh(targetMesh, lightTr, Feature.lightMat, 0, passId);
                 }
             }
+
         }
 
-        private void DrawDirLight(ref ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd, Light light)
+        Mesh GetTargetMesh(Light light) => light.type switch
         {
-            cmd.SetGlobalVector(ShaderPropertyIds._MainLightPosition, new float4(light.transform.forward,0));
-            cmd.BlitTriangle(BuiltinRenderTextureType.None, ShaderPropertyIds._CameraColorAttachmentA, Feature.lightMat, 0);
-        }
-
+            LightType.Directional => Feature.dirLightMesh,
+            LightType.Point => Feature.pointLightMesh,
+            LightType.Spot => Feature.spotLightMesh,
+            _ => null,
+        };
         private void DrawScene(ref ScriptableRenderContext context,ref RenderingData renderingData, CommandBuffer cmd, CameraData cameraDate)
         {
             var sortingSettings = new SortingSettings(cameraDate.camera)
@@ -120,6 +160,8 @@ namespace PowerUtilities.RenderFeatures
                 enableDynamicBatching = true,
                 perObjectData = PerObjectData.LightProbe | PerObjectData.ReflectionProbes | PerObjectData.Lightmaps | PerObjectData.LightData
                 | PerObjectData.MotionVectors | PerObjectData.OcclusionProbe | PerObjectData.ShadowMask,
+                overrideShader = Feature.objectShader,
+                overrideShaderPassIndex = Feature.objectShaderPass,
             };
 
             //drawSettings.SetShaderPassNames(RenderingTools.urpForwardShaderPassNames);
@@ -144,10 +186,14 @@ namespace PowerUtilities.RenderFeatures
             var motionDesc = colorDesc;
             motionDesc.graphicsFormat = UnityEngine.Experimental.Rendering.GraphicsFormat.R16G16_SFloat;
 
-            cmd.GetTemporaryRT(gbuffer0, colorDesc);
-            cmd.GetTemporaryRT(gbuffer1, colorDesc);
-            cmd.GetTemporaryRT(gbuffer2, colorDesc);
-            cmd.GetTemporaryRT(gbuffer3, motionDesc);
+            if (Feature.IsCreateAndSetRTs)
+            {
+
+                cmd.GetTemporaryRT(gbuffer0, colorDesc);
+                cmd.GetTemporaryRT(gbuffer1, colorDesc);
+                cmd.GetTemporaryRT(gbuffer2, colorDesc);
+                cmd.GetTemporaryRT(gbuffer3, motionDesc);
+            }
 
             var depthDesc = colorDesc;
             depthDesc.colorFormat = RenderTextureFormat.Depth;
@@ -159,11 +205,34 @@ namespace PowerUtilities.RenderFeatures
             colorTargets[2] = gbuffer2;
             colorTargets[3] = gbuffer3;
 
-            var depthId = ShaderPropertyIdentifier._CameraDepthAttachment;
+            //var depthId = ShaderPropertyIdentifier._CameraDepthAttachment;
+            var depthId = renderingData.cameraData.renderer.cameraDepthTargetHandle;
 
-            cmd.SetRenderTarget(colorTargets, depthId);
+            if (Feature.IsCreateAndSetRTs)
+                cmd.SetRenderTarget(colorTargets, depthId);
+
             cmd.ClearRenderTarget(true, true, Color.clear);
             cmd.Execute(ref context);
+        }
+
+        public static void GetPunctualLightDistanceAttenuation(float lightRange, ref Vector4 lightAttenuation)
+        {
+            // Light attenuation in universal matches the unity vanilla one (HINT_NICE_QUALITY).
+            // attenuation = 1.0 / distanceToLightSqr
+            // The smoothing factor makes sure that the light intensity is zero at the light range limit.
+            // (We used to offer two different smoothing factors.)
+
+            // The current smoothing factor matches the one used in the Unity lightmapper.
+            // smoothFactor = (1.0 - saturate((distanceSqr * 1.0 / lightRangeSqr)^2))^2
+            float lightRangeSqr = lightRange * lightRange;
+            float fadeStartDistanceSqr = 0.8f * 0.8f * lightRangeSqr;
+            float fadeRangeSqr = (fadeStartDistanceSqr - lightRangeSqr);
+            float lightRangeSqrOverFadeRangeSqr = -lightRangeSqr / fadeRangeSqr;
+            float oneOverLightRangeSqr = 1.0f / Mathf.Max(0.0001f, lightRangeSqr);
+
+            // On all devices: Use the smoothing factor that matches the GI.
+            lightAttenuation.x = oneOverLightRangeSqr;
+            lightAttenuation.y = lightRangeSqrOverFadeRangeSqr;
         }
     }
 }
