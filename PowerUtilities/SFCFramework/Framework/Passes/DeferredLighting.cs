@@ -130,7 +130,9 @@ namespace PowerUtilities.RenderFeatures
                     if (light.type == LightType.Spot)
                     {
                         GetSpotAngleAttenuation(light.spotAngle, light.innerSpotAngle, ref lightAtten);
-                        cmd.SetGlobalVector(ShaderPropertyIds._SpotLightAngle, new Vector4(math.radians(light.spotAngle), math.radians(light.innerSpotAngle)));
+                        var spotAngle = light.spotAngle * 0.5f / 180f;
+                        var innerSpotAngle = light.innerSpotAngle * 0.5f / 180f;
+                        cmd.SetGlobalVector(ShaderPropertyIds._SpotLightAngle, new Vector4(spotAngle,innerSpotAngle));
 
                         spotDir = -light.transform.forward;
 
