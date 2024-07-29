@@ -44,7 +44,7 @@ MonoBehaviour:
   objectShader: {fileID: 0}
   objectShaderPass: 0
   lightMat: {fileID: 2100000, guid: 10960316e2dc98b409dfe2318e08b806, type: 2}
-  lightMatPass: 0
   dirLightMesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
   pointLightMesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
-  spotLightMesh: {fileID: 0}
+  spotLightMesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+  falloff: 1

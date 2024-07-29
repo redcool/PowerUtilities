@@ -63,6 +63,8 @@ namespace PowerUtilities.RenderFeatures
         public Mesh pointLightMesh;
         public Mesh spotLightMesh;
 
+        public float falloff=1;
+
         //[Header("Output")]
         //public string targetName;
         public override ScriptableRenderPass GetPass() => new DeferedLightingPass(this);
@@ -72,6 +74,8 @@ namespace PowerUtilities.RenderFeatures
     {
 
         RenderTargetIdentifier[] colorTargets = new RenderTargetIdentifier[4];
+        const float kStencilShapeGuard = 1.06067f; // stencil geometric shapes must be inflated to fit the analytic shapes.
+        float4 defaultLightAtten = new float4(0, 1, 0, 1);
 
         public DeferedLightingPass(DeferredLighting feature) : base(feature)
         {
@@ -79,13 +83,13 @@ namespace PowerUtilities.RenderFeatures
 
         public override bool CanExecute()
         {
-            return base.CanExecute() 
+            return base.CanExecute()
                 ;
         }
 
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
         {
-
+            
             ref var cameraDate = ref renderingData.cameraData;
             var renderer = (UniversalRenderer)cameraDate.renderer;
             var colorAttachmentA = renderer.GetCameraColorAttachmentA();
@@ -105,40 +109,93 @@ namespace PowerUtilities.RenderFeatures
                 .GroupBy(l => l.type)
                 .ToArray()
                 ;
-            /**
-#if UNITY_2021_3_OR_NEWER
-            var lightGroups = Object.FindObjectsByType<Light>(FindObjectsSortMode.None)
-#else
-            var lightGroups = Object.FindObjectsOfType<Light>()
-#endif
-            .OrderBy(l => l.type == LightType.Directional ? -1 : 0)
-            .GroupBy(light => light.type).ToList();
-            */
 
-
+            var lightId = 0;
             foreach (var g in lightGroups)
             {
                 foreach (var light in g)
                 {
-                    var passId = light.type == LightType.Directional ? 0 : 1;
-                    var lightDir = light.type == LightType.Directional ? -light.transform.forward : light.transform.position;
-                    var lightW = light.type == LightType.Directional ? 0 : 1;
-                    cmd.SetGlobalVector(ShaderPropertyIds._MainLightPosition, new float4(lightDir, lightW));
+                    var isDirLight = light.type == LightType.Directional;
+                    var isPointLight = light.type == LightType.Point;
+                    var isSpotLight = light.type == LightType.Spot;
 
-                    cmd.SetGlobalColor(ShaderPropertyIds._MainLightColor, light.color * light.intensity);
+                    var lightDir = isDirLight ? -light.transform.forward : light.transform.position;
+                    var lightW = isDirLight ? 0 : 1;
+                    var spotDir = Vector3.forward;
 
 
-                    Vector4 lightAtten = Vector4.one;
+
+                    Vector4 lightAtten = defaultLightAtten;//{xy: distance(point,spot), zw:angle(spot)}
                     GetPunctualLightDistanceAttenuation(light.range, ref lightAtten);
+                    if (light.type == LightType.Spot)
+                    {
+                        GetSpotAngleAttenuation(light.spotAngle, light.innerSpotAngle, ref lightAtten);
+                        cmd.SetGlobalVector(ShaderPropertyIds._SpotLightAngle, new Vector4(math.radians(light.spotAngle), math.radians(light.innerSpotAngle)));
+
+                        spotDir = -light.transform.forward;
+
+                        //var alpha = Mathf.Deg2Rad * light.spotAngle * 0.5f;
+                        //math.sincos(alpha, out var sinAlpha, out var cosAlpha);
+
+                        //var guard = Mathf.Lerp(1f, kStencilShapeGuard, sinAlpha);
+                        //cmd.SetGlobalVector(ShaderPropertyIds._SpotLightScale, new Vector4(sinAlpha, sinAlpha, 1.0f - cosAlpha, light.range));
+                        //cmd.SetGlobalVector(ShaderPropertyIds._SpotLightBias, new Vector4(0.0f, 0.0f, cosAlpha, 0.0f));
+                        //cmd.SetGlobalVector(ShaderPropertyIds._SpotLightGuard, new Vector4(guard, guard, guard, cosAlpha * light.range));
+                    }
 
                     cmd.SetGlobalVector(ShaderPropertyIds._LightAttenuation, lightAtten);
-                    var lightTr =  light.type == LightType.Directional ? float4x4.identity : float4x4.TRS(light.transform.position, light.transform.rotation, new float3(1) * (light.range * 2));
+                    cmd.SetGlobalVector(ShaderPropertyIds._MainLightPosition, new float4(lightDir, lightW));
+                    cmd.SetGlobalColor(ShaderPropertyIds._MainLightColor, light.color * light.intensity);
+                    cmd.SetGlobalVector(ShaderPropertyIds._LightDirection, spotDir);
+
+                    cmd.SetGlobalVector(ShaderPropertyIds._LightRadiusIntensityFalloff, new float4(light.range, light.intensity, Feature.falloff, isSpotLight ? 1 : 0));
+
+
+                    var lightTr = isDirLight ? float4x4.identity : float4x4.TRS(light.transform.position, light.transform.rotation, new float3(1) * (light.range * 2));
+
+
+                    //---
+                    SetupBlend(cmd, lightId, isDirLight);
 
                     var targetMesh = GetTargetMesh(light);
-                    cmd.DrawMesh(targetMesh, lightTr, Feature.lightMat, 0, passId);
+                    var passId = isDirLight ? 0 : 1;
+                    if (targetMesh)
+                        cmd.DrawMesh(targetMesh, lightTr, Feature.lightMat, 0, 0);
+
+                    //
+                    lightId++;
                 }
             }
 
+        }
+        /// <summary>
+        /// dir:  Blend One srcAlpha, Zero One
+        /// other : Blend One one, Zero One
+        /// </summary>
+        /// <param name="cmd"></param>
+        /// <param name="lightId"></param>
+        /// <param name="isDirLight"></param>
+        private static void SetupBlend(CommandBuffer cmd, int lightId, bool isDirLight)
+        {
+            var srcMode = BlendMode.One;
+            var dstMode = BlendMode.One;
+            var srcAlphaMode = BlendMode.Zero;
+            var dstAlphaMode = BlendMode.One;
+            var cullMode = CullMode.Off; // dir off
+            if (isDirLight || lightId == 0)
+            {
+                dstMode = BlendMode.SrcAlpha;
+            }
+            else
+            {
+                cullMode = CullMode.Front;
+            }
+
+            cmd.SetGlobalInt(ShaderPropertyIds._SrcMode, (int)srcMode);
+            cmd.SetGlobalInt(ShaderPropertyIds._DstMode, (int)dstMode);
+            cmd.SetGlobalInt(ShaderPropertyIds._SrcAlphaMode, (int)srcAlphaMode);
+            cmd.SetGlobalInt(ShaderPropertyIds._DstAlphaMode, (int)dstAlphaMode);
+            cmd.SetGlobalInt(ShaderPropertyIds._CullMode, (int)cullMode);
         }
 
         Mesh GetTargetMesh(Light light) => light.type switch
@@ -148,7 +205,7 @@ namespace PowerUtilities.RenderFeatures
             LightType.Spot => Feature.spotLightMesh,
             _ => null,
         };
-        private void DrawScene(ref ScriptableRenderContext context,ref RenderingData renderingData, CommandBuffer cmd, CameraData cameraDate)
+        private void DrawScene(ref ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd, CameraData cameraDate)
         {
             var sortingSettings = new SortingSettings(cameraDate.camera)
             {
@@ -181,14 +238,13 @@ namespace PowerUtilities.RenderFeatures
             var colorDesc = renderingData.cameraData.cameraTargetDescriptor;
             colorDesc.depthBufferBits = 0;
             colorDesc.msaaSamples = 1;
-            colorDesc.graphicsFormat = UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SNorm;
+            colorDesc.graphicsFormat = UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_UNorm;
 
             var motionDesc = colorDesc;
             motionDesc.graphicsFormat = UnityEngine.Experimental.Rendering.GraphicsFormat.R16G16_SFloat;
 
             if (Feature.IsCreateAndSetRTs)
             {
-
                 cmd.GetTemporaryRT(gbuffer0, colorDesc);
                 cmd.GetTemporaryRT(gbuffer1, colorDesc);
                 cmd.GetTemporaryRT(gbuffer2, colorDesc);
@@ -215,6 +271,9 @@ namespace PowerUtilities.RenderFeatures
             cmd.Execute(ref context);
         }
 
+        /**
+         unity's api
+         */
         public static void GetPunctualLightDistanceAttenuation(float lightRange, ref Vector4 lightAttenuation)
         {
             // Light attenuation in universal matches the unity vanilla one (HINT_NICE_QUALITY).
@@ -233,6 +292,39 @@ namespace PowerUtilities.RenderFeatures
             // On all devices: Use the smoothing factor that matches the GI.
             lightAttenuation.x = oneOverLightRangeSqr;
             lightAttenuation.y = lightRangeSqrOverFadeRangeSqr;
+        }
+
+        public static void GetSpotAngleAttenuation(
+            float spotAngle, float? innerSpotAngle,
+            ref Vector4 lightAttenuation)
+        {
+            // Spot Attenuation with a linear falloff can be defined as
+            // (SdotL - cosOuterAngle) / (cosInnerAngle - cosOuterAngle)
+            // This can be rewritten as
+            // invAngleRange = 1.0 / (cosInnerAngle - cosOuterAngle)
+            // SdotL * invAngleRange + (-cosOuterAngle * invAngleRange)
+            // If we precompute the terms in a MAD instruction
+            float cosOuterAngle = Mathf.Cos(Mathf.Deg2Rad * spotAngle * 0.5f);
+            // We need to do a null check for particle lights
+            // This should be changed in the future
+            // Particle lights will use an inline function
+            float cosInnerAngle;
+            if (innerSpotAngle.HasValue)
+                cosInnerAngle = Mathf.Cos(innerSpotAngle.Value * Mathf.Deg2Rad * 0.5f);
+            else
+                cosInnerAngle = Mathf.Cos((2.0f * Mathf.Atan(Mathf.Tan(spotAngle * 0.5f * Mathf.Deg2Rad) * (64.0f - 18.0f) / 64.0f)) * 0.5f);
+            float smoothAngleRange = Mathf.Max(0.001f, cosInnerAngle - cosOuterAngle);
+            float invAngleRange = 1.0f / smoothAngleRange;
+            float add = -cosOuterAngle * invAngleRange;
+
+            lightAttenuation.z = invAngleRange;
+            lightAttenuation.w = add;
+        }
+
+        public static void GetSpotDirection(ref Matrix4x4 lightLocalToWorldMatrix, out Vector4 lightSpotDir)
+        {
+            Vector4 dir = lightLocalToWorldMatrix.GetColumn(2);
+            lightSpotDir = new Vector4(-dir.x, -dir.y, -dir.z, 0.0f);
         }
     }
 }

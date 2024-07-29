@@ -77,7 +77,6 @@ namespace PowerUtilities
             _MainLightShadowmapTexture = Shader.PropertyToID(nameof(_MainLightShadowmapTexture)),
             _AdditionalLightsShadowmapTexture = Shader.PropertyToID(nameof(_AdditionalLightsShadowmapTexture))
             ;
-        
         public const string _DEBUG = nameof(_DEBUG),
             _CUSTOM_DEPTH_TEXTURE = nameof(_CUSTOM_DEPTH_TEXTURE),
             _LINEAR_TO_SRGB_CONVERSION = nameof(_LINEAR_TO_SRGB_CONVERSION),
@@ -141,6 +140,11 @@ namespace PowerUtilities
             scaleBias = Shader.PropertyToID("_ScaleBias"),
             scaleBiasRt = Shader.PropertyToID("_ScaleBiasRt"),
 
+            _SrcMode = Shader.PropertyToID(nameof(_SrcMode)),
+            _DstMode = Shader.PropertyToID(nameof(_DstMode)),
+            _SrcAlphaMode = Shader.PropertyToID(nameof(_SrcAlphaMode)),
+            _DstAlphaMode = Shader.PropertyToID(nameof(_DstAlphaMode)),
+
             // Required for 2D Unlit Shadergraph master node as it doesn't currently support hidden properties.
             rendererColor = Shader.PropertyToID("_RendererColor"),
 
@@ -164,10 +168,13 @@ namespace PowerUtilities
             _LightAttenuation = Shader.PropertyToID(nameof(_LightAttenuation)),
             _ZTestMode = Shader.PropertyToID(nameof(_ZTestMode)),
             _ZWriteMode = Shader.PropertyToID(nameof(_ZWriteMode)),
+            _SpotLightScale = Shader.PropertyToID(nameof(_SpotLightScale)),
+            _SpotLightBias = Shader.PropertyToID(nameof(_SpotLightBias)),
+            _SpotLightGuard = Shader.PropertyToID(nameof(_SpotLightGuard)),
+            _SpotLightAngle = Shader.PropertyToID(nameof(_SpotLightAngle)),
+            _LightRadiusIntensityFalloff = Shader.PropertyToID(nameof(_LightRadiusIntensityFalloff)),
             _CullMode = Shader.PropertyToID(nameof(_CullMode))
             ;
-
-
     }
 
 }
