@@ -35,6 +35,8 @@ namespace PowerUtilities
         [Header("Debug")]
         [EditorDisableGroup]
         public GameObject lightObj;
+        public BigShadowLightControl? bigShadowLightControl;
+
         [EditorDisableGroup]
         public float currentDistance;
 
@@ -222,7 +224,8 @@ namespace PowerUtilities
                     try
                     {
                         lightObj = GameObject.FindGameObjectWithTag(settingSO.lightTag);
-                    }catch (Exception) { }
+                    }
+                    catch (Exception) { }
                 }
             }
             else
@@ -238,6 +241,26 @@ namespace PowerUtilities
 
             // use lightHeight
             settingSO.pos.Set(settingSO.pos.x, settingSO.lightHeight, settingSO.pos.z);
+
+            SetupBigShadowLightControl(lightObj);
+        }
+
+        private void SetupBigShadowLightControl(GameObject lightObj)
+        {
+            if (!lightObj)
+                return;
+
+            bigShadowLightControl = lightObj.GetComponent<BigShadowLightControl>();
+            bigShadowLightControl.OnShadowEnableChanged -= BigShadowLightControl_OnShadowEnableChanged;
+            bigShadowLightControl.OnShadowEnableChanged += BigShadowLightControl_OnShadowEnableChanged;
+        }
+
+        private void BigShadowLightControl_OnShadowEnableChanged(bool isOn)
+        {
+            if (isOn)
+                StepDrawShadow();
+            else
+                drawShadowPass.Clear();
         }
     }
 
