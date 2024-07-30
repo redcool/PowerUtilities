@@ -58,6 +58,9 @@ namespace PowerUtilities
         public static bool IsNeedCreateTexture(Texture t, int targetWidth, int targetHeight)
             => !(t && t.width == targetWidth && t.height == targetHeight);
 
+        public static bool IsGLES3()
+        => SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLES3;
+
 
         static NativeArray<RenderStateBlock> errorRenderStateBlockArr;
 

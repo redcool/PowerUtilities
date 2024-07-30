@@ -48,6 +48,7 @@ namespace PowerUtilities.RenderFeatures
         public string _GBuffer1 = nameof(_GBuffer1);
         public string _GBuffer2 = nameof(_GBuffer2);
         public string _MotionVectorTexture = nameof(_MotionVectorTexture);
+        public string _GBuffer4 = nameof(_GBuffer4);
 
         [Header("Objects")]
         public string deferedTag = "UniversalGBuffer";
@@ -72,8 +73,7 @@ namespace PowerUtilities.RenderFeatures
 
     public class DeferedLightingPass : SRPPass<DeferredLighting>
     {
-
-        RenderTargetIdentifier[] colorTargets = new RenderTargetIdentifier[4];
+        RenderTargetIdentifier[] colorTargets;
         const float kStencilShapeGuard = 1.06067f; // stencil geometric shapes must be inflated to fit the analytic shapes.
         float4 defaultLightAtten = new float4(0, 1, 0, 1);
 
@@ -87,8 +87,16 @@ namespace PowerUtilities.RenderFeatures
                 ;
         }
 
+        void InitTextures()
+        {
+            var count = RenderingTools.IsGLES3() ? 5 : 4;
+            if (colorTargets == null || colorTargets.Length != count)
+                colorTargets = new RenderTargetIdentifier[count];
+        }
+
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
         {
+            InitTextures();
             
             ref var cameraDate = ref renderingData.cameraData;
             var renderer = (UniversalRenderer)cameraDate.renderer;
@@ -130,9 +138,10 @@ namespace PowerUtilities.RenderFeatures
                     if (light.type == LightType.Spot)
                     {
                         GetSpotAngleAttenuation(light.spotAngle, light.innerSpotAngle, ref lightAtten);
+                        // spot angle => dot range[1,0]
                         var spotAngle = light.spotAngle * 0.5f / 180f;
                         var innerSpotAngle = light.innerSpotAngle * 0.5f / 180f;
-                        cmd.SetGlobalVector(ShaderPropertyIds._SpotLightAngle, new Vector4(spotAngle,innerSpotAngle));
+                        cmd.SetGlobalVector(ShaderPropertyIds._SpotLightAngle, new Vector4(1-spotAngle,1-innerSpotAngle));
 
                         spotDir = -light.transform.forward;
 
@@ -232,10 +241,13 @@ namespace PowerUtilities.RenderFeatures
 
         private void SetupTargets(ref ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
         {
+            var isGLES3 = RenderingTools.IsGLES3();
+
             int gbuffer0 = Shader.PropertyToID(Feature._GBuffer0);
             int gbuffer1 = Shader.PropertyToID(Feature._GBuffer1);
             int gbuffer2 = Shader.PropertyToID(Feature._GBuffer2);
             int gbuffer3 = Shader.PropertyToID(Feature._MotionVectorTexture);
+            int gbuffer4 = Shader.PropertyToID(Feature._GBuffer4);
 
             var colorDesc = renderingData.cameraData.cameraTargetDescriptor;
             colorDesc.depthBufferBits = 0;
@@ -244,6 +256,9 @@ namespace PowerUtilities.RenderFeatures
 
             var motionDesc = colorDesc;
             motionDesc.graphicsFormat = UnityEngine.Experimental.Rendering.GraphicsFormat.R16G16_SFloat;
+            
+            var worldDesc = colorDesc;
+            worldDesc.graphicsFormat = UnityEngine.Experimental.Rendering.GraphicsFormat.R16G16B16A16_SFloat;
 
             if (Feature.IsCreateAndSetRTs)
             {
@@ -251,6 +266,11 @@ namespace PowerUtilities.RenderFeatures
                 cmd.GetTemporaryRT(gbuffer1, colorDesc);
                 cmd.GetTemporaryRT(gbuffer2, colorDesc);
                 cmd.GetTemporaryRT(gbuffer3, motionDesc);
+
+                if(isGLES3)
+                {
+                    cmd.GetTemporaryRT(gbuffer4, worldDesc);
+                }
             }
 
             var depthDesc = colorDesc;
@@ -262,6 +282,10 @@ namespace PowerUtilities.RenderFeatures
             colorTargets[1] = gbuffer1;
             colorTargets[2] = gbuffer2;
             colorTargets[3] = gbuffer3;
+            if (isGLES3)
+            {
+                colorTargets[4] = gbuffer4;
+            }
 
             //var depthId = ShaderPropertyIdentifier._CameraDepthAttachment;
             var depthId = renderingData.cameraData.renderer.cameraDepthTargetHandle;
