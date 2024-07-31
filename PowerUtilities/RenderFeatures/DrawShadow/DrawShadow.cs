@@ -251,8 +251,11 @@ namespace PowerUtilities
                 return;
 
             bigShadowLightControl = lightObj.GetComponent<BigShadowLightControl>();
-            bigShadowLightControl.OnShadowEnableChanged -= BigShadowLightControl_OnShadowEnableChanged;
-            bigShadowLightControl.OnShadowEnableChanged += BigShadowLightControl_OnShadowEnableChanged;
+            if (bigShadowLightControl)
+            {
+                bigShadowLightControl.OnShadowEnableChanged -= BigShadowLightControl_OnShadowEnableChanged;
+                bigShadowLightControl.OnShadowEnableChanged += BigShadowLightControl_OnShadowEnableChanged;
+            }
         }
 
         private void BigShadowLightControl_OnShadowEnableChanged(bool isOn)
