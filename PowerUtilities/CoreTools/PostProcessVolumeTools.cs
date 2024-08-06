@@ -14,10 +14,14 @@ namespace PowerUtilities
     public static class PostProcessVolumeTools
     {
         public static Volume[] GetGlobalVolumes(LayerMask layerMask)
-        => VolumeManager.instance.GetVolumes(layerMask).Where(v => v.isGlobal).ToArray();
+        => VolumeManager.instance.GetVolumes(layerMask)
+            .Where(v => v.isActiveAndEnabled && v.isGlobal)
+            .ToArray();
         
         public static Volume GetFirstGlobalVolume(LayerMask layerMask)
-            => VolumeManager.instance.GetVolumes(layerMask).Where(v => v.isGlobal).FirstOrDefault();
+            => VolumeManager.instance.GetVolumes(layerMask)
+            .Where(v => v.isActiveAndEnabled && v.isGlobal)
+            .FirstOrDefault();
 
     }
 }
