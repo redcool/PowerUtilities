@@ -47,7 +47,8 @@ namespace PowerUtilities
 
         public static void SetInt(this Material mat, int nameId, int value, MaterialPropertyBlock block)
         {
-            mat.SetInt(nameId, value);
+            if (mat.HasProperty(nameId))
+                mat.SetInt(nameId, value);
             if (block != null) block.SetInt(nameId, value);
         }
 
@@ -63,7 +64,8 @@ namespace PowerUtilities
 
         public static void SetFloat(this Material mat, int nameId, float value, MaterialPropertyBlock block)
         {
-            mat.SetFloat(nameId, value);
+            if (mat.HasProperty(nameId))
+                mat.SetFloat(nameId, value);
             if (block != null)
                 block.SetFloat(nameId, value);
         }
@@ -73,7 +75,8 @@ namespace PowerUtilities
 
         public static void SetFloatArray(this Material mat, int nameId, float[] values, MaterialPropertyBlock block)
         {
-            mat.SetFloatArray(nameId, values);
+            if (mat.HasProperty(nameId))
+                mat.SetFloatArray(nameId, values);
             if (block != null)
                 block.SetFloatArray(nameId, values);
         }
@@ -83,7 +86,8 @@ namespace PowerUtilities
 
         public static void SetTexture(this Material mat, int nameId, Texture value, MaterialPropertyBlock block)
         {
-            mat.SetTexture(nameId, value);
+            if (mat.HasProperty(nameId))
+                mat.SetTexture(nameId, value);
             if (block != null)
                 block.SetTexture(nameId, value);
         }
@@ -93,7 +97,8 @@ namespace PowerUtilities
 
         public static void SetVector(this Material mat, int nameId, Vector4 value, MaterialPropertyBlock block)
         {
-            mat.SetVector(nameId, value);
+            if (mat.HasProperty(nameId))
+                mat.SetVector(nameId, value);
             if (block != null) block.SetVector(nameId, value);
         }
 
@@ -102,7 +107,8 @@ namespace PowerUtilities
 
         public static void SetVectorArray(this Material mat, int nameId, Vector4[] value, MaterialPropertyBlock block)
         {
-            mat.SetVectorArray(nameId, value);
+            if (mat.HasProperty(nameId))
+                mat.SetVectorArray(nameId, value);
             if (block != null) block.SetVectorArray(nameId, value);
         }
 
@@ -111,7 +117,8 @@ namespace PowerUtilities
 
         public static void SetMatrix(this Material mat, int nameId, Matrix4x4 value, MaterialPropertyBlock block)
         {
-            mat.SetMatrix(nameId, value);
+            if (mat.HasProperty(nameId))
+                mat.SetMatrix(nameId, value);
             if (block != null) block.SetMatrix(nameId, value);
         }
 
@@ -120,7 +127,8 @@ namespace PowerUtilities
 
         public static void SetMatrixArray(this Material mat, int nameId, Matrix4x4[] value, MaterialPropertyBlock block)
         {
-            mat.SetMatrixArray(nameId, value);
+            if (mat.HasProperty(nameId))
+                mat.SetMatrixArray(nameId, value);
             if (block != null) block.SetMatrixArray(nameId, value);
         }
 
@@ -129,7 +137,8 @@ namespace PowerUtilities
 
         public static void SetColor(this Material mat, int nameId, Color value, MaterialPropertyBlock block)
         {
-            mat.SetColor(nameId, value);
+            if(mat.HasProperty(nameId))
+                mat.SetColor(nameId, value);
             if (block != null)
                 block.SetColor(nameId, value);
         }
