@@ -26,6 +26,7 @@ namespace PowerUtilities
         public override void OnInspectorGUI()
         {
             var inst = target as T;
+            GUILayout.Space(0);
 
             if (!string.IsNullOrEmpty(TitleHelpStr))
             {
@@ -38,7 +39,7 @@ namespace PowerUtilities
             if (!string.IsNullOrEmpty(Version))
             {
                 var lastRect = GUILayoutUtility.GetLastRect();
-                var rect = new Rect(80, lastRect.yMax + 3, 100, 18);
+                var rect = new Rect(80, lastRect.yMax, 100, 18);
 
                 EditorGUITools.DrawColorLabel(rect, new GUIContent(Version), Color.cyan);
             }
