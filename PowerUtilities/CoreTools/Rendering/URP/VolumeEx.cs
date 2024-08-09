@@ -14,7 +14,14 @@ namespace PowerUtilities
         /// </summary>
         /// <param name="v"></param>
         /// <returns></returns>
-        public static VolumeProfile GetProfile(this Volume v,bool isIncludeInstanceProfile)
-        => v.HasInstantiatedProfile() && isIncludeInstanceProfile ? v.profile : v.sharedProfile;
+        public static VolumeProfile GetProfile(this Volume v, bool isSharedFirst=true)
+        {
+            var p = v.HasInstantiatedProfile() ? v.profile : v.sharedProfile;
+            if (isSharedFirst && v.sharedProfile)
+            {
+                p = v.sharedProfile;
+            }
+            return p;
+        }
     }
 }
