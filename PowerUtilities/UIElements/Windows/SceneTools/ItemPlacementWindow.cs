@@ -42,20 +42,30 @@ namespace PowerUtilities
 
         private void SceneView_duringSceneGui(SceneView obj)
         {
+            if (!activeField.value)
+                return;
+            
             var e = Event.current;
             var ray = HandleUtility.GUIPointToWorldRay(e.mousePosition);
             var layerMask = this.layerMaskField.value;
 
             if (Physics.Raycast(ray, out var hit, float.MaxValue, layerMask))
             {
+                // show guide line
+                var endPos = normalAlignField.value ? hit.normal : Vector3.up;
+                DrawGuideLine(e.mousePosition, hit.point, endPos);
+
+                // try create
                 var prefab = prefabField.value;
-                if (activeField.value
-                    && prefab
-                    && e.IsMouseLeftDown())
+                if (!e.IsMouseLeftDown())
+                    return;
+
+                if (prefab && prefab is GameObject go)
                 {
-                    var inst = (GameObject)(PrefabUtility.IsPartOfAnyPrefab(prefab) ?
-                        PrefabUtility.InstantiatePrefab(prefab) : Instantiate(prefab));
-                    ;
+                    var inst = Instantiate(go);
+                    Undo.RegisterCreatedObjectUndo(inst, $"{inst.name} created");
+
+                    inst.transform.parent = go.transform.parent;
 
                     inst.transform.position = hit.point;
 
@@ -64,8 +74,6 @@ namespace PowerUtilities
 
                 }
 
-                var endPos = normalAlignField.value ? hit.normal : Vector3.up;
-                DrawGuideLine(e.mousePosition, hit.point, endPos);
             }
         }
 
