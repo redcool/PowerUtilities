@@ -5,6 +5,7 @@ using UnityEngine;
 using System;
 using UnityEditor;
 using Random = UnityEngine.Random;
+using UnityEngine.UIElements;
 
 namespace PowerUtilities.Scenes
 {
@@ -16,10 +17,24 @@ namespace PowerUtilities.Scenes
 
         public Transform minTr, maxTr;
         public float rayMaxHeight = 500;
+
+        [Tooltip("random position 's radius")]
+        public Vector3 radius = Vector3.one;
+
     }
 
     public class PlacementWindow : EditorWindow
     {
+        readonly GUIContent
+            ROOT_TEXT = new GUIContent("Root", "update children"),
+            FELL_TO_GROUND = new GUIContent("Fell to ground", "子节点落地"),
+            BOUNDS_RAND_POS_TEXT = new GUIContent("Bounds Position Random ", "框内随机子节点位置"),
+            RAND_POS_TEXT = new GUIContent("PositionRandom","子节点位置随机微调"),
+            RAND_RATOTE_TEXT = new GUIContent("Rotation Random","子节点随机旋转"),
+            RAND_SCALE_TEXT = new GUIContent("Scale Random","子节点随机缩放")
+            ;
+
+
         const string ROOT_PATH = CommonUXMLEditorWindow.ROOT_MENU + "/Scene";
         const string helpStr = @"
 Hierarchy中对选中节点的子节点进行
@@ -30,6 +45,9 @@ Hierarchy中对选中节点的子节点进行
 
         PlacementInfo info = new PlacementInfo();
 
+        public List<Transform> rootChildrenList = new List<Transform>();
+        private Vector2 scrollPos;
+
         [MenuItem(ROOT_PATH + "/"+nameof(PlacementWindow))]
         static void Init()
         {
@@ -38,91 +56,107 @@ Hierarchy中对选中节点的子节点进行
             win.Show();
         }
 
-        void OnSelectionChange()
-        {
-            Repaint();
-        }
-
-        public static void RandomDistribution(Transform[] trs,Vector3 min,Vector3 max)
-        {
-            foreach (var tr in trs)
-            {
-                tr.position = RandomTools.Range(min,max);
-            }
-        }
 
         public void OnGUI()
         {
-            EditorGUILayout.HelpBox(helpStr, MessageType.Info);
+            SetupChildrenList();
 
+            scrollPos = EditorGUILayout.BeginScrollView(scrollPos);
+
+            EditorGUILayout.HelpBox(helpStr, MessageType.Info);
 
             EditorGUITools.BeginVerticalBox(() =>
             {
-
                 EditorGUITools.BeginHorizontalBox(() =>
                 {
-                    info.target = (Transform)EditorGUILayout.ObjectField("Root: ", info.target, typeof(Transform), true);
+                    info.target = (Transform)EditorGUILayout.ObjectField(ROOT_TEXT, info.target, typeof(Transform), true);
                     if (GUILayout.Button("this"))
                     {
                         info.target = Selection.activeTransform;
                     }
                 });
 
+
+                EditorGUILayout.LabelField("Bound Placements");
                 EditorGUITools.BeginVerticalBox(() =>
                 {
                     info.minTr = (Transform)EditorGUILayout.ObjectField("Min:", info.minTr, typeof(Transform), true);
                     info.maxTr = (Transform)EditorGUILayout.ObjectField("Max:", info.maxTr, typeof(Transform), true);
 
-
                     EditorGUI.BeginDisabledGroup(!info.target || !info.minTr || !info.maxTr);
-                    if (GUILayout.Button("框内随机放置"))
+                    if (GUILayout.Button(BOUNDS_RAND_POS_TEXT))
                     {
-                        RandomDistribution(info.target.GetComponentsInChildren<Transform>(), info.minTr.position, info.maxTr.position);
+                        RandomDistribution(info.minTr.position, info.maxTr.position);
                     }
-
                     EditorGUI.EndDisabledGroup();
-                });
+                }, indentLevelAdd: EditorGUI.indentLevel + 1);
 
-                EditorGUI.BeginDisabledGroup(!info.target);
-
-                EditorGUITools.BeginVerticalBox(() =>
+                //---------------
                 {
+                    EditorGUI.BeginDisabledGroup(!info.target);
+                    //==========Position
+                    EditorGUILayout.LabelField("Position");
+                    EditorGUITools.BeginVerticalBox(() =>
+                    {
+                        info.radius = EditorGUILayout.Vector3Field("Radius:",info.radius);
+                        if (GUILayout.Button(RAND_POS_TEXT))
+                        {
+                            RandomPosition(info.radius);
+                        }
+                    }, indentLevelAdd: EditorGUI.indentLevel + 1);
+
+
+                    //==========Scale
+                    EditorGUILayout.LabelField("Scale");
+                    EditorGUITools.BeginVerticalBox(() =>
+                    {
                         //EditorGUIUtility.labelWidth = 100;
                         info.scale.x = EditorGUILayout.FloatField("min scale:", info.scale.x);
-                    info.scale.y = EditorGUILayout.FloatField("max scale:", info.scale.y);
-                    if (GUILayout.Button("随机缩放"))
+                        info.scale.y = EditorGUILayout.FloatField("max scale:", info.scale.y);
+                        if (GUILayout.Button(RAND_SCALE_TEXT))
+                        {
+                            RandomScale(info.scale);
+                        }
+                    },indentLevelAdd:EditorGUI.indentLevel+1);
+
+                    //==========Rotation
+                    EditorGUILayout.LabelField("Rotation");
+                    EditorGUITools.BeginVerticalBox(() =>
                     {
-                        RandomScale(info.target, info.scale);
-                    }
+                        info.rotation.x = EditorGUILayout.FloatField("min rotation:", info.rotation.x);
+                        info.rotation.y = EditorGUILayout.FloatField("max rotation:", info.rotation.y);
+                        if (GUILayout.Button(RAND_RATOTE_TEXT))
+                        {
+                            RandomRotation(info.rotation);
+                        }
+
+                    }, indentLevelAdd: EditorGUI.indentLevel + 1);
+
+                    //==========RayTrace
+                    EditorGUILayout.LabelField("RayTrace");
+                    EditorGUITools.BeginVerticalBox(() =>
+                    {
+                        info.colliderLayers = EditorGUITools.LayerMaskField("Collide Layer:", info.colliderLayers);
+                        info.rayMaxHeight = EditorGUILayout.FloatField("Ray Max Height:", info.rayMaxHeight);
+
+                        if (GUILayout.Button(FELL_TO_GROUND))
+                        {
+                            PutOnLand();
+                        }
+                    }, indentLevelAdd: EditorGUI.indentLevel + 1);
+
+                    EditorGUI.EndDisabledGroup();
                 }
-                );
-
-                EditorGUITools.BeginVerticalBox(() =>
-                {
-                    info.rotation.x = EditorGUILayout.FloatField("min rotation:", info.rotation.x);
-                    info.rotation.y = EditorGUILayout.FloatField("max rotation:", info.rotation.y);
-                    if (GUILayout.Button("随机旋转"))
-                    {
-                        RandomRotation(info.target, info.rotation);
-                    }
-
-                });
-
-
-                EditorGUITools.BeginVerticalBox(() =>
-                {
-                    info.colliderLayers = EditorGUITools.LayerMaskField("Collide Layer:", info.colliderLayers);
-                    info.rayMaxHeight = EditorGUILayout.FloatField("Ray Max Height:", info.rayMaxHeight);
-
-                    if (GUILayout.Button("放置到地面"))
-                    {
-                        PutOnLand(info.target);
-                    }
-                });
-
-                EditorGUI.EndDisabledGroup();
             });
 
+            EditorGUILayout.EndScrollView();
+        }
+
+
+        private void SetupChildrenList()
+        {
+            if (info.target)
+                info.target.FindChildren(ref rootChildrenList);
         }
 
         private void OnFocus()
@@ -138,7 +172,6 @@ Hierarchy中对选中节点的子节点进行
 
         void OnDrawScene(SceneView scene)
         {
-
             if (info.minTr && info.maxTr)
             {
                 var min = info.minTr.position;
@@ -147,11 +180,10 @@ Hierarchy中对选中节点的子节点进行
 
                 var center = size*0.5f + min;
                 Handles.DrawWireCube(center,size);
-                
             }
         }
 
-        private void PutOnLand(Transform tr)
+        private void PutOnLand()
         {
             Func<Vector3, Vector3> GetCollidePoint = (pos) =>
             {
@@ -165,42 +197,59 @@ Hierarchy中对选中节点的子节点进行
                 return pos;
             };
 
-            var children = tr.GetComponentsInChildren<Renderer>();
-
-            foreach (var r in children)
+            foreach (var r in rootChildrenList)
             {
-                Transform item = r.transform;
-                var c = item.GetComponent<Collider>();
+                Undo.RecordObject(r, $"random position :{r.name}");
+
+                var c = r.GetComponent<Collider>();
                 if (c)
                     c.enabled = false;
 
-                var pos = GetCollidePoint(item.position + new Vector3(0, info.rayMaxHeight,0));
-                item.position = pos;
+                var pos = GetCollidePoint(r.position + new Vector3(0, info.rayMaxHeight,0));
+                r.position = pos;
 
                 if (c)
                     c.enabled = true;
             }
         }
 
-        private void RandomRotation(Transform tr, Vector2 rotation)
+        public void RandomDistribution(Vector3 min, Vector3 max)
         {
-            var children = tr.GetComponentsInChildren<Renderer>();
-            foreach (var r in children)
+            foreach (var tr in rootChildrenList)
             {
-                Transform item = r.transform;
-                var rot = Random.Range(rotation.x, rotation.y);
-                item.rotation = Quaternion.Euler(0, rot, 0);
+                Undo.RecordObject(tr, $"RandomDistribution :{tr.name}");
+                tr.position = RandomTools.Range(min, max);
             }
         }
 
-        private void RandomScale(Transform tr, Vector2 scale)
+        private void RandomRotation( Vector2 rotation)
         {
-            var children = tr.GetComponentsInChildren<Renderer>();
-            foreach (var r in children)
+            foreach (var r in rootChildrenList)
             {
-                Transform item = r.transform;
+                Undo.RecordObject(r, $"RandomRotation :{r.name}");
+
+                var rot = Random.Range(rotation.x, rotation.y);
+                r.rotation = Quaternion.Euler(0, rot, 0);
+            }
+        }
+
+        private void RandomScale(Vector2 scale)
+        {
+            foreach (var r in rootChildrenList)
+            {
+                Undo.RecordObject(r, $"RandomScale :{r.name}");
+
                 var s = Random.Range(scale.x, scale.y);
-                item.localScale = new Vector3(s, s, s);
+                r.localScale = new Vector3(s, s, s);
+            }
+        }
+
+        void RandomPosition(Vector3 radius)
+        {
+            foreach (var r in rootChildrenList)
+            {
+                Undo.RecordObject(r, $"random position :{r.name}");
+                r.position += Vector3.Scale(Random.insideUnitSphere ,radius);
             }
         }
     }
