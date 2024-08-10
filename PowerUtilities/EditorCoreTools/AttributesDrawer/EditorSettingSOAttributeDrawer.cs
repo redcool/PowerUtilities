@@ -18,7 +18,7 @@ namespace PowerUtilities
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             var attr = attribute as EditorSettingSOAttribute;
-			settingSOType = attr.settingType;
+			settingSOType = attr.settingType??fieldInfo.FieldType;
 
             var serializedObject = property.serializedObject;
 

@@ -22,7 +22,7 @@
         /// </summary>
         public int labelWidth = 250;
 
-        public EditorSettingSOAttribute(Type settingType)
+        public EditorSettingSOAttribute(Type settingType=null)
         {
             this.settingType = settingType;
         }

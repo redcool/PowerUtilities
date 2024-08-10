@@ -30,7 +30,12 @@ namespace PowerUtilities
     {
 
         DrawShadowPass drawShadowPass;
+        /// <summary>
+        /// current used
+        /// </summary>
         public DrawShadowSettingSO settingSO;
+        // global settingSO
+        public DrawShadowSettingSO globalSettingSO;
 
         [Header("Debug")]
         [EditorDisableGroup]
@@ -51,6 +56,9 @@ namespace PowerUtilities
         /// <inheritdoc/>
         public override void Create()
         {
+            // save current setting first
+            globalSettingSO = settingSO;
+
             //keep a instance
             Instance = this;
 
@@ -255,7 +263,18 @@ namespace PowerUtilities
             {
                 bigShadowLightControl.OnShadowEnableChanged -= BigShadowLightControl_OnShadowEnableChanged;
                 bigShadowLightControl.OnShadowEnableChanged += BigShadowLightControl_OnShadowEnableChanged;
+
+                bigShadowLightControl.OnOverrideSettingSO -= BigShadowLightControl_OnOverrideSettingSO;
+                bigShadowLightControl.OnOverrideSettingSO += BigShadowLightControl_OnOverrideSettingSO;
             }
+        }
+
+        private void BigShadowLightControl_OnOverrideSettingSO(bool isOn, DrawShadowSettingSO overrideSettingSO)
+        {
+            if (!overrideSettingSO)
+                return;
+
+            settingSO = isOn ? overrideSettingSO : globalSettingSO;
         }
 
         private void BigShadowLightControl_OnShadowEnableChanged(bool isOn)

@@ -13,21 +13,38 @@ namespace PowerUtilities
     [ExecuteAlways]
     public class BigShadowLightControl : MonoBehaviour
     {
+        [Tooltip("Clear and stop DrawShadow rendering")]
         public bool isShadowEnabled = true;
         bool lastIsShadowEnabled;
+
+        [Header("Override")]
+        [Tooltip("override global DrawShadowSettings")]
+        public bool isOverrideSettingSOEnabled;
+        bool lastIsOverrideSettingSOEnabled;
+
+        [EditorSettingSO]
+        public DrawShadowSettingSO overrideSettingSO;
 
         /// <summary>
         /// called when isShadowEnabled changed
         /// </summary>
         public event Action<bool> OnShadowEnableChanged;
 
+        public event Action<bool,DrawShadowSettingSO> OnOverrideSettingSO;
+
         private void Update()
         {
             var isChanged = isShadowEnabled != lastIsShadowEnabled;
 
-            if (CompareTools.CompareAndSet(ref lastIsShadowEnabled, ref isShadowEnabled))
+            if (OnShadowEnableChanged != null&& CompareTools.CompareAndSet(ref lastIsShadowEnabled, ref isShadowEnabled))
             {
-                OnShadowEnableChanged?.Invoke(isShadowEnabled);
+                OnShadowEnableChanged(isShadowEnabled);
+            }
+
+            
+            if(OnOverrideSettingSO != null && CompareTools.CompareAndSet(ref lastIsOverrideSettingSOEnabled,ref isOverrideSettingSOEnabled))
+            {
+                OnOverrideSettingSO(isOverrideSettingSOEnabled, overrideSettingSO);
             }
         }
 
