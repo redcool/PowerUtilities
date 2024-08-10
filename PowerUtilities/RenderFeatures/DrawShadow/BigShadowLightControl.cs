@@ -51,6 +51,7 @@ namespace PowerUtilities
         private void OnDestroy()
         {
             OnShadowEnableChanged = null;
+            OnOverrideSettingSO = null;
         }
     }
 }
