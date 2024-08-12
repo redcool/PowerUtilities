@@ -215,6 +215,15 @@
             FindChildrenRecursive(ref list, go.transform);
         }
 
+        public static void FindChildren(this Transform tr, ref List<Transform> list)
+        {
+            list.Clear();
+            for (int i = 0; i < tr.childCount; i++)
+            {
+                list.Add(tr.GetChild(i));
+            }
+        }
+
         public static void RenameHierarchy(this GameObject go,string replacedName,string newName)
         {
             if (string.IsNullOrEmpty(replacedName))
@@ -226,5 +235,6 @@
                 tr.gameObject.name = Regex.Replace(tr.gameObject.name, replacedName, newName);
             });
         }
+
     }
 }

@@ -90,14 +90,15 @@ namespace PowerUtilities
 
         #region Box And Group
 
-        public static void BeginVerticalBox(Action drawAction, string style = "Box")
+        public static void BeginVerticalBox(Action drawAction, string style = "Box",int indentLevelAdd=0)
         {
             if (drawAction == null)
                 return;
-
+            EditorGUI.indentLevel += indentLevelAdd;
             EditorGUILayout.BeginVertical(style);
                 drawAction();
             EditorGUILayout.EndVertical();
+            EditorGUI.indentLevel -= indentLevelAdd;
         }
         public static void BeginHorizontalBox(Action drawAction, string style = "Box")
         {
