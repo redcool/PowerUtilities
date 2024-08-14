@@ -1,4 +1,4 @@
-//#define DEBUG_ON
+#define DEBUG_ON
 #if UNITY_EDITOR
 namespace PowerUtilities
 {
@@ -65,11 +65,13 @@ namespace PowerUtilities
             //GUI.Button(new Rect(0,0,100,100),"test");
             //Handles.EndGUI();
 
-            if(lightmapPreviewWin == null)
+            var isPreviewWinInvalid = lightmapPreviewWin == null || (lightmapPreviewWin && !EditorWindowTools.IsFocused(lightmapPreviewWin));
+
+            if (isPreviewWinInvalid)
                 lightmapPreviewWin = EditorWindowTools.GetWindow("LightmapPreviewWindow");
 
-            if (lightmapPreviewWin == null 
-                || !InternalEditorUtility.isApplicationActive 
+            if (lightmapPreviewWin == null
+                || !InternalEditorUtility.isApplicationActive
                 //|| EditorWindow.focusedWindow != lightmapPreviewWin
                 || e.type == EventType.Layout // layout, coord error, repaint is useful
                 || e.control == lastControlPressed
@@ -78,12 +80,13 @@ namespace PowerUtilities
             // save key states
             lastControlPressed = e.control;
 
-            
+
             var lightmapTexture = GetCachedLightmapTexture(lightmapPreviewWin);
             if (!lightmapTexture)
                 return;
 
-            lightmapPreviewWin.titleContent.tooltip= WINDOW_TOOLTIPS;
+            lightmapPreviewWin.titleContent.tooltip = WINDOW_TOOLTIPS;
+            lightmapPreviewWin.titleContent.text = "Preview *.*";
 
             if (rendererList.Count == 0)
                 SetupRenderers();
@@ -93,9 +96,6 @@ namespace PowerUtilities
             var lightmapIndex = GetLightmapIndex(lightmapPreviewWin);
             var lightmapScaledRect = GetLightmapScaledRect(lightmapPreviewWin, lightmapTexture);
 
-
-            Rect unityEditorPos = GetMainWindowPosition();
-
             //get mouse position on lightmap texture space
             var mousePosOnLightmap = ViewToViewPosition(lightmapPreviewWin, mousePos);
             mousePosOnLightmap -= lightmapScaledRect.position;
@@ -103,13 +103,10 @@ namespace PowerUtilities
             var uv = mousePosOnLightmap / lightmapScaledRect.size;
             uv.y = 1f - uv.y;
 #if DEBUG_ON
-            Debug.Log(mousePosOnLightmap+",uv:"+uv+" ,rect: "+lightmapScaledRect +":"+e.type);
+            Debug.Log(mousePosOnLightmap + ",uv:" + uv + " ,rect: " + lightmapScaledRect + ":" + e.type);
 #endif
-            var obj = GetLightmappedObject(lightmapIndex, uv);
-            if (obj)
-            {
-                Selection.activeObject = obj;
-            }
+            Selection.objects = GetLightmappedObject(lightmapIndex, uv);
+
             lightmapPreviewWin.wantsMouseMove = true;
         }
         public static int GetLightmapIndex(object lightmapPreviewWin)
@@ -118,24 +115,22 @@ namespace PowerUtilities
             return (int)m_LightmapIndex?.GetValue(lightmapPreviewWin);
         }
 
-        public static Rect GetLightmapScaledRect(object lightmapPreviewWin,Texture lightmapTex)
+        public static Rect GetLightmapScaledRect(EditorWindow lightmapPreviewWin,Texture lightmapTex)
         {
-            var type = lightmapPreviewWin.GetType();
+            var winType = lightmapPreviewWin.GetType();
 
             //var m_CachedTexture = type.GetField("m_CachedTexture", BindingFlags.Instance| BindingFlags.NonPublic);
             //var cachedTexture = m_CachedTexture.GetValue(lightmapPreviewWin);
             //var texture = (Texture)m_CachedTexture.FieldType.GetField("texture").GetValue(cachedTexture);
 
-            var m_ZoomablePreview = type.GetField("m_ZoomablePreview", BindingFlags.NonPublic | BindingFlags.Instance);
-            var zoomalbePreview = m_ZoomablePreview.GetValue(lightmapPreviewWin);
+            var m_ZoomablePreview = winType.GetField("m_ZoomablePreview", BindingFlags.NonPublic | BindingFlags.Instance);
+            var zoomablePreview = m_ZoomablePreview.GetValue(lightmapPreviewWin);
 
-            var pShownArea = m_ZoomablePreview.FieldType.GetProperty("shownArea");
             // scale rect
-            var showArea = (Rect)pShownArea?.GetValue(zoomalbePreview);
+            var showArea = m_ZoomablePreview.FieldType.GetPropertyValue<Rect>(zoomablePreview,"shownArea");
 
-            var pDrawRect = m_ZoomablePreview.FieldType.GetProperty("drawRect");
             // --width,height 
-            var drawRect = (Rect)pDrawRect?.GetValue(zoomalbePreview);
+            var drawRect = m_ZoomablePreview.FieldType.GetPropertyValue<Rect>(zoomablePreview,"drawRect");
 
             var viewSize = drawRect.size - new Vector2(5, 5);
             var scale = Mathf.Min(viewSize.x/lightmapTex.width, viewSize.y/lightmapTex.height);
@@ -143,6 +138,7 @@ namespace PowerUtilities
             var offsetPos = showArea.position * viewSize;
 
             var textureSize = new Vector2(lightmapTex.width, lightmapTex.height) * scale / showArea.size;
+
             return new Rect(offsetPos.x, offsetPos.y, textureSize.x, textureSize.y);
         }
         private static void SetupRenderers()
@@ -154,7 +150,7 @@ namespace PowerUtilities
                 .ToList();
         }
 
-        public static Object GetLightmappedObject(int lightmapId, Vector2 uvPosStartsAtBottom)
+        public static GameObject[] GetLightmappedObject(int lightmapId, Vector2 uvPosStartsAtBottom)
         {
             if (lightmapId == -1)
                 return null;
@@ -163,12 +159,15 @@ namespace PowerUtilities
             rendererList.ForEach(r =>
             {
                 var rect = new Rect(new Vector2(r.lightmapScaleOffset.z, r.lightmapScaleOffset.w), new Vector2(r.lightmapScaleOffset.x, r.lightmapScaleOffset.y));
-                Debug.Log(rect +" : "+ uvPosStartsAtBottom+":"+ rect.Contains(uvPosStartsAtBottom));
+                Debug.Log(r+":"+rect +" : "+ uvPosStartsAtBottom+":"+ rect.Contains(uvPosStartsAtBottom));
             });
 #endif
+            
             return rendererList.Where(r => r.lightmapIndex == lightmapId
-                && new Rect(new Vector2(r.lightmapScaleOffset.z, r.lightmapScaleOffset.w),new Vector2( r.lightmapScaleOffset.x, r.lightmapScaleOffset.y)).Contains(uvPosStartsAtBottom)
-                ).FirstOrDefault()
+                && new Rect(new Vector2(r.lightmapScaleOffset.z, r.lightmapScaleOffset.w), new Vector2(r.lightmapScaleOffset.x, r.lightmapScaleOffset.y)).Contains(uvPosStartsAtBottom)
+                )
+                .Select(r => r.gameObject)
+                .ToArray();
                 ;
         }
 
@@ -191,6 +190,25 @@ namespace PowerUtilities
         {
             var screenPos = GUIUtility.GUIToScreenPoint(viewPosOtherWindow);
             return screenPos - curWindow.position.position;
+        }
+
+        public static Rect ResizeRectToFit(Rect rect, Rect to)
+        {
+            float a = to.width / rect.width;
+            float b = to.height / rect.height;
+            float num = Mathf.Min(a, b);
+            float width = (int)Mathf.Round(rect.width * num);
+            float height = (int)Mathf.Round(rect.height * num);
+            return new Rect(rect.x, rect.y, width, height);
+        }
+
+        public static Rect ScaleRectByZoomableArea(Rect rect, Rect zoomableArea_ShownArea, Rect zoomableArea_Rect)
+        {
+            float num = (0f - zoomableArea_ShownArea.x / zoomableArea_ShownArea.width) * (rect.x + zoomableArea_Rect.width);
+            float num2 = (zoomableArea_ShownArea.y - (1f - zoomableArea_ShownArea.height)) / zoomableArea_ShownArea.height * zoomableArea_Rect.height;
+            float width = rect.width / zoomableArea_ShownArea.width;
+            float height = rect.height / zoomableArea_ShownArea.height;
+            return new Rect(rect.x + num, rect.y + num2, width, height);
         }
     }
 }

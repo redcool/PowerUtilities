@@ -24,7 +24,7 @@ namespace PowerUtilities
         public static EditorWindow GetWindow(string typeName)
         {
             return Resources.FindObjectsOfTypeAll<EditorWindow>()
-                .Where(w => w.GetType().Name ==typeName)
+                .Where(w => w.GetType().Name ==typeName && IsFocused(w))
                 .FirstOrDefault()
                 ;
         }
