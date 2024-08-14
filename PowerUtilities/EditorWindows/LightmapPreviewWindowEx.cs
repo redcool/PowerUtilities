@@ -144,8 +144,11 @@ namespace PowerUtilities
         private static void SetupRenderers()
         {
             rendererList =
-                //Object.FindObjectsByType<Renderer>(FindObjectsInactive.Include, FindObjectsSortMode.None) // unity_2021_3_18 later
+#if UNITY_2021_3_OR_NEWER
+                Object.FindObjectsByType<Renderer>(FindObjectsInactive.Include, FindObjectsSortMode.None) // unity_2021_3_18 later
+#else
                 Object.FindObjectsOfType<Renderer>(true)
+#endif
                 .Where(r => r.gameObject.HasStaticFlag(StaticEditorFlags.ContributeGI) && r.lightmapIndex != -1)
                 .ToList();
         }
@@ -167,7 +170,7 @@ namespace PowerUtilities
             //#endif
 
             return rendererList.Where(r => r.lightmapIndex == lightmapId
-                && new Rect(new Vector2(r.lightmapScaleOffset.z, r.lightmapScaleOffset.w), new Vector2(r.lightmapScaleOffset.x, r.lightmapScaleOffset.y)).Contains(uvPosStartsAtBottom)
+                && LightmapSettingTools.GetLightmapRect(r).Contains(uvPosStartsAtBottom)
                 )
                 .Select(r => r.gameObject)
                 .ToArray();
