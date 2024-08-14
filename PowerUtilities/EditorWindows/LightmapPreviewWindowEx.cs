@@ -1,4 +1,3 @@
-#define DEBUG_ON
 #if UNITY_EDITOR
 namespace PowerUtilities
 {
@@ -34,8 +33,8 @@ namespace PowerUtilities
             SceneView.duringSceneGui -= OnSceneGUIUpdate;
             SceneView.duringSceneGui += OnSceneGUIUpdate;
 
-            EditorSceneManager.activeSceneChangedInEditMode -=SceneManager_activeSceneChanged;
-            EditorSceneManager.activeSceneChangedInEditMode +=SceneManager_activeSceneChanged;
+            EditorSceneManager.activeSceneChangedInEditMode -= SceneManager_activeSceneChanged;
+            EditorSceneManager.activeSceneChangedInEditMode += SceneManager_activeSceneChanged;
 
         }
 
@@ -102,20 +101,21 @@ namespace PowerUtilities
 
             var uv = mousePosOnLightmap / lightmapScaledRect.size;
             uv.y = 1f - uv.y;
-#if DEBUG_ON
-            Debug.Log(mousePosOnLightmap + ",uv:" + uv + " ,rect: " + lightmapScaledRect + ":" + e.type);
-#endif
+            //#if DEBUG_ON
+            if (settings.lightmapPreviewWinShowLog)
+                Debug.Log(mousePosOnLightmap + ",uv:" + uv + " ,rect: " + lightmapScaledRect + ":" + e.type);
+            //#endif
             Selection.objects = GetLightmappedObject(lightmapIndex, uv);
 
             lightmapPreviewWin.wantsMouseMove = true;
         }
         public static int GetLightmapIndex(object lightmapPreviewWin)
         {
-            var m_LightmapIndex = lightmapPreviewWin.GetType().GetField("m_LightmapIndex", BindingFlags.NonPublic| BindingFlags.Instance);
+            var m_LightmapIndex = lightmapPreviewWin.GetType().GetField("m_LightmapIndex", BindingFlags.NonPublic | BindingFlags.Instance);
             return (int)m_LightmapIndex?.GetValue(lightmapPreviewWin);
         }
 
-        public static Rect GetLightmapScaledRect(EditorWindow lightmapPreviewWin,Texture lightmapTex)
+        public static Rect GetLightmapScaledRect(EditorWindow lightmapPreviewWin, Texture lightmapTex)
         {
             var winType = lightmapPreviewWin.GetType();
 
@@ -127,13 +127,13 @@ namespace PowerUtilities
             var zoomablePreview = m_ZoomablePreview.GetValue(lightmapPreviewWin);
 
             // scale rect
-            var showArea = m_ZoomablePreview.FieldType.GetPropertyValue<Rect>(zoomablePreview,"shownArea");
+            var showArea = m_ZoomablePreview.FieldType.GetPropertyValue<Rect>(zoomablePreview, "shownArea");
 
             // --width,height 
-            var drawRect = m_ZoomablePreview.FieldType.GetPropertyValue<Rect>(zoomablePreview,"drawRect");
+            var drawRect = m_ZoomablePreview.FieldType.GetPropertyValue<Rect>(zoomablePreview, "drawRect");
 
             var viewSize = drawRect.size - new Vector2(5, 5);
-            var scale = Mathf.Min(viewSize.x/lightmapTex.width, viewSize.y/lightmapTex.height);
+            var scale = Mathf.Min(viewSize.x / lightmapTex.width, viewSize.y / lightmapTex.height);
 
             var offsetPos = showArea.position * viewSize;
 
@@ -150,31 +150,34 @@ namespace PowerUtilities
                 .ToList();
         }
 
-        public static GameObject[] GetLightmappedObject(int lightmapId, Vector2 uvPosStartsAtBottom)
+        public static GameObject[] GetLightmappedObject(int lightmapId, Vector2 uvPosStartsAtBottom, bool isShowLog = false)
         {
             if (lightmapId == -1)
                 return null;
 
-#if DEBUG_ON
-            rendererList.ForEach(r =>
+            //#if DEBUG_ON
+            if (isShowLog)
             {
-                var rect = new Rect(new Vector2(r.lightmapScaleOffset.z, r.lightmapScaleOffset.w), new Vector2(r.lightmapScaleOffset.x, r.lightmapScaleOffset.y));
-                Debug.Log(r+":"+rect +" : "+ uvPosStartsAtBottom+":"+ rect.Contains(uvPosStartsAtBottom));
-            });
-#endif
-            
+                rendererList.ForEach(r =>
+                {
+                    var rect = new Rect(new Vector2(r.lightmapScaleOffset.z, r.lightmapScaleOffset.w), new Vector2(r.lightmapScaleOffset.x, r.lightmapScaleOffset.y));
+                    Debug.Log(r + ":" + rect + " : " + uvPosStartsAtBottom + ":" + rect.Contains(uvPosStartsAtBottom));
+                });
+            }
+            //#endif
+
             return rendererList.Where(r => r.lightmapIndex == lightmapId
                 && new Rect(new Vector2(r.lightmapScaleOffset.z, r.lightmapScaleOffset.w), new Vector2(r.lightmapScaleOffset.x, r.lightmapScaleOffset.y)).Contains(uvPosStartsAtBottom)
                 )
                 .Select(r => r.gameObject)
                 .ToArray();
-                ;
+            ;
         }
 
         public static Texture GetCachedLightmapTexture(Object lightmapPreviewWindow)
         {
             var type = lightmapPreviewWindow.GetType();
-            var m_CachedTexture = type.GetField("m_CachedTexture", BindingFlags.Instance| BindingFlags.NonPublic);
+            var m_CachedTexture = type.GetField("m_CachedTexture", BindingFlags.Instance | BindingFlags.NonPublic);
             var cachedTexture = m_CachedTexture.GetValue(lightmapPreviewWindow);
             var texture = (Texture)m_CachedTexture.FieldType.GetField("texture").GetValue(cachedTexture);
             return texture;
@@ -186,7 +189,7 @@ namespace PowerUtilities
             return unityEditorRect;
         }
 
-        public static Vector2 ViewToViewPosition( EditorWindow curWindow,Vector2 viewPosOtherWindow)
+        public static Vector2 ViewToViewPosition(EditorWindow curWindow, Vector2 viewPosOtherWindow)
         {
             var screenPos = GUIUtility.GUIToScreenPoint(viewPosOtherWindow);
             return screenPos - curWindow.position.position;

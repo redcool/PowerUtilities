@@ -22,6 +22,8 @@ namespace PowerUtilities
         [Header("LightmapPreview Window")]
         [Tooltip("check this,when need click LightmapPreviewWindow select lightmap object")]
         public bool isCheckLightmapPreviewWin = false;
+        [Tooltip("lightmapPreviewWin ShowLog")]
+        public bool lightmapPreviewWinShowLog;
 
         // -------- uv2 save
         [Header("Lightmap UV(mesh uv2) Save ")]
