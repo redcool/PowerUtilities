@@ -102,10 +102,10 @@ namespace PowerUtilities
             var uv = mousePosOnLightmap / lightmapScaledRect.size;
             uv.y = 1f - uv.y;
             //#if DEBUG_ON
-            if (settings.lightmapPreviewWinShowLog)
+            if (settings.isPreviewWinShowLog)
                 Debug.Log(mousePosOnLightmap + ",uv:" + uv + " ,rect: " + lightmapScaledRect + ":" + e.type);
             //#endif
-            Selection.objects = GetLightmappedObject(lightmapIndex, uv);
+            Selection.objects = GetLightmappedObject(lightmapIndex, uv,settings.isPreviewWinShowLog);
 
             lightmapPreviewWin.wantsMouseMove = true;
         }

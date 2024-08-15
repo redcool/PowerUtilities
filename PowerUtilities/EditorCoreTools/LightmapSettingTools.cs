@@ -50,8 +50,9 @@ namespace PowerUtilities
             if (!r)
                 return Rect.zero;
 
+
             var v4 = r.lightmapScaleOffset;
-            return new Rect(v4.z, v4.w, v4.x - v4.z, v4.y - v4.w);
+            return new Rect(v4.z, v4.w, v4.x , v4.y );
         }
 
         public static void SetLightmapStatic(this MeshRenderer mr)
