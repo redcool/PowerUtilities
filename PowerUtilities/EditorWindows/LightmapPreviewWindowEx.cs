@@ -169,9 +169,8 @@ namespace PowerUtilities
             }
             //#endif
 
-            return rendererList.Where(r => r.lightmapIndex == lightmapId
-                && LightmapSettingTools.GetLightmapRect(r).Contains(uvPosStartsAtBottom)
-                )
+            return rendererList.Where(r => r.lightmapIndex == lightmapId && LightmapSettingTools.GetLightmapRect(r).Contains(uvPosStartsAtBottom))
+                .OrderBy(r => LightmapSettingTools.GetLightmapRect(r).Area())
                 .Select(r => r.gameObject)
                 .ToArray();
             ;
