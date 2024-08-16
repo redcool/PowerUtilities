@@ -33,13 +33,13 @@ namespace PowerUtilities
         /// <param name="a"></param>
         /// <param name="b"></param>
         /// <returns></returns>
-        public static Rect Encapsulate(this Rect a, Rect b)
+        public static void Encapsulate(this Rect a, Rect b)
         {
             float xMin = Mathf.Min(a.xMin, b.xMin);
             float yMin = Mathf.Min(a.yMin, b.yMin);
             float xMax = Mathf.Max(a.xMax, b.xMax);
             float yMax = Mathf.Max(a.yMax, b.yMax);
-            return new Rect(xMin, yMin, xMax - xMin, yMax - yMin);
+            a.Set(xMin, yMin, xMax - xMin, yMax - yMin);
         }
     }
 }
