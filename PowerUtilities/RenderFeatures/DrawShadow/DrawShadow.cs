@@ -1,6 +1,7 @@
 namespace PowerUtilities
 {
     using System;
+    using System.Linq;
 #if UNITY_EDITOR
     using UnityEditor;
 #endif
@@ -231,7 +232,10 @@ namespace PowerUtilities
                 {
                     try
                     {
-                        lightObj = GameObject.FindGameObjectWithTag(settingSO.lightTag);
+                        lightObj = GameObject.FindGameObjectsWithTag(settingSO.lightTag)
+                            .Where(go => go.activeInHierarchy)
+                            .FirstOrDefault();
+                        //lightObj = GameObject.FindGameObjectWithTag(settingSO.lightTag);
                     }
                     catch (Exception) { }
                 }
@@ -272,7 +276,7 @@ namespace PowerUtilities
         private void BigShadowLightControl_OnOverrideSettingSO(bool isOn, DrawShadowSettingSO overrideSettingSO)
         {
             if (!overrideSettingSO)
-                return;
+                overrideSettingSO = globalSettingSO;
 
             settingSO = isOn ? overrideSettingSO : globalSettingSO;
         }
