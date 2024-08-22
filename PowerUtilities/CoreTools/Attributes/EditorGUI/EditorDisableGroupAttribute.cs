@@ -14,6 +14,12 @@ using System.Threading.Tasks;
     [CustomPropertyDrawer(typeof(EditorDisableGroupAttribute))]
     public class EditorDisableGroupEditor : PropertyDrawer
     {
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+        {
+            var attr = attribute as EditorDisableGroupAttribute;
+
+            return base.GetPropertyHeight(property, label) * attr.heightScale+2;
+        }
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             var attr = attribute as EditorDisableGroupAttribute;
@@ -21,11 +27,14 @@ using System.Threading.Tasks;
             if(!isDisable)
             {
                 var prop = property.serializedObject.FindProperty(attr.targetPropName);
-                isDisable = prop.intValue == 0;
+                isDisable = prop != null ? prop.intValue == 0 : true;
             }
 
+            if (attr.isRevertMode)
+                isDisable = !isDisable;
+            
             EditorGUI.BeginDisabledGroup(isDisable);
-            EditorGUI.PropertyField(position, property, label);
+            EditorGUI.PropertyField(position, property, label,true);
             EditorGUI.EndDisabledGroup();
         }
     }
@@ -36,6 +45,20 @@ using System.Threading.Tasks;
     /// </summary>
     public class EditorDisableGroupAttribute : PropertyAttribute
     {
+        /// <summary>
+        /// Show DisableGroup when empty,
+        /// otherwise check targetPropName's intValue
+        /// </summary>
         public string targetPropName;
+
+        /// <summary>
+        /// show gui in disableGroup when {targetPropName} is enabled
+        /// </summary>
+        public bool isRevertMode;
+
+        /// <summary>
+        /// line multiples
+        /// </summary>
+        public int heightScale = 1;
     }
 }

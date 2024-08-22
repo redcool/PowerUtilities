@@ -103,7 +103,7 @@ namespace PowerUtilities
             // mainCamera follow it,sceneViewCamera dont do follow
             var isExceedMaxDistance = false;
             if (isMainCamera)
-                isExceedMaxDistance = IsExceedMaxDistanceAndSaveLightPos(cameraData, out currentDistance, ref settingSO.finalLightPos);
+                isExceedMaxDistance = IsExceedMaxDistanceAndSaveFinalLightPos(cameraData, out currentDistance, ref settingSO.finalLightPos);
 
             var isStepRender = settingSO.isStepRender || isExceedMaxDistance || (bigShadowRenderCount ==0);
             if (isStepRender)
@@ -115,7 +115,7 @@ namespace PowerUtilities
             return settingSO.isAutoRendering || isStepRender;
 
             //============== methods
-            bool IsExceedMaxDistanceAndSaveLightPos(CameraData cameraData,out float curDistance,ref Vector3 finalLightPos)
+            bool IsExceedMaxDistanceAndSaveFinalLightPos(CameraData cameraData,out float curDistance,ref Vector3 finalLightPos)
             {
                 // dont follow camera
                 if (settingSO.maxDistance <= 0)
@@ -126,9 +126,7 @@ namespace PowerUtilities
                 }
 
                 // follow camera
-
                 var cameraPos = cameraData.camera.transform.position;
-                cameraPos.y = finalLightPos.y = settingSO.lightHeight;
 
                 var dir = cameraPos - finalLightPos;
                 curDistance = dir.magnitude;
@@ -136,7 +134,7 @@ namespace PowerUtilities
                 var isExceedMaxDistance = curDistance > settingSO.maxDistance;
                 if (isExceedMaxDistance)
                 {
-                    finalLightPos = cameraPos;
+                    finalLightPos = cameraPos + settingSO.lightPosOffset;
                 }
 
                 return isExceedMaxDistance;
@@ -247,12 +245,12 @@ namespace PowerUtilities
 
             if (!lightObj)
                 return;
-            settingSO.pos = lightObj.transform.position;
+            settingSO.pos = lightObj.transform.position + settingSO.lightPosOffset;
             settingSO.rot = lightObj.transform.eulerAngles;
             settingSO.up = lightObj.transform.up;
 
             // use lightHeight
-            settingSO.pos.Set(settingSO.pos.x, settingSO.lightHeight, settingSO.pos.z);
+            //settingSO.pos.Set(settingSO.pos.x, settingSO.lightHeight, settingSO.pos.z);
 
             SetupBigShadowLightControl(lightObj);
         }

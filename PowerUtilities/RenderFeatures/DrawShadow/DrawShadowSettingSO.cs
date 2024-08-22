@@ -32,12 +32,12 @@
         public string lightTag = "BigShadowLight";
 
         [EditorGroup("Light Camera")]
+        [EditorDisableGroup(targetPropName = "isUseLightTransform",isRevertMode =true,heightScale =2)]
         public Vector3 pos, rot, up = Vector3.up;
 
         [EditorGroup("Light Camera")]
-        [Tooltip("light position'sy in world space")]
-        public float lightHeight = 10;
-
+        [Tooltip("Offset light position in world space")]
+        public Vector3 lightPosOffset;
 
         [EditorGroup("Light Camera")]
         [Tooltip("half of height")]
