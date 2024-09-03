@@ -131,9 +131,8 @@
                 DrawingSettings drawSettings = SetupDrawSettings(ref renderingData);
 
                 var renderQueueRange = settingSO.drawTransparents ? RenderQueueRange.all : RenderQueueRange.opaque;
-                var filterSettings = new FilteringSettings(renderQueueRange, settingSO.layers);
+                var filterSettings = new FilteringSettings(renderQueueRange, settingSO.layers,settingSO.renderingLayerMask);
                 context.DrawRenderers(cmd, renderingData.cullResults, ref drawSettings, ref filterSettings);
-
 
                 cmd.DisableScissorRect();
                 cmd.SetViewProjectionMatrices(cameraData.GetViewMatrix(), cameraData.GetProjectionMatrix());

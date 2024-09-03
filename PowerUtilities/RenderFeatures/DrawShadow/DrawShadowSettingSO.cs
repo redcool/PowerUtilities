@@ -19,9 +19,15 @@
         public Material shadowMat;
 
         [EditorGroup("ShadowMapOptions")]
+        [Tooltip("culling object use layer")]
         public LayerMask layers = 1;
 
         [EditorGroup("ShadowMapOptions")]
+        [RenderingLayerMask(tooltip ="rendering layer mask")]
+        public uint renderingLayerMask = int.MaxValue;
+
+        [EditorGroup("ShadowMapOptions")]
+        [Tooltip("transparent object use shadowCaster")]
         public bool drawTransparents;
 
         [EditorGroup("Light Camera", true)]
@@ -74,5 +80,6 @@
 
         [Tooltip("false will set _BigShadowMap white tex")]
         [EditorButton] public bool isClearShadowMap;
+
     }
 }

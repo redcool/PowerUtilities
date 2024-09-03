@@ -17,6 +17,9 @@
         public static string[] emptyRenderingLayerMaskNames = new string[] {""};
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
+            var attr = attribute as RenderingLayerMaskAttribute;
+            label.tooltip = attr.tooltip;
+
             Draw(position, property, label);
         }
 
@@ -49,5 +52,6 @@
 
     public class RenderingLayerMaskAttribute : PropertyAttribute
     {
+        public string tooltip;
     }
 }
