@@ -164,16 +164,14 @@
             lightForward = rot * Vector3.forward;
 
             view = float4x4.LookAt(settingSO.finalLightPos, settingSO.finalLightPos + lightForward, settingSO.up);
-            view = math.fastinverse(view);
 
             if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLCore || SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLES3)
             {
                 //view = math.mul(float4x4.Scale(1, 1, -1), view);
-                view[0][2] *= -1;
-                view[1][2] *= -1;
-                view[2][2] *= -1;
-                view[3][2] *= -1;
+                view.c2 *= -1;
             }
+            view = math.fastinverse(view);
+
 
             var aspect = 1;
             proj = float4x4.Ortho(settingSO.orthoSize * aspect * 2, settingSO.orthoSize * 2, settingSO.near, settingSO.far);

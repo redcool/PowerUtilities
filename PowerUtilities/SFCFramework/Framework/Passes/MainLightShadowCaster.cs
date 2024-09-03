@@ -33,6 +33,9 @@ namespace PowerUtilities.RenderFeatures
         [Tooltip("urp shadow max distance")]
         public float shadowDistance = 100;
 
+        [Tooltip("left use cam position , right use light position ")]
+        [Range(0,1)] public float camLightPosRate;
+
         public override ScriptableRenderPass GetPass()
         {
             return new MainLightShadowCasterPass(this);
@@ -217,12 +220,14 @@ namespace PowerUtilities.RenderFeatures
                 renderingData.shadowData.mainLightShadowmapHeight >> 1 :
                 renderingData.shadowData.mainLightShadowmapHeight;
 
+            var shadowInfo = (light, camera, Feature.orthoSize, Feature.near, Feature.far, Feature.camPosOffset,Feature.camLightPosRate);
+
             for (int cascadeIndex = 0; cascadeIndex < m_ShadowCasterCascadesCount; ++cascadeIndex)
             {
                 bool success = ShadowUtilsEx.ExtractDirectionalLightMatrix(ref renderingData.cullResults, ref renderingData.shadowData,
                     shadowLightIndex, cascadeIndex, renderTargetWidth, renderTargetHeight, shadowResolution, light.shadowNearPlane,
                     out m_CascadeSplitDistances[cascadeIndex], out m_CascadeSlices[cascadeIndex],
-                    (light, camera, Feature.orthoSize,Feature.near,Feature.far,Feature.camPosOffset),
+                    shadowInfo,
                     cascadeIndex == 0 // only main
                     );
 

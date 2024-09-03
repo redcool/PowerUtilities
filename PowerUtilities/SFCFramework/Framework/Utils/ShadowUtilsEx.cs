@@ -65,7 +65,7 @@ namespace PowerUtilities
 
 
         public static bool ExtractDirectionalLightMatrix(ref CullingResults cullResults, ref ShadowData shadowData, int shadowLightIndex, int cascadeIndex, int shadowmapWidth, int shadowmapHeight, int shadowResolution, float shadowNearPlane, out Vector4 cascadeSplitDistance, out ShadowSliceData shadowSliceData
-            ,(Light shadowLight,Camera cam, float orthoSize, float near, float far, Vector3 camPosOffset) shadowInfo,bool isOverrideVP
+            ,(Light shadowLight,Camera cam, float orthoSize, float near, float far, Vector3 camPosOffset,float camLightPosRate) shadowInfo,bool isOverrideVP
             )
         {
             bool success = cullResults.ComputeDirectionalShadowMatricesAndCullingPrimitives(shadowLightIndex,
@@ -79,7 +79,7 @@ namespace PowerUtilities
                 float4x4 view, proj;
                 SetupVP(shadowInfo, out view, out proj);
 
-                shadowSliceData.viewMatrix = math.fastinverse(view);
+                shadowSliceData.viewMatrix = view;
                 shadowSliceData.projectionMatrix = proj;
             }
 
@@ -101,26 +101,33 @@ namespace PowerUtilities
             return success;
         }
 
-        private static void SetupVP((Light shadowLight,Camera cam, float orthoSize, float near, float far,Vector3 camPosOffset) shadowInfo, out float4x4 view, out float4x4 proj)
+        private static void SetupVP(
+            (Light shadowLight,Camera cam, float orthoSize, float near, float far,Vector3 camPosOffset, float camLightPosRate)
+            shadowInfo, out float4x4 view, out float4x4 proj)
         {
             var lightTr = shadowInfo.shadowLight.transform;
             var camTr = shadowInfo.cam.transform;
 
-            var pos = camTr.position + shadowInfo.camPosOffset;
+            var lightPos = Vector3.Lerp(camTr.position,lightTr.position,shadowInfo.camLightPosRate);
+
+            var pos = lightPos + shadowInfo.camPosOffset;
 
             view = float4x4.LookAt(pos, pos + lightTr.forward, lightTr.up);
             if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLCore || SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLES3)
             {
-                //view = math.mul(float4x4.Scale(1, 1, -1), view);
-                view[0][2] *= -1;
-                view[1][2] *= -1;
-                view[2][2] *= -1;
-                view[3][2] *= -1;
+                //view[0][2] *= -1;
+                //view[1][2] *= -1;
+                //view[2][2] *= -1;
+                //view[3][2] *= -1;
+                view.c2 *= -1;
             }
+            view = math.fastinverse(view);
 
 
             var size = shadowInfo.orthoSize * 2;
             proj = float4x4.Ortho(size, size, shadowInfo.near, shadowInfo.far);
+
+            // same as GL.GetGPUProjectionMatrix
             if (SystemInfo.usesReversedZBuffer)
             {
                 //proj[0][2] *= -1;

@@ -57,8 +57,18 @@ using UnityEngine;
     /// </summary>
     public class EditorButtonAttribute : PropertyAttribute
     {
+        /// <summary>
+        /// call instance method
+        /// </summary>
         public string onClickCall;
+        /// <summary>
+        /// button 's text
+        /// </summary>
         public string text;
+        /// <summary>
+        /// button ' texture
+        /// </summary>
         public string imageAssetPath;
+
     }
 }
