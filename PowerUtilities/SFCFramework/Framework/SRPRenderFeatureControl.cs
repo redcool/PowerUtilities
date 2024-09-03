@@ -45,6 +45,9 @@ namespace PowerUtilities.RenderFeatures
             }
             else
             {
+                if(featureListEditor ==null || !featureListEditor.target)
+                    featureListEditor = CreateEditor(inst.featureListSO);
+
                 var isFeatureListFoldout = serializedObject.FindProperty("isFeatureListFoldout");
                 isFeatureListFoldout.boolValue = EditorGUILayout.Foldout(isFeatureListFoldout.boolValue, EditorGUITools.TempContent("featureList Details"), true, EditorStylesEx.FoldoutHeader);
                 if (isFeatureListFoldout.boolValue)
