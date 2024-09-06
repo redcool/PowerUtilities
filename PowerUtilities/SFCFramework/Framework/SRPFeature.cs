@@ -75,7 +75,7 @@ namespace PowerUtilities.RenderFeatures
         public const string SRP_FEATURE_MENU = "PowerUtilities/SrpRenderFeatures";
         public const string SRP_FEATURE_PASSES_MENU = SRP_FEATURE_MENU + "/Passes";
 
-        [EditorBorder(15)]
+        [EditorBorder(19)]
         [Header("Pass Options")]
         [Tooltip("Skip when false")]
         public bool enabled = true;
