@@ -125,16 +125,16 @@ namespace PowerUtilities
                     return false;
                 }
 
-                // follow camera
-                var cameraPos = cameraData.camera.transform.position;
+                // follow camera append lightPosOffset
+                var finalCameraPos = cameraData.camera.transform.position + settingSO.lightPosOffset; 
 
-                var dir = cameraPos - finalLightPos;
+                var dir = finalCameraPos - finalLightPos; // include lightPosOffset
                 curDistance = dir.magnitude;
 
                 var isExceedMaxDistance = curDistance > settingSO.maxDistance;
                 if (isExceedMaxDistance)
                 {
-                    finalLightPos = cameraPos + settingSO.lightPosOffset;
+                    finalLightPos = finalCameraPos;
                 }
 
                 return isExceedMaxDistance;
@@ -195,6 +195,7 @@ namespace PowerUtilities
             if (settingSO.isClearShadowMap)
             {
                 settingSO.isClearShadowMap = false;
+                bigShadowRenderCount = 0;
                 drawShadowPass.Clear();
             }
 
@@ -207,6 +208,7 @@ namespace PowerUtilities
             // clear shadowmap
             if (IsNeedClearShadow())
             {
+                bigShadowRenderCount = 0;
                 drawShadowPass.Clear();
                 return;
             }
