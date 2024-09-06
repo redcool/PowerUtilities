@@ -40,7 +40,7 @@ namespace PowerUtilities
 
         // last pipeline asset
         RenderPipelineAsset lastPipeline;
-
+        static Dictionary<Object, Editor> editorDict = new Dictionary<Object, Editor>();
 
         [MenuItem(ROOT_MENU+"/Pipeline/"+nameof(SRPPipelineAssetWin))]
         static void Init()
@@ -156,7 +156,9 @@ namespace PowerUtilities
 
             imgui.pickingMode = PickingMode.Position;
 
-            var editor = Editor.CreateEditor(item);
+            var editor = DictionaryTools.Get(editorDict, item, (item) => Editor.CreateEditor(item));
+            
+            //var editor = Editor.CreateEditor(item);
             imgui.onGUIHandler = editor.OnInspectorGUI;
         }
 
@@ -221,7 +223,8 @@ namespace PowerUtilities
                 }
                 ,selectedId
             );
-
+            // call once positive
+            ShowDetails(rendererDataDetailImgui, (Object)rendererDataListView.selectedItem);
         }
     }
 }
