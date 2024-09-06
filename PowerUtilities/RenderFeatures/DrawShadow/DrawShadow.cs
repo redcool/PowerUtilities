@@ -195,7 +195,7 @@ namespace PowerUtilities
             if (settingSO.isClearShadowMap)
             {
                 settingSO.isClearShadowMap = false;
-                bigShadowRenderCount = 0;
+                bigShadowRenderCount = 1;
                 drawShadowPass.Clear();
             }
 
@@ -208,7 +208,7 @@ namespace PowerUtilities
             // clear shadowmap
             if (IsNeedClearShadow())
             {
-                bigShadowRenderCount = 0;
+                bigShadowRenderCount = 1;
                 drawShadowPass.Clear();
                 return;
             }
