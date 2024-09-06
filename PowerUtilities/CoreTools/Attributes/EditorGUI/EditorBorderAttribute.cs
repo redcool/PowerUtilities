@@ -6,7 +6,6 @@
     using System.Text;
     using System.Threading.Tasks;
     using UnityEngine;
-    using static log4net.Appender.ColoredConsoleAppender;
 
     /// <summary>
     /// A decorator ,draw box color in editor
