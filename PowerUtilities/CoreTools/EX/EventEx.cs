@@ -9,7 +9,7 @@ namespace PowerUtilities
 {
     public static class EventEx
     {
-        public static bool IsMouseDown(this Event e, int mouseButton = 0)
+        public static bool IsMouseTrigger(this Event e,EventType eventType, int mouseButton = 0)
         {
             if (e.control
                 || e.alt
@@ -18,11 +18,10 @@ namespace PowerUtilities
             {
                 return false;
             }
-            return e.type == EventType.MouseDown && e.button == mouseButton;
+            return e.type == eventType && e.button == mouseButton;
         }
+
         public static bool IsMouseLeftDown(this Event e)
-        => IsMouseDown(e);
-        public static bool IsmouseRightButton(this Event e)
-        => IsMouseDown(e, 1);
+        => IsMouseTrigger(e, EventType.MouseDown);
     }
 }

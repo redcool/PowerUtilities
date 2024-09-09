@@ -3,16 +3,25 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 using UnityEngine;
 
 namespace PowerUtilities
 {
 #if UNITY_EDITOR
-    using UnityEditor;
 
     [CustomPropertyDrawer(typeof(DisplayNameAttribute))]
     public class DisplayNameDrawer : PropertyDrawer
     {
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+        {
+            var lineCount = 1;
+            if (property.isExpanded)
+                lineCount = 2;
+            return base.GetPropertyHeight(property, label) * Mathf.Max(1, lineCount);
+        }
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             //base.OnGUI(position, property, label);
@@ -30,7 +39,7 @@ namespace PowerUtilities
             }
             else
             {
-                EditorGUI.PropertyField(position, property, label);
+                EditorGUI.PropertyField(position, property, label,true);
             }
         }
     }
