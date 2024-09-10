@@ -192,24 +192,26 @@ namespace PowerUtilities
 
             drawShadowPass.UpdateShaderVariables();
 
+            // clear shadowMap only
             if (settingSO.isClearShadowMap)
             {
                 settingSO.isClearShadowMap = false;
-                bigShadowRenderCount = 1;
                 drawShadowPass.Clear();
             }
 
             ref var cameraData = ref renderingData.cameraData;
-            TrySetupLightCameraInfo();
-
             if(cameraData.isSceneViewCamera)
                 DrawLightGizmos(ref cameraData);
+
+            // find Light and setup
+            var isNewLight = TrySetupLightCameraInfo();
+            if (isNewLight)
+                bigShadowRenderCount = 0;
 
             // clear shadowmap
             if (IsNeedClearShadow())
             {
-                bigShadowRenderCount = 1;
-                drawShadowPass.Clear();
+                Clear();
                 return;
             }
 
@@ -222,20 +224,29 @@ namespace PowerUtilities
             renderer.EnqueuePass(drawShadowPass);
         }
 
-
-
-        private void TrySetupLightCameraInfo()
+        public void Clear()
         {
+            bigShadowRenderCount = 1;
+            drawShadowPass.Clear();
+            lightObj = null;
+        }
+
+        private bool TrySetupLightCameraInfo()
+        {
+            var isNewLight = false;
             if (settingSO.isUseLightTransform)
             {
                 if (!lightObj && !string.IsNullOrEmpty(settingSO.lightTag))
                 {
                     try
                     {
+                        // find first actived Light
                         lightObj = GameObject.FindGameObjectsWithTag(settingSO.lightTag)
                             .Where(go => go.activeInHierarchy)
                             .FirstOrDefault();
                         //lightObj = GameObject.FindGameObjectWithTag(settingSO.lightTag);
+
+                        isNewLight = lightObj;
                     }
                     catch (Exception) { }
                 }
@@ -246,7 +257,8 @@ namespace PowerUtilities
             }
 
             if (!lightObj)
-                return;
+                return isNewLight;
+
             settingSO.pos = lightObj.transform.position + settingSO.lightPosOffset;
             settingSO.rot = lightObj.transform.eulerAngles;
             settingSO.up = lightObj.transform.up;
@@ -255,6 +267,8 @@ namespace PowerUtilities
             //settingSO.pos.Set(settingSO.pos.x, settingSO.lightHeight, settingSO.pos.z);
 
             SetupBigShadowLightControl(lightObj);
+
+            return isNewLight;
         }
 
         private void SetupBigShadowLightControl(GameObject lightObj)
@@ -286,7 +300,7 @@ namespace PowerUtilities
             if (isOn)
                 StepDrawShadow();
             else
-                drawShadowPass.Clear();
+                Clear();
         }
     }
 
