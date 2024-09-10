@@ -78,6 +78,7 @@ namespace PowerUtilities
 
         public void StepDrawShadow()
         {
+            Clear();
             if (Instance && Instance.settingSO)
                 Instance.settingSO.isStepRender = true;
         }
@@ -141,10 +142,10 @@ namespace PowerUtilities
             }
         }
         /// <summary>
-        /// Clear current big shadowMap
+        /// Clear current big shadowMap and stop
         /// </summary>
         /// <returns></returns>
-        private bool IsNeedClearShadow()
+        private bool IsNeedStopShadow()
         {
             var isUseLightObjButNotExists = settingSO.isUseLightTransform && !string.IsNullOrEmpty(settingSO.lightTag) & !lightObj;
             var isDontNeedDrawShadow = settingSO.layers == 0;
@@ -206,10 +207,10 @@ namespace PowerUtilities
             // find Light and setup
             var isNewLight = TrySetupLightCameraInfo();
             if (isNewLight)
-                bigShadowRenderCount = 0;
+                settingSO.isStepRender = true;
 
             // clear shadowmap
-            if (IsNeedClearShadow())
+            if (IsNeedStopShadow())
             {
                 Clear();
                 return;
@@ -226,7 +227,6 @@ namespace PowerUtilities
 
         public void Clear()
         {
-            bigShadowRenderCount = 1;
             drawShadowPass.Clear();
             lightObj = null;
         }
