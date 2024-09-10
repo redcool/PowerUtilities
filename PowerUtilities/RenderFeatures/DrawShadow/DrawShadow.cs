@@ -229,6 +229,7 @@ namespace PowerUtilities
         {
             drawShadowPass.Clear();
             lightObj = null;
+            bigShadowRenderCount = 1;
         }
 
         private bool TrySetupLightCameraInfo()
@@ -262,9 +263,6 @@ namespace PowerUtilities
             settingSO.pos = lightObj.transform.position + settingSO.lightPosOffset;
             settingSO.rot = lightObj.transform.eulerAngles;
             settingSO.up = lightObj.transform.up;
-
-            // use lightHeight
-            //settingSO.pos.Set(settingSO.pos.x, settingSO.lightHeight, settingSO.pos.z);
 
             SetupBigShadowLightControl(lightObj);
 

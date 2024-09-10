@@ -51,10 +51,14 @@ namespace PowerUtilities
         private void OnDisable()
         {
             OnShadowEnableChanged?.Invoke(false);
-            OnShadowEnableChanged = null;
-
             OnOverrideSettingSO?.Invoke(false, null);
+
+            OnShadowEnableChanged = null;
             OnOverrideSettingSO = null;
+
+            //next enable will trigger again
+            lastIsOverrideSettingSOEnabled = false;
+            lastIsShadowEnabled = false;
         }
 
     }
