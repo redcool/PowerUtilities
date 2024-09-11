@@ -57,8 +57,8 @@ namespace PowerUtilities
             OnOverrideSettingSO = null;
 
             //next enable will trigger again
-            lastIsOverrideSettingSOEnabled = false;
-            lastIsShadowEnabled = false;
+            lastIsOverrideSettingSOEnabled =!isOverrideSettingSOEnabled;
+            lastIsShadowEnabled = !isShadowEnabled;
         }
 
     }

@@ -22,7 +22,6 @@ namespace PowerUtilities
 
             var serializedObject = property.serializedObject;
 
-            EditorGUIUtility.labelWidth = attr.labelWidth;
             serializedObject.UpdateIfRequiredOrScript();
 
             EditorGUITools.DrawSettingSO(property, ref targetEditor, ref isTargetEditorFolded, settingSOType);

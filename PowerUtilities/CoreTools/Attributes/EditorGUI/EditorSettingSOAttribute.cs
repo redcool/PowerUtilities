@@ -15,12 +15,10 @@
     [AttributeUsage(AttributeTargets.Field)]
     public class EditorSettingSOAttribute : PropertyAttribute
     {
-        public Type settingType;
-
         /// <summary>
-        /// EditorGUIUtility.labelWidth = labelWidth
+        /// use fieldInfo.FieldType when null
         /// </summary>
-        public int labelWidth = 250;
+        public Type settingType;
 
         public EditorSettingSOAttribute(Type settingType=null)
         {

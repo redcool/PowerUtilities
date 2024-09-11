@@ -507,7 +507,6 @@ namespace PowerUtilities
             //========================================  settingSO header
             DrawSettingSO(SettingSOType, settingSOProp);
 
-
             //========================================  splitter line 
             var rect = EditorGUILayout.GetControlRect(false, 2);
             EditorGUITools.DrawColorLine(rect);
@@ -528,12 +527,10 @@ namespace PowerUtilities
         public static void DrawSettingSO(Type SettingSOType, SerializedProperty settingSOProp)
         {
             EditorGUILayout.BeginHorizontal();
-            //1 exist
-            GUILayout.Label("SettingSO:");
-            //2 settingSO
-            settingSOProp.objectReferenceValue = EditorGUILayout.ObjectField(settingSOProp.objectReferenceValue, SettingSOType, false);
+            //1,2 label and settingSO
+            EditorGUILayout.PropertyField(settingSOProp);
             //3 create new
-            if (GUILayout.Button("Create New"))
+            if (GUILayout.Button("Create New",GUILayout.Width(100)))
             {
                 var so = ScriptableObject.CreateInstance(SettingSOType);
                 var nextId = Resources.FindObjectsOfTypeAll(SettingSOType).Length;
@@ -551,6 +548,7 @@ namespace PowerUtilities
             }
             EditorGUILayout.EndHorizontal();
         }
+
 
         static void DrawSettingSODetail(ref Editor targetEditor, ref bool isTargetEditorFolded, SerializedProperty settingSOProp)
         {
