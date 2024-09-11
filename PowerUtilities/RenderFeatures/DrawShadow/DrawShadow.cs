@@ -30,7 +30,7 @@ namespace PowerUtilities
             // global settings
 
             EditorGUILayout.PropertyField(serializedObject.FindProperty("globalSettingSO"));
-            if (GUILayout.Button($"Set {inst.settingSO.name} as globalSettingSO"))
+            if (GUILayout.Button($"Set {inst.settingSO?.name} as globalSettingSO"))
             {
                 inst.globalSettingSO = inst.settingSO;
             }
