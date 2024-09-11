@@ -13,7 +13,13 @@ namespace PowerUtilities
     public static class EditorGUITools
     {
         public static Color darkGray = new Color(0.2f, 0.3f, 0.4f);
+        public static int defaultLabelWidth = 200;
 
+        [CompileFinished]
+        public static void Init()
+        {
+            EditorGUIUtility.labelWidth = defaultLabelWidth;
+        }
         /// <summary>
         /// set temporary guiContent
         /// </summary>
