@@ -42,7 +42,7 @@ namespace PowerUtilities
                 return;
             }
 
-            EditorGUIUtility.labelWidth = 250;
+            //EditorGUIUtility.labelWidth = 250;
             serializedObject.UpdateIfRequiredOrScript();
 
             EditorGUITools.DrawSettingSO(settingProp, ref targetEditor, ref isTargetEditorFolded, SettingSOType);

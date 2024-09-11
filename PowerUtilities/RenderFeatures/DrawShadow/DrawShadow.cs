@@ -19,9 +19,21 @@ namespace PowerUtilities
         {
             base.OnInspectorGUI();
 
+            //
+            var inst = target as DrawShadow;
+
+            //Debug
             EditorGUILayout.PropertyField(serializedObject.FindProperty("lightObj"));
             EditorGUILayout.PropertyField(serializedObject.FindProperty("currentDistance"));
             EditorGUILayout.PropertyField(serializedObject.FindProperty("bigShadowRenderCount"));
+
+            // global settings
+
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("globalSettingSO"));
+            if (GUILayout.Button($"Set {inst.settingSO.name} as globalSettingSO"))
+            {
+                inst.globalSettingSO = inst.settingSO;
+            }
         }
     }
 #endif
@@ -34,8 +46,11 @@ namespace PowerUtilities
         /// <summary>
         /// current used
         /// </summary>
+        [Tooltip("Current use settings")]
         public DrawShadowSettingSO settingSO;
-        // global settingSO
+
+        [Header("Global Setting")]
+        [Tooltip("1 when BigShadowLightControl disabled,settingSo will use,2 when Create will save settingSO if globalSettingSO is empty")]
         public DrawShadowSettingSO globalSettingSO;
 
         [Header("Debug")]
@@ -58,7 +73,8 @@ namespace PowerUtilities
         public override void Create()
         {
             // save current setting first
-            globalSettingSO = settingSO;
+            if(!globalSettingSO)
+                globalSettingSO = settingSO;
 
             //keep a instance
             Instance = this;
