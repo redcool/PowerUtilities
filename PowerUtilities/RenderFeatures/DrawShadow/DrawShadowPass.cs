@@ -241,6 +241,7 @@
             cmd.SetGlobalVector(ShaderPropertyIds._LightDirection, new float4(-forward, 0));
             cmd.SetGlobalTexture(_BigShadowMap, bigShadowMap);
             cmd.SetGlobalInt(_BigShadowOn, 1);
+            cmd.SetShaderKeywords(false,ShaderKeywordStrings.CastingPunctualLightShadow);
         }
 
         /// <summary>
