@@ -3,6 +3,7 @@ Shader "Hidden/Template/ShadowCaster"
     Properties
     {
         // _MainTex ("Texture", 2D) = "white" {}
+        [GroupEnum(Settings,UnityEngine.Rendering.CullMode)]_CullMode("_CullMode",int) = 2
     }
     SubShader
     {
@@ -13,6 +14,7 @@ Shader "Hidden/Template/ShadowCaster"
         {
             colorMask 0
             zwrite on
+            cull [_CullMode]
             
             // Tags{"LightMode"="ShadowCaster"}
             HLSLPROGRAM
