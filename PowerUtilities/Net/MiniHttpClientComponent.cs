@@ -21,29 +21,43 @@
         {
             if (GUILayout.Button("Test Post"))
             {
-                PostFile(inst.fileObj, inst);
-                PostFile(inst.shaderObj, inst);
+                //PostFile(inst.fileObj, inst);
+                //PostFile(inst.shaderObj, inst);
+
+                inst.PostBundle();
             }
 
-            static void PostFile(Object obj, MiniHttpClientComponent inst)
-            {
-                if (obj == null)
-                    return;
+        }
+        public static void PostFile(Object obj, MiniHttpClientComponent inst)
+        {
+            if (obj == null)
+                return;
 
-                var assetPath = AssetDatabase.GetAssetPath(obj);
-                var assetName = Path.GetFileName(assetPath);
-                var bytes = File.ReadAllBytes(PathTools.GetAssetAbsPath(assetPath));
-                var fileType = obj.GetType().Name;
-                MiniHttpClient.PostFile(inst.url, assetName, fileType, bytes);
-            }
+            var assetPath = AssetDatabase.GetAssetPath(obj);
+            var assetName = Path.GetFileName(assetPath);
+            var bytes = File.ReadAllBytes(PathTools.GetAssetAbsPath(assetPath));
+            var fileType = obj.GetType().Name;
+            MiniHttpClient.PostFile(inst.url, assetName, fileType, bytes);
         }
     }
 #endif
     public class MiniHttpClientComponent : MonoBehaviour
     {
         public string url;
-        public Texture fileObj;
-        public Shader shaderObj;
+        //public Texture fileObj;
+        //public Shader shaderObj;
+
+        public string bundleAbsPath;
+
+        public Renderer r;
+
+        public void PostBundle()
+        {
+            var assetName = Path.GetFileNameWithoutExtension(bundleAbsPath);
+            var bytes = File.ReadAllBytes(bundleAbsPath);
+            var fileType = typeof(AssetBundle).Name;
+            MiniHttpClient.PostFile(url, assetName, fileType, bytes);
+        }
 
     }
 }

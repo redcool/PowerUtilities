@@ -18,7 +18,8 @@ namespace PowerUtilities.Net
         public MiniHttpServer httpServer;
         public bool isWriteFiletemporaryCachePath;
 
-        public string resourceFolder = "resourceFolder";
+        [Tooltip("relative path : Assets")]
+        public string resourceFolder = "../resourceFolder";
 
         //public event Action<string,byte[]> OnFileReceived;
 
@@ -32,12 +33,38 @@ namespace PowerUtilities.Net
             //OnFileReceived += MiniHttpServerComponent_OnFileReceived;
         }
 
-        private void MiniHttpServerComponent_OnFileReceived(string fileType, string filePath)
+        private void MiniHttpServerComponent_OnFileReceived(string fileName,string fileType, string filePath)
         {
-            Debug.Log(fileType);
-            if (fileType == typeof(Shader).Name)
+            Debug.Log($"[server]: get file, name: {fileName}, type : {fileType} ,path :"+ filePath);
+
+            if (fileType == typeof(AssetBundle).Name)
             {
-                
+                var req = AssetBundle.LoadFromFileAsync(filePath);
+                req.completed += (op) =>
+                {
+                    var ab = req.assetBundle;
+                    var shaderObjs = ab.LoadAllAssets<Shader>();
+                    ReplaceShaderExisted(shaderObjs);
+
+                    ab.Unload(false);
+                };
+
+            }
+
+        }
+        public static void ReplaceShaderExisted(Shader[] shaderObjs)
+        {
+            var objs = GameObject.FindObjectsByType<Renderer>(FindObjectsSortMode.None);
+            for (int i = 0; i < objs.Length; i++)
+            {
+                var renderer = objs[i];
+
+                foreach (var shaderObj in shaderObjs)
+                {
+                    //Debug.Log(renderer.sharedMaterial.shader?.name + " -> " + shaderObj.name);
+                    if (renderer.sharedMaterial.shader?.name == shaderObj.name)
+                        renderer.sharedMaterial.shader = Shader.Find(shaderObj.name);
+                }
             }
         }
 
@@ -90,10 +117,10 @@ namespace PowerUtilities.Net
             });
 #endif
 
-            MiniHttpServerComponent_OnFileReceived(fileType, outputPath);
+            MiniHttpServerComponent_OnFileReceived(fileName,fileType, outputPath);
 
             var sb = new StringBuilder();
-            sb.AppendLine("handle file request:");
+            sb.AppendLine("[server], handle file request:");
             sb.AppendLine(req.ContentType);
             sb.AppendLine(outputPath);
             Debug.Log(sb);

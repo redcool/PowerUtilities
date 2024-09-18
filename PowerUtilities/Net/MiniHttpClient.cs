@@ -23,7 +23,7 @@ namespace PowerUtilities.Net
             var task = client.PostAsync(url, bytesContent);
             task.ContinueWith(t =>
             {
-                Debug.Log(t.Result.Content.ReadAsStringAsync().Result);
+                Debug.Log("[client], resp:"+t.Result.Content.ReadAsStringAsync().Result);
             });
         }
 
