@@ -49,8 +49,6 @@
 
         public string bundleAbsPath;
 
-        public Renderer r;
-
         public void PostBundle()
         {
             var assetName = Path.GetFileNameWithoutExtension(bundleAbsPath);
