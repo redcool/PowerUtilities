@@ -24,6 +24,9 @@ namespace PowerUtilities.Net
         [Tooltip("Only run in Development Build")]
         public bool isDebugBuildOnly = true;
 
+        /// <summary>
+        /// call ,when receive file
+        /// </summary>
         public static event Action<string,string,string> OnFileReceived;
 
         private void Awake()
@@ -31,15 +34,16 @@ namespace PowerUtilities.Net
             if (isDebugBuildOnly && !Debug.isDebugBuild)
                 return;
 
-
             httpServer = new MiniHttpServer(port);
             httpServer.isShowDebugInfo = isShowDebugInfo;
 
             // handle receive a file
             httpServer.OnReceived += OnHandleFile;
+        }
 
-            // handle receive shader
-            OnFileReceived += MiniHttpServerShaderReceiver.OnReceiveShaderBundle;
+        private void OnDestroy()
+        {
+            OnFileReceived = null;
         }
 
         private void MiniHttpServerComponent_OnFileReceived(string fileName,string fileType, string filePath)

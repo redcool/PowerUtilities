@@ -4,7 +4,12 @@ namespace PowerUtilities.Net
 {
     public static class MiniHttpServerShaderReceiver
     {
-
+        [RuntimeInitializeOnLoadMethod]
+        public static void Init()
+        {
+            MiniHttpServerComponent.OnFileReceived -= OnReceiveShaderBundle;
+            MiniHttpServerComponent.OnFileReceived += OnReceiveShaderBundle;
+        }
         /// <summary>
         /// error in unity editor, device is ok
         /// </summary>
