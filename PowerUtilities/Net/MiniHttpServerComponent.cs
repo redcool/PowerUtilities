@@ -20,23 +20,30 @@ namespace PowerUtilities.Net
 
         [Tooltip("relative path : Assets")]
         public string resourceFolder = "../resourceFolder";
+        public bool isShowDebugInfo;
 
-        //public event Action<string,byte[]> OnFileReceived;
+        public static event Action<string,string,string> OnFileReceived;
 
         private void Awake()
         {
             httpServer = new MiniHttpServer(port);
-            httpServer.isShowDebugInfo = true;
+            httpServer.isShowDebugInfo = isShowDebugInfo;
 
             httpServer.OnReceived += OnHandleFile;
 
-            //OnFileReceived += MiniHttpServerComponent_OnFileReceived;
+            OnFileReceived += HandleShaderFile;
         }
 
         private void MiniHttpServerComponent_OnFileReceived(string fileName,string fileType, string filePath)
         {
-            Debug.Log($"[server]: get file, name: {fileName}, type : {fileType} ,path :"+ filePath);
+            if(isShowDebugInfo)
+                Debug.Log($"[server]: get file, name: {fileName}, type : {fileType} ,path :" + filePath);
 
+            OnFileReceived?.Invoke(fileName, fileType, filePath);
+        }
+
+        private static void HandleShaderFile(string fileName,string fileType, string filePath)
+        {
             if (fileType == typeof(AssetBundle).Name)
             {
                 var req = AssetBundle.LoadFromFileAsync(filePath);
@@ -50,20 +57,31 @@ namespace PowerUtilities.Net
                 };
 
             }
-
         }
+
+        /// <summary>
+        /// error in unity editor, device is ok
+        /// </summary>
+        /// <param name="shaderObjs"></param>
         public static void ReplaceShaderExisted(Shader[] shaderObjs)
         {
-            var objs = GameObject.FindObjectsByType<Renderer>(FindObjectsSortMode.None);
-            for (int i = 0; i < objs.Length; i++)
+            //var renderers = GameObject.FindObjectsByType<Renderer>(FindObjectsSortMode.None);
+            var renderers = Resources.FindObjectsOfTypeAll<Renderer>();
+            for (int i = 0; i < renderers.Length; i++)
             {
-                var renderer = objs[i];
+                var renderer = renderers[i];
 
                 foreach (var shaderObj in shaderObjs)
                 {
-                    //Debug.Log(renderer.sharedMaterial.shader?.name + " -> " + shaderObj.name);
+
+                    Debug.Log(renderer.sharedMaterial.shader?.name + " -> " + shaderObj.name);
                     if (renderer.sharedMaterial.shader?.name == shaderObj.name)
-                        renderer.sharedMaterial.shader = Shader.Find(shaderObj.name);
+                    {
+                        var mat = new Material(shaderObj);
+                        mat.name = "swap mat";
+
+                        renderer.sharedMaterial = mat;
+                    }
                 }
             }
         }
@@ -85,14 +103,11 @@ namespace PowerUtilities.Net
                 return;
 
             var bytes = new byte[req.ContentLength64];
-            var readCount = req.InputStream.Read(bytes,0, bytes.Length);
-
-            var folder = $"{Application.dataPath}/{ resourceFolder}";
-            var outputPath = $"{folder}/{fileName}";
+            var readCount = req.InputStream.Read(bytes, 0, bytes.Length);
 
             //-------------- save file
-            //if (!isWriteFiletemporaryCachePath)
-            //    return;
+            var folder = $"{Application.temporaryCachePath}/{resourceFolder}";
+            var outputPath = $"{folder}/{fileName}";
 
             if (!Directory.Exists(folder))
             {
@@ -117,13 +132,16 @@ namespace PowerUtilities.Net
             });
 #endif
 
-            MiniHttpServerComponent_OnFileReceived(fileName,fileType, outputPath);
+            MiniHttpServerComponent_OnFileReceived(fileName, fileType, outputPath);
 
-            var sb = new StringBuilder();
-            sb.AppendLine("[server], handle file request:");
-            sb.AppendLine(req.ContentType);
-            sb.AppendLine(outputPath);
-            Debug.Log(sb);
+            if (isShowDebugInfo)
+            {
+                var sb = new StringBuilder();
+                sb.AppendLine("[server], handle file request:");
+                sb.AppendLine(req.ContentType);
+                sb.AppendLine(outputPath);
+                Debug.Log(sb);
+            }
         }
 
         void Update()

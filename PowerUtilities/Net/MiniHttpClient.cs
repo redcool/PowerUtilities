@@ -12,22 +12,26 @@ namespace PowerUtilities.Net
     public static class MiniHttpClient
     {
         static HttpClient client = new HttpClient();
+        public static bool isShowDebugInfo;
 
-        public static void PostFile(string url,string fileName,string fileType,byte[] bytes)
+        public static void PostFile(string url, string fileName, string fileType, byte[] bytes)
         {
             var bytesContent = new ByteArrayContent(bytes);
-            bytesContent.Headers.Add("filename",fileName);
+            bytesContent.Headers.Add("filename", fileName);
             bytesContent.Headers.Add("filetype", fileType);
-            bytesContent.Headers.Add("Content-Type","application/file");
+            bytesContent.Headers.Add("Content-Type", "application/file");
 
             var task = client.PostAsync(url, bytesContent);
-            task.ContinueWith(t =>
+            if (isShowDebugInfo)
             {
-                Debug.Log("[client], resp:"+t.Result.Content.ReadAsStringAsync().Result);
-            });
+                task.ContinueWith(t =>
+                {
+                    Debug.Log("[client], resp:" + t.Result.Content.ReadAsStringAsync().Result);
+                });
+            }
         }
 
-         static void PostMultipart(string url, string fileName, byte[] bytes)
+        static void PostMultipart(string url, string fileName, byte[] bytes)
         {
             //client.BaseAddress
             var bytesContent = new ByteArrayContent(bytes);
@@ -46,10 +50,13 @@ namespace PowerUtilities.Net
             //client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("multipart/form-data"));
 
             var task = client.PostAsync(url, httpContent);
-            task.ContinueWith(t =>
+            if (isShowDebugInfo)
             {
-                Debug.Log(t.Result.Content.ReadAsStringAsync().Result);
-            });
+                task.ContinueWith(t =>
+                {
+                    Debug.Log(t.Result.Content.ReadAsStringAsync().Result);
+                });
+            }
         }
     }
 }

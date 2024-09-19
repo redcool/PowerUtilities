@@ -19,32 +19,12 @@ namespace PowerUtilities.Net
         HttpListener listener = new HttpListener();
         Task<HttpListenerContext> getContextTask;
 
-        public static string[] GetIPv4s()
-        {
-            var ips = Dns.GetHostAddresses(Dns.GetHostName());
-            return ips.Where(ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
-                .Select(ip => ip.ToString())
-                .ToArray();
-        }
-
-        public static void AddHttpPrefixes(HttpListener listener,int port)
-        {
-            var ips = GetIPv4s();
-            foreach (var ip in ips)
-            {
-                listener.Prefixes.Add($"http://{ip}:{port}/");
-            }
-            listener.Prefixes.Add($"http://localhost:{port}/");
-            listener.Prefixes.Add($"http://127.0.0.1:{port}/");
-        }
-
         public MiniHttpServer(int port)
         {
             this.port = port;
 
-            AddHttpPrefixes(listener, port);
+            NetTools.AddHttpPrefixes(listener, port);
         }
-
 
         public void StartListen()
         {
@@ -55,8 +35,6 @@ namespace PowerUtilities.Net
 
             listener.Start();
         }
-
-
 
         public void StopListen()
         {
@@ -90,6 +68,7 @@ namespace PowerUtilities.Net
                 }
             }
         }
+
         private void ShowURLPrefixes()
         {
             var sb = new StringBuilder();
@@ -98,13 +77,15 @@ namespace PowerUtilities.Net
                 sb.AppendLine(ip);
             }
 
-            Debug.Log($"start listen: {sb.ToString()}");
+            Debug.Log($"[server] : start listen , {sb.ToString()}");
         }
+
         private void ShowAcceptInfo(HttpListenerContext context)
         {
             var req = context.Request;
 
             var sb = new StringBuilder();
+            sb.AppendLine("[server]:");
             sb.AppendLine(req.Url.ToString());
             sb.AppendLine(req.HttpMethod);
             sb.AppendLine(req.UserHostName);

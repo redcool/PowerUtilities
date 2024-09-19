@@ -46,6 +46,7 @@
         public string url;
         //public Texture fileObj;
         //public Shader shaderObj;
+        public bool isShowDebugInfo;
 
         public string bundleAbsPath;
 
@@ -54,6 +55,8 @@
             var assetName = Path.GetFileNameWithoutExtension(bundleAbsPath);
             var bytes = File.ReadAllBytes(bundleAbsPath);
             var fileType = typeof(AssetBundle).Name;
+
+            MiniHttpClient.isShowDebugInfo = isShowDebugInfo;
             MiniHttpClient.PostFile(url, assetName, fileType, bytes);
         }
 
