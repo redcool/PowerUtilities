@@ -16,7 +16,6 @@ namespace PowerUtilities.Net
     {
         public int port = 8000;
         public MiniHttpServer httpServer;
-        public bool isWriteFiletemporaryCachePath;
 
         [Tooltip("relative path : Assets")]
         public string resourceFolder = "../resourceFolder";
