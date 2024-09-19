@@ -12,9 +12,8 @@ namespace PowerUtilities.Net
     public static class MiniHttpClient
     {
         static HttpClient client = new HttpClient();
-        public static bool isShowDebugInfo;
 
-        public static void PostFile(string url, string fileName, string fileType, byte[] bytes)
+        public static void PostFile(string url, string fileName, string fileType, byte[] bytes,bool isShowDebugInfo=false)
         {
             var bytesContent = new ByteArrayContent(bytes);
             bytesContent.Headers.Add("filename", fileName);
@@ -26,12 +25,13 @@ namespace PowerUtilities.Net
             {
                 task.ContinueWith(t =>
                 {
+                    Debug.Log($"[client] task status: {t.Status}");
                     Debug.Log("[client], resp:" + t.Result.Content.ReadAsStringAsync().Result);
                 });
             }
         }
 
-        static void PostMultipart(string url, string fileName, byte[] bytes)
+        static void PostMultipart(string url, string fileName, byte[] bytes, bool isShowDebugInfo = false)
         {
             //client.BaseAddress
             var bytesContent = new ByteArrayContent(bytes);
@@ -54,7 +54,8 @@ namespace PowerUtilities.Net
             {
                 task.ContinueWith(t =>
                 {
-                    Debug.Log(t.Result.Content.ReadAsStringAsync().Result);
+                    Debug.Log($"[client] task status: {t.Status}");
+                    Debug.Log("[client], resp:" + t.Result.Content.ReadAsStringAsync().Result);
                 });
             }
         }

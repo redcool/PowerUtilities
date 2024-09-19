@@ -56,8 +56,7 @@
             var bytes = File.ReadAllBytes(bundleAbsPath);
             var fileType = typeof(AssetBundle).Name;
 
-            MiniHttpClient.isShowDebugInfo = isShowDebugInfo;
-            MiniHttpClient.PostFile(url, assetName, fileType, bytes);
+            MiniHttpClient.PostFile(url, assetName, fileType, bytes,isShowDebugInfo);
         }
 
     }

@@ -21,16 +21,25 @@ namespace PowerUtilities.Net
         public string resourceFolder = "../resourceFolder";
         public bool isShowDebugInfo;
 
+        [Tooltip("Only run in Development Build")]
+        public bool isDebugBuildOnly = true;
+
         public static event Action<string,string,string> OnFileReceived;
 
         private void Awake()
         {
+            if (isDebugBuildOnly && !Debug.isDebugBuild)
+                return;
+
+
             httpServer = new MiniHttpServer(port);
             httpServer.isShowDebugInfo = isShowDebugInfo;
 
+            // handle receive a file
             httpServer.OnReceived += OnHandleFile;
 
-            OnFileReceived += HandleShaderFile;
+            // handle receive shader
+            OnFileReceived += MiniHttpServerShaderReceiver.OnReceiveShaderBundle;
         }
 
         private void MiniHttpServerComponent_OnFileReceived(string fileName,string fileType, string filePath)
@@ -39,50 +48,6 @@ namespace PowerUtilities.Net
                 Debug.Log($"[server]: get file, name: {fileName}, type : {fileType} ,path :" + filePath);
 
             OnFileReceived?.Invoke(fileName, fileType, filePath);
-        }
-
-        private static void HandleShaderFile(string fileName,string fileType, string filePath)
-        {
-            if (fileType == typeof(AssetBundle).Name)
-            {
-                var req = AssetBundle.LoadFromFileAsync(filePath);
-                req.completed += (op) =>
-                {
-                    var ab = req.assetBundle;
-                    var shaderObjs = ab.LoadAllAssets<Shader>();
-                    ReplaceShaderExisted(shaderObjs);
-
-                    ab.Unload(false);
-                };
-
-            }
-        }
-
-        /// <summary>
-        /// error in unity editor, device is ok
-        /// </summary>
-        /// <param name="shaderObjs"></param>
-        public static void ReplaceShaderExisted(Shader[] shaderObjs)
-        {
-            //var renderers = GameObject.FindObjectsByType<Renderer>(FindObjectsSortMode.None);
-            var renderers = Resources.FindObjectsOfTypeAll<Renderer>();
-            for (int i = 0; i < renderers.Length; i++)
-            {
-                var renderer = renderers[i];
-
-                foreach (var shaderObj in shaderObjs)
-                {
-
-                    Debug.Log(renderer.sharedMaterial.shader?.name + " -> " + shaderObj.name);
-                    if (renderer.sharedMaterial.shader?.name == shaderObj.name)
-                    {
-                        var mat = new Material(shaderObj);
-                        mat.name = "swap mat";
-
-                        renderer.sharedMaterial = mat;
-                    }
-                }
-            }
         }
 
         /// <summary>
