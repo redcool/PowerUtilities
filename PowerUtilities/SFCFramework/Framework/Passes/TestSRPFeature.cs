@@ -17,7 +17,8 @@ namespace PowerUtilities.RenderFeatures
     {
         public LayerMask layers;
 
-        public string featureName;
+        [LoadAsset("SFC_ShowOverdrawAdd.mat")]
+        public Material overrideMat;
         public override ScriptableRenderPass GetPass()
         {
             return new TestSRPPass(this);
@@ -69,6 +70,8 @@ namespace PowerUtilities.RenderFeatures
             drawSettings.sortingSettings =sortSettings;
             drawSettings.perObjectData = renderingData.perObjectData;
             drawSettings.mainLightIndex = renderingData.lightData.mainLightIndex;
+
+            drawSettings.overrideMaterial = Feature.overrideMat;
 
             var filterSettings = new FilteringSettings(RenderQueueRange.opaque);
             filterSettings.layerMask = Feature.layers;

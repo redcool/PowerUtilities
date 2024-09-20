@@ -97,10 +97,12 @@
 
         private void DrawDetails()
         {
-            EditorGUIUtility.fieldWidth = 100;
+            EditorGUIUtility.labelWidth = 100;
 
             var isDetailsFoldout = serializedObject.FindProperty("isDetailsFoldout");
             isDetailsFoldout.boolValue = EditorGUILayout.Foldout(isDetailsFoldout.boolValue, "Details", true);
+
+            EditorGUIUtility.labelWidth = 150;
             if (isDetailsFoldout.boolValue)
             {
                 EditorGUI.indentLevel++;

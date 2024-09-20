@@ -94,41 +94,56 @@
         [Header("--- Per Object Data")]
         [Tooltip("overridePerObjectData,Lightmap : (Lightmaps,LightProbe,LightProbeProxyVolume),ShadowMask:(ShadowMask,OcclusionProbe,OcclusionProbeProxyVolume)")]
         public bool overridePerObjectData;
+        
+        [EditorDisableGroup(targetPropName = "overridePerObjectData")]
         public PerObjectData perObjectData;
 
 
         [Header("--- override mainLight")]
         public bool overrideMainLightIndex;
+
         [Tooltip("restore mainLightIndex when draw finish")]
+        [EditorDisableGroup(targetPropName = "overrideMainLightIndex")]
         public bool isRestoreMainLightIndexFinish = true;
 
+        [EditorDisableGroup(targetPropName = "overrideMainLightIndex")]
         public int mainLightIndex;
 
         [Tooltip("use this light as mainLight")]
+        [EditorDisableGroup(targetPropName = "overrideMainLightIndex")]
         public string lightName;
+        [EditorDisableGroup(targetPropName = "overrideMainLightIndex")]
         public List<string> visibleLightNames = new List<string>();
 
 
         [Header("--- override dynamic batch")]
         [Tooltip("override urp Pipeline Asset")]
         public bool overrideDynamicBatching;
+
+        [EditorDisableGroup(targetPropName = "overrideDynamicBatching")]
         public bool enableDynamicBatching;
 
 
         [Header("--- override instancing")]
         [Tooltip("override instancing")]
         public bool overrideGPUInstancing;
+
+        [EditorDisableGroup(targetPropName = "overrideGPUInstancing")]
         public bool enableGPUInstancing;
 
 
         [Header("--- override srp batch")]
         public bool overrideSRPBatch;
+        [EditorDisableGroup(targetPropName = "overrideSRPBatch")]
         public bool enableSRPBatch;
 
 
         [Header("--- override camera")]
         public bool overrideCamera;
+
+        [EditorDisableGroup(targetPropName = "overrideCamera")]
         public float cameraFOV = 60;
+        [EditorDisableGroup(targetPropName = "overrideCamera")]
         public Vector4 cameraOffset;
 
         [Header("SkyBox Pass")]
@@ -137,6 +152,8 @@
 
         [Header("DrawChildrenInstanced")]
         public bool isDrawChildrenInstancedOn;
+
+        [EditorDisableGroup(targetPropName = "isDrawChildrenInstancedOn")]
         public bool forceFindDrawChildrenInstanced;
 
         [Header("Color Space")]
