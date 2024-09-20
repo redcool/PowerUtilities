@@ -28,6 +28,7 @@ namespace PowerUtilities.RenderFeatures
         [Tooltip("override isAutoSetShadowMask")]
         public bool isOverrideAutoSetShadowMask;
         [Tooltip("get ForwardLights and set _Shadows_ShadowMaskOn")]
+        [EditorDisableGroup(targetPropName = "isOverrideAutoSetShadowMask")]
         public bool isAutoSetShadowMask;
 
         [Header("Set MainCamera Info")]
@@ -35,6 +36,7 @@ namespace PowerUtilities.RenderFeatures
         public bool isOverrideSetMainCameraInfo;
 
         [Tooltip("setup camera's rotation matrix(_CameraRot,_CameraYRot),Bill.shader use these")]
+        [EditorDisableGroup(targetPropName = "isOverrideSetMainCameraInfo")]
         public bool isSetMainCameraInfo = true;
 
         [Header("set unscaled time")]
@@ -42,10 +44,12 @@ namespace PowerUtilities.RenderFeatures
         public bool isOverrideUnscaledTime;
 
         [Tooltip("replace _Time(xyzw) ,use Time.unscaledTime")]
+        [EditorDisableGroup(targetPropName = "isOverrideUnscaledTime")]
         public bool isSetUnscaledTime;
 
         [Header("Global Lod Settings,effect subShader")]
         public bool isOverrideGlobalMaxLod;
+        [EditorDisableGroup(targetPropName = "isOverrideGlobalMaxLod")]
         public int globalMaxLod = 600;
 
         [Header("MIN_VERSION")]
@@ -53,20 +57,25 @@ namespace PowerUtilities.RenderFeatures
         public bool isOverrideMinVersion;
 
         [Tooltip("subshader lod [100,300]")]
+        [EditorDisableGroup(targetPropName = "isOverrideMinVersion")]
         public bool isMinVersionOn;
 
+        [Header("URP Asset")]
+        [Tooltip("override urp asset's renderScale")]
+        public bool isOverrideRenderScale;
+
+        [EditorDisableGroup(targetPropName = "isOverrideRenderScale")]
+        [Range(0.01f,2)] public float renderScale = 1;
+        //used for check Feature.isOverriderRenderScale
+        [HideInInspector]public bool lastIsOverrideRenderScale;
         public override ScriptableRenderPass GetPass() => new SetVarialbesPass(this);
     }
 
 
     public class SetVarialbesPass : SRPPass<SetVariables>
     {
+        static Dictionary<RenderPipelineAsset, float> assetRenderScaleDict = new Dictionary<RenderPipelineAsset, float>();
         public SetVarialbesPass(SetVariables feature) : base(feature) { }
-
-        //public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
-        //{
-        //    SerupVariables(cmd, ref renderingData);
-        //}
 
         void SetupVariables(CommandBuffer cmd, ref RenderingData renderingData)
         {
@@ -151,8 +160,28 @@ namespace PowerUtilities.RenderFeatures
         {
             SetupVariables(cmd, ref renderingData);
 
-
+            UpdateURPAsset();
         }
 
+        private void UpdateURPAsset()
+        {
+            var urpAsset = UniversalRenderPipeline.asset;
+            if (!urpAsset)
+                return;
+
+            // save last or reset 
+            if (CompareTools.CompareAndSet(ref Feature.lastIsOverrideRenderScale, ref Feature.isOverrideRenderScale))
+            {
+                if (Feature.isOverrideRenderScale)
+                {
+                    assetRenderScaleDict[urpAsset] = urpAsset.renderScale;
+                }
+                else
+                    urpAsset.renderScale = assetRenderScaleDict.ContainsKey(urpAsset) ? assetRenderScaleDict[urpAsset] : 1;
+            }
+
+            if(Feature.isOverrideRenderScale)
+                urpAsset.renderScale = Feature.renderScale;
+        }
     }
 }

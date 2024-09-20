@@ -37,8 +37,6 @@ namespace PowerUtilities
 
         public static void DrawPassDetail(Editor passItemEditor, Color labelColor, SerializedProperty foldoutProp, GUIContent label)
         {
-            EditorGUIUtility.fieldWidth = 120;
-
             passItemEditor.serializedObject.UpdateIfRequiredOrScript();
 
             // pass header
