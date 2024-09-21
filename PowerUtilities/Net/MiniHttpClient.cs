@@ -13,12 +13,21 @@ namespace PowerUtilities.Net
     {
         static HttpClient client = new HttpClient();
 
-        public static void PostFile(string url, string fileName, string fileType, byte[] bytes,bool isShowDebugInfo=false)
+        public static void PostFile(string url, string fileName, string fileType, byte[] bytes,bool isShowDebugInfo=false,List<MiniHttpKeyValuePair> headersList=null)
         {
             var bytesContent = new ByteArrayContent(bytes);
             bytesContent.Headers.Add("filename", fileName);
             bytesContent.Headers.Add("filetype", fileType);
             bytesContent.Headers.Add("Content-Type", "application/file");
+
+            // add others header kv
+            if(headersList != null ) { 
+                foreach(MiniHttpKeyValuePair pair in headersList)
+                {
+                    if(pair.IsValid())
+                        bytesContent.Headers.Add(pair.key, pair.value);
+                }
+            }
 
             var task = client.PostAsync(url, bytesContent);
             if (isShowDebugInfo)

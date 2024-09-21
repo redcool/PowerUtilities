@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace PowerUtilities.Net
 {
@@ -24,7 +25,7 @@ namespace PowerUtilities.Net
 
                 foreach (var shaderObj in shaderObjs)
                 {
-                    Debug.Log(renderer.sharedMaterial.shader?.name + " -> " + shaderObj.name);
+                    //Debug.Log(renderer.sharedMaterial.shader?.name + " -> " + shaderObj.name);
                     if (renderer.sharedMaterial.shader?.name == shaderObj.name)
                     {
                         renderer.sharedMaterial.shader = shaderObj;
@@ -33,13 +34,17 @@ namespace PowerUtilities.Net
             }
         }
 
-        public static void OnReceiveShaderBundle(string fileName, string fileType, string filePath)
+        public static void OnReceiveShaderBundle(string fileName, string fileType, string filePath, List<MiniHttpKeyValuePair> headers)
         {
             if (fileType == typeof(AssetBundle).Name)
             {
                 var req = AssetBundle.LoadFromFileAsync(filePath);
-                req.completed += (op) =>
+                req.completed += OnComplete;
+
+                void OnComplete(AsyncOperation op)
                 {
+                    req.completed -= OnComplete;
+
                     var ab = req.assetBundle;
                     var shaderObjs = ab.LoadAllAssets<Shader>();
                     ReplaceShaderExisted(shaderObjs);

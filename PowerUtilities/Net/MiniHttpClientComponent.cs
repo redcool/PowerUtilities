@@ -24,7 +24,7 @@
                 //PostFile(inst.fileObj, inst);
                 //PostFile(inst.shaderObj, inst);
 
-                inst.PostBundle();
+                inst.PostFile();
             }
 
         }
@@ -40,23 +40,36 @@
             MiniHttpClient.PostFile(inst.url, assetName, fileType, bytes);
         }
     }
+
 #endif
+
     public class MiniHttpClientComponent : MonoBehaviour
     {
+        [Tooltip("server url")]
         public string url;
         //public Texture fileObj;
         //public Shader shaderObj;
         public bool isShowDebugInfo;
 
+        [Tooltip("AssetBundle,or use file extension name")]
+        public MiniHttpFileType fileType = MiniHttpFileType.AssetBundle;
+
+        [Tooltip("http headers additional ")]
+        [ListItemDraw("key:,key,value:,value", "50,.4,50,.3")]
+        public List<MiniHttpKeyValuePair> headerPairList = new List<MiniHttpKeyValuePair>();
+
+        [Tooltip("read file from")]
         public string bundleAbsPath;
 
-        public void PostBundle()
+        public void PostFile()
         {
-            var assetName = Path.GetFileNameWithoutExtension(bundleAbsPath);
-            var bytes = File.ReadAllBytes(bundleAbsPath);
-            var fileType = typeof(AssetBundle).Name;
+            var assetName = Path.GetFileName(bundleAbsPath);
+            var assetExtName = Path.GetExtension(bundleAbsPath);
 
-            MiniHttpClient.PostFile(url, assetName, fileType, bytes,isShowDebugInfo);
+            var bytes = File.ReadAllBytes(bundleAbsPath);
+            var fileTypeStr = fileType == MiniHttpFileType.ByExtensionName ? assetExtName : typeof(AssetBundle).Name;
+
+            MiniHttpClient.PostFile(url, assetName, fileTypeStr, bytes, isShowDebugInfo, headerPairList);
         }
 
     }

@@ -18,16 +18,20 @@ namespace PowerUtilities.Net
         public MiniHttpServer httpServer;
 
         [Tooltip("relative path : Assets")]
-        public string resourceFolder = "../resourceFolder";
+        public string resourceFolder = "resourceFolder";
         public bool isShowDebugInfo;
 
         [Tooltip("Only run in Development Build")]
         public bool isDebugBuildOnly = true;
 
+        [Header("Debug")]
+        public string finalSaveFolder;
         /// <summary>
         /// call ,when receive file
+        /// 
+        /// string fileName,string fileType, string filePath
         /// </summary>
-        public static event Action<string,string,string> OnFileReceived;
+        public static event Action<string,string,string, List<MiniHttpKeyValuePair> > OnFileReceived;
 
         private void Awake()
         {
@@ -39,6 +43,8 @@ namespace PowerUtilities.Net
 
             // handle receive a file
             httpServer.OnReceived += OnHandleFile;
+
+            finalSaveFolder = GetFinalSaveFolder();
         }
 
         private void OnDestroy()
@@ -46,12 +52,12 @@ namespace PowerUtilities.Net
             OnFileReceived = null;
         }
 
-        private void MiniHttpServerComponent_OnFileReceived(string fileName,string fileType, string filePath)
+        private void FileReceived(string fileName,string fileType, string filePath, List<MiniHttpKeyValuePair> headers=null)
         {
             if(isShowDebugInfo)
                 Debug.Log($"[server]: get file, name: {fileName}, type : {fileType} ,path :" + filePath);
 
-            OnFileReceived?.Invoke(fileName, fileType, filePath);
+            OnFileReceived?.Invoke(fileName, fileType, filePath, headers);
         }
 
         /// <summary>
@@ -70,39 +76,23 @@ namespace PowerUtilities.Net
             if (string.IsNullOrEmpty(fileName))
                 return;
 
-            var bytes = new byte[req.ContentLength64];
-            var readCount = req.InputStream.Read(bytes, 0, bytes.Length);
+            string outputPath = SaveReceivedBytes(req, fileName);
+            List<MiniHttpKeyValuePair> headers = req.Headers.AllKeys
+                .Select(k => new MiniHttpKeyValuePair { key = k, value = req.Headers.Get(k) })
+                .ToList();
+            // send response
+            SendResponseBytes(resp, outputPath);
 
-            //-------------- save file
-            var folder = $"{Application.temporaryCachePath}/{resourceFolder}";
-            var outputPath = $"{folder}/{fileName}";
-
-            if (!Directory.Exists(folder))
-            {
-                Directory.CreateDirectory(folder);
-            }
-
-            if (File.Exists(outputPath))
-                File.Delete(outputPath);
-
-
-            //File.WriteAllText($"{folder}/req.txt", Encoding.UTF8.GetString(bytes));
-            File.WriteAllBytes(outputPath, bytes);
-
-            bytes = Encoding.UTF8.GetBytes($"{outputPath}");
-#if UNITY_2020
-            resp.OutputStream.Write(bytes, 0, bytes.Length);
-            resp.Close();
-#else
-            resp.OutputStream.WriteAsync(bytes).AsTask().ContinueWith((obj) =>
-            {
-                resp.Close();
-            });
-#endif
-
-            MiniHttpServerComponent_OnFileReceived(fileName, fileType, outputPath);
+            // notice file received event
+            FileReceived(fileName, fileType, outputPath, headers);
 
             if (isShowDebugInfo)
+            {
+                ShowFileReceivedLog(req, outputPath);
+            }
+
+            //============= inner methods
+            static void ShowFileReceivedLog(HttpListenerRequest req, string outputPath)
             {
                 var sb = new StringBuilder();
                 sb.AppendLine("[server], handle file request:");
@@ -110,6 +100,48 @@ namespace PowerUtilities.Net
                 sb.AppendLine(outputPath);
                 Debug.Log(sb);
             }
+
+            string SaveReceivedBytes(HttpListenerRequest req, string fileName)
+            {
+                var bytes = new byte[req.ContentLength64];
+                var readCount = req.InputStream.Read(bytes, 0, bytes.Length);
+
+                //-------------- save file
+                string folder = GetFinalSaveFolder();
+                var outputPath = $"{folder}/{fileName}";
+
+                if (!Directory.Exists(folder))
+                {
+                    Directory.CreateDirectory(folder);
+                }
+
+                if (File.Exists(outputPath))
+                    File.Delete(outputPath);
+
+
+                //File.WriteAllText($"{folder}/req.txt", Encoding.UTF8.GetString(bytes));
+                File.WriteAllBytes(outputPath, bytes);
+                return outputPath;
+            }
+
+            static void SendResponseBytes(HttpListenerResponse resp, string outputPath)
+            {
+                var bytesResp = Encoding.UTF8.GetBytes($"[server] File Received : {outputPath}");
+#if UNITY_2020
+            resp.OutputStream.Write(bytesResp, 0, bytesResp.Length);
+            resp.Close();
+#else
+                resp.OutputStream.WriteAsync(bytesResp).AsTask().ContinueWith((obj) =>
+                {
+                    resp.Close();
+                });
+#endif
+            }
+        }
+
+        public string GetFinalSaveFolder()
+        {
+            return $"{Application.temporaryCachePath}/{resourceFolder}";
         }
 
         void Update()
