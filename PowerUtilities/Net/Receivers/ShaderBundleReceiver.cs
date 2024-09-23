@@ -3,13 +3,16 @@ using UnityEngine;
 
 namespace PowerUtilities.Net
 {
-    public static class MiniHttpServerShaderReceiver
+    /// <summary>
+    /// Receive shader assetBundle, no extName 
+    /// </summary>
+    public static class ShaderBundleReceiver
     {
         [RuntimeInitializeOnLoadMethod]
         public static void Init()
         {
-            MiniHttpServerComponent.OnFileReceived -= OnReceiveShaderBundle;
-            MiniHttpServerComponent.OnFileReceived += OnReceiveShaderBundle;
+            MiniHttpServerComponent.OnFileReceived -= OnReceived;
+            MiniHttpServerComponent.OnFileReceived += OnReceived;
         }
         /// <summary>
         /// error in unity editor, device is ok
@@ -34,7 +37,7 @@ namespace PowerUtilities.Net
             }
         }
 
-        public static void OnReceiveShaderBundle(string fileName, string fileType, string filePath, List<MiniHttpKeyValuePair> headers)
+        public static void OnReceived(string fileName, string fileType, string filePath, List<MiniHttpKeyValuePair> headers)
         {
             if (fileType == typeof(AssetBundle).Name)
             {

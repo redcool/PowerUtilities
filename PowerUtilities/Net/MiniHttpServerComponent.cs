@@ -29,7 +29,7 @@ namespace PowerUtilities.Net
         /// <summary>
         /// call ,when receive file
         /// 
-        /// string fileName,string fileType, string filePath
+        /// string fileName,string fileType, string filePath(abs)
         /// </summary>
         public static event Action<string,string,string, List<MiniHttpKeyValuePair> > OnFileReceived;
 
@@ -77,9 +77,12 @@ namespace PowerUtilities.Net
                 return;
 
             string outputPath = SaveReceivedBytes(req, fileName);
+
+            // get request headers
             List<MiniHttpKeyValuePair> headers = req.Headers.AllKeys
                 .Select(k => new MiniHttpKeyValuePair { key = k, value = req.Headers.Get(k) })
                 .ToList();
+
             // send response
             SendResponseBytes(resp, outputPath);
 
