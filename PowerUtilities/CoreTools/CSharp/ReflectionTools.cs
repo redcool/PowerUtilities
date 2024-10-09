@@ -322,6 +322,11 @@ namespace PowerUtilities
         public static object InvokeMethod(this Type type, string name, Type[] argTypes, object caller, object[] args)
         {
             argTypes = argTypes ?? Type.EmptyTypes;
+            if (argTypes == Type.EmptyTypes)
+            {
+                return type.GetMethod(name).Invoke(caller, args);
+            }
+
             return type.GetMethod(name, instanceBindings, null, argTypes, null)?.Invoke(caller, args);
         }
 
