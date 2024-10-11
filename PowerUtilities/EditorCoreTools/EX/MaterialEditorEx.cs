@@ -50,8 +50,15 @@ namespace PowerUtilities
 
         #endregion
 
-
-        public static bool DrawMaterialAttribute(this MaterialEditor editor, ref Rect position, MaterialProperty prop, GUIContent label)
+        /// <summary>
+        /// call method by reflection
+        /// </summary>
+        /// <param name="editor"></param>
+        /// <param name="position"></param>
+        /// <param name="prop"></param>
+        /// <param name="label"></param>
+        /// <returns></returns>
+        public static bool DrawMaterialAttribute_(this MaterialEditor editor, ref Rect position, MaterialProperty prop, GUIContent label)
         {
             /** ( draw material attribute ) original version
             MaterialPropertyHandler handler = MaterialPropertyHandler.GetHandler(((Material)base.target).shader, prop.name);
@@ -92,10 +99,51 @@ namespace PowerUtilities
 
             // check propertyDrawer
             return handlerType.GetPropertyValue("propertyDrawer", handlerInst, null) != null;
-            //var propertyDrawerGetter = handlerType.GetProperty("propertyDrawer");
-            //return propertyDrawerGetter.GetValue(handlerInst) != null;
         }
 
+        delegate object GetHandler(Shader shader, string propName);
+        delegate void OnGUI(ref Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor);
+        /// <summary>
+        /// call by delegate
+        /// </summary>
+        /// <param name="editor"></param>
+        /// <param name="position"></param>
+        /// <param name="prop"></param>
+        /// <param name="label"></param>
+        /// <returns></returns>
+        public static bool DrawMaterialAttribute(this MaterialEditor editor, ref Rect position, MaterialProperty prop, GUIContent label)
+        {
+            /** ( draw material attribute ) original version
+            MaterialPropertyHandler handler = MaterialPropertyHandler.GetHandler(((Material)base.target).shader, prop.name);
+            if (handler != null)
+            {
+                handler.OnGUI(ref position, prop, (label.text != null) ? label : new GUIContent(prop.displayName), this);
+                if (handler.propertyDrawer != null)
+                {
+                    return;
+                }
+            }
+            */
+            
+            var coreModule = lazyCoreModule.Value;
+            if (coreModule == null)
+                return false;
+
+            var handlerType = coreModule.GetType("UnityEditor.MaterialPropertyHandler");
+
+            // get handler delegate
+            var getHandler = DelegateEx.GetOrCreate<GetHandler>(null, handlerType.GetMethod("GetHandler", BindingFlags.Static | BindingFlags.NonPublic));
+
+            var handlerInst = getHandler.Invoke(((Material)editor.target).shader, prop.name);
+            if (handlerInst == null)
+                return false;
+            //onGUI deledate
+            var onGUI = DelegateEx.GetOrCreate<OnGUI>(handlerInst, handlerType.GetMethod("OnGUI"));
+            onGUI.Invoke(ref position, prop, (label.text != null) ? label : new GUIContent(prop.displayName), editor);
+
+            // check propertyDrawer
+            return handlerType.GetPropertyValue("propertyDrawer", handlerInst, null) != null;
+        }
 
         public static void ShaderProperty(this MaterialEditor editor, MaterialProperty prop, GUIContent label, int indent = 0)
         {
