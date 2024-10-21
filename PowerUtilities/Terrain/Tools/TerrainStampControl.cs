@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.TerrainTools;
 
@@ -8,11 +9,19 @@ namespace PowerUtilities
     public class TerrainStampControl : MonoBehaviour
     {
         [Header("Stamp Height")]
+        [Tooltip("stamp height map")]
         public Texture2D brushTexture;
+        [Tooltip("ray trace origin")]
         public Vector3 pos = new Vector3(88, 10, -300);
+
+        [Tooltip("stamp size scale")]
         [Range(0.001f,500)]public float brushSize = 20;
+
+        [Tooltip("stamp rotation")]
         [Range(0,360)]public float brushRotation = 0;
-        [Range(0,1)]public float brushOpacity = 0.1f;
+
+        [Tooltip("negative minus height,positive add height")]
+        [Range(-1,1)]public float brushOpacity = 0.1f;
 
         [EditorButton(onClickCall = "StampHeight")]
         public bool isStampHeight;
@@ -27,7 +36,7 @@ namespace PowerUtilities
                 Debug.Log("hit nothing");
                 return;
             }
-            Debug.DrawRay(hitInfo.point,hitInfo.normal*100, Color.blue,10);
+            Debug.DrawRay(hitInfo.point,hitInfo.normal*100, Color.blue,1);
 
             var t = hitInfo.collider.GetComponent<Terrain>();
             var td = t.terrainData;
@@ -47,8 +56,10 @@ namespace PowerUtilities
             // Call the common rendering function used by OnRenderBrushPreview and OnPaint
             RenderIntoPaintContext(paintContext, brushTexture, brushXform, brushOpaque);
             // Commit the modified PaintContext with a provided string for tracking Undo operations. This function handles Undo and resource cleanup for you
-            TerrainPaintUtility.EndPaintHeightmap(paintContext, "Terrain Control - Raise or Lower Height");
-
+            TerrainPaintUtility.EndPaintHeightmap(paintContext, "Terrain Paint - Raise or Lower Height");
+#if UNITY_EDITOR
+            Undo.RecordObject(terrain.terrainData, "Terrain Paint");
+#endif
             // Return whether or not Trees and Details should be hidden while painting with this Terrain Tool
             return true;
         }
@@ -60,7 +71,7 @@ namespace PowerUtilities
             // Bind the current brush texture
             mat.SetTexture("_BrushTex", brushTexture);
             // Bind the tool-specific shader properties
-            var opacity = Event.current.control ? -brushOpacity : brushOpacity;
+            var opacity = brushOpacity;
             mat.SetVector("_BrushParams", new Vector4(opacity, 0.0f, 0.0f, 0.0f));
             // Setup the material for reading from/writing into the PaintContext texture data. This is a necessary step to setup the correct shader properties for appropriately transforming UVs and sampling textures within the shader
             TerrainPaintUtility.SetupTerrainToolMaterialProperties(paintContext, brushXform, mat);
