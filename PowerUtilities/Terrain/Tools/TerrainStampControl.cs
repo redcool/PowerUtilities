@@ -6,6 +6,7 @@ using UnityEngine.TerrainTools;
 
 namespace PowerUtilities
 {
+    [ExecuteAlways]
     public class TerrainStampControl : MonoBehaviour
     {
         [Header("Stamp Height")]
@@ -36,7 +37,6 @@ namespace PowerUtilities
                 Debug.Log("hit nothing");
                 return;
             }
-            Debug.DrawRay(hitInfo.point,hitInfo.normal*100, Color.blue,1);
 
             var t = hitInfo.collider.GetComponent<Terrain>();
             var td = t.terrainData;
@@ -44,6 +44,17 @@ namespace PowerUtilities
             var localPos = transform.InverseTransformPoint(pos);
             var uv = new Vector2(localPos.x / td.size.x, localPos.z / td.size.z);
             PaintTerrain(t, uv, brushTexture, brushSize, brushRotation, brushOpacity);
+        }
+
+        private void OnDrawGizmosSelected()
+        {
+            var ray = new Ray(pos, Vector3.down);
+            var isHit = Physics.Raycast(ray, out RaycastHit hitInfo, float.MaxValue);
+            if (!isHit)
+            {
+                return;
+            }
+            Debug.DrawRay(hitInfo.point, hitInfo.normal * 100, Color.blue);
         }
 
         public static bool PaintTerrain(Terrain terrain, Vector2 uvOnTerrain,Texture2D brushTexture,float brushSize,float brushRotation,float brushOpaque)
