@@ -8,11 +8,16 @@
     using System.Text;
     using System.Threading;
     using UnityEngine;
+    using UnityEngine.TerrainTools;
     using Object = UnityEngine.Object;
     using Random = UnityEngine.Random;
 
     public static class TerrainTools
     {
+
+        static Material setExactHeightMat;
+
+
         public static void CopyFromTerrain(MeshRenderer mr, Terrain terrain)
         {
             mr.sharedMaterial = terrain.materialTemplate;
@@ -334,5 +339,39 @@
                 }
             }
         }
+
+        /// <summary>
+        /// terrainUV : uv[0,1] on terrain
+        /// </summary>
+        /// <param name="t"></param>
+        /// <param name="terrainUV"></param>
+        /// <returns></returns>
+        public static Vector3 TerrainUVToWorldPos(this Terrain t,Vector3 terrainUV)
+        {
+            var v = t.GetPosition();
+            v += Vector3.Scale(terrainUV, t.terrainData.size);
+
+            return v;
+        }
+        public static Vector2 WorldPosToTerrainUV(this Terrain t,Vector3 worldPos)
+        {
+            var localPos = t.transform.InverseTransformPoint(worldPos);
+            var td = t.terrainData;
+            var uv = new Vector2(localPos.x / td.size.x, localPos.z / td.size.z);
+            return uv;
+        }
+
+
+        /// <summary>
+        /// need package : com.unity.terrain-tools
+        /// </summary>
+        /// <returns></returns>
+        public static Material Get_SetExactHeightMat()
+        {
+            if (!setExactHeightMat)
+                setExactHeightMat = new Material(Shader.Find("Hidden/TerrainTools/SetExactHeight"));
+            return setExactHeightMat;
+        }
+
     }
 }
