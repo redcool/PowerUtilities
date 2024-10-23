@@ -32,7 +32,7 @@ namespace PowerUtilities
             {
                 //EditorGUITools.BeginVerticalBox(() =>
                 //{
-                    EditorGUILayout.HelpBox(TitleHelpStr, MessageType.Info);
+                EditorGUILayout.HelpBox(TitleHelpStr, MessageType.Info);
                 //});
             }
 
@@ -53,7 +53,7 @@ namespace PowerUtilities
                     OnInspectorGUIChanged(inst);
                 }
             }
-                DrawInspectorUI(inst);
+            DrawInspectorUI(inst);
             EditorGUITools.BeginVerticalBox(() =>
             {
             });

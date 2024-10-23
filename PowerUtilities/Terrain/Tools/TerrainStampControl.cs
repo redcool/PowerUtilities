@@ -4,6 +4,8 @@ using System.Collections;
 using System.Collections.Generic;
 #if UNITY_EDITOR
 using UnityEditor;
+using UnityEditor.PackageManager;
+
 #endif
 using UnityEngine;
 using UnityEngine.TerrainTools;
@@ -15,7 +17,7 @@ namespace PowerUtilities
     public class TerrainStampControlEditor : PowerEditor<TerrainStampControl>
     {
         public override bool NeedDrawDefaultUI() => true;
-        public override string Version => "0.0.1";
+        public override string Version => "0.0.2";
 
         public override void DrawInspectorUI(TerrainStampControl inst)
         {
@@ -37,17 +39,18 @@ namespace PowerUtilities
             var segmentCount = (int)(vector.magnitude / inst.distanceSegment);
             var linePoints = new List<Vector3>();
             var ratePerSegment = 1 / (float)segmentCount;
-            for ( var i = 0; i < segmentCount-1; i++)
+            for ( var i = 0; i < segmentCount; i++)
             {
                 linePoints.Add(startHitInfo.point + vector * ratePerSegment * i);
                 linePoints.Add(startHitInfo.point + vector * ratePerSegment * (i+1));
             }
-            Handles.DrawAAPolyLine(linePoints.ToArray());
 
             Handles.BeginGUI();
             GUI.Button(new Rect(startGUIPos, new Vector2(150, 30)), $"{startHitInfo.point}");
             GUI.Button(new Rect(endGUIPos, new Vector2(150, 30)), $"{endHitInfo.point}");
             Handles.EndGUI();
+
+            Handles.DrawAAPolyLine(linePoints.ToArray());
         }
     }
 #endif
@@ -81,6 +84,8 @@ namespace PowerUtilities
     [ExecuteAlways]
     public class TerrainStampControl : MonoBehaviour
     {
+        [HelpBox]
+        public string helpBox = "Stamp base terrain tools";
         //----------------
         [Header("Brush")]
         [Tooltip("height map brush texture")]
@@ -94,7 +99,7 @@ namespace PowerUtilities
         [Tooltip("brush dir,negative minus height,positive add height")]
         [Range(-1,1)]public float brushOpacity = 0.1f;
         //----------------
-        [Header("Position Stamp")]
+        [Header("Stamp Tool")]
         [Tooltip("ray trace origin")]
         public Vector3 pos = new Vector3(88, 10, -300);
 
@@ -102,7 +107,7 @@ namespace PowerUtilities
         public bool isStampHeight;
 
         //----------------
-        [Header("Position Bridge")]
+        [Header("Bridge Tool")]
         public Vector3 startPos;
         public Vector3 endPos;
         [Tooltip("segment's distance")]
@@ -121,19 +126,19 @@ namespace PowerUtilities
             GetHitInfo(endPos, out var endHitInfo);
 
             var vector = endHitInfo.point - startHitInfo.point;
-            var segmentCount = (int)(vector.magnitude / distanceSegment);
+            var segmentCount = Mathf.CeilToInt(vector.magnitude / distanceSegment);
             var ratePerSegment = 1 / (float)segmentCount;
 
             var hitInfoGroupList = new List<(RaycastHit hitInfo,Vector3 pos)>();
-            for (var i = 0; i < segmentCount - 1; i++)
+            // add start
+            //hitInfoGroupList.Add((startHitInfo, startHitInfo.point));
+
+            for (var i = 1; i < segmentCount -1; i++)
             {
                 var pos = (startHitInfo.point + vector * ratePerSegment * i);
 
                 if(! GetHitInfo(pos,out var hitInfo))
                     continue;
-
-                Debug.DrawRay(pos, Vector3.up*10,Color.red,10);
-                Debug.DrawRay(hitInfo.point, hitInfo.normal*10,Color.white,10);
 
                 var t = hitInfo.collider.GetComponent<Terrain>();
                 if (!t)
@@ -144,18 +149,31 @@ namespace PowerUtilities
                 Undo.RecordObject(t, "Terrain Bridge");
 #endif
             }
+            // draw line gizmos
+            hitInfoGroupList.Add((endHitInfo,endHitInfo.point));
             foreach (var hitInfoGroup in hitInfoGroupList)
             {
-                var t = hitInfoGroup.hitInfo.collider.GetComponent<Terrain>();
-                var hitVector = hitInfoGroup.pos - hitInfoGroup.hitInfo.point;
-                var brushRate = hitVector.y / t.terrainData.size.y * 1f;
-                Debug.DrawLine(hitInfoGroup.pos, hitInfoGroup.hitInfo.point, Color.white, 10);
+                var pos = hitInfoGroup.pos;
+                var hitInfo = hitInfoGroup.hitInfo;
+                Debug.DrawRay(pos, Vector3.up * 10, Color.red, 10);
+                Debug.DrawRay(hitInfo.point, hitInfo.normal * 8, Color.white, 10);
+            }
+            
+            // brush terrain
+            foreach (var hitInfoGroup in hitInfoGroupList)
+            {
+                var startPos = hitInfoGroup.pos;
 
-                Debug.Log(brushRate);
-                var uv = t.WorldPosToTerrainUV(hitInfoGroup.pos);
+                var t = hitInfoGroup.hitInfo.collider.GetComponent<Terrain>();
+                
+                var uv = t.WorldPosToTerrainUV(startPos);
 
                 paintInfo.Setup(t, uv, brushTexture, brushSize, brushRotation, brushOpacity, false, TerrainTools.Get_SetExactHeightMat());
-                paintInfo.onGetBrushParams = ()=> new Vector4(brushOpacity, hitInfoGroup.pos.y/t.terrainData.size.y);
+
+                var targetHeight = startPos.y / t.terrainData.size.y * 0.5f;
+                paintInfo.onGetBrushParams = ()=> new Vector4(brushOpacity, targetHeight);
+
+                paintInfo.paintMat.SetTexture("_FilterTex", Texture2D.whiteTexture);
 
                 PaintTerrain(paintInfo);
             }
