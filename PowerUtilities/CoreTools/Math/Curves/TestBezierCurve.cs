@@ -8,6 +8,11 @@ namespace PowerUtilities
     [ExecuteAlways]
     public class TestBezierCurve : MonoBehaviour
     {
+        public enum CurveType
+        {
+            Bezier2,Bezier3
+        }
+        public CurveType curveType;
         [Range(0, 1)] public float value;
         public Transform tr0, tr1, tr2, tr3;
         public Transform target;
@@ -25,8 +30,17 @@ namespace PowerUtilities
         // Update is called once per frame
         void Update()
         {
-            ShowBezier3();
-            DrawCurve3();
+            if (curveType == CurveType.Bezier2)
+            {
+
+                ShowBezier2();
+                DrawCurve2();
+            }
+            else
+            {
+                ShowBezier3();
+                DrawCurve3();
+            }
         }
 
         private void ShowBezier2()
