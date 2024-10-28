@@ -72,7 +72,7 @@ namespace PowerUtilities
             return mt3 * p0 + 3 * mt2 * t * p1 + 3 *  mt * t2 * p2 + t3 * p3;
         }
         /// <summary>
-        /// rational bezier cubie
+        /// rational bezier cubic
         /// </summary>
         /// <param name="p0"></param>
         /// <param name="p1"></param>
@@ -100,6 +100,25 @@ namespace PowerUtilities
             var weights = f0 + f1 + f2 + f3;
             var result = f0 * p0 + f1 * p1 + f2 * p2 + f3 * p3;
             return result / weights;
+        }
+        /// <summary>
+        /// rational bezier cubic(closed p0)
+        /// </summary>
+        /// <param name="p0"></param>
+        /// <param name="p1"></param>
+        /// <param name="p2"></param>
+        /// <param name="p3"></param>
+        /// <param name="t"></param>
+        /// <param name="w0"></param>
+        /// <param name="w1"></param>
+        /// <param name="w2"></param>
+        /// <param name="w3"></param>
+        /// <returns></returns>
+        public static Vector3 BezierClosed(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t, float w0 = 1, float w1 = 1, float w2 = 1, float w3 = 1)
+        {
+            var pos0 = Bezier(p0, p1, p2, p3, t, w0, w1, w2, w3);
+            var pos1 = Bezier(p1, p2, p3,p0, t,  w1, w2, w3,w0);
+            return Vector3.Lerp(pos0, pos1, t);
         }
     }
 }

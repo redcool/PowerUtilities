@@ -45,7 +45,9 @@ namespace PowerUtilities
 
         private void ShowBezier2()
         {
-            var pos = BezierCurve.Bezier(tr0.position, tr1.position, tr2.position, value, weights[0], weights[1], weights[2]);
+            var p0 = BezierCurve.Bezier(tr0.position, tr1.position, tr2.position, value, weights[0], weights[1], weights[2]);
+            var p1 = BezierCurve.Bezier(tr1.position, tr2.position, tr0.position, value, weights[0], weights[1], weights[2]);
+            var pos = Vector3.Lerp(p0, p1, value);
             target.position = pos;
         }
         private void DrawCurve2()
@@ -64,7 +66,7 @@ namespace PowerUtilities
 
         private void ShowBezier3()
         {
-            var pos = BezierCurve.Bezier(tr0.position, tr1.position, tr2.position, tr3.position, value, weights[0], weights[1], weights[2], weights[3]);
+            var pos = BezierCurve.BezierClosed(tr0.position, tr1.position, tr2.position, tr3.position, value, weights[0], weights[1], weights[2], weights[3]);
             target.position = pos;
         }
 
