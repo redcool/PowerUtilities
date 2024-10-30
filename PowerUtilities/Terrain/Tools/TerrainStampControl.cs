@@ -1,12 +1,15 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using Unity.Mathematics;
+
+
 #if UNITY_EDITOR
 using UnityEditor;
-using UnityEditor.PackageManager;
-
 #endif
 using UnityEngine;
+using UnityEngine.Splines;
 using UnityEngine.TerrainTools;
 
 namespace PowerUtilities
@@ -86,7 +89,7 @@ namespace PowerUtilities
         [HelpBox]
         public string helpBox = "Stamp base terrain tools";
         //----------------
-        [Header("Brush")]
+        [EditorHeader("","--- Brush Options")]
         [Tooltip("height map brush texture")]
         public Texture2D brushTexture;
         [Tooltip("brush size scale")]
@@ -98,7 +101,7 @@ namespace PowerUtilities
         [Tooltip("brush dir,negative minus height,positive add height")]
         [Range(-1,1)]public float brushOpacity = 0.1f;
         //----------------
-        [Header("Stamp Tool")]
+        [EditorHeader("","--- Stamp Tool")]
         [Tooltip("ray trace origin")]
         public Vector3 pos = new Vector3(88, 10, -300);
 
@@ -106,7 +109,7 @@ namespace PowerUtilities
         public bool isStampHeight;
 
         //----------------
-        [Header("Bridge Tool")]
+        [EditorHeader("","--- Bridge Tool")]
         public Vector3 startPos;
         public Vector3 endPos;
         [Tooltip("segment's distance")]
@@ -114,10 +117,60 @@ namespace PowerUtilities
         [EditorButton(onClickCall = "BridgeHeights")]
         public bool isBridgeHeights;
 
+        //----------------PathTool
+        [EditorHeader("","--- Path Tools")]
+        public List<Vector3> posList = new List<Vector3>();
+
+        [EditorBox("Path Tools Buttons", "isSetSpline,isReadSpline,isStampPaths", isShowFoldout =true,boxType = EditorBox.BoxType.HBox)]
+        [EditorButton(onClickCall ="SetSpline")]
+        [Tooltip("set poslist to mainSpline")]
+        public bool isSetSpline;
+
+        [EditorButton(onClickCall = "ReadSpline")]
+        [HideInInspector] public bool isReadSpline;
+
+        [EditorButton(onClickCall = "StampPaths")]
+        [HideInInspector] public bool isStampPaths;
+
         // params vo
         TerrainPaintInfo paintInfo = new TerrainPaintInfo();
 
+#if UNITY_SPLINES
+        public SplineContainer splineContainer;
+#endif
+        //============= debug
         [Range(0,1)]public float testValue;
+
+        public void SetSpline()
+        {
+#if UNITY_SPLINES
+            if(!splineContainer)
+                splineContainer = gameObject.GetOrAddComponent<SplineContainer>();
+            if (!splineContainer)
+                return;
+
+            var spline = splineContainer.Spline;
+            spline.AddRange(posList.Select(p => (float3)p));
+#endif
+        }
+
+        public void ReadSpline()
+        {
+#if UNITY_SPLINES
+            if (!splineContainer)
+                return;
+            var spline = splineContainer.Spline;
+            posList.Clear();
+            posList.AddRange(spline.Knots.Select(knot=> (Vector3)knot.Position));
+#endif
+        }
+
+        public void StampPaths()
+        {
+#if UNITY_SPLINES
+
+#endif
+        }
 
         public void BridgeHeights()
         {

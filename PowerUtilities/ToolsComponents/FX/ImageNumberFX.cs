@@ -1,11 +1,11 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
-
 namespace PowerUtilities
 {
+    using System;
+    using System.Collections;
+    using System.Collections.Generic;
+    using UnityEngine;
+    using UnityEngine.UI;
+
     public class ImageNumberFX : MonoBehaviour
     {
         public enum RenderType
@@ -13,6 +13,7 @@ namespace PowerUtilities
             SpriteRenderer,UGUIImage
         }
 
+        [EditorHeader("","0.0.1")]
         [HelpBox]
         public string help = "[0-9] number image for ugui";
 
