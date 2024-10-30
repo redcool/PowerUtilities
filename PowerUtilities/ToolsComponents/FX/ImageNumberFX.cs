@@ -20,8 +20,16 @@ namespace PowerUtilities
 
         public int num = 123;
         public List<Sprite> imageNums = new List<Sprite>();
+
+        [Header("Sprite Space(SpriteRenderer)")]
         [Tooltip("SpriteRenderer 's Spacing")]
         public float spacing = 0;
+
+        public bool isOverrideSpriteSize;
+        [Tooltip("Sprite target pixel size")]
+        [EditorDisableGroup(targetPropName = "isOverrideSpriteSize")]
+        public Vector2 spriteTargetSize = Vector2.zero;
+
         [EditorButton(onClickCall = "Sort")]
         public bool isSort;
 
@@ -78,23 +86,30 @@ namespace PowerUtilities
             return go;
         }
 
-        private void SetupSprite(int id, Sprite sprite, GameObject go)
+
+
+        private void SetupSprite(int id, Sprite sprite, GameObject spriteGO)
         {
             if (renderType == RenderType.SpriteRenderer)
             {
-                go.GetOrAddComponent<SpriteRenderer>().sprite = sprite;
-                var posX = (sprite.bounds.size.x + spacing) * id;
+                spriteGO.GetOrAddComponent<SpriteRenderer>().sprite = sprite;
+                if (isOverrideSpriteSize)
+                {
+                    sprite.SetSpriteScale(spriteGO.transform, spriteTargetSize);
+                }
+
+                var posX = (sprite.bounds.size.x * spriteGO.transform.localScale.x + spacing) * id;
                 
-                var pos = go.transform.position;
+                var pos = spriteGO.transform.position;
                 pos.x = posX;
-                go.transform.position = pos;
+                spriteGO.transform.position = pos;
             }
             else
             {
                 if (!hGroup)
                     hGroup = gameObject.GetOrAddComponent<HorizontalLayoutGroup>();
 
-                go.GetOrAddComponent<Image>().sprite = sprite;
+                spriteGO.GetOrAddComponent<Image>().sprite = sprite;
             }
         }
 
