@@ -11,19 +11,20 @@ using System.Threading.Tasks;
     using UnityEngine;
 
 #if UNITY_EDITOR
-    [CustomPropertyDrawer(typeof(EditorBox))]
-    public class EditorBoxEditor : PropertyDrawer
+    [CustomPropertyDrawer(typeof(EditorBoxAttribute))]
+    public class EditorBoxAttributeDrawer : PropertyDrawer
     {
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
             return 0; // 
-            var attr = (EditorBox)attribute;
+            var attr = (EditorBoxAttribute)attribute;
 
             var lines = 0;
             if (attr.isFolded)
                 lines = 1;
 
-            if (attr.boxType == EditorBox.BoxType.VBox) {
+            if (attr.boxType == EditorBoxAttribute.BoxType.VBox)
+            {
                 lines += attr.propNames.Length - 1;
             }
 
@@ -32,7 +33,7 @@ using System.Threading.Tasks;
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            var attr = (EditorBox)attribute;
+            var attr = (EditorBoxAttribute)attribute;
 
             if (attr.propNames.Length == 0)
             {
@@ -40,9 +41,9 @@ using System.Threading.Tasks;
                 return;
             }
 
-            var itemWidth = EditorGUIUtility.currentViewWidth / Mathf.Max(1,attr.propNames.Length)-20;
+            var itemWidth = EditorGUIUtility.currentViewWidth / Mathf.Max(1, attr.propNames.Length) - 20;
 
-            
+
             if (attr.isFolded = BeginHeader(attr))
             {
                 EditorGUI.indentLevel++;
@@ -54,7 +55,7 @@ using System.Threading.Tasks;
                     var prop = property.serializedObject.FindProperty(propName);
                     if (prop != null)
                     {
-                        EditorGUILayout.PropertyField(prop, true,GUILayout.Width(itemWidth));
+                        EditorGUILayout.PropertyField(prop, true, GUILayout.Width(itemWidth));
                     }
                 }
 
@@ -64,43 +65,42 @@ using System.Threading.Tasks;
             }
 
             EndHeader(attr);
+        }
+        //===========
+        static bool BeginHeader(EditorBoxAttribute attr)
+        {
+            if (attr.isShowFoldout)
+                return EditorGUILayout.BeginFoldoutHeaderGroup(attr.isFolded, attr.header);
+            else
+                EditorGUILayout.LabelField(attr.header, EditorStyles.boldLabel);
+            return true;
+        }
 
-            //===========
-            static bool BeginHeader(EditorBox attr)
-            {
-                if (attr.isShowFoldout)
-                    return EditorGUILayout.BeginFoldoutHeaderGroup(attr.isFolded, attr.header);
-                else
-                    EditorGUILayout.LabelField(attr.header,EditorStyles.boldLabel);
-                return true;
-            }
+        static void EndHeader(EditorBoxAttribute attr)
+        {
+            if (attr.isShowFoldout)
+                EditorGUILayout.EndFoldoutHeaderGroup();
+        }
 
-            static void EndHeader(EditorBox attr)
-            {
-                if (attr.isShowFoldout)
-                    EditorGUILayout.EndFoldoutHeaderGroup();
-            }
+        static void BeginBox(EditorBoxAttribute attr)
+        {
+            if (attr.boxType == EditorBoxAttribute.BoxType.VBox)
+                EditorGUILayout.BeginVertical("Box");
+            else
+                EditorGUILayout.BeginHorizontal("Box");
+        }
 
-            static void BeginBox(EditorBox attr)
-            {
-                if (attr.boxType == EditorBox.BoxType.VBox)
-                    EditorGUILayout.BeginVertical("Box");
-                else
-                    EditorGUILayout.BeginHorizontal("Box");
-            }
-
-            static void EndBox(EditorBox attr)
-            {
-                if (attr.boxType == EditorBox.BoxType.VBox)
-                    EditorGUILayout.EndVertical();
-                else
-                    EditorGUILayout.EndHorizontal();
-            }
+        static void EndBox(EditorBoxAttribute attr)
+        {
+            if (attr.boxType == EditorBoxAttribute.BoxType.VBox)
+                EditorGUILayout.EndVertical();
+            else
+                EditorGUILayout.EndHorizontal();
         }
     }
 #endif
 
-    public class EditorBox : PropertyAttribute
+    public class EditorBoxAttribute : PropertyAttribute
     {
         public enum BoxType
         {
@@ -119,7 +119,7 @@ using System.Threading.Tasks;
         public bool isFolded=true;
 
 
-        public EditorBox(string header, string propName)
+        public EditorBoxAttribute(string header, string propName)
         {
             if (!string.IsNullOrEmpty(propName))
                 propNames = propName.SplitBy();

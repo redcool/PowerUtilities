@@ -373,5 +373,11 @@
             return setExactHeightMat;
         }
 
+
+        public static bool GetHitInfo(Vector3 pos, out RaycastHit hitInfo)
+        {
+            var ray = new Ray(pos, Vector3.down);
+            return Physics.Raycast(ray, out hitInfo, float.MaxValue);
+        }
     }
 }
