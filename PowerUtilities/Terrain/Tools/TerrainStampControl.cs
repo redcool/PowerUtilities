@@ -6,14 +6,14 @@ namespace PowerUtilities
     using System.Linq;
     using Unity.Mathematics;
 
-
 #if UNITY_EDITOR
     using UnityEditor;
 #endif
-    using UnityEngine;
 #if UNITY_SPLINES
     using UnityEngine.Splines;
 #endif
+
+    using UnityEngine;
     using UnityEngine.TerrainTools;
 
 #if UNITY_EDITOR
@@ -104,6 +104,12 @@ namespace PowerUtilities
     [ExecuteAlways]
     public class TerrainStampControl : MonoBehaviour
     {
+
+        public enum PathPosType
+        {
+            UnitySpline,PosList
+        }
+
         [HelpBox]
         public string helpBox = "Stamp base terrain tools";
         //----------------
@@ -140,6 +146,8 @@ namespace PowerUtilities
 
         //----------------PathTool
         [EditorHeader("", "--- Path Tools")]
+        [Tooltip("PathTool Get pos from UnitySpline or posList")]
+        public PathPosType pathPosType;
 #if UNITY_SPLINES
         public SplineContainer splineContainer;
 #endif
@@ -190,25 +198,35 @@ namespace PowerUtilities
 
         public void StampPaths()
         {
-#if UNITY_SPLINES
-            if (!splineContainer)
-                return;
-            var spline = splineContainer.Spline;
-            var curveLen = spline.GetLength();
-            var segments = Mathf.Ceil(curveLen / distanceSegment);
-
             var worldPosList = new List<Vector3>();
-            for (int i = 0; i < segments; i++)
+#if UNITY_SPLINES
+            if (pathPosType == PathPosType.UnitySpline)
             {
-                splineContainer.Evaluate(i / segments, out var pos, out var tangent, out var upVector);
-                worldPosList.Add(pos);
+                if (!splineContainer)
+                    return;
+
+                var spline = splineContainer.Spline;
+                var curveLen = spline.GetLength();
+                var segments = Mathf.Ceil(curveLen / distanceSegment);
+
+                for (int i = 0; i < segments; i++)
+                {
+                    splineContainer.Evaluate(i / segments, out var pos, out var tangent, out var upVector);
+                    worldPosList.Add(pos);
+                }
             }
+#endif
+            if (pathPosType == PathPosType.PosList)
+            {
+                worldPosList.AddRange(posList);
+            }
+
+            if (worldPosList.Count == 0)
+                return;
 
             var hitInfoGroupList = WorldPosToTerrainHitInfo(worldPosList, "Terrain Paths");
             // brush terrain
             StampHeights(hitInfoGroupList);
-
-#endif
         }
 
         List<(RaycastHit hitInfo, Vector3 pos)> WorldPosToTerrainHitInfo(List<Vector3> worldPoints, string undoName = "Terrain Stamp")
