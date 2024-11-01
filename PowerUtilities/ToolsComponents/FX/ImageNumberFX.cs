@@ -13,7 +13,7 @@ namespace PowerUtilities
             SpriteRenderer,UGUIImage
         }
 
-        [EditorHeader("","0.0.1")]
+        [EditorHeader("","0.0.2")]
         [HelpBox]
         public string help = "[0-9] number image for ugui";
 
@@ -21,6 +21,8 @@ namespace PowerUtilities
 
         public int num = 123;
         public List<Sprite> imageNums = new List<Sprite>();
+        [Header("Mat")]
+        public Material spriteMat;
 
         [Header("Sprite Space(SpriteRenderer)")]
         [Tooltip("SpriteRenderer 's Spacing")]
@@ -34,20 +36,60 @@ namespace PowerUtilities
         [EditorButton(onClickCall = "Sort")]
         public bool isSort;
 
+        public bool isSortWhenEnable;
+
+        [Header("Life")]
+        public float lifeTime = 3;
+
+        [Header("Anim")]
+        public bool isUseAnim;
+        public Vector3 moveDir = Vector3.up;
+        public AnimationCurve moveCurve = new AnimationCurve(new Keyframe(0,1),new Keyframe(1,1));
+
+        public AnimationCurve scaleCurve=new AnimationCurve(new Keyframe(0,1),new Keyframe(1,1));
+        float startTime;
+        Vector3 lastLocalScale;
+
         // ugui
         HorizontalLayoutGroup hGroup;
-
         int lastNum;
 
 
         // Start is called before the first frame update
         void OnEnable()
         {
-            Sort();
+            if (isSortWhenEnable)
+                Sort();
+
+            startTime = Time.time;
+            lastLocalScale = transform.localScale;
+            lastNum = num;
+        }
+
+        private void Start()
+        {
+            Destroy(gameObject, lifeTime);
         }
 
         // Update is called once per frame
         void Update()
+        {
+            TrySort();
+            TryMove();
+        }
+        void TryMove()
+        {
+            if (!isUseAnim)
+                return;
+
+            var t = (Time.time - startTime);
+            var speed = moveCurve.Evaluate(t) * Time.deltaTime;
+            transform.localPosition += moveDir * speed;
+
+            var scaleSpeed = scaleCurve.Evaluate(t);
+            transform.localScale = lastLocalScale * scaleSpeed;
+        }
+        private void TrySort()
         {
             if (lastNum != num || isSort)
             {
@@ -93,7 +135,11 @@ namespace PowerUtilities
         {
             if (renderType == RenderType.SpriteRenderer)
             {
-                spriteGO.GetOrAddComponent<SpriteRenderer>().sprite = sprite;
+                var sr = spriteGO.GetOrAddComponent<SpriteRenderer>();
+                sr.sprite = sprite;
+                if(spriteMat)
+                    sr.sharedMaterial = spriteMat;
+                
                 if (isOverrideSpriteSize)
                 {
                     sprite.SetSpriteScale(spriteGO.transform, spriteTargetSize);
@@ -101,9 +147,9 @@ namespace PowerUtilities
 
                 var posX = (sprite.bounds.size.x * spriteGO.transform.localScale.x + spacing) * id;
                 
-                var pos = spriteGO.transform.position;
+                var pos = spriteGO.transform.localPosition;
                 pos.x = posX;
-                spriteGO.transform.position = pos;
+                spriteGO.transform.localPosition = pos;
             }
             else
             {
