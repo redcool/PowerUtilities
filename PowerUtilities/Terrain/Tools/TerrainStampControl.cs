@@ -11,7 +11,9 @@ namespace PowerUtilities
     using UnityEditor;
 #endif
     using UnityEngine;
+#if UNITY_SPLINES
     using UnityEngine.Splines;
+#endif
     using UnityEngine.TerrainTools;
 
 #if UNITY_EDITOR
