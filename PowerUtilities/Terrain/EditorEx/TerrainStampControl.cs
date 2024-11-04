@@ -75,32 +75,6 @@ namespace PowerUtilities
     }
 #endif
 
-    [Serializable]
-    public class TerrainPaintInfo
-    {
-        public Terrain terrain;
-        public Vector2 uvOnTerrain;
-        public Texture2D brushTexture;
-        public float brushSize;
-        public float brushRotation;
-        public float brushOpacity;
-        public bool isNeedUndo = true;
-        public Material paintMat;
-        public Func<Vector4> onGetBrushParams = null;
-
-        public void Setup(Terrain t, Vector2 uv, Texture2D brushTexture, float brushSize, float brushRotation, float brushOpacity, bool isNeedUndo, Material paintMat)
-        {
-            this.terrain = t;
-            this.uvOnTerrain = uv;
-            this.brushTexture = brushTexture;
-            this.brushSize = brushSize;
-            this.brushRotation = brushRotation;
-            this.brushOpacity = brushOpacity;
-            this.isNeedUndo = isNeedUndo;
-            this.paintMat = paintMat ?? TerrainPaintUtility.GetBuiltinPaintMaterial();
-        }
-    }
-
     [ExecuteAlways]
     public class TerrainStampControl : MonoBehaviour
     {
@@ -166,9 +140,6 @@ namespace PowerUtilities
         [EditorButton(onClickCall = "StampPaths")]
         [HideInInspector] public bool isStampPaths;
 
-        // params vo
-        TerrainPaintInfo paintInfo = new TerrainPaintInfo();
-
         //============= debug
         [Range(0, 1)] public float testValue;
 
@@ -229,7 +200,7 @@ namespace PowerUtilities
             StampHeights(hitInfoGroupList);
         }
 
-        List<(RaycastHit hitInfo, Vector3 pos)> WorldPosToTerrainHitInfo(List<Vector3> worldPoints, string undoName = "Terrain Stamp")
+        public static List<(RaycastHit hitInfo, Vector3 pos)> WorldPosToTerrainHitInfo(List<Vector3> worldPoints, string undoName = "Terrain Stamp")
         {
             var list = new List<(RaycastHit hitInfo, Vector3 pos)>();
             var sets = new HashSet<Terrain>();
@@ -293,24 +264,40 @@ namespace PowerUtilities
         /// Stampe Terrain Height Path
         /// </summary>
         /// <param name="hitInfoGroupList"></param>
-        private void StampHeights(List<(RaycastHit hitInfo, Vector3 pos)> hitInfoGroupList)
+        public void StampHeights(List<(RaycastHit hitInfo, Vector3 pos)> hitInfoGroupList)
         {
+            StampHeights(hitInfoGroupList, TerrainTools.Get_SetExactHeightMat(), brushTexture, brushSize, brushRotation, brushOpacity, filterTexture);
+        }
+
+        public static void StampHeights(List<(RaycastHit hitInfo, Vector3 pos)> hitInfoGroupList, Material paintMat,
+            Texture brushTexture, float brushSize, float brushRotation, float brushOpacity, Texture2D filterTexture = null, bool isNeedUndo = true)
+        {
+            Terrain lastTerrain = null;
+
             foreach (var hitInfoGroup in hitInfoGroupList)
             {
                 var startPos = hitInfoGroup.pos;
 
                 var t = hitInfoGroup.hitInfo.collider.GetComponent<Terrain>();
-
+                if (!t)
+                    continue;
+#if UNITY_EDITOR
+                // save currrent terrainData
+                if (isNeedUndo)
+                {
+                    if (lastTerrain != t)
+                    {
+                        lastTerrain = t;
+                        Undo.RecordObject(t.terrainData, "Terrain Paint - Raise or Lower Height");
+                    }
+                }
+#endif
                 var uv = t.WorldPosToTerrainUV(startPos);
 
-                paintInfo.Setup(t, uv, brushTexture, brushSize, brushRotation, brushOpacity, false, TerrainTools.Get_SetExactHeightMat());
-
                 var targetHeight = startPos.y / t.terrainData.size.y * 0.5f;
-                paintInfo.onGetBrushParams = () => new Vector4(brushOpacity, targetHeight);
+                TerrainTools.SetupTerrainPaintMat(ref paintMat, brushTexture, new Vector4(brushOpacity, targetHeight), filterTexture);
 
-                paintInfo.paintMat.SetTexture("_FilterTex", filterTexture ?? Texture2D.whiteTexture);
-
-                PaintTerrain(paintInfo);
+                OnPaint(t, uv, brushSize, brushRotation, paintMat);
             }
         }
 
@@ -327,8 +314,10 @@ namespace PowerUtilities
                 return;
             var uv = t.WorldPosToTerrainUV(pos);
 
-            paintInfo.Setup(t, uv, brushTexture, brushSize, brushRotation, brushOpacity, true, null);
-            PaintTerrain(paintInfo);
+            var paintMat = TerrainTools.GetBuiltinPaintMaterial();
+            TerrainTools.SetupTerrainPaintMat(ref paintMat, brushTexture, new Vector4(brushOpacity, 0), filterTexture);
+
+            OnPaint(t,uv,brushSize, brushRotation, paintMat);
         }
 
 
@@ -348,41 +337,14 @@ namespace PowerUtilities
         }
 
 
-        public static bool PaintTerrain(TerrainPaintInfo info)
+        public static bool OnPaint(Terrain terrain,Vector2 uvOnTerrain,float brushSize,float brushRotation,Material mat)
         {
-#if UNITY_EDITOR
-            if (info.isNeedUndo)
-                Undo.RecordObject(info.terrain.terrainData, "Terrain Paint - Raise or Lower Height");
-#endif
-            // Get the current BrushTransform under the mouse position relative to the Terrain
-            BrushTransform brushXform = TerrainPaintUtility.CalculateBrushTransform(info.terrain, info.uvOnTerrain, info.brushSize, info.brushRotation);
-            // Get the PaintContext for the current BrushTransform. This has a sourceRenderTexture from which to read existing Terrain texture data
-            // and a destinationRenderTexture into which to write new Terrain texture data
-            PaintContext paintContext = TerrainPaintUtility.BeginPaintHeightmap(info.terrain, brushXform.GetBrushXYBounds());
-            // Call the common rendering function used by OnRenderBrushPreview and OnPaint
-            RenderIntoPaintContext(paintContext, brushXform, info);
-            // Commit the modified PaintContext with a provided string for tracking Undo operations. This function handles Undo and resource cleanup for you
+            var brushTransform = TerrainPaintUtility.CalculateBrushTransform(terrain, uvOnTerrain, brushSize, brushRotation);
+            var paintContext = TerrainPaintUtility.BeginPaintHeightmap(terrain, brushTransform.GetBrushXYBounds());
+
+            TerrainTools.RenderIntoPaintContext(paintContext, brushTransform,mat);
             TerrainPaintUtility.EndPaintHeightmap(paintContext, "Terrain Paint - Raise or Lower Height");
-            // Return whether or not Trees and Details should be hidden while painting with this Terrain Tool
             return true;
         }
-
-        public static void RenderIntoPaintContext(PaintContext paintContext, BrushTransform brushXform, TerrainPaintInfo info)
-        {
-            Material mat = info.paintMat;
-            // Bind the current brush texture
-            mat.SetTexture("_BrushTex", info.brushTexture);
-            // Bind the tool-specific shader properties
-            var brushParams = new Vector4(info.brushOpacity, 0);
-            if (info.onGetBrushParams != null)
-                brushParams = info.onGetBrushParams();
-
-            mat.SetVector("_BrushParams", brushParams);
-            // Setup the material for reading from/writing into the PaintContext texture data. This is a necessary step to setup the correct shader properties for appropriately transforming UVs and sampling textures within the shader
-            TerrainPaintUtility.SetupTerrainToolMaterialProperties(paintContext, brushXform, mat);
-            // Render into the PaintContext's destinationRenderTexture using the built-in painting Material - the id for the Raise/Lower pass is 0.
-            Graphics.Blit(paintContext.sourceRenderTexture, paintContext.destinationRenderTexture, mat, 0);
-        }
-
     }
 }

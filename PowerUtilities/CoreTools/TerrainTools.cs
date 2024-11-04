@@ -14,8 +14,12 @@
 
     public static class TerrainTools
     {
+        private const string SET_EXACT_HEIGHT_SHADER = "Hidden/TerrainTools/SetExactHeight";
+        private const string PAINT_HEIGHT_SHADER = "Hidden/TerrainEngine/PaintHeight";
+        private const string BRUSH_PREVIEW_SHADER = "Hidden/TerrainEngine/BrushPreview";
+        private const string BRUSH_PREVIEW_EX_SHADER = "Hidden/TerrainEngine/BrushPreviewEX";
 
-        static Material setExactHeightMat;
+        static Dictionary<string, Material> terrainMatDict = new Dictionary<string, Material>();
 
 
         public static void CopyFromTerrain(MeshRenderer mr, Terrain terrain)
@@ -33,7 +37,7 @@
             File.WriteAllBytes(path, tex.EncodeToPNG());
         }
 
-        public static Texture2D GetBlendSplatMap(Terrain terrain,int baseMapSize=1024)
+        public static Texture2D GetBlendSplatMap(Terrain terrain, int baseMapSize = 1024)
         {
             var td = terrain.terrainData;
             var maps = td.GetAlphamaps(0, 0, td.alphamapWidth, td.alphamapHeight);
@@ -46,8 +50,8 @@
             {
                 for (int y = 0; y < tex.height; y++)
                 {
-                    int alphaMapCoordX = (int)( ((float)x / tex.width) * td.alphamapWidth);
-                    int alphaMapCoordY = (int)( ((float)y / tex.height) * td.alphamapHeight);  
+                    int alphaMapCoordX = (int)(((float)x / tex.width) * td.alphamapWidth);
+                    int alphaMapCoordY = (int)(((float)y / tex.height) * td.alphamapHeight);
 
                     var finalColor = new Color();
 
@@ -59,8 +63,8 @@
 
                         var diff = layer.diffuseTexture;
 
-                        var u = x * nx * tile.x ;
-                        var v = y * ny * tile.y ;
+                        var u = x * nx * tile.x;
+                        var v = y * ny * tile.y;
 
                         //var px = Mathf.FloorToInt(u * diff.width);
                         //var py = Mathf.FloorToInt(v * diff.height);
@@ -318,7 +322,7 @@
             }
         }
 
-        public static void AutoSetNeighbours(Terrain[] terrains,int countInRow)
+        public static void AutoSetNeighbours(Terrain[] terrains, int countInRow)
         {
             if (terrains == null)
                 return;
@@ -346,14 +350,14 @@
         /// <param name="t"></param>
         /// <param name="terrainUV"></param>
         /// <returns></returns>
-        public static Vector3 TerrainUVToWorldPos(this Terrain t,Vector3 terrainUV)
+        public static Vector3 TerrainUVToWorldPos(this Terrain t, Vector3 terrainUV)
         {
             var v = t.GetPosition();
             v += Vector3.Scale(terrainUV, t.terrainData.size);
 
             return v;
         }
-        public static Vector2 WorldPosToTerrainUV(this Terrain t,Vector3 worldPos)
+        public static Vector2 WorldPosToTerrainUV(this Terrain t, Vector3 worldPos)
         {
             var localPos = t.transform.InverseTransformPoint(worldPos);
             var td = t.terrainData;
@@ -361,23 +365,55 @@
             return uv;
         }
 
+        public static Material GetTerrainMat(string shaderName, string defaultShaderWhenNotFound = default)
+        {
+            if (!terrainMatDict.TryGetValue(shaderName, out var mat))
+            {
+                var shader = Shader.Find(shaderName) ?? Shader.Find(defaultShaderWhenNotFound);
+
+                mat = new Material(shader);
+                terrainMatDict.Add(shaderName, mat);
+            }
+            return mat;
+        }
 
         /// <summary>
         /// need package : com.unity.terrain-tools
         /// </summary>
         /// <returns></returns>
-        public static Material Get_SetExactHeightMat()
-        {
-            if (!setExactHeightMat)
-                setExactHeightMat = new Material(Shader.Find("Hidden/TerrainTools/SetExactHeight"));
-            return setExactHeightMat;
-        }
+        public static Material Get_SetExactHeightMat() => GetTerrainMat(SET_EXACT_HEIGHT_SHADER);
+        public static Material GetBuiltinPaintMaterial() => GetTerrainMat(PAINT_HEIGHT_SHADER);
+        public static Material GetDefaultBrushPreviewMaterial() => GetTerrainMat(BRUSH_PREVIEW_SHADER);
+        public static Material GetDefaultBrushPreviewExMaterial() => GetTerrainMat(BRUSH_PREVIEW_EX_SHADER, BRUSH_PREVIEW_SHADER);
 
 
         public static bool GetHitInfo(Vector3 pos, out RaycastHit hitInfo)
         {
             var ray = new Ray(pos, Vector3.down);
             return Physics.Raycast(ray, out hitInfo, float.MaxValue);
+        }
+
+        // Ease of use function for rendering modified Terrain Texture data into a PaintContext. This is used in both OnRenderBrushPreview and OnPaint.
+        public static void RenderIntoPaintContext(PaintContext paintContext, BrushTransform brushXform, Material mat)
+        {
+            // Setup the material for reading from/writing into the PaintContext texture data. This is a necessary step to setup the correct shader properties for appropriately transforming UVs and sampling textures within the shader
+            TerrainPaintUtility.SetupTerrainToolMaterialProperties(paintContext, brushXform, mat);
+            // Render into the PaintContext's destinationRenderTexture using the built-in painting Material - the id for the Raise/Lower pass is 0.
+            Graphics.Blit(paintContext.sourceRenderTexture, paintContext.destinationRenderTexture, mat, 0);
+        }
+
+        /// <summary>
+        /// Setup Terrain PaintMat's params, (GetBuiltinPaintMaterial() , Get_SetExactHeightMat)
+        /// </summary>
+        /// <param name="paintMat"></param>
+        /// <param name="brushTexture"></param>
+        /// <param name="brushParams"></param>
+        /// <param name="filterTexture"></param>
+        public static void SetupTerrainPaintMat(ref Material paintMat, Texture brushTexture, Vector4 brushParams, Texture filterTexture = null)
+        {
+            paintMat.SetTexture("_BrushTex", brushTexture);
+            paintMat.SetVector("_BrushParams", brushParams);
+            paintMat.SetTexture("_FilterTex", filterTexture ?? Texture2D.whiteTexture);
         }
     }
 }
