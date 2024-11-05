@@ -136,6 +136,10 @@ namespace PowerUtilities
         [EditorHeader("", "EnumSearchable")]
         [EnumSearchable(typeof(GraphicsFormat))]
         public GraphicsFormat gFormat;
+
+        [EditorHeader("", "EditorSceneView")]
+        [EditorSceneView(containerType = typeof(Vector3[]))]
+        public Vector3[] posArray = new[] { Vector3.zero,Vector3.one}; 
     }
 }
 #endif
