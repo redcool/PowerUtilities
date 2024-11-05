@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Experimental.Rendering;
 
 namespace PowerUtilities
 {
@@ -131,6 +132,10 @@ namespace PowerUtilities
         [EditorBorder(4)]
         [TextArea]
         public string showBorder;
+
+        [EditorHeader("", "EnumSearchable")]
+        [EnumSearchable(typeof(GraphicsFormat))]
+        public GraphicsFormat gFormat;
     }
 }
 #endif
