@@ -30,18 +30,16 @@ namespace PowerUtilities
 
             if (isClicked)
             {
-                var provider = new EnumSearchProvider()
+                var provider = ScriptableObject.CreateInstance<EnumSearchProvider>();
+                provider.windowTitle = attr.enumType.Name;
+                provider.isReadTextFile = attr.isReadTextFile;
+                provider.onSelectedChanged = enumValue =>
                 {
-                    windowTitle = attr.enumType.Name,
-                    isReadTextFile = attr.isReadTextFile,
-                    onSelectedChanged = enumValue =>
-                    {
-                        property.serializedObject.Update();
-                        property.enumValueIndex = (int)enumValue;
-                        property.serializedObject.ApplyModifiedProperties();
-                    },
-                    enumType = attr.enumType,
+                    property.serializedObject.Update();
+                    property.enumValueIndex = (int)enumValue;
+                    property.serializedObject.ApplyModifiedProperties();
                 };
+                provider.enumType = attr.enumType;
 
                 var winPos = GUIUtility.GUIToScreenPoint(Event.current.mousePosition);
                 SearchWindow.Open(new SearchWindowContext(winPos), provider);

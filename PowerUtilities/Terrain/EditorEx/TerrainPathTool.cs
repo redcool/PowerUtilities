@@ -99,41 +99,34 @@ class TerrainPathTool : TerrainPaintTool<TerrainPathTool>
         {
             splineContainer.Evaluate(i / segments, out var pos, out var tangent, out var upVector);
 
-            TerrainTools.GetHitInfo(pos, out var hitInfo);
+            if( ! TerrainTools.GetHitInfo(pos, out var hitInfo))
+                continue;
+
             var uv = terrain.WorldPosToTerrainUV(hitInfo.point);
             RenderBrushPreview(terrain, editContext, uv, m_BrushOpacity, m_BrushSize, m_BrushRotation);
         }
     }
 
-    public static void RenderBrushPreview(Terrain terrain, IOnSceneGUI editContext,float2 terrainUV,float brushOpacity,float brushSize,float brushRotation)
+    public static void RenderBrushPreview(Terrain terrain, IOnSceneGUI editContext, float2 terrainUV, float brushOpacity, float brushSize, float brushRotation)
     {
-        // Only do the rest if user mouse hits valid terrain
         if (!editContext.hitValidTerrain) return;
 
-        // Get the current BrushTransform under the mouse position relative to the Terrain
         BrushTransform brushXform = TerrainPaintUtility.CalculateBrushTransform(terrain, terrainUV, brushSize, brushRotation);
-        // Get the PaintContext for the current BrushTransform. This has a sourceRenderTexture from which to read existing Terrain texture data.
         PaintContext paintContext = TerrainPaintUtility.BeginPaintHeightmap(terrain, brushXform.GetBrushXYBounds(), 1);
-        // Get the built-in Material for rendering Brush Previews
         Material previewMaterial = TerrainTools.GetDefaultBrushPreviewExMaterial();
-        // Render the brush preview for the sourceRenderTexture. This will show up as a projected brush mesh rendered on top of the Terrain
+
         TerrainPaintUtilityEditor.DrawBrushPreview(paintContext, TerrainBrushPreviewMode.SourceRenderTexture, editContext.brushTexture, brushXform, previewMaterial, 0);
 
         var paintMat = TerrainTools.GetBuiltinPaintMaterial();
         paintMat.SetTexture("_BrushTex", editContext.brushTexture);
-        // Bind the tool-specific shader properties
         paintMat.SetVector("_BrushParams", new Vector4(brushOpacity, 0.0f, 0.0f, 0.0f));
 
-        // Render changes into the PaintContext destinationRenderTexture
-        TerrainTools.RenderIntoPaintContext(paintContext, brushXform,paintMat);
-        // Restore old render target.
+        TerrainTools.RenderIntoPaintContext(paintContext, brushXform, paintMat);
+
         RenderTexture.active = paintContext.oldRenderTexture;
-        // Bind the sourceRenderTexture to the preview Material. This is used to compute deltas in height
         previewMaterial.SetTexture("_HeightmapOrig", paintContext.sourceRenderTexture);
-        // Render a procedural mesh displaying the delta/displacement in height from the source Terrain texture data. When modifying Terrain height, this shows how much the next paint operation will alter the Terrain height
         TerrainPaintUtilityEditor.DrawBrushPreview(paintContext, TerrainBrushPreviewMode.DestinationRenderTexture, editContext.brushTexture, brushXform, previewMaterial, 1);
 
-        // Cleanup resources
         TerrainPaintUtility.ReleaseContextResources(paintContext);
     }
 
