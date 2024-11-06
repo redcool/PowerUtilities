@@ -194,6 +194,12 @@ namespace PowerUtilities
             var field = type.GetField(fieldName, flags);
             if (field != null)
                 field.SetValue(instance, value);
+            else
+            {
+                // find base upwards
+                if (type.BaseType != null)
+                    SetFieldValue(type.BaseType, instance, fieldName, value, flags);
+            }
         }
 
         /// <summary>
@@ -322,6 +328,7 @@ namespace PowerUtilities
         public static object InvokeMethod(this Type type, string name, Type[] argTypes, object caller, object[] args)
         {
             argTypes = argTypes ?? Type.EmptyTypes;
+            args = args ?? new object[] { };
             if (argTypes == Type.EmptyTypes)
             {
                 return type.GetMethod(name).Invoke(caller, args);
