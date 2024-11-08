@@ -61,6 +61,7 @@ Shader "Unlit/BRG/Template"
                 UNITY_TRANSFER_INSTANCE_ID(v,o);
 
                 o.vertex = TransformObjectToHClip(v.vertex.xyz);
+                // o.vertex = mul(UNITY_MATRIX_VP,mul((UNITY_MATRIX_M),float4(v.vertex.xyz,1)));
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
                 o.color = v.color;
                 return o;

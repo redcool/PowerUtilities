@@ -40,5 +40,12 @@ namespace PowerUtilities.CRP
             }
             return v;
         }
+
+        public static Vector3 ToVector3(this Vector4 v) => new Vector3(v.x, v.y, v.z);
+        public static Vector2 ToVector2(this Vector4 v) => new Vector3(v.x, v.y, v.z);
+
+        public static float[] ToArray(this Vector4 v) => new[] { v.x, v.y, v.z, v.w };
+        public static float[] ToArray(this Color v) => ToArray((Vector4)v);
+
     }
 }

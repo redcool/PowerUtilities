@@ -41,5 +41,13 @@ namespace PowerUtilities
             
             inst = new NativeArray<T>(count,allocator);
         }
+
+        public static void SetRange<T>(ref NativeArray<T> inst,IList<T> list) where T : struct
+        {
+            for (int i = 0; i<inst.Length;i++)
+            {
+                inst[i] = list[i];
+            }
+        }
     }
 }

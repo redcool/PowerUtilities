@@ -1,72 +1,53 @@
 #if UNITY_2022_2_OR_NEWER
+using PowerUtilities;
+using PowerUtilities.CRP;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
+using System.Runtime.InteropServices;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
+using Unity.Mathematics;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
 using UnityEngine.Rendering;
+using Debug = UnityEngine.Debug;
 
 
 public class TestBRG : MonoBehaviour
 {
+    [EditorButton(onClickCall = "OnTest")]
+    public bool isTest;
 
+    void OnTest()
+    {
+        var m = new float3x4();
+        m.From(new float[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 });
+        Debug.Log(m);
+
+        var cols = m.ToColumnArray();
+        Debug.Log(string.Join(',',cols));
+    }
 
     public Mesh mesh;
     public Material material;
 
     private BatchRendererGroup m_BRG;
 
-    private GraphicsBuffer m_InstanceData;
+    private GraphicsBuffer instanceBuffer;
     private BatchID m_BatchID;
     private BatchMeshID m_MeshID;
     private BatchMaterialID m_MaterialID;
 
-    // Some helper constants to make calculations more convenient.
-    private const int kSizeOfMatrix = sizeof(float) * 4 * 4;
-    private const int kSizeOfPackedMatrix = sizeof(float) * 4 * 3;
-    private const int kSizeOfFloat4 = sizeof(float) * 4;
-    private const int kBytesPerInstance = (kSizeOfPackedMatrix * 2) + kSizeOfFloat4;
-    private const int kExtraBytes = kSizeOfMatrix * 2;
-    private const int kNumInstances = 3;
+    public int numInstances = 3;
 
-    // The PackedMatrix is a convenience type that converts matrices into
-    // the format that Unity-provided SRP shaders expect.
-    struct PackedMatrix
-    {
-        public float c0x;
-        public float c0y;
-        public float c0z;
-        public float c1x;
-        public float c1y;
-        public float c1z;
-        public float c2x;
-        public float c2y;
-        public float c2z;
-        public float c3x;
-        public float c3y;
-        public float c3z;
-
-        public PackedMatrix(Matrix4x4 m)
-        {
-            c0x = m.m00;
-            c0y = m.m10;
-            c0z = m.m20;
-            c1x = m.m01;
-            c1y = m.m11;
-            c1z = m.m21;
-            c2x = m.m02;
-            c2y = m.m12;
-            c2z = m.m22;
-            c3x = m.m03;
-            c3y = m.m13;
-            c3z = m.m23;
-        }
-    }
+    //update
+    public Vector3[] offsets = new Vector3[3];
+    public Color[] colorOffsets = new Color[3];
 
     private void Start()
     {
@@ -75,23 +56,52 @@ public class TestBRG : MonoBehaviour
         m_MaterialID = m_BRG.RegisterMaterial(material);
 
         AllocateInstanceDateBuffer();
-        PopulateInstanceDataBuffer();
-    }
+        PopulateInstanceDataBuffer_float();
 
+    }
+    private void Update()
+    {
+        var mats = new Matrix4x4[numInstances];
+        for (int i = 0; i < numInstances; i++)
+        {
+            mats[i] = Matrix4x4.Translate(offsets[i]);
+            objectToWorld[i] = mats[i].ToFloat3x4();
+            worldToObject[i] = mats[i].inverse.ToFloat3x4();
+            colors[i] = colorOffsets[i];
+        }
+
+        instanceBuffer.Update(objectToWorld.SelectMany(m => m.ToColumnVectors()).ToList(), startByteAddressList[0]);
+        instanceBuffer.Update(worldToObject.SelectMany(m => m.ToColumnVectors()).ToList(), startByteAddressList[1]);
+        instanceBuffer.Update(colors.SelectMany(v => v.ToArray()).ToList(), startByteAddressList[2]);
+    }
     private void AllocateInstanceDateBuffer()
     {
-        m_InstanceData = new GraphicsBuffer(GraphicsBuffer.Target.Raw,
-            BufferCountForInstances(kBytesPerInstance, kNumInstances, kExtraBytes),
-            sizeof(int));
+        //var count = BufferCountForInstances(kBytesPerInstance, kNumInstances, kExtraBytes); // 116
+        var count = BRGTools.GetByteCount(
+            (typeof(Matrix4x4), 1) // 16 * 4 =64
+            , (typeof(float3x4), 3) //12*4*3 =144
+            , (typeof(float3x4), 3) // 12*4*3
+            , (typeof(float4), 3) //16*3
+            ) / sizeof(int);
+
+        Debug.Log($"count :{count}");
+        instanceBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Raw, count, sizeof(int));
     }
 
-    private void PopulateInstanceDataBuffer()
+    
+    List<int> startByteAddressList = new ();
+
+    List<float3x4> objectToWorld;
+    List<float3x4> worldToObject;
+    List<Color> colors;
+
+    private void PopulateInstanceDataBuffer_float()
     {
         // Place a zero matrix at the start of the instance data buffer, so loads from address 0 return zero.
         var zero = new Matrix4x4[1] { Matrix4x4.zero };
 
         // Create transform matrices for three example instances.
-        var matrices = new Matrix4x4[kNumInstances]
+        var matrices = new List<Matrix4x4>
         {
             Matrix4x4.Translate(new Vector3(-2, 0, 0)),
             Matrix4x4.Translate(new Vector3(0, 0, 0)),
@@ -99,83 +109,97 @@ public class TestBRG : MonoBehaviour
         };
 
         // Convert the transform matrices into the packed format that the shader expects.
-        var objectToWorld = new PackedMatrix[kNumInstances]
+        objectToWorld = new List<float3x4>
         {
-            new PackedMatrix(matrices[0]),
-            new PackedMatrix(matrices[1]),
-            new PackedMatrix(matrices[2]),
+            new float3x4(matrices[0].ToFloat3x4()),
+            new float3x4(matrices[1].ToFloat3x4()),
+            new float3x4(matrices[2].ToFloat3x4()),
         };
 
         // Also create packed inverse matrices.
-        var worldToObject = new PackedMatrix[kNumInstances]
+        worldToObject = new List<float3x4>
         {
-            new PackedMatrix(matrices[0].inverse),
-            new PackedMatrix(matrices[1].inverse),
-            new PackedMatrix(matrices[2].inverse),
+            new float3x4(matrices[0].inverse.ToFloat3x4()),
+            new float3x4(matrices[1].inverse.ToFloat3x4()),
+            new float3x4(matrices[2].inverse.ToFloat3x4()),
         };
 
         // Make all instances have unique colors.
-        var colors = new Vector4[kNumInstances]
+        colors = new List<Color>
         {
             new Vector4(1, 0, 0, 1),
             new Vector4(0, 1, 0, 1),
             new Vector4(0, 0, 1, 1),
         };
 
-        // In this simple example, the instance data is placed into the buffer like this:
-        // Offset | Description
-        //      0 | 64 bytes of zeroes, so loads from address 0 return zeroes
-        //     64 | 32 uninitialized bytes to make working with SetData easier, otherwise unnecessary
-        //     96 | unity_ObjectToWorld, three packed float3x4 matrices
-        //    240 | unity_WorldToObject, three packed float3x4 matrices
-        //    384 | _Color, three float4s
+        var metadataList = new NativeList<MetadataValue>(3, Allocator.Temp);
+        List<float> resultList = new();
 
-        // Calculates start addresses for the different instanced properties. unity_ObjectToWorld starts
-        // at address 96 instead of 64, because the computeBufferStartIndex parameter of SetData
-        // is expressed as source array elements, so it is easier to work in multiples of sizeof(PackedMatrix).
-        uint byteAddressObjectToWorld = kSizeOfPackedMatrix * 2;
-        uint byteAddressWorldToObject = byteAddressObjectToWorld + kSizeOfPackedMatrix * kNumInstances;
-        uint byteAddressColor = byteAddressWorldToObject + kSizeOfPackedMatrix * kNumInstances;
+        BRGTools.FillMatProperty(ref resultList, ref metadataList, ref startByteAddressList, zero.SelectMany(m => m.ToColumnArray()), "");
+        BRGTools.FillMatProperty(ref resultList, ref metadataList, ref startByteAddressList, objectToWorld.SelectMany(m => m.ToColumnArray()), "unity_ObjectToWorld");
+        BRGTools.FillMatProperty(ref resultList, ref metadataList, ref startByteAddressList, worldToObject.SelectMany(m => m.ToColumnArray()), "unity_WorldToObject");
+        BRGTools.FillMatProperty(ref resultList, ref metadataList, ref startByteAddressList, colors.SelectMany(v=> v.ToArray()), "_Color");
 
-        // Upload the instance data to the GraphicsBuffer so the shader can load them.
-        m_InstanceData.SetData(zero, 0, 0, 1);
-        m_InstanceData.SetData(objectToWorld, 0, (int)(byteAddressObjectToWorld / kSizeOfPackedMatrix), objectToWorld.Length);
-        m_InstanceData.SetData(worldToObject, 0, (int)(byteAddressWorldToObject / kSizeOfPackedMatrix), worldToObject.Length);
-        m_InstanceData.SetData(colors, 0, (int)(byteAddressColor / kSizeOfFloat4), colors.Length);
+        instanceBuffer.SetData(resultList);
 
-        // Set up metadata values to point to the instance data. Set the most significant bit 0x80000000 in each
-        // which instructs the shader that the data is an array with one value per instance, indexed by the instance index.
-        // Any metadata values that the shader uses that are not set here will be 0. When a value of 0 is used with
-        // UNITY_ACCESS_DOTS_INSTANCED_PROP (i.e. without a default), the shader interprets the
-        // 0x00000000 metadata value and loads from the start of the buffer. The start of the buffer is
-        // a zero matrix so this sort of load is guaranteed to return zero, which is a reasonable default value.
-        var metadata = new NativeArray<MetadataValue>(3, Allocator.Temp);
-        metadata[0] = new MetadataValue { NameID = Shader.PropertyToID("unity_ObjectToWorld"), Value = 0x80000000 | byteAddressObjectToWorld, };
-        metadata[1] = new MetadataValue { NameID = Shader.PropertyToID("unity_WorldToObject"), Value = 0x80000000 | byteAddressWorldToObject, };
-        metadata[2] = new MetadataValue { NameID = Shader.PropertyToID("_Color"), Value = 0x80000000 | byteAddressColor, };
-
-        // Finally, create a batch for the instances and make the batch use the GraphicsBuffer with the
-        // instance data as well as the metadata values that specify where the properties are.
-        if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLES3)
-            m_BatchID = m_BRG.AddBatch(metadata, m_InstanceData.bufferHandle, 0, (uint)BatchRendererGroup.GetConstantBufferMaxWindowSize());
-        else
-            m_BatchID = m_BRG.AddBatch(metadata, m_InstanceData.bufferHandle);
+        m_BatchID = BRGTools.AddBatch(ref m_BRG, metadataList, instanceBuffer);
+        metadataList.Dispose();
     }
 
-    // Raw buffers are allocated in ints. This is a utility method that calculates
-    // the required number of ints for the data.
-    int BufferCountForInstances(int bytesPerInstance, int numInstances, int extraBytes = 0)
+    private void PopulateInstanceDataBuffer_Vector4()
     {
-        // Round byte counts to int multiples
-        bytesPerInstance = (bytesPerInstance + sizeof(int) - 1) / sizeof(int) * sizeof(int);
-        extraBytes = (extraBytes + sizeof(int) - 1) / sizeof(int) * sizeof(int);
-        int totalBytes = bytesPerInstance * numInstances + extraBytes;
-        return totalBytes / sizeof(int);
-    }
+        // Place a zero matrix at the start of the instance data buffer, so loads from address 0 return zero.
+        var zero = new Matrix4x4[1] { Matrix4x4.zero };
 
+        // Create transform matrices for three example instances.
+        var matrices = new List<Matrix4x4>
+        {
+            Matrix4x4.Translate(new Vector3(-2, 0, 0)),
+            Matrix4x4.Translate(new Vector3(0, 0, 0)),
+            Matrix4x4.Translate(new Vector3(2, 0, 0)),
+        };
+
+        // Convert the transform matrices into the packed format that the shader expects.
+        objectToWorld = new List<float3x4>
+        {
+            new float3x4(matrices[0].ToFloat3x4()),
+            new float3x4(matrices[1].ToFloat3x4()),
+            new float3x4(matrices[2].ToFloat3x4()),
+        };
+
+        // Also create packed inverse matrices.
+        worldToObject = new List<float3x4>
+        {
+            new float3x4(matrices[0].inverse.ToFloat3x4()),
+            new float3x4(matrices[1].inverse.ToFloat3x4()),
+            new float3x4(matrices[2].inverse.ToFloat3x4()),
+        };
+
+        // Make all instances have unique colors.
+        var colors = new List<Vector4>
+        {
+            new Vector4(1, 0, 0, 1),
+            new Vector4(0, 1, 0, 1),
+            new Vector4(0, 0, 1, 1),
+        };
+
+        var metadataList = new NativeList<MetadataValue>(3, Allocator.Temp);
+        List<Vector4> resultList = new();
+
+        BRGTools.FillMatProperty(ref resultList, ref metadataList, ref startByteAddressList, zero.SelectMany(m => m.ToColumnVectors()), "");
+        BRGTools.FillMatProperty(ref resultList, ref metadataList, ref startByteAddressList, objectToWorld.SelectMany(m => m.ToColumnVectors()), "unity_ObjectToWorld");
+        BRGTools.FillMatProperty(ref resultList, ref metadataList, ref startByteAddressList, worldToObject.SelectMany(m => m.ToColumnVectors()), "unity_WorldToObject");
+        BRGTools.FillMatProperty(ref resultList, ref metadataList, ref startByteAddressList, colors, "_Color");
+
+        instanceBuffer.SetData(resultList);
+
+        m_BatchID = BRGTools.AddBatch(ref m_BRG, metadataList, instanceBuffer);
+        metadataList.Dispose();
+    }
 
     private void OnDisable()
     {
+        instanceBuffer.Dispose();
         m_BRG.Dispose();
     }
 
@@ -204,12 +228,12 @@ public class TestBRG : MonoBehaviour
         // You must always allocate the arrays using Allocator.TempJob.
         drawCommands->drawCommands = (BatchDrawCommand*)UnsafeUtility.Malloc(UnsafeUtility.SizeOf<BatchDrawCommand>(), alignment, Allocator.TempJob);
         drawCommands->drawRanges = (BatchDrawRange*)UnsafeUtility.Malloc(UnsafeUtility.SizeOf<BatchDrawRange>(), alignment, Allocator.TempJob);
-        drawCommands->visibleInstances = (int*)UnsafeUtility.Malloc(kNumInstances * sizeof(int), alignment, Allocator.TempJob);
+        drawCommands->visibleInstances = (int*)UnsafeUtility.Malloc(numInstances * sizeof(int), alignment, Allocator.TempJob);
         drawCommands->drawCommandPickingInstanceIDs = null;
 
         drawCommands->drawCommandCount = 1;
         drawCommands->drawRangeCount = 1;
-        drawCommands->visibleInstanceCount = kNumInstances;
+        drawCommands->visibleInstanceCount = numInstances;
 
         // This example doens't use depth sorting, so it leaves instanceSortingPositions as null.
         drawCommands->instanceSortingPositions = null;
@@ -219,7 +243,7 @@ public class TestBRG : MonoBehaviour
         // starting from offset 0 in the array, using the batch, material and mesh
         // IDs registered in the Start() method. It doesn't set any special flags.
         drawCommands->drawCommands[0].visibleOffset = 0;
-        drawCommands->drawCommands[0].visibleCount = kNumInstances;
+        drawCommands->drawCommands[0].visibleCount = (uint)numInstances;
         drawCommands->drawCommands[0].batchID = m_BatchID;
         drawCommands->drawCommands[0].materialID = m_MaterialID;
         drawCommands->drawCommands[0].meshID = m_MeshID;
@@ -241,7 +265,7 @@ public class TestBRG : MonoBehaviour
         // Finally, write the actual visible instance indices to the array. In a more complicated
         // implementation, this output would depend on what is visible, but this example
         // assumes that everything is visible.
-        for (int i = 0; i < kNumInstances; ++i)
+        for (int i = 0; i < numInstances; ++i)
             drawCommands->visibleInstances[i] = i;
 
         // This simple example doesn't use jobs, so it can just return an empty JobHandle.
