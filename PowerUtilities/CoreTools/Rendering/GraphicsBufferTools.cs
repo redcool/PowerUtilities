@@ -25,7 +25,12 @@ namespace PowerUtilities
         {
             buffer.SetData(data, 0, startByteAddress/ VECTOR4_BYTES, data.Count);
         }
-
+        /// <summary>
+        /// update float data
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="data"></param>
+        /// <param name="startByteAddress"></param>
         public static void Update(this GraphicsBuffer buffer, List<float> data, int startByteAddress)
         {
             buffer.SetData(data, 0, startByteAddress / FLOAT_BYTES, data.Count);

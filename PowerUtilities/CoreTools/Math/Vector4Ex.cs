@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace PowerUtilities.CRP
+namespace PowerUtilities
 {
     public static class Vector4Ex
     {
