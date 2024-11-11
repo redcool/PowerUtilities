@@ -135,10 +135,18 @@ public class TestBRG : MonoBehaviour
         var metadataList = new NativeList<MetadataValue>(3, Allocator.Temp);
         List<float> resultList = new();
 
-        BRGTools.FillMatProperty(ref resultList, ref metadataList, ref startByteAddressList, zero.SelectMany(m => m.ToColumnArray()), "");
-        BRGTools.FillMatProperty(ref resultList, ref metadataList, ref startByteAddressList, objectToWorld.SelectMany(m => m.ToColumnArray()), "unity_ObjectToWorld");
-        BRGTools.FillMatProperty(ref resultList, ref metadataList, ref startByteAddressList, worldToObject.SelectMany(m => m.ToColumnArray()), "unity_WorldToObject");
-        BRGTools.FillMatProperty(ref resultList, ref metadataList, ref startByteAddressList, colors.SelectMany(v=> v.ToArray()), "_Color");
+        //BRGTools.FillMatProperty(ref resultList, ref metadataList, ref startByteAddressList, zero.SelectMany(m => m.ToColumnArray()), "");
+        //BRGTools.FillMatProperty(ref resultList, ref metadataList, ref startByteAddressList, objectToWorld.SelectMany(m => m.ToColumnArray()), "unity_ObjectToWorld");
+        //BRGTools.FillMatProperty(ref resultList, ref metadataList, ref startByteAddressList, worldToObject.SelectMany(m => m.ToColumnArray()), "unity_WorldToObject");
+        //BRGTools.FillMatProperty(ref resultList, ref metadataList, ref startByteAddressList, colors.SelectMany(v=> v.ToArray()), "_Color");
+
+        BRGTools.FillMatProperties(ref resultList, ref metadataList, ref startByteAddressList, new[]
+        {
+            (objectToWorld.SelectMany(m => m.ToColumnArray()), "unity_ObjectToWorld"),
+            (worldToObject.SelectMany(m => m.ToColumnArray()), "unity_WorldToObject"),
+            (colors.SelectMany(v => v.ToArray()), "_Color")
+        });
+        
 
         instanceBuffer.SetData(resultList);
 

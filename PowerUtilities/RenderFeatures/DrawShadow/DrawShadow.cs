@@ -56,7 +56,7 @@ namespace PowerUtilities
         [Header("Debug")]
         [EditorDisableGroup]
         public GameObject lightObj;
-        public BigShadowLightControl? bigShadowLightControl;
+        public BigShadowLightControl bigShadowLightControl;
 
         [EditorDisableGroup]
         public float currentDistance;

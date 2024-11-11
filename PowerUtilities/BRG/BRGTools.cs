@@ -14,6 +14,7 @@ namespace PowerUtilities
     public static class BRGTools
     {
 
+        public static readonly Matrix4x4[] ZERO_MATRICES = new []{Matrix4x4.zero};
 
 
         /// <summary>
@@ -153,5 +154,27 @@ namespace PowerUtilities
             //====== add all Vector4 flatted
             resultList.AddRange(datas);
         }
+
+        public static void FillMatPropZeroMatrices(ref List<float> resultList)
+        {
+            resultList.AddRange(ZERO_MATRICES.SelectMany(m => m.ToColumnArray()));
+        }
+        public static void FillMatProperties(ref List<float> resultList, ref NativeList<MetadataValue> metaDataList, ref List<int> startByteAddressList, IList<(IEnumerable<float> datas, string matVarName)> dataInfos)
+        {
+            resultList = resultList ?? new List<float>();
+            if (!metaDataList.IsCreated)
+                metaDataList = new NativeList<MetadataValue>(dataInfos.Count, AllocatorManager.Temp);
+            startByteAddressList = startByteAddressList ?? new List<int>();
+
+            // fill zero matrix
+            FillMatPropZeroMatrices(ref resultList);
+
+            // fill others material properties
+            foreach (var dataInfo in dataInfos)
+            {
+                FillMatProperty(ref resultList, ref metaDataList, ref startByteAddressList, dataInfo.datas, dataInfo.matVarName);
+            }
+        }
+
     }
 }
