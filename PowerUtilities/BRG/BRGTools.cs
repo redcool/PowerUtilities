@@ -113,7 +113,7 @@ namespace PowerUtilities
             // null dont need byteAddress
             if (!string.IsNullOrEmpty(matVarName))
             {
-                var startByteAddress = resultList.Count * GraphicsBufferTools.VECTOR4_BYTES;
+                var startByteAddress = resultList.Count * GraphicsBufferTools.FLOAT4_BYTES;
 
                 startByteAddressList.Add(startByteAddress);
 
@@ -136,7 +136,8 @@ namespace PowerUtilities
         /// <param name="startByteAddressList"></param>
         /// <param name="datas"></param>
         /// <param name="matVarName"></param>
-        public static void FillMatProperty(ref List<float> resultList, ref NativeList<MetadataValue> metaDataList, ref Dictionary<string,int> startByteAddressDict, IEnumerable<float> datas, string matVarName)
+        public static void FillMatProperty(ref List<float> resultList, ref NativeList<MetadataValue> metaDataList, ref Dictionary<string, (int, float[] datas)> startByteAddressDict
+            , float[] datas, string matVarName)
         {
             //1  calc start byte address first
             // null dont need byteAddress
@@ -144,7 +145,7 @@ namespace PowerUtilities
             {
                 var startByteAddress = resultList.Count * GraphicsBufferTools.FLOAT_BYTES;
 
-                startByteAddressDict[matVarName] = startByteAddress;
+                startByteAddressDict[matVarName] = (startByteAddress,datas);
 
                 metaDataList.Add(new MetadataValue
                 {
@@ -162,12 +163,13 @@ namespace PowerUtilities
             resultList.AddRange(ZERO_MATRICES.SelectMany(m => m.ToColumnArray()));
         }
 
-        public static void FillMatProperties(ref List<float> resultList, ref NativeList<MetadataValue> metaDataList, ref Dictionary<string,int> startByteAddressDict, IList<(IEnumerable<float> datas, string matVarName)> dataInfos,bool isFillZeroMatrix=true)
+        public static void FillMatProperties(ref List<float> resultList, ref NativeList<MetadataValue> metaDataList, ref Dictionary<string, (int, float[] datas)> startByteAddressDict,
+            (float[] datas, string matVarName)[] dataInfos,bool isFillZeroMatrix=true)
         {
-            resultList = resultList ?? new List<float>();
-            if (!metaDataList.IsCreated)
-                metaDataList = new NativeList<MetadataValue>(dataInfos.Count, AllocatorManager.Temp);
-            startByteAddressDict = startByteAddressDict ?? new Dictionary<string, int>();
+            //resultList = resultList ?? new List<float>();
+            //if (!metaDataList.IsCreated)
+            //    metaDataList = new NativeList<MetadataValue>(dataInfos.Length, AllocatorManager.Temp);
+            //startByteAddressDict = startByteAddressDict ?? new Dictionary<string, (int, float[] datas)>();
 
             // fill zero matrix
             if(isFillZeroMatrix)

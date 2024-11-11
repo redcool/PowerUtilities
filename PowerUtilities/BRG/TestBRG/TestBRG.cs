@@ -38,6 +38,7 @@ public class TestBRG : MonoBehaviour
     private BatchMaterialID m_MaterialID;
 
     public int numInstances = 3;
+    public int updateId = 2;
 
     //update
     public Vector3[] offsets = new Vector3[3];
@@ -50,10 +51,28 @@ public class TestBRG : MonoBehaviour
         m_MaterialID = m_BRG.RegisterMaterial(material);
 
         AllocateInstanceDateBuffer();
-        PopulateInstanceDataBuffer_float();
+        PopulateInstanceDataBuffer_float_span();
 
     }
     private void Update()
+    {
+        UpdateInst(updateId);
+    }
+
+    void UpdateInst(int id)
+    {
+        var mat = Matrix4x4.Translate(offsets[id]);
+        var objectToWorld = mat.ToFloat3x4();
+        var worldToObject = mat.inverse.ToFloat3x4();
+        var colors = colorOffsets[id];
+
+        
+        instanceBuffer.Update(objectToWorld.ToColumnArray().ToList(), startByteAddressDict["unity_ObjectToWorld"] + id * GraphicsBufferTools.FLOAT3X4_BYTES);
+        instanceBuffer.Update(worldToObject.ToColumnArray().ToList(), startByteAddressDict["unity_WorldToObject"] + id * GraphicsBufferTools.FLOAT3X4_BYTES);
+        instanceBuffer.Update(colors.ToArray().ToList(), startByteAddressDict["_Color"] + id * GraphicsBufferTools.FLOAT4_BYTES);
+    }
+
+    private void UpdateAll()
     {
         var mats = new Matrix4x4[numInstances];
         for (int i = 0; i < numInstances; i++)
@@ -64,18 +83,19 @@ public class TestBRG : MonoBehaviour
             colors[i] = colorOffsets[i];
         }
 
-        instanceBuffer.Update(objectToWorld.SelectMany(m => m.ToColumnVectors()).ToList(), startByteAddressDict["unity_ObjectToWorld"]);
-        instanceBuffer.Update(worldToObject.SelectMany(m => m.ToColumnVectors()).ToList(), startByteAddressDict["unity_WorldToObject"]);
+        instanceBuffer.Update(objectToWorld.SelectMany(m => m.ToColumnArray()).ToList(), startByteAddressDict["unity_ObjectToWorld"]);
+        instanceBuffer.Update(worldToObject.SelectMany(m => m.ToColumnArray()).ToList(), startByteAddressDict["unity_WorldToObject"]);
         instanceBuffer.Update(colors.SelectMany(v => v.ToArray()).ToList(), startByteAddressDict["_Color"]);
     }
+
     private void AllocateInstanceDateBuffer()
     {
         //var count = BufferCountForInstances(kBytesPerInstance, kNumInstances, kExtraBytes); // 116
         var count = BRGTools.GetByteCount(
-            (typeof(Matrix4x4), 1) // 16 * 4 =64
-            , (typeof(float3x4), 3) //12*4*3 =144
-            , (typeof(float3x4), 3) // 12*4*3
-            , (typeof(float4), 3) //16*3
+            //(typeof(Matrix4x4), 1), // 16 * 4 =64
+            (typeof(float3x4), 3), //12*4*3 =144
+            (typeof(float3x4), 3), // 12*4*3
+            (typeof(float4), 3) //16*3
             ) / sizeof(int);
 
         Debug.Log($"count :{count}");
@@ -83,33 +103,91 @@ public class TestBRG : MonoBehaviour
     }
 
     
-    List<int> startByteAddressList = new ();
 
     List<float3x4> objectToWorld;
     List<float3x4> worldToObject;
     List<Color> colors;
+
+    // ---1
+    List<int> startByteAddressList = new ();
     Dictionary<string, int> startByteAddressDict = new();
 
-    private void PopulateInstanceDataBuffer_float()
+    Dictionary<string, (int startByteAddress, float[] drawDatas)> drawInfoDict = new();
+
+
+    private void PopulateInstanceDataBuffer_float_span()
+    {
+        GenMaterialProperties();
+
+        var metadataList = new NativeArray<MetadataValue>(3, Allocator.Temp);
+
+        var drawInfos = new[]
+        {
+            objectToWorld.SelectMany(m => m.ToColumnArray()).ToArray(),
+            worldToObject.SelectMany(m => m.ToColumnArray()).ToArray(),
+            colors.SelectMany(v => v.ToArray()).ToArray(),
+        };
+        var matNames = new[]
+        {
+            "unity_ObjectToWorld",
+            "unity_WorldToObject",
+            "_Color"
+        };
+
+        var itemId = 0;
+        for (int i = 0; i < drawInfos.Length; i++)
+        {
+            var datas = drawInfos[i];
+            var matName = matNames[i];
+
+            var startId = itemId;
+            itemId += datas.Length;
+            var endId = itemId;
+
+            Debug.Log("startId : "+startId);
+
+
+            instanceBuffer.SetData(datas, 0, startId, datas.Length);
+
+            var startByteAddr = startId * GraphicsBufferTools.FLOAT_BYTES;
+            // metadatas
+            metadataList[i] = new MetadataValue
+            {
+                NameID = Shader.PropertyToID(matName),
+                Value = (uint)(0x80000000 | startByteAddr)
+            };
+
+            startByteAddressDict.Add(matName, startByteAddr);
+        }
+
+        m_BatchID = BRGTools.AddBatch(ref m_BRG, metadataList, instanceBuffer);
+        metadataList.Dispose();
+    }
+
+
+    private void PopulateInstanceDataBuffer_float_array()
     {
         GenMaterialProperties();
 
         var metadataList = new NativeList<MetadataValue>(3, Allocator.Temp);
         List<float> resultList = new();
 
-        BRGTools.FillMatProperties(ref resultList, ref metadataList, ref startByteAddressDict, new[]
+        var drawInfos = new[]
         {
-            (objectToWorld.SelectMany(m => m.ToColumnArray()), "unity_ObjectToWorld"),
-            (worldToObject.SelectMany(m => m.ToColumnArray()), "unity_WorldToObject"),
-            (colors.SelectMany(v => v.ToArray()), "_Color")
-        }, false);
+            (objectToWorld.SelectMany(m => m.ToColumnArray()).ToArray(), "unity_ObjectToWorld"),
+            (worldToObject.SelectMany(m => m.ToColumnArray()).ToArray(), "unity_WorldToObject"),
+            (colors.SelectMany(v => v.ToArray()).ToArray(), "_Color")
+        };
 
+        BRGTools.FillMatProperties(ref resultList, ref metadataList, ref drawInfoDict, drawInfos, false);
 
         instanceBuffer.SetData(resultList);
 
         m_BatchID = BRGTools.AddBatch(ref m_BRG, metadataList, instanceBuffer);
         metadataList.Dispose();
     }
+
+
 
     private void GenMaterialProperties()
     {
