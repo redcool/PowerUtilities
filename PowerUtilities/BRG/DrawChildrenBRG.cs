@@ -4,14 +4,26 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.XR;
 
 namespace PowerUtilities
 {
     public class DrawChildrenBRG : MonoBehaviour
     {
+        public class DrawBatchInfo
+        {
+            public GraphicsBuffer buffer;
+            public BatchMaterialID matId;
+            public BatchMeshID meshId;
+            public BatchID batchId;
+            public int instanceCount;
+        }
+
         [EditorButton(onClickCall = "TestStart")]
         public bool isTest;
 
@@ -19,141 +31,100 @@ namespace PowerUtilities
 
         BatchRendererGroup brg;
 
-        List<(BatchMeshID meshId, BatchMaterialID materialId)> batchList = new List<(BatchMeshID meshId, BatchMaterialID materialId)>();
-        BatchID batchId;
-
-        GraphicsBuffer instanceBuffer;
-
-        const int 
-            sizeOfMatrix = sizeof(float) * 4 * 4,
-            sizeOfPackedMatrix = sizeof(float) * 4 * 3,
-            sizeOfFloat4 = sizeof(float) * 4,
-            bytesPerInstance = sizeOfPackedMatrix * 2 + sizeOfFloat4,
-            extraBytes = sizeOfMatrix * 2;
-
-        int
-            numInstance = 3;
-
-        struct PackedMatrix
-        {
-            float
-                c0x, c0y, c0z,
-                c1x, c1y, c1z,
-                c2x, c2y, c2z,
-                c3x, c3y, c3z;
-            public PackedMatrix(Matrix4x4 m)
-            {
-                c0x = m.m00;
-                c0y = m.m10;
-                c0z = m.m20;
-                c1x = m.m01;
-                c1y = m.m11;
-                c1z = m.m21;
-                c2x = m.m02;
-                c2y = m.m12;
-                c2z = m.m22;
-                c3x = m.m03;
-                c3y = m.m13;
-                c3z = m.m23;
-            }
-        }
-
-        int BufferCountForInstances(int bytesPerInstance, int num, int extraBytes)
-        {
-            bytesPerInstance = (bytesPerInstance + sizeof(int) - 1) / sizeof(int) * sizeof(int);
-            extraBytes = (extraBytes + sizeof(int) - 1) / sizeof(int) * sizeof(int);
-            int totalBytes = bytesPerInstance * num + extraBytes;
-            return totalBytes / sizeof(int);
-        }
+        //IEnumerable<(GraphicsBuffer, IGrouping<(int lightmapId, BatchMeshID meshId, BatchMaterialID matId), MeshRenderer>)> drawInfos;
+        List<DrawBatchInfo> batchList = new();
 
         void OnEnable()
         {
             if (brg == null)
-                brg = new BatchRendererGroup(PerformCulling, IntPtr.Zero);
+                brg = new BatchRendererGroup(OnPerformCulling, IntPtr.Zero);
 
             RegisterChildren();
-
-            instanceBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Raw,
-                BufferCountForInstances(bytesPerInstance, numInstance, extraBytes),
-                sizeof(int)
-                );
-
-            PopulateInstanceDataBuffer();
         }
-
-        void PopulateInstanceDataBuffer()
-        {
-            var zero = new Matrix4x4[] { Matrix4x4.zero };
-
-            var matrices = new Matrix4x4[]
-            {
-                Matrix4x4.Translate(new Vector3(-2,0,0)) ,
-                Matrix4x4.Translate(new Vector3(0,0,0)),
-                Matrix4x4.Translate(new Vector3(2,0,0))
-            };
-
-            var objectToWorld = new PackedMatrix[]
-            {
-                new PackedMatrix(matrices[0]),
-                new PackedMatrix(matrices[1]),
-                new PackedMatrix(matrices[2]),
-            };
-
-            var worldToObject = new PackedMatrix[]
-            {
-                new PackedMatrix(matrices[0].inverse),
-                new PackedMatrix(matrices[1].inverse),
-                new PackedMatrix(matrices[2].inverse),
-
-            };
-
-            var colors = new Vector4[]
-            {
-                new Vector4(1,0,0,1),
-                new Vector4(0,1,0,1),
-                new Vector4(0,0,1,1),
-            };
-
-            var byteAddressObjectToWorld = sizeOfPackedMatrix * 2;
-            var byteAddressWorldToObject = sizeOfPackedMatrix * numInstance + byteAddressObjectToWorld;
-            var byteAddressColor = byteAddressWorldToObject + sizeOfPackedMatrix * numInstance;
-
-            instanceBuffer.SetData(zero, 0, 0, 1);
-            instanceBuffer.SetData(objectToWorld, 0, byteAddressObjectToWorld / sizeOfPackedMatrix, objectToWorld.Length);
-            instanceBuffer.SetData(worldToObject, 0, byteAddressWorldToObject / sizeOfPackedMatrix, worldToObject.Length);
-            instanceBuffer.SetData(colors, 0, byteAddressColor / sizeOfFloat4, colors.Length);
-
-            var metas = new MetadataValue[]
-            {
-                new MetadataValue{NameID = Shader.PropertyToID("unity_ObjectToWorld"),Value= (uint)byteAddressObjectToWorld},
-                new MetadataValue{NameID = Shader.PropertyToID("unity_WorldToObject"),Value =(uint)byteAddressWorldToObject},
-                new MetadataValue{NameID = Shader.PropertyToID("_BaseColor"),Value =(uint)byteAddressColor},
-            };
-            var metadata = new NativeArray<MetadataValue>(3, Allocator.Temp);
-            metadata.CopyFrom(metas);
-
-            if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLES3)
-            {
-                batchId = brg.AddBatch(metadata, instanceBuffer.bufferHandle, 0, (uint)BatchRendererGroup.GetConstantBufferMaxWindowSize());
-            }
-            else
-            {
-                batchId = brg.AddBatch(metadata, instanceBuffer.bufferHandle);
-            }
-        }
-
+        /// <summary>
+        /// Same batch means : same (material,mesh)
+        /// </summary>
         private void RegisterChildren()
         {
             var mrs = GetComponentsInChildren<MeshRenderer>(isIncludeInvisible);
-            var infos = from mr in mrs
+            var drawInfos = from mr in mrs
                         let mf = mr.GetComponent<MeshFilter>()
-                        where mf is not null
-                        select (
-                            brg.RegisterMesh(mf.sharedMesh),
-                            brg.RegisterMaterial(mr.sharedMaterial)
-                        );
+                        where mf is not null 
+                        let sharedMesh = mf.sharedMesh
+                        where sharedMesh is not null
 
-            batchList = infos.ToList();
+                        group mr by (
+                        mr.lightmapIndex,
+                        brg.RegisterMesh(mf.sharedMesh),
+                        brg.RegisterMaterial(mr.sharedMaterial)
+                        ) into g
+                        select (
+                            new GraphicsBuffer(GraphicsBuffer.Target.Raw,g.Count(),4),
+                            g)
+                        ;
+            
+            var matNames = new[]
+            {
+                "unity_ObjectToWorld",
+                "unity_WorldToObject",
+                "_Color"
+            };
+
+            Dictionary<GraphicsBuffer,Dictionary<string, int>> allStartByteAddressDict = new();
+
+            foreach ((GraphicsBuffer gbuffer,IGrouping<(int lightmapId,BatchMeshID meshId,BatchMaterialID matId),MeshRenderer> groupInfo) info in drawInfos)
+            {
+                var instanceCount = info.groupInfo.Count();
+                var objectToWorlds = new float[instanceCount * 12];
+                var worldToObjects = new float[instanceCount * 12];
+                var colors = new float[instanceCount * 4];
+
+                var dataStartIdStrides = new[]
+                {
+                    0,
+                    instanceCount * 12,//objectToWorld,
+                    instanceCount * 12,//worldToObject,
+                    instanceCount * 4,//colors.Count
+                };
+                var dataStartIds = new int[matNames.Length];
+
+                var floatsCount = dataStartIdStrides.Sum();
+
+                var startByteAddressDict = DictionaryTools.Get(allStartByteAddressDict,info.gbuffer,(gbuffer)=> new Dictionary<string, int>());
+
+                var metadatas = new NativeArray<MetadataValue>(matNames.Length, Allocator.Temp);
+                GraphicsBufferTools.FillMetadatas(dataStartIdStrides, matNames, ref metadatas, ref startByteAddressDict,ref dataStartIds);
+
+                //----- add renderer
+                var id = 0;
+                foreach (var mr in info.groupInfo)
+                {
+                    //Debug.Log(groupInfo);
+
+                    var objectToWorld = mr.transform.localToWorldMatrix.ToFloat3x4().ToColumnArray();
+                    var worldToObject = mr.transform.worldToLocalMatrix.ToFloat3x4().ToColumnArray();
+                    var color = mr.sharedMaterial.color.ToArray();
+
+                    info.gbuffer.FillData(objectToWorld, id * 12, dataStartIds[0]);
+                    info.gbuffer.FillData(worldToObject, id * 12, dataStartIds[1]);
+                    info.gbuffer.FillData(color, id * 4, dataStartIds[2]);
+
+                    id++;
+                }
+
+                batchList.Add(
+                    new DrawBatchInfo
+                    {
+                        batchId = BRGTools.AddBatch(brg, metadatas, info.gbuffer),
+                        buffer = info.gbuffer,
+                        instanceCount = instanceCount,
+                        matId = info.groupInfo.Key.matId,
+                        meshId = info.groupInfo.Key.meshId
+                    }
+                );
+            }
+
+
         }
 
         private void OnDisable()
@@ -162,12 +133,17 @@ namespace PowerUtilities
                 brg.Dispose();
         }
 
-        JobHandle PerformCulling(BatchRendererGroup brg,
-            BatchCullingContext context,
-            BatchCullingOutput output,
-            IntPtr userContext
-            )
+        public unsafe JobHandle OnPerformCulling(
+            BatchRendererGroup rendererGroup,
+            BatchCullingContext cullingContext,
+            BatchCullingOutput cullingOutput,
+            IntPtr userContext)
         {
+            foreach (var info in batchList)
+            {
+                BRGTools.DrawBatch(cullingOutput, info.batchId, info.matId, info.meshId, info.instanceCount);
+            }
+
             return new JobHandle();
         }
     }
