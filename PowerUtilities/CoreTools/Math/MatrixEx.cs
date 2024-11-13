@@ -157,12 +157,12 @@ namespace PowerUtilities
         public static Vector4 GetRow(this float4x4 m, int id)
         => new Vector4(m.c0[id], m.c1[id], m.c2[id], m.c3[id]);
 
-        public static Vector4[] ToRowVectors(this float3x4 m)
-        => new[]{
-                m.GetRow(0),
-                m.GetRow(1),
-                m.GetRow(2),
-                };
+        //public static Vector4[] ToRowVectors(this float3x4 m)
+        //=> new[]{
+        //        m.GetRow(0),
+        //        m.GetRow(1),
+        //        m.GetRow(2),
+        //        };
 
         public static Vector4[] ToColumnVectors(this float3x4 m)
         =>new[]{

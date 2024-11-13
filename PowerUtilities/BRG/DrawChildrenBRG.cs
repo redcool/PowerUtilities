@@ -32,99 +32,83 @@ namespace PowerUtilities
         BatchRendererGroup brg;
 
         //IEnumerable<(GraphicsBuffer, IGrouping<(int lightmapId, BatchMeshID meshId, BatchMaterialID matId), MeshRenderer>)> drawInfos;
-        List<DrawBatchInfo> batchList = new();
+        List<BRGBatch> batchList = new();
 
         void OnEnable()
         {
             if (brg == null)
                 brg = new BatchRendererGroup(OnPerformCulling, IntPtr.Zero);
 
-            RegisterChildren();
+            var groupInfos = RegisterChildren();
+            SetupGroupInfos(groupInfos);
         }
         /// <summary>
         /// Same batch means : same (material,mesh)
         /// </summary>
-        private void RegisterChildren()
+        private IEnumerable<IGrouping<(int lightmapIndex, BatchMeshID, BatchMaterialID), MeshRenderer>> RegisterChildren()
         {
             var mrs = GetComponentsInChildren<MeshRenderer>(isIncludeInvisible);
-            var drawInfos = from mr in mrs
-                        let mf = mr.GetComponent<MeshFilter>()
-                        where mf is not null 
-                        let sharedMesh = mf.sharedMesh
-                        where sharedMesh is not null
+            var groupInfos = from mr in mrs
+                             let mf = mr.GetComponent<MeshFilter>()
+                             where mf is not null
+                             let sharedMesh = mf.sharedMesh
+                             where sharedMesh is not null
 
-                        group mr by (
-                        mr.lightmapIndex,
-                        brg.RegisterMesh(mf.sharedMesh),
-                        brg.RegisterMaterial(mr.sharedMaterial)
-                        ) into g
-                        select (
-                            new GraphicsBuffer(GraphicsBuffer.Target.Raw,g.Count(),4),
-                            g)
+                             group mr by (
+                             mr.lightmapIndex,
+                             brg.RegisterMesh(mf.sharedMesh),
+                             brg.RegisterMaterial(mr.sharedMaterial)
+                             ) into g
+                             select g
                         ;
-            
-            var matNames = new[]
+            return groupInfos;
+
+        }
+
+        private void SetupGroupInfos(IEnumerable<IGrouping<(int lightmapIndex, BatchMeshID, BatchMaterialID), MeshRenderer>> groupInfos)
+        {
+            var groupCount = groupInfos.Count();
+
+            foreach (IGrouping<(int lightmapId, BatchMeshID meshId, BatchMaterialID matId), MeshRenderer> groupInfo in groupInfos)
             {
-                "unity_ObjectToWorld",
-                "unity_WorldToObject",
-                "_Color"
-            };
+                var instCount = groupInfo.Count();
 
-            Dictionary<GraphicsBuffer,Dictionary<string, int>> allStartByteAddressDict = new();
-
-            foreach ((GraphicsBuffer gbuffer,IGrouping<(int lightmapId,BatchMeshID meshId,BatchMaterialID matId),MeshRenderer> groupInfo) info in drawInfos)
-            {
-                var instanceCount = info.groupInfo.Count();
-                var objectToWorlds = new float[instanceCount * 12];
-                var worldToObjects = new float[instanceCount * 12];
-                var colors = new float[instanceCount * 4];
-
-                var dataStartIdStrides = new[]
+                // find material props
+                var matPropNames = new[]
                 {
-                    0,
-                    instanceCount * 12,//objectToWorld,
-                    instanceCount * 12,//worldToObject,
-                    instanceCount * 4,//colors.Count
+                    "unity_ObjectToWorld",
+                    "unity_WorldToObject",
+                    "_Color"
                 };
-                var dataStartIds = new int[matNames.Length];
+                var matPropFloatCount = 12 + 12 + 4;
 
-                var floatsCount = dataStartIdStrides.Sum();
 
-                var startByteAddressDict = DictionaryTools.Get(allStartByteAddressDict,info.gbuffer,(gbuffer)=> new Dictionary<string, int>());
+                var brgBatch = new BRGBatch(brg, instCount, groupInfo.Key.meshId, groupInfo.Key.matId);
+                brgBatch.SetupGraphBuffer(matPropFloatCount);
 
-                var metadatas = new NativeArray<MetadataValue>(matNames.Length, Allocator.Temp);
-                GraphicsBufferTools.FillMetadatas(dataStartIdStrides, matNames, ref metadatas, ref startByteAddressDict,ref dataStartIds);
-
+                batchList.Add(brgBatch);
                 //----- add renderer
-                var id = 0;
-                foreach (var mr in info.groupInfo)
+
+                var instId = 0;
+                foreach (var mr in groupInfo)
                 {
-                    //Debug.Log(groupInfo);
+                    mr.enabled = false;
+                    var objectToWorld = mr.transform.localToWorldMatrix.ToFloat3x4();
+                    var worldToObject = mr.transform.worldToLocalMatrix.ToFloat3x4();
+                    var color = mr.sharedMaterial.color;
 
-                    var objectToWorld = mr.transform.localToWorldMatrix.ToFloat3x4().ToColumnArray();
-                    var worldToObject = mr.transform.worldToLocalMatrix.ToFloat3x4().ToColumnArray();
-                    var color = mr.sharedMaterial.color.ToArray();
+                    brgBatch.FillData(objectToWorld.ToColumnArray(), instId, 0);
+                    brgBatch.FillData(worldToObject.ToColumnArray(), instId, 1);
+                    brgBatch.FillData(color.ToArray(), instId, 2);
 
-                    info.gbuffer.FillData(objectToWorld, id * 12, dataStartIds[0]);
-                    info.gbuffer.FillData(worldToObject, id * 12, dataStartIds[1]);
-                    info.gbuffer.FillData(color, id * 4, dataStartIds[2]);
+                    var block = mr.gameObject.GetOrAddComponent<BRGBatchBlock>();
+                    block.brgBatch = brgBatch;
+                    block.instId = instId;
 
-                    id++;
+                    instId++;
                 }
 
-                batchList.Add(
-                    new DrawBatchInfo
-                    {
-                        batchId = BRGTools.AddBatch(brg, metadatas, info.gbuffer),
-                        buffer = info.gbuffer,
-                        instanceCount = instanceCount,
-                        matId = info.groupInfo.Key.matId,
-                        meshId = info.groupInfo.Key.meshId
-                    }
-                );
             }
-
-
         }
 
         private void OnDisable()
@@ -139,9 +123,9 @@ namespace PowerUtilities
             BatchCullingOutput cullingOutput,
             IntPtr userContext)
         {
-            foreach (var info in batchList)
+            foreach (var brgBatch in batchList)
             {
-                BRGTools.DrawBatch(cullingOutput, info.batchId, info.matId, info.meshId, info.instanceCount);
+                brgBatch.DrawBatch(cullingOutput);
             }
 
             return new JobHandle();

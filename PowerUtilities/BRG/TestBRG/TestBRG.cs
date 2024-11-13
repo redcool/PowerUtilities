@@ -15,6 +15,7 @@ using UnityEngine;
 using UnityEngine.Experimental.Rendering;
 using UnityEngine.Rendering;
 using Debug = UnityEngine.Debug;
+using Random = UnityEngine.Random;
 
 
 public class TestBRG : MonoBehaviour
@@ -46,6 +47,9 @@ public class TestBRG : MonoBehaviour
 
     private void Start()
     {
+        offsets = new Vector3[numInstances];
+        colorOffsets = new Color[numInstances];
+
         m_BRG = new BatchRendererGroup(this.OnPerformCulling, IntPtr.Zero);
         m_MeshID = m_BRG.RegisterMesh(mesh);
         m_MaterialID = m_BRG.RegisterMaterial(material);
@@ -56,8 +60,8 @@ public class TestBRG : MonoBehaviour
     }
     private void Update()
     {
-        UpdateInst(updateId);
-        //UpdateAll();
+        //UpdateInst(updateId);
+        UpdateAll();
     }
 
     void UpdateInst(int id)
@@ -79,14 +83,14 @@ public class TestBRG : MonoBehaviour
         for (int i = 0; i < numInstances; i++)
         {
             mats[i] = Matrix4x4.Translate(offsets[i]);
-            objectToWorld[i] = mats[i].ToFloat3x4();
-            worldToObject[i] = mats[i].inverse.ToFloat3x4();
+            objectToWorlds[i] = mats[i].ToFloat3x4();
+            worldToObjects[i] = mats[i].inverse.ToFloat3x4();
             colors[i] = colorOffsets[i];
         }
 
-        instanceBuffer.FillData(objectToWorld.SelectMany(m => m.ToColumnArray()).ToArray(), startByteAddressDict["unity_ObjectToWorld"], 0);
-        instanceBuffer.FillData(worldToObject.SelectMany(m => m.ToColumnArray()).ToArray(), startByteAddressDict["unity_WorldToObject"], 0);
-        instanceBuffer.FillData(colors.SelectMany(v => v.ToArray()).ToArray(), startByteAddressDict["_Color"], 0);
+        instanceBuffer.FillData(objectToWorlds.SelectMany(m => m.ToColumnArray()).ToArray(), startByteAddressDict["unity_ObjectToWorld"]/4, 0);
+        instanceBuffer.FillData(worldToObjects.SelectMany(m => m.ToColumnArray()).ToArray(), startByteAddressDict["unity_WorldToObject"]/4, 0);
+        instanceBuffer.FillData(colors.SelectMany(v => v.ToArray()).ToArray(), startByteAddressDict["_Color"]/4, 0);
     }
 
     private void AllocateInstanceDateBuffer()
@@ -103,8 +107,8 @@ public class TestBRG : MonoBehaviour
         instanceBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Raw, count, sizeof(int));
     }
 
-    List<float3x4> objectToWorld;
-    List<float3x4> worldToObject;
+    List<float3x4> objectToWorlds;
+    List<float3x4> worldToObjects;
     List<Color> colors;
 
     // ---1
@@ -144,8 +148,8 @@ public class TestBRG : MonoBehaviour
 
         for (int i = 0; i < numInstances; i++)
         {
-            instanceBuffer.FillData(objectToWorld[i].ToColumnArray(), i * 12, dataStartIds[0]);
-            instanceBuffer.FillData(worldToObject[i].ToColumnArray(), i * 12, dataStartIds[1]);
+            instanceBuffer.FillData(objectToWorlds[i].ToColumnArray(), i * 12, dataStartIds[0]);
+            instanceBuffer.FillData(worldToObjects[i].ToColumnArray(), i * 12, dataStartIds[1]);
             instanceBuffer.FillData(colors[i].ToArray(), i * 4, dataStartIds[2]);
         }
 
@@ -157,36 +161,20 @@ public class TestBRG : MonoBehaviour
     private void GenMaterialProperties()
     {
         // Create transform matrices for three example instances.
-        var matrices = new List<Matrix4x4>
+        var matrices = new List<Matrix4x4>();
+        for (int i = 0; i < numInstances; i++)
         {
-            Matrix4x4.Translate(new Vector3(-2, 0, 0)),
-            Matrix4x4.Translate(new Vector3(0, 0, 0)),
-            Matrix4x4.Translate(new Vector3(2, 0, 0)),
-        };
+            matrices.Add(Matrix4x4.Translate(Vector3.Scale(Random.insideUnitSphere, Vector3.right) * 2));
+        }
 
         // Convert the transform matrices into the packed format that the shader expects.
-        objectToWorld = new List<float3x4>
-        {
-            new float3x4(matrices[0].ToFloat3x4()),
-            new float3x4(matrices[1].ToFloat3x4()),
-            new float3x4(matrices[2].ToFloat3x4()),
-        };
+        objectToWorlds = matrices.Select(m => m.ToFloat3x4()).ToList();
 
         // Also create packed inverse matrices.
-        worldToObject = new List<float3x4>
-        {
-            new float3x4(matrices[0].inverse.ToFloat3x4()),
-            new float3x4(matrices[1].inverse.ToFloat3x4()),
-            new float3x4(matrices[2].inverse.ToFloat3x4()),
-        };
+        worldToObjects = matrices.Select(m => m.inverse.ToFloat3x4()).ToList();
 
         // Make all instances have unique colors.
-        colors = new List<Color>
-        {
-            new Vector4(1, 0, 0, 1),
-            new Vector4(0, 1, 0, 1),
-            new Vector4(0, 0, 1, 1),
-        };
+        colors = Enumerable.Range(0, numInstances).Select(id => Color.white * ((float)id / numInstances)).ToList();
     }
 
     private void OnDisable()

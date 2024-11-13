@@ -24,7 +24,7 @@ namespace PowerUtilities
         /// </summary>
         /// <param name="varInfos"></param>
         /// <returns></returns>
-        public static int GetByteCount(params (Type varType,int varCount)[] varInfos)
+        public static int GetByteCount(params (Type varType, int varCount)[] varInfos)
         {
             var count = 0;
             foreach (var info in varInfos)
@@ -32,6 +32,11 @@ namespace PowerUtilities
                 count += Marshal.SizeOf(info.varType) * info.varCount;
             }
             return count;
+        }
+
+        public static int GetByteCount(int numInstance,params Type[] matTypes)
+        {
+            return matTypes.Select(type => Marshal.SizeOf(type)).Sum() * numInstance;
         }
 
         public static BatchID AddBatch(this BatchRendererGroup brg,NativeArray<MetadataValue> metadatas,GraphicsBuffer graphBuffer)
