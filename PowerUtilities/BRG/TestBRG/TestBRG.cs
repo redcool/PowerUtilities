@@ -68,9 +68,9 @@ public class TestBRG : MonoBehaviour
         var color = colorOffsets[id];
 
 
-        instanceBuffer.FillData(objectToWorld.ToColumnArray(), id * GraphicsBufferTools.FLOAT3X4_BYTES, startByteAddressDict["unity_ObjectToWorld"]);
-        instanceBuffer.FillData(worldToObject.ToColumnArray(), id * GraphicsBufferTools.FLOAT3X4_BYTES, startByteAddressDict["unity_WorldToObject"]);
-        instanceBuffer.FillData(color.ToArray(), id * GraphicsBufferTools.FLOAT4_BYTES, startByteAddressDict["_Color"]);
+        instanceBuffer.FillData(objectToWorld.ToColumnArray(), id * 12, startByteAddressDict["unity_ObjectToWorld"]/4);
+        instanceBuffer.FillData(worldToObject.ToColumnArray(), id * 12, startByteAddressDict["unity_WorldToObject"]/4);
+        instanceBuffer.FillData(color.ToArray(), id * 4, startByteAddressDict["_Color"]/4);
     }
 
     private void UpdateAll()
@@ -94,9 +94,9 @@ public class TestBRG : MonoBehaviour
         //var count = BufferCountForInstances(kBytesPerInstance, kNumInstances, kExtraBytes); // 116
         var count = BRGTools.GetByteCount(
             //(typeof(Matrix4x4), 1), // 16 * 4 =64
-            (typeof(float3x4), 3), //12*4*3 =144
-            (typeof(float3x4), 3), // 12*4*3
-            (typeof(float4), 3) //16*3
+            (typeof(float3x4), numInstances), //12*4*3 =144
+            (typeof(float3x4), numInstances), // 12*4*3
+            (typeof(float4), numInstances) //16*3
             ) / sizeof(int);
 
         Debug.Log($"count :{count}");
@@ -109,6 +109,7 @@ public class TestBRG : MonoBehaviour
 
     // ---1
     Dictionary<string, int> startByteAddressDict = new();
+    int[] dataStartIds;
 
     private void PopulateInstanceDataBuffer_float()
     {
@@ -128,11 +129,12 @@ public class TestBRG : MonoBehaviour
             numInstances* 12, //worldToObject
             numInstances * 4 // colors
         };
-        var dataStartIds = new int[matNames.Length];
+        dataStartIds = new int[matNames.Length];
 
         var metadataList = new NativeArray<MetadataValue>(matNames.Length, Allocator.Temp);
         GraphicsBufferTools.FillMetadatas(dataStartIdStrides, matNames,ref metadataList,ref startByteAddressDict,ref dataStartIds);
-
+        Debug.Log(string.Join(',', dataStartIds));
+        Debug.Log(string.Join(',', startByteAddressDict.Values));
 
         //var graphBufferStartId = 0;
         //instanceBuffer.FillData(objectToWorld.SelectMany(m => m.ToColumnArray()).ToArray(), ref graphBufferStartId);
