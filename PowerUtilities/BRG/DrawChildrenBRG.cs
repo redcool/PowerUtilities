@@ -68,7 +68,9 @@ namespace PowerUtilities
         private void SetupGroupInfos(IEnumerable<IGrouping<(int lightmapIndex, BatchMeshID, BatchMaterialID), MeshRenderer>> groupInfos)
         {
             var groupCount = groupInfos.Count();
+            batchList.Clear();
 
+            var groupId = 0;
             foreach (IGrouping<(int lightmapId, BatchMeshID meshId, BatchMaterialID matId), MeshRenderer> groupInfo in groupInfos)
             {
                 var instCount = groupInfo.Count();
@@ -76,14 +78,13 @@ namespace PowerUtilities
                 // find material props
                 var matPropNames = new[]
                 {
-                    "unity_ObjectToWorld",
-                    "unity_WorldToObject",
-                    "_Color"
+                    "unity_ObjectToWorld", //12 floats
+                    "unity_WorldToObject", //12
+                    "_Color", //4
                 };
                 var matPropFloatCount = 12 + 12 + 4;
 
-
-                var brgBatch = new BRGBatch(brg, instCount, groupInfo.Key.meshId, groupInfo.Key.matId);
+                var brgBatch = new BRGBatch(brg, instCount, groupInfo.Key.meshId, groupInfo.Key.matId, groupId);
                 brgBatch.SetupGraphBuffer(matPropFloatCount);
 
                 batchList.Add(brgBatch);
@@ -101,6 +102,7 @@ namespace PowerUtilities
                     brgBatch.FillData(worldToObject.ToColumnArray(), instId, 1);
                     brgBatch.FillData(color.ToArray(), instId, 2);
 
+                    //========== block component
                     var block = mr.gameObject.GetOrAddComponent<BRGBatchBlock>();
                     block.brgBatch = brgBatch;
                     block.instId = instId;
@@ -108,12 +110,18 @@ namespace PowerUtilities
                     instId++;
                 }
 
+                groupId++;
             }
+
         }
 
         private void OnDisable()
         {
-            if(brg != null)
+            foreach (var brgBatch in batchList)
+            {
+                brgBatch.Dispose();
+            }
+            if (brg != null)
                 brg.Dispose();
         }
 
@@ -123,6 +131,9 @@ namespace PowerUtilities
             BatchCullingOutput cullingOutput,
             IntPtr userContext)
         {
+            var numInstances = batchList.Sum(b => b.numInstances);
+            BRGTools.SetupBatchDrawCommands(cullingOutput, batchList.Count, numInstances);
+
             foreach (var brgBatch in batchList)
             {
                 brgBatch.DrawBatch(cullingOutput);

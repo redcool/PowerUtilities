@@ -26,6 +26,8 @@ namespace PowerUtilities
         BatchRendererGroup brg;
         public int numInstances;
 
+        public int brgBatchId;
+
         // need fill
         public string[] matPropNames = new[]
             {
@@ -59,12 +61,13 @@ namespace PowerUtilities
             }
         }
 
-        public BRGBatch(BatchRendererGroup brg, int numInstances, BatchMeshID meshId,BatchMaterialID matId)
+        public BRGBatch(BatchRendererGroup brg, int numInstances, BatchMeshID meshId,BatchMaterialID matId,int brgBatchId)
         {
             this.brg = brg;
             this.numInstances = numInstances;
             this.meshId = meshId;
             this.matId = matId;
+            this.brgBatchId = brgBatchId;
         }
 
         public void Dispose()
@@ -109,7 +112,7 @@ namespace PowerUtilities
 
         public void DrawBatch(BatchCullingOutput output)
         {
-            BRGTools.DrawBatch(output, batchId, matId, meshId, numInstances);
+            BRGTools.FillBatchDrawCommands(output, brgBatchId, batchId, matId, meshId, numInstances);
         }
     }
 }

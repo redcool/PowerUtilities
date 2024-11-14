@@ -18,6 +18,18 @@ namespace PowerUtilities
         public static int MATRIX_BYTES = 64;
         public static int FLOAT3X4_BYTES = 12;
 
+        /// <summary>
+        /// Set continuous Data block and update graphBufferStartId
+        /// 
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="datas"></param>
+        /// <param name="graphBufferStartId"></param>
+        public static void FillDataBlock(this GraphicsBuffer buffer, float[] datas, ref int graphBufferStartId)
+        {
+            buffer.SetData(datas, 0, graphBufferStartId, datas.Length);
+            graphBufferStartId += datas.Length;
+        }
 
         public static void FillData(this GraphicsBuffer buffer, float[] datas, int graphBufferStartId,int graphBufferStartIdOffset)
         {

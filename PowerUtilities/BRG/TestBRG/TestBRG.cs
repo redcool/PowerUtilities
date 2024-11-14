@@ -141,9 +141,9 @@ public class TestBRG : MonoBehaviour
         Debug.Log(string.Join(',', startByteAddressDict.Values));
 
         //var graphBufferStartId = 0;
-        //instanceBuffer.FillData(objectToWorld.SelectMany(m => m.ToColumnArray()).ToArray(), ref graphBufferStartId);
-        //instanceBuffer.FillData(worldToObject.SelectMany(m => m.ToColumnArray()).ToArray(), ref graphBufferStartId);
-        //instanceBuffer.FillData(colors.SelectMany(v => v.ToArray()).ToArray(), ref graphBufferStartId);
+        //instanceBuffer.FillDataBlock(objectToWorld.SelectMany(m => m.ToColumnArray()).ToArray(), ref graphBufferStartId);
+        //instanceBuffer.FillDataBlock(worldToObject.SelectMany(m => m.ToColumnArray()).ToArray(), ref graphBufferStartId);
+        //instanceBuffer.FillDataBlock(colors.SelectMany(v => v.ToArray()).ToArray(), ref graphBufferStartId);
 
 
         for (int i = 0; i < numInstances; i++)
@@ -189,7 +189,8 @@ public class TestBRG : MonoBehaviour
         BatchCullingOutput cullingOutput,
         IntPtr userContext)
     {
-        BRGTools.DrawBatch(cullingOutput, m_BatchID, m_MaterialID, m_MeshID, numInstances);
+        BRGTools.SetupBatchDrawCommands(cullingOutput, 1, numInstances);
+        BRGTools.FillBatchDrawCommands(cullingOutput, 0, m_BatchID, m_MaterialID, m_MeshID, numInstances);
         return new JobHandle();
 
     }
