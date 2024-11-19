@@ -4,7 +4,7 @@ namespace PowerUtilities
     using System.Collections;
     using System.Linq;
 #if UNITY_EDITOR
-    using Unity.EditorCoroutines.Editor;
+    //using Unity.EditorCoroutines.Editor;
     using UnityEditor;
 #endif
     using UnityEngine;
@@ -45,7 +45,8 @@ namespace PowerUtilities
             var newScriptName = !isOverrideSO ? "DrawShadowOverrideSettingSO" : "DrawShadowSettingSO";
             if (GUILayout.Button($"Update script to {newScriptName}"))
             {
-                EditorCoroutineUtility.StartCoroutine(WaitForChangeSettingSO(inst,newScriptName),this);
+                //EditorCoroutineUtility.StartCoroutine(WaitForChangeSettingSO(inst,newScriptName),this);
+                EditorApplicationTools.coroutineList.Add(WaitForChangeSettingSO(inst, newScriptName));
             }
         }
 

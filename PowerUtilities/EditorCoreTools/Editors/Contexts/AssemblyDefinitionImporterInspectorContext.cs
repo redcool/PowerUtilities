@@ -37,13 +37,13 @@ namespace PowerUtilities
 
     public class AssemblyDefinitionImporterInspectorContext
     {
-        [MenuItem("CONTEXT/AssemblyDefinitionImporter/ShowAssemblyInfo", secondaryPriority = 8)]
+        [MenuItem("CONTEXT/AssemblyDefinitionImporter/ShowAssemblyInfo")]
         public static void ShowAssemblyInfo()
         {
             Debug.Log(GetAsmDefInfo());
         }
 
-        [MenuItem("CONTEXT/AssemblyDefinitionImporter/SaveAsmMetaInfo", secondaryPriority = 8)]
+        [MenuItem("CONTEXT/AssemblyDefinitionImporter/SaveAsmMetaInfo")]
         public static void SaveAsmMetaInfo()
         {
             var sb = new StringBuilder();
