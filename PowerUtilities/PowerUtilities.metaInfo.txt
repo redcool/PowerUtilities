@@ -12,6 +12,8 @@ GUID:02f771204943f4a40949438e873e3eff , Packages/com.unity.timeline/Editor/Unity
 GUID:6055be8ebefd69e48b49212b09b47b2f , Packages/com.unity.textmeshpro/Scripts/Runtime/Unity.TextMeshPro.asmdef
 GUID:6546d7765b4165b40850b3667f981c26 , Packages/com.unity.textmeshpro/Scripts/Editor/Unity.TextMeshPro.Editor.asmdef
 GUID:d8b63aba1907145bea998dd612889d6b , Packages/com.unity.mathematics/Unity.Mathematics/Unity.Mathematics.asmdef
-GUID:870ce330d12521c41ba8a44d9ad3a5fc , Packages/com.unity.terrain-tools/Runtime/Unity.TerrainTools.asmdef
+GUID:870ce330d12521c41ba8a44d9ad3a5fc , 
 GUID:21d1eb854b91ade49bc69a263d12bee2 , Packages/com.unity.splines/Runtime/Unity.Splines.asmdef
+GUID:e0cd26848372d4e5c891c569017e11f1 , Packages/com.unity.collections/Unity.Collections/Unity.Collections.asmdef
+GUID:478a2357cc57436488a56e564b08d223 , Packages/com.unity.editorcoroutines/Editor/Unity.EditorCoroutines.Editor.asmdef
 

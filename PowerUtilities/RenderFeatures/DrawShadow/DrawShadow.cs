@@ -1,8 +1,10 @@
 namespace PowerUtilities
 {
     using System;
+    using System.Collections;
     using System.Linq;
 #if UNITY_EDITOR
+    using Unity.EditorCoroutines.Editor;
     using UnityEditor;
 #endif
     using UnityEngine;
@@ -30,10 +32,30 @@ namespace PowerUtilities
             // global settings
 
             EditorGUILayout.PropertyField(serializedObject.FindProperty("globalSettingSO"));
+            if (!inst.settingSO)
+                return;
+
             if (GUILayout.Button($"Set {inst.settingSO?.name} as globalSettingSO"))
             {
                 inst.globalSettingSO = inst.settingSO;
             }
+
+            // swap script
+            var isOverrideSO = inst.settingSO.GetType() == typeof(DrawShadowOverrideSettingSO);
+            var newScriptName = !isOverrideSO ? "DrawShadowOverrideSettingSO" : "DrawShadowSettingSO";
+            if (GUILayout.Button($"Update script to {newScriptName}"))
+            {
+                EditorCoroutineUtility.StartCoroutine(WaitForChangeSettingSO(inst,newScriptName),this);
+            }
+        }
+
+        IEnumerator WaitForChangeSettingSO(DrawShadow inst,string newScriptName)
+        {
+            var path = AssetDatabase.GetAssetPath(inst.settingSO);
+            inst.settingSO.ChangeRefScript(newScriptName);
+            inst.settingSO = ScriptableObject.CreateInstance< DrawShadowOverrideSettingSO>();
+            yield return 0;
+            inst.settingSO = AssetDatabase.LoadAssetAtPath<DrawShadowSettingSO>(path);
         }
     }
 #endif

@@ -3,14 +3,16 @@ namespace PowerUtilities
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Rendering.Universal;
+#if UNITY_EDITOR
     using UnityEditor.Rendering.Universal;
+    using UnityEditor;
+#endif
+    using UnityEngine.Rendering.Universal;
     using UnityEngine.Rendering;
     using System.Reflection;
     using System.Linq;
 
 #if UNITY_EDITOR
-    using UnityEditor;
 
     [CustomEditor(typeof(CustomURPAsset)), CanEditMultipleObjects]
     public class UniversalRenderPipelineAssetExEditor : UniversalRenderPipelineAssetEditor
@@ -19,10 +21,7 @@ using UnityEngine.Rendering.Universal;
         [MenuItem("PowerUtilities/SRP/ChangeURPAssetScript")]
         static void ChangeURPAssetScript()
         {
-            var t = GraphicsSettings.currentRenderPipeline.GetType();
-            var so = new SerializedObject(GraphicsSettings.currentRenderPipeline);
-            var script = so.FindProperty("m_Script");
-
+            // get script CustomURPAsset.cs
             var urpAssetExScript = AssetDatabase.FindAssets("CustomURPAsset")
                 .Select(guid => AssetDatabase.GUIDToAssetPath(guid))
                 .Select(path => AssetDatabase.LoadAssetAtPath<MonoScript>(path))
@@ -31,8 +30,7 @@ using UnityEngine.Rendering.Universal;
             if (urpAssetExScript == null)
                 return;
 
-            script.objectReferenceValue =urpAssetExScript;
-            so.ApplyModifiedProperties();
+            GraphicsSettings.currentRenderPipeline.ChangeRefScript(urpAssetExScript);
         }
     }
 #endif

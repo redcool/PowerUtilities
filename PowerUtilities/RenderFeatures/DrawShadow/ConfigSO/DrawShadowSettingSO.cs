@@ -1,6 +1,7 @@
 ﻿namespace PowerUtilities
 {
     using System;
+    using System.Collections.Generic;
     using UnityEngine;
 
     [Serializable]
@@ -8,6 +9,19 @@
     {
         [EditorGroup("ShadowMapOptions", true)]
         public TextureResolution res = TextureResolution.x512;
+        [EditorGroup("ShadowMapOptions")]
+
+        [ListItemDraw("qualityLevel:,qualityLevel,res:,res", "100,100,50,100")]
+        public List<BigShadowResQualitySetting> ShadowMapResQualitySettings = new List<BigShadowResQualitySetting>
+        {
+           new BigShadowResQualitySetting{qualityLevel=0,res=TextureResolution.x256},
+           new BigShadowResQualitySetting{qualityLevel=1,res=TextureResolution.x256},
+           new BigShadowResQualitySetting{qualityLevel=2,res=TextureResolution.x512},
+           new BigShadowResQualitySetting{qualityLevel=3,res=TextureResolution.x512},
+           new BigShadowResQualitySetting{qualityLevel=4,res=TextureResolution.x1024},
+           new BigShadowResQualitySetting{qualityLevel=5,res=TextureResolution.x1024},
+           new BigShadowResQualitySetting{qualityLevel=6,res=TextureResolution.x2048},
+        };
 
         [EditorGroup("ShadowMapOptions")]
         [Tooltip("call renderer's ShadowCaster pass, more batch than use override material")]

@@ -77,7 +77,6 @@ namespace PowerUtilities
         {
             return GetSerializedInstance(typeof(T), path);
         }
-
     }
 }
 #endif

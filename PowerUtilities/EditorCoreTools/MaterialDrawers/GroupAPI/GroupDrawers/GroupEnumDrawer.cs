@@ -13,7 +13,7 @@ namespace PowerUtilities {
     /// : group dont exist , will not indent
     /// 
     /// [GroupEnum(ShadowGroup,A 0 B 1)]_Keys("_Keys",int) = 0
-    /// [GroupEnum(ShadowGroup,A 0 B 1,true)]_Keys("_Keys",int) = 0
+    /// [GroupEnum(ShadowGroup,key1 key2,true)]_Keys("_Keys",int) = 0
     /// </summary>
     public class GroupEnumDrawer : BaseGroupItemDrawer
     {

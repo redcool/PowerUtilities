@@ -25,7 +25,7 @@
         RenderTexture bigShadowMap;
 
         CommandBuffer cmd;
-
+        int lastQualityLevel;
         /// <summary>
         /// when stop play in Editor, bigShadowMap will be destroy
         /// need call Execute again
@@ -36,12 +36,35 @@
             return bigShadowMap;
         }
 
+        /// <summary>
+        /// Is need recreate BigShadowMap
+        /// </summary>
+        /// <returns></returns>
+        public bool IsNeedReCreateRT()
+        {
+            var res = (int)settingSO.res; // default res
+
+            var qLevel = QualitySettings.GetQualityLevel();
+            if(CompareTools.CompareAndSet(ref lastQualityLevel,ref qLevel) && qLevel< settingSO.ShadowMapResQualitySettings.Count)
+            {
+                var setting = settingSO.ShadowMapResQualitySettings.Find(setting => setting.qualityLevel == qLevel);
+                if (setting != null)
+                {
+                    res = (int)setting.res;
+                    settingSO.res = (TextureResolution)res;
+                }
+            }
+
+            var isNeedAlloc = bigShadowMap == null || (bigShadowMap != null && bigShadowMap.width != res);
+            return isNeedAlloc;
+        }
+
         public void SetupBigShadowMap(CommandBuffer cmd, ref RenderingData renderingData)
         {
-            var res = (int)settingSO.res;
-            var isNeedAlloc = bigShadowMap == null || (bigShadowMap != null && bigShadowMap.width != res);
-            if (!isNeedAlloc)
+            if (!IsNeedReCreateRT())
                 return;
+
+            var res = (int)settingSO.res;
 
             if(bigShadowMap != null)
             {

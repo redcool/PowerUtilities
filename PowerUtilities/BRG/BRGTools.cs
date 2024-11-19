@@ -76,7 +76,7 @@ namespace PowerUtilities
 
         }
 
-        public static unsafe void FillBatchDrawCommands(BatchCullingOutput cullingOutput, int cmdId, BatchID batchId, BatchMaterialID materialId, BatchMeshID meshId,int numInstances)
+        public static unsafe void FillBatchDrawCommands(BatchCullingOutput cullingOutput, int cmdId, BatchID batchId, BatchMaterialID materialId, BatchMeshID meshId, int numInstances)
         {
             var drawCmdPt = (BatchCullingOutputDrawCommands*)cullingOutput.drawCommands.GetUnsafePtr();
 
