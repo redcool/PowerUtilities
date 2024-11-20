@@ -14,6 +14,8 @@
     public class DrawShadowPass : ScriptableRenderPass
     {
         public DrawShadowSettingSO settingSO;
+        DrawShadowSettingSO lastSettingSO;
+
         public int
             _BigShadowMap = Shader.PropertyToID(nameof(_BigShadowMap)),
             _BigShadowVP = Shader.PropertyToID(nameof(_BigShadowVP)),
@@ -26,6 +28,7 @@
 
         CommandBuffer cmd;
         int lastQualityLevel;
+
         /// <summary>
         /// when stop play in Editor, bigShadowMap will be destroy
         /// need call Execute again
@@ -42,9 +45,25 @@
         /// <returns></returns>
         public bool IsNeedReCreateRT()
         {
+            if (bigShadowMap == null)
+                return true;
+
+            //1 check settingSO changed(when changed need skip 1 frame)
+            if(lastSettingSO != settingSO)
+            {
+                lastSettingSO = settingSO;
+                return false;
+            }
+
+            if ( !settingSO.isOverrideShadowMapRes)
+            {
+                return false;
+            }
+
             var res = (int)settingSO.res; // default res
 
             var qLevel = QualitySettings.GetQualityLevel();
+            //2 check quality level changed
             if(CompareTools.CompareAndSet(ref lastQualityLevel,ref qLevel) && qLevel< settingSO.ShadowMapResQualitySettings.Count)
             {
                 var setting = settingSO.ShadowMapResQualitySettings.Find(setting => setting.qualityLevel == qLevel);
@@ -54,8 +73,8 @@
                     settingSO.res = (TextureResolution)res;
                 }
             }
-
-            var isNeedAlloc = bigShadowMap == null || (bigShadowMap != null && bigShadowMap.width != res);
+            //3 check res changed
+            var isNeedAlloc = (bigShadowMap != null && bigShadowMap.width != res);
             return isNeedAlloc;
         }
 

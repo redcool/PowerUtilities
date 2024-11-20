@@ -5,5 +5,4 @@ GUID:5a5cc6c9cee917248a0beb2ae4b4170f , Assets/PowerXXX/PowerUtilities/PowerUtil
 GUID:d8b63aba1907145bea998dd612889d6b , Packages/com.unity.mathematics/Unity.Mathematics/Unity.Mathematics.asmdef
 GUID:752a913767bd2c741938044be47ab13b , Assets/PowerXXX/PowerUtilities/PowerUtilities/gits/com.8bitgoose.asciifbxexporter/Runtime/8BitGoose.AsciiFBXExporter.asmdef
 GUID:15fc0a57446b3144c949da3e2b9737a9 , Packages/com.unity.render-pipelines.universal/Runtime/Unity.RenderPipelines.Universal.Runtime.asmdef
-GUID:478a2357cc57436488a56e564b08d223 , Packages/com.unity.editorcoroutines/Editor/Unity.EditorCoroutines.Editor.asmdef
 

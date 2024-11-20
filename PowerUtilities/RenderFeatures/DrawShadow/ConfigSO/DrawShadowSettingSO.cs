@@ -9,8 +9,12 @@
     {
         [EditorGroup("ShadowMapOptions", true)]
         public TextureResolution res = TextureResolution.x512;
-        [EditorGroup("ShadowMapOptions")]
 
+        [EditorGroup("ShadowMapOptions")]
+        [Tooltip("Change _BigShadowMap size, will recreate rt")]
+        public bool isOverrideShadowMapRes;
+
+        [EditorGroup("ShadowMapOptions")]
         [ListItemDraw("qualityLevel:,qualityLevel,res:,res", "100,100,50,100")]
         public List<BigShadowResQualitySetting> ShadowMapResQualitySettings = new List<BigShadowResQualitySetting>
         {

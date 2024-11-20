@@ -22,11 +22,7 @@ using UnityEngine;
         static void ChangeURPAssetScript()
         {
             // get script CustomURPAsset.cs
-            var urpAssetExScript = AssetDatabase.FindAssets("CustomURPAsset")
-                .Select(guid => AssetDatabase.GUIDToAssetPath(guid))
-                .Select(path => AssetDatabase.LoadAssetAtPath<MonoScript>(path))
-                .FirstOrDefault();
-
+            var urpAssetExScript = MonoScriptTools.GetMonoScript("CustomURPAsset");
             if (urpAssetExScript == null)
                 return;
 
