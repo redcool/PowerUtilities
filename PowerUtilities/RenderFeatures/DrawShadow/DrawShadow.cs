@@ -85,7 +85,8 @@ namespace PowerUtilities
             //keep a instance
             Instance = this;
 
-            drawShadowPass = new DrawShadowPass();
+            if(drawShadowPass == null)
+                drawShadowPass = new DrawShadowPass();
             // Configures where the render pass should be injected.
             drawShadowPass.renderPassEvent = RenderPassEvent.BeforeRenderingShadows;
 

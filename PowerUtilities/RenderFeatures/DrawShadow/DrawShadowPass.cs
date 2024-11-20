@@ -1,5 +1,6 @@
 ﻿namespace PowerUtilities
 {
+    using System;
     using Unity.Mathematics;
 #if UNITY_EDITOR
 #endif
@@ -29,6 +30,8 @@
         CommandBuffer cmd;
         int lastQualityLevel;
 
+        public event Action OnSettingSOChanged;
+
         /// <summary>
         /// when stop play in Editor, bigShadowMap will be destroy
         /// need call Execute again
@@ -45,14 +48,12 @@
         /// <returns></returns>
         public bool IsNeedReCreateRT()
         {
+            var qLevel = QualitySettings.GetQualityLevel();
+            // first setup
             if (bigShadowMap == null)
-                return true;
-
-            //1 check settingSO changed(when changed need skip 1 frame)
-            if(lastSettingSO != settingSO)
             {
-                lastSettingSO = settingSO;
-                return false;
+                settingSO.res = GetRes(qLevel);
+                return true;
             }
 
             if ( !settingSO.isOverrideShadowMapRes)
@@ -60,22 +61,28 @@
                 return false;
             }
 
-            var res = (int)settingSO.res; // default res
-
-            var qLevel = QualitySettings.GetQualityLevel();
             //2 check quality level changed
-            if(CompareTools.CompareAndSet(ref lastQualityLevel,ref qLevel) && qLevel< settingSO.ShadowMapResQualitySettings.Count)
+            if(CompareTools.CompareAndSet(ref lastQualityLevel,ref qLevel))
+            {
+                settingSO.res = GetRes(qLevel);
+            }
+            //3 check res changed
+            var isNeedAlloc = bigShadowMap == null || (bigShadowMap != null && bigShadowMap.width != (int)settingSO.res);
+            return isNeedAlloc;
+        }
+
+        private TextureResolution GetRes(int qLevel)
+        {
+            if (qLevel < settingSO.ShadowMapResQualitySettings.Count)
             {
                 var setting = settingSO.ShadowMapResQualitySettings.Find(setting => setting.qualityLevel == qLevel);
                 if (setting != null)
                 {
-                    res = (int)setting.res;
-                    settingSO.res = (TextureResolution)res;
+                    return setting.res;
                 }
             }
-            //3 check res changed
-            var isNeedAlloc = (bigShadowMap != null && bigShadowMap.width != res);
-            return isNeedAlloc;
+
+            return settingSO.res;
         }
 
         public void SetupBigShadowMap(CommandBuffer cmd, ref RenderingData renderingData)
@@ -97,6 +104,7 @@
             desc.shadowSamplingMode = ShadowSamplingMode.CompareDepths;
 
             bigShadowMap = new RenderTexture(desc);
+            bigShadowMap.name = $"BigShadowMap_{res}";
         }
 
         private void SetBigShadowMapTarget(CommandBuffer cmd)
@@ -117,6 +125,7 @@
             if (cmd == null)
                 cmd = new CommandBuffer { name = nameof(DrawShadow) };
 
+            CheckSettingSOChange();
 
             cmd.BeginSampleExecute(nameof(DrawShadow), ref context);
 
@@ -125,6 +134,16 @@
             DrawShadows(context,ref renderingData);
 
             cmd.EndSampleExecute(nameof(DrawShadow), ref context);
+        }
+
+        private void CheckSettingSOChange()
+        {
+            if(lastSettingSO != settingSO)
+            {
+                lastSettingSO = settingSO;
+
+                OnSettingSOChanged?.Invoke();
+            }
         }
 
         public void DrawShadows(ScriptableRenderContext context, ref RenderingData renderingData)
@@ -137,7 +156,7 @@
              *  0 1
              * */
             var rowCount = 1;
-            var tileRes = (int)settingSO.res / rowCount;
+            var tileRes = bigShadowMap.width / rowCount;
             var tileStart = new Vector2Int(0, 0);
             var rowId = tileStart.x / tileRes;
             var colId = tileStart.y / tileRes;
@@ -228,14 +247,12 @@
                 proj[3][2] = (proj[3][2] + 0.5f);
 
             }
-
-
            
         }
 
         float4 CalcShadowBias(float4x4 proj)
         {
-            var texelSize = 2f / proj[0][0] / (int)settingSO.res;
+            var texelSize = 2f / proj[0][0] / bigShadowMap.width;
             var bias = new float4(-settingSO.shadowDepthBias, -settingSO.shadowNormalBias, 0, 0);
             bias *= texelSize;
             return bias;

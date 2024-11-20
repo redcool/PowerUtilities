@@ -16,6 +16,7 @@
 
         [EditorGroup("ShadowMapOptions")]
         [ListItemDraw("qualityLevel:,qualityLevel,res:,res", "100,100,50,100")]
+        [Tooltip("will override [res] by current qualityLevel and ShadowMapResQualitySettings")]
         public List<BigShadowResQualitySetting> ShadowMapResQualitySettings = new List<BigShadowResQualitySetting>
         {
            new BigShadowResQualitySetting{qualityLevel=0,res=TextureResolution.x256},
