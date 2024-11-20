@@ -10,11 +10,20 @@ namespace PowerUtilities.RenderFeatures
     [CreateAssetMenu(menuName = SRP_FEATURE_PASSES_MENU+"/ReleaseRenderTarget")]
     public class ReleaseRenderTarget : SRPFeature
     {
+        [Tooltip("run this pass after all camera rendering")]
+        public bool isRunAfterCameraStackRendering;
+
         [Header("Targets")]
         public string[] targetNames;
 
-        [Tooltip("run this pass after all camera rendering")]
-        public bool isRunAfterCameraStackRendering;
+        [Header("URP RTs")]
+        [Tooltip("enable removeURPRT, if dont clear, dont check it")]
+        public bool IsRemoveURPRT;
+
+        [Tooltip("urp rt names")]
+        public URPRTHandleNames[] urpRTNames;
+
+
         public override ScriptableRenderPass GetPass() => new ReleaseRenderTargetPass(this);
     }
 
@@ -47,7 +56,18 @@ namespace PowerUtilities.RenderFeatures
                 RenderingTools.RenderTargetNameToInt(Feature.targetNames, ref targetIds);
             }
 
-            targetIds.ForEach(id => cmd.ReleaseTemporaryRT(id));
+            foreach (int id in targetIds)
+            {
+                cmd.ReleaseTemporaryRT(id);
+            }
+
+            if (Feature.IsRemoveURPRT && Feature.urpRTNames != null)
+                foreach (var item in Feature.urpRTNames)
+                {
+                    var renderer = UniversalRenderPipeline.asset.GetDefaultRenderer();
+                    var rth = renderer.GetRTHandle(item, true);
+                    rth?.Release();
+                }
         }
 
         public override void OnCameraCleanup(CommandBuffer cmd)
