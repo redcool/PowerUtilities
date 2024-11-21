@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace PowerUtilities
 {
@@ -88,6 +89,55 @@ namespace PowerUtilities
             return false;
         }
 
+        /// <summary>
+        /// PropType ,need how many float numbers
+        /// </summary>
+        /// <param name="propType"></param>
+        /// <returns></returns>
+        public static int GetFloatCount(ShaderPropertyType propType) => propType switch
+        {
+            ShaderPropertyType.Float => 1,
+            ShaderPropertyType.Range => 1,
+            ShaderPropertyType.Int => 1,
+            ShaderPropertyType.Color => 4,
+            ShaderPropertyType.Vector => 4,
+            _ => 0,
+        };
 
+        /// <summary>
+        /// Find shader propNames,and need how many floats
+        /// 
+        ///liek:
+        //{
+        //    "unity_ObjectToWorld", //12 floats
+        //    "unity_WorldToObject", //12
+        //    "_Color", //4
+        //};
+        //var floatsCount = 12 + 12 + 4;
+        /// </summary>
+        /// <param name="shader"></param>
+        /// <param name="floatsCount"></param>
+        /// <returns></returns>
+        public static void FindShaderPropNames(this Shader shader, ref List<string> propNameList, ref int floatsCount, List<int> propFloatCountList)
+        {
+            var propCount = shader.GetPropertyCount();
+            for (int i = 0; i < propCount; i++)
+            {
+                if (shader.GetPropertyType(i) == ShaderPropertyType.Texture)
+                    continue;
+
+                var propName = shader.GetPropertyName(i);
+                //var propNameId = shader.GetPropertyNameId(i);
+                var propType = shader.GetPropertyType(i);
+                var propFloatCount = GetFloatCount(propType);
+                floatsCount += propFloatCount;
+
+                propNameList.Add(propName);
+
+                if (propFloatCountList != null)
+                    propFloatCountList.Add(propFloatCount);
+            }
+
+        }
     }
 }

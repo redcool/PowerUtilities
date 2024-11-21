@@ -91,5 +91,38 @@ namespace PowerUtilities
             drawCmdPt->drawCommands[cmdId].visibleOffset = 0;
         }
 
+
+        /// <summary>
+        /// Find shader propNames,and need how many floats
+        /// first add localToWorld,worldToLocal
+        ///liek:
+        //{
+        //    "unity_ObjectToWorld", //12 floats
+        //    "unity_WorldToObject", //12
+        //    "_Color", //4
+        //};
+        //var floatsCount = 12 + 12 + 4;
+        /// </summary>
+        /// <param name="shader"></param>
+        /// <param name="floatsCount"></param>
+        /// <returns></returns>
+        public static void FindShaderPropNames_BRG(this Shader shader, ref List<string> propNameList, ref int floatsCount, List<int> propFloatCountList)
+        {
+            // add 2 matrix
+            var matPropNameList = new List<string>()
+            {
+                "unity_ObjectToWorld", //12 floats
+                "unity_WorldToObject", //12
+            };
+            floatsCount = 12 + 12;
+            if(propFloatCountList != null)
+            {
+                propFloatCountList.Clear();
+                propFloatCountList.Add(12);
+                propFloatCountList.Add(12);
+            }
+
+            shader.FindShaderPropNames(ref propNameList, ref floatsCount, propFloatCountList);
+        }
     }
 }

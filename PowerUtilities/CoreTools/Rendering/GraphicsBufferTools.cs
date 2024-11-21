@@ -36,7 +36,7 @@ namespace PowerUtilities
             if (!buffer.IsValid())
                 return;
 
-            Debug.Log($"FillData startId : {graphBufferStartId} + {graphBufferStartIdOffset} ="+ (graphBufferStartId + graphBufferStartIdOffset));
+            //Debug.Log($"FillData startId : {graphBufferStartId} + {graphBufferStartIdOffset} ="+ (graphBufferStartId + graphBufferStartIdOffset));
             buffer.SetData(datas, 0, graphBufferStartId + graphBufferStartIdOffset, datas.Length);
         }
 
@@ -46,7 +46,7 @@ namespace PowerUtilities
             for (int i = 0; i<matPropNames.Length; i++)
             {
                 var startId = dataStartIdOffsets.Take(i+1).Sum();
-                Debug.Log("FillMetadatas,startId : " + startId);
+                //Debug.Log("FillMetadatas,startId : " + startId);
 
                 var matPropName = matPropNames[i];
 

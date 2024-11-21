@@ -13,7 +13,7 @@ using UnityEngine.XR;
 
 namespace PowerUtilities
 {
-    public class DrawChildrenBRG : MonoBehaviour
+    public partial class DrawChildrenBRG : MonoBehaviour
     {
         public class DrawBatchInfo
         {
@@ -34,14 +34,19 @@ namespace PowerUtilities
         //IEnumerable<(GraphicsBuffer, IGrouping<(int lightmapId, BatchMeshID meshId, BatchMaterialID matId), MeshRenderer>)> drawInfos;
         List<BRGBatch> batchList = new();
 
+
         void OnEnable()
         {
             if (brg == null)
                 brg = new BatchRendererGroup(OnPerformCulling, IntPtr.Zero);
 
             var groupInfos = RegisterChildren();
+//#if UNITY_EDITOR
+            ShowGroupInfo(groupInfos);
+//#endif
             SetupGroupInfos(groupInfos);
         }
+        public partial void ShowGroupInfo(IEnumerable<IGrouping<(int lightmapIndex, BatchMeshID, BatchMaterialID), MeshRenderer>> groupInfos);
         /// <summary>
         /// Same batch means : same (material,mesh)
         /// </summary>
@@ -65,6 +70,8 @@ namespace PowerUtilities
 
         }
 
+
+
         private void SetupGroupInfos(IEnumerable<IGrouping<(int lightmapIndex, BatchMeshID, BatchMaterialID), MeshRenderer>> groupInfos)
         {
             var groupCount = groupInfos.Count();
@@ -76,16 +83,14 @@ namespace PowerUtilities
                 var instCount = groupInfo.Count();
 
                 // find material props
-                var matPropNames = new[]
-                {
-                    "unity_ObjectToWorld", //12 floats
-                    "unity_WorldToObject", //12
-                    "_Color", //4
-                };
-                var matPropFloatCount = 12 + 12 + 4;
+                var matPropNameList = new List<string>();
+                var floatsCount = 0;
+
+                var mat = brg.GetRegisteredMaterial(groupInfo.Key.matId);
+                mat.shader.FindShaderPropNames_BRG(ref matPropNameList, ref floatsCount,null);
 
                 var brgBatch = new BRGBatch(brg, instCount, groupInfo.Key.meshId, groupInfo.Key.matId, groupId);
-                brgBatch.SetupGraphBuffer(matPropFloatCount);
+                brgBatch.SetupGraphBuffer(floatsCount);
 
                 batchList.Add(brgBatch);
                 //----- add renderer
