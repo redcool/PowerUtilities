@@ -1,23 +1,16 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System;
 using UnityEngine;
 using UnityEngine.Playables;
-using UnityEngine.Timeline;
 
 namespace PowerUtilities.Timeline
 {
-    [TrackBindingType(typeof(Light))]
-    [TrackClipType(typeof(LightControlClip))]
-    public class LightControl : TrackAsset
-    {
-    }
-
-    [Serializable]
     public class LightControlBehaviour : PlayableBehaviour
     {
         public Color color;
         public float intensity;
+        public AnimationCurve intensityCurve;
+
+        public Light light2;
         public override void ProcessFrame(Playable playable, FrameData info, object playerData)
         {
             var light = playerData as Light;
@@ -25,6 +18,12 @@ namespace PowerUtilities.Timeline
 
             light.color = color;
             light.intensity = intensity;
+
+            if (light2)
+            {
+            light2.color = color;
+            light2.intensity = intensity;
+            }
         }
 
         public override void OnPlayableCreate(Playable playable)
@@ -32,4 +31,6 @@ namespace PowerUtilities.Timeline
             
         }
     }
+
+
 }

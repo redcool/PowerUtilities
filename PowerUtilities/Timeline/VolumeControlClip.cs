@@ -1,20 +1,19 @@
 ﻿using System;
 using UnityEngine;
 using UnityEngine.Playables;
+using UnityEngine.Rendering;
 
 namespace PowerUtilities.Timeline
 {
     [Serializable]
-    public class LightControlClip : PlayableAsset
+    public class VolumeControlClip : PlayableAsset
     {
-        public Color color = Color.white;
-        public float intensity = 1;
+        public VolumeProfile profile;
         public override Playable CreatePlayable(PlayableGraph graph, GameObject owner)
         {
-            var sb = ScriptPlayable<LightControlBehaviour>.Create(graph);
+            var sb = ScriptPlayable<VolumeControlBehaviour>.Create(graph);
             var b = sb.GetBehaviour();
-            b.color = color;
-            b.intensity = intensity;
+            
             return sb;
         }
     }
