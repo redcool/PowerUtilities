@@ -41,12 +41,12 @@ namespace PowerUtilities
                 brg = new BatchRendererGroup(OnPerformCulling, IntPtr.Zero);
 
             var groupInfos = RegisterChildren();
-//#if UNITY_EDITOR
+#if UNITY_EDITOR
             ShowGroupInfo(groupInfos);
-//#endif
+#endif
             SetupGroupInfos(groupInfos);
         }
-        public partial void ShowGroupInfo(IEnumerable<IGrouping<(int lightmapIndex, BatchMeshID, BatchMaterialID), MeshRenderer>> groupInfos);
+
         /// <summary>
         /// Same batch means : same (material,mesh)
         /// </summary>

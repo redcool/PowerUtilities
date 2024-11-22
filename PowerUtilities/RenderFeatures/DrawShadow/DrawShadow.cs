@@ -5,6 +5,7 @@ namespace PowerUtilities
     using System.Linq;
 #if UNITY_EDITOR
     using UnityEditor;
+    using UnityEditor.SceneManagement;
 #endif
     using UnityEngine;
     using UnityEngine.Rendering;
@@ -44,8 +45,7 @@ namespace PowerUtilities
     }
 #endif
 
-
-    public class DrawShadow : ScriptableRendererFeature
+    public partial class DrawShadow : ScriptableRendererFeature
     {
 
         DrawShadowPass drawShadowPass;
@@ -74,7 +74,12 @@ namespace PowerUtilities
         public int bigShadowRenderCount = 0;
 
         public static DrawShadow Instance { private set; get; }
-        
+
+        // for check so changed
+        DrawShadowSettingSO lastSettingSO;
+
+        public event Action OnSettingSOChanged;
+
         /// <inheritdoc/>
         public override void Create()
         {
@@ -92,7 +97,11 @@ namespace PowerUtilities
 
             SceneManager.sceneLoaded -= SceneManager_sceneLoaded;
             SceneManager.sceneLoaded += SceneManager_sceneLoaded;
+
+            CheckEditorSceneLoaded();
         }
+
+        partial void CheckEditorSceneLoaded();
 
         private void SceneManager_sceneLoaded(Scene scene, LoadSceneMode mode)
         {
@@ -205,12 +214,25 @@ namespace PowerUtilities
 #endif
         }
 
+
+        private void CheckSettingSOChange()
+        {
+            if (lastSettingSO != settingSO)
+            {
+                lastSettingSO = settingSO;
+
+                OnSettingSOChanged?.Invoke();
+            }
+        }
+
         // Here you can inject one or multiple render passes in the renderer.
         // This method is called when setting up the renderer once per-camera.
         public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
         {
             if (!settingSO)
                 return;
+
+            CheckSettingSOChange();
 
             drawShadowPass.settingSO = settingSO;
 
@@ -313,6 +335,7 @@ namespace PowerUtilities
             if (!overrideSettingSO)
                 overrideSettingSO = globalSettingSO;
 
+            settingSO.isStepRender = isOn;
             settingSO = isOn ? overrideSettingSO : globalSettingSO;
         }
 

@@ -1,8 +1,11 @@
 ﻿namespace PowerUtilities
 {
     using System;
+    using System.Collections;
     using Unity.Mathematics;
 #if UNITY_EDITOR
+    using UnityEditor;
+    using UnityEditor.SceneManagement;
 #endif
     using UnityEngine;
     using UnityEngine.Experimental.Rendering;
@@ -15,7 +18,6 @@
     public class DrawShadowPass : ScriptableRenderPass
     {
         public DrawShadowSettingSO settingSO;
-        DrawShadowSettingSO lastSettingSO;
 
         public int
             _BigShadowMap = Shader.PropertyToID(nameof(_BigShadowMap)),
@@ -30,8 +32,6 @@
         CommandBuffer cmd;
         int lastQualityLevel;
 
-        public event Action OnSettingSOChanged;
-
         /// <summary>
         /// when stop play in Editor, bigShadowMap will be destroy
         /// need call Execute again
@@ -41,7 +41,7 @@
         {
             return bigShadowMap;
         }
-
+        
         /// <summary>
         /// Is need recreate BigShadowMap
         /// </summary>
@@ -125,26 +125,16 @@
             if (cmd == null)
                 cmd = new CommandBuffer { name = nameof(DrawShadow) };
 
-            CheckSettingSOChange();
-
             cmd.BeginSampleExecute(nameof(DrawShadow), ref context);
 
             SetupBigShadowMap(cmd, ref renderingData);
+
             SetBigShadowMapTarget(cmd);
             DrawShadows(context,ref renderingData);
 
             cmd.EndSampleExecute(nameof(DrawShadow), ref context);
         }
 
-        private void CheckSettingSOChange()
-        {
-            if(lastSettingSO != settingSO)
-            {
-                lastSettingSO = settingSO;
-
-                OnSettingSOChanged?.Invoke();
-            }
-        }
 
         public void DrawShadows(ScriptableRenderContext context, ref RenderingData renderingData)
         {

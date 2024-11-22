@@ -29,7 +29,7 @@
         public List<BrgGroupInfo> brgGroupInfoList = new();
 
 
-        public partial void ShowGroupInfo(IEnumerable<IGrouping<(int lightmapIndex, BatchMeshID, BatchMaterialID), MeshRenderer>> groupInfos)
+        public void ShowGroupInfo(IEnumerable<IGrouping<(int lightmapIndex, BatchMeshID, BatchMaterialID), MeshRenderer>> groupInfos)
         {
             brgGroupInfoList.Clear();
 
