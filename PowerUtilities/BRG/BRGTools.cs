@@ -108,13 +108,13 @@ namespace PowerUtilities
         /// <returns></returns>
         public static void FindShaderPropNames_BRG(this Shader shader, ref List<string> propNameList, ref int floatsCount, List<int> propFloatCountList)
         {
-            // add 2 matrix
-            var matPropNameList = new List<string>()
-            {
-                "unity_ObjectToWorld", //12 floats
-                "unity_WorldToObject", //12
-            };
+            // add 2 matrix floatCount
             floatsCount = 12 + 12;
+            // add 2 matrix
+            propNameList.Clear();
+            propNameList.Add("unity_ObjectToWorld");
+            propNameList.Add("unity_WorldToObject");
+            // add per prop floats
             if(propFloatCountList != null)
             {
                 propFloatCountList.Clear();

@@ -21,6 +21,7 @@ Shader "Unlit/BRG/Template"
             #pragma multi_compile _ DOTS_INSTANCING_ON
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #include "../../../../PowerShaderLib/Lib/InstancingLib.hlsl"
 
             struct appdata
             {
@@ -39,19 +40,37 @@ Shader "Unlit/BRG/Template"
             };
 
             sampler2D _MainTex;
-
+            // CBUFFER_START(UnityPerMaterial)
+            //     float4 _MainTex_ST;
+            //     float4 _Color;
+            // CBUFFER_END
+            
+            // #if !defined(UNITY_DOTS_INSTANCING_ENABLED)
             CBUFFER_START(UnityPerMaterial)
+                // DEF_VAR(float4,_Color)
+                // DEF_VAR(float4,_MainTex_ST)     
                 float4 _MainTex_ST;
-                float4 _Color;
+                float4 _Color;                
             CBUFFER_END
 
+            // #endif
+
+
             #if defined(UNITY_DOTS_INSTANCING_ENABLED)
-            UNITY_DOTS_INSTANCING_START(MaterialPropertyMetadata)
-                UNITY_DOTS_INSTANCED_PROP(float4,_Color)
+            // UNITY_DOTS_INSTANCING_START(MaterialPropertyMetadata)
+            SRP_CBUFFER_START(UnityPerMaterial)
+                // UNITY_DOTS_INSTANCED_PROP(float4,_Color)
+                // UNITY_DOTS_INSTANCED_PROP(float4,_MainTex_ST)
+                DEF_VAR(float4,_Color)
+                DEF_VAR(float4,_MainTex_ST)
             UNITY_DOTS_INSTANCING_END(MaterialPropertyMetadata)
 
             #define _Color UNITY_ACCESS_DOTS_INSTANCED_PROP_WITH_DEFAULT(float4,_Color)
+            #define _MainTex_ST GET_VAR(float4,_MainTex_ST)
+
+
             #endif
+
 
             v2f vert (appdata v)
             {
