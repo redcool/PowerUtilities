@@ -4,13 +4,13 @@ using UnityEngine.Playables;
 
 namespace PowerUtilities.Timeline
 {
+    [Serializable]
     public class LightControlBehaviour : PlayableBehaviour
     {
-        public Color color;
-        public float intensity;
-        public AnimationCurve intensityCurve;
+        public Color color = Color.white;
+        public float intensity = 1;
+        //public AnimationCurve intensityCurve = AnimationCurve.Linear(0,1,1,1);
 
-        public Light light2;
         public override void ProcessFrame(Playable playable, FrameData info, object playerData)
         {
             var light = playerData as Light;
@@ -19,17 +19,8 @@ namespace PowerUtilities.Timeline
             light.color = color;
             light.intensity = intensity;
 
-            if (light2)
-            {
-            light2.color = color;
-            light2.intensity = intensity;
-            }
         }
 
-        public override void OnPlayableCreate(Playable playable)
-        {
-            
-        }
     }
 
 
