@@ -119,7 +119,18 @@ namespace PowerUtilities
         /// <param name="editor"></param>
         public static void CreateEditor<T>(T targetObject,ref Editor editor) where T : Object
         {
-            if (editor == null || !ArrayUtility.ArrayEquals(new [] { targetObject }, editor.targets))
+            if (!targetObject)
+                return;
+
+            if (editor == null || targetObject != editor.target)
+            {
+                editor = Editor.CreateEditor(targetObject);
+            }
+        }
+
+        public static void CreateEditor<T>(T[] targetObject, ref Editor editor) where T : Object
+        {
+            if (editor == null || !ArrayUtility.ArrayEquals(targetObject, editor.targets))
             {
                 editor = Editor.CreateEditor(targetObject);
             }

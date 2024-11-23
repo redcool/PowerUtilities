@@ -5,7 +5,7 @@ using UnityEngine.Playables;
 namespace PowerUtilities.Timeline
 {
     [Serializable]
-    public class LightControlAsset : PlayableAsset
+    public class LightControlClip : PlayableAsset
     {
         //---1 
         //public ExposedReference<Light> lightRef;

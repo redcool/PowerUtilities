@@ -8,13 +8,14 @@ using UnityEngine.Timeline;
 namespace PowerUtilities.Timeline
 {
     [TrackBindingType(typeof(Light))]
-    [TrackClipType(typeof(LightControlAsset))]
+    [TrackClipType(typeof(LightControlClip))]
     public class LightControlTrack : TrackAsset
     {
         public override Playable CreateTrackMixer(PlayableGraph graph, GameObject go, int inputCount)
         {
             return ScriptPlayable<LightControlMixerBehaviour>.Create(graph, inputCount);
         }
+        
     }
 
 

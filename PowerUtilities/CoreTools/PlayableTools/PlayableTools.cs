@@ -57,6 +57,8 @@ namespace PowerUtilities
             return mixer;
         }
 
-
+        public static double GetNormalizedTime<T>(this T a) where T : struct, IPlayable
+        => a.GetTime() / a.GetDuration();
+        
     }
 }

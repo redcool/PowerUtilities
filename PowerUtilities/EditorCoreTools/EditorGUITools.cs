@@ -9,6 +9,7 @@ namespace PowerUtilities
     using UnityEditorInternal;
     using UnityEngine;
     using UnityEngine.UIElements;
+    using UnityEngine.Internal;
 
     public static class EditorGUITools
     {
@@ -146,6 +147,14 @@ namespace PowerUtilities
             EditorGUI.BeginDisabledGroup(isDisabled);
             drawAction();
             EditorGUI.EndDisabledGroup();
+        }
+
+        public static void BeginFoldoutHeaderGroupBox(ref bool foldout, GUIContent content,Action drawActionWhenFoldout ,[DefaultValue("EditorStyles.foldoutHeader")] GUIStyle style = null, Action<Rect> menuAction = null, GUIStyle menuIcon = null)
+        {
+            foldout = EditorGUILayout.BeginFoldoutHeaderGroup(foldout, content, style, menuAction, menuIcon);
+            if(foldout)
+                drawActionWhenFoldout();
+            EditorGUILayout.EndFoldoutHeaderGroup();
         }
 
         #endregion

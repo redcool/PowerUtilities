@@ -11,15 +11,15 @@ namespace PowerUtilities.Timeline
         public float intensity = 1;
         //public AnimationCurve intensityCurve = AnimationCurve.Linear(0,1,1,1);
 
-        public override void ProcessFrame(Playable playable, FrameData info, object playerData)
-        {
-            var light = playerData as Light;
-            if (!light) return;
+        //public override void ProcessFrame(Playable playable, FrameData info, object playerData)
+        //{
+        //    var light = playerData as Light;
+        //    if (!light) return;
 
-            light.color = color;
-            light.intensity = intensity;
+        //    light.color = color;
+        //    light.intensity = intensity;
 
-        }
+        //}
 
     }
 
