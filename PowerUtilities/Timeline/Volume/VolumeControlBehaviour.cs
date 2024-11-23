@@ -23,6 +23,7 @@ namespace PowerUtilities.Timeline
         public List<VolumeComponent> components = new List<VolumeComponent>();
 
         Playable playable;
+        bool isRefVolume;
 
         public override void OnPlayableCreate(Playable playable)
         {
@@ -31,7 +32,10 @@ namespace PowerUtilities.Timeline
 
         public void TrySetup(GameObject owner)
         {
-            var v = volumeRef.Resolve(playable.GetGraph().GetResolver()) ?? clipVolume ?? owner.GetOrAddComponent<Volume>();
+            var v = volumeRef.Resolve(playable.GetGraph().GetResolver());
+            isRefVolume = v;
+
+            v = v ?? clipVolume ?? owner.GetOrAddComponent<Volume>(); ;
             if (v)
             {
                 v.isGlobal = true;
@@ -44,7 +48,8 @@ namespace PowerUtilities.Timeline
 
         public override void OnPlayableDestroy(Playable playable)
         {
-            clipVolume?.Destroy();
+            if (!isRefVolume)
+                clipVolume?.Destroy();
         }
 
     }

@@ -52,6 +52,13 @@ namespace PowerUtilities.Timeline
             if(GUILayout.Button(copyProfileButton))
             {
                 inst.template.components = inst.template.profile.components;
+
+                // reset
+                profileEditor = null;
+                clipProfileEditor = null;
+                clipProfile = null;
+                OnEnable();
+                return;
             }
 
             //clip profile
