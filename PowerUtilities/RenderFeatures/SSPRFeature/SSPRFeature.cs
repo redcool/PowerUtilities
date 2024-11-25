@@ -1,35 +1,9 @@
 namespace PowerUtilities.SSPR
 {
     using System.Threading;
-    using UnityEditor.Rendering;
     using UnityEngine;
     using UnityEngine.Rendering;
     using UnityEngine.Rendering.Universal;
-
-#if UNITY_EDITOR
-    using UnityEditor;
-
-    [CustomEditor(typeof(SSPRFeature))]
-    public class SSPRFeatureEditor : PowerEditor<SSPRFeature>
-    {
-        string helpStr = @"
-    usage:
-    1 add SSPRFeature to UniversalRenderPipelineAsset_Renderer
-        1.1 ssprFeature add ssprCore
-        1.2 change params
-    2 add 3D plane to scene
-        2.1 assign SSPRFeature/Shaders/ShowReflectionTexture.mat to plane
-        2.2 chang plane'mat renderqueue > 2500
-";
-
-        public override void DrawInspectorUI(SSPRFeature inst)
-        {
-            EditorGUILayout.HelpBox(helpStr, MessageType.Info);
-
-            DrawDefaultInspector();
-        }
-    }
-#endif
 
     public enum RunMode
     {
@@ -65,6 +39,17 @@ namespace PowerUtilities.SSPR
     /// </summary>
     public partial class SSPRFeature : ScriptableRendererFeature
     {
+
+        [HelpBox(lineCount =6)]
+        [SerializeField]
+        string helpStr = @"usage:
+    1 add SSPRFeature to UniversalRenderPipelineAsset_Renderer
+        1.1 ssprFeature add ssprCore
+        1.2 change params
+    2 add 3D plane to scene
+        2.1 assign SSPRFeature/Shaders/ShowReflectionTexture.mat to plane
+        2.2 chang plane'mat renderqueue > 2500
+";
 
         class SSPRPass : ScriptableRenderPass
         {
