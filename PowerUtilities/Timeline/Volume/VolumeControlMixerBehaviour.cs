@@ -36,7 +36,7 @@ namespace PowerUtilities.Timeline
                     // update weight
                     volume.weight = curWeight;
                     // update profile settings
-                    volume.profile.components = b.components;
+                    volume.profile = b.clipVolumeProfile ;
                 }
             }
 

@@ -578,6 +578,15 @@ namespace PowerUtilities
             }
         }
 
+        public static void DrawScriptScope(SerializedObject serializedObject)
+        {
+            var prop = serializedObject.FindProperty("m_Script");
+            using (new EditorGUI.DisabledScope(true))
+            {
+                EditorGUILayout.PropertyField(prop, true);
+            }
+        }
+
         #endregion
     }
 }

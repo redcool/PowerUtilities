@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -13,8 +15,8 @@ namespace PowerUtilities.Timeline
     public class VolumeControlClipEditor : Editor
     {
         GUIContent clipProfileContent = new GUIContent("Clip Profile", "show VolumeControlClip's profile settings");
-        GUIContent profileContent = new GUIContent("Template Profile", "Show Template/profile  settings");
-        GUIContent copyProfileButton = new GUIContent("Bake Volume Profile","copy template profile to clip profile");
+        GUIContent profileContent = new GUIContent("Template Profile Details", "Show Template/profile  settings");
+        GUIContent bakeTemplateProfileButton = new GUIContent("Bake Template Profile", "copy template profile to clip profile");
 
         Editor profileEditor;
         private bool isProfileFolded;
@@ -23,6 +25,8 @@ namespace PowerUtilities.Timeline
         VolumeProfile clipProfile;
         Editor clipProfileEditor;
         bool isClipProfileFolded;
+
+
 
         private void OnEnable()
         {
@@ -34,7 +38,7 @@ namespace PowerUtilities.Timeline
             }
 
             var inst = target as VolumeControlClip;
-            EditorTools.CreateEditor(inst.template.profile, ref profileEditor);
+
         }
 
         private void OnDisable()
@@ -43,15 +47,44 @@ namespace PowerUtilities.Timeline
             profileEditor = null;
         }
 
+        void DrawClipVolume(SerializedProperty templateProp)
+        {
+            DrawTemplateChildProp(templateProp, nameof(VolumeControlBehaviour.volumeRef));
+            DrawTemplateChildProp(templateProp, nameof(VolumeControlBehaviour.volumeWeight));
+            DrawTemplateChildProp(templateProp, nameof(VolumeControlBehaviour.clipVolume));
+            DrawTemplateChildProp(templateProp, nameof(VolumeControlBehaviour.clipVolumeProfile));
+
+        }
+
+        void DrawTemplateVolume(SerializedProperty templateProp)
+        {
+            DrawTemplateChildProp(templateProp, nameof(VolumeControlBehaviour.profile));
+        }
+        static void DrawTemplateChildProp(SerializedProperty templateProp, string subPropName)
+        {
+            var prop = templateProp.FindPropertyRelative(subPropName);
+            EditorGUILayout.PropertyField(prop, true);
+        }
+
+
         public override void OnInspectorGUI()
         {
-            base.OnInspectorGUI();
+            serializedObject.Update();
 
             var inst = target as VolumeControlClip;
+            var templateProp = serializedObject.FindProperty(nameof(VolumeControlClip.template));
+            base.OnInspectorGUI();
 
-            if(GUILayout.Button(copyProfileButton))
+            EditorTools.CreateEditor(inst.template.profile, ref profileEditor);
+
+            //DrawClipVolume(templateProp);
+
+            if (GUILayout.Button(bakeTemplateProfileButton))
             {
-                inst.template.components = inst.template.profile.components;
+                inst.template.clipVolumeProfile = Instantiate(inst.template.profile);
+
+                //save
+
 
                 // reset
                 profileEditor = null;
@@ -66,12 +99,17 @@ namespace PowerUtilities.Timeline
             {
                 TryInitclipProfile(inst);
                 clipProfileEditor?.OnInspectorGUI();
+
             });
-            // profile
-            EditorGUITools.BeginFoldoutHeaderGroupBox(ref isProfileFolded, profileContent , () =>
+
+            //DrawTemplateVolume(templateProp);
+            // template profile
+            EditorGUITools.BeginFoldoutHeaderGroupBox(ref isProfileFolded, profileContent, () =>
             {
                 profileEditor?.OnInspectorGUI();
             });
+
+            serializedObject.ApplyModifiedProperties();
         }
 
         void TryInitclipProfile(VolumeControlClip inst)
@@ -80,7 +118,7 @@ namespace PowerUtilities.Timeline
                 return;
 
             clipProfile = ScriptableObject.CreateInstance<VolumeProfile>();
-            clipProfile.components = inst.template.components;
+            //clipProfile.components = inst.template.components;
 
             if (clipProfileEditor)
                 clipProfileEditor = null;
