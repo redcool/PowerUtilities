@@ -14,25 +14,22 @@ namespace PowerUtilities.Timeline
         public Bloom_Data bloomData;
         public ColorAdjustments_Data ColorAdjustments_Data;
 
-        [Header("Volume")]
-        [Tooltip("Is valumeRef empty will use temporary Volume")]
-        public ExposedReference<Volume> volumeRef;
-        public float volumeWeight = 1;
-
         [Header("Template Profile")]
         [Tooltip("Bake settings from this profile")]
         public VolumeProfile profile;
 
         [Header("Clip info")]
+        [Tooltip("Is valumeRef empty will use temporary Volume")]
+        public ExposedReference<Volume> volumeRef;
         [Tooltip("this clip's volume,when empty use volumeRef or ower(root gameObject)'s volume")]
-
         public Volume clipVolume;
-        [Tooltip("save clip 's volume profile")]
-        //public List<VolumeComponent> components = new List<VolumeComponent>();
         public VolumeProfile clipVolumeProfile;
+
+        public float volumeWeight = 1;
 
         Playable playable;
         bool isRefVolume;
+
 
         public string clipVolumeProfilePath = "";
 
@@ -46,8 +43,12 @@ namespace PowerUtilities.Timeline
             var v = volumeRef.Resolve(playable.GetGraph().GetResolver());
             isRefVolume = v;
 
-            v = v ?? clipVolume ?? owner.GetOrAddComponent<Volume>(); ;
-            if (v)
+            v = v ?? clipVolume;
+            if (!v)
+            {
+                v = new GameObject().AddComponent<Volume>();
+                v.transform.SetParent(owner.transform, false);
+            }
             {
                 v.isGlobal = true;
                 v.profile = ScriptableObject.CreateInstance<VolumeProfile>();
@@ -60,7 +61,7 @@ namespace PowerUtilities.Timeline
         public override void OnPlayableDestroy(Playable playable)
         {
             if (!isRefVolume)
-                clipVolume?.Destroy();
+                clipVolume?.gameObject.Destroy();
         }
 
     }

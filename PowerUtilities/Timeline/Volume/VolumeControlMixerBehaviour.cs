@@ -18,10 +18,6 @@ namespace PowerUtilities.Timeline
             for (int i = 0; i < inputCount; i++)
             {
                 var inputWeight = playable.GetInputWeight(i);
-                if (Mathf.Approximately(inputWeight, 0))
-                {
-                    continue;
-                }
 
                 var inputPlayable = (ScriptPlayable<VolumeControlBehaviour>)playable.GetInput(i);
                 var b = inputPlayable.GetBehaviour();
