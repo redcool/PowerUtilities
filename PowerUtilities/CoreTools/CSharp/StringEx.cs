@@ -66,8 +66,32 @@
         /// <param name="splitChar"></param>
         public static void ReadKeyValue(this string str, Dictionary<string, string> dict, char splitChar = '\n')
         {
-            if (string.IsNullOrEmpty(str) || dict == null) return;
+            ReadKeyValue(str, splitChar, (kv) =>
+            {
+                if(kv.Length > 1)
+                    dict[kv[0]] = kv[1];
+            });
 
+            //var lines = str.Split(splitChar);
+            //if (lines == null)
+            //    return;
+
+            //foreach (var lineStr in lines)
+            //{
+            //    var line = lineStr.Trim();
+            //    if (string.IsNullOrEmpty(line) || line.StartsWith("//"))
+            //        continue;
+
+            //    {
+            //        //use default handle
+            //        var kv = SplitKeyValuePair(line);
+            //        if (kv.Length > 1)
+            //            dict[kv[0]] = kv[1];
+            //    }
+            //}
+        }
+        public static void ReadKeyValue(this string str, char splitChar = '\n', Action<string[]> onHandleStrings = null)
+        {
             var lines = str.Split(splitChar);
             if (lines == null)
                 return;
@@ -78,10 +102,17 @@
                 if (string.IsNullOrEmpty(line) || line.StartsWith("//"))
                     continue;
 
-                var kv = kvRegex.Split(line);
-                if (kv.Length > 1)
-                    dict[kv[0]] = kv[1];
+                onHandleStrings?.Invoke(SplitKeyValuePair(line));
             }
+        }
+        /// <summary>
+        /// Split key=value,to [key,value]
+        /// </summary>
+        /// <param name="line"></param>
+        /// <returns></returns>
+        public static string[] SplitKeyValuePair(string line)
+        {
+            return kvRegex.Split(line);
         }
 
         /// <summary>
