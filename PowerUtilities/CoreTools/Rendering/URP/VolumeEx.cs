@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 using UnityEngine.Rendering;
 
 namespace PowerUtilities
@@ -22,6 +23,31 @@ namespace PowerUtilities
                 p = v.sharedProfile;
             }
             return p;
+        }
+
+        public static T GetOrAddSetting<T>(this VolumeProfile vp) where T : VolumeComponent
+        {
+            if(! vp.TryGet<T>(out var setting))
+            {
+                setting = vp.Add<T>();
+            }
+            return setting;
+        }
+
+        public static VolumeComponent GetOrAddSetting(this VolumeProfile vp,Type compType)
+        {
+            if (!vp.TryGet(compType,out VolumeComponent setting))
+            {
+                setting = vp.Add(compType);
+            }
+            return setting;
+        }
+
+        public static VolumeProfile GetOrAddTemporaryProfile(this Volume v)
+        {
+            if(!v.profile)
+                v.profile = ScriptableObject.CreateInstance<VolumeProfile>();
+            return v.profile;
         }
     }
 }

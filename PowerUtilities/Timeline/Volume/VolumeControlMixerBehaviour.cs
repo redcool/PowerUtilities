@@ -22,7 +22,7 @@ namespace PowerUtilities.Timeline
                 var inputPlayable = (ScriptPlayable<VolumeControlBehaviour>)playable.GetInput(i);
                 var b = inputPlayable.GetBehaviour();
 
-                var rate = inputPlayable.GetNormalizedTime();
+                //var rate = inputPlayable.GetNormalizedTime();
 
                 var curWeight = b.volumeWeight * inputWeight;
 
@@ -32,7 +32,7 @@ namespace PowerUtilities.Timeline
                     // update weight
                     volume.weight = curWeight;
                     // update profile settings
-                    volume.profile = b.clipVolumeProfile ;
+                    b.UpdateVolumeSettings();
                 }
             }
 

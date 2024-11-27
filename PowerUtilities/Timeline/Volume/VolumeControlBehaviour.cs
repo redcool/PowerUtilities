@@ -9,35 +9,34 @@ namespace PowerUtilities.Timeline
 {
 
     [Serializable]
-    public class VolumeControlBehaviour : PlayableBehaviour
+    public partial class VolumeControlBehaviour : PlayableBehaviour
     {
-        public Bloom_Data bloomData;
-        public ColorAdjustments_Data ColorAdjustments_Data;
-
-        [Header("Template Profile")]
-        [Tooltip("Bake settings from this profile")]
-        public VolumeProfile profile;
-
-        [Header("Clip info")]
+        [Header("Volume")]
         [Tooltip("Is valumeRef empty will use temporary Volume")]
         public ExposedReference<Volume> volumeRef;
+
         [Tooltip("this clip's volume,when empty use volumeRef or ower(root gameObject)'s volume")]
         public Volume clipVolume;
-        public VolumeProfile clipVolumeProfile;
 
         public float volumeWeight = 1;
 
         Playable playable;
+        int inputCount;
         bool isRefVolume;
-
-
-        public string clipVolumeProfilePath = "";
 
         public override void OnPlayableCreate(Playable playable)
         {
             this.playable = playable;
+            inputCount = playable.GetInputCount();
         }
 
+        /// <summary>
+        /// volumeRef is empty, will create temporary volumeGO with a profile
+        /// 
+        /// when clip create, call this
+        /// 
+        /// </summary>
+        /// <param name="owner"></param>
         public void TrySetup(GameObject owner)
         {
             var v = volumeRef.Resolve(playable.GetGraph().GetResolver());
