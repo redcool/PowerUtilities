@@ -7,9 +7,9 @@ using UnityEngine.Rendering;
 
 namespace PowerUtilities.Timeline
 {
-    public static class VolumeControlClipPostUpdate
+    public static class VolumeDataTools
     {
-        public static void Update(Volume clipVolume,Bloom_Data data)
+        public static void Update(Volume clipVolume,IvolumeData data)
         {
             var setting = clipVolume.GetOrAddTemporaryProfile().GetOrAddSetting(data.ComponentType);
             data.UpdateSetting(setting);

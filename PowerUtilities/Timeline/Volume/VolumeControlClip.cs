@@ -11,36 +11,27 @@ using UnityEngine.Rendering;
 namespace PowerUtilities.Timeline
 {
 #if UNITY_EDITOR
-    [CustomEditor(typeof(VolumeControlClip))]
+    //[CustomEditor(typeof(VolumeControlClip))]
     public class VolumeControlClipEditor : Editor
     {
-        GUIContent clipProfileContent = new GUIContent("Clip Profile", "show VolumeControlClip's profile settings");
-        GUIContent profileContent = new GUIContent("Template Profile Details", "Show Template/profile  settings");
-        GUIContent bakeTemplateProfileButton = new GUIContent("Bake Template Profile", "copy template profile to clip profile");
+        //GUIContent clipProfileContent = new GUIContent("Clip Profile", "show VolumeControlClip's profile settings");
+        //GUIContent profileContent = new GUIContent("Template Profile Details", "Show Template/profile  settings");
+        //GUIContent bakeTemplateProfileButton = new GUIContent("Bake Template Profile", "copy template profile to clip profile");
 
+        //public override void OnInspectorGUI()
+        //{
+        //    base.OnInspectorGUI();
 
-        private void OnEnable()
-        {
-            var inst = target as VolumeControlClip;
+        //    serializedObject.Update();
 
-        }
+        //    serializedObject.ApplyModifiedProperties();
+        //    var inst = target as VolumeControlClip;
 
-        private void OnDisable()
-        {
-            //Debug.Log("clip disable");
-        }
-
-        public override void OnInspectorGUI()
-        {
-            base.OnInspectorGUI();
-
-            var inst = target as VolumeControlClip;
-
-            if (GUILayout.Button(bakeTemplateProfileButton))
-            {
+        //    //if (GUILayout.Button(bakeTemplateProfileButton))
+        //    //{
                 
-            }
-        }
+        //    //}
+        //}
 
     }
 #endif
@@ -48,20 +39,31 @@ namespace PowerUtilities.Timeline
     [Serializable]
     public class VolumeControlClip : PlayableAsset
     {
+        [Header("--- 0.0.2")]
         //will clone this
         public VolumeControlBehaviour template;
 
+        public string guid;
+        public string GetGUID()
+        {
+            if (string.IsNullOrEmpty(guid))
+                guid = GUID.Generate().ToString();
+            return guid;
+        }
+
         //template's instance
-        public VolumeControlBehaviour instance;
+        //[HideInInspector]
+        //public VolumeControlBehaviour instance;
 
         public override Playable CreatePlayable(PlayableGraph graph, GameObject owner)
         {
             var sp = ScriptPlayable<VolumeControlBehaviour>.Create(graph,template);
             var b = sp.GetBehaviour();
-            b.TrySetup(owner);
+            b.TrySetup(owner,sp,GetGUID());
 
-            instance = b;
+            //instance = b;
 
+            //template.TrySetup(owner);
             return sp;
         }
         

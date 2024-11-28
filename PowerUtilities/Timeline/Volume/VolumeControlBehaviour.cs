@@ -16,19 +16,11 @@ namespace PowerUtilities.Timeline
         public ExposedReference<Volume> volumeRef;
 
         [Tooltip("this clip's volume,when empty use volumeRef or ower(root gameObject)'s volume")]
-        public Volume clipVolume;
+        Volume clipVolume;
 
         public float volumeWeight = 1;
 
-        Playable playable;
-        int inputCount;
         bool isRefVolume;
-
-        public override void OnPlayableCreate(Playable playable)
-        {
-            this.playable = playable;
-            inputCount = playable.GetInputCount();
-        }
 
         /// <summary>
         /// volumeRef is empty, will create temporary volumeGO with a profile
@@ -37,15 +29,17 @@ namespace PowerUtilities.Timeline
         /// 
         /// </summary>
         /// <param name="owner"></param>
-        public void TrySetup(GameObject owner)
+        public void TrySetup(GameObject owner,Playable playable,string guid)
         {
+            //Debug.Log("TrySetup :" + playable);
             var v = volumeRef.Resolve(playable.GetGraph().GetResolver());
             isRefVolume = v;
 
             v = v ?? clipVolume;
             if (!v)
             {
-                v = new GameObject().AddComponent<Volume>();
+                var tr = owner.transform.Find(guid) ?? new GameObject(guid).transform;
+                v = tr.gameObject.AddComponent<Volume>();
                 v.transform.SetParent(owner.transform, false);
             }
             {
@@ -57,8 +51,12 @@ namespace PowerUtilities.Timeline
             clipVolume = v;
         }
 
+        public Volume GetClipVolume()
+        => clipVolume;
+
         public override void OnPlayableDestroy(Playable playable)
         {
+            //Debug.Log("OnPlayableDestroy");
             if (!isRefVolume)
                 clipVolume?.gameObject.Destroy();
         }

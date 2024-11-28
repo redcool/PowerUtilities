@@ -20,19 +20,19 @@ namespace PowerUtilities.Timeline
                 var inputWeight = playable.GetInputWeight(i);
 
                 var inputPlayable = (ScriptPlayable<VolumeControlBehaviour>)playable.GetInput(i);
-                var b = inputPlayable.GetBehaviour();
+                var volumeBehaviour = inputPlayable.GetBehaviour();
 
                 //var rate = inputPlayable.GetNormalizedTime();
 
-                var curWeight = b.volumeWeight * inputWeight;
+                var curWeight = volumeBehaviour.volumeWeight * inputWeight;
 
-                var volume = b.volumeRef.Resolve(playable.GetGraph().GetResolver()) ?? b.clipVolume;
+                var volume = volumeBehaviour.GetClipVolume();
                 if (volume)
                 {
                     // update weight
                     volume.weight = curWeight;
                     // update profile settings
-                    b.UpdateVolumeSettings();
+                    volumeBehaviour.UpdateVolumeSettings();
                 }
             }
 

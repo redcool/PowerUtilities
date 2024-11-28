@@ -6,11 +6,11 @@ namespace PowerUtilities
     using UnityEngine;
     using UnityEngine.Rendering;
     using UnityEngine.Rendering.Universal;
-
     [Serializable]
-    public struct Bloom_Data
+    public struct Test_Bloom_Data : IvolumeData
     {
         // variables
+        public bool isEnable;
         public float threshold;
 public float intensity;
 public float scatter;
@@ -21,6 +21,7 @@ public BloomDownscaleMode downscale;
 public int maxIterations;
 public Texture dirtTexture;
 public float dirtIntensity;
+        
 
         public Type ComponentType => typeof(Bloom);
 
