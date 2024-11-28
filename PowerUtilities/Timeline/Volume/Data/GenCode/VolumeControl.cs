@@ -1,3 +1,7 @@
+///
+/// Generated Code
+/// UI : ProjectSettings/PowerUtils/PostControlCodeGen
+///
 namespace PowerUtilities
 {
     using System;
@@ -64,7 +68,11 @@ dirtIntensity = settings.dirtIntensity.value;
 
         }
     }
-}namespace PowerUtilities
+}///
+/// Generated Code
+/// UI : ProjectSettings/PowerUtils/PostControlCodeGen
+///
+namespace PowerUtilities
 {
     using System;
     using UnityEngine;
@@ -126,7 +134,11 @@ blueOutBlueIn = settings.blueOutBlueIn.value;
 
         }
     }
-}namespace PowerUtilities
+}///
+/// Generated Code
+/// UI : ProjectSettings/PowerUtils/PostControlCodeGen
+///
+namespace PowerUtilities
 {
     using System;
     using UnityEngine;
@@ -156,7 +168,11 @@ intensity = settings.intensity.value;
 
         }
     }
-}namespace PowerUtilities
+}///
+/// Generated Code
+/// UI : ProjectSettings/PowerUtils/PostControlCodeGen
+///
+namespace PowerUtilities
 {
     using System;
     using UnityEngine;
@@ -202,7 +218,11 @@ saturation = settings.saturation.value;
 
         }
     }
-}namespace PowerUtilities
+}///
+/// Generated Code
+/// UI : ProjectSettings/PowerUtils/PostControlCodeGen
+///
+namespace PowerUtilities
 {
     using System;
     using UnityEngine;
@@ -260,7 +280,11 @@ lumVsSat = settings.lumVsSat.value;
 
         }
     }
-}namespace PowerUtilities
+}///
+/// Generated Code
+/// UI : ProjectSettings/PowerUtils/PostControlCodeGen
+///
+namespace PowerUtilities
 {
     using System;
     using UnityEngine;
@@ -294,7 +318,11 @@ contribution = settings.contribution.value;
 
         }
     }
-}namespace PowerUtilities
+}///
+/// Generated Code
+/// UI : ProjectSettings/PowerUtils/PostControlCodeGen
+///
+namespace PowerUtilities
 {
     using System;
     using UnityEngine;
@@ -364,7 +392,11 @@ bladeRotation = settings.bladeRotation.value;
 
         }
     }
-}namespace PowerUtilities
+}///
+/// Generated Code
+/// UI : ProjectSettings/PowerUtils/PostControlCodeGen
+///
+namespace PowerUtilities
 {
     using System;
     using UnityEngine;
@@ -406,7 +438,11 @@ texture = settings.texture.value;
 
         }
     }
-}namespace PowerUtilities
+}///
+/// Generated Code
+/// UI : ProjectSettings/PowerUtils/PostControlCodeGen
+///
+namespace PowerUtilities
 {
     using System;
     using UnityEngine;
@@ -452,7 +488,11 @@ scale = settings.scale.value;
 
         }
     }
-}namespace PowerUtilities
+}///
+/// Generated Code
+/// UI : ProjectSettings/PowerUtils/PostControlCodeGen
+///
+namespace PowerUtilities
 {
     using System;
     using UnityEngine;
@@ -490,7 +530,11 @@ gain = settings.gain.value;
 
         }
     }
-}namespace PowerUtilities
+}///
+/// Generated Code
+/// UI : ProjectSettings/PowerUtils/PostControlCodeGen
+///
+namespace PowerUtilities
 {
     using System;
     using UnityEngine;
@@ -532,7 +576,11 @@ clamp = settings.clamp.value;
 
         }
     }
-}namespace PowerUtilities
+}///
+/// Generated Code
+/// UI : ProjectSettings/PowerUtils/PostControlCodeGen
+///
+namespace PowerUtilities
 {
     using System;
     using UnityEngine;
@@ -566,7 +614,11 @@ cropToFit = settings.cropToFit.value;
 
         }
     }
-}namespace PowerUtilities
+}///
+/// Generated Code
+/// UI : ProjectSettings/PowerUtils/PostControlCodeGen
+///
+namespace PowerUtilities
 {
     using System;
     using UnityEngine;
@@ -620,7 +672,11 @@ highlightsEnd = settings.highlightsEnd.value;
 
         }
     }
-}namespace PowerUtilities
+}///
+/// Generated Code
+/// UI : ProjectSettings/PowerUtils/PostControlCodeGen
+///
+namespace PowerUtilities
 {
     using System;
     using UnityEngine;
@@ -658,7 +714,11 @@ balance = settings.balance.value;
 
         }
     }
-}namespace PowerUtilities
+}///
+/// Generated Code
+/// UI : ProjectSettings/PowerUtils/PostControlCodeGen
+///
+namespace PowerUtilities
 {
     using System;
     using UnityEngine;
@@ -720,7 +780,11 @@ maxNits = settings.maxNits.value;
 
         }
     }
-}namespace PowerUtilities
+}///
+/// Generated Code
+/// UI : ProjectSettings/PowerUtils/PostControlCodeGen
+///
+namespace PowerUtilities
 {
     using System;
     using UnityEngine;
@@ -766,7 +830,11 @@ rounded = settings.rounded.value;
 
         }
     }
-}namespace PowerUtilities
+}///
+/// Generated Code
+/// UI : ProjectSettings/PowerUtils/PostControlCodeGen
+///
+namespace PowerUtilities
 {
     using System;
     using UnityEngine;

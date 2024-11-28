@@ -1,3 +1,9 @@
+///
+/// Generated Code
+/// UI : ProjectSettings/PowerUtils/PostControlCodeGen
+/// paste this file to PowerUtilities\PowerUtilities\Timeline\Volume\Data\GenCode
+///
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
