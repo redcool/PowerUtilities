@@ -77,10 +77,14 @@ namespace PowerUtilities
             _MainLightShadowmapTexture = Shader.PropertyToID(nameof(_MainLightShadowmapTexture)),
             _AdditionalLightsShadowmapTexture = Shader.PropertyToID(nameof(_AdditionalLightsShadowmapTexture))
             ;
+        /// <summary>
+        /// keywords
+        /// </summary>
         public const string _DEBUG = nameof(_DEBUG),
             _CUSTOM_DEPTH_TEXTURE = nameof(_CUSTOM_DEPTH_TEXTURE),
             _LINEAR_TO_SRGB_CONVERSION = nameof(_LINEAR_TO_SRGB_CONVERSION),
-            _SRGB_TO_LINEAR_CONVERSION = nameof(_SRGB_TO_LINEAR_CONVERSION)
+            _SRGB_TO_LINEAR_CONVERSION = nameof(_SRGB_TO_LINEAR_CONVERSION),
+            _COPY_DEPTH = nameof(_COPY_DEPTH)
             ;
 
         /// <summary>
