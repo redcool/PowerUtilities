@@ -97,12 +97,10 @@
 
         private void DrawDetails()
         {
-            EditorGUIUtility.labelWidth = 100;
-
             var isDetailsFoldout = serializedObject.FindProperty("isDetailsFoldout");
             isDetailsFoldout.boolValue = EditorGUILayout.Foldout(isDetailsFoldout.boolValue, "Details", true);
 
-            EditorGUIUtility.labelWidth = 150;
+            EditorGUIUtility.labelWidth = serializedObject.FindProperty("labelWidth").floatValue;
             if (isDetailsFoldout.boolValue)
             {
                 EditorGUI.indentLevel++;
@@ -206,6 +204,7 @@
         [HideInInspector]
         bool isDetailsFoldout; // feature details folded?
 
+        public float labelWidth = 250;
 
         public static SRPFeatureListSO instance; // last instance
 
