@@ -27,12 +27,17 @@ namespace PowerUtilities.RenderFeatures
         [Tooltip("blit source to [_CameraAttachmentA or B],if sourceId is A, targetId will set B")]
         public bool isBlitToNextPostTarget;
 
-        [EditorHeader("","--- Options")]
+        [EditorHeader("", "--- Options")]
         // PowerShaderLib/CopyColor.mat
+        [Tooltip("check (CopyColor.mat,CopyDepth.mat)")]
         public Material blitMat;
 
         [Tooltip("use gamma, linear space")]
         public ColorSpaceTransform.ColorSpaceMode colorSpaceMode;
+
+        public BlendMode srcMode = BlendMode.One;
+        public BlendMode dstMode = BlendMode.Zero;
+        public ClearFlag clearFlags = ClearFlag.None;
 
         public override ScriptableRenderPass GetPass() => new BlitToTargetPass(this);
 
@@ -53,6 +58,7 @@ namespace PowerUtilities.RenderFeatures
             var renderer = (UniversalRenderer)cameraData.renderer;
 
             RenderTargetIdentifier sourceId = default;
+            // === check shadowMap,currentActive, temporary target
             if (Feature.isShowCurMainLightShadowMapTexture)
             {
                 sourceId = ShadowUtilsEx.currentMainLightShadowMapTexture;
@@ -60,17 +66,24 @@ namespace PowerUtilities.RenderFeatures
             else
             {
                 sourceId = string.IsNullOrEmpty(Feature.sourceName) ? (RenderTargetIdentifier)BuiltinRenderTextureType.CurrentActive : Shader.PropertyToID(Feature.sourceName);
-
             }
 
             var cameraTarget = camera.GetCameraTarget();
             RenderTargetIdentifier targetId = string.IsNullOrEmpty(Feature.targetName) ? cameraTarget : Shader.PropertyToID(Feature.targetName);
 
+            // === check urp target
 #if UNITY_2022_1_OR_NEWER
             renderer.TryReplaceURPRTTarget(Feature.sourceName,ref sourceId);
             renderer.TryReplaceURPRTTarget(Feature.targetName, ref targetId);
 #endif
+            
+            // === check rt dict
+            if(RenderTextureTools.TryGetRT(Feature.sourceName,out var rt))
+                sourceId = rt;
+            if (RenderTextureTools.TryGetRT(Feature.targetName, out rt))
+                targetId = rt;
 
+            // === check post target(A,B)
             if (Feature.isBlitToNextPostTarget)
             {
 #if UNITY_2022_1_OR_NEWER
@@ -84,11 +97,14 @@ namespace PowerUtilities.RenderFeatures
                 targetId = isA ? ShaderPropertyIds._CameraColorAttachmentB : ShaderPropertyIds._CameraColorAttachmentA;
 #endif
             }
-
+            
             ColorSpaceTransform.SetColorSpace(cmd, Feature.colorSpaceMode);
 
             if (Feature.blitMat)
-                cmd.BlitTriangle(sourceId, targetId, Feature.blitMat, 0);
+                cmd.BlitTriangle(sourceId, targetId, Feature.blitMat, 0, 
+                    finalSrcMode: Feature.srcMode, 
+                    finalDstMode: Feature.dstMode, 
+                    clearFlags: Feature.clearFlags);
             else
                 cmd.Blit(sourceId, targetId);
 

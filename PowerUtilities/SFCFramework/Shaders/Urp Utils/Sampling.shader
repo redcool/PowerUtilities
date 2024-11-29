@@ -1,4 +1,4 @@
-Shader "Hidden/Universal Render Pipeline/Sampling"
+Shader "Hidden/URP/Sampling"
 {
     SubShader
     {

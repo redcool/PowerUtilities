@@ -1,4 +1,7 @@
-Shader "Hidden/Universal Render Pipeline/Blit"
+/*
+    use CopyColor.shader
+*/
+Shader "Hidden/URP/Blit"
 {
     SubShader
     {

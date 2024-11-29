@@ -84,7 +84,7 @@ namespace PowerUtilities
             _CUSTOM_DEPTH_TEXTURE = nameof(_CUSTOM_DEPTH_TEXTURE),
             _LINEAR_TO_SRGB_CONVERSION = nameof(_LINEAR_TO_SRGB_CONVERSION),
             _SRGB_TO_LINEAR_CONVERSION = nameof(_SRGB_TO_LINEAR_CONVERSION),
-            _COPY_DEPTH = nameof(_COPY_DEPTH)
+            _OUTPUT_DEPTH = nameof(_OUTPUT_DEPTH)
             ;
 
         /// <summary>

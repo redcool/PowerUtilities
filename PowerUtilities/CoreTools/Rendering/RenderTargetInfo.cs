@@ -9,22 +9,42 @@
     [Serializable]
     public class RenderTargetInfo
     {
+        public enum RTSizeMode
+        {
+            [Tooltip("set camera.Width * renderScale")]
+            RenderScale,
+            [Tooltip("set camera.Width directly")]
+            Size
+        }
+
         [Tooltip("rt name")]
         public string name;
 
-        [Tooltip("rt format")]
+        [Header("Format")]
+        [Tooltip("color format,set none when create DepthTarget")]
         [EnumSearchable(typeof(GraphicsFormat))]
         public GraphicsFormat format = GraphicsFormat.R8G8B8A8_SNorm;
 
+        [Tooltip("depth target format,D24_UNorm_S8_UInt is preferred")]
+        //[EnumSearchable(typeof(GraphicsFormat))]
+        public GraphicsFormat depthStencilFormat = GraphicsFormat.D24_UNorm_S8_UInt;
+
+        [Header("Override Size")]
+        public bool isOverrideSize;
+        [Tooltip("set rt size use renderScale or size")]
+        public RTSizeMode rtSizeMode;
+        [Range(0,1)]public float renderScale=1;
+        public int width = 512;
+        public int height = 512;
+
+        [Header("RenderTexture")]
         [Tooltip("create renderTexture when check,otherwist GetTemporaryRT")]
         public bool isCreateRenderTexture;
         public RenderTexture rt;
 
-        [Tooltip("setup depth buffer")]
-        public bool hasDepthBuffer;
-
-        [Tooltip("auto select a normal color texture format")]
-        public bool isNormalColorTexture;
+        [Header("Options")]
+        [Tooltip("auto create a color texture format (R8G8B8A8_SNorm > R16G16B16A16_SFloat > R32G32B32A32_SFloat)")]
+        public bool isAutoGraphicsFormat;
 
         [Tooltip("skip this target")]
         public bool isSkip;
@@ -34,7 +54,7 @@
 
         public bool IsValid(Camera cam = null)
         {
-            var isValid = !string.IsNullOrEmpty(name) && format != default && !isSkip;
+            var isValid = !string.IsNullOrEmpty(name) && !isSkip;
 #if UNITY_2022_1_OR_NEWER
             if (cam)
                 isValid = isValid && !RTHandleTools.IsURPRTAlloced(cam, name);
@@ -47,49 +67,57 @@
         /// </summary>
         /// <returns></returns>
         public GraphicsFormat GetFinalFormat()
-        => isNormalColorTexture || ! RenderingUtils.SupportsGraphicsFormat(format,FormatUsage.Linear|FormatUsage.Render) 
-            ? RenderingTools.GetNormalTextureFormat() : format;
+            => isAutoGraphicsFormat ? RenderingTools.GetNormalTextureFormat() : format;
+        public GraphicsFormat GetFinalDepthFormat()
+            => depthStencilFormat;
 
         public void CreateRT(CommandBuffer cmd, RenderTextureDescriptor desc,Camera cam )
         {
-            if (! IsValid(cam))
+            if (!IsValid(cam))
                 return;
 
-            desc.graphicsFormat = GetFinalFormat();
-            //desc.colorFormat = info.isHdr ? RenderTextureFormat.DefaultHDR : RenderTextureFormat.Default;
+            SetupDescFormat(ref desc);
 
-            // depth format
-            if (GraphicsFormatUtility.IsDepthFormat(desc.graphicsFormat))
-            {
-                desc.colorFormat = RenderTextureFormat.Depth;
-                hasDepthBuffer = true;
-            }
+            SetupDescSize(ref desc,cam);
 
-            // sync info's format 
-            if (format != desc.graphicsFormat)
+            if (isCreateRenderTexture)
             {
-                format = desc.graphicsFormat;
-            }
-
-            if (hasDepthBuffer)
-            {
-#if UNITY_2020
-                desc.depthBufferBits = 24;
-#else
-                desc.depthStencilFormat = GraphicsFormat.D24_UNorm_S8_UInt;
-#endif
-            }
-            if(isCreateRenderTexture && rt.IsNeedRealloc(desc.width,desc.height))
-            {
-                if (rt)
-                    rt.Release();
-
-                rt = new RenderTexture(desc);
-                rt.Create();
+                RenderTextureTools.CreateRT(ref rt, desc, name);
             }
             else
             {
                 cmd.GetTemporaryRT(GetTextureId(), desc);
+            }
+        }
+
+
+        void SetupDescSize(ref RenderTextureDescriptor desc, Camera camera)
+        {
+            if (!isOverrideSize)
+                return;
+
+            (int width, int height) size = rtSizeMode switch
+            {
+                RTSizeMode.Size => (width, height),
+                _ => ((int)(camera.pixelWidth * renderScale), (int)(camera.pixelHeight * renderScale)),
+            };
+
+            desc.width = size.width;
+            desc.height = size.height;
+        }
+
+        void SetupDescFormat(ref RenderTextureDescriptor desc)
+        {
+            desc.graphicsFormat = GetFinalFormat();
+            //desc.colorFormat = info.isHdr ? RenderTextureFormat.DefaultHDR : RenderTextureFormat.Default;
+            
+            if (GraphicsFormatUtility.IsDepthFormat(depthStencilFormat))
+            {
+#if UNITY_2020
+                desc.depthBufferBits = 24;
+#else
+                desc.depthStencilFormat = GetFinalDepthFormat();
+#endif
             }
         }
     }

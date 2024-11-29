@@ -13,6 +13,10 @@ namespace PowerUtilities
     {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
+            EditorGUI.PropertyField(position, property, label);
+            return;
+            // has bug
+
             var attr = attribute as EnumSearchableAttribute;
             if(attr.enumType == null && property.propertyType == SerializedPropertyType.Enum)
             {

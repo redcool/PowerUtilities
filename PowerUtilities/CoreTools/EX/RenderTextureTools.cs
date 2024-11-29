@@ -16,6 +16,11 @@ namespace PowerUtilities
         public static readonly bool m_ForceShadowPointSampling;
         private static readonly RenderTextureFormat m_ShadowmapFormat;
 
+        /// <summary>
+        /// CreateRenderTarget's renderTexture
+        /// </summary>
+        public static readonly Dictionary<string, RenderTexture> createdRenderTextureDict = new();
+
         static RenderTextureTools()
         {
             m_ForceShadowPointSampling = SystemInfo.graphicsDeviceType == GraphicsDeviceType.Metal &&
@@ -41,9 +46,41 @@ namespace PowerUtilities
             return shadowTexture;
         }
 
-        public static bool IsNeedRealloc(this RenderTexture rt, int width, int height)
+        public static bool IsNeedAlloc(this RenderTexture rt, RenderTextureDescriptor desc)
         {
-            return (!rt || rt.width != width || rt.height != height);
+            return (!rt || rt.width != desc.width || rt.height != desc.height || rt.depth != desc.depthBufferBits);
         }
+
+        /// <summary>
+        /// create rt and save to dict with name
+        /// then can get it with name
+        /// </summary>
+        /// <param name="rt"></param>
+        /// <param name="desc"></param>
+        /// <param name="name"></param>
+        public static void CreateRT(ref RenderTexture rt,RenderTextureDescriptor desc,string name)
+        {
+            if (!rt.IsNeedAlloc(desc))
+                return;
+
+            if (rt)
+                rt.Release();
+
+            rt = new RenderTexture(desc);
+            rt.Create();
+            rt.name = name;
+
+            if (!string.IsNullOrEmpty(name))
+            {
+                if (createdRenderTextureDict.ContainsKey(name))
+                    createdRenderTextureDict[name]?.Release();
+
+                createdRenderTextureDict[name] = rt;
+            }
+        }
+
+        public static bool TryGetRT(string name, out RenderTexture rt)
+        => createdRenderTextureDict.TryGetValue(name, out rt);
+        
     }
 }
