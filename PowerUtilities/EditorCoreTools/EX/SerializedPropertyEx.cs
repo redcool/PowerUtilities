@@ -110,21 +110,6 @@ public static class SerializedPropertyEx
     }
 
     /// <summary>
-    /// set value for (p.float,p.integer,p.boolean
-    /// </summary>
-    /// <param name="p"></param>
-    /// <param name="value"></param>
-    public static void Set(this SerializedProperty p, float value)
-    {
-        switch (p.propertyType)
-        {
-            case SerializedPropertyType.Float: p.floatValue = value; break;
-            case SerializedPropertyType.Integer: p.intValue = (int)value; break;
-            case SerializedPropertyType.Boolean: p.boolValue = value > 0; break;
-        }
-    }
-
-    /// <summary>
     /// Get property(Object's type) when cachedType is null
     /// 
     /// </summary>
@@ -210,7 +195,11 @@ public static class SerializedPropertyEx
     public static bool IsMatrix4x4(this SerializedProperty p)
     => p.type.Contains("Matrix4x4f");
 
-
+    /// <summary>
+    /// Update property then apply
+    /// </summary>
+    /// <param name="p"></param>
+    /// <param name="onUpdate"></param>
     public static void UpdateProperty(this SerializedProperty p, Action onUpdate)
     {
         if (onUpdate == null || p.serializedObject == null)
@@ -219,6 +208,32 @@ public static class SerializedPropertyEx
         p.serializedObject.Update();
         onUpdate();
         p.serializedObject.ApplyModifiedProperties();
+    }
+
+    /// <summary>
+    /// Update property's boxed value, 
+    /// </summary>
+    /// <param name="property"></param>
+    /// <param name="onUpdate">object</param>
+    public static void UpdatePropertyBoxedValue(this SerializedProperty property, Action<object> onUpdate)
+    {
+        /**
+          property.propertyPath (array like):
+              colorTargetInfos.Array.data[0].isFastSetFormat1
+
+          get current item
+              colorTargetInfos.Array.data[0]
+       */
+        var arrItemPropPath = property.propertyPath.Substring(0, property.propertyPath.LastIndexOf('.'));
+        var arrItemProp = property.serializedObject.FindProperty(arrItemPropPath);
+
+        var instObj = arrItemProp.boxedValue;
+        var instType = instObj.GetType();
+
+        onUpdate?.Invoke(instObj);
+
+        // reset again
+        arrItemProp.boxedValue = instObj;
     }
 }
 #endif

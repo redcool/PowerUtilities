@@ -17,6 +17,7 @@ namespace PowerUtilities.RenderFeatures
         public List<RenderTargetInfo> colorTargetInfos = new List<RenderTargetInfo>();
 
         [Header("Render Scale")]
+        [Tooltip("set all render target's render scale ")]
         public bool overrideURPRenderScale=false;
         [Range(0.1f,2)]public float renderScale = 1;
         public override ScriptableRenderPass GetPass() => new CreateRenderTargetPass(this);

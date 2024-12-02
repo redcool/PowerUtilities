@@ -16,6 +16,10 @@
             [Tooltip("set camera.Width directly")]
             Size
         }
+        public enum RTFastFormatMode
+        {
+            ColorOnly,DepthOnly,ColorDepth
+        }
 
         [Tooltip("rt name")]
         public string name;
@@ -33,7 +37,7 @@
         public bool isOverrideSize;
         [Tooltip("set rt size use renderScale or size")]
         public RTSizeMode rtSizeMode;
-        [Range(0,1)]public float renderScale=1;
+        [Range(0, 1)] public float renderScale = 1;
         public int width = 512;
         public int height = 512;
 
@@ -48,6 +52,10 @@
 
         [Tooltip("skip this target")]
         public bool isSkip;
+
+        [EditorHeader("","--FastFormat--")]
+        [EditorToolbar(texts = new[] { "ColorOnly", "DepthOnly", "ColorDepth" }, onClickCall = "FastSetupFormat")]
+        public bool isFastSetFormat;
 
         public int GetTextureId()
             => Shader.PropertyToID(name);
@@ -75,9 +83,8 @@
         {
             if (!IsValid(cam))
                 return;
-
+            
             SetupDescFormat(ref desc);
-
             SetupDescSize(ref desc,cam);
 
             if (isCreateRenderTexture)
@@ -106,9 +113,16 @@
             desc.height = size.height;
         }
 
+        void FastSetupFormat(int modeId)
+        {
+            format = modeId == 1 ? GraphicsFormat.None : RenderingTools.GetNormalTextureFormat();
+            depthStencilFormat = modeId == 0 ? GraphicsFormat.None : GraphicsFormat.D24_UNorm_S8_UInt;
+        }
+
         void SetupDescFormat(ref RenderTextureDescriptor desc)
         {
             desc.graphicsFormat = GetFinalFormat();
+
             //desc.colorFormat = info.isHdr ? RenderTextureFormat.DefaultHDR : RenderTextureFormat.Default;
             
             if (GraphicsFormatUtility.IsDepthFormat(depthStencilFormat))
