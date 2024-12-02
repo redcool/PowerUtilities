@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Analytics;
 using UnityEngine.Experimental.Rendering;
 
 namespace PowerUtilities
@@ -114,11 +115,14 @@ namespace PowerUtilities
          EditorToolbar
          */
         [EditorHeader("", "EditorToolbar")]
-        [EditorToolbar(onClickCall = "OnButtonClick2",texts = new[] { "button1","button2"})]
+        [EditorToolbar(onClickCall = "OnButtonClick2",texts = new[] { "button1","button2", "button3" })]
         public bool buttonA;
-
+        public int editorToolbarValue;
         public void OnButtonClick2(int id)
-        => Debug.Log("click "+id);
+        {
+            editorToolbarValue = id;
+            Debug.Log("click "+id);
+        }
         public void OnButtonClick()
         => Debug.Log("click ");
 
@@ -139,7 +143,8 @@ namespace PowerUtilities
 
         [EditorHeader("", "EditorSceneView")]
         [EditorSceneView(containerType = typeof(Vector3[]))]
-        public Vector3[] posArray = new[] { Vector3.zero,Vector3.one}; 
+        public Vector3[] posArray = new[] { Vector3.zero,Vector3.one};
+
     }
 }
 #endif

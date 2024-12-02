@@ -14,15 +14,18 @@ namespace PowerUtilities
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             labelList.Clear();
-            //property.serializedObject.Update();
             var attr = attribute as EditorToolbarAttribute;
 
             for (int i = 0; i < attr.texts.Length; ++i)
             {
                 var text = attr.texts[i];
-                label = new GUIContent(text);
-                
-                var imagePath = (attr.imageAssetPaths != null && attr.imageAssetPaths.Length> i )?attr.imageAssetPaths[i] : "";
+                var tooltip = text;
+                if (attr.tooltips != null && attr.tooltips.Length > i)
+                    tooltip = attr.tooltips[i];
+
+                label = new GUIContent(text, tooltip);
+
+                var imagePath = (attr.imageAssetPaths != null && attr.imageAssetPaths.Length > i) ? attr.imageAssetPaths[i] : "";
                 if (!string.IsNullOrEmpty(imagePath))
                     label.image = AssetDatabase.LoadAssetAtPath<Texture>(imagePath);
 
@@ -37,21 +40,19 @@ namespace PowerUtilities
                 property.intValue = newId;
                 CallTargetMethold(property, attr, newId);
             }
-            //property.serializedObject.ApplyModifiedProperties();
 
 
             //================ inner methods
             static void CallTargetMethold(SerializedProperty property, EditorToolbarAttribute attr,int buttonId)
             {
-                if (!string.IsNullOrEmpty(attr.onClickCall))
-                {
-                    property.UpdatePropertyBoxedValue(inst =>
-                    {
-                        var instType = inst.GetType();
-                        ReflectionTools.InvokeMember(instType, attr.onClickCall, inst, new object[] { buttonId });
-                    });
+                if (string.IsNullOrEmpty(attr.onClickCall))
+                    return;
 
-                }
+                property.UpdatePropertyValue(inst =>
+                {
+                    var instType = inst.GetType();
+                    ReflectionTools.InvokeMember(instType, attr.onClickCall, inst, new object[] { buttonId });
+                });
             }
         }
     }

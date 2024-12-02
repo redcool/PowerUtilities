@@ -23,5 +23,6 @@
         public string onClickCall;
         public string[] texts;
         public string[] imageAssetPaths;
+        public string[] tooltips;
     }
 }

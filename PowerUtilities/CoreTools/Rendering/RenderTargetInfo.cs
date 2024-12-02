@@ -18,7 +18,7 @@
         }
         public enum RTFastFormatMode
         {
-            ColorOnly,DepthOnly,ColorDepth
+            ColorOnly, DepthOnly, ColorDepth
         }
 
         [Tooltip("rt name")]
@@ -53,8 +53,11 @@
         [Tooltip("skip this target")]
         public bool isSkip;
 
-        [EditorHeader("","--FastFormat--")]
-        [EditorToolbar(texts = new[] { "ColorOnly", "DepthOnly", "ColorDepth" }, onClickCall = "FastSetupFormat")]
+        [EditorHeader("", "--FastFormat--")]
+        [EditorToolbar(texts = new[] { "ColorOnly", "DepthOnly", "ColorDepth" }
+            , onClickCall = "FastSetupFormat"
+            , tooltips = new []{"only colour buffer,no depth buffer","only depth buffer,no colour buffer","full fb,with color and depth buffer"}
+            )]
         public bool isFastSetFormat;
 
         public int GetTextureId()

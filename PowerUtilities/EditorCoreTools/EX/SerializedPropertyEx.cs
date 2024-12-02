@@ -209,13 +209,21 @@ public static class SerializedPropertyEx
         onUpdate();
         p.serializedObject.ApplyModifiedProperties();
     }
+    /// <summary>
+    /// Is property is object, like xxx.yyy, xx.Array.data[0]
+    /// </summary>
+    /// <param name="property"></param>
+    /// <returns></returns>
+    public static bool IsObject(this SerializedProperty property)
+        // xxx.yyy, Array.data[0]
+    => property.propertyPath.Contains(".");
 
     /// <summary>
     /// Update property's boxed value, 
     /// </summary>
     /// <param name="property"></param>
     /// <param name="onUpdate">object</param>
-    public static void UpdatePropertyBoxedValue(this SerializedProperty property, Action<object> onUpdate)
+    public static void UpdatePropertyValue(this SerializedProperty property, Action<object> onUpdate)
     {
         /**
           property.propertyPath (array like):
@@ -224,16 +232,33 @@ public static class SerializedPropertyEx
           get current item
               colorTargetInfos.Array.data[0]
        */
-        var arrItemPropPath = property.propertyPath.Substring(0, property.propertyPath.LastIndexOf('.'));
-        var arrItemProp = property.serializedObject.FindProperty(arrItemPropPath);
+        if (property.IsObject())
+        {
+            UpdateArrayItemOrObject(property, onUpdate);
+        }
+        else
+        {
+            UpdateObject(property, onUpdate);
+        }
 
-        var instObj = arrItemProp.boxedValue;
-        var instType = instObj.GetType();
+        // object, can update 
+        static void UpdateArrayItemOrObject(SerializedProperty property, Action<object> onUpdate)
+        {
+            var arrItemPropPath = property.propertyPath.Substring(0, property.propertyPath.LastIndexOf('.'));
+            var arrItemProp = property.serializedObject.FindProperty(arrItemPropPath);
 
-        onUpdate?.Invoke(instObj);
+            var instObj = arrItemProp.boxedValue;
+            onUpdate?.Invoke(instObj);
+            // reset again
+            arrItemProp.boxedValue = instObj;
+        }
 
-        // reset again
-        arrItemProp.boxedValue = instObj;
+        // property.serializedObject,but cannot update serializedObject
+        static void UpdateObject(SerializedProperty property, Action<object> onUpdate)
+        {
+            var instObj = property.serializedObject.targetObject;
+            onUpdate?.Invoke(instObj);
+        }
     }
 }
 #endif
