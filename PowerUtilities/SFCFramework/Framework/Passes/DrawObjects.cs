@@ -206,7 +206,7 @@
 
             // reset skybox 's target in gameview
             if(Feature.IsUpdateSkyboxTarget)
-                SetupSkyboxTargets(renderer,camera);
+                DrawSkyBoxPass.SetupSkyboxTargets(renderer,camera);
 
             drawObjectsPass.OnExecute(context, ref renderingData, cmd);
 
@@ -214,30 +214,7 @@
                 drawChildrenInstancedPass.OnExecute(context, ref renderingData, cmd);
         }
 
-        public static void SetupSkyboxTargets(UniversalRenderer renderer,Camera c)
-        {
-            var urpSkyPass = renderer.GetRenderPass<DrawSkyboxPass>(ScriptableRendererEx.PassFieldNames.m_DrawSkyboxPass);
 
-            var colorTarget = renderer.CameraColorTargetHandle();
-            var depthTarget = renderer.CameraDepthTargetHandle();
-
-            if (RenderTargetHolder.IsLastTargetValid())
-            {
-                colorTarget = RenderTargetHolder.LastColorTargetHandle;
-                depthTarget = RenderTargetHolder.LastDepthTargetHandle;
-            }
-#if !UNITY_2021_1_OR_NEWER
-            // restore CameraTarget ,below 2022
-            if (c.IsSceneViewCamera())
-            {
-                var rth = RTHandles.Alloc(BuiltinRenderTextureType.CameraTarget);
-                //colorTarget = rth;
-                depthTarget = rth;
-            }
-#endif
-            urpSkyPass.ConfigureTarget(colorTarget, depthTarget);
-            
-        }
     }
 
     public class DrawChildrenInstancedPass : SRPPass<DrawObjects>

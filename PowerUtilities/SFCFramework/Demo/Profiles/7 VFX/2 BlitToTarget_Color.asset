@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f65fc8c7a8f3ffa4798d07b2e7297a90, type: 3}
+  m_Name: 2 BlitToTarget_Color
+  m_EditorClassIdentifier: 
+  nodeInfo:
+    pos:
+      serializedVersion: 2
+      x: 0
+      y: 0
+      width: 200
+      height: 100
+    guid: 
+    title: 
+  enabled: 0
+  interrupt: 0
+  cameraType: 16
+  cameraTypeCompareFunc: 0
+  isEditorOnly: 0
+  isShowAllInPrefabStage: 1
+  gameCameraCompareType: 0
+  gameCameraTag: MainCamera
+  renderPassEvent: 400
+  renderPassEventOffset: 0
+  log: 
+  isFoldout: 0
+  isBaseOptionsFoldout: 0
+  sourceName: _CameraColorAttachmentA
+  isShowCurMainLightShadowMapTexture: 0
+  targetName: _VFX_RT
+  isBlitToNextPostTarget: 0
+  blitMat: {fileID: 2100000, guid: 9d630ba2ec1633e4ba1143a3453514bc, type: 2}
+  colorSpaceMode: 0
+  srcMode: 1
+  dstMode: 0
+  clearFlags: -1

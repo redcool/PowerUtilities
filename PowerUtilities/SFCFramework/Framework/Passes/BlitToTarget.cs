@@ -20,6 +20,9 @@ namespace PowerUtilities.RenderFeatures
         public string sourceName;
         public bool isShowCurMainLightShadowMapTexture;
 
+        //[Tooltip("use whiteTexture if empty")]
+        //public string sourceDepthName;
+
         [EditorHeader("","--- Target")]
         [Tooltip("When empty will use Camera Target")]
         public string targetName;
@@ -58,6 +61,7 @@ namespace PowerUtilities.RenderFeatures
             var renderer = (UniversalRenderer)cameraData.renderer;
 
             RenderTargetIdentifier sourceId = default;
+            //RenderTargetIdentifier sourceDepthId = string.IsNullOrEmpty(Feature.sourceDepthName) ? Texture2D.whiteTexture : Shader.PropertyToID(Feature.sourceDepthName);
             // === check shadowMap,currentActive, temporary target
             if (Feature.isShowCurMainLightShadowMapTexture)
             {
@@ -75,6 +79,7 @@ namespace PowerUtilities.RenderFeatures
 #if UNITY_2022_1_OR_NEWER
             renderer.TryReplaceURPRTTarget(Feature.sourceName,ref sourceId);
             renderer.TryReplaceURPRTTarget(Feature.targetName, ref targetId);
+            //renderer.TryReplaceURPRTTarget(Feature.sourceDepthName,ref sourceDepthId);
 #endif
             
             // === check rt dict
@@ -82,6 +87,8 @@ namespace PowerUtilities.RenderFeatures
                 sourceId = rt;
             if (RenderTextureTools.TryGetRT(Feature.targetName, out rt))
                 targetId = rt;
+            //if (RenderTextureTools.TryGetRT(Feature.sourceDepthName, out rt))
+            //    sourceDepthId = rt;
 
             // === check post target(A,B)
             if (Feature.isBlitToNextPostTarget)
@@ -97,6 +104,8 @@ namespace PowerUtilities.RenderFeatures
                 targetId = isA ? ShaderPropertyIds._CameraColorAttachmentB : ShaderPropertyIds._CameraColorAttachmentA;
 #endif
             }
+            
+            //cmd.SetGlobalTexture("_SourceDepthTex", sourceDepthId);
             
             ColorSpaceTransform.SetColorSpace(cmd, Feature.colorSpaceMode);
 

@@ -58,7 +58,7 @@ namespace PowerUtilities
         /// <param name="rt"></param>
         /// <param name="desc"></param>
         /// <param name="name"></param>
-        public static void CreateRT(ref RenderTexture rt,RenderTextureDescriptor desc,string name)
+        public static void CreateRT(ref RenderTexture rt,RenderTextureDescriptor desc,string name,FilterMode filterMode)
         {
             if (!rt.IsNeedAlloc(desc))
                 return;
@@ -67,6 +67,7 @@ namespace PowerUtilities
                 rt.Release();
 
             rt = new RenderTexture(desc);
+            rt.filterMode = filterMode;
             rt.Create();
             rt.name = name;
 

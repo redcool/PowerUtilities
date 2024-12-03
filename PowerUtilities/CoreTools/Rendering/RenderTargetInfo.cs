@@ -40,6 +40,7 @@
         [Range(0, 1)] public float renderScale = 1;
         public int width = 512;
         public int height = 512;
+        public FilterMode filterMode = FilterMode.Bilinear;
 
         [Header("RenderTexture")]
         [Tooltip("create renderTexture when check,otherwist GetTemporaryRT")]
@@ -82,21 +83,21 @@
         public GraphicsFormat GetFinalDepthFormat()
             => depthStencilFormat;
 
-        public void CreateRT(CommandBuffer cmd, RenderTextureDescriptor desc,Camera cam )
+        public void CreateRT(CommandBuffer cmd, RenderTextureDescriptor desc, Camera cam)
         {
             if (!IsValid(cam))
                 return;
-            
+
             SetupDescFormat(ref desc);
-            SetupDescSize(ref desc,cam);
+            SetupDescSize(ref desc, cam);
 
             if (isCreateRenderTexture)
             {
-                RenderTextureTools.CreateRT(ref rt, desc, name);
+                RenderTextureTools.CreateRT(ref rt, desc, name, filterMode);
             }
             else
             {
-                cmd.GetTemporaryRT(GetTextureId(), desc);
+                cmd.GetTemporaryRT(GetTextureId(), desc, filterMode);
             }
         }
 

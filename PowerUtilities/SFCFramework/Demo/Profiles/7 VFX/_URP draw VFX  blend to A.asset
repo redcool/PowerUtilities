@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 020239da890028742becb2d5aad81070, type: 3}
+  m_Name: _URP draw VFX  blend to A
+  m_EditorClassIdentifier: 
+  enabled: 1
+  featureList:
+  - {fileID: 11400000, guid: 3600389e6664ef84eb467125753702e7, type: 2}
+  - {fileID: 11400000, guid: 074c0eadb7f88ea4bacefad770fdea5e, type: 2}
+  - {fileID: 11400000, guid: 34efa2f63a1789c439f73cf37a658b8f, type: 2}
+  - {fileID: 11400000, guid: 5f67530746f8edf42a220be6101867c7, type: 2}
+  - {fileID: 11400000, guid: 47b5a316ed951304c86979da39c455e8, type: 2}
+  - {fileID: 11400000, guid: 600b4b4e99b2b524bb3f0b5b0141de2d, type: 2}
+  - {fileID: 11400000, guid: 7b7b2eca730248e4cadbe7bcdec48a0e, type: 2}
+  isDetailsFoldout: 1
+  labelWidth: 250
