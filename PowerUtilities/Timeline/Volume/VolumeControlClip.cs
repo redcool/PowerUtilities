@@ -1,41 +1,11 @@
 ﻿using System;
 using System.Linq;
-
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.Rendering;
 
 namespace PowerUtilities.Timeline
 {
-#if UNITY_EDITOR
-    //[CustomEditor(typeof(VolumeControlClip))]
-    public class VolumeControlClipEditor : Editor
-    {
-        //GUIContent clipProfileContent = new GUIContent("Clip Profile", "show VolumeControlClip's profile settings");
-        //GUIContent profileContent = new GUIContent("Template Profile Details", "Show Template/profile  settings");
-        //GUIContent bakeTemplateProfileButton = new GUIContent("Bake Template Profile", "copy template profile to clip profile");
-
-        //public override void OnInspectorGUI()
-        //{
-        //    base.OnInspectorGUI();
-
-        //    serializedObject.Update();
-
-        //    serializedObject.ApplyModifiedProperties();
-        //    var inst = target as VolumeControlClip;
-
-        //    //if (GUILayout.Button(bakeTemplateProfileButton))
-        //    //{
-                
-        //    //}
-        //}
-
-    }
-#endif
-
     [Serializable]
     public class VolumeControlClip : PlayableAsset
     {
@@ -47,7 +17,9 @@ namespace PowerUtilities.Timeline
         public string GetGUID()
         {
             if (string.IsNullOrEmpty(guid))
-                guid = GUID.Generate().ToString();
+            {
+                guid = Guid.NewGuid().ToString();
+            }
             return guid;
         }
 
