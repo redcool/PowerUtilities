@@ -9,28 +9,6 @@ using UnityEngine.Rendering;
 namespace PowerUtilities
 {
 
-    [Serializable]
-    public struct RangeInfo
-    {
-        public int min, max;
-        public RangeInfo(int min, int max)
-        {
-            this.min = min;
-            this.max = max;
-        }
-    }
-
-    [Serializable]
-    public class RebingTargetNameInfo
-    {
-        public string originalRTName, otherRTName;
-
-        [Tooltip("draw objects in gamma or linear")]
-        public ColorSpaceTransform.ColorSpaceMode colorSpace;
-
-        public bool IsValid() => !string.IsNullOrEmpty(originalRTName) && !string.IsNullOrEmpty(otherRTName);
-    }
-
     /// <summary>
     /// like FilteringSettings,can serialized
     /// </summary>

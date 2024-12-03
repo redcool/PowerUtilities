@@ -72,6 +72,12 @@
         public RenderQueueType renderQueueType = RenderQueueType.opaque;
         public LayerMask layers = -1;
 
+        [Header("---Override FilterSetting")]
+        [Tooltip("use full filterSetting")]
+        public bool isOverrideFilterSetting;
+        [EditorDisableGroup(targetPropName = "isOverrideFilterSetting")]
+        public SimpleFilterSetting filterSetting = new();
+
         [Header("--- Override depth")]
         [Tooltip("depth state control")]
         public DepthStateInfo depthState;
@@ -278,9 +284,14 @@
         public FullDrawObjectsPass(DrawObjects feature) : base(feature)
         {
             shaderTagList.AddRange(feature.shaderTags.Select(n => new ShaderTagId(n)));
+
+            // setup filterSettings
             var renderQueueRange = RenderQueueTools.ToRenderQueueRange(feature.renderQueueType);
             filteringSettings = new FilteringSettings(renderQueueRange, feature.layers);
+            if (Feature.isOverrideFilterSetting)
+                filteringSettings = Feature.filterSetting;
 
+            // setup render stateBlock(depth,stencil)
             renderStateBlock = new RenderStateBlock(RenderStateMask.Nothing);
 
             var stencilData = feature.stencilData;

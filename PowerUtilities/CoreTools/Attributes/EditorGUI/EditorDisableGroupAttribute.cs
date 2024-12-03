@@ -17,8 +17,9 @@ using System.Threading.Tasks;
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
             var attr = attribute as EditorDisableGroupAttribute;
+            var lines = Mathf.Max(attr.heightScale, property.CountInProperty());
 
-            return base.GetPropertyHeight(property, label) * attr.heightScale+2;
+            return base.GetPropertyHeight(property, label) * lines + 2;
         }
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
@@ -57,7 +58,7 @@ using System.Threading.Tasks;
         public bool isRevertMode;
 
         /// <summary>
-        /// line multiples
+        /// line count,
         /// </summary>
         public int heightScale = 1;
     }
