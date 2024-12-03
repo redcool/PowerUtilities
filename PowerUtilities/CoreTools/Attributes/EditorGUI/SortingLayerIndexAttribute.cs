@@ -14,21 +14,15 @@
     {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
+            // update tooltip
+            var attr = attribute as SortingLayerIndexAttribute;
+            label.tooltip = attr.tooltip;
+
+            // gui
             var viewWidth = EditorGUIUtility.currentViewWidth;
+            var sortingLayerNames = SortingLayer.layers.Select(item => new GUIContent(item.name)).ToArray();
+            property.intValue = EditorGUI.Popup(position, label, property.intValue, sortingLayerNames);
 
-            var sortingLayerNames = SortingLayer.layers.Select(item => item.name).ToArray();
-
-            EditorGUI.BeginProperty(position, label, property);
-            // label
-            position.width = EditorGUIUtility.labelWidth; // 0.618f
-            EditorGUI.PrefixLabel(position, label);
-
-            // sorting layers
-            position.x += position.width + 2;
-            position.width = viewWidth - position.x;
-            property.intValue = EditorGUI.Popup(position, property.intValue, sortingLayerNames);
-
-            EditorGUI.EndProperty();
         }
     }
 #endif
@@ -38,6 +32,6 @@
     [AttributeUsage(AttributeTargets.Field)]
     public class SortingLayerIndexAttribute : PropertyAttribute
     {
-
+        public string tooltip;
     }
 }
