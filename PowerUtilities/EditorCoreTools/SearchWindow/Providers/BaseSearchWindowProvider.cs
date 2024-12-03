@@ -28,10 +28,10 @@ namespace PowerUtilities
 
         //public abstract List<SearchTreeEntry> CreateSearchTree(SearchWindowContext context);
 
-        public override bool OnSelectEntry(SearchTreeEntry SearchTreeEntry, SearchWindowContext context)
+        public override bool OnSelectEntry(SearchTreeEntry searchTreeEntry, SearchWindowContext context)
         {
             //Debug.Log(SearchTreeEntry.userData +"  : "+typeof(T) +":"+ SearchTreeEntry.userData.GetType());
-            onSelectedChanged?.Invoke((T)SearchTreeEntry.userData);
+            onSelectedChanged?.Invoke((T)searchTreeEntry.userData);
             return true;
         }
     }

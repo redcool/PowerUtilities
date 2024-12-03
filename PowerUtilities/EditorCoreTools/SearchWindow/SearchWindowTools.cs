@@ -15,15 +15,21 @@ namespace PowerUtilities
         public static void FillWithEnum(ref List<SearchTreeEntry> list, Type enumType)
         {
             var names = Enum.GetNames(enumType);
-            list.Add(new SearchTreeGroupEntry(new GUIContent(enumType.Name)));
+            var values = Enum.GetValues(enumType);
 
-            foreach (var name in names)
+            list.Add(new SearchTreeGroupEntry(new GUIContent(enumType.Name)));
+            
+            //foreach (var name in names)
+            for (int i = 0;i<values.Length;i++)
             {
+                var name = names[i];
+                var value = values.GetValue(i);
                 list.Add(new SearchTreeEntry(new GUIContent(name, name))
                 {
                     level = 1,
-                    userData = Enum.Parse(enumType, name)
-                });
+                    //userData = Enum.Parse(enumType, name)
+                    userData = (int)value
+                }) ;
             }
         }
 

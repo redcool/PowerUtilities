@@ -17,6 +17,14 @@ namespace PowerUtilities
     /// Show Enum in SearchWindow
     /// 
     /// GraphicsFormat can use GraphicsFormat.txt specially
+    /// src Check EnumSearchableAttributeDrawer, 
+    /// 
+    /// demo:
+    /// 
+    /// [EnumSearchable(typeof(GraphicsFormat), textFileName = "")]
+    /// public GraphicsFormat gFormat; [EnumSearchable(typeof(GraphicsFormat), textFileName = "")]
+    /// public GraphicsFormat gFormat;
+    ///     
     /// </summary>
     public class EnumSearchProvider : BaseSearchWindowProvider<int>
     {
@@ -26,7 +34,7 @@ namespace PowerUtilities
         /// <summary>
         /// use GraphicsFormat.txt or not
         /// </summary>
-        public bool isReadTextFile = true;
+        public string textFileName;
 
         /// <summary>
         /// show enum to SearchWindow
@@ -34,7 +42,7 @@ namespace PowerUtilities
         public Type enumType;
 
         /// <summary>
-        /// cached GraphicsFormat.txt
+        /// cached tree, like GraphicsFormat.txt
         /// </summary>
         public List<SearchTreeEntry> graphicsFormatTreeList = new();
 
@@ -43,6 +51,8 @@ namespace PowerUtilities
             public string name;
             public int value;
             public string desc;
+
+            public static GraphicsFormatInfo zero = new ();
         }
 
         public enum GraphicsFormatType
@@ -71,72 +81,62 @@ namespace PowerUtilities
 
         public void TryLoadTextFile()
         {
-            formatTxt = AssetDatabaseTools.FindAssetPathAndLoad<TextAsset>(out _, "GraphicsFormat", ".txt", true);
+            var fileName = Path.GetFileNameWithoutExtension(textFileName);
+            var extName = Path.GetExtension(fileName);
+            //"GraphicsFormat", ".txt"
+            formatTxt = AssetDatabaseTools.FindAssetPathAndLoad<TextAsset>(out _, fileName, extName, true);
         }
 
         public void ParseTxt(string formatText, out Dictionary<GraphicsFormatType, List<GraphicsFormatInfo>> infoDict)
         {
             infoDict = new();
 
-            using (var reader = new StringReader(formatText))
+            var sb = new StringBuilder();
+            foreach (var line in formatText.ReadLines())
             {
-                string line = null;
-                var sb = new StringBuilder();
-
-                while ((line = reader.ReadLine()) != null)
+                // accumulate description
+                if (line.StartsWith("//") || line.StartsWith("[Obsolete"))
                 {
-                    // skip empty,[obsolete]
-                    if (string.IsNullOrEmpty(line) || line.StartsWith("[Obsolete"))
-                        continue;
-
-                    // accumulate description
-                    if (line.StartsWith("//"))
-                    {
-                        sb.Append(line);
-                        continue;
-                    }
-
-                    // normal format str
-                    var kv = line.Split('=');
-                    if (kv.Length == 2)
-                    {
-                        var formatName = kv[0];
-                        var formatValueStr = kv[1];
-                        var formatInfo = new GraphicsFormatInfo
-                        {
-                            name = formatName,
-                            value = Convert.ToInt32(RegExTools.GetMatch(formatValueStr, RegExTools.NUMBER)),
-                            desc = sb.ToString()
-                        };
-                        AddToInfoDict(infoDict, formatInfo);
-                    }
-                    else
-                    {
-                        throw new Exception("parse failed : " + line);
-                    }
-
-                    sb.Clear();
+                    sb.Append(line);
+                    continue;
                 }
-
+                var kv = line.SplitKeyValuePair();
+                if (kv.Length == 2)
+                {
+                    var formatName = kv[0];
+                    var formatValueStr = kv[1];
+                    var formatInfo = new GraphicsFormatInfo
+                    {
+                        name = formatName,
+                        value = Convert.ToInt32(RegExTools.GetMatch(formatValueStr, RegExTools.NUMBER)),
+                        desc = sb.ToString()
+                    };
+                    AddToInfoDict(infoDict, formatInfo);
+                }
+                else
+                {
+                    throw new Exception("parse failed : " + line);
+                }
+                sb.Clear();
             }
         }
 
         /// <summary>
-        /// Add an item to dict
+        /// Add an item to dict(Group)
         /// </summary>
         /// <param name="infoDict"></param>
         /// <param name="formatInfo"></param>
         private void AddToInfoDict(Dictionary<GraphicsFormatType, List<GraphicsFormatInfo>> infoDict, GraphicsFormatInfo formatInfo)
         {
             var formatName = formatInfo.name;
-
-            var isColorFormat = RegExTools.IsRGBAFormat(formatName);
-            var isDepthFormat = RegExTools.IsDepthFormat(formatName);
-            var isVideoFormat = RegExTools.IsVideoFormat(formatName);
-            var isDXT = RegExTools.IsDXTFormat(formatName);
-            var isPVRTC = RegExTools.IsPVRTCFormat(formatName);
-            var isETC = RegExTools.IsETCFormat(formatName);
-            var isASTC = RegExTools.IsASTCFormat(formatName);
+            
+            var isColorFormat = GraphicsFormatTools.IsRGBAFormat(formatName);
+            var isDepthFormat = GraphicsFormatTools.IsDepthFormat(formatName);
+            var isVideoFormat = GraphicsFormatTools.IsVideoFormat(formatName);
+            var isDXT = GraphicsFormatTools.IsDXTFormat(formatName);
+            var isPVRTC = GraphicsFormatTools.IsPVRTCFormat(formatName);
+            var isETC = GraphicsFormatTools.IsETCFormat(formatName);
+            var isASTC = GraphicsFormatTools.IsASTCFormat(formatName);
             //Debug.Log($"{formatName} iscolor :{isColorFormat}, isDepth:{isDepthFormat},isVideo:{isVideoFormat},isDxt:{isDXT},isPVR:{isPVRTC},isEtc:{isETC},isAstc:{isASTC}");
 
             // combine type to array
@@ -199,7 +199,7 @@ namespace PowerUtilities
         public override List<SearchTreeEntry> CreateSearchTree(SearchWindowContext context)
         {
             // for GraphicsFormat
-            if (enumType == typeof(GraphicsFormat) && isReadTextFile)
+            if (enumType == typeof(GraphicsFormat) && !string.IsNullOrEmpty(textFileName))
             {
                 if (graphicsFormatTreeList.Count == 0)
                     TryParseGraphicsFormatTxtFillList(ref graphicsFormatTreeList);

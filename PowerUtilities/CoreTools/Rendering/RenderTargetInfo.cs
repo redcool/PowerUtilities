@@ -30,7 +30,7 @@
         public GraphicsFormat format = GraphicsFormat.R8G8B8A8_SNorm;
 
         [Tooltip("depth target format,D24_UNorm_S8_UInt is preferred")]
-        //[EnumSearchable(typeof(GraphicsFormat))]
+        [EnumSearchable(typeof(GraphicsFormat))]
         public GraphicsFormat depthStencilFormat = GraphicsFormat.D24_UNorm_S8_UInt;
 
         [Header("Override Size")]

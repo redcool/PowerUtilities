@@ -4,7 +4,9 @@
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
+    using System.Runtime.Serialization;
     using System.Text;
     using System.Text.RegularExpressions;
 
@@ -12,7 +14,7 @@
     {
 
         static Regex kvRegex = new Regex(@"\s*=\s*");
-
+        static readonly char[] DEFAULT_SPLIT_CHARS = new []{'\n'};
         /// <summary>
         /// Name match rules
         /// </summary>
@@ -64,45 +66,68 @@
         /// <param name="str"></param>
         /// <param name="dict"></param>
         /// <param name="splitChar"></param>
-        public static void ReadKeyValue(this string str, Dictionary<string, string> dict, char splitChar = '\n')
+        public static void ReadKeyValue(this string str, Dictionary<string, string> dict, string splitChars = "\n")
         {
-            ReadKeyValue(str, splitChar, (kv) =>
+            ReadKeyValue(str, splitChars, (kv) =>
             {
                 if(kv.Length > 1)
                     dict[kv[0]] = kv[1];
             });
-
-            //var lines = str.Split(splitChar);
-            //if (lines == null)
-            //    return;
-
-            //foreach (var lineStr in lines)
-            //{
-            //    var line = lineStr.Trim();
-            //    if (string.IsNullOrEmpty(line) || line.StartsWith("//"))
-            //        continue;
-
-            //    {
-            //        //use default handle
-            //        var kv = SplitKeyValuePair(line);
-            //        if (kv.Length > 1)
-            //            dict[kv[0]] = kv[1];
-            //    }
-            //}
         }
-        public static void ReadKeyValue(this string str, char splitChar = '\n', Action<string[]> onHandleStrings = null)
+
+        public static void ReadKeyValue(this string str,string splitChars= "\n", Action<string[]> onReadLineKeyValue = null)
         {
-            var lines = str.Split(splitChar);
-            if (lines == null)
+            if (onReadLineKeyValue == null)
                 return;
+
+            foreach (var line in ReadLines(str, splitChars))
+            {
+                if (line.StartsWith("//"))
+                    continue;
+
+                onReadLineKeyValue?.Invoke(SplitKeyValuePair(line));
+            }
+        }
+        /// <summary>
+        /// Read line from str one by one
+        /// </summary>
+        /// <param name="str"></param>
+        /// <param name="splitChars"></param>
+        /// <returns></returns>
+        public static IEnumerable<string> ReadLines(this string str, string splitChars)
+        {
+            var lines = str.Split(splitChars);
+            if (lines == null)
+                yield break;
 
             foreach (var lineStr in lines)
             {
                 var line = lineStr.Trim();
-                if (string.IsNullOrEmpty(line) || line.StartsWith("//"))
+                if (string.IsNullOrEmpty(line))
                     continue;
 
-                onHandleStrings?.Invoke(SplitKeyValuePair(line));
+                yield return line;
+            }
+        }
+        /// <summary>
+        /// Use '\n' split str, yield return one by one
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public static IEnumerable<string> ReadLines(this string str)
+        {
+            using (var reader = new StringReader(str))
+            {
+                string lineStr = null;
+
+                while ((lineStr = reader.ReadLine()) != null)
+                {
+                    var line = lineStr.Trim();
+                    if (string.IsNullOrEmpty(line))
+                        continue;
+
+                    yield return line;
+                }
             }
         }
         /// <summary>
@@ -110,7 +135,7 @@
         /// </summary>
         /// <param name="line"></param>
         /// <returns></returns>
-        public static string[] SplitKeyValuePair(string line)
+            public static string[] SplitKeyValuePair(this string line)
         {
             return kvRegex.Split(line);
         }

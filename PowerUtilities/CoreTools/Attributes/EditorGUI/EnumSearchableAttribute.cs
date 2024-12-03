@@ -11,12 +11,15 @@
     [AttributeUsage(AttributeTargets.Field)]
     public class EnumSearchableAttribute : PropertyAttribute
     {
+        /// <summary>
+        /// if empty will use FieldInfo.FieldType
+        /// </summary>
         public Type enumType;
 
         /// <summary>
-        /// read GraphicsFormat.txt
+        /// read GraphicsFormat.txt or not
         /// </summary>
-        public bool isReadTextFile=true;
+        public string textFileName = "GraphicsFormat.txt";
 
         public EnumSearchableAttribute(Type enumType=null)
         {
