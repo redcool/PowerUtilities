@@ -16,11 +16,11 @@ MonoBehaviour:
     pos:
       serializedVersion: 2
       x: 0
-      y: 0
+      y: 500
       width: 200
       height: 100
     guid: 
-    title: 
+    title: 5 DrawObjects
   enabled: 1
   interrupt: 0
   cameraType: 16
@@ -32,7 +32,7 @@ MonoBehaviour:
   renderPassEvent: 400
   renderPassEventOffset: 0
   log: 
-  isFoldout: 0
+  isFoldout: 1
   isBaseOptionsFoldout: 0
   shaderTags:
   - UniversalForwardOnly
@@ -42,6 +42,19 @@ MonoBehaviour:
   layers:
     serializedVersion: 2
     m_Bits: 4294967295
+  isOverrideFilterSetting: 0
+  filterSetting:
+    layers:
+      serializedVersion: 2
+      m_Bits: 4294967295
+    renderQueueRangeInfo:
+      min: 0
+      max: 5000
+    sortingLayerRangeInfo:
+      min: -32768
+      max: 32767
+    renderingLayerMasks: 1
+    excludeMotionVectors: 0
   depthState:
     isOverrideDepthState: 0
     isWriteDepth: 1

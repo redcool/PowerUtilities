@@ -16,11 +16,11 @@ MonoBehaviour:
     pos:
       serializedVersion: 2
       x: 0
-      y: 0
+      y: 100
       width: 200
       height: 100
     guid: 
-    title: 
+    title: 1 CreateRenderTarget
   enabled: 1
   interrupt: 0
   cameraType: 16
@@ -32,7 +32,7 @@ MonoBehaviour:
   renderPassEvent: 350
   renderPassEventOffset: 0
   log: 
-  isFoldout: 1
+  isFoldout: 0
   isBaseOptionsFoldout: 0
   colorTargetInfos:
   - name: _VFX_RT
