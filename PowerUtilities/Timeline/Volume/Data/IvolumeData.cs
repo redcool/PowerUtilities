@@ -11,8 +11,4 @@ namespace PowerUtilities
         public void RecordSetting(VolumeComponent vc);
     }
 
-    public class BaseVolumeData<T>
-    {
-        public T setting;
-    }
 }

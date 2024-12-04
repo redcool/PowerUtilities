@@ -9,7 +9,7 @@ namespace PowerUtilities.Timeline
 {
     public partial class VolumeControlBehaviour
     {
-        public Test_Bloom_Data testBloomData;
+        //public Test_Bloom_Data testBloomData;
 
         //public void UpdateVolumeSettings()
         //{

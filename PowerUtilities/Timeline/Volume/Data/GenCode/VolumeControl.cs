@@ -29,6 +29,8 @@ public float dirtIntensity;
         public void UpdateSetting(VolumeComponent vc)
         {
             var settings = (Bloom)vc;
+            settings.active = isEnable;
+            if(!isEnable) return;
 settings.threshold.overrideState = settings.threshold.value != default;
 settings.threshold.value = threshold;
 settings.intensity.overrideState = settings.intensity.value != default;
@@ -98,6 +100,8 @@ public float blueOutBlueIn;
         public void UpdateSetting(VolumeComponent vc)
         {
             var settings = (ChannelMixer)vc;
+            settings.active = isEnable;
+            if(!isEnable) return;
 settings.redOutRedIn.overrideState = settings.redOutRedIn.value != default;
 settings.redOutRedIn.value = redOutRedIn;
 settings.redOutGreenIn.overrideState = settings.redOutGreenIn.value != default;
@@ -156,6 +160,8 @@ namespace PowerUtilities
         public void UpdateSetting(VolumeComponent vc)
         {
             var settings = (ChromaticAberration)vc;
+            settings.active = isEnable;
+            if(!isEnable) return;
 settings.intensity.overrideState = settings.intensity.value != default;
 settings.intensity.value = intensity;
 
@@ -194,6 +200,8 @@ public float saturation;
         public void UpdateSetting(VolumeComponent vc)
         {
             var settings = (ColorAdjustments)vc;
+            settings.active = isEnable;
+            if(!isEnable) return;
 settings.postExposure.overrideState = settings.postExposure.value != default;
 settings.postExposure.value = postExposure;
 settings.contrast.overrideState = settings.contrast.value != default;
@@ -247,6 +255,8 @@ public TextureCurve lumVsSat;
         public void UpdateSetting(VolumeComponent vc)
         {
             var settings = (ColorCurves)vc;
+            settings.active = isEnable;
+            if(!isEnable) return;
 settings.master.overrideState = settings.master.value != default;
 settings.master.value = master;
 settings.red.overrideState = settings.red.value != default;
@@ -303,6 +313,8 @@ public float contribution;
         public void UpdateSetting(VolumeComponent vc)
         {
             var settings = (ColorLookup)vc;
+            settings.active = isEnable;
+            if(!isEnable) return;
 settings.texture.overrideState = settings.texture.value != default;
 settings.texture.value = texture;
 settings.contribution.overrideState = settings.contribution.value != default;
@@ -350,6 +362,8 @@ public float bladeRotation;
         public void UpdateSetting(VolumeComponent vc)
         {
             var settings = (DepthOfField)vc;
+            settings.active = isEnable;
+            if(!isEnable) return;
 settings.mode.overrideState = settings.mode.value != default;
 settings.mode.value = mode;
 settings.gaussianStart.overrideState = settings.gaussianStart.value != default;
@@ -417,6 +431,8 @@ public Texture texture;
         public void UpdateSetting(VolumeComponent vc)
         {
             var settings = (FilmGrain)vc;
+            settings.active = isEnable;
+            if(!isEnable) return;
 settings.type.overrideState = settings.type.value != default;
 settings.type.value = type;
 settings.intensity.overrideState = settings.intensity.value != default;
@@ -464,6 +480,8 @@ public float scale;
         public void UpdateSetting(VolumeComponent vc)
         {
             var settings = (LensDistortion)vc;
+            settings.active = isEnable;
+            if(!isEnable) return;
 settings.intensity.overrideState = settings.intensity.value != default;
 settings.intensity.value = intensity;
 settings.xMultiplier.overrideState = settings.xMultiplier.value != default;
@@ -512,6 +530,8 @@ public Vector4 gain;
         public void UpdateSetting(VolumeComponent vc)
         {
             var settings = (LiftGammaGain)vc;
+            settings.active = isEnable;
+            if(!isEnable) return;
 settings.lift.overrideState = settings.lift.value != default;
 settings.lift.value = lift;
 settings.gamma.overrideState = settings.gamma.value != default;
@@ -555,6 +575,8 @@ public float clamp;
         public void UpdateSetting(VolumeComponent vc)
         {
             var settings = (MotionBlur)vc;
+            settings.active = isEnable;
+            if(!isEnable) return;
 settings.mode.overrideState = settings.mode.value != default;
 settings.mode.value = mode;
 settings.quality.overrideState = settings.quality.value != default;
@@ -599,6 +621,8 @@ public float cropToFit;
         public void UpdateSetting(VolumeComponent vc)
         {
             var settings = (PaniniProjection)vc;
+            settings.active = isEnable;
+            if(!isEnable) return;
 settings.distance.overrideState = settings.distance.value != default;
 settings.distance.value = distance;
 settings.cropToFit.overrideState = settings.cropToFit.value != default;
@@ -642,6 +666,8 @@ public float highlightsEnd;
         public void UpdateSetting(VolumeComponent vc)
         {
             var settings = (ShadowsMidtonesHighlights)vc;
+            settings.active = isEnable;
+            if(!isEnable) return;
 settings.shadows.overrideState = settings.shadows.value != default;
 settings.shadows.value = shadows;
 settings.midtones.overrideState = settings.midtones.value != default;
@@ -696,6 +722,8 @@ public float balance;
         public void UpdateSetting(VolumeComponent vc)
         {
             var settings = (SplitToning)vc;
+            settings.active = isEnable;
+            if(!isEnable) return;
 settings.shadows.overrideState = settings.shadows.value != default;
 settings.shadows.value = shadows;
 settings.highlights.overrideState = settings.highlights.value != default;
@@ -744,6 +772,8 @@ public float maxNits;
         public void UpdateSetting(VolumeComponent vc)
         {
             var settings = (Tonemapping)vc;
+            settings.active = isEnable;
+            if(!isEnable) return;
 settings.mode.overrideState = settings.mode.value != default;
 settings.mode.value = mode;
 settings.neutralHDRRangeReductionMode.overrideState = settings.neutralHDRRangeReductionMode.value != default;
@@ -806,6 +836,8 @@ public bool rounded;
         public void UpdateSetting(VolumeComponent vc)
         {
             var settings = (Vignette)vc;
+            settings.active = isEnable;
+            if(!isEnable) return;
 settings.color.overrideState = settings.color.value != default;
 settings.color.value = color;
 settings.center.overrideState = settings.center.value != default;
@@ -853,6 +885,8 @@ public float tint;
         public void UpdateSetting(VolumeComponent vc)
         {
             var settings = (WhiteBalance)vc;
+            settings.active = isEnable;
+            if(!isEnable) return;
 settings.temperature.overrideState = settings.temperature.value != default;
 settings.temperature.value = temperature;
 settings.tint.overrideState = settings.tint.value != default;

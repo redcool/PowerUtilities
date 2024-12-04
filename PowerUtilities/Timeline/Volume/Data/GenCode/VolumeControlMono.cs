@@ -1,23 +1,19 @@
-///
-/// Generated Code
-/// UI : ProjectSettings/PowerUtils/PostControlCodeGen
-/// paste this file to PowerUtilities\PowerUtilities\Timeline\Volume\Data\GenCode
-///
-
+using PowerUtilities.Timeline;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 using UnityEngine.Rendering;
-using UnityEngine.Rendering.Universal;
 
-namespace PowerUtilities.Timeline
+namespace PowerUtilities
 {
-    public partial class VolumeControlBehaviour
+    [ExecuteAlways]
+    public class VolumeControlMono : MonoBehaviour
     {
-        // setting variables ,like public Test_Bloom_Data bloomData;
-
+        // data fields
+        //public Bloom_Data _Bloom_Data;
         public Bloom_Data _Bloom_Data;
 public ChannelMixer_Data _ChannelMixer_Data;
 public ChromaticAberration_Data _ChromaticAberration_Data;
@@ -37,13 +33,12 @@ public Vignette_Data _Vignette_Data;
 public WhiteBalance_Data _WhiteBalance_Data;
 
 
-        public void UpdateVolumeSettings()
+        private void Update()
         {
-            if (!clipVolume)
-                return;
+            var clipVolume = gameObject.GetOrAddComponent<Volume>();
 
-            // if(bloomData.isEnable)
-            //     VolumeDataTools.Update(clipVolume, bloomData);
+            //data update
+            //VolumeDataTools.Update(clipVolume, _Bloom_Data);
               VolumeDataTools.Update(clipVolume, _Bloom_Data);
   VolumeDataTools.Update(clipVolume, _ChannelMixer_Data);
   VolumeDataTools.Update(clipVolume, _ChromaticAberration_Data);
@@ -63,12 +58,5 @@ public WhiteBalance_Data _WhiteBalance_Data;
   VolumeDataTools.Update(clipVolume, _WhiteBalance_Data);
 
         }
-
-        public void ReadSettingsFrom(VolumeProfile vp)
-        {
-
-        }
-
     }
-
 }
