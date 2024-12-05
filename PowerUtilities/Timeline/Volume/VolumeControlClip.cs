@@ -14,24 +14,13 @@ namespace PowerUtilities.Timeline
         public VolumeControlBehaviour template;
 
         public string guid;
-        public string GetGUID()
-        {
-            if (string.IsNullOrEmpty(guid))
-            {
-                guid = Guid.NewGuid().ToString();
-            }
-            return guid;
-        }
 
-        //template's instance
-        //[HideInInspector]
-        //public VolumeControlBehaviour instance;
 
         public override Playable CreatePlayable(PlayableGraph graph, GameObject owner)
         {
-            var sp = ScriptPlayable<VolumeControlBehaviour>.Create(graph,template);
+            var sp = ScriptPlayable<VolumeControlBehaviour>.Create(graph, template);
             var b = sp.GetBehaviour();
-            b.TrySetup(owner,sp,GetGUID());
+            b.TrySetup(owner,sp,GUIDTools.GetGUID(guid));
 
             //instance = b;
 

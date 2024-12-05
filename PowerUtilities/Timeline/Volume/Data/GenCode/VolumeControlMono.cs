@@ -1,3 +1,7 @@
+///
+/// Generated Code
+/// UI : ProjectSettings/PowerUtils/PostControlCodeGen
+///
 using PowerUtilities.Timeline;
 using System;
 using System.Collections.Generic;

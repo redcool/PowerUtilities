@@ -4,6 +4,9 @@
 ///
 namespace PowerUtilities
 {
+    //using PowerPost;
+    //other ns string
+    
     using System;
     using UnityEngine;
     using UnityEngine.Rendering;
@@ -76,6 +79,9 @@ dirtIntensity = settings.dirtIntensity.value;
 ///
 namespace PowerUtilities
 {
+    //using PowerPost;
+    //other ns string
+    
     using System;
     using UnityEngine;
     using UnityEngine.Rendering;
@@ -144,6 +150,9 @@ blueOutBlueIn = settings.blueOutBlueIn.value;
 ///
 namespace PowerUtilities
 {
+    //using PowerPost;
+    //other ns string
+    
     using System;
     using UnityEngine;
     using UnityEngine.Rendering;
@@ -180,6 +189,9 @@ intensity = settings.intensity.value;
 ///
 namespace PowerUtilities
 {
+    //using PowerPost;
+    //other ns string
+    
     using System;
     using UnityEngine;
     using UnityEngine.Rendering;
@@ -232,6 +244,9 @@ saturation = settings.saturation.value;
 ///
 namespace PowerUtilities
 {
+    //using PowerPost;
+    //other ns string
+    
     using System;
     using UnityEngine;
     using UnityEngine.Rendering;
@@ -296,6 +311,9 @@ lumVsSat = settings.lumVsSat.value;
 ///
 namespace PowerUtilities
 {
+    //using PowerPost;
+    //other ns string
+    
     using System;
     using UnityEngine;
     using UnityEngine.Rendering;
@@ -336,6 +354,9 @@ contribution = settings.contribution.value;
 ///
 namespace PowerUtilities
 {
+    //using PowerPost;
+    //other ns string
+    
     using System;
     using UnityEngine;
     using UnityEngine.Rendering;
@@ -412,6 +433,9 @@ bladeRotation = settings.bladeRotation.value;
 ///
 namespace PowerUtilities
 {
+    //using PowerPost;
+    //other ns string
+    
     using System;
     using UnityEngine;
     using UnityEngine.Rendering;
@@ -460,6 +484,9 @@ texture = settings.texture.value;
 ///
 namespace PowerUtilities
 {
+    //using PowerPost;
+    //other ns string
+    
     using System;
     using UnityEngine;
     using UnityEngine.Rendering;
@@ -512,6 +539,9 @@ scale = settings.scale.value;
 ///
 namespace PowerUtilities
 {
+    //using PowerPost;
+    //other ns string
+    
     using System;
     using UnityEngine;
     using UnityEngine.Rendering;
@@ -556,6 +586,9 @@ gain = settings.gain.value;
 ///
 namespace PowerUtilities
 {
+    //using PowerPost;
+    //other ns string
+    
     using System;
     using UnityEngine;
     using UnityEngine.Rendering;
@@ -604,6 +637,9 @@ clamp = settings.clamp.value;
 ///
 namespace PowerUtilities
 {
+    //using PowerPost;
+    //other ns string
+    
     using System;
     using UnityEngine;
     using UnityEngine.Rendering;
@@ -644,6 +680,9 @@ cropToFit = settings.cropToFit.value;
 ///
 namespace PowerUtilities
 {
+    //using PowerPost;
+    //other ns string
+    
     using System;
     using UnityEngine;
     using UnityEngine.Rendering;
@@ -704,6 +743,9 @@ highlightsEnd = settings.highlightsEnd.value;
 ///
 namespace PowerUtilities
 {
+    //using PowerPost;
+    //other ns string
+    
     using System;
     using UnityEngine;
     using UnityEngine.Rendering;
@@ -748,6 +790,9 @@ balance = settings.balance.value;
 ///
 namespace PowerUtilities
 {
+    //using PowerPost;
+    //other ns string
+    
     using System;
     using UnityEngine;
     using UnityEngine.Rendering;
@@ -816,6 +861,9 @@ maxNits = settings.maxNits.value;
 ///
 namespace PowerUtilities
 {
+    //using PowerPost;
+    //other ns string
+    
     using System;
     using UnityEngine;
     using UnityEngine.Rendering;
@@ -868,6 +916,9 @@ rounded = settings.rounded.value;
 ///
 namespace PowerUtilities
 {
+    //using PowerPost;
+    //other ns string
+    
     using System;
     using UnityEngine;
     using UnityEngine.Rendering;

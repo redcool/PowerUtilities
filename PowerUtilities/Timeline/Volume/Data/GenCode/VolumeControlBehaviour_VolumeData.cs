@@ -37,7 +37,7 @@ public Vignette_Data _Vignette_Data;
 public WhiteBalance_Data _WhiteBalance_Data;
 
 
-        public void UpdateVolumeSettings()
+        public void UpdateVolumeSettings(Volume clipVolume)
         {
             if (!clipVolume)
                 return;

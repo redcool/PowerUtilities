@@ -16,7 +16,8 @@ namespace PowerUtilities.Timeline
         public ExposedReference<Volume> volumeRef;
 
         [Tooltip("this clip's volume,when empty use volumeRef or ower(root gameObject)'s volume")]
-        Volume clipVolume;
+        [HideInInspector]
+        public Volume clipVolume;
 
         public float volumeWeight = 1;
 

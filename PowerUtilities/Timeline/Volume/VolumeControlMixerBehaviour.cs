@@ -32,7 +32,7 @@ namespace PowerUtilities.Timeline
                     // update weight
                     volume.weight = curWeight;
                     // update profile settings
-                    volumeBehaviour.UpdateVolumeSettings();
+                    volumeBehaviour.UpdateVolumeSettings(volume);
                 }
             }
 
