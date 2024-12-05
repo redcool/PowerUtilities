@@ -20,7 +20,7 @@ namespace PowerUtilities.Timeline
         {
             var sp = ScriptPlayable<VolumeControlBehaviour>.Create(graph, template);
             var b = sp.GetBehaviour();
-            b.TrySetup(owner,sp,GUIDTools.GetGUID(guid));
+            b.TrySetup(owner,sp,GUIDTools.GetGUID(ref guid));
 
             //instance = b;
 

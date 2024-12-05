@@ -11,13 +11,14 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+using UnityEngine;
 
 namespace PowerUtilities.Timeline
 {
-    public partial class VolumeControlBehaviour
+    public partial class VolumeControlBehaviour//VolumeControlBehaviour
     {
         // setting variables ,like public Test_Bloom_Data bloomData;
-
+        [Header("VolumeControlBehaviour")]
         public Bloom_Data _Bloom_Data;
 public ChannelMixer_Data _ChannelMixer_Data;
 public ChromaticAberration_Data _ChromaticAberration_Data;
@@ -37,13 +38,14 @@ public Vignette_Data _Vignette_Data;
 public WhiteBalance_Data _WhiteBalance_Data;
 
 
-        public void UpdateVolumeSettings(Volume clipVolume)
+        public override void UpdateVolumeSettings(Volume clipVolume)
         {
             if (!clipVolume)
                 return;
 
             // if(bloomData.isEnable)
             //     VolumeDataTools.Update(clipVolume, bloomData);
+            base.UpdateVolumeSettings(clipVolume);
               VolumeDataTools.Update(clipVolume, _Bloom_Data);
   VolumeDataTools.Update(clipVolume, _ChannelMixer_Data);
   VolumeDataTools.Update(clipVolume, _ChromaticAberration_Data);
@@ -64,9 +66,9 @@ public WhiteBalance_Data _WhiteBalance_Data;
 
         }
 
-        public void ReadSettingsFrom(VolumeProfile vp)
+        public override void ReadSettingsFrom(VolumeProfile vp)
         {
-
+            base.ReadSettingsFrom(vp);
         }
 
     }

@@ -9,17 +9,9 @@ namespace PowerUtilities.Timeline
 {
 
     [Serializable]
-    public partial class VolumeControlBehaviour : PlayableBehaviour
+    public partial class VolumeControlBehaviour : BaseVolumeControlBehaviour
     {
-        [Header("Volume")]
-        [Tooltip("Is valumeRef empty will use temporary Volume")]
-        public ExposedReference<Volume> volumeRef;
 
-        [Tooltip("this clip's volume,when empty use volumeRef or ower(root gameObject)'s volume")]
-        [HideInInspector]
-        public Volume clipVolume;
-
-        public float volumeWeight = 1;
 
         bool isRefVolume;
 
@@ -52,8 +44,6 @@ namespace PowerUtilities.Timeline
             clipVolume = v;
         }
 
-        public Volume GetClipVolume()
-        => clipVolume;
 
         public override void OnPlayableDestroy(Playable playable)
         {

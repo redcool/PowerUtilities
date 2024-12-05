@@ -13,7 +13,7 @@ namespace PowerUtilities
         /// </summary>
         /// <param name="guid"></param>
         /// <returns></returns>
-        public static string GetGUID(string guid)
+        public static string GetGUID(ref string guid)
         {
             if (string.IsNullOrEmpty(guid))
             {

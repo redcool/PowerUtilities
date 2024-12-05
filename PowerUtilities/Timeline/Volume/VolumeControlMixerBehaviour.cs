@@ -19,7 +19,7 @@ namespace PowerUtilities.Timeline
             {
                 var inputWeight = playable.GetInputWeight(i);
 
-                var inputPlayable = (ScriptPlayable<VolumeControlBehaviour>)playable.GetInput(i);
+                var inputPlayable = (ScriptPlayable<BaseVolumeControlBehaviour>)playable.GetInput(i);
                 var volumeBehaviour = inputPlayable.GetBehaviour();
 
                 //var rate = inputPlayable.GetNormalizedTime();
