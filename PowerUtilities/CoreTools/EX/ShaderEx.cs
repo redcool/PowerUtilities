@@ -107,6 +107,8 @@ namespace PowerUtilities
         /// <summary>
         /// Find shader propNames,and need how many floats
         /// 
+        /// cause incorrect when _Texture not match _Texture_ST
+        /// 
         ///likke:
         //{
         //    "unity_ObjectToWorld", //12 floats
@@ -123,12 +125,16 @@ namespace PowerUtilities
             var propCount = shader.GetPropertyCount();
             for (int i = 0; i < propCount; i++)
             {
-                if (shader.GetPropertyType(i) == ShaderPropertyType.Texture)
-                    continue;
-
                 var propName = shader.GetPropertyName(i);
                 //var propNameId = shader.GetPropertyNameId(i);
                 var propType = shader.GetPropertyType(i);
+                if (propType == ShaderPropertyType.Texture)
+                {
+                    // texture,find tex_ST
+                    propName += "_ST";
+                    propType = ShaderPropertyType.Vector;
+                }
+
                 var propFloatCount = GetFloatCount(propType);
                 floatsCount += propFloatCount;
 

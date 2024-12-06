@@ -36,7 +36,7 @@ MonoBehaviour:
   isBaseOptionsFoldout: 0
   colorTargetInfos:
   - name: _VFX_RT
-    format: 12
+    format: 8
     depthStencilFormat: 0
     isOverrideSize: 1
     rtSizeMode: 0
@@ -47,6 +47,8 @@ MonoBehaviour:
     isCreateRenderTexture: 0
     rt: {fileID: 0}
     isAutoGraphicsFormat: 0
+    isHdr: 0
+    hasAlpha: 0
     isSkip: 0
     isFastSetFormat: 0
   - name: _DepthTex
@@ -61,6 +63,8 @@ MonoBehaviour:
     isCreateRenderTexture: 0
     rt: {fileID: 0}
     isAutoGraphicsFormat: 0
+    isHdr: 0
+    hasAlpha: 0
     isSkip: 0
     isFastSetFormat: 1
   overrideURPRenderScale: 0

@@ -24,14 +24,15 @@ namespace PowerUtilities
             public int instanceCount;
         }
 
-        [EditorButton(onClickCall = "TestStart")]
-        public bool isTest;
+        [EditorButton(onClickCall = "RecordChildren")]
+        public bool isRecord;
 
         public bool isIncludeInvisible = false;
 
         BatchRendererGroup brg;
 
         //IEnumerable<(GraphicsBuffer, IGrouping<(int lightmapId, BatchMeshID meshId, BatchMaterialID matId), MeshRenderer>)> drawInfos;
+        // for rendering
         List<BRGBatch> batchList = new();
 
 
@@ -40,17 +41,37 @@ namespace PowerUtilities
             if (brg == null)
                 brg = new BatchRendererGroup(OnPerformCulling, IntPtr.Zero);
 
+            if (batchList.Count == 0)
+            {
+                var groupInfos = RegisterChildren();
+                SetupGroupInfos(groupInfos);
+            }
+        }
+
+        void RecordChildren()
+        {
+            if (brg == null)
+                brg = new BatchRendererGroup(OnPerformCulling, IntPtr.Zero);
+
             var groupInfos = RegisterChildren();
-#if UNITY_EDITOR
-            ShowGroupInfo(groupInfos);
-#endif
-            SetupGroupInfos(groupInfos);
+            SetupBRGGroupInfoList(groupInfos);
+
+            batchList.Clear();
+            batchList.AddRange(
+                brgGroupInfoList.Select((brgGroupInfo, groupId) =>
+                {
+                    var brgBatch = new BRGBatch(brg, brgGroupInfo.instanceCount, brgGroupInfo.meshId, brgGroupInfo.matId, groupId);
+                    brgBatch.SetupGraphBuffer(brgGroupInfo.floatsCount);
+
+                    return brgBatch;
+                })
+            );
         }
 
         /// <summary>
         /// Same batch means : same (material,mesh)
         /// </summary>
-        private IEnumerable<IGrouping<(int lightmapIndex, BatchMeshID, BatchMaterialID), MeshRenderer>> RegisterChildren()
+        public IEnumerable<IGrouping<(int lightmapIndex, BatchMeshID, BatchMaterialID), MeshRenderer>> RegisterChildren()
         {
             var mrs = GetComponentsInChildren<MeshRenderer>(isIncludeInvisible);
             var groupInfos = from mr in mrs
@@ -70,9 +91,7 @@ namespace PowerUtilities
 
         }
 
-
-
-        private void SetupGroupInfos(IEnumerable<IGrouping<(int lightmapIndex, BatchMeshID, BatchMaterialID), MeshRenderer>> groupInfos)
+        public void SetupGroupInfos(IEnumerable<IGrouping<(int lightmapIndex, BatchMeshID, BatchMaterialID), MeshRenderer>> groupInfos)
         {
             var groupCount = groupInfos.Count();
             batchList.Clear();
