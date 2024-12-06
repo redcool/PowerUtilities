@@ -13,7 +13,8 @@
     public static class StringEx
     {
 
-        static Regex kvRegex = new Regex(@"\s*=\s*");
+        public readonly static Regex kvRegex = new Regex(@"\s*=\s*");
+
         static readonly char[] DEFAULT_SPLIT_CHARS = new []{'\n'};
         /// <summary>
         /// Name match rules
@@ -135,8 +136,9 @@
         /// </summary>
         /// <param name="line"></param>
         /// <returns></returns>
-            public static string[] SplitKeyValuePair(this string line)
+        public static string[] SplitKeyValuePair(this string line, Regex regex=null)
         {
+            regex = regex ?? kvRegex;
             return kvRegex.Split(line);
         }
 

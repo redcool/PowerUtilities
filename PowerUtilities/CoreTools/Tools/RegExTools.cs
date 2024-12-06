@@ -23,6 +23,10 @@ namespace PowerUtilities
             GRAPHICS_FORMAT_COLOR_RGBA = @"([rR]\d+)([gG]\d+)?([bB]\d+)?([aA]\d+)?\w+",
             GRAPHICS_FORMAT_COLOR_ARGB = @"([aA]\d+)([bB]\d+)([gG]\d+)([rR]\d+)\w+"
 ;
+        /// <summary>
+        /// float4 _Color;
+        /// </summary>
+        public const string CBUFFER_VARS = @"(\w+) (\w+)";
 
         /// <summary>
         /// Get Matched string 

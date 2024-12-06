@@ -5,6 +5,7 @@ namespace PowerUtilities
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
+    using System.Text.RegularExpressions;
     using System.Threading.Tasks;
     using UnityEngine;
     using UnityEngine.Rendering;
@@ -25,15 +26,28 @@ namespace PowerUtilities
             public BatchMaterialID matId;
             public int floatsCount;
 
-            [Header("Unity Params")]
+            [Header("Mesh")]
             public Mesh mesh;
+
+            [Header("Material Info")]
             public Material mat;
             public List<MatPropInfo> matGroupList = new();
+
+            [Header("Instance Info")]
             public int instanceCount;
             public List<Renderer> rendererList = new();
         }
-        [Header("DebugInfo")]
+        [Serializable]
+        public class ShaderCBufferVarInfo
+        {
+            public Shader shader;
+            [Multiline]
+            public string shaderCBufferLayoutText;
+        }
+        [Header("Draw Info")]
         public List<BrgGroupInfo> brgGroupInfoList = new();
+
+        public List<ShaderCBufferVarInfo> shaderCBufferVarInfoList = new();
 
 
         public void SetupBRGGroupInfoList(IEnumerable<IGrouping<(int lightmapIndex, BatchMeshID, BatchMaterialID), MeshRenderer>> groupInfos)
@@ -54,7 +68,7 @@ namespace PowerUtilities
 
                 mat.shader.FindShaderPropNames_BRG(ref matPropNameList, ref floatsCount, propFloatCountList);
                 ShaderAnalysisTools.Analysis(mat.shader);
-                
+
                 foreach (var matPropName in matPropNameList)
                     Debug.Log(matPropName);
 
@@ -86,12 +100,28 @@ namespace PowerUtilities
 
                 // iterate renderers
                 brgGroupInfo.rendererList = groupInfo.Select(r => (Renderer)r).ToList();
+
+                // analysis shader 's cuffer
+                AnalysisShaderCBuffer(brgGroupInfo,shaderCBufferVarInfoList);
             }
         }
 
-        public void AnalysisShader()
+        public static void AnalysisShaderCBuffer(BrgGroupInfo info, List<ShaderCBufferVarInfo> cbufferInfoList)
         {
+            var cbufferInfo = cbufferInfoList.Find(cbufferInfo => cbufferInfo.shader == info.mat.shader);
+            if (cbufferInfo == null)
+                return;
 
+            info.matGroupList.Clear();
+
+            foreach (var line in cbufferInfo.shaderCBufferLayoutText.ReadLines())
+            {
+                foreach (Match m in Regex.Matches(line, RegExTools.CBUFFER_VARS))
+                {
+                    if (m.Groups.Count == 3)
+                        Debug.Log(m.Groups[1] + ":" + m.Groups[2]);
+                }
+            }
         }
     }
 }
