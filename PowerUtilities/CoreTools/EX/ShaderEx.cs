@@ -107,7 +107,7 @@ namespace PowerUtilities
         /// <summary>
         /// Find shader propNames,and need how many floats
         /// 
-        ///liek:
+        ///likke:
         //{
         //    "unity_ObjectToWorld", //12 floats
         //    "unity_WorldToObject", //12

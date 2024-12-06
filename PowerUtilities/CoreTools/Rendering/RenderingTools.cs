@@ -102,19 +102,6 @@ namespace PowerUtilities
 
         }
 
-        /// <summary>
-        /// Get normal color texture format auto
-        /// </summary>
-        /// <returns></returns>
-        public static GraphicsFormat GetNormalTextureFormat()
-        {
-            if (RenderingUtils.SupportsGraphicsFormat(GraphicsFormat.R8G8B8A8_SNorm, FormatUsage.Render))
-                return GraphicsFormat.R8G8B8A8_SNorm;
-            else if (RenderingUtils.SupportsGraphicsFormat(GraphicsFormat.R16G16B16A16_SFloat, FormatUsage.Render))
-                return GraphicsFormat.R16G16B16A16_SFloat;
-
-            return GraphicsFormat.R32G32B32A32_SFloat;
-        }
 
         public static RenderTargetIdentifier NameToId(string rtName,BuiltinRenderTextureType defaultId = BuiltinRenderTextureType.CameraTarget)
         {

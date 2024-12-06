@@ -16,11 +16,11 @@ MonoBehaviour:
     pos:
       serializedVersion: 2
       x: 0
-      y: 0
+      y: 300
       width: 200
       height: 100
     guid: 
-    title: 
+    title: 2.1 BlitToTarget_Depth
   enabled: 1
   interrupt: 0
   cameraType: 16

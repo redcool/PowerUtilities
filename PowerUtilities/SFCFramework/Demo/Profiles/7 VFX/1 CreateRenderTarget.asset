@@ -32,7 +32,7 @@ MonoBehaviour:
   renderPassEvent: 350
   renderPassEventOffset: 0
   log: 
-  isFoldout: 0
+  isFoldout: 1
   isBaseOptionsFoldout: 0
   colorTargetInfos:
   - name: _VFX_RT

@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 using UnityEngine.Experimental.Rendering;
+using UnityEngine.Rendering.Universal;
 
 namespace PowerUtilities
 {
@@ -61,5 +63,39 @@ namespace PowerUtilities
 
         public static bool IsASTCFormat(string format)
         => RegExTools.IsASTCFormat(format);
+
+
+        /// <summary>
+        /// Get (normal texture) format auto,[-1,1]
+        /// </summary>
+        /// <returns></returns>
+        public static GraphicsFormat GetNormalTextureFormat()
+        {
+            if (RenderingUtils.SupportsGraphicsFormat(GraphicsFormat.R8G8B8A8_SNorm, FormatUsage.Render))
+                return GraphicsFormat.R8G8B8A8_SNorm;
+            else if (RenderingUtils.SupportsGraphicsFormat(GraphicsFormat.R16G16B16A16_SFloat, FormatUsage.Render))
+                return GraphicsFormat.R16G16B16A16_SFloat;
+
+            return GraphicsFormat.R32G32B32A32_SFloat;
+        }
+
+        /// <summary>
+        /// Get color format
+        /// </summary>
+        /// <param name="isHdr"></param>
+        /// <param name="hasAlpha"></param>
+        /// <returns></returns>
+        public static GraphicsFormat GetColorTextureFormat(bool isHdr = false, bool hasAlpha = false)
+        {
+            if (isHdr)
+            {
+                if (!hasAlpha && RenderingUtils.SupportsGraphicsFormat(GraphicsFormat.B10G11R11_UFloatPack32, FormatUsage.Linear | FormatUsage.Render))
+                    return GraphicsFormat.B10G11R11_UFloatPack32; // mobile hdr
+                else if (RenderingUtils.SupportsGraphicsFormat(GraphicsFormat.R16G16B16A16_SFloat, FormatUsage.Linear | FormatUsage.Render))
+                    return GraphicsFormat.R16G16B16A16_SFloat;
+                return SystemInfo.GetGraphicsFormat(DefaultFormat.HDR);
+            }
+            return SystemInfo.GetGraphicsFormat(DefaultFormat.LDR); //GraphicsFormat.R8G8B8A8_UNorm
+        }
     }
 }

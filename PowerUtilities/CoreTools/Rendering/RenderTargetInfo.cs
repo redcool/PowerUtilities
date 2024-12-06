@@ -27,7 +27,7 @@
         [Header("Format")]
         [Tooltip("color format,set none when create DepthTarget")]
         [EnumSearchable(typeof(GraphicsFormat))]
-        public GraphicsFormat format = GraphicsFormat.R8G8B8A8_SNorm;
+        public GraphicsFormat format = GraphicsFormat.R8G8B8A8_UNorm;
 
         [Tooltip("depth target format,D24_UNorm_S8_UInt is preferred")]
         [EnumSearchable(typeof(GraphicsFormat))]
@@ -50,6 +50,10 @@
         [Header("Options")]
         [Tooltip("auto create a color texture format (R8G8B8A8_SNorm > R16G16B16A16_SFloat > R32G32B32A32_SFloat)")]
         public bool isAutoGraphicsFormat;
+        [Tooltip("hdr or ldr")]
+        public bool isHdr;
+        [Tooltip("rt need alpha channel")]
+        public bool hasAlpha;
 
         [Tooltip("skip this target")]
         public bool isSkip;
@@ -79,7 +83,7 @@
         /// </summary>
         /// <returns></returns>
         public GraphicsFormat GetFinalFormat()
-            => isAutoGraphicsFormat ? RenderingTools.GetNormalTextureFormat() : format;
+            => isAutoGraphicsFormat ? GraphicsFormatTools.GetColorTextureFormat(isHdr,hasAlpha) : format;
         public GraphicsFormat GetFinalDepthFormat()
             => depthStencilFormat;
 
@@ -119,7 +123,7 @@
 
         void FastSetupFormat(int modeId)
         {
-            format = modeId == 1 ? GraphicsFormat.None : RenderingTools.GetNormalTextureFormat();
+            format = modeId == 1 ? GraphicsFormat.None : GraphicsFormatTools.GetColorTextureFormat();
             depthStencilFormat = modeId == 0 ? GraphicsFormat.None : GraphicsFormat.D24_UNorm_S8_UInt;
         }
 

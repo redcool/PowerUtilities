@@ -16,11 +16,11 @@ MonoBehaviour:
     pos:
       serializedVersion: 2
       x: 0
-      y: 0
+      y: 400
       width: 200
       height: 100
     guid: 
-    title: 
+    title: 4 SetRenderTarget
   enabled: 1
   interrupt: 0
   cameraType: 16
@@ -32,7 +32,7 @@ MonoBehaviour:
   renderPassEvent: 400
   renderPassEventOffset: 0
   log: 
-  isFoldout: 0
+  isFoldout: 1
   isBaseOptionsFoldout: 0
   isSetTargets: 1
   colorTargetNames:
@@ -40,7 +40,7 @@ MonoBehaviour:
   depthTargetName: _DepthTex
   clearTarget: 1
   isOverrideClear: 1
-  isClearColor: 0
+  isClearColor: 1
   clearColor: {r: 0, g: 0, b: 0, a: 0}
   isClearDepth: 0
   depth: 1
