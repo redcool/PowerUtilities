@@ -46,6 +46,9 @@
                 var propFloatCountList = new List<int>();
 
                 mat.shader.FindShaderPropNames_BRG(ref matPropNameList, ref floatsCount, propFloatCountList);
+                
+                foreach (var matPropName in matPropNameList)
+                    Debug.Log(matPropName);
 
                 var brgGroupInfo = new BrgGroupInfo
                 {

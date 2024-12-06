@@ -104,7 +104,8 @@ namespace PowerUtilities
         //var floatsCount = 12 + 12 + 4;
         /// </summary>
         /// <param name="shader"></param>
-        /// <param name="floatsCount"></param>
+        /// <param name="floatsCount">total floats count</param>
+        /// <param name="propFloatCountList">floats count per prop</param>
         /// <returns></returns>
         public static void FindShaderPropNames_BRG(this Shader shader, ref List<string> propNameList, ref int floatsCount, List<int> propFloatCountList)
         {

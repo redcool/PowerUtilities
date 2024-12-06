@@ -22,30 +22,8 @@ Shader "Unlit/BRG/Template"
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "../../../../PowerShaderLib/Lib/InstancingLib.hlsl"
+
             #include "BRGInput.hlsl"
-
-            struct appdata
-            {
-                float4 vertex : POSITION;
-                float2 uv : TEXCOORD0;
-                float4 color : COLOR;
-                UNITY_VERTEX_INPUT_INSTANCE_ID
-            };
-
-            struct v2f
-            {
-                float2 uv : TEXCOORD0;
-                float4 vertex : SV_POSITION;
-                float4 color:COLOR;
-                UNITY_VERTEX_INPUT_INSTANCE_ID
-            };
-
-            sampler2D _MainTex;
-            CBUFFER_START(UnityPerMaterial)
-                float4 _MainTex_ST;
-                float4 _Color;
-            CBUFFER_END
-
 
             v2f vert (appdata v)
             {
