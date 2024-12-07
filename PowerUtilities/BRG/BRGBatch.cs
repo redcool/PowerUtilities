@@ -78,7 +78,7 @@ namespace PowerUtilities
         public void SetupGraphBuffer(int matPropfloatCount)
         {
             var count = matPropfloatCount * numInstances;
-            //Debug.Log($"count :{count}");
+            Debug.Log($"count :{count}");
             instanceBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Raw,count, 4);
 
             dataStartIds = new int[matPropNames.Length];

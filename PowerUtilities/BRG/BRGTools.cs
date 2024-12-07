@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
@@ -106,8 +107,9 @@ namespace PowerUtilities
         /// <param name="shader"></param>
         /// <param name="floatsCount">total floats count</param>
         /// <param name="propFloatCountList">floats count per prop</param>
+        /// <param name="isFindShaderProp">if not,only include {unity_ObjectToWorld,unity_WorldToObject}</param>
         /// <returns></returns>
-        public static void FindShaderPropNames_BRG(this Shader shader, ref List<string> propNameList, ref int floatsCount, List<int> propFloatCountList)
+        public static void FindShaderPropNames_BRG(this Shader shader, ref List<string> propNameList, ref int floatsCount, List<int> propFloatCountList, bool isFindShaderProp = true)
         {
             // add 2 matrix floatCount
             floatsCount = 12 + 12;
@@ -116,14 +118,17 @@ namespace PowerUtilities
             propNameList.Add("unity_ObjectToWorld");
             propNameList.Add("unity_WorldToObject");
             // add per prop floats
-            if(propFloatCountList != null)
+            if (propFloatCountList != null)
             {
                 propFloatCountList.Clear();
                 propFloatCountList.Add(12);
                 propFloatCountList.Add(12);
             }
 
-            shader.FindShaderPropNames(ref propNameList, ref floatsCount, propFloatCountList);
+            if (isFindShaderProp)
+                shader.FindShaderPropNames(ref propNameList, ref floatsCount, propFloatCountList);
         }
+
+
     }
 }

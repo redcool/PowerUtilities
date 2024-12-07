@@ -145,5 +145,39 @@ namespace PowerUtilities
             }
 
         }
+
+        public static int CalcFloatsCount(string propType)
+        {
+            int floats = 1;
+            var ms = Regex.Matches(propType, RegExTools.NUMBER);
+            foreach (Match m in ms)
+            {
+                var num = Convert.ToInt32(m.Value);
+                floats *= num;
+            }
+            return floats;
+        }
+
+        public static List<CBufferPropInfo> GetShaderCBufferInfo(this string cbufferDef)
+        {
+            List<CBufferPropInfo> list = new();
+            foreach (var line in cbufferDef.ReadLines())
+                foreach (Match m in Regex.Matches(line, RegExTools.CBUFFER_VARS))
+                {
+                    if (m.Groups.Count == 3)
+                    {
+                        var varType = m.Groups[1].Value;
+                        var varName = m.Groups[2].Value;
+                        var floats = CalcFloatsCount(varType);
+                        list.Add(new CBufferPropInfo
+                        {
+                            propType = varType,
+                            propName = varName,
+                            floatsCount = floats
+                        });
+                    }
+                }
+            return list;
+        }
     }
 }

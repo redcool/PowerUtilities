@@ -12,12 +12,7 @@ namespace PowerUtilities
 
     public partial class DrawChildrenBRG
     {
-        [Serializable]
-        public class MatPropInfo
-        {
-            public string propName;
-            public int propFloatCount;
-        }
+
         [Serializable]
         public class BrgGroupInfo
         {
@@ -31,18 +26,12 @@ namespace PowerUtilities
 
             [Header("Material Info")]
             public Material mat;
-            public List<MatPropInfo> matGroupList = new();
+            [ListItemDraw("name:,propName,type:,propType,floats:,floatsCount","40,200,40,80,40,")]
+            public List<CBufferPropInfo> matGroupList = new();
 
             [Header("Instance Info")]
             public int instanceCount;
             public List<Renderer> rendererList = new();
-        }
-        [Serializable]
-        public class ShaderCBufferVarInfo
-        {
-            public Shader shader;
-            [Multiline]
-            public string shaderCBufferLayoutText;
         }
         [Header("Draw Info")]
         public List<BrgGroupInfo> brgGroupInfoList = new();
@@ -66,11 +55,7 @@ namespace PowerUtilities
                 var matPropNameList = new List<string>();
                 var propFloatCountList = new List<int>();
 
-                mat.shader.FindShaderPropNames_BRG(ref matPropNameList, ref floatsCount, propFloatCountList);
-                ShaderAnalysisTools.Analysis(mat.shader);
-
-                foreach (var matPropName in matPropNameList)
-                    Debug.Log(matPropName);
+                mat.shader.FindShaderPropNames_BRG(ref matPropNameList, ref floatsCount, propFloatCountList,false);
 
                 var mesh = brg.GetRegisteredMesh(groupInfo.Key.meshId);
 
@@ -81,18 +66,16 @@ namespace PowerUtilities
                     instanceCount = instCount,
                     matId = groupInfo.Key.matId,
                     meshId = groupInfo.Key.meshId,
-                    floatsCount = propFloatCountList.Sum()
                 };
-                brgGroupInfoList.Add(brgGroupInfo);
 
                 //----- get mat prop infos
                 brgGroupInfo.matGroupList.AddRange(
                     matPropNameList.Select((propName, id) =>
                     {
                         var propFloutCount = propFloatCountList[id];
-                        return new MatPropInfo()
+                        return new CBufferPropInfo()
                         {
-                            propFloatCount = propFloutCount,
+                            floatsCount = propFloutCount,
                             propName = propName,
                         };
                     })
@@ -102,26 +85,22 @@ namespace PowerUtilities
                 brgGroupInfo.rendererList = groupInfo.Select(r => (Renderer)r).ToList();
 
                 // analysis shader 's cuffer
-                AnalysisShaderCBuffer(brgGroupInfo,shaderCBufferVarInfoList);
+                AddShaderCBuffer(brgGroupInfo, shaderCBufferVarInfoList);
+
+                //final calc total buffer floats
+                brgGroupInfo.floatsCount = brgGroupInfo.matGroupList.Sum(item => item.floatsCount);
+
+                brgGroupInfoList.Add(brgGroupInfo);
             }
         }
 
-        public static void AnalysisShaderCBuffer(BrgGroupInfo info, List<ShaderCBufferVarInfo> cbufferInfoList)
+        public static void AddShaderCBuffer(BrgGroupInfo info, List<ShaderCBufferVarInfo> cbufferInfoList)
         {
             var cbufferInfo = cbufferInfoList.Find(cbufferInfo => cbufferInfo.shader == info.mat.shader);
             if (cbufferInfo == null)
                 return;
 
-            info.matGroupList.Clear();
-
-            foreach (var line in cbufferInfo.shaderCBufferLayoutText.ReadLines())
-            {
-                foreach (Match m in Regex.Matches(line, RegExTools.CBUFFER_VARS))
-                {
-                    if (m.Groups.Count == 3)
-                        Debug.Log(m.Groups[1] + ":" + m.Groups[2]);
-                }
-            }
+            info.matGroupList.AddRange( cbufferInfo.bufferPropList);
         }
     }
 }

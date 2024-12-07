@@ -41,10 +41,14 @@ namespace PowerUtilities
             if (brg == null)
                 brg = new BatchRendererGroup(OnPerformCulling, IntPtr.Zero);
 
-            if (batchList.Count == 0)
+            if (brgGroupInfoList.Count == 0)
             {
                 var groupInfos = RegisterChildren();
-                SetupGroupInfos(groupInfos);
+                FillBatchListWithGroupInfos(groupInfos);
+            }
+            else
+            {
+                FillBatchListWithBrgGroupInfoList();
             }
         }
 
@@ -56,12 +60,18 @@ namespace PowerUtilities
             var groupInfos = RegisterChildren();
             SetupBRGGroupInfoList(groupInfos);
 
-            batchList.Clear();
+            FillBatchListWithBrgGroupInfoList();
+        }
+
+        private void FillBatchListWithBrgGroupInfoList()
+        {
             batchList.AddRange(
                 brgGroupInfoList.Select((brgGroupInfo, groupId) =>
                 {
                     var brgBatch = new BRGBatch(brg, brgGroupInfo.instanceCount, brgGroupInfo.meshId, brgGroupInfo.matId, groupId);
                     brgBatch.SetupGraphBuffer(brgGroupInfo.floatsCount);
+
+                    AddRenderer(brgGroupInfo.rendererList, brgBatch);
 
                     return brgBatch;
                 })
@@ -91,7 +101,7 @@ namespace PowerUtilities
 
         }
 
-        public void SetupGroupInfos(IEnumerable<IGrouping<(int lightmapIndex, BatchMeshID, BatchMaterialID), MeshRenderer>> groupInfos)
+        public void FillBatchListWithGroupInfos(IEnumerable<IGrouping<(int lightmapIndex, BatchMeshID, BatchMaterialID), MeshRenderer>> groupInfos)
         {
             var groupCount = groupInfos.Count();
             batchList.Clear();
@@ -106,7 +116,7 @@ namespace PowerUtilities
                 var floatsCount = 0;
 
                 var mat = brg.GetRegisteredMaterial(groupInfo.Key.matId);
-                mat.shader.FindShaderPropNames_BRG(ref matPropNameList, ref floatsCount,null);
+                mat.shader.FindShaderPropNames_BRG(ref matPropNameList, ref floatsCount, null);
 
                 var brgBatch = new BRGBatch(brg, instCount, groupInfo.Key.meshId, groupInfo.Key.matId, groupId);
                 brgBatch.SetupGraphBuffer(floatsCount);
@@ -114,29 +124,34 @@ namespace PowerUtilities
                 batchList.Add(brgBatch);
                 //----- add renderer
 
-                var instId = 0;
-                foreach (var mr in groupInfo)
-                {
-                    mr.enabled = false;
-                    var objectToWorld = mr.transform.localToWorldMatrix.ToFloat3x4();
-                    var worldToObject = mr.transform.worldToLocalMatrix.ToFloat3x4();
-                    var color = mr.sharedMaterial.color;
-
-                    brgBatch.FillData(objectToWorld.ToColumnArray(), instId, 0);
-                    brgBatch.FillData(worldToObject.ToColumnArray(), instId, 1);
-                    brgBatch.FillData(color.ToArray(), instId, 2);
-
-                    //========== block component
-                    var block = mr.gameObject.GetOrAddComponent<BRGBatchBlock>();
-                    block.brgBatch = brgBatch;
-                    block.instId = instId;
-
-                    instId++;
-                }
+                AddRenderer(groupInfo, brgBatch);
 
                 groupId++;
             }
 
+        }
+
+        public static void AddRenderer(IEnumerable<Renderer> renderers, BRGBatch brgBatch)
+        {
+            var instId = 0;
+            foreach (var mr in renderers)
+            {
+                mr.enabled = false;
+                var objectToWorld = mr.transform.localToWorldMatrix.ToFloat3x4();
+                var worldToObject = mr.transform.worldToLocalMatrix.ToFloat3x4();
+                var color = mr.sharedMaterial.color;
+
+                brgBatch.FillData(objectToWorld.ToColumnArray(), instId, 0);
+                brgBatch.FillData(worldToObject.ToColumnArray(), instId, 1);
+                brgBatch.FillData(color.ToArray(), instId, 2);
+
+                //========== block component
+                var block = mr.gameObject.GetOrAddComponent<BRGBatchBlock>();
+                block.brgBatch = brgBatch;
+                block.instId = instId;
+
+                instId++;
+            }
         }
 
         private void OnDisable()

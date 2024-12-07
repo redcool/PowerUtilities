@@ -99,7 +99,19 @@ using System.Threading.Tasks;
         }
     }
 #endif
+    /**
+     
+        [EditorBoxAttribute("Path Tools Buttons", "isSetSpline,isReadSpline,isStampPaths", isShowFoldout = true, boxType = EditorBoxAttribute.BoxType.HBox)]
+        [EditorButton(onClickCall = "SetSpline")]
+        [Tooltip("set poslist to mainSpline")]
+        public bool isSetSpline;
 
+        [EditorButton(onClickCall = "ReadSpline")]
+        [HideInInspector] public bool isReadSpline;
+
+        [EditorButton(onClickCall = "StampPaths")]
+        [HideInInspector] public bool isStampPaths;
+     */
     public class EditorBoxAttribute : PropertyAttribute
     {
         public enum BoxType
@@ -118,7 +130,11 @@ using System.Threading.Tasks;
         [HideInInspector]
         public bool isFolded=true;
 
-
+        /// <summary>
+        /// Show EditorGUI in Box(hbox,vbox)
+        /// </summary>
+        /// <param name="header"></param>
+        /// <param name="propName"></param>
         public EditorBoxAttribute(string header, string propName)
         {
             if (!string.IsNullOrEmpty(propName))
