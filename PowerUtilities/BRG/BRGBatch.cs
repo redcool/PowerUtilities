@@ -29,17 +29,18 @@ namespace PowerUtilities
         public int brgBatchId;
 
         // need fill
-        public string[] matPropNames = new[]
-            {
-            "unity_ObjectToWorld",
-            "unity_WorldToObject",
-            "_Color"
-        };
+        public string[] matPropNames;
+        //    {
+        //    "unity_ObjectToWorld",
+        //    "unity_WorldToObject",
+        //    "_Color"
+        //};
 
         readonly int[] defaultDataStartIdStrides = new[]{
             0,//
             12, // objectToWorld
             12, //worldToObject
+            4, //_MainTex_ST
             4 //color
         };
 
@@ -50,16 +51,6 @@ namespace PowerUtilities
         public int GetDataStartId(int matPropId)
         => dataStartIds[matPropId];
 
-        public int[] DataStartIdStrides
-        {
-            set { dataStartIdStrides = value; }
-            get
-            {
-                if (dataStartIdStrides == null)
-                    dataStartIdStrides = defaultDataStartIdStrides.Select(x => x * numInstances).ToArray();
-                return dataStartIdStrides;
-            }
-        }
 
         public BRGBatch(BatchRendererGroup brg, int numInstances, BatchMeshID meshId,BatchMaterialID matId,int brgBatchId)
         {
@@ -75,8 +66,15 @@ namespace PowerUtilities
             instanceBuffer.Dispose();
         }
 
-        public void SetupGraphBuffer(int matPropfloatCount)
+        public void SetupGraphBuffer(int matPropfloatCount,string[] matPropNames,List<int> dataStartIdStrideList)
         {
+            //--
+            if (dataStartIdStrideList.Count == matPropNames.Length)
+                dataStartIdStrideList.Insert(0, 0);
+
+            dataStartIdStrides = dataStartIdStrideList.Select(x => x * numInstances).ToArray();
+
+            //
             var count = matPropfloatCount * numInstances;
             Debug.Log($"count :{count}");
             instanceBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Raw,count, 4);
@@ -84,7 +82,7 @@ namespace PowerUtilities
             dataStartIds = new int[matPropNames.Length];
 
             var metadataList = new NativeArray<MetadataValue>(matPropNames.Length, Allocator.Temp);
-            GraphicsBufferTools.FillMetadatas(DataStartIdStrides, matPropNames, ref metadataList, ref startByteAddressDict, ref dataStartIds);
+            GraphicsBufferTools.FillMetadatas(dataStartIdStrides, matPropNames, ref metadataList, ref startByteAddressDict, ref dataStartIds);
 
             batchId = brg.AddBatch(metadataList, instanceBuffer);
             metadataList.Dispose();

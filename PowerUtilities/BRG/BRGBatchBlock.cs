@@ -26,7 +26,7 @@ namespace PowerUtilities
             }
             if (CompareTools.CompareAndSet(ref lastColor, ref color))
             {
-                brgBatch.FillData(color.ToArray(), instId, 2);
+                brgBatch.FillData(color.ToArray(), instId, 3);
             }
         }
     }

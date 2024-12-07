@@ -120,7 +120,6 @@ namespace PowerUtilities
             // add per prop floats
             if (propFloatCountList != null)
             {
-                propFloatCountList.Clear();
                 propFloatCountList.Add(12);
                 propFloatCountList.Add(12);
             }
