@@ -152,6 +152,7 @@ namespace PowerUtilities
 
         [EditorScrollView(lineCount =10)]
         //[Multiline]
+        [EditorIntent(1)]
         public string texts;
     }
 }
