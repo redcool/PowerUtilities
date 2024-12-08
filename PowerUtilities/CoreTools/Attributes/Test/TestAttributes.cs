@@ -145,6 +145,10 @@ namespace PowerUtilities
         [EditorSceneView(containerType = typeof(Vector3[]))]
         public Vector3[] posArray = new[] { Vector3.zero,Vector3.one};
 
+        [EditorHeader("","Box")]
+        [EditorBox("Box", "showBox1,showBox2",isShowFoldout =true,boxType = EditorBoxAttribute.BoxType.HBox)]
+        public string showBox1;
+        public string showBox2;
     }
 }
 #endif

@@ -16,6 +16,8 @@ namespace PowerUtilities
         public static Color darkGray = new Color(0.2f, 0.3f, 0.4f);
         public static int defaultLabelWidth = 200;
 
+        static float lastLabelWidth;
+
         [CompileFinished]
         public static void Init()
         {
@@ -588,6 +590,25 @@ namespace PowerUtilities
         }
 
         #endregion
+
+        /// <summary>
+        /// Save current labelWidth, then use labelWidth
+        /// </summary>
+        /// <param name="labelWidth"></param>
+        public static void UpdateLabelWidth(float labelWidth)
+        {
+            lastLabelWidth = EditorGUIUtility.labelWidth;
+
+            EditorGUIUtility.labelWidth = labelWidth;
+        }
+
+        /// <summary>
+        /// Use last labelWidth 
+        /// </summary>
+        public static void RestoreLabelWidth()
+        {
+            EditorGUIUtility.labelWidth = lastLabelWidth;
+        }
     }
 }
 #endif
