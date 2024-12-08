@@ -142,13 +142,17 @@ namespace PowerUtilities
         public GraphicsFormat gFormat;
 
         [EditorHeader("", "EditorSceneView")]
-        [EditorSceneView(containerType = typeof(Vector3[]))]
+        [ShowInSceneView(containerType = typeof(Vector3[]))]
         public Vector3[] posArray = new[] { Vector3.zero,Vector3.one};
 
         [EditorHeader("","Box")]
         [EditorBox("Box", "showBox1,showBox2",isShowFoldout =true,boxType = EditorBoxAttribute.BoxType.HBox)]
         public string showBox1;
         public string showBox2;
+
+        [EditorScrollView(lineCount =10)]
+        //[Multiline]
+        public string texts;
     }
 }
 #endif

@@ -6,14 +6,16 @@
     using System.Text;
     using System.Threading.Tasks;
     using UnityEngine;
-
-    public class EditorSceneViewAttribute : PropertyAttribute
+    /// <summary>
+    /// Show vector3 in SceneView
+    /// </summary>
+    public class ShowInSceneViewAttribute : PropertyAttribute
     {
         /// <summary>
         /// item container's type
         /// </summary>
         public Type containerType;
-        public EditorSceneViewAttribute()
+        public ShowInSceneViewAttribute()
         {
         }
     }

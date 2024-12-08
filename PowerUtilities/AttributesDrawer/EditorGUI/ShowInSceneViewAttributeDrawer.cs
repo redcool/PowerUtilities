@@ -7,14 +7,14 @@ namespace PowerUtilities
     using System.Linq;
     using System;
 
-    [CustomPropertyDrawer(typeof(EditorSceneViewAttribute))]
-    public class EditorSceneViewAttributeDrawer : PropertyDrawer
+    [CustomPropertyDrawer(typeof(ShowInSceneViewAttribute))]
+    public class ShowInSceneViewAttributeDrawer : PropertyDrawer
     {
         object targetObject;
         List<Vector3> posList = new();
         
 
-        public EditorSceneViewAttributeDrawer()
+        public ShowInSceneViewAttributeDrawer()
         {
             SceneView.duringSceneGui += OnDrawSceneView;
         }
@@ -29,7 +29,7 @@ namespace PowerUtilities
             if (targetObject == null)
                 return;
 
-            var attr = attribute as EditorSceneViewAttribute;
+            var attr = attribute as ShowInSceneViewAttribute;
             var baseType = attr.containerType ?? typeof(IEnumerable<Vector3>);
 
             var value = fieldInfo.GetValue(targetObject);

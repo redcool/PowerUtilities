@@ -9,13 +9,13 @@
 #if UNITY_EDITOR
     using UnityEditor;
 
-    [CustomPropertyDrawer(typeof(HelpBoxAttribute))]
+    [CustomPropertyDrawer(typeof(EditorScrollViewAttribute))]
     public class EditorScrollViewAttributeDrawer : PropertyDrawer
     {
         Vector2 scrollPos;
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
-            var attr = attribute as HelpBoxAttribute;
+            var attr = attribute as EditorScrollViewAttribute;
             var lineCount = Mathf.Max(2,attr.lineCount);
             return base.GetPropertyHeight(property, label) * lineCount;
         }
