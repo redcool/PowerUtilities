@@ -1,10 +1,9 @@
-﻿namespace PowerUtilities
+﻿#if UNITY_EDITOR
+namespace PowerUtilities
 {
-#if UNITY_EDITOR
     using UnityEditor;
-#endif
     using UnityEngine;
-#if UNITY_EDITOR
+
     [CustomPropertyDrawer(typeof(EditorBoxAttribute))]
     public class EditorBoxAttributeDrawer : PropertyDrawer
     {
@@ -38,7 +37,7 @@
             //EditorGUIUtility.labelWidth = EditorGUIUtility.currentViewWidth / Mathf.Max(1, attr.PropNames.Length) / 2;
             EditorGUITools.UpdateLabelWidth(EditorGUIUtility.currentViewWidth / Mathf.Max(1, attr.PropNames.Length) / 2);
             var itemWidth = EditorGUIUtility.currentViewWidth;
-            if(attr.boxType == EditorBoxAttribute.BoxType.HBox)
+            if (attr.boxType == EditorBoxAttribute.BoxType.HBox)
                 itemWidth /= Mathf.Max(1, attr.PropNames.Length);
 
 
