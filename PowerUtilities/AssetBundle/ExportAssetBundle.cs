@@ -38,7 +38,7 @@
             var imp = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(obj));
             
             if(string.IsNullOrEmpty(imp.assetBundleName))
-                imp.assetBundleName = obj.name;
+                imp.assetBundleName = $"{obj.name}.asset";
 
             imp.SaveAndReimport();
 
