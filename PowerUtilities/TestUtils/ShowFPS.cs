@@ -34,7 +34,7 @@ namespace PowerUtilities.Test
         void Update()
         {
             Application.targetFrameRate = maxFps;
-            if (Time.time - startTime > 1)
+            if (Time.unscaledTime - startTime > 1)
             {
 
                 if(fpsText)
@@ -44,7 +44,7 @@ namespace PowerUtilities.Test
                 //    textMeshProUGUI.text = fps.ToString();
 
 
-                startTime = Time.time;
+                startTime = Time.unscaledTime;
                 fps = 0;
             }
 
