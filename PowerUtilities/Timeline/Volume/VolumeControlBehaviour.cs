@@ -48,8 +48,8 @@ namespace PowerUtilities.Timeline
         public override void OnPlayableDestroy(Playable playable)
         {
             //Debug.Log("OnPlayableDestroy");
-            if (!isRefVolume)
-                clipVolume?.gameObject.Destroy();
+            if (!isRefVolume && clipVolume && clipVolume.gameObject)
+                clipVolume.gameObject.Destroy();
         }
 
     }
