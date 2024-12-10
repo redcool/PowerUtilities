@@ -7,6 +7,7 @@ using UnityEngine.Rendering;
 using UnityEngine;
 using Unity.Collections;
 using System.Globalization;
+using Unity.Mathematics;
 
 namespace PowerUtilities
 {
@@ -27,22 +28,6 @@ namespace PowerUtilities
         public int numInstances;
 
         public int brgBatchId;
-
-        // need fill
-        public string[] matPropNames;
-        //    {
-        //    "unity_ObjectToWorld",
-        //    "unity_WorldToObject",
-        //    "_Color"
-        //};
-
-        readonly int[] defaultDataStartIdStrides = new[]{
-            0,//
-            12, // objectToWorld
-            12, //worldToObject
-            4, //_MainTex_ST
-            4 //color
-        };
 
         // need fill
         int[] dataStartIdStrides;
@@ -106,6 +91,33 @@ namespace PowerUtilities
         public void FillData(float[] datas,int instanceId,int matPropId)
         {
             instanceBuffer.FillData(datas, instanceId* datas.Length, GetDataStartId(matPropId));
+        }
+
+        public void AddRenderers(IEnumerable<Renderer> renderers)
+        {
+            var instId = 0;
+            foreach (var mr in renderers)
+            {
+                mr.enabled = false;
+
+                var objectToWorld = mr.transform.localToWorldMatrix.ToFloat3x4();
+                var worldToObject = mr.transform.worldToLocalMatrix.ToFloat3x4();
+                Vector4 mainTex_ST = new float4(mr.sharedMaterial.mainTextureScale, mr.sharedMaterial.mainTextureOffset);
+                var color = mr.sharedMaterial.color;
+
+
+                FillData(objectToWorld.ToColumnArray(), instId, 0);
+                FillData(worldToObject.ToColumnArray(), instId, 1);
+                FillData(mainTex_ST.ToArray(), instId, 2);
+                FillData(color.ToArray(), instId, 3);
+
+                //========== block component
+                var block = mr.gameObject.GetOrAddComponent<BRGBatchBlock>();
+                block.brgBatch = this;
+                block.instId = instId;
+
+                instId++;
+            }
         }
 
         public void DrawBatch(BatchCullingOutput output)

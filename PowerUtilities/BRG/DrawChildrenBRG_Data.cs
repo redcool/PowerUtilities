@@ -17,8 +17,9 @@ namespace PowerUtilities
         public class BrgGroupInfo
         {
             [Header("brg")]
-            public BatchMeshID meshId;
-            public BatchMaterialID matId;
+            //public BatchMeshID meshId;
+            //public BatchMaterialID matId;
+            public int lightmapId;
             public int floatsCount;
 
             [Header("Mesh")]
@@ -64,8 +65,7 @@ namespace PowerUtilities
                     mesh = mesh,
                     mat = mat,
                     instanceCount = instCount,
-                    matId = groupInfo.Key.matId,
-                    meshId = groupInfo.Key.meshId,
+                    lightmapId = groupInfo.Key.lightmapId,
                 };
 
                 //----- get mat prop infos
