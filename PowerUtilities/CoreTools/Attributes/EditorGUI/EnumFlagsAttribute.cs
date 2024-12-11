@@ -49,6 +49,10 @@
     /// <summary>
     /// flags Enum
     /// like LayerMask
+    /// 
+    /// demo:
+    ///         [EnumFlags(isFlags = false, type = typeof(QualitySettings), memberName = "names")]
+    ///         public int qualityLevel = 3;
     /// </summary>
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Enum)]
     public class EnumFlagsAttribute : PropertyAttribute
@@ -59,7 +63,7 @@
         public bool isFlags;
 
         /// <summary>
-        /// get names from this Type
+        /// get names from this Type(enum or other/memberName)
         /// </summary>
         public Type type;
 
