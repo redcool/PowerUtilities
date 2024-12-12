@@ -47,14 +47,15 @@
         public bool isCreateRenderTexture;
         public RenderTexture rt;
 
-        [Header("Options")]
-        [Tooltip("auto create a color texture format (R8G8B8A8_SNorm > R16G16B16A16_SFloat > R32G32B32A32_SFloat)")]
+        [Header("Auto Format Options")]
+        [Tooltip("auto create a color texture format,hdr:(B10G11R11_UFloatPack32, R16G16B16A16_SFloat ,R32G32B32A32_SFloat)")]
         public bool isAutoGraphicsFormat;
         [Tooltip("hdr or ldr")]
         public bool isHdr;
-        [Tooltip("rt need alpha channel")]
-        public bool hasAlpha;
+        //[Tooltip("hdr rt need alpha channel?")]
+        //public bool isHdrHasAlpha = true;
 
+        [Header("Other Options")]
         [Tooltip("skip this target")]
         public bool isSkip;
 
@@ -83,7 +84,7 @@
         /// </summary>
         /// <returns></returns>
         public GraphicsFormat GetFinalFormat()
-            => isAutoGraphicsFormat ? GraphicsFormatTools.GetColorTextureFormat(isHdr,hasAlpha) : format;
+            => isAutoGraphicsFormat ? GraphicsFormatTools.GetColorTextureFormat(isHdr,true) : format;
         public GraphicsFormat GetFinalDepthFormat()
             => depthStencilFormat;
 
@@ -123,7 +124,7 @@
 
         void FastSetupFormat(int modeId)
         {
-            format = modeId == 1 ? GraphicsFormat.None : GraphicsFormatTools.GetColorTextureFormat();
+            format = modeId == 1 ? GraphicsFormat.None : isAutoGraphicsFormat ? GraphicsFormatTools.GetColorTextureFormat(isHdr, true) : GraphicsFormat.R8G8B8A8_UNorm;
             depthStencilFormat = modeId == 0 ? GraphicsFormat.None : GraphicsFormat.D24_UNorm_S8_UInt;
         }
 
@@ -131,8 +132,6 @@
         {
             desc.graphicsFormat = GetFinalFormat();
 
-            //desc.colorFormat = info.isHdr ? RenderTextureFormat.DefaultHDR : RenderTextureFormat.Default;
-            
             if (GraphicsFormatUtility.IsDepthFormat(depthStencilFormat))
             {
 #if UNITY_2020

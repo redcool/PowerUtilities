@@ -93,9 +93,13 @@ namespace PowerUtilities
                     return GraphicsFormat.B10G11R11_UFloatPack32; // mobile hdr
                 else if (RenderingUtils.SupportsGraphicsFormat(GraphicsFormat.R16G16B16A16_SFloat, FormatUsage.Linear | FormatUsage.Render))
                     return GraphicsFormat.R16G16B16A16_SFloat;
+                else if (RenderingUtils.SupportsGraphicsFormat(GraphicsFormat.R32G32B32A32_SFloat, FormatUsage.Linear | FormatUsage.Render))
+                    return GraphicsFormat.R32G32B32A32_SFloat;
                 return SystemInfo.GetGraphicsFormat(DefaultFormat.HDR);
             }
-            return SystemInfo.GetGraphicsFormat(DefaultFormat.LDR); //GraphicsFormat.R8G8B8A8_UNorm
+            return GraphicsFormat.R8G8B8A8_UNorm;
+
+            //return SystemInfo.GetGraphicsFormat(DefaultFormat.LDR); //GraphicsFormat.R8G8B8A8_SRGB
         }
     }
 }
