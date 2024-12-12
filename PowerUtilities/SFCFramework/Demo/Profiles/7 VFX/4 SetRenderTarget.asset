@@ -32,7 +32,7 @@ MonoBehaviour:
   renderPassEvent: 400
   renderPassEventOffset: 0
   log: 
-  isFoldout: 1
+  isFoldout: 0
   isBaseOptionsFoldout: 0
   isSetTargets: 1
   colorTargetNames:

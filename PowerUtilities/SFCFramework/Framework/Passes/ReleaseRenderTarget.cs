@@ -50,6 +50,7 @@ namespace PowerUtilities.RenderFeatures
 
         public void ReleaseTargets(CommandBuffer cmd)
         {
+            //===== release rtid
             //if (targetIds == null || targetIds.Length != Feature.targetNames.Length)
             {
                 targetIds = new int[Feature.targetNames.Length];
@@ -61,6 +62,13 @@ namespace PowerUtilities.RenderFeatures
                 cmd.ReleaseTemporaryRT(id);
             }
 
+            //========= release renderTexture
+            foreach (var rtName in Feature.targetNames)
+            {
+                RenderTextureTools.DestroyRT(rtName);
+            }
+
+            //========= release urp rtHandles
             if (Feature.IsRemoveURPRT && Feature.urpRTNames != null)
                 foreach (var item in Feature.urpRTNames)
                 {

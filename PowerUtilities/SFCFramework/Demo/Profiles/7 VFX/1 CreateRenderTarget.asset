@@ -35,37 +35,35 @@ MonoBehaviour:
   isFoldout: 1
   isBaseOptionsFoldout: 0
   colorTargetInfos:
-  - name: _VFX_RT
-    format: 8
-    depthStencilFormat: 0
-    isOverrideSize: 1
-    rtSizeMode: 0
-    renderScale: 0.3
-    width: 128
-    height: 512
-    filterMode: 1
-    isCreateRenderTexture: 0
-    rt: {fileID: 0}
-    isAutoGraphicsFormat: 0
-    isHdr: 0
-    hasAlpha: 0
-    isSkip: 0
-    isFastSetFormat: 0
   - name: _DepthTex
     format: 0
     depthStencilFormat: 92
     isOverrideSize: 1
     rtSizeMode: 0
-    renderScale: 0.3
+    renderScale: 0.5
     width: 128
     height: 512
     filterMode: 0
-    isCreateRenderTexture: 0
+    isCreateRenderTexture: 1
     rt: {fileID: 0}
     isAutoGraphicsFormat: 0
     isHdr: 0
-    hasAlpha: 0
     isSkip: 0
     isFastSetFormat: 1
+  - name: _VFX_RT
+    format: 8
+    depthStencilFormat: 0
+    isOverrideSize: 0
+    rtSizeMode: 0
+    renderScale: 0.5
+    width: 128
+    height: 512
+    filterMode: 1
+    isCreateRenderTexture: 1
+    rt: {fileID: 0}
+    isAutoGraphicsFormat: 0
+    isHdr: 0
+    isSkip: 0
+    isFastSetFormat: 0
   overrideURPRenderScale: 0
   renderScale: 1

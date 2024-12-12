@@ -32,13 +32,13 @@ MonoBehaviour:
   renderPassEvent: 400
   renderPassEventOffset: 0
   log: 
-  isFoldout: 0
+  isFoldout: 1
   isBaseOptionsFoldout: 0
   sourceName: _CameraDepthAttachment
   isShowCurMainLightShadowMapTexture: 0
   targetName: _DepthTex
   isBlitToNextPostTarget: 0
-  blitMat: {fileID: 2100000, guid: 437a529721e807446a5f0207e801bac0, type: 2}
+  blitMat: {fileID: 2100000, guid: ddba7d2cebe59b343850dbe718c33498, type: 2}
   colorSpaceMode: 0
   srcMode: 1
   dstMode: 0

@@ -260,5 +260,30 @@ public static class SerializedPropertyEx
             onUpdate?.Invoke(instObj);
         }
     }
+    /// <summary>
+    /// Demo:
+    /// propertyPath : colorTargetInfos.Array.data[0].rtSizeMode
+    /// return colorTargetInfos.Array.data[0]
+    /// </summary>
+    /// <param name="prop"></param>
+    /// <returns></returns>
+    public static string GetPropertyObjectPath(this SerializedProperty prop)
+    {
+        var path = prop.propertyPath;
+        if (path.Contains("."))
+            return path.Substring(0,path.LastIndexOf("."));
+        return path;
+    }
+    /// <summary>
+    /// Find property in current object
+    /// </summary>
+    /// <param name="prop"></param>
+    /// <param name="propName"></param>
+    /// <returns></returns>
+    public static SerializedProperty FindPropertyInObject(this SerializedProperty prop,string propName)
+    {
+        var objPath = prop.GetPropertyObjectPath();
+        return prop.serializedObject.FindProperty($"{objPath}.{propName}");
+    }
 }
 #endif

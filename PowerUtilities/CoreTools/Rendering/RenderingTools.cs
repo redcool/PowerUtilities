@@ -108,6 +108,10 @@ namespace PowerUtilities
             if (string.IsNullOrEmpty(rtName))
                 return defaultId;
 
+            // check CreateRenderTarget's rt
+            if(RenderTextureTools.TryGetRT(rtName,out var rt))
+                return rt;
+
             return rtName == "CameraTarget" ? BuiltinRenderTextureType.CameraTarget : new RenderTargetIdentifier(rtName);
         }
 

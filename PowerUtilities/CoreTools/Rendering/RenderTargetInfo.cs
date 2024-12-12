@@ -35,11 +35,20 @@
 
         [Header("Override Size")]
         public bool isOverrideSize;
+
         [Tooltip("set rt size use renderScale or size")]
+        [EditorDisableGroup(targetPropName = "isOverrideSize")]
         public RTSizeMode rtSizeMode;
+
+        [EditorDisableGroup(targetPropName = "isOverrideSize")]
         [Range(0, 1)] public float renderScale = 1;
+
+        [EditorDisableGroup(targetPropName = "isOverrideSize")]
         public int width = 512;
+
+        [EditorDisableGroup(targetPropName = "isOverrideSize")]
         public int height = 512;
+
         public FilterMode filterMode = FilterMode.Bilinear;
 
         [Header("RenderTexture")]
@@ -50,7 +59,9 @@
         [Header("Auto Format Options")]
         [Tooltip("auto create a color texture format,hdr:(B10G11R11_UFloatPack32, R16G16B16A16_SFloat ,R32G32B32A32_SFloat)")]
         public bool isAutoGraphicsFormat;
+
         [Tooltip("hdr or ldr")]
+        [EditorDisableGroup(targetPropName = "isAutoGraphicsFormat")]
         public bool isHdr;
         //[Tooltip("hdr rt need alpha channel?")]
         //public bool isHdrHasAlpha = true;
@@ -96,12 +107,16 @@
             SetupDescFormat(ref desc);
             SetupDescSize(ref desc, cam);
 
+            desc.sRGB = false;
+
             if (isCreateRenderTexture)
             {
                 RenderTextureTools.CreateRT(ref rt, desc, name, filterMode);
             }
             else
             {
+                RenderTextureTools.DestroyRT(name);
+
                 cmd.GetTemporaryRT(GetTextureId(), desc, filterMode);
             }
         }

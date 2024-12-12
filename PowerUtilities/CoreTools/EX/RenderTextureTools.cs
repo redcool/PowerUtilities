@@ -45,7 +45,12 @@ namespace PowerUtilities
             shadowTexture.wrapMode = TextureWrapMode.Clamp;
             return shadowTexture;
         }
-
+        /// <summary>
+        /// check rt.size with desc
+        /// </summary>
+        /// <param name="rt"></param>
+        /// <param name="desc"></param>
+        /// <returns></returns>
         public static bool IsNeedAlloc(this RenderTexture rt, RenderTextureDescriptor desc)
         {
             return (!rt || rt.width != desc.width || rt.height != desc.height || rt.depth != desc.depthBufferBits);
@@ -61,27 +66,66 @@ namespace PowerUtilities
         public static void CreateRT(ref RenderTexture rt,RenderTextureDescriptor desc,string name,FilterMode filterMode)
         {
             if (!rt.IsNeedAlloc(desc))
+            {
+                AddRT(rt, name);
                 return;
+            }
 
             if (rt)
-                rt.Release();
+            {
+                DestroyRT(name);
+            }
 
             rt = new RenderTexture(desc);
             rt.filterMode = filterMode;
             rt.Create();
             rt.name = name;
 
-            if (!string.IsNullOrEmpty(name))
-            {
-                if (createdRenderTextureDict.ContainsKey(name))
-                    createdRenderTextureDict[name]?.Release();
-
-                createdRenderTextureDict[name] = rt;
-            }
+            AddRT(rt, name);
         }
 
+        /// <summary>
+        /// save rt to dict, TryGetRT get it
+        /// </summary>
+        /// <param name="rt"></param>
+        /// <param name="name"></param>
+        public static void AddRT(RenderTexture rt, string name)
+        {
+            if (string.IsNullOrEmpty(name) || !rt)
+                return;
+
+            createdRenderTextureDict[name] = rt;
+        }
+
+        /// <summary>
+        /// Get CreateRenderTarget's rt
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="rt"></param>
+        /// <returns></returns>
         public static bool TryGetRT(string name, out RenderTexture rt)
         => createdRenderTextureDict.TryGetValue(name, out rt);
         
+        /// <summary>
+        /// remove CreateRenderTarget's rt
+        /// </summary>
+        /// <param name="rt"></param>
+        public static void DestroyRT(RenderTexture rt)
+        {
+            if (!rt)
+                return;
+
+            createdRenderTextureDict.Remove(rt.name);
+            rt.Destroy();
+        }
+
+        public static void DestroyRT(string name)
+        {
+            if (string.IsNullOrEmpty(name) || !createdRenderTextureDict.ContainsKey(name))
+                return;
+
+            createdRenderTextureDict[name].Destroy();
+            createdRenderTextureDict.Remove(name);
+        }
     }
 }

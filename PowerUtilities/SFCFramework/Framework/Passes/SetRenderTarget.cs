@@ -215,6 +215,10 @@ namespace PowerUtilities.RenderFeatures
             if (depthId == ShaderPropertyIds._CameraDepthAttachment)
                 renderer.TryReplaceURPRTTarget(nameof(ShaderPropertyIds._CameraDepthAttachment), ref depthId);
 #endif
+            // === check rt dict
+            if (RenderTextureTools.TryGetRT(Feature.depthTargetName, out var rt))
+                depthId = rt;
+
             return depthId;
         }
 
