@@ -287,7 +287,7 @@ namespace PowerUtilities
         /// <param name="propName"></param>
         /// <returns></returns>
         public static MaterialProperty GetProperty(this MaterialEditor editor, string propName)
-        => MaterialEditor.GetMaterialProperty(editor.targets, propName);
+        => string.IsNullOrEmpty(propName) ? default : MaterialEditor.GetMaterialProperty(editor.targets, propName);
 
         /// <summary>
         /// Get material properties

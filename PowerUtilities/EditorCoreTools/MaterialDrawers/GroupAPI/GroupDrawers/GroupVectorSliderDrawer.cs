@@ -15,7 +15,6 @@ namespace PowerUtilities
     /// </summary>
     public class GroupVectorSliderDrawer : BaseGroupItemDrawer
     {
-        const char ITEM_SPLITTER = ' ';
         readonly string[] strings_XYZ = new string[] { "X","Y","Z"};
 
         string[] headers;

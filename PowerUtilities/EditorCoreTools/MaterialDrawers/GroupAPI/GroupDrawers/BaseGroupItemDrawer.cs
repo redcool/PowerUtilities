@@ -12,6 +12,7 @@ namespace PowerUtilities
     /// </summary>
     public abstract class BaseGroupItemDrawer : MaterialPropertyDrawer
     {
+        public const char ITEM_SPLITTER = ' ';
         public static float MIN_LINE_HEIGHT = -2;
         public static float LINE_HEIGHT = EditorGUIUtility.singleLineHeight;
 
@@ -24,9 +25,11 @@ namespace PowerUtilities
             this.tooltip = tooltip;
         }
 
+        public bool IsGroupOn()
+            => MaterialGroupTools.IsGroupOn(groupName);
         public override float GetPropertyHeight(MaterialProperty prop, string label, MaterialEditor editor)
         {
-            if (MaterialGroupTools.IsGroupOn(groupName))
+            if (IsGroupOn())
             {
                 var baseHeight = MaterialEditor.GetDefaultPropertyHeight(prop);
                 return baseHeight;
@@ -38,7 +41,7 @@ namespace PowerUtilities
 
         public override void OnGUI(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
         {
-            if (!MaterialGroupTools.IsGroupOn(groupName))
+            if (!IsGroupOn())
                 return;
 
             var mat = (editor.target as Material);
