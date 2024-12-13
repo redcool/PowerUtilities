@@ -56,7 +56,7 @@
         public bool isCreateRenderTexture;
         public RenderTexture rt;
 
-        [Header("Auto Format Options")]
+        [EditorHeader("","Auto ColorFormat Options")]
         [Tooltip("auto create a color texture format,hdr:(B10G11R11_UFloatPack32, R16G16B16A16_SFloat ,R32G32B32A32_SFloat)")]
         public bool isAutoGraphicsFormat;
 
@@ -66,11 +66,16 @@
         //[Tooltip("hdr rt need alpha channel?")]
         //public bool isHdrHasAlpha = true;
 
+        [EditorHeader("","Auto NormalTexture Format")]
+        [Tooltip("Get a suitable format form NormalTexture(Vector)")]
+        public bool isNormalColorTexture;
+
+
         [Header("Other Options")]
         [Tooltip("skip this target")]
         public bool isSkip;
 
-        [EditorHeader("", "--FastFormat--")]
+        [EditorHeader("", "--FastFormat Buttons--")]
         [EditorToolbar(texts = new[] { "ColorOnly", "DepthOnly", "ColorDepth" }
             , onClickCall = "FastSetupFormat"
             , tooltips = new []{"only colour buffer,no depth buffer","only depth buffer,no colour buffer","full fb,with color and depth buffer"}
@@ -91,11 +96,19 @@
         }
 
         /// <summary>
-        /// get final graphics format
+        /// Set suitable format and get
         /// </summary>
         /// <returns></returns>
         public GraphicsFormat GetFinalFormat()
-            => isAutoGraphicsFormat ? GraphicsFormatTools.GetColorTextureFormat(isHdr,true) : format;
+        {
+            if (isAutoGraphicsFormat)
+            {
+                format = GraphicsFormatTools.GetColorTextureFormat(isHdr, true);
+            }
+            if (isNormalColorTexture)
+                format = GraphicsFormatTools.GetNormalTextureFormat();
+            return format;
+        }
         public GraphicsFormat GetFinalDepthFormat()
             => depthStencilFormat;
 
