@@ -68,7 +68,7 @@ Shader "Unlit/GroupDrawDemo"
         [GroupVectorSlider(GroupVector,a b,0_1 1_2,_Vector3 helps)] _Vector3("Vector2 float",vector) = (1,1,1,1)
         [GroupVectorSlider(GroupVector,a b,0_5 1_10,_Vector3 helps,int)] _Vector4("Vector2 Int",vector) = (1,1,1,1)
 
-        GroupTextureColor
+        //GroupTextureColor
         [GroupTextureColor(,,_Tex1Color)]
         _Tex1("_Tex1",2d)=""{}
         [HideInInspector]
