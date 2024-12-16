@@ -75,20 +75,20 @@ namespace PowerUtilities.RenderFeatures
             var cameraTarget = camera.GetCameraTarget();
             RenderTargetIdentifier targetId = string.IsNullOrEmpty(Feature.targetName) ? cameraTarget : Shader.PropertyToID(Feature.targetName);
 
-            // === check urp target
-#if UNITY_2022_1_OR_NEWER
-            renderer.TryReplaceURPRTTarget(Feature.sourceName,ref sourceId);
-            renderer.TryReplaceURPRTTarget(Feature.targetName, ref targetId);
-            //renderer.TryReplaceURPRTTarget(Feature.sourceDepthName,ref sourceDepthId);
-#endif
+            renderer.FindTarget(Feature.sourceName, ref sourceId);
+            renderer.FindTarget(Feature.targetName, ref targetId);
+
+//            // === check urp target
+//#if UNITY_2022_1_OR_NEWER
+//            renderer.TryReplaceURPRTTarget(Feature.sourceName,ref sourceId);
+//            renderer.TryReplaceURPRTTarget(Feature.targetName, ref targetId);
+//#endif
             
-            // === check rt dict
-            if(RenderTextureTools.TryGetRT(Feature.sourceName,out var rt))
-                sourceId = rt;
-            if (RenderTextureTools.TryGetRT(Feature.targetName, out rt))
-                targetId = rt;
-            //if (RenderTextureTools.TryGetRT(Feature.sourceDepthName, out rt))
-            //    sourceDepthId = rt;
+//            // === check rt dict
+//            if(RenderTextureTools.TryGetRT(Feature.sourceName,out var rt))
+//                sourceId = rt;
+//            if (RenderTextureTools.TryGetRT(Feature.targetName, out rt))
+//                targetId = rt;
 
             // === check post target(A,B)
             if (Feature.isBlitToNextPostTarget)

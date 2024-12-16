@@ -53,7 +53,11 @@ namespace PowerUtilities
         /// <returns></returns>
         public static bool IsNeedAlloc(this RenderTexture rt, RenderTextureDescriptor desc)
         {
-            return (!rt || rt.width != desc.width || rt.height != desc.height || rt.depth != desc.depthBufferBits);
+            return IsNeedAlloc(rt, desc.width, desc.height, desc.depthBufferBits);
+        }
+        public static bool IsNeedAlloc(this RenderTexture rt, int width,int height,int depth)
+        {
+            return (!rt || rt.width != width || rt.height != height || rt.depth != depth);
         }
 
         /// <summary>

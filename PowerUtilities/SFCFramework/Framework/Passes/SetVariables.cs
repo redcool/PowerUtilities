@@ -21,7 +21,7 @@ namespace PowerUtilities.RenderFeatures
         public List<ShaderValue<Vector4>> vectorValues = new List<ShaderValue<Vector4>>();
         public List<ShaderValue<Texture>> textureValues = new List<ShaderValue<Texture>>();
 
-        [Tooltip("rebind rt name")]
+        [Tooltip("rebind rt name(Temporary or named RenderTexture)")]
         public List<ShaderValue<string>> rtNames = new List<ShaderValue<string>>();
 
         [Header("auto variables")]
@@ -80,6 +80,7 @@ namespace PowerUtilities.RenderFeatures
         void SetupVariables(CommandBuffer cmd, ref RenderingData renderingData)
         {
             var camera = renderingData.cameraData.camera;
+            var renderer = (UniversalRenderer) renderingData.cameraData.renderer;
 
             foreach (var v in Feature.floatValues)
                 if (v.IsValid) cmd.SetGlobalFloat(v.name, v.value);
@@ -97,7 +98,9 @@ namespace PowerUtilities.RenderFeatures
             {
                 if (v.IsValid && !string.IsNullOrEmpty(v.name) && !string.IsNullOrEmpty(v.value))
                 {
-                    cmd.SetGlobalTexture(v.name, v.value);
+                    RenderTargetIdentifier rtId = v.value;
+                    renderer.FindTarget(v.value, ref rtId);
+                    cmd.SetGlobalTexture(v.name, rtId);
                 }
             }
 

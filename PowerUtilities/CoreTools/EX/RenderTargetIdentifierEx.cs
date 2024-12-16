@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 
 namespace PowerUtilities
 {
@@ -96,6 +97,25 @@ namespace PowerUtilities
                 ByteTools.ReadBytes((byte*)&rtId, sizeof(int) + sizeof(BuiltinRenderTextureType), sizeof(int), (byte*)&idNum);
                 return idNum;
             }
+        }
+
+        /// <summary>
+        /// Find rtId from
+        /// 1 URP'S RTHandle dict
+        /// 2 RenderTextureTools dict(createRenderTarget)
+        /// </summary>
+        /// <param name="rtName"></param>
+        /// <param name="rtid"></param>
+        public static void FindTarget(this UniversalRenderer renderer, string rtName, ref RenderTargetIdentifier rtid)
+        {
+            if (string.IsNullOrEmpty(rtName))
+                return;
+
+#if UNITY_2022_1_OR_NEWER
+            renderer.TryReplaceURPRTTarget(rtName, ref rtid);
+#endif
+            if (RenderTextureTools.TryGetRT(rtName, out var rt))
+                rtid = rt;
         }
 
     }
