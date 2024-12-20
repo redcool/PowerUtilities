@@ -129,8 +129,12 @@ namespace PowerUtilities
 
             }, LAYERS);
         }
-
-        public static string[] GetTags(string arrayName=TAGS)
+        /// <summary>
+        /// this version, need first position. 
+        /// </summary>
+        /// <returns></returns>
+        public static string[] GetTags() => GetTags(TAGS);
+        public static string[] GetTags(string arrayName)
         {
             GetTagsLayers(out var tagManager, out var tags,arrayName);
             return tags.GetElements().Select(prop => prop.stringValue).ToArray();

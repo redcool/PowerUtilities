@@ -20,6 +20,10 @@
         {
             ColorOnly, DepthOnly, ColorDepth
         }
+        public enum RTSampleMode
+        {
+            x1=1,x2=2,x4=4,x8=8
+        }
 
         [Tooltip("rt name")]
         public string name;
@@ -50,6 +54,7 @@
         public int height = 512;
 
         public FilterMode filterMode = FilterMode.Bilinear;
+        public RTSampleMode sampleMode = RTSampleMode.x1;
 
         [Header("RenderTexture")]
         [Tooltip("create renderTexture when check,otherwist GetTemporaryRT")]
@@ -121,6 +126,8 @@
             SetupDescSize(ref desc, cam);
 
             desc.sRGB = false;
+            desc.msaaSamples = (int)sampleMode;
+            desc.bindMS = sampleMode > RTSampleMode.x1;
 
             if (isCreateRenderTexture)
             {

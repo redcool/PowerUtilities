@@ -15,6 +15,8 @@ namespace PowerUtilities
     [CustomPropertyDrawer(typeof(EditorTextFieldWithMenu))]
     public class EditorTextFieldWithMenuDrawer : PropertyDrawer
     {
+        GUIContent showArrowGUI = new GUIContent("↓");
+
         static GenericMenu menu = new GenericMenu();
 
         static SerializedProperty curSelectedProp;
@@ -30,13 +32,23 @@ namespace PowerUtilities
             pos.x += pos.width;
             pos.width = 20;
 
-            if (GUI.Button(pos, "↓"))
+            showArrowGUI.tooltip = attr.tooltips ?? attr.staticMemberName;
+
+            if (GUI.Button(pos, showArrowGUI))
             {
+                // need clear menu
+                menu = new GenericMenu();
 
-                if (attr.type != null && !string.IsNullOrEmpty(attr.memberName))
+                if (attr.type != null && !string.IsNullOrEmpty(attr.staticMemberName))
                 {
-                    var names = attr.type.GetMemberValue<string[]>(attr.memberName, null, null);
+                    var names = attr.type.GetMemberValue<string[]>(attr.staticMemberName, null, null);
+                    // use default
+                    if(names == null && attr.defaultEnumType != null)
+                    {
+                        names = Enum.GetNames(attr.defaultEnumType);
+                    }
 
+                    // show names
                     if (names != null)
                     {
                         SetupMenu(menu, names, property);
@@ -57,7 +69,13 @@ namespace PowerUtilities
             curSelectedProp = property;
             names.ForEach((name, id) =>
             {
-                menu.AddItem(new GUIContent(name),true, OnMenuItemSelected, name);
+                // separator
+                if (string.IsNullOrEmpty(name) || name == "separator")
+                {
+                    menu.AddSeparator("");
+                }
+                else
+                    menu.AddItem(new GUIContent(name), true, OnMenuItemSelected, name);
             });
         }
     }
@@ -65,6 +83,9 @@ namespace PowerUtilities
 
     /// <summary>
     /// Draw property with dropdownList(string[] from (type.memberName)
+    /// 
+    ///     [EditorTextFieldWithMenu(type = typeof(CreateRenderTarget),memberName = nameof(CreateRenderTarget.GetColorTargetNames))]
+    ///     public string[] colorTargetNames = new[] { nameof(ShaderPropertyIds._CameraColorAttachmentA) };
     /// </summary>
     [AttributeUsage(AttributeTargets.Field)]
     public class EditorTextFieldWithMenu : PropertyAttribute
@@ -77,11 +98,16 @@ namespace PowerUtilities
         /// <summary>
         /// get names from Type.fieldName,like QualitySettings.names
         /// </summary>
-        public string memberName;
+        public string staticMemberName;
 
         /// <summary>
         /// names form enum
         /// </summary>
         public Type defaultEnumType;
+
+        /// <summary>
+        /// tooltips
+        /// </summary>
+        public string tooltips;
     }
 }

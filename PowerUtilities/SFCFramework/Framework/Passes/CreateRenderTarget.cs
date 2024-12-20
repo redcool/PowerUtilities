@@ -30,10 +30,15 @@ namespace PowerUtilities.RenderFeatures
                 instanceList.Add(this);
         }
         /// <summary>
-        /// colorTarget name list
-        /// updte by CreateRenderTargetPass
+        /// colorTarget name list,contains:
+        /// 1 CreateRenderTargetPass's name
+        /// 2 URPRTHandleNames
         /// </summary>
-        public static string[] GetColorTargetNames => instanceList.SelectMany( item=> item.colorTargetInfos,(item, targetInfo )=> targetInfo.name).ToArray();
+        public static string[] GetColorTargetNames() => instanceList
+            .SelectMany( item=> item.colorTargetInfos,(item, targetInfo )=> targetInfo.name)
+            .Concat(new[] {""})
+            .Concat(Enum.GetNames(typeof(URPRTHandleNames)))
+            .ToArray();
 #else
         public static string[] GetColorTargetNames => default;
 #endif

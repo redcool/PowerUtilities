@@ -22,10 +22,11 @@ namespace PowerUtilities.RenderFeatures
         public bool isSetTargets = true;
 
         [Tooltip("When empty use CurrentActive,type CameraTarget use device's cameraTarget")]
-        [EditorTextFieldWithMenu(type = typeof(CreateRenderTarget),memberName = nameof(CreateRenderTarget.GetColorTargetNames))]
+        [EditorTextFieldWithMenu(type = typeof(CreateRenderTarget),staticMemberName = nameof(CreateRenderTarget.GetColorTargetNames))]
         public string[] colorTargetNames = new[] { nameof(ShaderPropertyIds._CameraColorAttachmentA) };
 
         [Tooltip("When empty use _CameraDepthAttachment,type CameraTarget use device's cameraTarget")]
+        [EditorTextFieldWithMenu(type = typeof(CreateRenderTarget), staticMemberName = nameof(CreateRenderTarget.GetColorTargetNames))]
         public string depthTargetName;
 
         //==========Clear

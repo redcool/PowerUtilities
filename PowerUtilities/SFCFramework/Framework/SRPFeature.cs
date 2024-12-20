@@ -99,6 +99,7 @@ namespace PowerUtilities.RenderFeatures
         public CameraCompareType gameCameraCompareType = CameraCompareType.Tag;
 
         [Tooltip("Which camera can run this pass ? only work for Game Camera")]
+        [EditorTextFieldWithMenu(type = typeof(TagManager), staticMemberName = nameof(TagManager.GetTags))]
         public string gameCameraTag = "MainCamera";
 
         [Header("Pass Options / URP Event")]
