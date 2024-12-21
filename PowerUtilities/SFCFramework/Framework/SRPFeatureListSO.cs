@@ -26,7 +26,7 @@
         //GenericMenu createPassMenu;
 
         //{typeName for display, type : for userData}
-        List<(string featureName,Type featureType)> featureNameTypeList = new();
+        List<(string featureName,object featureType)> featureNameTypeList = new();
 
         private void OnEnable()
         {
@@ -82,16 +82,16 @@
             {
                 var inst = serializedObject.targetObject as SRPFeatureListSO;
                 //createPassMenu.ShowAsContext();
-                SearchWindowTools.OpenSearchWindow(new StringListSearchProvider<Type>()
+                var provider = SearchWindowTools.CreateProvider<StringListSearchProvider>();
+                provider.windowTitle = "SFC Feature";
+                provider.itemList = featureNameTypeList;
+                provider.onSelectedChanged = ((string name, object type) itemInfo) =>
                 {
-                    windowTitle = "SFC Feature",
-                    itemList = featureNameTypeList,
-                    onSelectedChanged = ((string name,Type type)itemInfo) =>
-                    {
-                        var passType = itemInfo.type;
-                        CreateSFCPassAsset(passType, inst);
-                    },
-                });
+                    var passType = (Type)itemInfo.type;
+                    CreateSFCPassAsset(passType, inst);
+                };
+
+                SearchWindowTools.OpenSearchWindow(provider);
             }
         }
 

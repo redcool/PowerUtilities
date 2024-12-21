@@ -101,7 +101,7 @@ namespace PowerUtilities
          */
         static string[] menuNames => new[] {"a","b","c" };
         [EditorHeader("", "EditorTextFieldWithMenu")]
-        [EditorTextFieldWithMenu(type = typeof(TestAttributes), staticMemberName = "menuNames")]
+        [EditorTextFieldWithMenuAttribute(type = typeof(TestAttributes), staticMemberName = "menuNames")]
         public string textInput;
 
         /**

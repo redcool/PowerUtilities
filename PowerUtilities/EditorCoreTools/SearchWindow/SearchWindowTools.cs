@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Unity.VisualScripting.YamlDotNet.Serialization.TypeResolvers;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
@@ -38,11 +39,22 @@ namespace PowerUtilities
             SearchWindow.Open(new SearchWindowContext(screenPos), provider);
         }
 
+        /// <summary>
+        /// show window in screenPos
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="provider"></param>
         public static void OpenSearchWindow<T>(T provider) where T : BaseSearchWindowProvider
         {
             var pos = GUIUtility.GUIToScreenPoint(Event.current.mousePosition);
             SearchWindow.Open(new SearchWindowContext(pos), provider);
         }
+
+        public static T CreateProvider<T>() where T : BaseSearchWindowProvider
+        {
+            return ScriptableObject.CreateInstance<T>();
+        }
+
     }
 }
 #endif

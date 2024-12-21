@@ -8,13 +8,13 @@ namespace PowerUtilities
     using UnityEditor.Experimental.GraphView;
     using UnityEngine;
 
-    public class StringListSearchProvider<T> : BaseSearchWindowProvider<(string,T)>
+    public class StringListSearchProvider : BaseSearchWindowProvider<(string,object)>
     {
 
         /// <summary>
         /// fill List<SearchTreeEntry> 
         /// </summary>
-        public List<(string name,T userData)> itemList = new();
+        public List<(string name,object userData)> itemList = new();
 
         //public List<(string name,object userData)> itemListTest = new ()
         //{
@@ -24,10 +24,10 @@ namespace PowerUtilities
         //};
 
 
-        public List<SearchTreeEntry> Parse(List<(string name,T userData)> strList)
+        public List<SearchTreeEntry> Parse(List<(string name,object userData)> strList)
         {
             var sb = new StringBuilder();
-            Dictionary<string, (string name, int levelId, bool isGroup,T userData)> groupNameIdDict = new();
+            Dictionary<string, (string name, int levelId, bool isGroup,object userData)> groupNameIdDict = new();
 
             var list = new List<SearchTreeEntry>();
             // fill search window title

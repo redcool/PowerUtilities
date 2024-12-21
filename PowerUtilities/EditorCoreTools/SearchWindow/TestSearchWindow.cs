@@ -8,6 +8,7 @@ namespace PowerUtilities
     using UnityEditor.Experimental.GraphView;
 #endif
     using UnityEngine;
+    using UnityEngine.Experimental.Rendering;
 
 #if UNITY_EDITOR
     [CustomEditor(typeof(TestSearchWindow))]
@@ -16,30 +17,32 @@ namespace PowerUtilities
         public string selectedItem = "no";
         public override void OnInspectorGUI()
         {
+            DrawDefaultInspector();
+
             GUILayout.BeginHorizontal();
-            GUILayout.Label("Selected Item:");
+            GUILayout.Label("Selected Item:",GUILayout.Width(EditorGUIUtility.labelWidth-4));
             var isClicked = GUILayout.Button(selectedItem, EditorStyles.popup);
             GUILayout.EndHorizontal();
+
             if (isClicked)
             {
-                SearchWindowTools.OpenSearchWindow( new StringListSearchProvider<object>()
-                {
-                    windowTitle = "stringList",
-                    itemList = new()
-                    {
-                        new (){name="a/b/1",userData= 1 },
-                        new (){name="a/b/2",userData= 2 },
-                        new() { name = "a/1", userData = 3 },
-                    },
-                    
-                    onSelectedChanged = ((string name,object userData)infoItem) =>
-                    {
-                        selectedItem = infoItem.name +":"+ infoItem.userData;
-                        Debug.Log(selectedItem);
-                    }
-                });
-            }
+                var provider = SearchWindowTools.CreateProvider<StringListSearchProvider>();
 
+                provider.windowTitle = "stringList";
+                provider.itemList = new()
+                {
+                    new (){name="a/b/1",userData= 1 },
+                    new (){name="a/b/2",userData= 2 },
+                    new() { name = "a/1", userData = 3 },
+                };
+
+                provider.onSelectedChanged = ((string name, object userData) infoItem) =>
+                {
+                    selectedItem = infoItem.name + ":" + infoItem.userData;
+                    Debug.Log(selectedItem);
+                };
+                SearchWindowTools.OpenSearchWindow(provider);
+            }
 
         }
     }
@@ -47,6 +50,10 @@ namespace PowerUtilities
 
     public class TestSearchWindow : MonoBehaviour
     {
+        [EnumSearchable(typeof(GraphicsFormat), textFileName = "")]
+        public GraphicsFormat gFormat;
 
+        [StringListSearchable(names ="a,b,c")]
+        public string textName;
     }
 }

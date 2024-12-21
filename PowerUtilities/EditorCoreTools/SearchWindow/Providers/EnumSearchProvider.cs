@@ -22,8 +22,7 @@ namespace PowerUtilities
     /// demo:
     /// 
     /// [EnumSearchable(typeof(GraphicsFormat), textFileName = "")]
-    /// public GraphicsFormat gFormat; [EnumSearchable(typeof(GraphicsFormat), textFileName = "")]
-    /// public GraphicsFormat gFormat;
+    /// public GraphicsFormat gFormat; 
     ///     
     /// </summary>
     public class EnumSearchProvider : BaseSearchWindowProvider<int>

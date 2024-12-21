@@ -38,10 +38,15 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _Tex1:
+        m_Texture: {fileID: 2800000, guid: 43057c5a9418b6945875a680539945e5, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
     - Test_FloatValue: 0.1
     - Test_FloatVlaue: 0.1
+    - _FloatV: 0
     - _FloatValue: 0.389
     - _FloatValue0: 0.1
     - _FloatVlaue: 0.1
@@ -67,6 +72,7 @@ Material:
     - _ToggleNoKeyword: 1
     - _ToggleWithKeyword: 0
     m_Colors:
+    - _Tex1Color: {r: 1, g: 0.066037595, b: 0.066037595, a: 1}
     - _Vector: {r: 1, g: 1.188, b: 1, a: -0.097}
     - _Vector2: {r: 1, g: 0.1, b: 0, a: 0.569}
     - _Vector3: {r: 0.385, g: 1, b: 1, a: 1}

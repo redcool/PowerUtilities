@@ -37,7 +37,7 @@ namespace PowerUtilities
         }
         static void ShowSearchWindow(SerializedProperty property, EnumSearchableAttribute attr)
         {
-            var provider = ScriptableObject.CreateInstance<EnumSearchProvider>();
+            var provider = SearchWindowTools.CreateProvider<EnumSearchProvider>();
             provider.windowTitle = attr.enumType.Name;
             provider.textFileName = attr.textFileName;
             provider.onSelectedChanged = enumValueIndex =>
@@ -49,9 +49,7 @@ namespace PowerUtilities
             };
             provider.enumType = attr.enumType;
 
-            var winPos = GUIUtility.GUIToScreenPoint(Event.current.mousePosition);
-            SearchWindow.Open(new SearchWindowContext(winPos), provider);
-
+            SearchWindowTools.OpenSearchWindow(provider);
         }
     }
 }

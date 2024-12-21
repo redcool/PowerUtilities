@@ -17,7 +17,7 @@ namespace PowerUtilities.RenderFeatures
     {
         [EditorHeader("","--- Source")]
         [Tooltip("When empty will use Current Active")]
-        [EditorTextFieldWithMenu(type = typeof(CreateRenderTarget), staticMemberName = nameof(CreateRenderTarget.GetColorTargetNames))]
+        [StringListSearchable(type = typeof(CreateRenderTarget), staticMemberName = nameof(CreateRenderTarget.GetColorTargetNames))]
         public string sourceName;
         public bool isShowCurMainLightShadowMapTexture;
 
@@ -26,7 +26,7 @@ namespace PowerUtilities.RenderFeatures
 
         [EditorHeader("","--- Target")]
         [Tooltip("When empty will use Camera Target")]
-        [EditorTextFieldWithMenu(type = typeof(CreateRenderTarget), staticMemberName = nameof(CreateRenderTarget.GetColorTargetNames))]
+        [StringListSearchable(type = typeof(CreateRenderTarget), staticMemberName = nameof(CreateRenderTarget.GetColorTargetNames))]
         public string targetName;
 
         [Tooltip("blit source to [_CameraAttachmentA or B],if sourceId is A, targetId will set B")]

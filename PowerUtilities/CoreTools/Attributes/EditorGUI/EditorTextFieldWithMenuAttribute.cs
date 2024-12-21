@@ -12,7 +12,7 @@ namespace PowerUtilities
 {
 
 #if UNITY_EDITOR
-    [CustomPropertyDrawer(typeof(EditorTextFieldWithMenu))]
+    [CustomPropertyDrawer(typeof(EditorTextFieldWithMenuAttribute))]
     public class EditorTextFieldWithMenuDrawer : PropertyDrawer
     {
         GUIContent showArrowGUI = new GUIContent("↓");
@@ -21,9 +21,23 @@ namespace PowerUtilities
 
         static SerializedProperty curSelectedProp;
 
+        public string[] GetNames(EditorTextFieldWithMenuAttribute attr)
+        {
+            if (attr.type != null && !string.IsNullOrEmpty(attr.staticMemberName))
+            {
+                return attr.type.GetMemberValue<string[]>(attr.staticMemberName, null, null);
+            }
+            // use enum names
+            if (attr.enumType != null)
+            {
+                return Enum.GetNames(attr.enumType);
+            }
+            return null;
+        }
+
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            var attr = attribute as EditorTextFieldWithMenu;
+            var attr = attribute as EditorTextFieldWithMenuAttribute;
 
             var pos = position;
             pos.width = position.width - 20;
@@ -34,26 +48,17 @@ namespace PowerUtilities
 
             showArrowGUI.tooltip = attr.tooltips ?? attr.staticMemberName;
 
-            if (GUI.Button(pos, showArrowGUI))
+            if (GUI.Button(pos, showArrowGUI,EditorStyles.popup))
             {
                 // need clear menu
                 menu = new GenericMenu();
 
-                if (attr.type != null && !string.IsNullOrEmpty(attr.staticMemberName))
+                string[] names = GetNames(attr);
+                // show names
+                if (names != null)
                 {
-                    var names = attr.type.GetMemberValue<string[]>(attr.staticMemberName, null, null);
-                    // use default
-                    if(names == null && attr.defaultEnumType != null)
-                    {
-                        names = Enum.GetNames(attr.defaultEnumType);
-                    }
-
-                    // show names
-                    if (names != null)
-                    {
-                        SetupMenu(menu, names, property);
-                        menu.ShowAsContext();
-                    }
+                    SetupMenu(menu, names, property);
+                    menu.ShowAsContext();
                 }
             }
         }
@@ -82,13 +87,14 @@ namespace PowerUtilities
 #endif
 
     /// <summary>
-    /// Draw property with dropdownList(string[] from (type.memberName)
+    /// Draw string property with dropdownList
     /// 
+    /// demo:
     ///     [EditorTextFieldWithMenu(type = typeof(CreateRenderTarget),memberName = nameof(CreateRenderTarget.GetColorTargetNames))]
     ///     public string[] colorTargetNames = new[] { nameof(ShaderPropertyIds._CameraColorAttachmentA) };
     /// </summary>
     [AttributeUsage(AttributeTargets.Field)]
-    public class EditorTextFieldWithMenu : PropertyAttribute
+    public class EditorTextFieldWithMenuAttribute : PropertyAttribute
     {
         /// <summary>
         /// get names from this Type
@@ -103,7 +109,7 @@ namespace PowerUtilities
         /// <summary>
         /// names form enum
         /// </summary>
-        public Type defaultEnumType;
+        public Type enumType;
 
         /// <summary>
         /// tooltips
