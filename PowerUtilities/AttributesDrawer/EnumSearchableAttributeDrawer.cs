@@ -40,11 +40,11 @@ namespace PowerUtilities
             var provider = SearchWindowTools.CreateProvider<EnumSearchProvider>();
             provider.windowTitle = attr.enumType.Name;
             provider.textFileName = attr.textFileName;
-            provider.onSelectedChanged = enumValueIndex =>
+            provider.onSelectedChanged = enumValue =>
             {
                 property.serializedObject.Update();
                 //property.enumValueIndex = enumValueIndex;  //dont use this value, cause bug
-                property.intValue = enumValueIndex; // property.intValue save enumValue rather than enumValueIndex
+                property.intValue = enumValue; // property.intValue save enumValue rather than enumValueIndex
                 property.serializedObject.ApplyModifiedProperties();
             };
             provider.enumType = attr.enumType;
