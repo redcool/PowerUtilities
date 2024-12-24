@@ -36,7 +36,7 @@ namespace PowerUtilities.RenderFeatures
         /// </summary>
         public static string[] GetColorTargetNames() => instanceList
             .SelectMany( item=> item.colorTargetInfos,(item, targetInfo )=> targetInfo.name)
-            .Concat(new[] {""})
+            //.Concat(new[] {""}) // for separator
             .Concat(Enum.GetNames(typeof(URPRTHandleNames)))
             .ToArray();
 #else

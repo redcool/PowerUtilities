@@ -4,18 +4,19 @@ Shader "Hidden/kMotion/CameraMotionVectors"
     {
         Pass
         {
-            blend [_SrcMode][_DstMode]
-            blendOp [_BlendOp]
+            // blend [_SrcMode][_DstMode]
+            // blendOp [_BlendOp]
             Cull Off
             ZWrite On
             ZTest Always
 
             HLSLPROGRAM
-            #pragma exclude_renderers d3d11_9x gles
+            // #pragma exclude_renderers d3d11_9x gles
             #pragma target 3.5
 
             #pragma vertex vert
             #pragma fragment frag
+            #pragma multi_compile _ USE_WORLD_POS_TEXTURE
 
             // -------------------------------------
             // Includes
@@ -23,11 +24,11 @@ Shader "Hidden/kMotion/CameraMotionVectors"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareDepthTexture.hlsl"
 
         #if defined(USING_STEREO_MATRICES)
-        float4x4 _PrevViewProjMStereo[2];
-#define _PrevViewProjM _PrevViewProjMStereo[unity_StereoEyeIndex]
-#else
-#define  _PrevViewProjM _PrevViewProjMatrix
-#endif
+            float4x4 _PrevViewProjMStereo[2];
+            #define _PrevViewProjM _PrevViewProjMStereo[unity_StereoEyeIndex]
+        #else
+            #define  _PrevViewProjM _PrevViewProjMatrix
+        #endif
 
             // -------------------------------------
             // Structs
@@ -49,21 +50,30 @@ Shader "Hidden/kMotion/CameraMotionVectors"
                 output.position = GetFullScreenTriangleVertexPosition(input.vertexID);
                 return output;
             }
+            
+            TEXTURE2D(_WorldPosTexture);
 
             // -------------------------------------
             // Fragment
-            half4 frag(Varyings input, out float outDepth : SV_Depth) : SV_Target
+            half4 frag(Varyings input
+            // , out float outDepth : SV_Depth
+            ) : SV_Target
             {
                 // Calculate PositionInputs
+            #if defined(USE_WORLD_POS_TEXTURE)
+                float3 worldPos = LOAD_TEXTURE2D(_WorldPosTexture,input.position.xy).xyz;
+            #else
                 half depth = LoadSceneDepth(input.position.xy).x;
-                outDepth = depth;
+                // outDepth = depth;
 
                 half2 screenSize = _ScreenSize.zw;
                 PositionInputs positionInputs = GetPositionInput(input.position.xy, screenSize, depth, UNITY_MATRIX_I_VP, UNITY_MATRIX_V);
+                float3 worldPos = positionInputs.positionWS;
+            #endif
 
                 // Calculate positions
-                float4 previousPositionVP = mul(_PrevViewProjM, float4(positionInputs.positionWS, 1.0));
-                float4 positionVP = mul(UNITY_MATRIX_VP, float4(positionInputs.positionWS, 1.0));
+                float4 previousPositionVP = mul(_PrevViewProjM, float4(worldPos, 1.0));
+                float4 positionVP = mul(UNITY_MATRIX_VP, float4(worldPos, 1.0));
 
                 previousPositionVP.xy *= rcp(previousPositionVP.w);
                 positionVP.xy *= rcp(positionVP.w);

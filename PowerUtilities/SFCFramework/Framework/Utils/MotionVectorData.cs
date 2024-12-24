@@ -19,11 +19,12 @@ namespace PowerUtilities
         }
         /// <summary>
         /// call GetPreviousVP after call this
+        /// 
         /// </summary>
         /// <param name="cam"></param>
         public void Update(Camera cam)
         {
-            if (Time.frameCount - frameCount == 0)
+            if (Time.frameCount == frameCount)
                 return;
 
             frameCount = Time.frameCount;
@@ -38,6 +39,20 @@ namespace PowerUtilities
                 return vp;
             else
                 return GL.GetGPUProjectionMatrix(cam.projectionMatrix, true) * cam.worldToCameraMatrix;
+        }
+
+        /// <summary>
+        /// Get current and previous vp
+        /// </summary>
+        /// <param name="cam"></param>
+        /// <param name="viewProjMatrix"></param>
+        /// <returns></returns>
+        public Matrix4x4 GetViewProjMatrix(Camera cam,ref Matrix4x4 viewProjMatrix)
+        {
+            var lastVP = GetPreviousVP(cam);
+            Update(cam);
+            viewProjMatrix = GetPreviousVP(cam);
+            return lastVP;
         }
     }
 }

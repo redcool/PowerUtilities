@@ -162,6 +162,7 @@ namespace PowerUtilities
             _ShadowBias = Shader.PropertyToID(nameof(_ShadowBias)),
             _LightDirection = Shader.PropertyToID(nameof(_LightDirection)),
             _PrevViewProjMatrix = Shader.PropertyToID(nameof(_PrevViewProjMatrix)),
+            _ViewProjMatrix = Shader.PropertyToID(nameof(_ViewProjMatrix)),
             _GUIZTestMode = Shader.PropertyToID(nameof(_GUIZTestMode)),
 
             _MainLightPosition = Shader.PropertyToID(nameof(_MainLightPosition)),
