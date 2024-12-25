@@ -9,7 +9,7 @@ namespace PowerUtilities
 {
     public class ClearAssetsMissingScripts : MonoBehaviour
     {
-        [MenuItem("PowerUtilities/Clear/Clear Missing Scripts")]
+        [MenuItem("PowerUtilities/Clear/Clear ScriptableObject's Missing Scripts")]
         static public void ClearMissingTypesOnScriptableObjects()
         {
             var report = new StringBuilder();
@@ -30,6 +30,18 @@ namespace PowerUtilities
             }
 
             Debug.Log(report.ToString());
+        }
+
+        [MenuItem("PowerUtilities/Clear/Clear GameObject's Missing Scripts")]
+        public static void ClearGameObjectMissingMonos()
+        {
+            var objs = Selection.gameObjects;
+
+            objs.ForEach(obj =>
+            {
+                var count = GameObjectTools.RemoveChildrenMissingMonos(obj);
+                Debug.Log($"{obj} removed count :{count}");
+            });
         }
     }
 }

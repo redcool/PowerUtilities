@@ -224,6 +224,12 @@
             }
         }
 
+        /// <summary>
+        /// rename children hierarchy
+        /// </summary>
+        /// <param name="go"></param>
+        /// <param name="replacedName"></param>
+        /// <param name="newName"></param>
         public static void RenameHierarchy(this GameObject go,string replacedName,string newName)
         {
             if (string.IsNullOrEmpty(replacedName))
@@ -236,5 +242,20 @@
             });
         }
 
+        /// <summary>
+        /// remove go and children's missing scripts
+        /// </summary>
+        /// <param name="go"></param>
+        /// <returns></returns>
+        public static int RemoveChildrenMissingMonos(this GameObject go)
+        {
+            var count = 0;
+            var trs = go.GetComponentsInChildren<Transform>();
+            foreach (Transform t in trs)
+            {
+                count += GameObjectUtility.RemoveMonoBehavioursWithMissingScript(t.gameObject);
+            }
+            return count;
+        }
     }
 }
