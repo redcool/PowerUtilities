@@ -62,6 +62,22 @@ namespace PowerUtilities
         {
             CopyDepthPass,
             FinalBlitPass,
+            DrawSkyboxPass,
+            CopyColorPass,
+
+            DepthNormalOnlyPass,
+            DepthOnlyPass,
+            DeferredPass,
+            DrawObjectsPass,
+            DrawScreenSpaceUIPass,
+            GBufferPass,
+            HDRDebugViewPass,
+            MainLightShadowCasterPass,
+            MotionVectorRenderPass,
+            PostProcessPass,
+            RenderObjectsPass,
+            XROcclusionMeshPass,
+
         }
         public const string URP_PASS_NAMESPACE_PREFIX = "UnityEngine.Rendering.Universal.Internal.";
 
