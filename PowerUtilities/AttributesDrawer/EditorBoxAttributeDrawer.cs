@@ -10,18 +10,18 @@ namespace PowerUtilities
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
             return 0; // 
-            var attr = (EditorBoxAttribute)attribute;
+            //var attr = (EditorBoxAttribute)attribute;
 
-            var lines = 0;
-            if (attr.isFolded)
-                lines = 1;
+            //var lines = 0;
+            //if (attr.isFolded)
+            //    lines = 1;
 
-            if (attr.boxType == EditorBoxAttribute.BoxType.VBox)
-            {
-                lines += attr.PropNames.Length - 1;
-            }
+            //if (attr.boxType == EditorBoxAttribute.BoxType.VBox)
+            //{
+            //    lines += attr.PropNames.Length - 1;
+            //}
 
-            return base.GetPropertyHeight(property, label) * lines;
+            //return base.GetPropertyHeight(property, label) * lines;
         }
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)

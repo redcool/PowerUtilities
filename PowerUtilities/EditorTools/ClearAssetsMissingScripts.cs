@@ -14,22 +14,24 @@ namespace PowerUtilities
         {
             var report = new StringBuilder();
 
-            var guids = AssetDatabase.FindAssets("t:ScriptableObject", new[] { "Assets" });
-            foreach (string guid in guids)
+            string[] paths;
+            var soObjects = AssetDatabaseTools.FindAssetsPathAndLoad<Object>(out paths, "t:ScriptableObject", ".asset");
+            for (int i = 0; i < soObjects.Length; i++)
             {
-                var path = AssetDatabase.GUIDToAssetPath(guid);
-                Object obj = AssetDatabase.LoadMainAssetAtPath(path);
-                Debug.Log(path);
-                if (obj != null)
+                var path = paths[i];
+                //Debug.Log(path);
+                var soObj = soObjects[i];
+                if (soObj == null)
+                    continue;
+                
+                if (SerializationUtility.ClearAllManagedReferencesWithMissingTypes(soObj))
                 {
-                    if (SerializationUtility.ClearAllManagedReferencesWithMissingTypes(obj))
-                    {
-                        report.Append("Cleared missing types from ").Append(path).AppendLine();
-                    }
+                    report.Append("Cleared missing types from ").Append(path).AppendLine();
                 }
             }
 
-            Debug.Log(report.ToString());
+            if (report.Length > 0)
+                Debug.Log(report.ToString());
         }
 
         [MenuItem("PowerUtilities/Clear/Clear GameObject's Missing Scripts")]

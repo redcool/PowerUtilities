@@ -22,6 +22,14 @@ namespace PowerUtilities
 
         public readonly static CommandBuffer defaultCmd = new CommandBuffer();
 
+        static Material defaultBlitMat;
+        public static Material DefaultBlitMat(this CommandBuffer cmd)
+        {
+            if (!defaultBlitMat)
+                defaultBlitMat = new Material(Shader.Find("Hidden/URP/Blit"));
+            return defaultBlitMat;
+        }
+
 #if UNITY_2020
         public static void ClearRenderTarget(this CommandBuffer cmd,RTClearFlags clearFlags, Color backgroundColor, float depth = 1f, uint stencil = 0u)
         {
