@@ -3,6 +3,9 @@ Shader "Hidden/Unlit/TAA"
     Properties
     {
         // _SourceTex ("Texture", 2D) = "white" {}
+        _TemporalFade("_TemporalFade",range(0,1)) = 0.95
+        _MovementBlending("_MovementBlending",float) = 100
+        _TexelSizeScale("_TexelSizeScale",range(0.01,1)) = .1
     }
 
     HLSLINCLUDE
@@ -59,6 +62,9 @@ Shader "Hidden/Unlit/TAA"
             #include "../../../../../PowerShaderLib/Lib/UnityLib.hlsl"
             #include "../../../../../PowerShaderLib/Lib/BlitLib.hlsl"
             #include "../../../../../PowerShaderLib/Lib/ScreenTextures.hlsl"
+            #include "../../../../../PowerShaderLib/Lib/Kernel/KernelDefines.hlsl"
+
+
 
             struct appdata
             {
@@ -77,13 +83,21 @@ Shader "Hidden/Unlit/TAA"
             // sampler2D _CameraDepthTexture;
 
             CBUFFER_START(UnityPerMaterial)
-            float4 _MainTex_ST;
-            CBUFFER_END
-
+            // float4 _SourceTex_ST;
+            float _TexelSizeScale;
             float _TemporalFade;
             float _MovementBlending;
+            CBUFFER_END
+
             float4x4 _invP;
             float4x4 _FrameMatrix;
+            float4 _SourceTex_TexelSize;
+
+            // define offsets(3x3,2x2)
+            DEF_OFFSETS_3X3(offsets_3x3,_SourceTex_TexelSize.xy);
+            DEF_OFFSETS_2X2(offsets_2x2,_SourceTex_TexelSize.xy);
+            #define OFFSETS_COUNT 9
+            #define OFFSETS offsets_3x3
 
             v2f vert (uint vid:SV_VERTEXID)
             {
@@ -93,40 +107,65 @@ Shader "Hidden/Unlit/TAA"
                 return o;
             }
 
+
+
             float4 frag (v2f i) : SV_Target
             {
                 float2 suv = i.vertex.xy/_ScaledScreenParams.xy;
 
-                float depth01 = LinearDepth01(GetScreenDepth(suv));
-                depth01 = (depth01*(_ProjectionParams.z - _ProjectionParams.y) + _ProjectionParams.y)/_ProjectionParams.z;
-                float4 mainTex = tex2D(_SourceTex,suv);
-
+                float depth = (GetScreenDepth(suv));
+                float depth01 = LinearDepth01(depth);
+                // depth01 = Linear01Depth(depth,_ZBufferParams);
+                // depth01 = (depth01*(_ProjectionParams.z - _ProjectionParams.y) + _ProjectionParams.y)/_ProjectionParams.z;
+                // return depth01;
+                float3 curCol = tex2D(_SourceTex,suv).xyz;
+                
                 float3 pos = float3(suv*2-1,1);
-                float4 rd = mul(_invP,pos.xyzz);
-                rd.xyz /= rd.w;
+                float4 viewPos = mul(_invP,pos.xyzz);
+                viewPos.xyz /= viewPos.w;
 
-                float4 tuv = mul(_FrameMatrix,float4(rd.xyz * depth01,1));
+                float4 tuv = mul(_FrameMatrix,float4(viewPos.xyz * depth01,1));
                 tuv /= tuv.w;
                 float3 lastCol = tex2D(_TemporalAATexture,tuv*0.5+0.5).xyz;
 
-                float3 ya = mainTex.xyz;
+                if(any(abs(tuv)>1))
+                    lastCol = curCol;
+
+                float3 ya = curCol.xyz;
                 float3 minCol = ya;
                 float3 maxCol = ya;
 
-                for(int x=-1;x<=1;x++){
-                    for(int y=-1;y<=1;y++){
-                        float2 duv = float2(x,y)/_ScaledScreenParams.xy;
+                float3 minColSharpen = 0;
+                float3 maxColSharpen = 0;
 
-                        float3 col = tex2D(_SourceTex,suv + duv);
-                        minCol = min(minCol,col);
-                        maxCol = max(maxCol,col);
-                    }
+                // for(int x=-1;x<=1;x++){
+                //     for(int y=-1;y<=1;y++){
+                //         float2 duv = float2(x,y)/_ScaledScreenParams.xy;
+                //         float3 col = tex2D(_SourceTex,suv + duv).xyz;
+                //         minCol = min(minCol,col);
+                //         maxCol = max(maxCol,col);
+                //     }
+                // }
+
+                for(int x=0;x<OFFSETS_COUNT;x++){
+                    float2 duv = OFFSETS[x] * _TexelSizeScale;
+                    float3 col = tex2D(_SourceTex,suv + duv).xyz;
+                    minCol = min(minCol,col);
+                    maxCol = max(maxCol,col);
+
+                    minColSharpen += minCol * kernels_sharpen[x];
+                    maxColSharpen += maxCol * kernels_sharpen[x];
                 }
 
+float3 colSharpen = (minColSharpen+maxColSharpen).xyz * 0.5;
+// return colSharpen.xyzx;
                 lastCol = clamp(lastCol,minCol,maxCol);
 
-                float temporalScale = exp(-_MovementBlending * length(pos.xy - tuv));
-                float3 finalCol = lerp(mainTex,lastCol, _TemporalFade * temporalScale);
+                float velocity = length(pos.xy - tuv);
+                // return velocity <0.0000001;
+                float temporalScale = exp(-_MovementBlending * velocity);
+                float3 finalCol = lerp(curCol,lastCol, _TemporalFade * temporalScale);
+
                 return float4(finalCol,1);
             }
     ENDHLSL

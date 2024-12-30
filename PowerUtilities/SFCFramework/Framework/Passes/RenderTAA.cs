@@ -18,9 +18,14 @@ namespace PowerUtilities.RenderFeatures
     {
         [LoadAsset("Hidden_Unlit_TAA.mat")]
         public Material taaMat;
-        public float temporalFade;
-        public float movementBlending;
-        internal double2 jitterSpeed;
+        public bool isOverrideMatProps;
+        [Range(0,1)]
+        public float temporalFade=0.95f;
+        public float movementBlending = 100;
+        public float jitterSpeed=1;
+        [Range(1,256)]
+        public int haltonLength = 8;
+        public float texelSizeScale;
 
         public override ScriptableRenderPass GetPass()
         {
@@ -36,7 +41,7 @@ namespace PowerUtilities.RenderFeatures
         int _TemporalAATexture = Shader.PropertyToID(nameof(_TemporalAATexture));
         int tempRT1 = Shader.PropertyToID(nameof(tempRT1));
         int tempRT2 = Shader.PropertyToID(nameof(tempRT2));
-
+        Camera cam;
 
         public RenderTAAPass(RenderTAA feature) : base(feature)
         {
@@ -46,9 +51,11 @@ namespace PowerUtilities.RenderFeatures
         {
             return Feature.taaMat &&base.CanExecute();
         }
+
         public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
         {
             var desc = renderingData.cameraData.cameraTargetDescriptor;
+            desc.graphicsFormat = UnityEngine.Experimental.Rendering.GraphicsFormat.R32G32B32A32_SFloat;
             desc.depthBufferBits = 0;
             cmd.GetTemporaryRT(tempRT1, desc);
             cmd.GetTemporaryRT(tempRT2, desc);
@@ -66,8 +73,13 @@ namespace PowerUtilities.RenderFeatures
             matrix = prevVP * cam.cameraToWorldMatrix;
             mat.SetMatrix("_FrameMatrix", matrix);
 
+            if (Feature.isOverrideMatProps)
+            {
+
             mat.SetFloat("_TemporalFade", Feature.temporalFade);
             mat.SetFloat("_MovementBlending", Feature.movementBlending);
+            mat.SetFloat("_TexelSizeScale",Feature.texelSizeScale);
+            }
 
             var isEven = (Time.frameCount)% 2 == 0;
             var writeTarget = isEven ? tempRT1 : tempRT2;
@@ -76,7 +88,8 @@ namespace PowerUtilities.RenderFeatures
             cmd.SetGlobalTexture(_TemporalAATexture, readTarget);
 
             cmd.BlitTriangle(BuiltinRenderTextureType.CurrentActive, writeTarget, mat, 0);
-            cmd.BlitTriangle(writeTarget, renderingData.cameraData.renderer.cameraColorTargetHandle, cmd.DefaultBlitMat(), 0);
+            cmd.BlitTriangle(writeTarget, renderingData.cameraData.renderer.cameraColorTargetHandle, cmd.GetDefaultBlitTriangleMat(), 0);
+            //cmd.Blit(writeTarget, renderingData.cameraData.renderer.cameraColorTargetHandle);
 
             cmd.Execute(ref context);
 
@@ -85,7 +98,10 @@ namespace PowerUtilities.RenderFeatures
             //reset
             ResetCameraProjection(cam);
         }
-
+        //public override void FrameCleanup(CommandBuffer cmd)
+        //{
+        //    ResetCameraProjection(cam);
+        //}
         void ResetCameraProjection(Camera cam)
         {
             cam.ResetProjectionMatrix();
@@ -94,7 +110,7 @@ namespace PowerUtilities.RenderFeatures
             cam.nonJitteredProjectionMatrix = cam.projectionMatrix;
 
             var p = cam.projectionMatrix;
-            float2 jitter = (float2)(2 * Halton2364Seq[Time.frameCount%(Halton2364Seq.Length-1)] * Feature.jitterSpeed);
+            float2 jitter = (float2)(2 * Halton2364Seq[Time.frameCount%Feature.haltonLength] * Feature.jitterSpeed);
             p.m02 = jitter.x / Screen.width;
             p.m12 = jitter.y / Screen.height;
             cam.projectionMatrix = p;

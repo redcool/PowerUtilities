@@ -22,12 +22,12 @@ namespace PowerUtilities
 
         public readonly static CommandBuffer defaultCmd = new CommandBuffer();
 
-        static Material defaultBlitMat;
-        public static Material DefaultBlitMat(this CommandBuffer cmd)
+        static Material defaultBlitTriangleMat;
+        public static Material GetDefaultBlitTriangleMat(this CommandBuffer cmd)
         {
-            if (!defaultBlitMat)
-                defaultBlitMat = new Material(Shader.Find("Hidden/URP/Blit"));
-            return defaultBlitMat;
+            if (!defaultBlitTriangleMat)
+                defaultBlitTriangleMat = new Material(Shader.Find("Hidden/Utils/CopyColor"));
+            return defaultBlitTriangleMat;
         }
 
 #if UNITY_2020
