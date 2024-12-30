@@ -5,6 +5,10 @@ namespace PowerUtilities
     using UnityEngine.Rendering;
     using UnityEngine.Rendering.Universal;
 
+    /// <summary>
+    /// renderer transparent object to _CameraDepthTexture
+    /// call DepthOnly pass
+    /// </summary>
     public class RenderTransparentObjectDepth : ScriptableRendererFeature
     {
         class CustomRenderPass : ScriptableRenderPass
@@ -15,29 +19,24 @@ namespace PowerUtilities
             {
                 var drawSettings = CreateDrawingSettings(new ShaderTagId("DepthOnly"), ref renderingData, SortingCriteria.CommonTransparent);
 
-                var filterSettings = new FilteringSettings(RenderQueueRange.transparent);
-                filterSettings.layerMask = settings.layerMask;
+                FilteringSettings filterSettings = settings.filterSetting;
 
                 var cmd = CommandBufferPool.Get();
                 cmd.BeginSample(nameof(RenderTransparentObjectDepth));
-                Execute(context, cmd);
+                cmd.Execute(ref context);
 
-                cmd.SetRenderTarget("_CameraDepthTexture");
-                Execute(context, cmd);
+                var renderer = (UniversalRenderer)renderingData.cameraData.renderer;
+                var depthRH = renderer.GetCameraDepthTexture();
+                cmd.SetRenderTarget(depthRH);
+                cmd.Execute(ref context);
 
                 context.DrawRenderers(renderingData.cullResults, ref drawSettings, ref filterSettings);
 
-                cmd.SetRenderTarget("_CameraColorAttachmentA");
+                cmd.SetRenderTarget(renderer.cameraColorTargetHandle);
                 cmd.EndSample(nameof(RenderTransparentObjectDepth));
-                Execute(context, cmd);
+                cmd.Execute(ref context);
 
                 CommandBufferPool.Release(cmd);
-
-                static void Execute(ScriptableRenderContext context, CommandBuffer cmd)
-                {
-                    context.ExecuteCommandBuffer(cmd);
-                    cmd.Clear();
-                }
             }
 
         }
@@ -47,7 +46,7 @@ namespace PowerUtilities
         [Serializable]
         public class Settings
         {
-            public LayerMask layerMask = -1;
+            public SimpleFilterSetting filterSetting = new();
         }
         public Settings settings;
 
