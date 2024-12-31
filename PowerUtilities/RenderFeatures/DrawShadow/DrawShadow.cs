@@ -106,7 +106,7 @@ namespace PowerUtilities
 
         private void DrawShadow_OnSettingSOChanged()
         {
-            //StepDrawShadow();
+            StepDrawShadow();
         }
 
         partial void CheckEditorSceneLoaded();
