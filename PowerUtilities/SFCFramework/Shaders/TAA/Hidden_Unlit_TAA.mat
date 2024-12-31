@@ -29,9 +29,10 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _MovementBlending: 0.1
+    - _MovementBlending: 1
+    - _Sharpen: 0.26
     - _SharpenScale: 1
-    - _TemporalFade: 0.66
-    - _TexelSizeScale: 0.67
+    - _TemporalFade: 1
+    - _TexelSizeScale: 0.458
     m_Colors: []
   m_BuildTextureStacks: []

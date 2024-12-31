@@ -4,28 +4,12 @@ Shader "Hidden/Unlit/TAA"
     {
         // _SourceTex ("Texture", 2D) = "white" {}
         _TemporalFade("_TemporalFade",range(0,1)) = 0.95
-        _MovementBlending("_MovementBlending",float) = 100
+        _MovementBlending("_MovementBlending",range(0,100)) = 100
         _TexelSizeScale("_TexelSizeScale",range(0.01,1)) = .1
+        _Sharpen("_Sharpen",range(0.01,1)) = 0.1
     }
 
     HLSLINCLUDE
-            /*
-            Box intersection by IQ, modified for neighbourhood clamping
-            https://www.iquilezles.org/www/articles/boxfunctions/boxfunctions.htm
-            */
-            float2 boxIntersection(in float3 ro, in float3 rd, in float3 rad)
-            {
-                float3 m = 1.0 / rd;
-                float3 n = m * ro;
-                float3 k = abs(m) * rad;
-                float3 t1 = -n - k;
-                float3 t2 = -n + k;
-
-                float tN = max(max(t1.x, t1.y), t1.z);
-                float tF = min(min(t2.x, t2.y), t2.z);
-
-                return float2(tN, tF);
-            }
 
             /*
             * GLSL Color Spaces by tobspr
@@ -48,6 +32,7 @@ Shader "Hidden/Unlit/TAA"
                     yuv.x + 1.770 * yuv.y
                 );
             }
+
             float3 clipLuminance(float3 col, float3 minCol, float3 maxCol){
                 float3 c0 = rgb_to_ycbcr(col);
                 //float3 c1 = rgb_to_ycbcr(minCol);
@@ -84,9 +69,10 @@ Shader "Hidden/Unlit/TAA"
 
             CBUFFER_START(UnityPerMaterial)
             // float4 _SourceTex_ST;
-            float _TexelSizeScale;
-            float _TemporalFade;
-            float _MovementBlending;
+            half _TexelSizeScale;
+            half _TemporalFade;
+            half _MovementBlending;
+            half _Sharpen;
             CBUFFER_END
 
             float4x4 _invP;
@@ -98,6 +84,8 @@ Shader "Hidden/Unlit/TAA"
             DEF_OFFSETS_2X2(offsets_2x2,_SourceTex_TexelSize.xy);
             #define OFFSETS_COUNT 9
             #define OFFSETS offsets_3x3
+            // define kernels
+            DEF_KERNELS_3X3(kernels_sharpen_dark,-1,-1,-1,-1,8,-1,-1,-1,-1);
 
             v2f vert (uint vid:SV_VERTEXID)
             {
@@ -124,7 +112,7 @@ Shader "Hidden/Unlit/TAA"
                 float4 viewPos = mul(_invP,pos.xyzz);
                 viewPos.xyz /= viewPos.w;
 
-                float4 tuv = mul(_FrameMatrix,float4(viewPos.xyz * depth01,1));
+                float4 tuv = mul(_FrameMatrix,float4(viewPos.xyz * 1,1));
                 tuv /= tuv.w;
                 float3 lastCol = tex2D(_TemporalAATexture,tuv*0.5+0.5).xyz;
 
@@ -135,8 +123,7 @@ Shader "Hidden/Unlit/TAA"
                 float3 minCol = ya;
                 float3 maxCol = ya;
 
-                float3 minColSharpen = 0;
-                float3 maxColSharpen = 0;
+                float3 colSharpen = 0;
 
                 // for(int x=-1;x<=1;x++){
                 //     for(int y=-1;y<=1;y++){
@@ -153,13 +140,13 @@ Shader "Hidden/Unlit/TAA"
                     minCol = min(minCol,col);
                     maxCol = max(maxCol,col);
 
-                    minColSharpen += minCol * kernels_sharpen[x];
-                    maxColSharpen += maxCol * kernels_sharpen[x];
+                    colSharpen += col * kernels_sharpen_dark[x];
                 }
 
-float3 colSharpen = (minColSharpen+maxColSharpen).xyz * 0.5;
-// return colSharpen.xyzx;
-                lastCol = clamp(lastCol,minCol,maxCol);
+// return colSharpen.xyzx*2;
+                minCol += colSharpen * _Sharpen;
+                maxCol += colSharpen * _Sharpen;
+                lastCol = clamp(lastCol,minCol,maxCol) ;
 
                 float velocity = length(pos.xy - tuv);
                 // return velocity <0.0000001;
