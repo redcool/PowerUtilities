@@ -104,7 +104,7 @@ namespace PowerUtilities.RenderFeatures
         public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
         {
             var desc = renderingData.cameraData.cameraTargetDescriptor;
-            desc.graphicsFormat = UnityEngine.Experimental.Rendering.GraphicsFormat.R16G16B16A16_SFloat;
+            desc.graphicsFormat = UnityEngine.Experimental.Rendering.GraphicsFormat.R32G32B32A32_SFloat;
             desc.depthBufferBits = 0;
             cmd.GetTemporaryRT(tempRT1, desc);
             cmd.GetTemporaryRT(tempRT2, desc);
