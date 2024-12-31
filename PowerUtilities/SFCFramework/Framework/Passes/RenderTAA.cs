@@ -16,21 +16,70 @@ namespace PowerUtilities.RenderFeatures
     [CreateAssetMenu(menuName = SRP_FEATURE_PASSES_MENU + "/RenderTAA")]
     public class RenderTAA : SRPFeature
     {
+        public enum SamplesMode
+        {
+            _3x3,
+            _2x2,
+        }
+
+        [Header("TAA ")]
+        [ListItemDraw("qualityLevel:,qualityLevel,samplesMode:,samplesMode", "100,100,50,100")]
+        public List<RenderTAAQualitySetting> qualitySettings = new List<RenderTAAQualitySetting>
+        {
+            new RenderTAAQualitySetting{qualityLevel=0, samplesMode=SamplesMode._3x3},
+            new RenderTAAQualitySetting{qualityLevel=1, samplesMode=SamplesMode._3x3},
+            new RenderTAAQualitySetting{qualityLevel=2, samplesMode=SamplesMode._3x3},
+            new RenderTAAQualitySetting{qualityLevel=3, samplesMode=SamplesMode._3x3},
+            new RenderTAAQualitySetting{qualityLevel=4, samplesMode=SamplesMode._3x3},
+            new RenderTAAQualitySetting{qualityLevel=5, samplesMode=SamplesMode._3x3},
+            new RenderTAAQualitySetting{qualityLevel=6, samplesMode=SamplesMode._3x3},
+        };
+
+        [Range(0.001f,1)]
+        [Tooltip(" projection matrix jitter strength")]
+        public float jitterSpeed=1;
+
+        [Range(1,256)]
+        [Tooltip("halton sequence length")]
+        public int haltonLength = 8;
+
         [LoadAsset("Hidden_Unlit_TAA.mat")]
         public Material taaMat;
+
+        [EditorGroup("MatProp",true)]
+        [Tooltip("update mat params by script or use mat's params")]
         public bool isOverrideMatProps;
+
+        [EditorGroup("MatProp")]
         [Range(0,1)]
+        [Tooltip("blend rate,")]
         public float temporalFade=0.95f;
-        public float movementBlending = 100;
-        public float jitterSpeed=1;
-        [Range(1,256)]
-        public int haltonLength = 8;
+        
+        [EditorGroup("MatProp")]
+        [Range(0, 1)]
+        [Tooltip("samples uv texel scale,more big more blur")]
         public float texelSizeScale;
+
+        [EditorGroup("MatProp")]
+        [Range(0,100)]
+        [Tooltip("exp atten,default 100")]
+        public float movementBlending = 100;
+
 
         public override ScriptableRenderPass GetPass()
         {
             return new RenderTAAPass(this);
         }
+    }
+
+    [Serializable]
+    public class RenderTAAQualitySetting
+    {
+        [EnumFlags(isFlags = false, type = typeof(QualitySettings), memberName = "names")]
+        public int qualityLevel = 0;
+
+        [Tooltip("use 3x3 or 2x2")]
+        public RenderTAA.SamplesMode samplesMode;
     }
 
     public class RenderTAAPass : SRPPass<RenderTAA>
@@ -60,12 +109,26 @@ namespace PowerUtilities.RenderFeatures
             cmd.GetTemporaryRT(tempRT2, desc);
         }
 
+        void UpdateKeywordByQualitySettings(CommandBuffer cmd)
+        {
+            var qLevel = QualitySettings.GetQualityLevel();
+
+            var is3x3On = true;
+
+            if (qLevel < Feature.qualitySettings.Count)
+            {
+                var setting = Feature.qualitySettings[qLevel];
+                is3x3On = setting.samplesMode == RenderTAA.SamplesMode._3x3;
+            }
+            cmd.SetShaderKeywords(is3x3On, "_SAMPLES_3X3");
+        }
+
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
         {
+            UpdateKeywordByQualitySettings(cmd);
             var cam = renderingData.cameraData.camera;
 
             var mat = Feature.taaMat;
-
             var matrix = cam.nonJitteredProjectionMatrix.inverse;
             mat.SetMatrix("_invP", matrix);
 
@@ -80,7 +143,7 @@ namespace PowerUtilities.RenderFeatures
                 mat.SetFloat("_TexelSizeScale", Feature.texelSizeScale);
             }
 
-            var isEven = (Time.frameCount)% 2 == 0;
+            var isEven = (Time.frameCount) % 2 == 0;
             var writeTarget = isEven ? tempRT1 : tempRT2;
             var readTarget = isEven ? tempRT2 : tempRT1;
 

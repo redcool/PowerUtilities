@@ -5,7 +5,7 @@ Shader "Hidden/Unlit/TAA"
         // _SourceTex ("Texture", 2D) = "white" {}
         _TemporalFade("_TemporalFade",range(0,1)) = 0.95
         _MovementBlending("_MovementBlending",range(0,100)) = 100
-        _TexelSizeScale("_TexelSizeScale",range(0.01,1)) = .1
+        _TexelSizeScale("_TexelSizeScale",range(0.01,1)) = .2
         _Sharpen("_Sharpen",range(0.01,1)) = 0.1
     }
 
@@ -82,10 +82,18 @@ Shader "Hidden/Unlit/TAA"
             // define offsets(3x3,2x2)
             DEF_OFFSETS_3X3(offsets_3x3,_SourceTex_TexelSize.xy);
             DEF_OFFSETS_2X2(offsets_2x2,_SourceTex_TexelSize.xy);
-            #define OFFSETS_COUNT 9
-            #define OFFSETS offsets_3x3
+
+// #define _SAMPLES_3X3
+            #if defined(_SAMPLES_3X3)
+                #define OFFSETS_COUNT 9
+                #define OFFSETS offsets_3x3
+                DEF_KERNELS_3X3(kernels_sharpen_dark,-1,-1,-1,-1,8,-1,-1,-1,-1);
+            #else
+                #define OFFSETS_COUNT 5
+                #define OFFSETS offsets_2x2
+                DEF_KERNELS_2X2(kernels_sharpen_dark,-1,-1,4,-1,-1);
+            #endif
             // define kernels
-            DEF_KERNELS_3X3(kernels_sharpen_dark,-1,-1,-1,-1,8,-1,-1,-1,-1);
 
             v2f vert (uint vid:SV_VERTEXID)
             {
@@ -112,7 +120,7 @@ Shader "Hidden/Unlit/TAA"
                 float4 viewPos = mul(_invP,pos.xyzz);
                 viewPos.xyz /= viewPos.w;
 
-                float4 tuv = mul(_FrameMatrix,float4(viewPos.xyz * 1,1));
+                float4 tuv = mul(_FrameMatrix,float4(viewPos.xyz * depth01,1));
                 tuv /= tuv.w;
                 float3 lastCol = tex2D(_TemporalAATexture,tuv*0.5+0.5).xyz;
 
@@ -164,6 +172,7 @@ Shader "Hidden/Unlit/TAA"
         Pass
         {
             HLSLPROGRAM
+            #pragma multi_compile _ _SAMPLES_3X3
             #pragma vertex vert
             #pragma fragment frag
 
