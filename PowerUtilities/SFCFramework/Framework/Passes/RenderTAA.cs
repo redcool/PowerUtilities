@@ -35,33 +35,34 @@ namespace PowerUtilities.RenderFeatures
             new RenderTAAQualitySetting{qualityLevel=6, samplesMode=SamplesMode._3x3},
         };
 
-        [Range(0.001f,1)]
+        [Range(0.001f, 1)]
         [Tooltip(" projection matrix jitter strength")]
-        public float jitterSpeed=1;
+        public float jitterSpeed = 0.02f;
 
-        [Range(1,256)]
+        [Range(1, 256)]
         [Tooltip("halton sequence length")]
-        public int haltonLength = 8;
+        public int haltonLength = 256;
 
+        [Header("TAA Mat")]
         [LoadAsset("Hidden_Unlit_TAA.mat")]
         public Material taaMat;
 
-        [EditorGroup("MatProp",true)]
+        [EditorGroup("MatProp", true)]
         [Tooltip("update mat params by script or use mat's params")]
         public bool isOverrideMatProps;
 
         [EditorGroup("MatProp")]
-        [Range(0,1)]
+        [Range(0, 1)]
         [Tooltip("blend rate,")]
-        public float temporalFade=0.95f;
-        
+        public float temporalFade = 0.95f;
+
         [EditorGroup("MatProp")]
         [Range(0, 1)]
         [Tooltip("samples uv texel scale,more big more blur")]
         public float texelSizeScale;
 
         [EditorGroup("MatProp")]
-        [Range(0,100)]
+        [Range(0, 100)]
         [Tooltip("exp atten,default 100")]
         public float movementBlending = 100;
 
@@ -97,7 +98,7 @@ namespace PowerUtilities.RenderFeatures
 
         public override bool CanExecute()
         {
-            return Feature.taaMat &&base.CanExecute();
+            return Feature.taaMat && base.CanExecute();
         }
 
         public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
