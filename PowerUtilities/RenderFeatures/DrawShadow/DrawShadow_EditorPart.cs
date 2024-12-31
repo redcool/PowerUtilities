@@ -16,7 +16,7 @@ namespace PowerUtilities
         partial void CheckEditorSceneLoaded()
         {
             EditorSceneManager.sceneOpened -= EditorSceneManager_sceneOpened;
-            //EditorSceneManager.sceneOpened += EditorSceneManager_sceneOpened;
+            EditorSceneManager.sceneOpened += EditorSceneManager_sceneOpened;
         }
 
         private void EditorSceneManager_sceneOpened(UnityEngine.SceneManagement.Scene scene, OpenSceneMode mode)

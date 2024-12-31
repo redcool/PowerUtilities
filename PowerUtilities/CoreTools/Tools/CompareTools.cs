@@ -23,15 +23,17 @@ namespace PowerUtilities
         /// <param name="lastValue"></param>
         /// <param name="currentValue"></param>
         /// <returns>is changed triggered</returns>
-        public static bool CompareAndSet<T>(ref T lastValue,ref T currentValue) where T : IEquatable<T> 
+        public static bool CompareAndSet<T>(ref T lastValue,ref T currentValue) 
         {
-            if(!lastValue.Equals(currentValue))
+            if(lastValue== null || !lastValue.Equals(currentValue))
             {
                 lastValue = currentValue;
                 return true;
             }
             return false;
         }
+
+
         /// <summary>
         /// is true frist time, v will set after called
         /// 

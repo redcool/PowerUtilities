@@ -77,14 +77,13 @@ namespace PowerUtilities
 
         // for check so changed
         DrawShadowSettingSO lastSettingSO;
-
         public event Action OnSettingSOChanged;
 
         /// <inheritdoc/>
         public override void Create()
         {
             // save current setting first
-            if(!globalSettingSO)
+            if (!globalSettingSO)
                 globalSettingSO = settingSO;
 
             //keep a instance
@@ -98,7 +97,16 @@ namespace PowerUtilities
             SceneManager.sceneLoaded -= SceneManager_sceneLoaded;
             SceneManager.sceneLoaded += SceneManager_sceneLoaded;
 
-            CheckEditorSceneLoaded();
+            OnSettingSOChanged -= DrawShadow_OnSettingSOChanged;
+            OnSettingSOChanged += DrawShadow_OnSettingSOChanged;
+
+            // editor dont need also,SceneManager_sceneLoaded will work,
+            //CheckEditorSceneLoaded();
+        }
+
+        private void DrawShadow_OnSettingSOChanged()
+        {
+            //StepDrawShadow();
         }
 
         partial void CheckEditorSceneLoaded();
@@ -214,13 +222,13 @@ namespace PowerUtilities
 #endif
         }
 
-
+        /// <summary>
+        /// check settingSO is changed
+        /// </summary>
         private void CheckSettingSOChange()
         {
-            if (lastSettingSO != settingSO)
+            if (CompareTools.CompareAndSet(ref lastSettingSO, ref settingSO))
             {
-                lastSettingSO = settingSO;
-
                 OnSettingSOChanged?.Invoke();
             }
         }
@@ -272,9 +280,9 @@ namespace PowerUtilities
 
         public void Clear()
         {
-            drawShadowPass.Clear();
-            lightObj = null;
+            drawShadowPass?.Clear();
             bigShadowRenderCount = 1;
+            lightObj = null;
         }
 
         private bool TrySetupLightCameraInfo()
