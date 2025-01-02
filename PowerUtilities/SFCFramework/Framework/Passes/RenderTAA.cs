@@ -1,4 +1,4 @@
-﻿//#define USE_RENDER_TEXTURE
+﻿#define USE_RENDER_TEXTURE
 
 
 using System;
@@ -83,6 +83,9 @@ namespace PowerUtilities.RenderFeatures
 
         public override ScriptableRenderPass GetPass()
         {
+            if(renderPassEvent < RenderPassEvent.BeforeRenderingPostProcessing)
+                renderPassEvent = RenderPassEvent.BeforeRenderingPostProcessing;
+
             return new RenderTAAPass(this);
         }
     }
@@ -102,11 +105,13 @@ namespace PowerUtilities.RenderFeatures
         Matrix4x4 prevVP;
         int _TemporalAATexture = Shader.PropertyToID(nameof(_TemporalAATexture));
 
+        Camera cam;
+
 #if USE_RENDER_TEXTURE
         RenderTexture tempRT1, tempRT2;
 #else
-        int tempRT1 = Shader.PropertyToID(nameof(tempRT1));
-        int tempRT2 = Shader.PropertyToID(nameof(tempRT2));
+        int tempRT1 = Shader.PropertyToID("TAA_tempRT1");
+        int tempRT2 = Shader.PropertyToID("TAA_tempRT2");
 #endif
         public RenderTAAPass(RenderTAA feature) : base(feature)
         {
@@ -124,6 +129,8 @@ namespace PowerUtilities.RenderFeatures
             desc.height = (int)(desc.height * Feature.renderScale);
 
             desc.graphicsFormat = GraphicsFormatTools.GetColorTextureFormat();
+            desc.graphicsFormat = GraphicsFormat.R16G16B16A16_SFloat;
+            //desc.colorFormat = RenderTextureFormat.Default;
             desc.depthBufferBits = 0;
 #if USE_RENDER_TEXTURE
             RenderTextureTools.TryCreateRT(ref tempRT1, desc, nameof(tempRT1), Feature.filterMode);
@@ -162,7 +169,7 @@ namespace PowerUtilities.RenderFeatures
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
         {
             UpdateKeywordByQualitySettings(cmd);
-            var cam = renderingData.cameraData.camera;
+            cam = renderingData.cameraData.camera;
 
             var mat = Feature.taaMat;
             var matrix = cam.nonJitteredProjectionMatrix.inverse;
@@ -183,9 +190,12 @@ namespace PowerUtilities.RenderFeatures
             var writeTarget = isEven ? tempRT1 : tempRT2;
             var readTarget = isEven ? tempRT2 : tempRT1;
 
+#if USE_RENDER_TEXTURE
+            mat.SetTexture(_TemporalAATexture, readTarget);
+#else
             cmd.SetGlobalTexture(_TemporalAATexture, readTarget);
-
-            cmd.BlitTriangle(BuiltinRenderTextureType.CurrentActive, writeTarget, mat, 0,drawTriangleMesh:true);
+#endif
+            cmd.BlitTriangle(BuiltinRenderTextureType.CurrentActive, writeTarget, mat, 0,depthTargetId:BuiltinRenderTextureType.CameraTarget);
             cmd.BlitTriangle(writeTarget, renderingData.cameraData.renderer.cameraColorTargetHandle, cmd.GetDefaultBlitTriangleMat(), 0);
 
             cmd.Execute(ref context);
@@ -193,14 +203,26 @@ namespace PowerUtilities.RenderFeatures
             prevVP = cam.nonJitteredProjectionMatrix * cam.worldToCameraMatrix;
 
             //reset
-            ResetCameraMatrix(cam);
-            JitterCameraProjectionMatrix(cam);
+            cmd.SetGlobalTexture(_TemporalAATexture, Texture2D.blackTexture);
+            cam.ResetProjectionMatrix();
+            //ResetCameraMatrix(cam);
+            //JitterCameraProjectionMatrix(cam);
         }
 
         void ResetCameraMatrix(Camera cam)
         {
             cam.ResetProjectionMatrix();
             cam.ResetWorldToCameraMatrix();
+        }
+
+        public override void OnCameraCleanup(CommandBuffer cmd)
+        {
+            base.OnCameraCleanup(cmd);
+            if (!cam)
+                return;
+
+            ResetCameraMatrix(cam);
+            JitterCameraProjectionMatrix(cam);
         }
 
         void JitterCameraProjectionMatrix(Camera cam)
