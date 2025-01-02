@@ -121,16 +121,18 @@ Shader "Hidden/Unlit/TAA"
 
                 float3 curCol = tex2D(_SourceTex,suv).xyz;
 
+                // stable pos
                 float3 pos = float3(suv*2-1,1);
                 float4 viewPos = mul(_invP,pos.xyzz);
                 viewPos.xyz /= viewPos.w;
 
+                // jitter pos
                 float4 tuv = mul(_FrameMatrix,float4(viewPos.xyz * depth01,1));
                 tuv /= tuv.w;
                 float3 lastCol = tex2D(_TemporalAATexture,tuv*0.5+0.5).xyz;
 
-                if(any(abs(tuv)>1))
-                    lastCol = curCol;
+                // if(any(abs(tuv.xy)>1))
+                //     lastCol = curCol;
 
                 float3 ya = curCol.xyz;
                 float3 minCol = ya;
@@ -138,6 +140,7 @@ Shader "Hidden/Unlit/TAA"
 
                 float3 colSharpen = 0;
 
+                UNITY_UNROLL
                 for(int x=0;x<OFFSETS_COUNT;x++){
                     float2 duv = OFFSETS[x] * _TexelSizeScale;
                     float3 col = tex2D(_SourceTex,suv + duv).xyz;
@@ -171,7 +174,6 @@ Shader "Hidden/Unlit/TAA"
             #pragma multi_compile _ _SAMPLES_3X3
             #pragma vertex vert
             #pragma fragment frag
-            // #pragma target 3.0
 
             ENDHLSL
         }

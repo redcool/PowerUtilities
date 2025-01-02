@@ -1,7 +1,4 @@
-﻿#define USE_RENDER_TEXTURE
-
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -102,17 +99,11 @@ namespace PowerUtilities.RenderFeatures
 
     public class RenderTAAPass : SRPPass<RenderTAA>
     {
-        Matrix4x4 prevVP;
         int _TemporalAATexture = Shader.PropertyToID(nameof(_TemporalAATexture));
 
-        Camera cam;
-
-#if USE_RENDER_TEXTURE
+        Matrix4x4 prevVP;
         RenderTexture tempRT1, tempRT2;
-#else
-        int tempRT1 = Shader.PropertyToID("TAA_tempRT1");
-        int tempRT2 = Shader.PropertyToID("TAA_tempRT2");
-#endif
+
         public RenderTAAPass(RenderTAA feature) : base(feature)
         {
         }
@@ -122,34 +113,36 @@ namespace PowerUtilities.RenderFeatures
             return Feature.taaMat && base.CanExecute();
         }
 
-        public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
+        private void TrySetupTempRTs(CommandBuffer cmd, RenderingData renderingData)
         {
             var desc = renderingData.cameraData.cameraTargetDescriptor;
             desc.width = (int)(desc.width * Feature.renderScale);
             desc.height = (int)(desc.height * Feature.renderScale);
 
             desc.graphicsFormat = GraphicsFormatTools.GetColorTextureFormat();
-            desc.graphicsFormat = GraphicsFormat.R16G16B16A16_SFloat;
+            //desc.graphicsFormat = GraphicsFormat.R16G16B16A16_SFloat;
             //desc.colorFormat = RenderTextureFormat.Default;
             desc.depthBufferBits = 0;
-#if USE_RENDER_TEXTURE
+
             RenderTextureTools.TryCreateRT(ref tempRT1, desc, nameof(tempRT1), Feature.filterMode);
             RenderTextureTools.TryCreateRT(ref tempRT2, desc, nameof(tempRT2), Feature.filterMode);
-#else
-            cmd.GetTemporaryRT(tempRT1, desc, Feature.filterMode);
-            cmd.GetTemporaryRT(tempRT2, desc, Feature.filterMode);
-#endif
+
         }
 
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
-#if USE_RENDER_TEXTURE
+
+            TryDestroyRTs();
+
+        }
+
+        private void TryDestroyRTs()
+        {
             if (tempRT1)
                 tempRT1.Destroy();
             if (tempRT2)
                 tempRT2.Destroy();
-#endif
         }
 
         void UpdateKeywordByQualitySettings(CommandBuffer cmd)
@@ -169,7 +162,10 @@ namespace PowerUtilities.RenderFeatures
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
         {
             UpdateKeywordByQualitySettings(cmd);
-            cam = renderingData.cameraData.camera;
+
+            TrySetupTempRTs(cmd, renderingData);
+
+            var cam = renderingData.cameraData.camera;
 
             var mat = Feature.taaMat;
             var matrix = cam.nonJitteredProjectionMatrix.inverse;
@@ -190,12 +186,9 @@ namespace PowerUtilities.RenderFeatures
             var writeTarget = isEven ? tempRT1 : tempRT2;
             var readTarget = isEven ? tempRT2 : tempRT1;
 
-#if USE_RENDER_TEXTURE
-            mat.SetTexture(_TemporalAATexture, readTarget);
-#else
             cmd.SetGlobalTexture(_TemporalAATexture, readTarget);
-#endif
-            cmd.BlitTriangle(BuiltinRenderTextureType.CurrentActive, writeTarget, mat, 0,depthTargetId:BuiltinRenderTextureType.CameraTarget);
+            //mat.SetTexture(_TemporalAATexture, readTarget);
+            cmd.BlitTriangle(BuiltinRenderTextureType.CurrentActive, writeTarget, mat, 0);
             cmd.BlitTriangle(writeTarget, renderingData.cameraData.renderer.cameraColorTargetHandle, cmd.GetDefaultBlitTriangleMat(), 0);
 
             cmd.Execute(ref context);
@@ -203,26 +196,14 @@ namespace PowerUtilities.RenderFeatures
             prevVP = cam.nonJitteredProjectionMatrix * cam.worldToCameraMatrix;
 
             //reset
-            cmd.SetGlobalTexture(_TemporalAATexture, Texture2D.blackTexture);
-            cam.ResetProjectionMatrix();
-            //ResetCameraMatrix(cam);
-            //JitterCameraProjectionMatrix(cam);
+            ResetCameraMatrix(cam);
+            JitterCameraProjectionMatrix(cam);
         }
 
         void ResetCameraMatrix(Camera cam)
         {
             cam.ResetProjectionMatrix();
             cam.ResetWorldToCameraMatrix();
-        }
-
-        public override void OnCameraCleanup(CommandBuffer cmd)
-        {
-            base.OnCameraCleanup(cmd);
-            if (!cam)
-                return;
-
-            ResetCameraMatrix(cam);
-            JitterCameraProjectionMatrix(cam);
         }
 
         void JitterCameraProjectionMatrix(Camera cam)
