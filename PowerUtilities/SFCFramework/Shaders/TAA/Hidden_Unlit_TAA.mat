@@ -27,12 +27,16 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _SourceTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _MovementBlending: 1
-    - _Sharpen: 0.26
-    - _SharpenScale: 1
+    - _DepthOffset: 1
+    - _MovementBlending: 100
+    - _Sharpen: 0.066
     - _TemporalFade: 1
-    - _TexelSizeScale: 0.458
+    - _TexelSizeScale: 0.121
     m_Colors: []
   m_BuildTextureStacks: []

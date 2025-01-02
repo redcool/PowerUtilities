@@ -10,11 +10,33 @@ namespace PowerUtilities
 
     public static class CommandBufferEx
     {
-        public static readonly int
-            _SourceTex = Shader.PropertyToID(nameof(_SourceTex)),
-            _FinalSrcMode = Shader.PropertyToID(nameof(_FinalSrcMode)),
-            _FinalDstMode = Shader.PropertyToID(nameof(_FinalDstMode))
-        ;
+        static Mesh fullscreenTriangle;
+        public static Mesh FullscreenTriangle
+        {
+            get
+            {
+                if (fullscreenTriangle)
+                    return fullscreenTriangle;
+
+                fullscreenTriangle = new Mesh() { name = nameof(fullscreenTriangle) };
+                fullscreenTriangle.vertices = new Vector3[] {
+                    new Vector3(-1,-1),
+                    new Vector3(-1,3),
+                    new Vector3(3,-1),
+                    //Vector3.zero,Vector3.zero,Vector3.zero
+                };
+                fullscreenTriangle.uv = new Vector2[3]
+                {
+                    new Vector2(0,0),
+                    new Vector2(2,0),
+                    new Vector2(0,2)
+                    //Vector2.zero,Vector2.zero,Vector2.zero
+                };
+                fullscreenTriangle.SetIndices(new[] { 0, 1, 2 }, MeshTopology.Triangles, 0, false);
+                fullscreenTriangle.UploadMeshData(false);
+                return fullscreenTriangle;
+            }
+        }
 
         public static Dictionary<CommandBuffer, string> nameDict = new Dictionary<CommandBuffer, string>();
 
@@ -194,7 +216,7 @@ namespace PowerUtilities
 
         /// <summary>
         /// Blit A triangle
-        /// set _SourceTex,_FinalSrcMode,_FinalDstMode
+        /// set global params(_SourceTex,_FinalSrcMode,_FinalDstMode)
         /// </summary>
         /// <param name="cmd"></param>
         /// <param name="renderingData"></param>
@@ -207,8 +229,8 @@ namespace PowerUtilities
         /// <param name="finalDstMode"></param>
         public static void BlitTriangle(this CommandBuffer cmd, RenderTargetIdentifier sourceId, RenderTargetIdentifier colorTargetId, Material mat, int pass,
             Camera camera = null, BlendMode finalSrcMode = BlendMode.One, BlendMode finalDstMode = BlendMode.Zero,
-            ClearFlag clearFlags = ClearFlag.None,Color clearColor=default,RenderTargetIdentifier depthTargetId=default,
-            bool isTryReplaceUrpTarget=true)
+            ClearFlag clearFlags = ClearFlag.None, Color clearColor = default, RenderTargetIdentifier depthTargetId = default,
+            bool isTryReplaceUrpTarget = true, bool drawTriangleMesh = false)
         {
 #if UNITY_2022_1_OR_NEWER
             if (isTryReplaceUrpTarget)
@@ -219,12 +241,13 @@ namespace PowerUtilities
                 render.TryReplaceURPRTTarget(ref depthTargetId);
             }
 #endif
-            // set source
-            cmd.SetGlobalTexture(_SourceTex, sourceId);
+            // set source and mainTex
+            cmd.SetGlobalTexture(ShaderPropertyIds.sourceTex, sourceId);
+            cmd.SetGlobalTexture(ShaderPropertyIds._MainTex, sourceId);
 
             // set blendmode
-            cmd.SetGlobalFloat(_FinalSrcMode, (float)finalSrcMode);
-            cmd.SetGlobalFloat(_FinalDstMode, (float)finalDstMode);
+            cmd.SetGlobalFloat(ShaderPropertyIds._FinalSrcMode, (float)finalSrcMode);
+            cmd.SetGlobalFloat(ShaderPropertyIds._FinalDstMode, (float)finalDstMode);
 
             // set render target
             var loadAction = finalDstMode == BlendMode.Zero ? RenderBufferLoadAction.DontCare : RenderBufferLoadAction.Load;
@@ -247,8 +270,16 @@ namespace PowerUtilities
             {
                 cmd.SetViewport(camera.pixelRect);
             }
-            // draw trangle
-            cmd.DrawProcedural(Matrix4x4.identity, mat, pass, MeshTopology.Triangles, 3);
+
+            // draw trangle or procedural
+            if (drawTriangleMesh)
+            {
+                cmd.DrawMesh(FullscreenTriangle, Matrix4x4.identity, mat, 0, pass);
+            }
+            else
+            {
+                cmd.DrawProcedural(Matrix4x4.identity, mat, pass, MeshTopology.Triangles, 3);
+            }
         }
 
         public static void SetGlobalBool(this CommandBuffer cmd,int nameId, bool value)
