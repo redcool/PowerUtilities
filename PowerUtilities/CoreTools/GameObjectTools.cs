@@ -7,7 +7,9 @@
     using System.Linq;
     using System.Text;
     using System.Text.RegularExpressions;
+#if UNITY_EDITOR
     using UnityEditor;
+#endif
     using UnityEngine;
     using Object = UnityEngine.Object;
 
@@ -243,18 +245,20 @@
         }
 
         /// <summary>
-        /// remove go and children's missing scripts
+        /// [EditorMode] remove go and children's missing scripts
         /// </summary>
         /// <param name="go"></param>
         /// <returns></returns>
         public static int RemoveChildrenMissingMonos(this GameObject go)
         {
             var count = 0;
+#if UNITY_EDITOR
             var trs = go.GetComponentsInChildren<Transform>();
             foreach (Transform t in trs)
             {
                 count += GameObjectUtility.RemoveMonoBehavioursWithMissingScript(t.gameObject);
             }
+#endif
             return count;
         }
     }

@@ -89,6 +89,24 @@ namespace PowerUtilities
         }
 
         /// <summary>
+        /// create rt when rt' size diff with desc
+        /// </summary>
+        /// <param name="rt"></param>
+        /// <param name="desc"></param>
+        /// <param name="rtName"></param>
+        /// <param name="filterMode"></param>
+        public static void TryCreateRT(ref RenderTexture rt, RenderTextureDescriptor desc, string rtName, FilterMode filterMode)
+        {
+            if (IsNeedAlloc(rt, desc))
+            {
+                if (rt)
+                    rt.Destroy();
+
+                CreateRT(ref rt, desc, rtName, filterMode);
+            }
+        }
+
+        /// <summary>
         /// save rt to dict, TryGetRT get it
         /// </summary>
         /// <param name="rt"></param>
