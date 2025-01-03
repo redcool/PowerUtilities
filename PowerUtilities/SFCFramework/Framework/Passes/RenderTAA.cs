@@ -69,9 +69,9 @@ namespace PowerUtilities.RenderFeatures
         public float movementBlending = 100;
 
         [EditorGroup("MatProp")]
-        [Range(0, 1)]
+        [Range(1, 2)]
         [Tooltip("samples uv texel scale,more big more blur")]
-        public float texelSizeScale;
+        public float texelSizeScale = 1;
 
         [EditorGroup("MatProp")]
         [Range(0,1)]
@@ -80,8 +80,11 @@ namespace PowerUtilities.RenderFeatures
 
         public override ScriptableRenderPass GetPass()
         {
+            // default settings
             if(renderPassEvent < RenderPassEvent.BeforeRenderingPostProcessing)
                 renderPassEvent = RenderPassEvent.BeforeRenderingPostProcessing;
+
+            cameraType = CameraType.Game;
 
             return new RenderTAAPass(this);
         }

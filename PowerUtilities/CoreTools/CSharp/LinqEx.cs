@@ -5,6 +5,7 @@
     using System.Collections.Generic;
     using UnityEngine;
     using System.Linq;
+    using PlasticPipe.Tube;
 
     public static class LinqEx
     {
@@ -103,5 +104,31 @@
             q.ForEachIndex(i => q[i] = t);
         }
 
+        /// <summary>
+        /// find MaxValue's item from list
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="list"></param>
+        /// <param name="predicate"></param>
+        /// <returns></returns>
+        public static T FindMax<T, TResult>(this IEnumerable<T> list, Func<T, TResult> predicate) where TResult : IComparable
+        {
+            var count = list.Count();
+            TResult maxValue = default;
+            T maxItem = default;
+            for (int i = 0; i < count; i++)
+            {
+                var item = list.ElementAt(i);
+                var value = predicate(item);
+
+                if (value.CompareTo(maxValue) > 0)
+                {
+                    maxValue = value;
+                    maxItem = item;
+                }
+            }
+            return maxItem;
+        }
     }
 }

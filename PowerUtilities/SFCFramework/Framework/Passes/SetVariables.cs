@@ -3,6 +3,7 @@ namespace PowerUtilities.RenderFeatures
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using System.Linq;
     using UnityEngine;
     using UnityEngine.Experimental.Rendering;
     using UnityEngine.Rendering;
@@ -31,13 +32,13 @@ namespace PowerUtilities.RenderFeatures
         [EditorDisableGroup(targetPropName = "isOverrideAutoSetShadowMask")]
         public bool isAutoSetShadowMask;
 
-        [Header("Set MainCamera Info")]
-        [Tooltip("override isSetMainCameraInfo")]
-        public bool isOverrideSetMainCameraInfo;
+        //[Header("Set MainCamera Info")]
+        //[Tooltip("override isSetMainCameraInfo")]
+        //public bool isOverrideSetMainCameraInfo;
 
-        [Tooltip("setup camera's rotation matrix(_CameraRot,_CameraYRot),Bill.shader use these")]
-        [EditorDisableGroup(targetPropName = "isOverrideSetMainCameraInfo")]
-        public bool isSetMainCameraInfo = true;
+        [Tooltip("setup rotation matrix(_CameraRot,_CameraYRot,_MainLightYRot),Bill.shader use these")]
+        //[EditorDisableGroup(targetPropName = "isOverrideSetMainCameraInfo")]
+        public bool isSetMainCameraAndLight = true;
 
         [Header("set unscaled time")]
         [Tooltip("override isOverrideUnscaledTime")]
@@ -77,11 +78,41 @@ namespace PowerUtilities.RenderFeatures
         static Dictionary<RenderPipelineAsset, float> assetRenderScaleDict = new Dictionary<RenderPipelineAsset, float>();
         public SetVarialbesPass(SetVariables feature) : base(feature) { }
 
+        Light mainLight;
+
         void SetupVariables(CommandBuffer cmd, ref RenderingData renderingData)
         {
             var camera = renderingData.cameraData.camera;
-            var renderer = (UniversalRenderer) renderingData.cameraData.renderer;
+            var renderer = (UniversalRenderer)renderingData.cameraData.renderer;
 
+            SetupVariables(cmd, renderer);
+
+            // update vars
+            if (Feature.isOverrideAutoSetShadowMask && Feature.isAutoSetShadowMask)
+            {
+                var isShadowMaskMixing = UniversalRenderPipeline.asset.IsLightmapShadowMixing(ref renderingData);
+                cmd.SetGlobalBool(ShaderPropertyIds.shadows_ShadowMaskOn, isShadowMaskMixing);
+            }
+
+            //if(Feature.isOverrideSetMainCameraInfo)
+            {
+                SetupCameraLightRotateMatrix(cmd, Camera.main, LightTools.FindMainLight(false,Tags.BigShadowLight));
+            }
+
+            if (Feature.isOverrideGlobalMaxLod)
+                Shader.globalMaximumLOD = Feature.globalMaxLod;
+
+            if (Feature.isOverrideMinVersion)
+                UpdateMinVersion();
+
+            if (Feature.isOverrideUnscaledTime && Feature.isSetUnscaledTime)
+            {
+                SetShaderTimeValues(cmd, Time.unscaledTime, Time.unscaledDeltaTime, Time.smoothDeltaTime);
+            }
+        }
+
+        private void SetupVariables(CommandBuffer cmd, UniversalRenderer renderer)
+        {
             foreach (var v in Feature.floatValues)
                 if (v.IsValid) cmd.SetGlobalFloat(v.name, v.value);
 
@@ -103,33 +134,26 @@ namespace PowerUtilities.RenderFeatures
                     cmd.SetGlobalTexture(v.name, rtId);
                 }
             }
+        }
 
-            // update vars
-            if (Feature.isOverrideAutoSetShadowMask && Feature.isAutoSetShadowMask)
+        private void SetupCameraLightRotateMatrix(CommandBuffer cmd,Camera cam,Light mainLight)
+        {
+            if (Feature.isSetMainCameraAndLight)
             {
-                var isShadowMaskMixing = UniversalRenderPipeline.asset.IsLightmapShadowMixing(ref renderingData);
-                cmd.SetGlobalBool(ShaderPropertyIds.shadows_ShadowMaskOn, isShadowMaskMixing);
-            }
-
-            if(Feature.isOverrideSetMainCameraInfo && Feature.isSetMainCameraInfo)
-            {
-                var cam = Camera.main;
-                if(cam)
+                if (cam)
                 {
-                    cmd.SetGlobalMatrix("_CameraRot",Matrix4x4.Rotate(Quaternion.Euler(cam.transform.eulerAngles)));
-                    cmd.SetGlobalMatrix("_CameraYRot",Matrix4x4.Rotate(Quaternion.Euler(0,cam.transform.eulerAngles.y,0)));
+                    cmd.SetGlobalMatrix("_CameraRot", Matrix4x4.Rotate(Quaternion.Euler(cam.transform.eulerAngles)));
+                    cmd.SetGlobalMatrix("_CameraYRot", Matrix4x4.Rotate(Quaternion.Euler(0, cam.transform.eulerAngles.y, 0)));
                 }
+
+                if (mainLight)
+                    cmd.SetGlobalMatrix("_MainLightYRot", Matrix4x4.Rotate(Quaternion.Euler(0, mainLight.transform.eulerAngles.y, 0)));
             }
-
-            if (Feature.isOverrideGlobalMaxLod)
-                Shader.globalMaximumLOD = Feature.globalMaxLod;
-
-            if(Feature.isOverrideMinVersion)
-                UpdateMinVersion();
-
-            if (Feature.isOverrideUnscaledTime && Feature.isSetUnscaledTime)
+            else
             {
-                SetShaderTimeValues(cmd, Time.unscaledTime, Time.unscaledDeltaTime, Time.smoothDeltaTime);
+                cmd.SetGlobalMatrix("_CameraRot", Matrix4x4.identity);
+                cmd.SetGlobalMatrix("_CameraYRot", Matrix4x4.identity);
+                cmd.SetGlobalMatrix("_MainLightYRot", Matrix4x4.identity);
             }
         }
 

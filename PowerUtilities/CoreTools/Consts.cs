@@ -18,7 +18,8 @@ namespace PowerUtilities
             Monster = nameof(Monster),
             MainCamera = nameof(MainCamera),
             ReflectionCamera = nameof(ReflectionCamera),
-            EditorOnly = nameof(EditorOnly)
+            EditorOnly = nameof(EditorOnly),
+            BigShadowLight = nameof(BigShadowLight)
             ;
     }
 }
