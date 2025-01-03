@@ -6,7 +6,7 @@ Shader "Hidden/Unlit/TAA"
 
         _TemporalFade("_TemporalFade",range(0,1)) = 0.95
         _MovementBlending("_MovementBlending",range(0,100)) = 100
-        _TexelSizeScale("_TexelSizeScale",range(0.01,1)) = .2
+        _TexelSizeScale("_TexelSizeScale",range(1,2)) = 1
         _Sharpen("_Sharpen",range(0.01,1)) = 0.1
         // _DepthOffset("_DepthOffset",range(1,1000)) = 1
     }
@@ -50,6 +50,7 @@ Shader "Hidden/Unlit/TAA"
             #include "../../../../../PowerShaderLib/Lib/BlitLib.hlsl"
             #include "../../../../../PowerShaderLib/Lib/ScreenTextures.hlsl"
             #include "../../../../../PowerShaderLib/Lib/Kernel/KernelDefines.hlsl"
+            #include "../../../../../PowerShaderLib/Lib/Common/Randoms.hlsl"
 
             struct appdata
             {
@@ -114,9 +115,6 @@ Shader "Hidden/Unlit/TAA"
 
                 float depth = (GetScreenDepth(suv));
                 float depth01 = LinearDepth01(depth);
-
-                // depth01 = Linear01Depth(depth,_ZBufferParams);
-                // depth01 = (depth01*(_ProjectionParams.z - _ProjectionParams.y) + _ProjectionParams.y)/_ProjectionParams.z;
                 // return depth01;
 
                 float3 curCol = tex2D(_SourceTex,suv).xyz;
@@ -126,10 +124,11 @@ Shader "Hidden/Unlit/TAA"
                 float4 viewPos = mul(_invP,pos.xyzz);
                 viewPos.xyz /= viewPos.w;
 
-                // jitter pos
+                //_FrameMatrix is last Projection,
+                // jitter pos, reproject to last ndc
                 float4 tuv = mul(_FrameMatrix,float4(viewPos.xyz * depth01,1));
                 tuv /= tuv.w;
-                float3 lastCol = tex2D(_TemporalAATexture,tuv*0.5+0.5).xyz;
+                float3 lastCol = tex2D(_TemporalAATexture,tuv.xy*0.5+0.5).xyz;
 
                 // if(any(abs(tuv.xy)>1))
                 //     lastCol = curCol;
@@ -150,15 +149,19 @@ Shader "Hidden/Unlit/TAA"
                     colSharpen += col * kernels_sharpen_dark[x];
                 }
 
-                minCol += colSharpen * _Sharpen;
-                maxCol += colSharpen * _Sharpen;
                 lastCol = clamp(lastCol,minCol,maxCol) ;
                 // lastCol *= rcp(lastCol+1.0); // more gray
 
+                // ndc space velocity(can use motionVectors)
                 float velocity = length(pos.xy - tuv);
                 // return velocity <0.0000001;
+
+                // blend last curent colors
                 float temporalScale = exp(-_MovementBlending * velocity);
                 float3 finalCol = lerp(curCol,lastCol, _TemporalFade * temporalScale);
+
+                // apply sharpen compensation
+                finalCol += colSharpen * _Sharpen*depth01;
 
                 return float4(finalCol,1);
             }

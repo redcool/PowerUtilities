@@ -16,7 +16,7 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
+  m_CustomRenderQueue: 3000
   stringTagMap: {}
   disabledShaderPasses: []
   m_LockedProperties: 
@@ -35,8 +35,8 @@ Material:
     m_Floats:
     - _DepthOffset: 1
     - _MovementBlending: 100
-    - _Sharpen: 0.066
-    - _TemporalFade: 1
-    - _TexelSizeScale: 0.121
+    - _Sharpen: 0.733
+    - _TemporalFade: 0.9
+    - _TexelSizeScale: 2
     m_Colors: []
   m_BuildTextureStacks: []

@@ -101,7 +101,9 @@ namespace PowerUtilities.RenderFeatures
     {
         int _TemporalAATexture = Shader.PropertyToID(nameof(_TemporalAATexture));
 
-        Matrix4x4 prevVP;
+        //Matrix4x4 prevVP;
+        Matrix4x4 prevP;
+
         RenderTexture tempRT1, tempRT2;
 
         public RenderTAAPass(RenderTAA feature) : base(feature)
@@ -120,8 +122,6 @@ namespace PowerUtilities.RenderFeatures
             desc.height = (int)(desc.height * Feature.renderScale);
 
             desc.graphicsFormat = GraphicsFormatTools.GetColorTextureFormat();
-            //desc.graphicsFormat = GraphicsFormat.R16G16B16A16_SFloat;
-            //desc.colorFormat = RenderTextureFormat.Default;
             desc.depthBufferBits = 0;
 
             RenderTextureTools.TryCreateRT(ref tempRT1, desc, nameof(tempRT1), Feature.filterMode);
@@ -171,8 +171,8 @@ namespace PowerUtilities.RenderFeatures
             var matrix = cam.nonJitteredProjectionMatrix.inverse;
             mat.SetMatrix("_invP", matrix);
 
-            matrix = prevVP * cam.cameraToWorldMatrix;
-            mat.SetMatrix("_FrameMatrix", matrix);
+            //matrix = prevVP * cam.cameraToWorldMatrix;
+            mat.SetMatrix("_FrameMatrix", prevP);
 
             if (Feature.isOverrideMatProps)
             {
@@ -193,8 +193,8 @@ namespace PowerUtilities.RenderFeatures
 
             cmd.Execute(ref context);
 
-            prevVP = cam.nonJitteredProjectionMatrix * cam.worldToCameraMatrix;
-
+            //prevVP = cam.nonJitteredProjectionMatrix * cam.worldToCameraMatrix;
+            prevP = cam.nonJitteredProjectionMatrix;
             //reset
             ResetCameraMatrix(cam);
             JitterCameraProjectionMatrix(cam);
