@@ -108,14 +108,13 @@ Shader "Hidden/Unlit/TAA"
             }
             // override _ScaledScreenParams
             #define _ScaledScreenParams _TemporalAATexture_TexelSize.zwxy
-            sampler2D _CameraDepthAttachment;
 
             float4 frag (v2f i) : SV_Target
             {
-                float2 suv = i.vertex.xy/_ScaledScreenParams;
+                float2 suv = i.vertex.xy/_ScaledScreenParams.xy;
 
-                // float depth = GetScreenDepth(suv);
-                float depth = tex2D(_CameraDepthAttachment,suv);
+                float depth = GetScreenDepth(suv);
+                // float depth = tex2D(_CameraDepthAttachment,suv);
                 float depth01 = Linear01Depth(depth);
                 // return depth01;
 
@@ -155,7 +154,7 @@ Shader "Hidden/Unlit/TAA"
                 // lastCol *= rcp(lastCol+1.0); // more gray
 
                 // ndc space velocity(can use motionVectors)
-                float velocity = length(pos.xy - tuv);
+                float velocity = length(pos.xy - tuv.xy);
                 // return velocity <0.0000001;
 
                 // blend last curent colors
