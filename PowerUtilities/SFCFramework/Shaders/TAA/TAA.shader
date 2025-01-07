@@ -108,13 +108,15 @@ Shader "Hidden/Unlit/TAA"
             }
             // override _ScaledScreenParams
             #define _ScaledScreenParams _TemporalAATexture_TexelSize.zwxy
+            sampler2D _CameraDepthAttachment;
 
             float4 frag (v2f i) : SV_Target
             {
                 float2 suv = i.vertex.xy/_ScaledScreenParams;
 
-                float depth = (GetScreenDepth(suv));
-                float depth01 = LinearDepth01(depth);
+                // float depth = GetScreenDepth(suv);
+                float depth = tex2D(_CameraDepthAttachment,suv);
+                float depth01 = Linear01Depth(depth);
                 // return depth01;
 
                 float3 curCol = tex2D(_SourceTex,suv).xyz;
