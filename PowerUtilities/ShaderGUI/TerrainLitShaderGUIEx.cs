@@ -97,12 +97,14 @@ namespace UnityEditor.Rendering.Universal
             return false;
         }
 
+
+
         public override void OnGUI(MaterialEditor materialEditorIn, MaterialProperty[] properties)
         {
             if (materialEditorIn == null)
                 throw new ArgumentNullException("materialEditorIn");
 
-            materialEditorIn.PropertiesDefaultGUI(properties);
+            materialEditorIn.PropertiesDefaultGUINoChangeWidths(properties);
 
             //FindMaterialProperties(properties);
 

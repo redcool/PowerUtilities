@@ -6,6 +6,7 @@ namespace PowerUtilities
     using System.Reflection;
     using UnityEditor;
     using UnityEngine;
+    using UnityEngine.Rendering;
 
     /// <summary>
     /// Handle MaterialEditor draw [Vector,Texture] cannot have tooltips.
@@ -297,6 +298,35 @@ namespace PowerUtilities
         public static MaterialProperty[] GetProperties(this MaterialEditor editor)
         => MaterialEditor.GetMaterialProperties(editor.targets);
 
+        /// <summary>
+        /// like PropertiesDefaultGUI, but no change label width
+        /// </summary>
+        /// <param name="materialEditorI"></param>
+        /// <param name="props"></param>
+        public static void PropertiesDefaultGUINoChangeWidths(this MaterialEditor materialEditorI, MaterialProperty[] props)
+        {
+
+
+            for (int i = 0; i < props.Length; i++)
+            {
+                if ((props[i].flags & MaterialProperty.PropFlags.HideInInspector) == 0)
+                {
+                    float propertyHeight = materialEditorI.GetPropertyHeight(props[i], props[i].displayName);
+                    Rect controlRect = EditorGUILayout.GetControlRect(true, propertyHeight, EditorStyles.layerMaskField);
+                    materialEditorI.ShaderProperty(controlRect, props[i], props[i].displayName);
+                }
+            }
+
+            EditorGUILayout.Space();
+            EditorGUILayout.Space();
+            if (SupportedRenderingFeatures.active.editableMaterialRenderQueue)
+            {
+                materialEditorI.RenderQueueField();
+            }
+
+            materialEditorI.EnableInstancingField();
+            materialEditorI.DoubleSidedGIField();
+        }
     }
 }
 #endif
