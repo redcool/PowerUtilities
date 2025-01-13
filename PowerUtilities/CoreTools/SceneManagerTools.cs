@@ -70,34 +70,5 @@ namespace PowerUtilities
             activeSceneChangedInEditMode -= action;
 #endif
         }
-
-        public static void AddEditorSceneClosing(SceneClosingCallback action)
-        {
-#if UNITY_EDITOR
-            sceneClosing -= action;
-            sceneClosing += action;
-#endif
-        }
-
-        public static void RemoveEditorSceneClosing(SceneClosingCallback action)
-        {
-#if UNITY_EDITOR
-            sceneClosing -= action;
-#endif
-        }
-        public static void AddEditorSceneClosed(SceneClosedCallback action)
-        {
-#if UNITY_EDITOR
-            sceneClosed -= action;
-            sceneClosed += action;
-#endif
-        }
-
-        public static void RemoveEditorSceneClosed(SceneClosedCallback action)
-        {
-#if UNITY_EDITOR
-            sceneClosed -= action;
-#endif
-        }
     }
 }

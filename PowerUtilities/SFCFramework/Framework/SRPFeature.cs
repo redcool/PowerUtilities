@@ -1,7 +1,8 @@
-﻿using UnityEngine.Serialization;
-
-namespace PowerUtilities.RenderFeatures
+﻿namespace PowerUtilities.RenderFeatures
 {
+#if UNITY_EDITOR
+    using UnityEditor;
+#endif
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -12,11 +13,10 @@ namespace PowerUtilities.RenderFeatures
     using UnityEngine.Rendering.Universal;
     using System.Reflection;
     using PowerUtilities.UIElements;
-
-#if UNITY_EDITOR
-    using UnityEditor;
     using UnityEngine.SceneManagement;
 
+
+#if UNITY_EDITOR
     [CanEditMultipleObjects]
     //[CustomEditor(typeof(SRPFeature),true)]
     public class SRPFeatureEditor : PowerEditor<SRPFeature>
