@@ -19,6 +19,7 @@ namespace PowerUtilities
             public int qualityLevel = 3;
 
             [Tooltip("component count(like :particle System Count),exceed is disabled from top to down")]
+            [Min(0)]
             public int componentCount=3;
         }
 
@@ -40,6 +41,9 @@ namespace PowerUtilities
         }
 
         public QualityInfo GetInfo(int qLevel)
-            => qLevel < infos.Count ? infos[qLevel] : default;
+        {
+            return infos.Find((QualityInfo info )=> info.qualityLevel == qLevel);
+        }
+
     }
 }

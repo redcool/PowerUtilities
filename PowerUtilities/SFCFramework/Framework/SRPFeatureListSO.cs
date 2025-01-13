@@ -127,8 +127,11 @@
 
                     if (EditorGUI.EndChangeCheck())
                     {
+                        /**
+                         same as SRPFeature's OnValidate
+                         */
                         //? temporary disable this
-                        feature.DestroyPassInstance();
+                        //feature.DestroyPassInstance();
                     }
                 }
                 EditorGUI.indentLevel--;

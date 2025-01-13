@@ -108,6 +108,7 @@ namespace PowerUtilities.RenderFeatures
         Matrix4x4 prevP;
 
         RenderTexture tempRT1, tempRT2;
+        int lastQualityLevel;
 
         public RenderTAAPass(RenderTAA feature) : base(feature)
         {
@@ -132,12 +133,9 @@ namespace PowerUtilities.RenderFeatures
 
         }
 
-        protected override void Dispose(bool disposing)
+        public override void OnDestroy()
         {
-            base.Dispose(disposing);
-
             TryDestroyRTs();
-
         }
 
         private void TryDestroyRTs()
@@ -148,23 +146,27 @@ namespace PowerUtilities.RenderFeatures
                 tempRT2.Destroy();
         }
 
-        void UpdateKeywordByQualitySettings(CommandBuffer cmd)
+        /// <summary>
+        /// when qualityLevel changed will check 
+        /// </summary>
+        /// <param name="cmd"></param>
+        void UpdateKeywordQualityLevelChanged(CommandBuffer cmd)
         {
             var qLevel = QualitySettings.GetQualityLevel();
+            if (!CompareTools.CompareAndSet(ref lastQualityLevel, ref qLevel))
+                return;
 
-            var is3x3On = true;
+            var setting = Feature.qualitySettings.Find(item => item.qualityLevel == qLevel);
+            if (setting == null)
+                return;
 
-            if (qLevel < Feature.qualitySettings.Count)
-            {
-                var setting = Feature.qualitySettings[qLevel];
-                is3x3On = setting.samplesMode == RenderTAA.SamplesMode._3x3;
-            }
+            var is3x3On = setting.samplesMode == RenderTAA.SamplesMode._3x3;
             cmd.SetShaderKeywords(is3x3On, "_SAMPLES_3X3");
         }
 
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
         {
-            UpdateKeywordByQualitySettings(cmd);
+            UpdateKeywordQualityLevelChanged(cmd);
 
             TrySetupTempRTs(cmd, renderingData);
 

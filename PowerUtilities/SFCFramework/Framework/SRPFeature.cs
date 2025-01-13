@@ -15,6 +15,7 @@ namespace PowerUtilities.RenderFeatures
 
 #if UNITY_EDITOR
     using UnityEditor;
+    using UnityEngine.SceneManagement;
 
     [CanEditMultipleObjects]
     //[CustomEditor(typeof(SRPFeature),true)]
@@ -79,6 +80,7 @@ namespace PowerUtilities.RenderFeatures
         [Header("Pass Options")]
         [Tooltip("Skip when false")]
         public bool enabled = true;
+        bool lastEnabled = true;
 
         [Tooltip("Interrupt others pass when this pass done")]
         public bool interrupt;
@@ -130,14 +132,20 @@ namespace PowerUtilities.RenderFeatures
         // pass instance cache
         ScriptableRenderPass passInstance;
         TooltipAttribute featureTooltipAttr;
+
+        Scene lastScene;
         /// <summary>
         /// get a new pass instance
         /// </summary>
         /// <returns></returns>
         public abstract ScriptableRenderPass GetPass();
+
         private void OnValidate()
         {
-            DestroyPassInstance();
+            /**
+             SRPFeature not update,need call DestroyPassInstance
+             */
+            //DestroyPassInstance();
         }
         /// <summary>
         /// get cached pass instance
@@ -155,10 +163,10 @@ namespace PowerUtilities.RenderFeatures
         /// <summary>
         /// Destroy current instance, will create new next time
         /// </summary>
-        public void DestroyPassInstance()
-        {
-            passInstance = null;
-        }
+        //public void DestroyPassInstance()
+        //{
+        //    passInstance = null;
+        //}
 
         public string Tooltip
         {
@@ -169,17 +177,71 @@ namespace PowerUtilities.RenderFeatures
                 return featureTooltipAttr?.tooltip;
             }
         }
+
+        public void UpdateActiveState()
+        {
+            var isDisabled = (lastEnabled && !enabled);
+            var isEnabled = (!lastEnabled && enabled);
+            if (!CompareTools.CompareAndSet(ref lastEnabled, ref enabled))
+                return;
+
+            if (isDisabled)
+                OnDisable();
+            if (isEnabled)
+                OnEnable();
+        }
+
+        public void UpdateSceneState()
+        {
+            var scene = SceneManager.GetActiveScene();
+
+            if (CompareTools.CompareAndSet(ref lastScene, ref scene))
+            {
+                OnSceneChanged();
+                if (passInstance is SRPPass srpPass)
+                    srpPass.OnSceneChanged();
+            }
+        }
         /// <summary>
-        /// Destory current instance, next time will get new istanced
+        /// SRPFeature called
+        /// Unity called
         /// </summary>
-        public void OnDestroy()
+        public virtual void OnEnable()
         {
             if (passInstance is SRPPass srpPass)
             {
-                srpPass.Dispose();
+                srpPass.OnEnable();
+            }
+        }
+        /// <summary>
+        /// SRPFeature called
+        /// Unity called
+        /// </summary>
+        public virtual void OnDisable()
+        {
+            if (passInstance is SRPPass srpPass)
+            {
+                srpPass.OnDisable();
+            }
+        }
+         
+        /// <summary>
+        /// Destory current instance, next time will get new istanced
+        /// </summary>
+        public virtual void OnDestroy()
+        {
+            if (passInstance is SRPPass srpPass)
+            {
+                srpPass.OnDestroy();
             }
             passInstance = null;
         }
+
+        public virtual void OnSceneChanged()
+        {
+            
+        }
+
 
         public bool IsCameraValid(Camera c)
             => cameraTypeCompareFunc == CameraTypeCompareFunc.Equals ? c.cameraType == cameraType : c.cameraType <= cameraType;

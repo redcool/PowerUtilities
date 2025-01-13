@@ -28,5 +28,6 @@ namespace PowerUtilities
             foreach (LODGroup lod in sceneLodGroups)
                 lod.ForceLOD(maxMeshLod);
         }
+
     }
 }

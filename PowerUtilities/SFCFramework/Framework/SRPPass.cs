@@ -9,30 +9,21 @@ using UnityEngine.Rendering.Universal;
 
 namespace PowerUtilities.RenderFeatures
 {
-
-    public abstract class SRPPass : ScriptableRenderPass, IDisposable
+    /// <summary>
+    /// SRPPass's subClass's constructor for initial
+    /// </summary>
+    public abstract class SRPPass : ScriptableRenderPass
     {
         /// <summary>
-        /// Dispose 
+        /// called when unity recompile
         /// </summary>
-        protected bool disposed;
-        public void Dispose()
-        {
-            if (disposed) return;
-            Dispose(true);
-            GC.SuppressFinalize(this);
-            disposed = true;
-        }
+        public virtual void OnEnable() { }
         /// <summary>
-        /// Dispose managed asset
+        /// called when unity recompile
         /// </summary>
-        protected virtual void Dispose(bool disposing)
-        {
-        }
-        ~SRPPass()
-        {
-            Dispose(false);
-        }
+        public virtual void OnDisable() { }
+        public virtual void OnDestroy() { }
+        public virtual void OnSceneChanged() { }
     }
 
     /// <summary>
@@ -154,6 +145,7 @@ namespace PowerUtilities.RenderFeatures
         }
 
         public abstract void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd);
+
 
     }
 }

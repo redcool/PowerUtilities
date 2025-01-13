@@ -11,7 +11,7 @@ namespace PowerUtilities
     {
         public enum UpdateMode
         {
-            DestroyGameObject, DisableComp
+            DestroyGameObject, Disable
         }
         [Header("Default Setting")]
         [LoadAsset("Assets/PowerUtilities/QualitySettingEx.asset")]
@@ -34,9 +34,9 @@ namespace PowerUtilities
             var qlevel = QualitySettings.GetQualityLevel();
             var info = defaultSettingSO.GetInfo(qlevel);
 
-            if (isUseOverrideSetting && qlevel < overrideInfos.Count)
+            if (isUseOverrideSetting)
             {
-                info = overrideInfos[qlevel];
+                info = overrideInfos.Find(item => item.qualityLevel == qlevel);
             }
 
             if (info == null)
@@ -48,7 +48,7 @@ namespace PowerUtilities
 
         public virtual void UpdateWithQuality(QualitySettingEx.QualityInfo info)
         {
-            var children = GetComponentsInChildren<Transform>().Skip(info.componentCount);
+            var children = GetComponentsInChildren<Transform>(true).Skip(info.componentCount+1);
 
             foreach (var child in children)
             {

@@ -84,7 +84,7 @@ namespace PowerUtilities.RenderFeatures
                 if(depthTex)
                     depthTex.Release();
 
-                depthTex = new RenderTexture(desc);
+                depthTex = new RenderTexture(desc) { name = Feature.depthTextureName };
             }
             cmd.SetGlobalTexture(depthTexId, depthTex);
         }

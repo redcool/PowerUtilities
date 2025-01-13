@@ -1,6 +1,7 @@
 ﻿#if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.SceneManagement;
+using static UnityEditor.SceneManagement.EditorSceneManager;
 #endif
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine;
 using UnityEngine.Events;
 
+
 namespace PowerUtilities
 {
     /// <summary>
@@ -18,7 +20,11 @@ namespace PowerUtilities
     /// </summary>
     public static class SceneManagerTools
     {
-
+        /// <summary>
+        /// Remove action first
+        /// then Add action to sceneUnloaded
+        /// </summary>
+        /// <param name="action"></param>
         public static void AddSceneUnloaded(UnityAction<Scene> action)
         {
             RemoveSceneUnloaded(action);
@@ -28,7 +34,11 @@ namespace PowerUtilities
         {
             SceneManager.sceneUnloaded -= action;
         }
-
+        /// <summary>
+        /// Remove action first
+        /// then Add action to sceneLoaded
+        /// </summary>
+        /// <param name="action"></param>
         public static void AddSceneLoaded(UnityAction<Scene,LoadSceneMode> action)
         {
             RemoveSceneLoaded(action);
@@ -39,12 +49,17 @@ namespace PowerUtilities
             SceneManager.sceneLoaded -= action;
         }
 
+        /// <summary>
+        /// Remove action first
+        /// then Add action to activeSceneChanged
+        /// </summary>
+        /// <param name="action"></param>
         public static void AddActiveSceneChanged(UnityAction<Scene, Scene> action)
         {
             RemoveActiveSceneChanged(action);
             SceneManager.activeSceneChanged += action;
 #if UNITY_EDITOR
-            EditorSceneManager.activeSceneChangedInEditMode += action;
+            activeSceneChangedInEditMode += action;
 #endif
         }
 
@@ -52,7 +67,36 @@ namespace PowerUtilities
         {
             SceneManager.activeSceneChanged -= action;
 #if UNITY_EDITOR
-            EditorSceneManager.activeSceneChangedInEditMode -= action;
+            activeSceneChangedInEditMode -= action;
+#endif
+        }
+
+        public static void AddEditorSceneClosing(SceneClosingCallback action)
+        {
+#if UNITY_EDITOR
+            sceneClosing -= action;
+            sceneClosing += action;
+#endif
+        }
+
+        public static void RemoveEditorSceneClosing(SceneClosingCallback action)
+        {
+#if UNITY_EDITOR
+            sceneClosing -= action;
+#endif
+        }
+        public static void AddEditorSceneClosed(SceneClosedCallback action)
+        {
+#if UNITY_EDITOR
+            sceneClosed -= action;
+            sceneClosed += action;
+#endif
+        }
+
+        public static void RemoveEditorSceneClosed(SceneClosedCallback action)
+        {
+#if UNITY_EDITOR
+            sceneClosed -= action;
 #endif
         }
     }

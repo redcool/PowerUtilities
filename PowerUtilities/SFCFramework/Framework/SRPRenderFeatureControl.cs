@@ -89,8 +89,6 @@ namespace PowerUtilities.RenderFeatures
             if ( featureListSO == null || featureListSO.featureList.Count == 0 || !featureListSO.enabled)
                 return;
             var camera = renderingData.cameraData.camera;
-            //if (! camera.IsGameCamera())
-            //    return;
 
             // cached last use instance
             SRPFeatureListSO.instance = featureListSO;
@@ -98,8 +96,15 @@ namespace PowerUtilities.RenderFeatures
 
             foreach (var feature in featureListSO.featureList)
             {
-                if (feature == null || !feature.enabled)
+                if (feature == null)
                     continue;
+                // update srpFeature states
+                feature.UpdateActiveState();
+
+                if (!feature.enabled)
+                    continue;
+
+                feature.UpdateSceneState();
 
                 var pass = feature.PassInstance;
                 if (pass == null)

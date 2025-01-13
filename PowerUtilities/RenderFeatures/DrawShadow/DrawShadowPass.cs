@@ -73,13 +73,10 @@
 
         private TextureResolution GetRes(int qLevel)
         {
-            if (qLevel < settingSO.ShadowMapResQualitySettings.Count)
+            var setting = settingSO.ShadowMapResQualitySettings.Find(setting => setting.qualityLevel == qLevel);
+            if (setting != null)
             {
-                var setting = settingSO.ShadowMapResQualitySettings.Find(setting => setting.qualityLevel == qLevel);
-                if (setting != null)
-                {
-                    return setting.res;
-                }
+                return setting.res;
             }
 
             return settingSO.res;
