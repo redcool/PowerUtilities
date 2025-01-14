@@ -18,16 +18,18 @@ namespace PowerUtilities.RenderFeatures
         [Header("Default scene volume profile")]
         public VolumeProfile profile;
         [Range(0, 1)]
-        public float volumeWeight = 1;
+        public float volumeWeight;
 
         [Header("Quality's volume profile")]
         [ListItemDraw("qualityLevel:,qualityLevel,profile:,profile", "100,100,50,")]
         public List<SceneVolumeControlQualityVolume> volumeList = new List<SceneVolumeControlQualityVolume>();
 
+        [Tooltip("Update interval time(frame count)")]
         [Min(1)]
         public int framesInterval = 1;
 
         [Header("Other Volumes")]
+        [Tooltip("Update others global volume")]
         public bool isOverrideGlobalVolumeWeight;
         [Range(0,1)]
         public float otherGlobalVolumeWeight = 0.3f;
@@ -55,10 +57,12 @@ namespace PowerUtilities.RenderFeatures
     {
         //Scene lastScene;
         float lastOtherVolumeWeight;
+        Volume volume;
+        int lastFrameCount;
 
         public override bool CanExecute()
         {
-            var isTimeValid = Time.frameCount % Feature.framesInterval == 0;
+            var isTimeValid = CompareTools.CompareAndSet(ref lastFrameCount, Time.frameCount, (a, b) => b - a > Feature.framesInterval);
 
             return isTimeValid && base.CanExecute() && Feature.profile;
         }
@@ -67,18 +71,30 @@ namespace PowerUtilities.RenderFeatures
         {
         }
 
+        void UpdateVolume()
+        {
+            if(!volume && Feature.sceneVolumeControlGo)
+                volume = Feature.sceneVolumeControlGo.GetComponent<Volume>();
+
+            if (!volume)
+                return;
+
+            volume.profile = Feature.profile;
+            volume.weight = Feature.volumeWeight;
+            volume.isGlobal = true;
+        }
+
         void TrySetupVolumeGo()
         {
             if (Feature.sceneVolumeControlGo)
+            {
                 return;
+            }
 
             //use default profile
             var volumeGo = Feature.sceneVolumeControlGo = new GameObject(featureName);
             volumeGo.hideFlags = HideFlags.DontSave;
-            var volume = volumeGo.AddComponent<Volume>();
-            volume.profile = Feature.profile;
-            volume.weight = Feature.volumeWeight;
-            volume.isGlobal = true;
+            volume = volumeGo.AddComponent<Volume>();
 
             // get item by quality level
             var qVolume = Feature.volumeList.Find(item => item.qualityLevel == QualitySettings.GetQualityLevel());
@@ -96,6 +112,7 @@ namespace PowerUtilities.RenderFeatures
         {
             UpdateOtherGlobalVolumes();
             TrySetupVolumeGo();
+            UpdateVolume();
         }
 
         private void UpdateOtherGlobalVolumes()
