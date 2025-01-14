@@ -79,22 +79,23 @@ namespace PowerUtilities.RenderFeatures
             if (!volume)
                 return;
 
-            volume.profile = Feature.profile;
             volume.weight = Feature.volumeWeight;
-            volume.isGlobal = true;
         }
-
+        /// <summary>
+        /// Create sceneVolumeControlGo, only once(or onEnable)
+        /// </summary>
         void TrySetupVolumeGo()
         {
             if (Feature.sceneVolumeControlGo)
-            {
                 return;
-            }
 
-            //use default profile
             var volumeGo = Feature.sceneVolumeControlGo = new GameObject(featureName);
             volumeGo.hideFlags = HideFlags.DontSave;
             volume = volumeGo.AddComponent<Volume>();
+            volume.isGlobal = true;
+
+            //use default profile
+            volume.profile = Feature.profile;
 
             // get item by quality level
             var qVolume = Feature.volumeList.Find(item => item.qualityLevel == QualitySettings.GetQualityLevel());
@@ -110,9 +111,11 @@ namespace PowerUtilities.RenderFeatures
 
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
         {
-            UpdateOtherGlobalVolumes();
+            // only once(or onEnable)
             TrySetupVolumeGo();
+
             UpdateVolume();
+            UpdateOtherGlobalVolumes();
         }
 
         private void UpdateOtherGlobalVolumes()

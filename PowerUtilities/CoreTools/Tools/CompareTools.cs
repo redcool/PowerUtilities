@@ -33,6 +33,15 @@ namespace PowerUtilities
             return false;
         }
 
+        public static bool CompareAndSet<T>(ref T lastValue, T currentValue,Func<T,T,bool> predicate)
+        {
+            if (predicate(lastValue,currentValue))
+            {
+                lastValue = currentValue;
+                return true;
+            }
+            return false;
+        }
 
         /// <summary>
         /// is true frist time, v will set after called
