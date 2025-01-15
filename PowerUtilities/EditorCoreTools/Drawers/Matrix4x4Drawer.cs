@@ -19,6 +19,7 @@ public class Matrix4x4Drawer : PropertyDrawer
 
     // current copy
     static List<float> copiedItemList = new List<float>();
+    public float columnWidthOffset = 50;
 
     int GetRowCount(SerializedProperty property)
         => property.propertyType == SerializedPropertyType.Vector4 ? 1 : 4;
@@ -41,7 +42,7 @@ public class Matrix4x4Drawer : PropertyDrawer
         if (!property.isExpanded)
             return h;
 
-        h *= (rowCount + 1);
+        h *= rowCount + (property.IsMatrix4x4() ? 1 : 0);
         var vh = EditorGUIUtility.standardVerticalSpacing;
         h += vh * rowCount;
         return h;
@@ -72,37 +73,60 @@ public class Matrix4x4Drawer : PropertyDrawer
     {
         var rowCount = GetRowCount(property);
         var columnCount = 4; //
+        var itemCountARow = 4;
+        var isMatrix4x4 = property.IsMatrix4x4();
 
         position.height = EditorGUIUtility.singleLineHeight;
-        EditorGUI.PropertyField(position, property, label, false);
 
+        ///------ draw prop header
+        if (isMatrix4x4)
+        {
+            EditorGUI.PropertyField(position, property, label, false);
+            // only show first row
+            if (!property.isExpanded)
+            {
+                //rowCount = 1;
+                return;
+            }
+        }
+        else
+        {
+            if (string.IsNullOrEmpty(label.text))
+            {
+                itemCountARow = 5;
+                columnWidthOffset = 0;
+            }
+
+            EditorGUI.PrefixLabel(position, label);
+        }
 
         EditorGUITools.DrawBoxColors(position);
 
-        if (!property.isExpanded)
-            return;
+        // draw prop content
 
         ++EditorGUI.indentLevel;
         position = EditorGUI.IndentedRect(position);
         --EditorGUI.indentLevel;
 
         //
-        var labelWidth = GetItemLabelWidth(property);
         var itemPos = position;
-        var itemWidth = (EditorGUIUtility.currentViewWidth - position.x / 2) / 4 - 6;
+        var labelWidth = GetItemLabelWidth(property);
+
+        var itemWidth = (EditorGUIUtility.currentViewWidth - position.x / 2) / itemCountARow - 10;
 
         //row
         for (int i = 0; i < rowCount; ++i)
         {
-            itemPos.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+            if (i > 0 || isMatrix4x4)
+                itemPos.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
             //column
             for (int j = 0; j < columnCount; ++j)
             {
-                itemPos.x = position.x + j * itemWidth;
 
                 var itemPropName = GetItemPropName(property, i, j);
                 var itemProp = property.FindPropertyRelative(itemPropName);
                 // label
+                itemPos.x = position.x + columnWidthOffset + j * itemWidth;
                 itemPos.width = labelWidth;
                 EditorGUI.LabelField(itemPos, itemPropName);
 

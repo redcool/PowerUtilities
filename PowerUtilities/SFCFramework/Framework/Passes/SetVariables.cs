@@ -17,9 +17,19 @@ namespace PowerUtilities.RenderFeatures
     {
         [Header("--- Set Variables")]
         [Tooltip("binding global float variables")]
+        [ListItemDraw("name:,name,value:,value","50,100,50,")]
         public List<ShaderValue<float>> floatValues = new List<ShaderValue<float>>();
+
+        [ListItemDraw("name:,name,value:,value", "50,100,50,")]
         public List<ShaderValue<int>> intValues = new List<ShaderValue<int>>();
+
+        [ListItemDraw("name:,name,value:,value", "50,100,50,")]
         public List<ShaderValue<Vector4>> vectorValues = new List<ShaderValue<Vector4>>();
+
+        [ListItemDraw("name:,name,value:,value", "50,100,50,")]
+        public List<ShaderValue<Color>> colorValues = new List<ShaderValue<Color>>();
+
+        [ListItemDraw("name:,name,value:,value", "50,100,50,")]
         public List<ShaderValue<Texture>> textureValues = new List<ShaderValue<Texture>>();
 
         [Tooltip("rebind rt name(Temporary or named RenderTexture)")]
@@ -118,6 +128,9 @@ namespace PowerUtilities.RenderFeatures
 
             foreach (var v in Feature.vectorValues)
                 if (v.IsValid) cmd.SetGlobalVector(v.name, v.value);
+
+            foreach (var v in Feature.colorValues)
+                if (v.IsValid) cmd.SetGlobalColor(v.name, v.value);
 
             foreach (var v in Feature.intValues)
                 if (v.IsValid) cmd.SetGlobalInt(v.name, v.value);

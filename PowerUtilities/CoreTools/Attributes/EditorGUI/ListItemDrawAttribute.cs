@@ -108,7 +108,7 @@ namespace PowerUtilities
         private static void UpdatePropWidth(ref Rect position, ref Rect pos, ref float propWidth)
         {
             if (propWidth <= 0)
-                propWidth = position.width - pos.x;
+                propWidth = position.width - pos.xMax;
             else if (propWidth <= 1)
                 propWidth *= position.width;
         }
