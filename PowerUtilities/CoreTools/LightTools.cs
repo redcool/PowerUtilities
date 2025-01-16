@@ -37,6 +37,9 @@ namespace PowerUtilities
             foreach (var tag in tags)
             {
                 var tagGo = GameObject.FindGameObjectWithTag(tag);
+                if(! tagGo)
+                    continue;
+
                 mainLight = tagGo.GetComponent<Light>();
                 if (tagGo && mainLight)
                     return mainLight;
