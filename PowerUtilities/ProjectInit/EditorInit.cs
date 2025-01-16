@@ -2,16 +2,17 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 using UnityEditor;
+using static UnityEditor.Experimental.GraphView.GraphView;
 
 namespace PowerUtilities
 {
     public static class EditorInit
     {
-        public const string POWER_UTILS = "";
-
         /// <summary>
         /// editor Initial first
         /// </summary>
@@ -19,10 +20,36 @@ namespace PowerUtilities
         public static void Init()
         {
             AddPowerUtilsSymbol();
+
+            AddTags();
+            AddLayers();
+            //AddSortingLayers();
         }
-        private static void AddPowerUtilsSymbol()
+
+        public static void AddPowerUtilsSymbol()
         {
-            PlayerSettingTools.AddMacroDefines(nameof(POWER_UTILS));
+            var asmNames = AssemblyNames.GetAssemblyNames();
+            asmNames.ForEach(asmName => 
+                PlayerSettingTools.AddMacroDefines(asmName)
+            );
+        }
+
+        public static void AddTags()
+        {
+            var tags = Tags.GetTags();
+            tags.ForEach(tag => TagManager.AddTag(tag));
+        }
+
+        public static void AddLayers()
+        {
+            var layers = Layers.GetLayers();
+            layers.ForEach(layer => TagManager.AddLayer(layer));
+        }
+
+        public static void AddSortingLayers()
+        {
+            var layers = SortingLayers.GetSortingLayers();
+            layers.ForEach(layer => TagManager.AddSortingLayer(layer));
         }
     }
 }

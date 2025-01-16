@@ -130,6 +130,7 @@ public static class SerializedPropertyEx
     //}
 
     /// <summary>
+    /// Can use foreach 
     /// Enumerate property's children properties
     /// </summary>
     /// <typeparam name="T"></typeparam>
@@ -142,23 +143,6 @@ public static class SerializedPropertyEx
     public static IEnumerable<SerializedProperty> GetEnumerable(this SerializedProperty property, bool isResetToFirst = true,bool isUseCopy=false)
     {
         var firstProp = property.Copy();
-
-        //if (property.isArray)
-        //{
-        //    for (int i = 0; i < property.arraySize; i++)
-        //    {
-        //        yield return property.GetArrayElementAtIndex(i);
-        //    }
-        //}
-        //else
-        //{
-        //    SerializedProperty end = property.GetEndProperty();
-        //    while (property.NextVisible(enterChildren: true) && !SerializedProperty.EqualContents(property, end))
-        //    {
-        //        yield return property;
-        //    }
-        //    property = firstProp;
-        //}
 
         foreach (SerializedProperty item in property)
         {
@@ -263,7 +247,7 @@ public static class SerializedPropertyEx
     /// <summary>
     /// Demo:
     /// propertyPath : colorTargetInfos.Array.data[0].rtSizeMode
-    /// return colorTargetInfos.Array.data[0]
+    /// return object ,path is : colorTargetInfos.Array.data[0]
     /// </summary>
     /// <param name="prop"></param>
     /// <returns></returns>

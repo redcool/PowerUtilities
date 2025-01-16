@@ -1,8 +1,11 @@
 #if UNITY_EDITOR
+using Codice.Client.BaseCommands.WkStatus.Printers;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using Unity.VisualScripting.YamlDotNet.Core.Tokens;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -10,7 +13,8 @@ using Object = UnityEngine.Object;
 namespace PowerUtilities
 {
     /// <summary>
-    /// control project' tagManager
+    /// control project' tagManager file
+    /// Tags,Layers,SortingLayers
     /// </summary>
     public static class TagManager 
     {
@@ -18,18 +22,16 @@ namespace PowerUtilities
 
         public const string 
             TAGS = "tags",
-            LAYERS = "layers"
+            LAYERS = "layers",
+            SORTING_LAYERS = "m_SortingLayers"
             ;
 
         static CacheTool<string, SerializedObject> cachedManagers = new CacheTool<string, SerializedObject>();
 
-        public static SerializedObject GetTagLayerManager()
-            => ProjectSettingManagers.GetAsset(ProjectSettingManagers.ProjectSettingTypes.TagManager);
-
-        public static void GetTagsLayers(out SerializedObject tagManager, out SerializedProperty tagLayers,string arrayName=TAGS)
+        public static void GetTagsLayers(out SerializedObject tagManagerSo, out SerializedProperty tagLayersSO,string arrayName=TAGS)
         {
-            tagManager= GetTagLayerManager();
-            tagLayers = tagManager.FindProperty(arrayName);
+            tagManagerSo= UnityTagManager.GetUnityTagManager();
+            tagLayersSO = tagManagerSo.FindProperty(arrayName);
         }
 
         public static void UpdateTagsLayers(Action<SerializedObject, SerializedProperty> onAction, string arrayName = TAGS)
@@ -43,51 +45,102 @@ namespace PowerUtilities
             tagManager.ApplyModifiedProperties();
         }
 
-        public static bool IsTagExists(string tag,string arrayName = TAGS)
+        public static int GetSortingLayerCount()
         {
-            GetTagsLayers(out var tagManager, out var tags,arrayName);
-            return tags.IsElementExists(p => p.stringValue == tag);
-        }
-
-
-        public static bool IsLayerExists(string layer) => IsTagExists(layer, LAYERS);
-
-        public static void AddTag(string tag)
-        {
-            UpdateTagsLayers((tagManager, tags) =>
+            return UnityTagManager.InvokeUnityTagManagerMember((type, inst) =>
             {
-                if (tags.arraySize>= MAX_TAGS)
-                {
-                    throw new Exception("tags length more than "+MAX_TAGS);
-                }
-
-                if (IsTagExists(tag))
-                    return;
-                tags.AppendElement(prop => prop.stringValue = tag);
+                return (int)type.GetMemberValue(nameof(GetSortingLayerCount), inst, Type.EmptyTypes);
             });
         }
 
-        public static void RemoveTag(string tag,string arrayName=TAGS)
+        public static void AddSortingLayer()
         {
-            UpdateTagsLayers((tagManager, tags) =>
+            UnityTagManager.InvokeUnityTagManagerMember((type, inst) =>
             {
-                var id = tags.GetElementIndex(prop => prop.stringValue == tag);
-                if (id != -1)
-                    tags.DeleteArrayElementAtIndex(id);
-            }, arrayName);
+                type.GetMemberValue(nameof(AddSortingLayer), inst, Type.EmptyTypes);
+            });
         }
 
-
-
-        public static void RemoveLayer(string layer)
+        public static string GetSortingLayerName(int index)
         {
+            return UnityTagManager.InvokeUnityTagManagerMember((type, inst) =>
+            {
+                return (string)type.GetMemberValue(nameof(GetSortingLayerName), inst, new object[] { index });
+            });
+        }
+
+        public static List<string> GetSortingLayerNames()
+        {
+            var count = GetSortingLayerCount();
+            var list = new List<string>();
+            for (int i = 0; i < count; i++)
+            {
+                list.Add(GetSortingLayerName(i));
+            }
+            return list;
+        }
+
+        public static bool IsSortingLayerExists(string layer)
+        {
+            var list =GetSortingLayerNames();
+            return list.Contains(layer);
+        }
+
+        public static bool IsTagExists(string tag)
+        {
+            return GetTags().Contains(tag);
+        }
+
+        public static void AddSortingLayer(string layer)
+        {
+            UpdateTagsLayers((tagManager, layers) =>
+            {
+                if (IsSortingLayerExists(layer))
+                    return;
+
+                layers.AppendElement(prop => prop.stringValue = layer);
+            }, SORTING_LAYERS);
+        }
+
+        public static void AddTag(string tag)
+        {
+            if (IsTagExists(tag))
+            {
+                //Debug.Log($"{tag} is exists");
+                return;
+            }
+            
+            UnityTagManager.AddTag(tag);
+
             //UpdateTagsLayers((tagManager, tags) =>
             //{
-            //    var id = tags.GetElementIndex(prop => prop.stringValue == layer);
-            //    if (id != -1)
-            //        tags.GetArrayElementAtIndex(id).stringValue = "";
-            //}, LAYERS);
+            //    if (tags.arraySize >= MAX_TAGS)
+            //    {
+            //        throw new Exception("tags length more than " + MAX_TAGS);
+            //    }
+            //    tags.AppendElement(prop => prop.stringValue = tag);
+            //});
+        }
 
+        public static void AddLayer(string layer)
+        {
+            UpdateTagsLayers((tagManager, layers) =>
+            {
+                if (layers.IsElementExists(p => p.stringValue == layer))
+                {
+                    //Debug.Log($"{layer} is exists");
+                    return;
+                }
+
+                var id = GetLayerIndex(p => string.IsNullOrEmpty(p.stringValue));
+                if (id != -1)
+                    layers.GetArrayElementAtIndex(id).stringValue = layer;
+            }, LAYERS);
+        }
+
+        public static void RemoveTag(string tag) => UnityTagManager.RemoveTag(tag);
+        public static void RemoveLayer(string layer)
+        {
             RenameLayer(layer, "");
         }
 
@@ -106,6 +159,12 @@ namespace PowerUtilities
 
         public static void RenameLayer(string oldLayer,string newLayer) => RenameTag(oldLayer,newLayer,LAYERS);
 
+        /// <summary>
+        /// Get tags from UnityEngine.TagManager
+        /// </summary>
+        /// <returns></returns>
+        public static string[] GetTags() => UnityTagManager.GetTags();
+
         public static int GetLayerIndex(Func<SerializedProperty,bool> predicate)
         {
             if (predicate == null)
@@ -116,31 +175,7 @@ namespace PowerUtilities
             return id;
         }
 
-        public static void AddLayer(string layer)
-        {
-            UpdateTagsLayers((tagManager, layers) =>
-            {
-                if (!IsLayerExists(layer))
-                {
-                    var id = GetLayerIndex(p => string.IsNullOrEmpty(p.stringValue));
-                    if (id != -1)
-                        layers.GetArrayElementAtIndex(id).stringValue = layer;
-                }
-
-            }, LAYERS);
-        }
-        /// <summary>
-        /// this version, need first position. 
-        /// </summary>
-        /// <returns></returns>
-        public static string[] GetTags() => GetTags(TAGS);
-        public static string[] GetTags(string arrayName)
-        {
-            GetTagsLayers(out var tagManager, out var tags,arrayName);
-            return tags.GetElements().Select(prop => prop.stringValue).ToArray();
-        }
-
-        public static string[] GetLayers() => GetTags(LAYERS);
+        public static string[] GetLayerNames() => UnityTagManager.GetLayers();
 
         public static void ClearTags(string arrayName=TAGS)
         {

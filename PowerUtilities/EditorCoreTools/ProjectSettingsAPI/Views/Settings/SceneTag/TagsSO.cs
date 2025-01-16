@@ -12,15 +12,18 @@ namespace PowerUtilities
     [CustomEditor(typeof(TagsSO))]
     public class TagsSOEditor : PowerEditor<TagsSO>
     {
-        bool isTagsFolded;
+        bool isTagsFolded,isUnityTagsFolded;
+        
 
         readonly GUIContent guiSyncTags = new GUIContent("SyncTags", "sync tags with unity tagManager");
         readonly GUIContent guiClearTagsFromTagManager = new GUIContent("ClearTags", "clear unity tagmanager tags which in Tag Info List");
         readonly GUIContent guiSyncScene = new GUIContent("Sync Hierarchy", "create or sync tag objects in hierarchy");
         readonly GUIContent guiSyncMaterial = new GUIContent("Sync Material","sync tag objects material settings");
         readonly GUIContent guiSynnChildrenTag = new GUIContent("Sync ChildrenTag","sync selected object's children tag");
+        readonly GUIContent guiRemoveRepeatedTags = new GUIContent("Remove Repeated Tags","remove tags repeated");
 
         CacheTool<SerializedObject, Editor> tagManagerEditor = new CacheTool<SerializedObject, Editor>();
+
         public override bool NeedDrawDefaultUI() => true;
         public override void DrawInspectorUI(TagsSO inst)
         {
@@ -75,7 +78,7 @@ namespace PowerUtilities
                 var pos = EditorGUILayout.GetControlRect(GUILayout.Height(2));
                 EditorGUITools.DrawColorLine(pos);
 
-                var tagManagerSo = TagManager.GetTagLayerManager();
+                var tagManagerSo = UnityTagManager.GetUnityTagManager();
                 var tagEditor = tagManagerEditor.Get(tagManagerSo, () => Editor.CreateEditor(tagManagerSo.targetObject));
                 tagEditor.OnInspectorGUI();
             }
@@ -90,6 +93,17 @@ namespace PowerUtilities
             }
             GUILayout.EndHorizontal();
 
+            //================== unity tag manager
+
+            //if (isUnityTagsFolded = EditorGUILayout.Foldout(isUnityTagsFolded, "Show  Unity TagManager", true))
+            //{
+            //    GUILayout.BeginHorizontal("UnityTagManager", "Box");
+            //    if (GUILayout.Button(guiRemoveRepeatedTags))
+            //    {
+            //        UnityTagManager.RemoveTagRepeated();
+            //    }
+            //    GUILayout.EndHorizontal();
+            //}
         }
 
         private void SyncChildrenTag()

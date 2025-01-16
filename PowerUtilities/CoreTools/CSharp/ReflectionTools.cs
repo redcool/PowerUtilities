@@ -189,6 +189,32 @@ namespace PowerUtilities
             return field != null ? field.GetValue(instance) : default;
         }
 
+        /// <summary>
+        /// Get field values.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="t"></param>
+        /// <param name="caller">static set null,noStatic field need a instance</param>
+        /// <param name="flags"></param>
+        /// <param name="nameMatch"></param>
+        /// <param name="nameMatchMode"></param>
+        /// <returns></returns>
+        public static List<T> GetFieldValues<T>(Type t, object caller = null, BindingFlags flags = instanceBindings, string nameMatch = "", StringEx.NameMatchMode nameMatchMode = StringEx.NameMatchMode.StartWith)
+        {
+            var list = new List<T>();
+
+            var fields = t.GetFields(flags);
+            foreach (var field in fields)
+            {
+                if (!field.Name.IsMatch(nameMatch, nameMatchMode))
+                    continue;
+
+                var value = field.GetValue(caller);
+                list.Add((T)value);
+            }
+            return list;
+        }
+
         public static void SetFieldValue(this Type type, object instance, string fieldName, object value, BindingFlags flags = instanceBindings)
         {
             var field = type.GetField(fieldName, flags);
@@ -351,11 +377,14 @@ namespace PowerUtilities
         /// <param name="caller"></param>
         /// <param name="args"></param>
         /// <returns></returns>
-        public static object GetMemberValue(this Type type,string memberName,object caller, object[] args)
+        public static object GetMemberValue(this Type type,string memberName,object caller, params object[] args)
         {
             var m = type.GetMember(memberName, instanceBindings).FirstOrDefault();
             if(m == null)
                 return default;
+
+            if (args == null || args.Length == 0)
+                args = Type.EmptyTypes;
 
             if(m is PropertyInfo propertyInfo)
                 return propertyInfo.GetValue(caller,args);
@@ -367,7 +396,7 @@ namespace PowerUtilities
             return default;
         }
 
-        public static T GetMemberValue<T>(this Type type, string memberName, object caller, object[] args)
+        public static T GetMemberValue<T>(this Type type, string memberName, object caller,params object[] args)
         {
             return (T)GetMemberValue(type, memberName, caller, args);
         }
