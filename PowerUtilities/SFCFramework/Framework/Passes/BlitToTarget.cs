@@ -35,6 +35,9 @@ namespace PowerUtilities.RenderFeatures
         [EditorHeader("", "--- Options")]
         [Tooltip("skip this info, when uncheck")]
         public bool isEnable = true;
+
+        [Tooltip("stop working when a blit finish")]
+        public bool isBlitOnce;
         // PowerShaderLib/CopyColor.mat
         [Tooltip("check (CopyColor.mat,CopyDepth.mat)")]
         [LoadAsset("CopyColor.mat")]
@@ -51,8 +54,10 @@ namespace PowerUtilities.RenderFeatures
         [Tooltip("clear target ")]
         public ClearFlag clearFlags = ClearFlag.None;
 
+        public int blitId = -1;
+
         public void Update(string sourceName,bool isShowCurMainLightShadowMapTexture,string targetName,bool isBlitToNextPostTarget,bool isEnable,Material blitMat,int pass
-            , ColorSpaceTransform.ColorSpaceMode colorSpaceMode,BlendMode srcMode,BlendMode dstMode, ClearFlag clearFlags)
+            , ColorSpaceTransform.ColorSpaceMode colorSpaceMode,BlendMode srcMode,BlendMode dstMode, ClearFlag clearFlags,bool isBlitOnce)
         {
             this.sourceName = sourceName;
             this.isShowCurMainLightShadowMapTexture = isShowCurMainLightShadowMapTexture;
@@ -65,6 +70,7 @@ namespace PowerUtilities.RenderFeatures
             this.srcMode = srcMode;
             this.dstMode = dstMode;
             this.clearFlags = clearFlags;
+            this.isBlitOnce = isBlitOnce;
         }
     }
 
@@ -92,7 +98,12 @@ namespace PowerUtilities.RenderFeatures
         [EditorHeader("", "--- Options")]
         [Tooltip("skip this info, when uncheck")]
         public bool isEnable = true;
+
+        [Tooltip("stop working when a blit finish")]
+        [EditorIntent(1)]
+        public bool isBlitOnce;
         // PowerShaderLib/CopyColor.mat
+        [EditorIntent(-1)]
         [Tooltip("check (CopyColor.mat,CopyDepth.mat)")]
         [LoadAsset("CopyColor.mat")]
         public Material blitMat;
@@ -108,9 +119,14 @@ namespace PowerUtilities.RenderFeatures
         [Tooltip("clear target ")]
         public ClearFlag clearFlags = ClearFlag.None;
 
-        [EditorHeader("", "--- Blit Infos")]
-        public List<BlitToTargetInfo> targetInfos = new();
+        [EditorHeader("", "--- Other Blits")]
+        [Tooltip("more blit")]
+        public List<BlitToTargetInfo> otherBlitToTargetInfos = new();
 
+        /// <summary>
+        /// 
+        /// </summary>
+        public static Action<BlitToTarget,BlitToTargetInfo> OnBlitFinish;
 
         public override ScriptableRenderPass GetPass() => new BlitToTargetPass(this);
 
@@ -132,12 +148,26 @@ namespace PowerUtilities.RenderFeatures
 
             UpdateDefaultBlitInfo();
 
-            StartBlit(cmd, renderer, defaultBlitInfo);
-
-            foreach (var info in Feature.targetInfos)
+            if (defaultBlitInfo.isEnable)
             {
-                if (info.isEnable)
-                    StartBlit(cmd, renderer, info);
+                StartBlit(cmd, renderer, defaultBlitInfo);
+
+                if (Feature.isBlitOnce)
+                    Feature.isEnable = false;
+            }
+
+            //foreach (var info in Feature.otherBlitToTargetInfos)
+            for (int i = 0; i < Feature.otherBlitToTargetInfos.Count; i++)
+            {
+                var info = Feature.otherBlitToTargetInfos[i];
+                info.blitId = i;
+                if (!info.isEnable)
+                    continue;
+
+                StartBlit(cmd, renderer, info);
+
+                if (info.isBlitOnce)
+                    info.isEnable = false;
             }
         }
 
@@ -146,18 +176,21 @@ namespace PowerUtilities.RenderFeatures
             if (defaultBlitInfo == null)
                 defaultBlitInfo = new();
 
+            defaultBlitInfo.blitId = -1;
+
             defaultBlitInfo.Update(
                 Feature.sourceName,
                 Feature.isShowCurMainLightShadowMapTexture,
                 Feature.targetName,
                 Feature.isBlitToNextPostTarget,
-                true,
+                Feature.isEnable,
                 Feature.blitMat,
                 Feature.blitMatPassId,
                 Feature.colorSpaceMode,
                 Feature.srcMode,
                 Feature.dstMode,
-                Feature.clearFlags
+                Feature.clearFlags,
+                Feature.isBlitOnce
                 );
         }
 
@@ -213,6 +246,9 @@ namespace PowerUtilities.RenderFeatures
             }
 
             ColorSpaceTransform.SetColorSpace(cmd, ColorSpaceTransform.ColorSpaceMode.None);
+
+            // call event
+            BlitToTarget.OnBlitFinish?.Invoke(Feature, info);
         }
     }
 }

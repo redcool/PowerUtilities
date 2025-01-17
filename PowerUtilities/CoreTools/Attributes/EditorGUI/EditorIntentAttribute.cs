@@ -12,21 +12,25 @@ using UnityEngine;
     [CustomPropertyDrawer(typeof(EditorIntentAttribute))]
     public class EditorIntentDecorator : DecoratorDrawer
     {
+        public override float GetHeight()
+        {
+            return 0;
+        }
         public override void OnGUI(Rect position)
         {
             var attr = attribute as EditorIntentAttribute;
-            EditorGUI.indentLevel += attr.intentLevel;
+            EditorGUI.indentLevel += attr.intentLevelOffset;
         }
     }
 #endif
 
     public class EditorIntentAttribute : PropertyAttribute
     {
-        public int intentLevel = 1;
+        public int intentLevelOffset = 1;
 
-        public EditorIntentAttribute(int intent)
+        public EditorIntentAttribute(int intentOffset)
         {
-            intentLevel = intent;
+            intentLevelOffset = intentOffset;
         }
     }
 }
