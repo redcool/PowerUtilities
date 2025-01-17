@@ -156,5 +156,25 @@ namespace PowerUtilities
             if (mat.HasProperty(stencilCompPropName))
                 mat.SetFloat(stencilCompPropName, (int)comp);
         }
+
+        /// <summary>
+        /// set _MainTex & _SourceTex)
+        /// </summary>
+        /// <param name="mat"></param>
+        /// <param name="texture"></param>
+        /// <param name="block"></param>
+        public static void SetMainTexture(this Material mat, Texture texture, MaterialPropertyBlock block)
+        {
+            if (!mat) return;
+
+            mat.SetTexture(ShaderPropertyIds._MainTex, texture);
+            mat.SetTexture(ShaderPropertyIds.sourceTex,texture);
+
+            if(block != null)
+            {
+                block.SetTexture(ShaderPropertyIds._MainTex, texture);
+                block.SetTexture(ShaderPropertyIds.sourceTex, texture);
+            }
+        }
     }
 }
