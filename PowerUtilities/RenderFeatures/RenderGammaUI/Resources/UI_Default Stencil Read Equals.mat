@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: UI_Default Stencil Read
+  m_Name: UI_Default Stencil Read Equals
   m_Shader: {fileID: 4800000, guid: 81645238a69c9c348bb740e8a0d42ead, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -37,7 +37,7 @@ Material:
     - _PresetBlendMode: 0
     - _SrcMode: 1
     - _Stencil: 2
-    - _StencilComp: 3
+    - _StencilComp: 6
     - _StencilFailOp: 0
     - _StencilOp: 0
     - _StencilReadMask: 255

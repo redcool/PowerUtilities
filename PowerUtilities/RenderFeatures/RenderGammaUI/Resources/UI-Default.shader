@@ -5,30 +5,30 @@ Shader "UI/Default"
     Properties
     {
         [PerRendererData] _MainTex ("Sprite Texture", 2D) = "white" {}
-        _Color ("Tint", Color) = (1,1,1,1)
+        //===================
+        [Group(Color)]
+        [GroupItem(Color)] _Color ("Tint", Color) = (1,1,1,1)
 
-        [Enum(UnityEngine.Rendering.CompareFunction)]_StencilComp ("Stencil Comparison", Float) = 8
-        _Stencil ("Stencil ID", Float) = 0
-        [Enum(UnityEngine.Rendering.StencilOp)]_StencilOp ("Stencil Operation", Float) = 0
-        [Enum(UnityEngine.Rendering.StencilOp)]_StencilFailOp ("Stencil Fail Operation", Float) = 0
-        _StencilWriteMask ("Stencil Write Mask", Float) = 255
-        _StencilReadMask ("Stencil Read Mask", Float) = 255
-
-        _ColorMask ("Color Mask", Float) = 15
-
-        [Toggle(UNITY_UI_ALPHACLIP)] _UseUIAlphaClip ("Use Alpha Clip", Float) = 0
-
+        [GroupEnum(Color,RGBA 16 RGB 15 RG 12 GB 6 RB 10 R 8 G 4 B 2 A 1 None 0)] _ColorMask ("Color Mask", Float) = 15
+        //===================
         [Group(Effects)]
         [GroupToggle(Effects)]_GrayOn("_GrayOn",int) = 0
-
+        //===================
         [Group(Alpha)]
+        [GroupHeader(Alpha,Clip)]
+        [GroupToggle(Alpha,UNITY_UI_ALPHACLIP)] _UseUIAlphaClip ("Use Alpha Clip", Float) = 0
+        [GroupEnum(Alpha,R 0 G 1 B 2 A 3)] _AlphaChannel("_AlphaChannel",int) = 3
+
+        [GroupHeader(Alpha,Glyph)]
         [GroupToggle(Alpha,_GLYPH_ON)]_GlyphOn("_GlyphOn",float) = 0
         [GroupVectorSlider(Alpha,min max,0_1 0_1,glyph edge smooth)] _GlyphRange("_GlyphRange",vector) = (0.1,0.5,0,0)
+
+        [GroupHeader(Alpha,Blend)]
         [GroupPresetBlendMode(Alpha,,_SrcMode,_DstMode)]_PresetBlendMode("_PresetBlendMode",int)=0
         // [GroupEnum(Alpha,UnityEngine.Rendering.BlendMode)]
         [HideInInspector]_SrcMode("_SrcMode",int) = 1
         [HideInInspector]_DstMode("_DstMode",int) = 10  
-
+        //===================
         [Group(Settings)]
 		[GroupToggle(Settings)]_ZWriteMode("ZWriteMode",int) = 0
 		/*
@@ -36,6 +36,14 @@ Shader "UI/Default"
 		*/
 		[GroupEnum(Settings,UnityEngine.Rendering.CompareFunction)]_ZTestMode("_ZTestMode",float) = 8
         [GroupEnum(Settings,UnityEngine.Rendering.CullMode)]_CullMode("_CullMode",int) = 0
+        //===================
+        [Group(Stencil)]
+        [GroupEnum(Stencil,UnityEngine.Rendering.CompareFunction)] _StencilComp ("Stencil Comparison", Float) = 0
+        [GroupItem(Stencil)] _Stencil ("Stencil ID", int) = 0
+        [GroupEnum(Stencil,UnityEngine.Rendering.StencilOp)] _StencilOp ("Stencil Operation", Float) = 0
+        [GroupEnum(Stencil,UnityEngine.Rendering.StencilOp)] _StencilFailOp ("Stencil Fail Operation", Float) = 0
+        [GroupItem(Stencil)] _StencilWriteMask ("Stencil Write Mask", Float) = 255
+        [GroupItem(Stencil)] _StencilReadMask ("Stencil Read Mask", Float) = 255
     }
 
     SubShader
@@ -111,7 +119,9 @@ Shader "UI/Default"
             fixed4 _Color;
             float2 _GlyphRange;
             half _GrayOn;
+            half _AlphaChannel;
             CBUFFER_END
+
             fixed4 _TextureSampleAdd;
             float4 _ClipRect;
             float _UIMaskSoftnessX;
@@ -154,7 +164,7 @@ Shader "UI/Default"
                 #endif
 
                 #ifdef UNITY_UI_ALPHACLIP
-                clip (color.a - 0.001);
+                clip (color[_AlphaChannel] - 0.001);
                 #endif
 
                 /**
