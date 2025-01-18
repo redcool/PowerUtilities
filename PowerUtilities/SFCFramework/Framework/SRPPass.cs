@@ -14,6 +14,8 @@ namespace PowerUtilities.RenderFeatures
     /// </summary>
     public abstract class SRPPass : ScriptableRenderPass
     {
+        public string featureName;
+
         /// <summary>
         /// called when unity recompile
         /// </summary>
@@ -38,18 +40,16 @@ namespace PowerUtilities.RenderFeatures
         /// <summary>
         /// current camera, can access from OnExecute
         /// </summary>
-        protected Camera camera;
+        public Camera camera;
         /// <summary>
         /// current ScriptableRenderContext,can access from OnExecute
         /// </summary>
         protected ScriptableRenderContext context;
-        public string featureName;
 
         public SRPPass(T feature)
         {
             Feature = feature;
             featureName = feature.name;
-
         }
 
         /// <summary>
@@ -133,8 +133,13 @@ namespace PowerUtilities.RenderFeatures
 
             //cmd.BeginSampleExecute(featureName, ref context);
 
+            var monos = camera.GetComponents<SRPPassCameraMono>();
+            InvokeMonosBefore(camera, monos);
+
             OnExecute(context, ref renderingData,cmd);
+
             //cmd.EndSampleExecute(featureName, ref context);
+            InvokeMonosEnd(camera, monos);
 
             cmd.Execute(ref context);
         }
@@ -146,6 +151,20 @@ namespace PowerUtilities.RenderFeatures
 
         public abstract void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd);
 
+        public void InvokeMonosBefore(Camera cam, SRPPassCameraMono[] monos)
+        {
+            foreach (var mono in monos)
+            {
+                mono.OnPassExecuteBefore?.Invoke(this);
+            }
+        }
 
+        public void InvokeMonosEnd(Camera cam, SRPPassCameraMono[] monos)
+        {
+            foreach (var mono in monos)
+            {
+                mono.OnPassExecuteEnd?.Invoke(this);
+            }
+        }
     }
 }
