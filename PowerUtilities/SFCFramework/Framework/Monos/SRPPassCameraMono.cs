@@ -26,10 +26,8 @@
         /// </summary>
         public UnityEvent<SRPPass> OnPassExecuteEnd;
 
-        [Header("Functions")]
-        [Tooltip("make BlitToTarget default blit work one time,then stop")]
-        public bool isBlitToTargetBlitOnce;
-
+        [Tooltip("Add default event for monos")]
+        public bool isAddDefaultEvents = true;
 
         public void ShowSRPPassInfo(SRPPass p)
         {
@@ -37,17 +35,70 @@
             Debug.Log($"name:{p.featureName},camera:{GetComponent<Camera>()},feature:{genericPass?.Feature}");
         }
 
-        /// <summary>
-        /// add to OnPassExecuteBefore
-        /// make BlitToTargetPass's defaultBlit work once
-        /// </summary>
-        /// <param name="p"></param>
-        public void BlitToTargetBlitOnce(SRPPass p)
+
+        public virtual void OnEnable()
         {
-            if (p is BlitToTargetPass blitToPass)
+            if(isAddDefaultEvents)
             {
-                blitToPass.Feature.isBlitOnce = isBlitToTargetBlitOnce;
+                AddPassExecuteBeforeEvent(DefaultExecuteBefore);
+                AddPassExecuteEndEvent(DefaultExecuteEnd);
             }
+        }
+
+        public virtual void OnDisable()
+        {
+            if (OnPassExecuteBefore != null)
+            {
+                OnPassExecuteBefore.RemoveAllListeners();
+                OnPassExecuteBefore = null;
+            }
+
+            if (OnPassExecuteEnd != null)
+            {
+                OnPassExecuteEnd.RemoveAllListeners();
+                OnPassExecuteEnd = null;
+            }
+        }
+
+        /// <summary>
+        /// Register OnPassExecuteBefore, auto remove when Disable
+        /// </summary>
+        /// <param name="ev"></param>
+        public void AddPassExecuteBeforeEvent(UnityAction<SRPPass> ev)
+        {
+            if (OnPassExecuteBefore == null)
+                OnPassExecuteBefore = new();
+
+            OnPassExecuteBefore.AddListener(ev);
+        }
+
+        /// <summary>
+        ///Register OnPassExecuteEnd,
+        /// </summary>
+        /// <param name="ev"></param>
+        public void AddPassExecuteEndEvent(UnityAction<SRPPass> ev)
+        {
+            if (OnPassExecuteEnd == null)
+                OnPassExecuteEnd = new();
+
+            OnPassExecuteEnd.AddListener(ev);
+        }
+        /// <summary>
+        /// override for PassExecuteBeforeEvent
+        /// </summary>
+        /// <param name="pass"></param>
+        public virtual void DefaultExecuteBefore(SRPPass pass)
+        {
+
+        }
+
+        /// <summary>
+        /// override for PassExecuteEndEvent
+        /// </summary>
+        /// <param name="pass"></param>
+        public virtual void DefaultExecuteEnd(SRPPass pass)
+        {
+
         }
     }
 }
