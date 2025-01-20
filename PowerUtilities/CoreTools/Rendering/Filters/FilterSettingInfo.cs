@@ -11,6 +11,8 @@ namespace PowerUtilities
 
     /// <summary>
     /// like FilteringSettings,can serialized
+    /// GammaUI use for filter objects,
+    /// Common filter info use SimpleFilterSetting
     /// </summary>
     [Serializable]
     public class FilteringSettingsInfo

@@ -179,6 +179,9 @@
                 DrawingSettings drawSettings = SetupDrawSettings(ref renderingData);
 
                 var renderQueueRange = settingSO.drawTransparents ? RenderQueueRange.all : RenderQueueRange.opaque;
+                if (settingSO.isPreciseRenderQueue)
+                    renderQueueRange = new RenderQueueRange(settingSO.renderQueueRange.x, settingSO.renderQueueRange.y);
+
                 var filterSettings = new FilteringSettings(renderQueueRange, settingSO.layers,settingSO.renderingLayerMask);
                 context.DrawRenderers(cmd, renderingData.cullResults, ref drawSettings, ref filterSettings);
 

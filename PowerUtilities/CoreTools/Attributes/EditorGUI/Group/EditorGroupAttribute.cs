@@ -89,9 +89,9 @@
             if (!groupInfo.isOn)
                 return;
 
-            EditorGUI.indentLevel++;
-            EditorGUI.PropertyField(position, property, new GUIContent(property.displayName), true);
-            EditorGUI.indentLevel--;
+            EditorGUI.indentLevel += groupAttr.intentOffset;
+            EditorGUI.PropertyField(position, property, new GUIContent(property.displayName));
+            EditorGUI.indentLevel -= groupAttr.intentOffset;
         }
     }
 #endif
@@ -109,6 +109,7 @@
         public string groupName;
         public bool isHeader;
         public Color titleColor;
+        public int intentOffset = 1;
 
         public EditorGroupAttribute(string groupName, bool isHeader = false, string titleColorStr = "#404E7C")
         {

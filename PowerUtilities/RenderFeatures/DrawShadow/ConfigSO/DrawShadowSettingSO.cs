@@ -49,6 +49,14 @@
         [Tooltip("transparent object use shadowCaster")]
         public bool drawTransparents;
 
+        [EditorGroup("ShadowMapOptions")]
+        [Tooltip("Assign precise render queue range for rendering Shadow,opaque: [0-2500],transparent:[2501-5000], all : [0-5000]")]
+        public bool isPreciseRenderQueue;
+
+        [EditorGroup("ShadowMapOptions",intentOffset =2)]
+        [EditorDisableGroup(targetPropName = "isUseRangeQueueRange")]
+        public Vector2Int renderQueueRange = new Vector2Int(0,2500);
+
         [EditorGroup("Light Camera", true)]
         [Tooltip("Find by tag,disable DrawShadow when lightTransform not found")]
         public bool isUseLightTransform = true;
