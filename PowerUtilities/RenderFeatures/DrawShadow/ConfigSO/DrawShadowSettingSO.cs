@@ -27,14 +27,15 @@
            new BigShadowResQualitySetting{qualityLevel=5,res=TextureResolution.x1024},
            new BigShadowResQualitySetting{qualityLevel=6,res=TextureResolution.x2048},
         };
-
+         
         [EditorGroup("ShadowMapOptions")]
         [Tooltip("call renderer's ShadowCaster pass, more batch than use override material")]
         public bool isCallShadowCaster;
 
         [EditorGroup("ShadowMapOptions")]
-        [Tooltip("use override material,dont use ShadowCaster,will cause more srp batches!")]
+        [Tooltip("use this material rendering renderer's shadow")]
         [LoadAsset("BigShadowCasterMat.mat")]
+        [EditorDisableGroup(targetPropName = nameof(isCallShadowCaster),isRevertMode = true)]
         public Material shadowMat;
 
         [EditorGroup("ShadowMapOptions")]
@@ -47,6 +48,7 @@
 
         [EditorGroup("ShadowMapOptions")]
         [Tooltip("transparent object use shadowCaster")]
+        [EditorDisableGroup(targetPropName = nameof(isPreciseRenderQueue),isRevertMode = true)]
         public bool drawTransparents;
 
         [EditorGroup("ShadowMapOptions")]
@@ -54,7 +56,7 @@
         public bool isPreciseRenderQueue;
 
         [EditorGroup("ShadowMapOptions",intentOffset =2)]
-        [EditorDisableGroup(targetPropName = "isUseRangeQueueRange")]
+        [EditorDisableGroup(targetPropName = nameof(isPreciseRenderQueue))]
         public Vector2Int renderQueueRange = new Vector2Int(0,2500);
 
         [EditorGroup("Light Camera", true)]
