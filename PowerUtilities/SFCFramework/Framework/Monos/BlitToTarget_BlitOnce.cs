@@ -9,6 +9,8 @@ namespace PowerUtilities.RenderFeatures
 {
     /// <summary>
     /// Control BlitToTarget
+    /// 1 blitOnce
+    /// 2 blitOnce again when screen size changed
     /// </summary>
     public class BlitToTarget_BlitOnce : SRPPassCameraMono
     {
@@ -16,8 +18,11 @@ namespace PowerUtilities.RenderFeatures
         [Tooltip("make BlitToTarget default blit work one time,then stop")]
         public bool isBlitToTargetBlitOnce;
 
+
+
         public override  void OnEnable()
         {
+            base.OnEnable();
             // check screen size event
             ScreenTools.OnScreenSizeChanged -= ScreenTools_OnScreenSizeChanged;
             ScreenTools.OnScreenSizeChanged += ScreenTools_OnScreenSizeChanged;
@@ -33,10 +38,15 @@ namespace PowerUtilities.RenderFeatures
         /// add to OnPassExecuteBefore
         /// make BlitToTargetPass's defaultBlit work once
         /// </summary>
-        /// <param name="p"></param>
-        public void BlitToTargetBlitOnce(SRPPass p)
+        /// <param name="pass"></param>
+        public void BlitToTargetBlitOnce(SRPPass pass)
         {
-            if (p is BlitToTargetPass blitToPass)
+            if (! IsPassNameMatch(pass))
+            {
+                return;
+            }
+
+            if (pass is BlitToTargetPass blitToPass)
             {
                 if (isBlitToTargetBlitOnce)
                 {

@@ -29,10 +29,18 @@
         [Tooltip("Add default event for monos")]
         public bool isAddDefaultEvents = true;
 
+        [Header("Pass match")]
+        public string passName = "";
+        public StringEx.NameMatchMode nameMathMode = StringEx.NameMatchMode.Full;
+
         public void ShowSRPPassInfo(SRPPass p)
         {
-            var genericPass = p as SRPPass<SRPFeature>;
-            Debug.Log($"name:{p.featureName},camera:{GetComponent<Camera>()},feature:{genericPass?.Feature}");
+            if (!IsPassNameMatch(p))
+            {
+                return;
+            }
+
+            Debug.Log($"name:{p.featureName},camera:{GetComponent<Camera>()}");
         }
 
 
@@ -100,5 +108,10 @@
         {
 
         }
+
+        public bool IsPassNameMatch(SRPPass pass) =>
+            string.IsNullOrEmpty(passName) ? 
+            true : 
+            pass.featureName.IsMatch(passName,nameMathMode);
     }
 }
