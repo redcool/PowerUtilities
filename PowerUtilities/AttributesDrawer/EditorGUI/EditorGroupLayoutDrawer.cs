@@ -48,8 +48,9 @@ namespace PowerUtilities
                 return;
 
             EditorGUI.indentLevel++;
-
-            EditorGUILayout.PropertyField(property, new GUIContent(property.displayName));
+            //var pos = EditorGUILayout.GetControlRect();
+            //EditorGUI.PropertyField(pos, property, label,true);
+            EditorGUILayout.PropertyField(property, label);
             EditorGUI.indentLevel--;
         }
     }
