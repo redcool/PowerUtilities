@@ -1,11 +1,11 @@
-//#define INPUT_SYSTEM_ENABLED
+//#define UNITY_INPUT_SYSTEM
 namespace GameUtilsFramework
 {
     using System.Collections;
     using System.Collections.Generic;
     using UnityEngine;
-
-#if INPUT_SYSTEM_ENABLED
+    
+#if UNITY_INPUT_SYSTEM
     using UnityEngine.InputSystem;
 #else
     // adapters when no InputSystem

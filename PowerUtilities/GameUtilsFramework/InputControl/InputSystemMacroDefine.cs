@@ -15,7 +15,7 @@ namespace GameUtilsFramework
     {
         const string ROOT_PATH = "PowerUtilities";
 
-        public const string INPUT_SYSTEM_ENABLED = nameof(INPUT_SYSTEM_ENABLED);
+        public const string UNITY_INPUT_SYSTEM = nameof(UNITY_INPUT_SYSTEM);
 
         /// <summary>
         /// enabled script macros(inputSystem
@@ -30,9 +30,9 @@ namespace GameUtilsFramework
             var inputSystemEnabled = activeInputHandlerSP.intValue > 0;
 
             if (inputSystemEnabled)
-                PlayerSettingTools.AddMacroDefines(INPUT_SYSTEM_ENABLED);
+                PlayerSettingTools.AddMacroDefines(UNITY_INPUT_SYSTEM);
             else
-                PlayerSettingTools.RemoveMacroDefines(INPUT_SYSTEM_ENABLED);
+                PlayerSettingTools.RemoveMacroDefines(UNITY_INPUT_SYSTEM);
 
         }
     }
