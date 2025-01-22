@@ -9,8 +9,11 @@
     public class EditorGroupDrawer : PropertyDrawer
     {
         (string groupName, bool isOn) groupInfo;
-
-        const float LINE_HEIGHT = 20;
+        /// <summary>
+        /// Title line 's height
+        /// 20,too narrow, 22 more better
+        /// </summary>
+        public const float TITLE_LINE_HEIGHT = 22;
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
@@ -20,7 +23,7 @@
             if (groupAttr.isHeader)
             {
                 if(!isGroupOn)
-                    return LINE_HEIGHT;
+                    return TITLE_LINE_HEIGHT;
 
                 // prop height
                 var height = EditorGUI.GetPropertyHeight(property, property.isExpanded);
@@ -41,7 +44,7 @@
         public static bool DrawTitleFoldout(Rect position, bool isOn, string title, Color titleColor,GUIStyle style)
         {
             var pos = position;
-            pos.height = LINE_HEIGHT;
+            pos.height = TITLE_LINE_HEIGHT;
 
             // show only a style
             GUI.BeginGroup(pos, style);
@@ -63,12 +66,12 @@
             if (groupAttr.isHeader)
             {
                 if (groupInfo.isOn)
-                    position.height -= LINE_HEIGHT;
+                    position.height -= TITLE_LINE_HEIGHT;
 
                 groupInfo.isOn = DrawTitleFoldout(position, groupInfo.isOn, groupInfo.groupName, groupAttr.titleColor, EditorStyles.helpBox);
 
                 MaterialGroupTools.SetState(groupInfo.groupName, groupInfo.isOn);
-                position.y += LINE_HEIGHT;
+                position.y += TITLE_LINE_HEIGHT;
             }
 
             //draw contents
