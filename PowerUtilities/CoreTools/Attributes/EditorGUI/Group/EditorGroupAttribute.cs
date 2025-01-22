@@ -38,27 +38,17 @@
             return -2;
         }
 
-        public static bool DrawTitleFoldout(Rect position, bool isOn, string title, Color titleColor)
+        public static bool DrawTitleFoldout(Rect position, bool isOn, string title, Color titleColor,GUIStyle style)
         {
             var pos = position;
             pos.height = LINE_HEIGHT;
-            var colorRect = EditorGUI.IndentedRect(pos);
-            //EditorGUI.DrawRect(colorRect, titleColor);
 
             // show only a style
-            GUI.BeginGroup(pos,(GUIStyle)"Button");
+            GUI.BeginGroup(pos, style);
             GUI.EndGroup();
 
             var isFold = EditorGUI.Foldout(pos, isOn, title, true);
             return isFold;
-        }
-
-        public static bool DrawTitleFoldout1(Rect position, bool isOn, string title, Color titleColor)
-        {
-            var colorRect = EditorGUI.IndentedRect(position);
-            EditorGUI.DrawRect(colorRect, titleColor);
-
-            return EditorGUI.Foldout(position, isOn, title, true);
         }
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
@@ -72,14 +62,10 @@
             //draw header
             if (groupAttr.isHeader)
             {
-                GUIStyle style = "Box";
-                //style.padding.left=15;
-                style.alignment = TextAnchor.LowerLeft;
-
                 if (groupInfo.isOn)
                     position.height -= LINE_HEIGHT;
 
-                groupInfo.isOn = DrawTitleFoldout(position, groupInfo.isOn, groupInfo.groupName, groupAttr.titleColor);
+                groupInfo.isOn = DrawTitleFoldout(position, groupInfo.isOn, groupInfo.groupName, groupAttr.titleColor, EditorStyles.helpBox);
 
                 MaterialGroupTools.SetState(groupInfo.groupName, groupInfo.isOn);
                 position.y += LINE_HEIGHT;
@@ -90,7 +76,7 @@
                 return;
 
             EditorGUI.indentLevel += groupAttr.intentOffset;
-            EditorGUI.PropertyField(position, property, new GUIContent(property.displayName));
+            EditorGUI.PropertyField(position, property, new GUIContent(property.displayName,label.tooltip));
             EditorGUI.indentLevel -= groupAttr.intentOffset;
         }
     }

@@ -144,6 +144,7 @@ namespace PowerUtilities
         [EditorHeader("", "EditorSceneView")]
         [ShowInSceneView(containerType = typeof(Vector3[]))]
         public Vector3[] posArray = new[] { Vector3.zero,Vector3.one};
+        public Vector4 testPos;
 
         [EditorHeader("","Box")]
         [EditorBox("Box", "showBox1,showBox2",isShowFoldout =true,boxType = EditorBoxAttribute.BoxType.HBox)]
