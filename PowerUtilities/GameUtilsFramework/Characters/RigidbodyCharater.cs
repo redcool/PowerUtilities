@@ -103,5 +103,10 @@ namespace GameUtilsFramework
             rigid.velocity = moveDir;
 #endif
         }
+
+        public void InitRigid()
+        {
+            rigid.freezeRotation = true;
+        }
     }
 }
