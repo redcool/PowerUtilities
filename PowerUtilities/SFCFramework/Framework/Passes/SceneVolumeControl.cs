@@ -18,7 +18,11 @@ namespace PowerUtilities.RenderFeatures
         [Header("Default scene volume profile")]
         public VolumeProfile profile;
         [Range(0, 1)]
+        [Tooltip("default Volume's weight")]
         public float volumeWeight;
+
+        [Tooltip("Defualt Volume's priority")]
+        public int volumePriority;
 
         [Header("Quality's volume profile")]
         [ListItemDraw("qualityLevel:,qualityLevel,profile:,profile", "100,100,50,")]
@@ -80,6 +84,7 @@ namespace PowerUtilities.RenderFeatures
                 return;
 
             volume.weight = Feature.volumeWeight;
+            volume.priority = Feature.volumePriority;
         }
         /// <summary>
         /// Create sceneVolumeControlGo, only once(or onEnable)
