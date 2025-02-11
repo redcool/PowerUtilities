@@ -18,11 +18,15 @@ namespace PowerUtilities
             base.OnInspectorGUI();
             var inst = target as URPBaseCamera;
 
-            if (GUILayout.Button("Set Other Overlay Cameras"))
+            EditorGUITools.BeginVerticalBox(() =>
             {
-                inst.SetCameras(true);
-                Selection.activeGameObject = inst.gameObject;
-            }
+                if (GUILayout.Button("Set Other Overlay Cameras"))
+                {
+                    inst.SetCameras(true);
+                    Selection.activeGameObject = inst.gameObject;
+                }
+            });
+
         }
     }
 #endif
@@ -33,22 +37,37 @@ namespace PowerUtilities
     /// </summary>
     public class URPBaseCamera : MonoBehaviour
     {
+        public enum FilterMode
+        {
+            Exclude,Include,
+        }
+
+        [HelpBox]
+        public string helpBox = "Set current camera's renderType to Base,other cameras set to overlay, add to current camera's stack";
+
         [Tooltip("setup overlay cameras when Start()")]
         public bool autoSetOverlays;
 
-        [Tooltip("Camera's RenderType not Overlay will be filtered")]
+        [Tooltip("Camera's RenderType not Overlay will be filtered out")]
         public bool isOverlayCameraOnly = false;
         [Tooltip("check overley cameras interval time,0 : disable")]
         [Min(0)]public float updateInterval = 0;
 
-        [Header("Cameras Filter")]
-        [Tooltip("gameObject's tag will be filtered out, when not empty")]
+        // ====================== camera filter
+        [EditorGroup("Camera Filter",true)]
+        [Tooltip("when Tag or Name match,include camera or not")]
+        public FilterMode filterMode = FilterMode.Exclude;
+
+        [Tooltip("match gameObject tag, when not empty")]
+        [EditorGroup("Camera Filter")]
         public string filterTag;
 
-        [EditorHeader("","Camera's Name")]
-        [Tooltip("compare with gameObject's name, when not empty")]
+        [EditorGroup("Camera Filter")]
+        [Tooltip("match gameObject name, when not empty")]
         public string filterName;
-        public NameMatchMode matchMode = NameMatchMode.Contains;
+
+        [EditorGroup("Camera Filter")]
+        public NameMatchMode filterNameMatchMode = NameMatchMode.Contains;
 
         Camera mainCam;
         UniversalAdditionalCameraData mainCamData;
@@ -82,25 +101,31 @@ namespace PowerUtilities
         }
 
         public void SetCameras() => SetCameras(false);
-        
+
 
         /// <summary>
-        /// 
+        /// Camera gameObject/s tag or name match, filtered camera out
         /// </summary>
         /// <param name="cam"></param>
         /// <returns></returns>
         bool IsCameraValid(Camera cam)
         {
+            var isTagValid = true;
+            var isNameValid = true;
+
             if (!string.IsNullOrEmpty(filterTag))
             {
-                return !cam.gameObject.CompareTag(filterTag);
+                var isTagMatch = cam.CompareTag(filterTag);
+                isTagValid = filterMode == FilterMode.Include ? isTagMatch : !isTagMatch;
             }
 
             if (!string.IsNullOrEmpty(filterName))
             {
-                return gameObject.name.IsMatch(filterName, matchMode);
+                var isNameMatch = cam.name.IsMatch(filterName, filterNameMatchMode);
+                isNameValid = filterMode == FilterMode.Include ? isNameMatch : !isNameMatch;
             }
-            return true;
+
+            return isTagValid && isNameValid;
         }
 
         public static void SortOverlays(List<Camera> camList)
@@ -111,15 +136,15 @@ namespace PowerUtilities
             camList.Sort((a, b) => Mathf.CeilToInt(a.depth - a.depth));
         }
 
-        public static void SetupOverlays(Camera mainCam, UniversalAdditionalCameraData mainCamData,bool isOnlyOverlayCamera=false,Func<Camera,bool> isCamValid=null)
+        public static void SetupOverlays(Camera mainCam, UniversalAdditionalCameraData mainCamData,bool isOnlyOverlayCamera=false,Func<Camera,bool> cameraValidFunc=null)
         {
             var cams = Camera.allCameras;
             //var cams = FindObjectsOfType<Camera>();
             foreach (var cam in cams)
             {
                 // check filter
-                var isValid = isCamValid?.Invoke(cam);
-                if (isValid.HasValue && !isValid.Value)
+                var isCamValid = cameraValidFunc?.Invoke(cam);
+                if (isCamValid.HasValue && ! isCamValid.Value)
                     continue;
 
                 // check main

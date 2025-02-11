@@ -20,7 +20,7 @@
 
             if (isGroupOn)
                 return base.GetHeight() + 5;
-            return -20;
+            return -2;
         }
         public override void OnGUI(Rect position)
         {

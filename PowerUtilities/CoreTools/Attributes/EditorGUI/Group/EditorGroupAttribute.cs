@@ -28,7 +28,8 @@
                 // prop height
                 var height = EditorGUI.GetPropertyHeight(property, property.isExpanded);
                 // add header's height
-                    height += EditorGUIUtility.singleLineHeight;
+                height += TITLE_LINE_HEIGHT;
+                    //height += EditorGUIUtility.singleLineHeight;
                 return height;
             }
 
