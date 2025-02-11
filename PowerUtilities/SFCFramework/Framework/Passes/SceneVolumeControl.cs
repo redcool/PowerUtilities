@@ -28,9 +28,9 @@ namespace PowerUtilities.RenderFeatures
         [ListItemDraw("qualityLevel:,qualityLevel,profile:,profile", "100,100,50,")]
         public List<SceneVolumeControlQualityVolume> volumeList = new List<SceneVolumeControlQualityVolume>();
 
-        [Tooltip("Update interval time(frame count)")]
-        [Min(1)]
-        public int framesInterval = 1;
+        [Tooltip("Update interval time(frame count),set 0 will update per frame")]
+        [Min(0)]
+        public int framesInterval = 0;
 
         [Header("Other Volumes")]
         [Tooltip("Update others global volume")]
@@ -66,7 +66,8 @@ namespace PowerUtilities.RenderFeatures
 
         public override bool CanExecute()
         {
-            var isTimeValid = CompareTools.CompareAndSet(ref lastFrameCount, Time.frameCount, (a, b) => b - a > Feature.framesInterval);
+            var isTimeValid = Feature.framesInterval <=0 ? 
+                true :  CompareTools.CompareAndSet(ref lastFrameCount, Time.frameCount, (a, b) => (b - a) > Feature.framesInterval);
 
             return isTimeValid && base.CanExecute() && Feature.profile;
         }
