@@ -1,4 +1,5 @@
-﻿using PowerUtilities.RenderFeatures;
+﻿using Jint.Parser.Ast;
+using PowerUtilities.RenderFeatures;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,6 +25,11 @@ namespace PowerUtilities.RenderFeatures
         [Tooltip("Defualt Volume's priority")]
         public int volumePriority;
 
+
+        [Tooltip("Create global volume use layerMasks")]
+        [LayerIndex]
+        public List<int> volumeLayers = new() { 0 };
+
         [Header("Quality's volume profile")]
         [ListItemDraw("qualityLevel:,qualityLevel,profile:,profile", "100,100,50,")]
         public List<SceneVolumeControlQualityVolume> volumeList = new List<SceneVolumeControlQualityVolume>();
@@ -40,12 +46,13 @@ namespace PowerUtilities.RenderFeatures
 
         [Header("Debug")]
         [EditorDisableGroup]
-        public GameObject sceneVolumeControlGo;
+        public GameObject sceneVolumeControlRootGo;
 
         public override ScriptableRenderPass GetPass()
         {
             return new SceneVolumeControlPass(this);
         }
+
 
     }
 
@@ -61,7 +68,7 @@ namespace PowerUtilities.RenderFeatures
     {
         //Scene lastScene;
         float lastOtherVolumeWeight;
-        Volume volume;
+        List<Volume> volumes = new();
         int lastFrameCount;
 
         public override bool CanExecute()
@@ -76,11 +83,8 @@ namespace PowerUtilities.RenderFeatures
         {
         }
 
-        void UpdateVolume()
+        void UpdateVolume(Volume volume)
         {
-            if(!volume && Feature.sceneVolumeControlGo)
-                volume = Feature.sceneVolumeControlGo.GetComponent<Volume>();
-
             if (!volume)
                 return;
 
@@ -90,14 +94,14 @@ namespace PowerUtilities.RenderFeatures
         /// <summary>
         /// Create sceneVolumeControlGo, only once(or onEnable)
         /// </summary>
-        void TrySetupVolumeGo()
+        Volume CreateVolumeGo(LayerMask layer)
         {
-            if (Feature.sceneVolumeControlGo)
-                return;
-
-            var volumeGo = Feature.sceneVolumeControlGo = new GameObject(featureName);
+            var volumeGo = new GameObject($"{featureName}_{LayerMask.LayerToName(layer)}");
+            volumeGo.transform.SetParent(Feature.sceneVolumeControlRootGo.transform);
             volumeGo.hideFlags = HideFlags.DontSave;
-            volume = volumeGo.AddComponent<Volume>();
+            volumeGo.layer = layer;
+
+            var volume = volumeGo.AddComponent<Volume>();
             volume.isGlobal = true;
 
             //use default profile
@@ -107,21 +111,50 @@ namespace PowerUtilities.RenderFeatures
             var qVolume = Feature.volumeList.Find(item => item.qualityLevel == QualitySettings.GetQualityLevel());
             if (qVolume != null && qVolume.profile)
                 volume.profile = qVolume.profile;
+
+            return volume;
         }
 
         public override void OnDisable()
         {
-            if (Feature.sceneVolumeControlGo)
-                Feature.sceneVolumeControlGo.Destroy();
+            DestroyGlobalVolumes();
+        }
+
+        private void DestroyGlobalVolumes()
+        {
+            if (Feature.sceneVolumeControlRootGo)
+                Feature.sceneVolumeControlRootGo.Destroy();
+
+            volumes.Clear();
         }
 
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
         {
-            // only once(or onEnable)
-            TrySetupVolumeGo();
-
-            UpdateVolume();
+            CreateVolumes();
+            UpdateVolumes();
             UpdateOtherGlobalVolumes();
+        }
+
+        private void UpdateVolumes()
+        {
+            foreach (var volume in volumes)
+            {
+                UpdateVolume(volume);
+            }
+        }
+
+        private void CreateVolumes()
+        {
+            if (!Feature.sceneVolumeControlRootGo)
+            {
+                Feature.sceneVolumeControlRootGo = new GameObject("sceneVolumeControlRootGo");
+
+                volumes.Clear();
+                foreach (var layer in Feature.volumeLayers)
+                {
+                    volumes.Add(CreateVolumeGo(layer));
+                }
+            }
         }
 
         private void UpdateOtherGlobalVolumes()
@@ -142,23 +175,10 @@ namespace PowerUtilities.RenderFeatures
             }
         }
 
-        /// <summary>
-        /// when scene is changed Feature.sceneVolumeControlGo need reCreate
-        /// </summary>
-        //private void CheckSceneChanged()
-        //{
-        //    var scene = SceneManager.GetActiveScene();
-
-        //    if(CompareTools.CompareAndSet(ref lastScene,ref scene))
-        //    {
-        //        OnDisable();
-        //        Feature.sceneVolumeControlGo = null;
-        //    }
-        //}
-
         public override void OnSceneChanged()
         {
             OnDisable();
         }
+
     }
 }

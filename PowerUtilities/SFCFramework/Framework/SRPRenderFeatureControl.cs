@@ -124,5 +124,19 @@ namespace PowerUtilities.RenderFeatures
         public override void Create()
         {
         }
+
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+
+            if (featureListSO == null || featureListSO.featureList.Count == 0 || !featureListSO.enabled)
+                return;
+
+            foreach (var feature in featureListSO.featureList)
+            {
+                feature.OnDisable();
+                feature.OnDestroy();
+            }
+        }
     }
 }

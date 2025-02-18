@@ -155,7 +155,11 @@
             get
             {
                 if (passInstance == null)
+                {
                     passInstance = GetPass();
+                    // call OnEnable when create new instance
+                    OnEnable();
+                }
                 return passInstance;
             }
         }

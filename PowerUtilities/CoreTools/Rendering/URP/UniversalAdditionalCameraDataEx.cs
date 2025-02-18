@@ -32,5 +32,13 @@ namespace PowerUtilities
             var datas = UniversalRenderPipeline.asset.GetRendererDatas();
             return (T)datas[id];
         }
+        /// <summary>
+        /// Camera use default renderer?
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public static bool IsDefaultScriptableRenderer(this UniversalAdditionalCameraData data)
+            => UniversalRenderPipeline.asset.scriptableRenderer == data.scriptableRenderer;
+
     }
 }
