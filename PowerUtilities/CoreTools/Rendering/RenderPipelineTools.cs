@@ -34,8 +34,9 @@ namespace PowerUtilities
             RenderPipelineManager.beginContextRendering -= RenderPipelineManager_beginContextRendering;
             RenderPipelineManager.beginContextRendering += RenderPipelineManager_beginContextRendering;
 
-            RenderPipelineManager.activeRenderPipelineAssetChanged -= RenderPipelineManager_activeRenderPipelineAssetChanged;
-            RenderPipelineManager.activeRenderPipelineAssetChanged += RenderPipelineManager_activeRenderPipelineAssetChanged;
+            // RenderPipelineManager_beginCameraRendering is enough
+            //RenderPipelineManager.activeRenderPipelineAssetChanged -= RenderPipelineManager_activeRenderPipelineAssetChanged;
+            //RenderPipelineManager.activeRenderPipelineAssetChanged += RenderPipelineManager_activeRenderPipelineAssetChanged;
 
             RenderPipelineManager.beginCameraRendering -= RenderPipelineManager_beginCameraRendering;
             RenderPipelineManager.beginCameraRendering += RenderPipelineManager_beginCameraRendering;
