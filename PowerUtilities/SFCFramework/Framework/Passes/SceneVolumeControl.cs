@@ -52,7 +52,10 @@ namespace PowerUtilities.RenderFeatures
             return new SceneVolumeControlPass(this);
         }
 
-
+        /// <summary>
+        /// Shortcut for current instance's sceneVolumeControlRootGo
+        /// </summary>
+        public static GameObject SceneVolumeControlRootGo;
     }
 
     [Serializable]
@@ -147,6 +150,7 @@ namespace PowerUtilities.RenderFeatures
             if (!Feature.sceneVolumeControlRootGo)
             {
                 Feature.sceneVolumeControlRootGo = new GameObject("sceneVolumeControlRootGo");
+                SceneVolumeControl.SceneVolumeControlRootGo = Feature.sceneVolumeControlRootGo;
 
                 volumes.Clear();
                 foreach (var layer in Feature.volumeLayers)
