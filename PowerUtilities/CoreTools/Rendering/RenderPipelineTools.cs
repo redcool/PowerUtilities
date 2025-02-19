@@ -3,7 +3,6 @@ namespace PowerUtilities
     using System;
     using System.Collections;
     using System.Collections.Generic;
-    using UnityEditor;
     using UnityEngine;
     using UnityEngine.Rendering;
     using UnityEngine.Rendering.Universal;
@@ -26,9 +25,6 @@ namespace PowerUtilities
         public static event Action OnCameraRendererChanged;
 
         [RuntimeInitializeOnLoadMethod]
-#if UNITY_EDITOR
-        [InitializeOnLoadMethod]
-#endif
         static void Init()
         {
             RenderPipelineManager.beginContextRendering -= RenderPipelineManager_beginContextRendering;
