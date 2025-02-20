@@ -30,6 +30,10 @@ namespace PowerUtilities
         /// when editor inited, call
         /// </summary>
         public static event Action OnEditorReload;
+        /// <summary>
+        /// enter playing mode
+        /// </summary>
+        public static event Action OnEnterPlayingMode, OnExitPlayingMode,OnEnterEditMode,OnExitEditMode;
 
         static bool isInited;
 
@@ -86,9 +90,22 @@ namespace PowerUtilities
             EditorApplication.update -= OnProjectUpdate;
             EditorApplication.update += OnProjectUpdate;
 
+            EditorApplication.playModeStateChanged -= EditorApplication_playModeStateChanged;
+            EditorApplication.playModeStateChanged += EditorApplication_playModeStateChanged;
 
             if (OnEditorReload != null)
                 OnEditorReload();
+        }
+
+        private static void EditorApplication_playModeStateChanged(PlayModeStateChange state)
+        {
+            switch (state)
+            {
+                case PlayModeStateChange.EnteredPlayMode: OnEnterPlayingMode?.Invoke(); break;
+                case PlayModeStateChange.ExitingPlayMode: OnExitPlayingMode?.Invoke(); break;
+                case PlayModeStateChange.EnteredEditMode: OnEnterEditMode?.Invoke(); break;
+                case PlayModeStateChange.ExitingEditMode: OnExitEditMode?.Invoke(); break;
+            }
         }
 
         static void AddEvent()

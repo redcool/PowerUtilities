@@ -141,6 +141,29 @@ namespace PowerUtilities.RenderFeatures
         BlitToTargetInfo defaultBlitInfo;
         public BlitToTargetPass(BlitToTarget feature) : base(feature) { }
 
+        public override void OnEnable()
+        {
+#if UNITY_EDITOR
+            EditorApplicationTools.OnEnterEditMode -= BlitOnce;
+            EditorApplicationTools.OnEnterEditMode += BlitOnce;
+#endif
+        }
+        public override void OnDestroy()
+        {
+#if UNITY_EDITOR
+            EditorApplicationTools.OnEnterEditMode -= BlitOnce;
+#endif
+        }
+
+        public void BlitOnce()
+        {
+            if (Feature.isBlitOnce)
+            {
+                Feature.isEnable = true;
+            }
+        }
+
+
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
         {
             ref var cameraData = ref renderingData.cameraData;
@@ -250,5 +273,6 @@ namespace PowerUtilities.RenderFeatures
             // call event
             BlitToTarget.OnBlitFinish?.Invoke(Feature, info);
         }
+
     }
 }

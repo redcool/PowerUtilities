@@ -12,58 +12,54 @@ namespace PowerUtilities.RenderFeatures
     /// 1 blitOnce
     /// 2 blitOnce again when screen size changed
     /// </summary>
-    public class BlitToTarget_BlitOnce : SRPPassCameraMono
+    public class BlitToTarget_BlitOnce : MonoBehaviour
     {
         [Header("Functions")]
         [Tooltip("make BlitToTarget default blit work one time,then stop")]
-        public bool isBlitToTargetBlitOnce;
+        public bool isBlitToTargetBlitOnce  =true;
 
-
-
-        public override  void OnEnable()
+        public void OnEnable()
         {
-            base.OnEnable();
             // check screen size event
-            ScreenTools.OnScreenSizeChanged -= ScreenTools_OnScreenSizeChanged;
-            ScreenTools.OnScreenSizeChanged += ScreenTools_OnScreenSizeChanged;
+            ScreenTools.OnScreenSizeChanged -= BlitOnce;
+            ScreenTools.OnScreenSizeChanged += BlitOnce;
 
+            SRPPass<BlitToTarget>.OnBeforeExecute -= OnBeforeExecute;
+            SRPPass<BlitToTarget>.OnBeforeExecute += OnBeforeExecute;
+
+            SRPPass<BlitToTarget>.OnEndExecute -= OnEndExecute;
+            SRPPass<BlitToTarget>.OnEndExecute += OnEndExecute;
+
+            SRPPass<BlitToTarget>.OnCanExecute -= OnCanExecute;
+            SRPPass<BlitToTarget>.OnCanExecute += OnCanExecute;
         }
-        private void ScreenTools_OnScreenSizeChanged()
+        public void OnDisable()
         {
-            // Debug.Log(Screen.orientation);
-            isBlitToTargetBlitOnce = true;
+            ScreenTools.OnScreenSizeChanged -= BlitOnce;
+            SRPPass<BlitToTarget>.OnCanExecute -= OnCanExecute;
+            SRPPass<BlitToTarget>.OnEndExecute -= OnEndExecute;
+            SRPPass<BlitToTarget>.OnBeforeExecute -= OnBeforeExecute;
         }
 
-        /// <summary>
-        /// add to OnPassExecuteBefore
-        /// make BlitToTargetPass's defaultBlit work once
-        /// </summary>
-        /// <param name="pass"></param>
-        public void BlitToTargetBlitOnce(SRPPass pass)
+        private void OnBeforeExecute(SRPPass<BlitToTarget> pass)
         {
-            if (! IsPassNameMatch(pass))
-            {
-                return;
-            }
-
-            if (pass is BlitToTargetPass blitToPass)
-            {
-                if (isBlitToTargetBlitOnce)
-                {
-                    isBlitToTargetBlitOnce = false;
-
-                    blitToPass.Feature.isEnable = true;
-                    blitToPass.Feature.isBlitOnce = true;
-                }
-            }
+            pass.Feature.isEnable = isBlitToTargetBlitOnce;
+            pass.Feature.isBlitOnce = true;
         }
 
-        public override void DefaultExecuteBefore(SRPPass pass)
+
+        private bool OnCanExecute(SRPPass<BlitToTarget> pass)
         {
-            BlitToTargetBlitOnce(pass);
+            return true;
         }
 
-        public void ClickBlitOnce()
+        private void OnEndExecute(SRPPass<BlitToTarget> pass)
+        {
+            isBlitToTargetBlitOnce = false;
+            pass.Feature.isEnable = false;
+        }
+
+        public void BlitOnce()
         {
             isBlitToTargetBlitOnce = true;
         }

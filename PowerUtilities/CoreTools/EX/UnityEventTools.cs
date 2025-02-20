@@ -2,7 +2,7 @@
 
 namespace PowerUtilities
 {
-    public static class UnityEventEx
+    public static class UnityEventTools
     {
 
         public static void AddListener<T>(this UnityEvent<T> unityEvent, UnityAction<T> action)

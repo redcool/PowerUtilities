@@ -18,12 +18,6 @@ namespace PowerUtilities.RenderFeatures
         /// SRPFeature's name
         /// </summary>
         public string featureName;
-
-        /// <summary>
-        /// Is SRPPass can execute,
-        /// CanExecute will invoke OnCanExecute,
-        /// </summary>
-        public static Func<SRPPass,bool> OnCanExecute;
         /// <summary>
         /// called when unity recompile
         /// </summary>
@@ -54,7 +48,21 @@ namespace PowerUtilities.RenderFeatures
         /// </summary>
         protected ScriptableRenderContext context;
 
+        /// <summary>
+        /// Is SRPPass can execute,
+        /// CanExecute will invoke OnCanExecute,
+        /// </summary>
+        public static Func<SRPPass<T>, bool> OnCanExecute;
 
+        /// <summary>
+        /// Call before srppass execute
+        /// </summary>
+        public static Action<SRPPass<T>> OnBeforeExecute;
+
+        /// <summary>
+        /// Call end srppass execute
+        /// </summary>
+        public static Action<SRPPass<T>> OnEndExecute;
 
         public SRPPass(T feature)
         {
@@ -122,11 +130,10 @@ namespace PowerUtilities.RenderFeatures
             //check event
             var isMonoPass = true;
             if(OnCanExecute != null)
-                isMonoPass = SRPPass.OnCanExecute.Invoke(this);
+                isMonoPass = OnCanExecute.Invoke(this);
 
             if (camera.IsGameCamera() &&!string.IsNullOrEmpty(Feature.gameCameraTag))
                 return IsGameCameraValid(camera) && isMonoPass;
-
 
             return true;
         }
@@ -149,13 +156,14 @@ namespace PowerUtilities.RenderFeatures
 
             //cmd.BeginSampleExecute(featureName, ref context);
 
-            var monos = camera.GetComponents<SRPPassCameraMono>();
-            InvokeMonosBefore(camera, monos);
+            // ========== trigger before execute
+            OnBeforeExecute?.Invoke(this);
 
             OnExecute(context, ref renderingData,cmd);
 
             //cmd.EndSampleExecute(featureName, ref context);
-            InvokeMonosEnd(camera, monos);
+            // ========== trigger end execute
+            OnEndExecute?.Invoke(this);
 
             cmd.Execute(ref context);
         }
@@ -167,20 +175,5 @@ namespace PowerUtilities.RenderFeatures
 
         public abstract void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd);
 
-        public void InvokeMonosBefore(Camera cam, SRPPassCameraMono[] monos)
-        {
-            foreach (var mono in monos)
-            {
-                mono.OnPassExecuteBefore?.Invoke(this);
-            }
-        }
-
-        public void InvokeMonosEnd(Camera cam, SRPPassCameraMono[] monos)
-        {
-            foreach (var mono in monos)
-            {
-                mono.OnPassExecuteEnd?.Invoke(this);
-            }
-        }
     }
 }
