@@ -14,8 +14,16 @@ namespace PowerUtilities.RenderFeatures
     /// </summary>
     public abstract class SRPPass : ScriptableRenderPass
     {
+        /// <summary>
+        /// SRPFeature's name
+        /// </summary>
         public string featureName;
 
+        /// <summary>
+        /// Is SRPPass can execute,
+        /// CanExecute will invoke OnCanExecute,
+        /// </summary>
+        public static Func<SRPPass,bool> OnCanExecute;
         /// <summary>
         /// called when unity recompile
         /// </summary>
@@ -45,6 +53,8 @@ namespace PowerUtilities.RenderFeatures
         /// current ScriptableRenderContext,can access from OnExecute
         /// </summary>
         protected ScriptableRenderContext context;
+
+
 
         public SRPPass(T feature)
         {
@@ -109,8 +119,14 @@ namespace PowerUtilities.RenderFeatures
             if (Feature.isEditorOnly)
                 return Application.isEditor;
 
+            //check event
+            var isMonoPass = true;
+            if(OnCanExecute != null)
+                isMonoPass = SRPPass.OnCanExecute.Invoke(this);
+
             if (camera.IsGameCamera() &&!string.IsNullOrEmpty(Feature.gameCameraTag))
-                return IsGameCameraValid(camera);
+                return IsGameCameraValid(camera) && isMonoPass;
+
 
             return true;
         }

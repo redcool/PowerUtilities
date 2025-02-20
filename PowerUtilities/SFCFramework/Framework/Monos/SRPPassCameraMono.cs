@@ -15,7 +15,8 @@
     public class SRPPassCameraMono : MonoBehaviour
     {
         [HelpBox]
-        public string helpBox = "Add this Mono to Camera's gameobject, will call events when (SFC)SRPPass execute";
+        [SerializeField]
+        string helpBox = "Add this Mono to Camera's gameobject, will call events when (SFC)SRPPass execute";
         /// <summary>
         /// called before SRPPass Execute
         /// </summary>
@@ -48,49 +49,17 @@
         {
             if(isAddDefaultEvents)
             {
-                AddPassExecuteBeforeEvent(DefaultExecuteBefore);
-                AddPassExecuteEndEvent(DefaultExecuteEnd);
+                OnPassExecuteBefore.AddListener(DefaultExecuteBefore);
+                OnPassExecuteEnd.AddListener(DefaultExecuteEnd);
             }
         }
 
         public virtual void OnDisable()
         {
-            if (OnPassExecuteBefore != null)
-            {
-                OnPassExecuteBefore.RemoveAllListeners();
-                OnPassExecuteBefore = null;
-            }
-
-            if (OnPassExecuteEnd != null)
-            {
-                OnPassExecuteEnd.RemoveAllListeners();
-                OnPassExecuteEnd = null;
-            }
+            OnPassExecuteBefore.RemoveAllListeners();
+            OnPassExecuteEnd.RemoveAllListeners();
         }
 
-        /// <summary>
-        /// Register OnPassExecuteBefore, auto remove when Disable
-        /// </summary>
-        /// <param name="ev"></param>
-        public void AddPassExecuteBeforeEvent(UnityAction<SRPPass> ev)
-        {
-            if (OnPassExecuteBefore == null)
-                OnPassExecuteBefore = new();
-
-            OnPassExecuteBefore.AddListener(ev);
-        }
-
-        /// <summary>
-        ///Register OnPassExecuteEnd,
-        /// </summary>
-        /// <param name="ev"></param>
-        public void AddPassExecuteEndEvent(UnityAction<SRPPass> ev)
-        {
-            if (OnPassExecuteEnd == null)
-                OnPassExecuteEnd = new();
-
-            OnPassExecuteEnd.AddListener(ev);
-        }
         /// <summary>
         /// override for PassExecuteBeforeEvent
         /// </summary>
