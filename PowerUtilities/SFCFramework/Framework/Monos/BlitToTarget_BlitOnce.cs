@@ -43,8 +43,8 @@ namespace PowerUtilities.RenderFeatures
 
         private void OnBeforeExecute(SRPPass<BlitToTarget> pass)
         {
-            pass.Feature.isEnable = isBlitToTargetBlitOnce;
-            pass.Feature.isBlitOnce = true;
+            if(pass.Feature.isBlitOnce)
+                pass.Feature.isEnable = isBlitToTargetBlitOnce;
         }
 
 

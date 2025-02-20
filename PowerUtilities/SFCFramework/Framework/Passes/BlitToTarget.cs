@@ -1,9 +1,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+#if UNITY_EDITOR
+using UnityEditor;
+using UnityEditor.SceneManagement;
+#endif
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.SceneManagement;
 
 #if UNITY_2020
 using UniversalRenderer = UnityEngine.Rendering.Universal.ForwardRenderer;
@@ -146,13 +151,24 @@ namespace PowerUtilities.RenderFeatures
 #if UNITY_EDITOR
             EditorApplicationTools.OnEnterEditMode -= BlitOnce;
             EditorApplicationTools.OnEnterEditMode += BlitOnce;
+
+            //editor build done will change scene
+            EditorSceneManager.activeSceneChangedInEditMode -= OnSceneChanged;
+            EditorSceneManager.activeSceneChangedInEditMode += OnSceneChanged;
 #endif
         }
         public override void OnDestroy()
         {
 #if UNITY_EDITOR
             EditorApplicationTools.OnEnterEditMode -= BlitOnce;
+            EditorBuildProcessor.OnPostBuild -= BlitOnce;
+            EditorSceneManager.activeSceneChangedInEditMode -= OnSceneChanged;
 #endif
+        }
+
+        void OnSceneChanged(Scene s, Scene s2)
+        {
+            BlitOnce();
         }
 
         public void BlitOnce()
