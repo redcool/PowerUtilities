@@ -11,6 +11,9 @@ namespace PowerUtilities
     /// </summary>
     public static class PassDrawer
     {
+        static GUIContent guiSceneView = new GUIContent("S", "pass can run in SceneView");
+        static GUIContent guiEditorOnly = new GUIContent("E", "only run in Unity Editor");
+
         public static void DrawPassDetail(SerializedObject passItemSO, Color labelColor, SerializedProperty foldoutProp, GUIContent label)
         {
             passItemSO.UpdateIfRequiredOrScript();
@@ -91,12 +94,12 @@ namespace PowerUtilities
             }
 
             //----- scene only
-            ShowSpecialFlags(passItemSO, ref pos, "cameraType", "S");
+            ShowSpecialFlags(passItemSO, ref pos, "cameraType", guiSceneView);
             //----- editor only
-            ShowSpecialFlags(passItemSO, ref pos, "isEditorOnly", "E");
+            ShowSpecialFlags(passItemSO, ref pos, "isEditorOnly", guiEditorOnly);
         }
 
-        private static void ShowSpecialFlags(SerializedObject passItemSO, ref Rect pos,string featureFieldName,string flagName)
+        private static void ShowSpecialFlags(SerializedObject passItemSO, ref Rect pos,string featureFieldName,GUIContent flagGUIContent)
         {
             var prop = passItemSO.FindProperty(featureFieldName);
             if (prop == null)
@@ -113,7 +116,7 @@ namespace PowerUtilities
             {
                 pos.x += pos.width+3;
                 pos.width = 15;
-                GUI.Label(pos, flagName,"Box");
+                GUI.Label(pos, flagGUIContent, "Box");
             }
         }
     }
