@@ -128,10 +128,9 @@
                     if (EditorGUI.EndChangeCheck())
                     {
                         /**
-                         same as SRPFeature's OnValidate
+                         destroy current srppass instance,create new one next frame
                          */
-                        //? temporary disable this
-                        //feature.DestroyPassInstance();
+                        feature.OnDestroy();
                     }
                 }
                 EditorGUI.indentLevel--;

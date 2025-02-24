@@ -140,13 +140,6 @@
         /// <returns></returns>
         public abstract ScriptableRenderPass GetPass();
 
-        private void OnValidate()
-        {
-            /**
-             SRPFeature not update,need call DestroyPassInstance
-             */
-            //DestroyPassInstance();
-        }
         /// <summary>
         /// get cached pass instance
         /// </summary>
@@ -163,14 +156,6 @@
                 return passInstance;
             }
         }
-
-        /// <summary>
-        /// Destroy current instance, will create new next time
-        /// </summary>
-        //public void DestroyPassInstance()
-        //{
-        //    passInstance = null;
-        //}
 
         public string Tooltip
         {
@@ -201,7 +186,6 @@
 
             if (CompareTools.CompareAndSet(ref lastScene, ref scene))
             {
-                OnSceneChanged();
                 if (passInstance is SRPPass srpPass)
                     srpPass.OnSceneChanged();
             }
@@ -240,12 +224,6 @@
             }
             passInstance = null;
         }
-
-        public virtual void OnSceneChanged()
-        {
-            
-        }
-
 
         public bool IsCameraValid(Camera c)
             => cameraTypeCompareFunc == CameraTypeCompareFunc.Equals ? c.cameraType == cameraType : c.cameraType <= cameraType;

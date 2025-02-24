@@ -279,18 +279,15 @@
         Light sun;
         bool lastSRPBatchEnabled;
 
-
-
         public FullDrawObjectsPass(DrawObjects feature) : base(feature)
         {
             shaderTagList.AddRange(feature.shaderTags.Select(n => new ShaderTagId(n)));
+            SetupFilterSettings();
+            SetupRenderStateBlock(feature);
+        }
 
-            // setup filterSettings
-            var renderQueueRange = RenderQueueTools.ToRenderQueueRange(feature.renderQueueType);
-            filteringSettings = new FilteringSettings(renderQueueRange, feature.layers);
-            if (Feature.isOverrideFilterSetting)
-                filteringSettings = Feature.filterSetting;
-
+        private void SetupRenderStateBlock(DrawObjects feature)
+        {
             // setup render stateBlock(depth,stencil)
             renderStateBlock = new RenderStateBlock(RenderStateMask.Nothing);
 
@@ -312,8 +309,26 @@
             if (feature.depthState.isOverrideDepthState)
             {
                 renderStateBlock.mask |= RenderStateMask.Depth;
-                renderStateBlock.depthState = new DepthState(feature.depthState.isWriteDepth,feature.depthState.compareFunc);
+                renderStateBlock.depthState = new DepthState(feature.depthState.isWriteDepth, feature.depthState.compareFunc);
             }
+        }
+
+        private void SetupFilterSettings()
+        {
+            // setup filterSettings
+            var renderQueueRange = RenderQueueTools.ToRenderQueueRange(Feature.renderQueueType);
+            filteringSettings = new FilteringSettings(renderQueueRange, Feature.layers);
+
+            if (Feature.isOverrideFilterSetting)
+                filteringSettings = Feature.filterSetting;
+        }
+
+        private FilteringSettings GetFilterSettings()
+        {
+            if (filteringSettings.layerMask != Feature.layers)
+                filteringSettings.layerMask = Feature.layers;
+
+            return filteringSettings;
         }
 
         void SwitchCheckOverdraw()
@@ -425,13 +440,7 @@
             }
         }
 
-        private FilteringSettings GetFilterSettings()
-        {
-            if(filteringSettings.layerMask != Feature.layers)
-                filteringSettings.layerMask = Feature.layers;
 
-            return filteringSettings;
-        }
 
         private void RestoreDrawSettings(ref RenderingData renderingData, CommandBuffer cmd)
         {
