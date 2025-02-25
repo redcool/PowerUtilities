@@ -33,6 +33,11 @@ namespace PowerUtilities
         /// </summary>
         static Dictionary<string, string[]> fieldPathDict = new Dictionary<string, string[]>();
 
+        /// <summary>
+        /// Type's all FieldInfo
+        /// </summary>
+        static Dictionary<Type, FieldInfo[]> typeFieldInfosDict = new Dictionary<Type, FieldInfo[]>();
+        static Dictionary<Type, Dictionary<string, FieldInfo>> typeFieldNameDict = new();
 
         static ReflectionTools()
         {
@@ -425,6 +430,39 @@ namespace PowerUtilities
             if (m is FieldInfo fieldInfo)
                 fieldInfo.SetValue(caller,args);
             
+        }
+
+        /// <summary>
+        /// Copy readTarget's fieldInfos to writeTarget same named fieldInfos
+        /// </summary>
+        /// <param name="readTarget"></param>
+        /// <param name="writeTarget"></param>
+        public static void CopyFieldInfoValues(object readTarget,object writeTarget,BindingFlags bindingFlags = instanceBindings)
+        {
+            var readType = readTarget.GetType();
+            var writeType = writeTarget.GetType();
+
+            var readTargetFields = DictionaryTools.Get(typeFieldInfosDict, readType, (readType) => readType.GetFields(bindingFlags));
+            var writeTargetFields = DictionaryTools.Get(typeFieldInfosDict, writeType, (writeType) => writeType.GetFields(bindingFlags));
+
+            var writeTargetFieldDict = DictionaryTools.Get(typeFieldNameDict, writeType, (writeType) => new Dictionary<string, FieldInfo>());
+
+            for (int i = 0; i < readTargetFields.Length; i++)
+            {
+                var readField = readTargetFields[i];
+
+                //var writeField = Array.Find(writeTargetFields, fieldInfo => fieldInfo.Name == readField.Name);
+                //1 insert key
+                if(!writeTargetFieldDict.ContainsKey(readField.Name))
+                {
+                    writeTargetFieldDict.Add(readField.Name, writeType.GetField(readField.Name));
+                }
+                //2 get key
+                if(!writeTargetFieldDict.TryGetValue(readField.Name,out var writeField) || writeField == null)
+                    continue;
+
+                writeField.SetValue(writeTarget, readField.GetValue(readTarget));
+            }
         }
     }
 }
