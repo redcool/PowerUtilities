@@ -272,7 +272,7 @@
         public List<ShaderTagId> shaderTagList = new List<ShaderTagId>();
 
         public FilteringSettings filteringSettings;
-        public RenderStateBlock renderStateBlock;
+        public RenderStateBlock renderStateBlock = new RenderStateBlock(RenderStateMask.Nothing);
 
         public static event RefAction<DrawingSettings> OnSetupDrawSettings;
 
@@ -281,16 +281,29 @@
 
         public FullDrawObjectsPass(DrawObjects feature) : base(feature)
         {
-            shaderTagList.AddRange(feature.shaderTags.Select(n => new ShaderTagId(n)));
-            SetupFilterSettings();
-            SetupRenderStateBlock(feature);
+            Init();
+        }
+        /// <summary>
+        /// Apply Feature data
+        /// when change feature's params call this
+        /// </summary>
+        public void Init()
+        {
+            SetupShaderTagList(Feature.shaderTags);
+            SetupFilterSettings(Feature);
+            SetupRenderStateBlock(Feature);
         }
 
-        private void SetupRenderStateBlock(DrawObjects feature)
+        public void SetupShaderTagList(string[] shaderTags)
+        {
+            shaderTagList.Clear();
+            foreach (string shaderTag in shaderTags)
+                shaderTagList.Add(new ShaderTagId(shaderTag));
+        }
+
+        public void SetupRenderStateBlock(DrawObjects feature)
         {
             // setup render stateBlock(depth,stencil)
-            renderStateBlock = new RenderStateBlock(RenderStateMask.Nothing);
-
             var stencilData = feature.stencilData;
             var stencilState = StencilState.defaultValue;
             stencilState.enabled = stencilData.overrideStencilState;
@@ -313,14 +326,14 @@
             }
         }
 
-        private void SetupFilterSettings()
+        public void SetupFilterSettings(DrawObjects feature)
         {
             // setup filterSettings
-            var renderQueueRange = RenderQueueTools.ToRenderQueueRange(Feature.renderQueueType);
-            filteringSettings = new FilteringSettings(renderQueueRange, Feature.layers);
+            var renderQueueRange = RenderQueueTools.ToRenderQueueRange(feature.renderQueueType);
+            filteringSettings = new FilteringSettings(renderQueueRange, feature.layers);
 
-            if (Feature.isOverrideFilterSetting)
-                filteringSettings = Feature.filterSetting;
+            if (feature.isOverrideFilterSetting)
+                filteringSettings = feature.filterSetting;
         }
 
         private FilteringSettings GetFilterSettings()
