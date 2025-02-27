@@ -7,6 +7,10 @@ using UnityEngine;
 
 namespace PowerUtilities
 {
+    /// <summary>
+    /// Control children gameobject' count
+    /// config (ProjectSettings/PowerUtils/Project/QualitySettingEx)
+    /// </summary>
     public class QualityGameObjectActivator : MonoBehaviour
     {
         public enum UpdateMode

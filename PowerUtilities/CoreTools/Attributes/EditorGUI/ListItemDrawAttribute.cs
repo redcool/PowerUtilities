@@ -42,6 +42,7 @@ namespace PowerUtilities
             label = EditorGUI.BeginProperty(position, label, property);
 
             var attr = attribute as ListItemDrawAttribute;
+            var labelTooltips = "";
 
             var pos = position;
             pos.height = EditorGUIUtility.singleLineHeight;
@@ -69,9 +70,13 @@ namespace PowerUtilities
 
                 // update pos
                 var xOffset = i == 0 ? 0 : pos.width;
-                SetPos(ref pos, xOffset, propWidth,i);
+                SetPos(ref pos, xOffset, propWidth, i);
 
-                ShowPropertyOrLabel(pos, propName, prop);
+                // find next prop tooltips
+                if(prop == null)
+                    labelTooltips = FindNextPropTooltips(property, attr, i);
+
+                ShowPropertyOrLabel(pos, propName, prop, labelTooltips);
                 //EditorGUI.LabelField(pos, GUIContentEx.TempContent(propName));
             }
 
@@ -79,7 +84,7 @@ namespace PowerUtilities
 
             //-------------- methods
             
-            static void ShowPropertyOrLabel(Rect pos, string propName, SerializedProperty prop)
+            static void ShowPropertyOrLabel(Rect pos, string propName, SerializedProperty prop,string labelTooltips)
             {
                 if (prop != null)
                 {
@@ -87,7 +92,7 @@ namespace PowerUtilities
                 }
                 else
                 {
-                    EditorGUI.LabelField(pos, GUIContentEx.TempContent(propName));
+                    EditorGUI.LabelField(pos, GUIContentEx.TempContent(propName, labelTooltips));
                 }
             }
             
@@ -102,6 +107,17 @@ namespace PowerUtilities
                     pos.x = position.x;
                     pos.y += EditorGUIUtility.singleLineHeight;
                 }
+            }
+
+            static string FindNextPropTooltips(SerializedProperty property, ListItemDrawAttribute attr, int itemIndex)
+            {
+                if (itemIndex + 1 < attr.propNames.Length)
+                {
+                    var nextProp = property.FindPropertyRelative(attr.propNames[itemIndex + 1]);
+                    if (nextProp != null)
+                        return nextProp.tooltip;
+                }
+                return "";
             }
         }
 
