@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
 public static class SerializedPropertyEx
@@ -268,6 +269,22 @@ public static class SerializedPropertyEx
     {
         var objPath = prop.GetPropertyObjectPath();
         return prop.serializedObject.FindProperty($"{objPath}.{propName}");
+    }
+    /// <summary>
+    /// get array item index,-1 is not array
+    /// </summary>
+    /// <param name="prop"></param>
+    /// <returns></returns>
+    public static int GetArrayIndex(this SerializedProperty prop)
+    {
+        var regexStr = @"[(\d+)]";
+        var m = Regex.Match(prop.propertyPath, regexStr);
+        if (m.Success)
+        {
+            var idStr = m.Groups[0].Value;
+            return Convert.ToInt32(idStr);
+        }
+        return -1;
     }
 }
 #endif

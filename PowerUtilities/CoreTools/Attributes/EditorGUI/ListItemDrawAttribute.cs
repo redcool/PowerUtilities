@@ -15,10 +15,11 @@ namespace PowerUtilities
     {
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
-            //default is 1 row
-            var rowCount = 1;
-
             var attr = attribute as ListItemDrawAttribute;
+
+            int rowCount = GetRowCount(property, attr);
+
+
             // show title and title is unfold
             if (attr.isShowTitleRow && attr.isTitleUnfold)
                 rowCount += GetContentRowCount(attr);
@@ -35,6 +36,24 @@ namespace PowerUtilities
 
                 return 1;
             }
+        }
+        /// <summary>
+        /// only support 1 child
+        /// </summary>
+        /// <param name="property"></param>
+        /// <param name="attr"></param>
+        /// <returns></returns>
+        private static int GetRowCount(SerializedProperty property, ListItemDrawAttribute attr)
+        {
+            var rowCount = Mathf.Max(1,attr.rowCount);
+            if (!string.IsNullOrEmpty(attr.rowCountArrayPropName))
+            {
+                var rowCountProp = property.FindPropertyRelative(attr.rowCountArrayPropName);
+                if (rowCountProp != null && rowCountProp.isExpanded)
+                    rowCount += rowCountProp.arraySize+2;
+            }
+
+            return rowCount;
         }
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
@@ -169,7 +188,18 @@ namespace PowerUtilities
         /// is title folded?
         /// </summary>
         public bool isTitleUnfold;
+        /// <summary>
+        /// show item count in one row
+        /// </summary>
         public int countInARow;
+        /// <summary>
+        /// row count
+        /// </summary>
+        public int rowCount = 1;
+        /// <summary>
+        /// get row count from rowCountPropName(children's arrat property name)
+        /// </summary>
+        public string rowCountArrayPropName = "";
         public ListItemDrawAttribute(string propNamesStr,string widthStr,char splitChar=',',int countInARow=0)
         {
             propNames = propNamesStr.SplitBy(splitChar);
