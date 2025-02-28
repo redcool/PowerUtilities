@@ -40,6 +40,11 @@
         public bool isFolded=true;
 
         /// <summary>
+        /// viewWidth = EditorGUIUtility.currentViewWidth * viewWidthRate
+        /// </summary>
+        public float viewWidthRate = 0.75f;
+
+        /// <summary>
         /// Show EditorGUI in Box(hbox,vbox)
         /// </summary>
         /// <param name="header"></param>

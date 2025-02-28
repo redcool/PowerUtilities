@@ -14,28 +14,41 @@
     /// </summary>
     public class EditorBorderAttribute : PropertyAttribute
     {
-        public int lineCount = 1;
+        /// <summary>
+        /// line row count,line position.
+        /// pos.height = EditorGUIUtility.singleLineHeight * attr.lineRowCount;
+        /// </summary>
+        public int lineRowCount = 1;
         /// <summary>
         /// left 
         /// </summary>
         public Color color = default;
 
-        public Color right = default,top = default,bottom = default;
-        public int lineHeight = 2;
+        public Color right = default, top = default, bottom = default;
+        /// <summary>
+        /// line pixel size
+        /// </summary>
+        public int borderSize = 2;
+        /// <summary>
+        /// unity editor GetHeight use 
+        /// </summary>
+        public int lineHeight = 18;
 
-        public EditorBorderAttribute(int lineCount = 1, string colorStr = "#749C75", string topColorStr = default,string rightColorStr= default,string bottomColorStr= default)
+        public EditorBorderAttribute(int lineCount, string leftColorStr = default, string topColorStr = default, string rightColorStr = default, string bottomColorStr = default)
         {
-            this.lineCount = lineCount;
-            SetupColor(colorStr, ref color);
-            SetupColor(rightColorStr,ref right);
-            SetupColor(topColorStr, ref top);
-            SetupColor(bottomColorStr, ref bottom);
+            this.lineRowCount = lineCount;
+            ColorTools.SetupColor(leftColorStr, ref color);
+            ColorTools.SetupColor(rightColorStr, ref right);
+            ColorTools.SetupColor(topColorStr, ref top);
+            ColorTools.SetupColor(bottomColorStr, ref bottom);
         }
 
-        private void SetupColor(string str,ref Color c)
+        public EditorBorderAttribute(int lineCount = 1)
         {
-            if (!string.IsNullOrEmpty(str))
-                ColorUtility.TryParseHtmlString(str, out c);
+            this.lineRowCount = lineCount;
+            ColorTools.SetupColor(ColorTools.LIGHT_GREEN, ref color);
         }
+
+
     }
 }

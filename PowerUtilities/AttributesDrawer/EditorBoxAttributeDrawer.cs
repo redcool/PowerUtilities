@@ -34,9 +34,11 @@ namespace PowerUtilities
                 return;
             }
 
-            //EditorGUIUtility.labelWidth = EditorGUIUtility.currentViewWidth / Mathf.Max(1, attr.PropNames.Length) / 2;
-            EditorGUITools.UpdateLabelWidth(EditorGUIUtility.currentViewWidth / Mathf.Max(1, attr.PropNames.Length) / 2);
-            var itemWidth = EditorGUIUtility.currentViewWidth;
+            var viewWidth = EditorGUIUtility.currentViewWidth;
+            var vw2 = EditorGUIUtility.currentViewWidth;
+
+            EditorGUITools.UpdateLabelWidth(viewWidth / Mathf.Max(1, attr.PropNames.Length) / 2);
+            var itemWidth = viewWidth * attr.viewWidthRate;
             if (attr.boxType == EditorBoxAttribute.BoxType.HBox)
                 itemWidth /= Mathf.Max(1, attr.PropNames.Length);
 

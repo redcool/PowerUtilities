@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
+
 using UnityEngine;
 using UnityEngine.Rendering;
 using Random = UnityEngine.Random;
@@ -13,8 +11,8 @@ using Random = UnityEngine.Random;
 namespace PowerUtilities
 {
     [ProjectSettingGroup(ProjectSettingGroupAttribute.POWER_UTILS + "/Project/QualitySettingEx")]
-    [SOAssetPath("Assets/PowerUtilities/QualitySettingEx.asset")]
-    public class QualitySettingEx : ScriptableObject
+    [SOAssetPath("Assets/PowerUtilities/Resources/QualitySettingEx.asset")]
+    public partial class QualitySettingEx : ScriptableObject
     {
         /// <summary>
         /// control gameobject children count
@@ -54,23 +52,56 @@ namespace PowerUtilities
             public List<QualityPipelineAsset> qualityPipelineAssets = new();
 
         }
-
+        /// <summary>
+        /// children count
+        /// </summary>
         [HelpBox]
-        public string helpBox = "control gameobject's max children count";
+        public string helpBoxControlChildrenCount = "control gameobject's max children count";
         
         [ListItemDraw("qLv:,qualityLevel,CompCount:,componentCount", "100,100,100,50")]
         public List<QualityInfo> infos = new();
 
+        /// <summary>
+        /// manage platform quality renderPipelineAsset
+        /// </summary>
+        [EditorBorder(1,bottomColorStr: ColorTools.LIGHT_GREEN)]
+        [HelpBox]
+        public string helpBoxPlatformPipelineAsset = "manage platform quality renderPipelineAsset";
+
         [ListItemDraw("platform:,platform,default:,defaultAsset,assets:,qualityPipelineAssets", "80,150,70,.2,70,", rowCountArrayPropName = "qualityPipelineAssets")]
         public List<PlatformQualityPipelineAsset> platformQualityPipelineAssets = new();
 
-        [EditorButton(onClickCall ="AutoRunProfile")]
+        /// <summary>
+        /// Gameplaying options
+        /// </summary>
+        [Header("GamePlaying")]
+        [Tooltip("Auto apply pipelineAsset when game playing")]
+        public bool isApplyWhenPlaying;
+
+        /// <summary>
+        /// Buttons( hbox)
+        /// </summary>
+        [EditorBox("Options", "isApplyPipelineAssetsByEditorBuildTarget,isCleanPipelineAssets",boxType = EditorBoxAttribute.BoxType.HBox)]
+        [EditorButton(onClickCall = "ApplyPipelineAssetsByEditorBuildTarget")]
         [Tooltip("use profiles match current build target platform")]
-        public bool isAutoRunAssets;
+        public bool isApplyPipelineAssetsByEditorBuildTarget;
 
         [EditorButton(onClickCall = "CleanPipelineAssets")]
         [Tooltip("use profiles match current build target platform")]
+        [HideInInspector]
         public bool isCleanPipelineAssets;
+
+
+        [RuntimeInitializeOnLoadMethod]
+        static void Init()
+        {
+            var inst = QualitySettingEx.GetInstance();
+            if (inst && inst.isApplyWhenPlaying)
+            {
+                Debug.Log("auto apply asset with platform : " + Application.platform);
+                inst.ApplyPipelineAssetsByRuntimePlatform();
+            }
+        }
 
         private void Awake()
         {
@@ -83,54 +114,24 @@ namespace PowerUtilities
             }
 
         }
-
-#if UNITY_EDITOR
+        partial void OnEditorEnable();
+        partial void OnEditorDisable();
         private void OnEnable()
         {
-            EditorApplication.contextualPropertyMenu -= OnContextMenu;
-            EditorApplication.contextualPropertyMenu += OnContextMenu;
-        }
-        void OnContextMenu(GenericMenu menu, SerializedProperty property)
-        {
-            if (property.serializedObject.targetObject.GetType() != typeof(QualitySettingEx))
-                return;
-
-            var propertyCopy = property.Copy();
-            menu.AddItem(new GUIContent("Use this profile"), false, () =>
-            {
-                ApplyProfile(platformQualityPipelineAssets[propertyCopy.GetArrayIndex()]);
-            });
-            
+            OnEditorEnable();
         }
 
         private void OnDisable()
         {
-            EditorApplication.contextualPropertyMenu -= OnContextMenu;
+            OnEditorDisable();
         }
-#endif
+
         public QualityInfo GetInfo(int qLevel) 
         {
             return infos.Find((QualityInfo info )=> info.qualityLevel == qLevel);
         }
 
-        public void AutoRunProfile()
-        {
-#if UNITY_EDITOR
-            var buildTargetName = Enum.GetName(typeof(BuildTarget),EditorUserBuildSettings.activeBuildTarget);
-            
-            var buildTarget = Application.platform;
-            var asset = platformQualityPipelineAssets.Where(info => Enum.GetName(typeof(RuntimePlatform),info.platform) == buildTargetName).FirstOrDefault();
-            if (asset == null)
-            {
-                EditorUtility.DisplayDialog("Warning", $"profile not found,current platform:{buildTarget}", "ok");
-                return;
-            }
-
-            ApplyProfile(asset);
-#endif
-        }
-
-        public void ApplyProfile(PlatformQualityPipelineAsset asset)
+        public void ApplyPipelineAssets(PlatformQualityPipelineAsset asset)
         {
             if(asset.defaultAsset)
                 GraphicsSettings.defaultRenderPipeline = asset.defaultAsset;
@@ -144,12 +145,41 @@ namespace PowerUtilities
                 if (pipelineAsset)
                     QualitySettingsTools.SetRenderPipelineAssetAt(qualityLevel, pipelineAsset);
             }
-
         }
 
+        public void ApplyPipelineAssets(int index)
+        {
+            if (index > platformQualityPipelineAssets.Count)
+                return;
+
+            var asset = platformQualityPipelineAssets[index];
+            if (asset != null)
+                ApplyPipelineAssets(asset);
+        }
+
+        /// <summary>
+        /// Find and Apply pipelineAssets by Applycation.platform
+        /// </summary>
+        public void ApplyPipelineAssetsByRuntimePlatform()
+        {
+            var asset = platformQualityPipelineAssets.Find(item => item.platform == Application.platform);
+            if (asset != null)
+                ApplyPipelineAssets(asset);
+        }
+        /// <summary>
+        /// Clean QualitySettings PipelineAsset
+        /// </summary>
         public void CleanPipelineAssets()
         {
             QualitySettingsTools.CleanAllRenderPipelineAsset();
         }
+
+        /// <summary>
+        /// Get instance from Resources folder
+        /// </summary>
+        /// <returns></returns>
+        public static QualitySettingEx GetInstance()
+        => Resources.Load<QualitySettingEx>(nameof(QualitySettingEx));
+        
     }
 }

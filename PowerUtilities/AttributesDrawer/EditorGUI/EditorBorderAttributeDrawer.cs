@@ -20,12 +20,13 @@ namespace PowerUtilities
             pos.x -= 2;
             //pos.y += EditorGUIUtility.singleLineHeight/2;
             pos.width += 4;
-            pos.height = EditorGUIUtility.singleLineHeight * attr.lineCount;
-            EditorGUITools.DrawBoxColors(pos, attr.lineHeight, default, attr.color, attr.top, attr.right, attr.bottom);
+            pos.height = EditorGUIUtility.singleLineHeight * attr.lineRowCount;
+            EditorGUITools.DrawBoxColors(pos, attr.borderSize, default, attr.color, attr.top, attr.right, attr.bottom);
         }
         public override float GetHeight()
         {
-            return 0;
+            var attr = attribute as EditorBorderAttribute;
+            return attr.lineHeight;
         }
     }
 }
