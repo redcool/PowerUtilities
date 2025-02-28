@@ -45,7 +45,7 @@ namespace PowerUtilities
         [Serializable]
         public class PlatformQualityPipelineAsset
         {
-            public RuntimePlatform platform;
+            public RuntimePlatform[] platform;
             public RenderPipelineAsset defaultAsset;
 
             [ListItemDraw("qLV:,qualityLevel,assets:,pipelineAsset","50,100,50,250")]
@@ -68,7 +68,7 @@ namespace PowerUtilities
         [HelpBox]
         public string helpBoxPlatformPipelineAsset = "manage platform quality renderPipelineAsset";
 
-        [ListItemDraw("platform:,platform,default:,defaultAsset,assets:,qualityPipelineAssets", "80,150,70,.2,70,", rowCountArrayPropName = "qualityPipelineAssets")]
+        [ListItemDraw("platform:,platform,default:,defaultAsset,assets:,qualityPipelineAssets", "80,200,70,.2,70,", rowCountArrayPropName = "qualityPipelineAssets")]
         public List<PlatformQualityPipelineAsset> platformQualityPipelineAssets = new();
 
         /// <summary>
@@ -162,7 +162,7 @@ namespace PowerUtilities
         /// </summary>
         public void ApplyPipelineAssetsByRuntimePlatform()
         {
-            var asset = platformQualityPipelineAssets.Find(item => item.platform == Application.platform);
+            var asset = platformQualityPipelineAssets.Find(item => item.platform.Contains(Application.platform));
             if (asset != null)
                 ApplyPipelineAssets(asset);
         }
