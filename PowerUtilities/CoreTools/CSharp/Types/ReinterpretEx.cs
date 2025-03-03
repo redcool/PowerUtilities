@@ -13,21 +13,6 @@ namespace PowerUtilities
     public static class ReinterpretEx
     {
         /// <summary>
-        /// Type for number(int,float,uint)
-        /// </summary>
-        [StructLayout(LayoutKind.Explicit)]
-        public struct NumberType
-        {
-            [FieldOffset(0)] public float floatValue;
-            [FieldOffset(0)] public int intValue;
-            [FieldOffset(0)] public uint uintValue;
-
-            public static implicit operator NumberType(int v)
-            {
-                return new NumberType { intValue = v };
-            }
-        }
-        /// <summary>
         /// reinterpret int to float
         /// </summary>
         /// <param name="value"></param>
