@@ -12,15 +12,19 @@ namespace PowerUtilities
     /// </summary>
     public static class ReinterpretEx
     {
+        /// <summary>
+        /// Type for number(int,float,uint)
+        /// </summary>
         [StructLayout(LayoutKind.Explicit)]
-        struct IntFloat
+        public struct NumberType
         {
-            [FieldOffset(0)]public float floatValue;
-            [FieldOffset(0)]public int intValue;
+            [FieldOffset(0)] public float floatValue;
+            [FieldOffset(0)] public int intValue;
+            [FieldOffset(0)] public uint uintValue;
 
-            public static implicit operator IntFloat(int v)
+            public static implicit operator NumberType(int v)
             {
-                return new IntFloat { intValue= v };
+                return new NumberType { intValue = v };
             }
         }
         /// <summary>
@@ -30,8 +34,18 @@ namespace PowerUtilities
         /// <returns></returns>
         public static float AsFloat(this int value)
         {
-            IntFloat intFloat = value;
+            NumberType intFloat = value;
             return intFloat.floatValue;
+        }
+        /// <summary>
+        /// reinterpret int to uint, -1 : 4.294967E+09
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static float AsUint(this int value)
+        {
+            NumberType intFloat = value;
+            return intFloat.uintValue;
         }
     }
 }
