@@ -27,13 +27,18 @@
                 float4 color : COLOR0;
             };
 
+            struct InstanceInfo{
+                float3 posOffsets[20];
+            };
+
             StructuredBuffer<int> _Triangles;
             StructuredBuffer<float3> _Positions;
             StructuredBuffer<float3> _PosOffsets;
-            StructuredBuffer<int> _InstanceCount;
+            
             uniform uint _BaseVertexIndex;
             uniform float4x4 _ObjectToWorld;
             float _IndexBufferOn;
+            float _InstanceCountList[2];
 
             v2f vert(uint svVertexID: SV_VertexID, uint svInstanceID : SV_InstanceID)
             {
@@ -48,8 +53,8 @@
                     triangleId = _Triangles[triangleId] + _BaseVertexIndex; // no IndexBuffer
                 }
                 float3 pos = _Positions[triangleId]; // has IndexBuffer
-
-                float3 posOffset = _PosOffsets[cmdID * _InstanceCount[cmdID] + instanceID];
+                uint count =  _InstanceCountList[cmdID];
+                float3 posOffset = _PosOffsets[cmdID * count + instanceID];
 
                 pos += posOffset;
                 float4 wpos = mul(_ObjectToWorld,float4(pos,1));

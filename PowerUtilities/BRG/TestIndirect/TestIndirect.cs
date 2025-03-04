@@ -25,7 +25,6 @@ public class TestIndirect : MonoBehaviour
 
     GraphicsBuffer posOffsetBuf;
     public float posOffsetY;
-    GraphicsBuffer instanceCountBuf;
     [Range(0,1)]public float cullingRate = 0.6f;
 
     void Start()
@@ -52,6 +51,8 @@ public class TestIndirect : MonoBehaviour
         meshPositions = null;
         commandBuf?.Dispose();
         commandBuf = null;
+
+        posOffsetBuf?.Dispose();
     }
 
     void Update()
@@ -63,24 +64,21 @@ public class TestIndirect : MonoBehaviour
         rp.matProps.SetBuffer("_Positions", meshPositions);
         rp.matProps.SetInt("_BaseVertexIndex", (int)mesh.GetBaseVertex(0));
         rp.matProps.SetMatrix("_ObjectToWorld", Matrix4x4.Translate(new Vector3(-4.5f, 0, 0)));
-        rp.matProps.SetBuffer("_PosOffsets", posOffsetBuf);
-        rp.matProps.SetBuffer("_InstanceCount", instanceCountBuf);
-        rp.matProps.SetFloat("_IndexBufferOn", 0);
 
-        var list = new List<Vector3>();
-        var instanceCountList = new List<int>();
-        SetupPosOffsetData(2, 10, list, instanceCountList);
+        var posOffsetList = new List<Vector3>();
+        var instanceCountList = new List<float>();
+        SetupPosOffsetData(2, 10, posOffsetList, instanceCountList);
 
         if (posOffsetBuf == null)
         {
-            posOffsetBuf = new GraphicsBuffer(GraphicsBuffer.Target.Structured, 10 + 10, Marshal.SizeOf<Vector3>());
+            posOffsetBuf = new GraphicsBuffer(GraphicsBuffer.Target.Structured, 10 + 10, sizeof(float)*3);
         }
 
-        if (instanceCountBuf == null)
-            instanceCountBuf = new GraphicsBuffer(GraphicsBuffer.Target.Structured, 10 + 10, sizeof(int));
+        posOffsetBuf.SetData(posOffsetList);
 
-        posOffsetBuf.SetData(list);
-        instanceCountBuf.SetData(instanceCountList);
+        rp.matProps.SetBuffer("_PosOffsets", posOffsetBuf);
+        rp.matProps.SetFloat("_IndexBufferOn", 0);
+        rp.matProps.SetFloatArray("_InstanceCountList", instanceCountList);
 #if INDEX_BUFFER
         rp.matProps.SetFloat("_IndexBufferOn",1);
         for (int i = 0; i < commandCount; i++)
@@ -105,7 +103,7 @@ public class TestIndirect : MonoBehaviour
 #endif
     }
 
-    private List<Vector3> SetupPosOffsetData(int rows,int cols,List<Vector3> list,List<int> instanceCounts)
+    private void SetupPosOffsetData(int rows,int cols,List<Vector3> list,List<float> instanceCounts)
     {
         for (int i = 0; i < rows; i++) {
             int count = 0;
@@ -120,6 +118,6 @@ public class TestIndirect : MonoBehaviour
 
             instanceCounts.Add(count);
         }
-        return list;
+
     }
 }
