@@ -34,6 +34,7 @@ namespace PowerUtilities
                     label = groupAttr.label,
                     guiHandler = (searchContex) =>
                     {
+                        //EditorGUIUtility.labelWidth = 250;// EditorGUIUtility.currentViewWidth * groupAttr.labelWidthRate;
                         ShowSetting(settingType);
                     },
                 };
@@ -52,14 +53,18 @@ namespace PowerUtilities
                 EditorGUILayout.SelectableLabel($"{type} cannot load.");
                 return;
             }
+            
             // show so object 
             EditorGUITools.BeginHorizontalBox(() => { 
-                EditorGUILayout.LabelField("SO:",GUILayout.Width(148));
+                GUILayout.Label("SO:");
                 EditorGUILayout.ObjectField(setting.targetObject, typeof(ScriptableObject), false);
             });
-            
-            EditorGUITools.DrawColorLine();
 
+            EditorGUIUtility.labelWidth = GUILayoutUtility.GetLastRect().width*0.415F;
+
+            // draw splitter 
+            EditorGUITools.DrawColorLine();
+            
             // show so properties
             var settingEditor = cachedEditors.Get(type, () => Editor.CreateEditor(setting.targetObject));
             settingEditor.OnInspectorGUI();

@@ -31,6 +31,7 @@ namespace PowerUtilities
         /// setting's label, like XXXSettings,shown on left
         /// </summary>
         public string label = "";
+
         public ProjectSettingGroupAttribute(string settingPath)
         {
             this.settingPath = settingPath;

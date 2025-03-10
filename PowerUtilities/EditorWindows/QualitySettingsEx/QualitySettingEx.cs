@@ -1,4 +1,6 @@
-﻿using System;
+﻿namespace PowerUtilities
+{
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,8 +10,6 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using Random = UnityEngine.Random;
 
-namespace PowerUtilities
-{
     [ProjectSettingGroup(ProjectSettingGroupAttribute.POWER_UTILS + "/Project/QualitySettingEx")]
     [SOAssetPath("Assets/PowerUtilities/Resources/QualitySettingEx.asset")]
     public partial class QualitySettingEx : ScriptableObject
@@ -180,6 +180,24 @@ namespace PowerUtilities
         /// <returns></returns>
         public static QualitySettingEx GetInstance()
         => Resources.Load<QualitySettingEx>(nameof(QualitySettingEx));
-        
+
+        /// <summary>
+        /// Get pipelineAsset by buildTargetName(EditorUserBuildSettings.activeBuildTarget
+        /// </summary>
+        /// <param name="buildTargetName"></param>
+        /// <param name="isIOS"></param>
+        /// <returns></returns>
+        public PlatformQualityPipelineAsset GetPipelineAsset(RuntimePlatform platform)
+        {
+
+            foreach (var info in platformQualityPipelineAssets)
+            {
+                if(info.platform.Contains(platform))
+                {
+                    return info;
+                }
+            }
+            return null;
+        }
     }
 }

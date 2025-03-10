@@ -9,10 +9,10 @@ namespace PowerUtilities
     using UnityEditor;
     using UnityEngine;
 
-    [CustomEditor(typeof(PowerUtilSettings))]
-    public class PowerUtilSettingsEditor : Editor
-    {
-    }
+    //[CustomEditor(typeof(PowerUtilSettings))]
+    //public class PowerUtilSettingsEditor : Editor
+    //{
+    //}
 
     [ProjectSettingGroup("PowerUtils/PowerUtilSettings")]
     [SOAssetPath("Assets/PowerUtilities/PowerUtilSettings.asset")]

@@ -45,13 +45,11 @@ namespace PowerUtilities
         /// </summary>
         public void ApplyPipelineAssetsByEditorBuildTarget()
         {
-            var buildTargetName = Enum.GetName(typeof(BuildTarget), EditorUserBuildSettings.activeBuildTarget);
-
-            var buildTarget = Application.platform;
-            var asset = platformQualityPipelineAssets.Where(info => Enum.GetName(typeof(RuntimePlatform), info.platform) == buildTargetName).FirstOrDefault();
+            var asset = GetPipelineAsset(EditorUserBuildSettingsTools.BuildTargetToPlatform(EditorUserBuildSettings.activeBuildTarget));
+            Debug.Log($"{EditorUserBuildSettings.activeBuildTarget} ,platform:{Application.platform} , => {asset}");
             if (asset == null)
             {
-                EditorUtility.DisplayDialog("Warning", $"profile not found,current platform:{buildTarget}", "ok");
+                EditorUtility.DisplayDialog("Warning", $"profile not found,current platform:{Application.platform}", "ok");
                 return;
             }
 
