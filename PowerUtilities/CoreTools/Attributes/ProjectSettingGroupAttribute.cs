@@ -26,6 +26,10 @@ namespace PowerUtilities
         /// Project Setting or Preferences
         /// </summary>
         public SettingsScope settingsScope = SettingsScope.Project;
+        /// <summary>
+        /// OnGUI or UIElements
+        /// </summary>
+        public bool isUseUIElment = false;
 
         /// <summary>
         /// setting's label, like XXXSettings,shown on left

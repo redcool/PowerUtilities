@@ -50,7 +50,7 @@ namespace PowerUtilities
             {
                 var rowCountProp = property.FindPropertyRelative(attr.rowCountArrayPropName);
                 if (rowCountProp != null && rowCountProp.isExpanded)
-                    rowCount += rowCountProp.arraySize+2;
+                    rowCount += rowCountProp.arraySize+3;
             }
 
             return rowCount;
@@ -97,6 +97,10 @@ namespace PowerUtilities
 
                 ShowPropertyOrLabel(pos, propName, prop, labelTooltips);
                 //EditorGUI.LabelField(pos, GUIContentEx.TempContent(propName));
+            }
+            if(attr.propNames.Length == 0)
+            {
+                EditorGUI.SelectableLabel(pos, property.stringValue);
             }
 
             EditorGUI.EndProperty();
