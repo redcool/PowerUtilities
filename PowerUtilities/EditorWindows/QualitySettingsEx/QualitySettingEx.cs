@@ -86,7 +86,7 @@ using Random = UnityEngine.Random;
         [Tooltip("use profiles match current build target platform")]
         public bool isApplyPipelineAssetsByEditorBuildTarget;
 
-        [EditorButton(onClickCall = "CleanPipelineAssets")]
+        [EditorButton(onClickCall = "EditorCleanPipelineAssets")]
         [Tooltip("use profiles match current build target platform")]
         [HideInInspector]
         public bool isCleanPipelineAssets;

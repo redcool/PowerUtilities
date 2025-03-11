@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEditor;
+using UnityEditor.VersionControl;
 using UnityEngine;
 
 namespace PowerUtilities
@@ -46,14 +47,26 @@ namespace PowerUtilities
         public void ApplyPipelineAssetsByEditorBuildTarget()
         {
             var asset = GetPipelineAsset(EditorUserBuildSettingsTools.BuildTargetToPlatform(EditorUserBuildSettings.activeBuildTarget));
-            Debug.Log($"{EditorUserBuildSettings.activeBuildTarget} ,platform:{Application.platform} , => {asset}");
-            if (asset == null)
+            if (asset != null)
+            {
+                var isOk = EditorUtility.DisplayDialog("Warning", $"buildTarget: {EditorUserBuildSettings.activeBuildTarget} ,platform:{Application.platform} , => {asset}", "ok", "cancel");
+                if (isOk)
+                    ApplyPipelineAssets(asset);
+            }
+            else
             {
                 EditorUtility.DisplayDialog("Warning", $"profile not found,current platform:{Application.platform}", "ok");
-                return;
             }
 
-            ApplyPipelineAssets(asset);
+        }
+
+        public void EditorCleanPipelineAssets()
+        {
+            var isOk = EditorUtility.DisplayDialog("Warning", "Clean Quality's RenderPipelines" ,"ok","cancel");
+            if (!isOk)
+                return;
+
+            CleanPipelineAssets();
         }
     }
 }
