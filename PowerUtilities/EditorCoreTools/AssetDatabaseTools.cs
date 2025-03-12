@@ -40,7 +40,7 @@ namespace PowerUtilities
         /// <param name="filter"></param>
         /// <param name="searchInFolders"></param>
         /// <returns></returns>
-        public static T[] FindAssetsInProject<T>(string filter="", params string[] searchInFolders)
+        public static T[] FindAssetsInProject<T>(string filter = "", params string[] searchInFolders)
             where T : Object
         {
             var paths = AssetDatabase.FindAssets($"{filter} t:{typeof(T).Name}", searchInFolders);
@@ -76,11 +76,11 @@ namespace PowerUtilities
         /// </summary>
         /// <param name="scene"></param>
         /// <returns></returns>
-        public static string CreateGetSceneFolder(Scene scene=default)
+        public static string CreateGetSceneFolder(Scene scene = default)
         {
-            if(scene == default)
+            if (scene == default)
                 scene = SceneManager.GetActiveScene();
-            
+
             var sceneParentFolder = PathTools.GetAssetDir(scene.path);
             var sceneFolder = $"{sceneParentFolder}/{scene.name}";
             //1 create folder same as scene's Name
@@ -123,11 +123,11 @@ namespace PowerUtilities
         /// <param name="extName">null dont check extName, empty string check that files has no extName</param>
         /// <param name="searchInFolders"></param>
         /// <returns></returns>
-        public static string[] FindAssetsPath(string filter, string extName = null,bool isWholeWordsMatch=false, params string[] searchInFolders)
+        public static string[] FindAssetsPath(string filter, string extName = null, bool isWholeWordsMatch = false, params string[] searchInFolders)
         {
             var q = AssetDatabase.FindAssets(filter, searchInFolders)
                 .Select(AssetDatabase.GUIDToAssetPath)
-                .Where(path => 
+                .Where(path =>
                     (extName == null ? true : Path.GetExtension(path).EndsWith(extName))
                     && (isWholeWordsMatch ? filter == Path.GetFileNameWithoutExtension(path) : true)
                 )
@@ -144,23 +144,23 @@ namespace PowerUtilities
         /// <param name="extName">null dont check extName, empty string check that files has no extName</param>
         /// <param name="searchInFolders"></param>
         /// <returns></returns>
-        public static T[] FindAssetsPathAndLoad<T>(out string[] paths,string filter, string extName = null, bool isWholeWordsMatch = false, params string[] searchInFolders)
+        public static T[] FindAssetsPathAndLoad<T>(out string[] paths, string filter, string extName = null, bool isWholeWordsMatch = false, params string[] searchInFolders)
             where T : Object
         {
-            paths = FindAssetsPath(filter, extName,isWholeWordsMatch, searchInFolders);
+            paths = FindAssetsPath(filter, extName, isWholeWordsMatch, searchInFolders);
             return paths.Select(path => AssetDatabase.LoadAssetAtPath<T>(path)).ToArray();
         }
 
         public static string FindAssetPath(string filter, string extName = null, bool isWholeWordsMatch = false, params string[] searchInFolders)
-            => FindAssetsPath(filter, extName,isWholeWordsMatch, searchInFolders).FirstOrDefault();
+            => FindAssetsPath(filter, extName, isWholeWordsMatch, searchInFolders).FirstOrDefault();
 
         public static T FindAssetPathAndLoad<T>(out string path, string filter, string extName = null, bool isWholeWordsMatch = false, params string[] searchInFolders)
             where T : Object
         {
-            if(!string.IsNullOrEmpty(extName) && extName.StartsWith(".")) 
+            if (!string.IsNullOrEmpty(extName) && extName.StartsWith("."))
                 extName = extName.Substring(1);
 
-            path = FindAssetPath(filter, extName,isWholeWordsMatch, searchInFolders);
+            path = FindAssetPath(filter, extName, isWholeWordsMatch, searchInFolders);
             return AssetDatabase.LoadAssetAtPath<T>(path);
         }
 
@@ -170,7 +170,7 @@ namespace PowerUtilities
             AssetDatabase.Refresh();
         }
 
-        public static void DeleteAsset(string assetPath,bool refresh)
+        public static void DeleteAsset(string assetPath, bool refresh)
         {
             if (string.IsNullOrEmpty(assetPath))
                 return;
@@ -205,7 +205,7 @@ namespace PowerUtilities
         /// </summary>
         /// <param name="asset"></param>
         /// <param name="pathInSceneFolder"></param>
-        public static void CreateAssetAtSceneFolder(Object asset,string pathInSceneFolder)
+        public static void CreateAssetAtSceneFolder(Object asset, string pathInSceneFolder)
         {
             if (string.IsNullOrEmpty(pathInSceneFolder))
                 return;
@@ -243,7 +243,7 @@ namespace PowerUtilities
             return File.Exists(absPath);
         }
 
-        public static void AddObjectToAsset(Object objectToAdd, Object assetObject,bool isClearSubAsset=false)
+        public static void AddObjectToAsset(Object objectToAdd, Object assetObject, bool isClearSubAsset = false)
         {
             if (isClearSubAsset)
             {
@@ -283,6 +283,48 @@ namespace PowerUtilities
 
             return path;
         }
+        /// <summary>
+        /// Add BundleName, bundleName is null, generate a GUID
+        /// </summary>
+        /// <param name="bundleName"></param>
+        public static string AddAssetBundleName(string bundleName = null)
+        {
+            if (string.IsNullOrEmpty(bundleName))
+                bundleName = GUID.Generate().ToString();
+
+            var rootImp = AssetImporter.GetAtPath("Assets");
+            rootImp.assetBundleName = bundleName;
+            rootImp.SaveAndReimport();
+
+            rootImp.assetBundleName = "";
+            rootImp.SaveAndReimport();
+
+            return bundleName;
+        }
+
+        public static int RenameAssetBundleName(string oldName, string newName)
+        {
+
+            var paths = FindAssetsPath($"b:{oldName}");
+            foreach (var path in paths)
+            {
+                var imp = AssetImporter.GetAtPath(path);
+                imp.assetBundleName = newName;
+                imp.SaveAndReimport();
+            }
+
+            // abName unused
+            if (paths.Length == 0)
+            {
+                AddAssetBundleName(newName);
+            }
+
+            // force remove oldName
+            AssetDatabase.RemoveAssetBundleName(oldName, true);
+
+            return paths.Length;
+        }
+
 
     }
 }

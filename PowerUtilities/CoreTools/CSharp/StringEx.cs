@@ -221,5 +221,16 @@
             }
             return sb.ToString();
         }
+        /// <summary>
+        /// a.txt return (a,txt)
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public static (string name, string ext) SplitFileNameExt(this string str)
+        {
+            var name = Path.GetFileNameWithoutExtension(str);
+            var ext = Path.GetExtension(str);
+            return (name, ext);
+        }
     }
 }
