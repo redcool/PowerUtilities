@@ -1,8 +1,8 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
-    <ui:VisualElement name="Root" style="flex-grow: 1;">
+    <ui:VisualElement name="Root" style="flex-grow: 1; border-top-width: 0; border-right-width: 0; border-bottom-width: 0; border-left-width: 0; border-left-color: rgb(47, 114, 168); border-right-color: rgb(47, 114, 168); border-top-color: rgb(47, 114, 168); border-bottom-color: rgb(47, 114, 168); padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; margin-top: 1px; margin-right: 1px; margin-bottom: 1px; margin-left: 1px;">
         <PowerUtilities.UIElements.BaseSplitView fixed-pane-initial-dimension="200" style="flex-grow: 1; height: 100%;">
             <ui:VisualElement name="ABNameView" style="flex-grow: 1; width: 100px;">
-                <ui:Label tabindex="-1" text="BundleName" parse-escape-sequences="true" display-tooltip-when-elided="true" style="-unity-font-style: bold; flex-shrink: 1;" />
+                <ui:Label tabindex="-1" text="BundleName" parse-escape-sequences="true" display-tooltip-when-elided="true" style="-unity-font-style: bold; flex-shrink: 1; margin-bottom: 4px;" />
                 <ui:ListView name="AB_Name_ListView" show-border="false" horizontal-scrolling="true" reorder-mode="Simple" show-add-remove-footer="false" style="flex-grow: 1; height: 100%;" />
                 <ui:VisualElement name="VisualElement" style="flex-grow: 1; flex-direction: row; justify-content: flex-end;">
                     <ui:Button text="+" parse-escape-sequences="true" display-tooltip-when-elided="true" name="AddABName" tooltip="add bundleName" style="border-top-left-radius: 5px; border-top-right-radius: 5px; border-bottom-right-radius: 5px; border-bottom-left-radius: 5px; padding-right: 10px;" />
@@ -15,15 +15,16 @@
             </ui:VisualElement>
             <PowerUtilities.UIElements.BaseSplitView fixed-pane-initial-dimension="600" style="height: 100%; width: auto;">
                 <ui:VisualElement name="AssetView" style="flex-grow: 1; width: auto;">
-                    <ui:Label tabindex="-1" text="Assets" parse-escape-sequences="true" display-tooltip-when-elided="true" tooltip="double click navigate to asset" style="-unity-font-style: bold;" />
-                    <ui:ListView name="AB_Asset_ListView" style="flex-grow: 1;" />
+                    <ui:Label tabindex="-1" text="Assets" parse-escape-sequences="true" display-tooltip-when-elided="true" tooltip="double click navigate to asset" style="-unity-font-style: bold; margin-bottom: 4px;" />
+                    <ui:ListView name="AB_Asset_ListView" style="flex-grow: 1; height: auto;" />
                 </ui:VisualElement>
                 <ui:VisualElement name="ABInspector" style="flex-grow: 1; width: auto;">
-                    <ui:Label tabindex="-1" text="Details" parse-escape-sequences="true" display-tooltip-when-elided="true" style="-unity-font-style: bold;" />
+                    <ui:Label tabindex="-1" text="Details" parse-escape-sequences="true" display-tooltip-when-elided="true" style="-unity-font-style: bold; margin-bottom: 4px;" />
                     <ui:VisualElement style="flex-grow: initial; flex-direction: row;">
-                        <ui:TextField picking-mode="Ignore" label="ABName" name="ABName" style="flex-shrink: 0; width: 70%;" />
+                        <ui:TextField picking-mode="Ignore" label="ABName" name="ABName" style="flex-shrink: 0; width: 70%; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0;" />
                         <ui:Button text="Rename" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ABRename" tooltip="rename asset bundle name" />
                     </ui:VisualElement>
+                    <ui:Foldout text="Dependencies" name="DependencyFoldout" tooltip="Show Dependencies" />
                 </ui:VisualElement>
             </PowerUtilities.UIElements.BaseSplitView>
         </PowerUtilities.UIElements.BaseSplitView>

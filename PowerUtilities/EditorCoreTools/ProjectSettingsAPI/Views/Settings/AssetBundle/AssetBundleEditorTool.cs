@@ -17,6 +17,7 @@ namespace PowerUtilities
     {
         TextField abNameTextField;
         ListView abAssetView, abNameView;
+        Foldout dependencyFoldout;
 
         AssetBundleEditorTool inst;
 
@@ -44,6 +45,8 @@ namespace PowerUtilities
             abNameView = root.Q<ListView>("AB_Name_ListView");
 
             abNameTextField = root.Q<TextField>("ABName");
+            dependencyFoldout = root.Q<Foldout>("DependencyFoldout");
+
             var renameBt = root.Q<Button>("ABRename");
             renameBt.clicked += () =>
             {
@@ -91,11 +94,35 @@ namespace PowerUtilities
             abNameView.Rebuild();
         }
 
+        void ShowABDependencies(AssetBundleInfo info)
+        {
+            if(info.dependencyList.Count == 0)
+                info.UpdateDependencies();
+
+            dependencyFoldout.Clear();
+
+            for (int i = 0; i < info.dependencyList.Count; i++)
+            {
+                var intentLevel = i;
+                var depList = info.dependencyList[i];
+                foreach (var depABName in depList)
+                {
+                    var label = new Label();
+                    label.text = depABName;
+                    label.style.marginLeft = intentLevel * 10;
+
+                    dependencyFoldout.Add(label);
+                }
+            }
+
+        }
+
         void ShowABName(string abName)
         {
             abNameTextField.value = abName;
             abNameTextField.userData = abName;
         }
+
         void RenameABName()
         {
             string oldABName = (string)abNameTextField.userData;
@@ -128,11 +155,28 @@ namespace PowerUtilities
             abNameView.bindItem = (e, i) =>
             {
                 var item = inst.infoList[i];
-                (e as Label).text = item.abName;
+
+                if(item.dependencyList.Count == 0)
+                    item.UpdateDependencies();
+
+                var label = (e as Label);
+                label.text = item.abName;
+                // apply intent with dependency depth
+                label.style.paddingLeft = item.DependencyDepth * 10;
             };
 
             abNameView.selectionChanged -= OnSelectionChanged;
             abNameView.selectionChanged += OnSelectionChanged;
+
+            abNameView.itemsChosen += (e) =>
+            {
+                var item = inst.infoList[abNameView.selectedIndex];
+                item.UpdateDependencies();
+                foreach (var dep in item.dependencyList)
+                {
+                    Debug.Log("dep: " + string.Join(",", dep));
+                }
+            };
 
             //---------- events
             void OnSelectionChanged(IEnumerable<object> e)
@@ -142,10 +186,14 @@ namespace PowerUtilities
                     return;
 
                 var item = inst.infoList[index];
+                item.UpdateBundleAssets();
                 abAssetView.itemsSource = item.assetPathList;
 
                 //
                 ShowABName(item.abName);
+
+                item.UpdateDependencies();
+                ShowABDependencies(item);
             }
         }
 
@@ -181,20 +229,6 @@ namespace PowerUtilities
                 info.abName = n;
                 info.assetPathList.AddRange(AssetDatabase.GetAssetPathsFromAssetBundle(n));
             });
-        }
-    }
-
-
-    [Serializable]
-    public class AssetBundleInfo
-    {
-        public string abName;
-
-        public List<string> assetPathList = new();
-
-        public override string ToString()
-        {
-            return abName;
         }
     }
 

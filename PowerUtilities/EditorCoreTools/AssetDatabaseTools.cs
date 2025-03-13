@@ -325,7 +325,29 @@ namespace PowerUtilities
             return paths.Length;
         }
 
+        /// <summary>
+        /// [
+        ///     1 [ ...]
+        ///     2 [....]
+        /// ]
+        /// </summary>
+        /// <param name="abName"></param>
+        /// <param name="dependencyList"></param>
+        public static void FindAssetBundleDependenciesRecursive(string abName, ref List<List<string>> dependencyList)
+        {
+            var dependencies = AssetDatabase.GetAssetBundleDependencies(abName, false);
+            if (dependencies.Length == 0)
+                return;
 
+            var list = new List<string>(dependencies);
+            dependencyList.Add(list);
+
+            foreach (var item in list)
+            {
+                FindAssetBundleDependenciesRecursive(item, ref dependencyList);
+            }
+
+        }
     }
 }
 #endif
