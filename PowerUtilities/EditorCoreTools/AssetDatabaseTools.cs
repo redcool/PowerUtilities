@@ -14,6 +14,8 @@ namespace PowerUtilities
 {
     public class AssetDatabaseTools
     {
+        public const string BUNDLE_PATH = "Assets/../Bundles";
+
         /// <summary>
         /// Find gameObjects in searchInFolders, return gameObject's component
         /// </summary>
@@ -128,7 +130,7 @@ namespace PowerUtilities
             var q = AssetDatabase.FindAssets(filter, searchInFolders)
                 .Select(AssetDatabase.GUIDToAssetPath)
                 .Where(path =>
-                    (extName == null ? true : Path.GetExtension(path).EndsWith(extName))
+                    (extName == null ? true : path.EndsWith(extName))
                     && (isWholeWordsMatch ? filter == Path.GetFileNameWithoutExtension(path) : true)
                 )
                 ;
@@ -348,6 +350,80 @@ namespace PowerUtilities
             }
 
         }
+
+        /// <summary>
+        /// Build a AssetBundle with dependencies
+        /// </summary>
+        /// <param name="abName"></param>
+        /// <param name="buildOptions"></param>
+        /// <param name="buildTarget"></param>
+        /// <param name="bundlePath"></param>
+        /// <returns></returns>
+        public static AssetBundleManifest BuildAssetBundle(string abName,
+            BuildAssetBundleOptions buildOptions = BuildAssetBundleOptions.None,
+            BuildTarget buildTarget = BuildTarget.Android,
+            string bundlePath = BUNDLE_PATH,
+            bool hasDependencies = true)
+        {
+            // add abName
+            var buildMap = new List<AssetBundleBuild>();
+            var paths = AssetDatabase.GetAssetPathsFromAssetBundle(abName);
+            buildMap.Add(new AssetBundleBuild()
+            {
+                assetBundleName = abName,
+                assetNames = paths,
+            });
+            // add abName dependencies
+            var deps = AssetDatabase.GetAssetBundleDependencies(abName, true);
+            foreach (var dep in deps)
+            {
+                var depPaths = AssetDatabase.GetAssetPathsFromAssetBundle(dep);
+                buildMap.Add(new AssetBundleBuild()
+                {
+                    assetBundleName = dep,
+                    assetNames = depPaths,
+                });
+            }
+
+            PathTools.CreateAbsFolderPath(bundlePath);
+
+            return BuildPipeline.BuildAssetBundles(bundlePath, buildMap.ToArray(), buildOptions, buildTarget);
+        }
+
+        /// <summary>
+        /// Build a AssetBundle with objects
+        /// </summary>
+        /// <param name="abName"></param>
+        /// <param name="buildOptions"></param>
+        /// <param name="buildTarget"></param>
+        /// <param name="bundlePath"></param>
+        /// <param name="objects"></param>
+        /// <returns></returns>
+        public static AssetBundleManifest BuildObjectsAssetBundle(string abName,
+            BuildAssetBundleOptions buildOptions = BuildAssetBundleOptions.None,
+            BuildTarget buildTarget = BuildTarget.Android,
+            string bundlePath = BUNDLE_PATH,
+            params Object[] objects
+            )
+        {
+            var paths = objects
+                .Select(obj => AssetDatabase.GetAssetPath(obj))
+                .Where(p => !string.IsNullOrEmpty(p))
+                .ToArray();
+
+            var buildMap = new AssetBundleBuild[]
+            {
+                new AssetBundleBuild()
+                {
+                    assetBundleName = abName,
+                    assetNames = paths
+                }
+            };
+            PathTools.CreateAbsFolderPath(bundlePath);
+
+            return BuildPipeline.BuildAssetBundles(bundlePath, buildMap.ToArray(), buildOptions, buildTarget);
+        }
+
     }
 }
 #endif

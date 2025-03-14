@@ -57,7 +57,10 @@
                 return absPath.Substring(index);
             return absPath;
         }
-
+        /// <summary>
+        /// create abspath folder with unity asset path
+        /// </summary>
+        /// <param name="assetPath"></param>
         public static void CreateAbsFolderPath(string assetPath)
         {
             var absPath = GetAssetAbsPath(assetPath);

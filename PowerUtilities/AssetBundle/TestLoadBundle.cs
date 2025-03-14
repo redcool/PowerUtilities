@@ -8,11 +8,13 @@
 
     public class TestLoadBundle : MonoBehaviour {
         public string url;
-        public bool startLoad;
-
+        [Header("test load shader bundle")]
+        public bool startLoadShader;
         public string shaderName;
 
-        public Dictionary<string, AssetBundle> bundleDict = new Dictionary<string, AssetBundle>();
+        [Header("Test load object")]
+        public bool startLoadObject;
+        public string objectName;
 
         // Use this for initialization
         void Start() {
@@ -21,13 +23,22 @@
 
         // Update is called once per frame
         void Update() {
-            if (startLoad)
+            if (startLoadShader)
             {
-                startLoad = false;
+                startLoadShader = false;
 
 
                 StartCoroutine(BundleLoader.WaitForLoadFromBoundle<Shader>(url, shaderName,shader=> {
                     GetComponent<Renderer>().material.shader = shader;
+                }));
+            }
+
+            if(startLoadObject)
+            {
+                startLoadObject = false;
+                StartCoroutine(BundleLoader.WaitForLoadFromBoundle<GameObject>(url, objectName, obj =>
+                {
+                    Instantiate(obj);
                 }));
             }
         }

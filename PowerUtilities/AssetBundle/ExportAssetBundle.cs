@@ -1,17 +1,17 @@
-﻿namespace PowerUtilities
+﻿#if UNITY_EDITOR
+namespace PowerUtilities
 {
-#if UNITY_EDITOR
     using UnityEngine;
     using System.Collections;
     using UnityEditor;
     using System.IO;
 
-    public class ExportAssetBundle : MonoBehaviour
+    public class ExportAssetBundle
     {
         public const string ASSET_BUNDLE_UTILS = "PowerUtilities/AssetBundleUtils";
-
         const string BUNDLE_PATH = "Assets/../Bundles";
-        [MenuItem(ASSET_BUNDLE_UTILS + "/BuildBundles")]
+
+        [MenuItem(ASSET_BUNDLE_UTILS + "/BuildBundles(android)")]
         static void BuildBundles()
         {
             CreateDir(BUNDLE_PATH);
@@ -27,36 +27,15 @@
             }
         }
 
-        [MenuItem(ASSET_BUNDLE_UTILS+"/BuildSelected")]
+        [MenuItem(ASSET_BUNDLE_UTILS + "/BuildSelected(android)")]
         static void BuildSelected()
         {
             var obj = Selection.activeObject;
             if (!obj)
                 return;
 
-            var path = AssetDatabase.GetAssetPath(obj);
-            var imp = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(obj));
-            
-            if(string.IsNullOrEmpty(imp.assetBundleName))
-                imp.assetBundleName = $"{obj.name}.asset";
-
-            imp.SaveAndReimport();
-
-            AssetDatabaseTools.SaveRefresh();
-
-            var buildMap = new[]{
-                new AssetBundleBuild()
-                {
-                    assetBundleName = imp.assetBundleName,
-                    assetNames = new[] {
-                        path
-                    }
-                }
-                };
-
-            CreateDir(BUNDLE_PATH);
-            BuildPipeline.BuildAssetBundles(BUNDLE_PATH, buildMap, BuildAssetBundleOptions.None, BuildTarget.Android);
+            AssetDatabaseTools.BuildObjectsAssetBundle(obj.name, buildTarget: BuildTarget.Android, bundlePath: BUNDLE_PATH, objects: obj);
         }
     }
-#endif
 }
+#endif

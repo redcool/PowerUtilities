@@ -7,6 +7,7 @@ namespace PowerUtilities
     using System.Text;
     using System.Threading.Tasks;
     using UnityEditor;
+    using UnityEditor.UIElements;
     using UnityEngine;
     using UnityEngine.UIElements;
     using Object = UnityEngine.Object;
@@ -43,6 +44,10 @@ namespace PowerUtilities
             // setup list view
             abAssetView = root.Q<ListView>("AB_Asset_ListView");
             abNameView = root.Q<ListView>("AB_Name_ListView");
+            SetupABNameListView(inst, abAssetView, abNameView);
+            // assetListView,double cliick to select asset
+            SetupAssetListView(inst, abAssetView, abNameView);
+
 
             abNameTextField = root.Q<TextField>("ABName");
             dependencyFoldout = root.Q<Foldout>("DependencyFoldout");
@@ -50,15 +55,12 @@ namespace PowerUtilities
             var renameBt = root.Q<Button>("ABRename");
             renameBt.clicked += () =>
             {
-                RenameABName();
-
-                RefreshABNames(ref inst.infoList, abNameView);
+                if (RenameABName())
+                    RefreshABNames(ref inst.infoList, abNameView);
             };
-
-            SetupABNameListView(inst, abAssetView, abNameView);
-
-            // assetListView,double cliick to select asset
-            SetupAssetListView(inst, abAssetView, abNameView);
+            // build
+            var buildBundleOptions = root.Q<EnumFlagsField>("BuildBundleOptions");
+            var buildTarget = root.Q<EnumField>("BuildTarget");
 
             ////================= buttons
             var refreshButton = root.Q<Button>("Refresh");
@@ -84,8 +86,34 @@ namespace PowerUtilities
             {
                 RemoveBundleName();
             };
+            var exportBundle = root.Q<Button>("ExportBundle");
+            exportBundle.clicked += () =>
+            {
+                if (!GetSelectedAssetBundleInfo(out var item))
+                    return;
+                if (EditorUtility.DisplayDialog("Export AssetBundle with dependencies", "Are you sure to export selected AssetBundle?", "Yes", "No"))
+                    AssetDatabaseTools.BuildAssetBundle(item.abName, (BuildAssetBundleOptions)buildBundleOptions.value, (BuildTarget)buildTarget.value);
+            };
+            var exportBundles = root.Q<Button>("ExportBundles");
 
+            exportBundles.clicked += () =>
+            {
+                if(EditorUtility.DisplayDialog("Export AssetBundles", "Are you sure to export all AssetBundles?", "Yes", "No"))
+                    BuildPipeline.BuildAssetBundles(AssetDatabaseTools.BUNDLE_PATH, (BuildAssetBundleOptions)buildBundleOptions.value, (BuildTarget)buildTarget.value);
+            };
             return root;
+        }
+
+        public bool GetSelectedAssetBundleInfo(out AssetBundleInfo bundleInfo )
+        {
+            bundleInfo = default;
+
+            var index = abNameView.selectedIndex;
+            if (index < 0 || index >= inst.infoList.Count)
+                return false;
+
+            bundleInfo= inst.infoList[index];
+            return true;
         }
 
         void RefreshABNames(ref List<AssetBundleInfo> infoList,ListView abNameView)
@@ -94,7 +122,7 @@ namespace PowerUtilities
             abNameView.Rebuild();
         }
 
-        void ShowABDependencies(AssetBundleInfo info)
+        void ShowABDependenciesFoldout(AssetBundleInfo info)
         {
             if(info.dependencyList.Count == 0)
                 info.UpdateDependencies();
@@ -117,17 +145,20 @@ namespace PowerUtilities
 
         }
 
-        void ShowABName(string abName)
+        void ShowABNameDetail(string abName)
         {
             abNameTextField.value = abName;
             abNameTextField.userData = abName;
         }
 
-        void RenameABName()
+        bool RenameABName()
         {
-            string oldABName = (string)abNameTextField.userData;
             var newABName = abNameTextField.value;
+            if(string.IsNullOrEmpty(newABName))
+                return false;
+            string oldABName = (string)abNameTextField.userData;
             AssetDatabaseTools.RenameAssetBundleName(oldABName, newABName);
+            return true;
         }
         void AddBundleName()
         {
@@ -168,32 +199,30 @@ namespace PowerUtilities
             abNameView.selectionChanged -= OnSelectionChanged;
             abNameView.selectionChanged += OnSelectionChanged;
 
-            abNameView.itemsChosen += (e) =>
-            {
-                var item = inst.infoList[abNameView.selectedIndex];
-                item.UpdateDependencies();
-                foreach (var dep in item.dependencyList)
-                {
-                    Debug.Log("dep: " + string.Join(",", dep));
-                }
-            };
+            //abNameView.itemsChosen += (e) =>
+            //{
+            //    var item = inst.infoList[abNameView.selectedIndex];
+            //    item.UpdateDependencies();
+            //    foreach (var dep in item.dependencyList)
+            //    {
+            //        Debug.Log("dep: " + string.Join(",", dep));
+            //    }
+            //};
 
             //---------- events
             void OnSelectionChanged(IEnumerable<object> e)
             {
-                var index = abNameView.selectedIndex;
-                if (index < 0 || index >= inst.infoList.Count)
+                if(!GetSelectedAssetBundleInfo(out var item))
                     return;
 
-                var item = inst.infoList[index];
                 item.UpdateBundleAssets();
                 abAssetView.itemsSource = item.assetPathList;
 
                 //
-                ShowABName(item.abName);
+                ShowABNameDetail(item.abName);
 
                 item.UpdateDependencies();
-                ShowABDependencies(item);
+                ShowABDependenciesFoldout(item);
             }
         }
 
