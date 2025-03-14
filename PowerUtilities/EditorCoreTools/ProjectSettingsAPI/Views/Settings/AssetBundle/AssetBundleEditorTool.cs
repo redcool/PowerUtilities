@@ -20,6 +20,9 @@ namespace PowerUtilities
         ListView abAssetView, abNameView;
         Foldout dependencyFoldout;
 
+        EnumFlagsField buildBundleOptions;
+        EnumField buildTarget;
+
         AssetBundleEditorTool inst;
 
 
@@ -52,17 +55,25 @@ namespace PowerUtilities
             abNameTextField = root.Q<TextField>("ABName");
             dependencyFoldout = root.Q<Foldout>("DependencyFoldout");
 
+
+            // build
+            buildBundleOptions = root.Q<EnumFlagsField>("BuildBundleOptions");
+            buildTarget = root.Q<EnumField>("BuildTarget");
+
+            ////================= buttons
+            SetupButtons(root);
+            return root;
+        }
+
+        private void SetupButtons(VisualElement root)
+        {
             var renameBt = root.Q<Button>("ABRename");
             renameBt.clicked += () =>
             {
                 if (RenameABName())
                     RefreshABNames(ref inst.infoList, abNameView);
             };
-            // build
-            var buildBundleOptions = root.Q<EnumFlagsField>("BuildBundleOptions");
-            var buildTarget = root.Q<EnumField>("BuildTarget");
 
-            ////================= buttons
             var refreshButton = root.Q<Button>("Refresh");
             refreshButton.clicked += () =>
             {
@@ -72,6 +83,9 @@ namespace PowerUtilities
             var removeUnusedButton = root.Q<Button>("RemoveUnused");
             removeUnusedButton.clicked += () =>
             {
+                if (!EditorUtility.DisplayDialog("Remove Unused AssetBundle Names", "Are you sure to remove unused AssetBundle Names?", "Yes", "No"))
+                    return;
+
                 AssetDatabase.RemoveUnusedAssetBundleNames();
                 RefreshABNames(ref inst.infoList, abNameView);
             };
@@ -84,7 +98,8 @@ namespace PowerUtilities
             var removeAbNameBt = root.Q<Button>("RemoveABName");
             removeAbNameBt.clicked += () =>
             {
-                RemoveBundleName();
+                if (EditorUtility.DisplayDialog("Remove AssetBundle", "Are you sure to remove selected AssetBundle?", "Yes", "No"))
+                    RemoveBundleName();
             };
             var exportBundle = root.Q<Button>("ExportBundle");
             exportBundle.clicked += () =>
@@ -98,10 +113,9 @@ namespace PowerUtilities
 
             exportBundles.clicked += () =>
             {
-                if(EditorUtility.DisplayDialog("Export AssetBundles", "Are you sure to export all AssetBundles?", "Yes", "No"))
+                if (EditorUtility.DisplayDialog("Export AssetBundles", "Are you sure to export all AssetBundles?", "Yes", "No"))
                     BuildPipeline.BuildAssetBundles(AssetDatabaseTools.BUNDLE_PATH, (BuildAssetBundleOptions)buildBundleOptions.value, (BuildTarget)buildTarget.value);
             };
-            return root;
         }
 
         public bool GetSelectedAssetBundleInfo(out AssetBundleInfo bundleInfo )
