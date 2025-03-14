@@ -290,7 +290,7 @@ namespace PowerUtilities
             if (IsTargetShader(mat))
                 presetBlendMode = PresetBlendModeTools.GetPresetBlendMode(mat);
 
-            var shaderFilePath = AssetDatabase.GetAssetPath(mat.shader);
+            string shaderFilePath = GetShaderFilePath(mat);
 
             layoutProfileType = mat.IsKeywordEnabled(MIN_VERSION) ? ConfigTool.LayoutProfileType.MIN_VERSION : ConfigTool.LayoutProfileType.Standard;
             if (isLayoutUseJson)
@@ -309,6 +309,20 @@ namespace PowerUtilities
             propHelpDict = ConfigTool.ReadConfig(shaderFilePath, ConfigTool.PROP_HELP_PROFILE_PATH);
 
 
+        }
+
+        public static string GetShaderFilePath(Material mat)
+        {
+            var shaderFilePath = AssetDatabase.GetAssetPath(mat.shader);
+            //Shader object not exists in project, maybe load from assetBundle, find in project
+            if (string.IsNullOrEmpty(shaderFilePath))
+            {
+                var shaderInProject = Shader.Find(mat.shader.name);
+                if (shaderInProject)
+                    shaderFilePath = AssetDatabase.GetAssetPath(shaderInProject);
+            }
+
+            return shaderFilePath;
         }
 
         /// <summary>
