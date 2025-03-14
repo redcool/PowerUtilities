@@ -205,7 +205,7 @@ namespace PowerUtilities
                     item.UpdateDependencies();
 
                 var label = (e as Label);
-                label.text = item.abName;
+                label.text = $"{item.abName}  ({item.assetPathList.Count})";
                 // apply intent with dependency depth
                 label.style.paddingLeft = item.DependencyDepth * 10;
             };
