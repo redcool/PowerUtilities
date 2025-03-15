@@ -218,7 +218,7 @@ namespace PowerUtilities
                 vertices[i] = (settingSO.finalLightPos + rot * vertices[i]);
             }
             // view frustum
-            DebugTools.DrawLineCube(vertices);
+            DebugTools.DrawLineCube(vertices,settingSO.boundsLineColor);
 #endif
         }
 

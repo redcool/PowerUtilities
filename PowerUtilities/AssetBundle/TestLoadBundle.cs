@@ -16,6 +16,8 @@
         public bool startLoadObject;
         public string objectName;
 
+        public bool isStartLoadManifest;
+
         // Use this for initialization
         void Start() {
 
@@ -28,7 +30,7 @@
                 startLoadShader = false;
 
 
-                StartCoroutine(BundleLoader.WaitForLoadFromBoundle<Shader>(url, shaderName,shader=> {
+                StartCoroutine(BundleLoader.WaitForLoadFromBundle<Shader>(url, shaderName,shader=> {
                     GetComponent<Renderer>().material.shader = shader;
                 }));
             }
@@ -36,9 +38,22 @@
             if(startLoadObject)
             {
                 startLoadObject = false;
-                StartCoroutine(BundleLoader.WaitForLoadFromBoundle<GameObject>(url, objectName, obj =>
+                StartCoroutine(BundleLoader.WaitForLoadFromBundle<GameObject>(url, objectName, obj =>
                 {
                     Instantiate(obj);
+                }));
+            }
+
+            if(isStartLoadManifest)
+            {
+                isStartLoadManifest = false;
+                StartCoroutine(BundleLoader.WaitForLoadManifestFromBundle(url, mani =>
+                {
+                    foreach (var abName in mani.GetAllAssetBundles())
+                    {
+                        Debug.Log(abName +" -> "+string.Join(",", mani.GetAllDependencies(abName)));
+                    }
+
                 }));
             }
         }

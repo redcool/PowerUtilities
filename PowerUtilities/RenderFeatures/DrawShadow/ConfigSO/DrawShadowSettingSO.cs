@@ -110,5 +110,7 @@
         [Tooltip("false will set _BigShadowMap white tex")]
         [EditorButton] public bool isClearShadowMap;
 
+        [Tooltip("bounds line color")]
+        public Color boundsLineColor = Color.gray;
     }
 }

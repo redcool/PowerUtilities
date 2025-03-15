@@ -6,6 +6,7 @@
     using System.Collections.Generic;
     using System;
     using Object = UnityEngine.Object;
+    using System.Reflection.Metadata;
 
     public static class BundleLoader
     {
@@ -29,7 +30,16 @@
                 }
             }
         }
-        public static IEnumerator WaitForLoadFromBoundle<T>(string path, string assetName, Action<T> onLoaded) where T : Object
+
+        public static IEnumerator WaitForLoadManifestFromBundle(string path, Action<AssetBundleManifest> onLoaded)
+        {
+            yield return WaitForLoadBundle(path, (ab) =>{
+                var mani = ab.LoadAsset<AssetBundleManifest>("AssetBundleManifest");
+                onLoaded(mani);
+            });
+
+        }
+        public static IEnumerator WaitForLoadFromBundle<T>(string path, string assetName, Action<T> onLoaded) where T : Object
         {
             if (onLoaded == null)
                 yield break;
