@@ -6,7 +6,6 @@
     using System.Collections.Generic;
     using System;
     using Object = UnityEngine.Object;
-    using System.Reflection.Metadata;
 
     public static class BundleLoader
     {
