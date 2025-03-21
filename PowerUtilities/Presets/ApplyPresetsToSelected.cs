@@ -27,7 +27,13 @@ namespace PowerUtilities
             Selection.GetFiltered<Object>(SelectionMode.DeepAssets).ForEach(obj =>
             {
                 var imp = TextureImporter.GetAtPath(AssetDatabase.GetAssetPath(obj));
-                var isDone = PresetTools.TryApplyDefaultPreset(imp, defaultPresets);
+
+                var preset = Preset.GetDefaultPresetsForObject(imp).FirstOrDefault();
+                if (preset != null && preset.CanBeAppliedTo(imp)) {
+                    preset.ApplyTo(imp);
+                }
+
+                //var isDone = PresetTools.TryApplyDefaultPreset(imp, defaultPresets);
             });
         }
     }
