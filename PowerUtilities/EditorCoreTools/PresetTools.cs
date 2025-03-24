@@ -37,7 +37,7 @@ namespace PowerUtilities
 
             foreach (var defaultPreset in presets)
             {
-                if (defaultPreset.enabled )
+                if (defaultPreset.enabled && defaultPreset.preset.CanBeAppliedTo(obj))
                 {
                     if (defaultPreset.preset.ApplyTo(obj))
                         return true;

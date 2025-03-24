@@ -1,0 +1,63 @@
+﻿namespace PowerUtilities
+{
+    using UnityEngine;
+
+    public class WaitForDone
+    {
+        public virtual bool CanMoveNext { get; set; }
+    }
+
+    public class WaitForActionDone : WaitForDone
+    {
+        public System.Func<bool> action;
+        public WaitForActionDone(System.Func<bool> action)
+        {
+            this.action = action;
+        }
+        public override bool CanMoveNext
+        {
+            get
+            {
+                if (action != null)
+                    return action();
+                return true;
+            }
+            set => base.CanMoveNext = value;
+        }
+    }
+
+    public class WaitForEndOfFrame : WaitForDone
+    {
+        public int frameCount = 1;
+
+        public WaitForEndOfFrame(int frameCount = 1) => this.frameCount = frameCount;
+        public override bool CanMoveNext
+        {
+            get
+            {
+                Debug.Log("WaitForEndOfFrame " + frameCount);
+                frameCount--;
+                return frameCount <= 0;
+            }
+            set => base.CanMoveNext = value;
+        }
+    }
+
+    public class WaitForSeconds : WaitForDone
+    {
+        public float seconds;
+        public WaitForSeconds(float seconds)
+        {
+            this.seconds = seconds;
+        }
+        public override bool CanMoveNext
+        {
+            get
+            {
+                seconds -= Time.deltaTime;
+                return seconds <= 0;
+            }
+            set => base.CanMoveNext = value;
+        }
+    }
+}
