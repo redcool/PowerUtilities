@@ -10,6 +10,21 @@
     using UnityEngine.SceneManagement;
     using Object = UnityEngine.Object;
 
+
+    /// <summary>
+    /// Coroutine(iterator),
+    /// support runtime and editor
+    /// 
+    /// Call this:
+    /// 
+    /// CoroutineTool.StartCoroutine(iterator,isFixedUpdate)
+    /// CoroutineTool.StopCoroutine(iterator,isFixedUpdate)
+    /// CoroutineTool.StopAllCoroutines()
+    /// 
+    /// 
+    /// 1 iterator need extends WaitForDone,
+    /// 2 isFixedUpdate : run in FixedUpdate(only runtime) or Update(editor and runtime)
+    /// </summary>
     public static class CoroutineTool
     {
         public static bool isStopAllWhenSceneUnloaded = true;
@@ -109,7 +124,7 @@
         /// Start Coroutine
         /// </summary>
         /// <param name="enumerator"></param>
-        /// <param name="isFxiedUpdate">use FixedUpdate or Update </param>
+        /// <param name="isFxiedUpdate">use FixedUpdate(only runtime) or Update(editor and runtime) </param>
         public static void StartCoroutine(IEnumerator enumerator,bool isFxiedUpdate=false)
         {
             var list = isFxiedUpdate ? fixedItemList : itemList;
@@ -119,7 +134,7 @@
         /// Stop Coroutine
         /// </summary>
         /// <param name="enumerator"></param>
-        /// <param name="isFxiedUpdate">use FixedUpdate or Update </param>
+        /// <param name="isFxiedUpdate">use FixedUpdate(only runtime) or Update(editor and runtime) </param>
         public static void StopCoroutine(IEnumerator enumerator, bool isFxiedUpdate = false)
         {
             var list = isFxiedUpdate ? fixedItemList : itemList;
