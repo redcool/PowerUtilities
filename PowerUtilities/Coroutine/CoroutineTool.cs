@@ -12,22 +12,66 @@
 
     public static class CoroutineTool
     {
+        public static bool isStopAllWhenSceneUnloaded = true;
+
         static GameObject coroutineGO;
+
+        static List<IEnumerator> itemList = new();
+        static List<IEnumerator> fixedItemList = new();
+
+#if UNITY_EDITOR
+        [InitializeOnLoadMethod]
+#endif
+        [RuntimeInitializeOnLoadMethod]
+        static void Init()
+        {
+#if UNITY_EDITOR
+            if (!Application.isPlaying)
+            {
+                EditorApplication.update -= OnUpdate;
+                EditorApplication.update += OnUpdate;
+            }
+#endif
+            if (Application.isPlaying)
+            {
+                SetupCoroutineGo();
+
+                CoroutineToolBehaviour.OnUpdateEvent -= OnUpdate;
+                CoroutineToolBehaviour.OnUpdateEvent += OnUpdate;
+
+                CoroutineToolBehaviour.OnFixedUpdateEvent -= OnFixedUpdate;
+                CoroutineToolBehaviour.OnFixedUpdateEvent += OnFixedUpdate;
+            }
+
+            SceneManagerTools.AddSceneUnloaded(OnSceneUnloaded);
+        }
+
+        private static void OnSceneUnloaded(Scene arg0)
+        {
+            if (isStopAllWhenSceneUnloaded)
+                StopAllCoroutines();
+        }
+
         public static GameObject CoroutineGO
         {
             get
             {
-                if (coroutineGO == null)
-                {
-                    coroutineGO = new GameObject("CoroutineTool");
-                    coroutineGO.AddComponent<CoroutineToolBehaviour>();
-                    Object.DontDestroyOnLoad(coroutineGO);
-                }
+                SetupCoroutineGo();
                 return coroutineGO;
             }
         }
 
-        public static bool TryMoveNext(IEnumerator enumerator)
+        private static void SetupCoroutineGo()
+        {
+            if (coroutineGO == null)
+            {
+                coroutineGO = new GameObject("CoroutineTool");
+                coroutineGO.AddComponent<CoroutineToolBehaviour>();
+                Object.DontDestroyOnLoad(coroutineGO);
+            }
+        }
+
+        static bool TryMoveNext(IEnumerator enumerator)
         {
             var ite = enumerator;
             if (ite.Current == null)
@@ -44,51 +88,11 @@
             return true;
         }
 
-#if UNITY_EDITOR
-        [InitializeOnLoadMethod]
-#endif
-        [RuntimeInitializeOnLoadMethod]
-        static void Init()
-        {
-#if UNITY_EDITOR
-            if (!Application.isPlaying)
-            {
-                EditorApplication.update -= OnUpdate;
-                EditorApplication.update += OnUpdate;
-            }
-#endif
-            if(Application.isPlaying)
-            {
-                CoroutineToolBehaviour.OnUpdateEvent -= OnUpdate;
-                CoroutineToolBehaviour.OnUpdateEvent += OnUpdate;
-            }
-
-            SceneManagerTools.AddSceneUnloaded(OnSceneUnloaded);
-        }
-
-        private static void OnSceneUnloaded(Scene arg0)
-        {
-            itemList.Clear();
-        }
-
-        static List<IEnumerator> itemList = new();
-        public static void StartCoroutine(IEnumerator enumerator)
-        {
-            itemList.Add(enumerator);
-        }
-
-        public static void StopCoroutine(IEnumerator enumerator)
-        {
-            if(itemList.Contains(enumerator))
-                itemList.Remove(enumerator);
-        }
-
-        public static void StopAllCoroutines()
-        {
-            itemList.Clear();
-        }
-
-        public static void OnUpdate()
+        /// <summary>
+        /// Iterate all 
+        /// </summary>
+        /// <param name="itemList"></param>
+        static void OnUpdate(List<IEnumerator> itemList)
         {
             for (int i = itemList.Count - 1; i >= 0; i--)
             {
@@ -98,20 +102,60 @@
                     itemList.RemoveAt(i);
             }
         }
+
+        static void OnUpdate() => OnUpdate(itemList);
+        static void OnFixedUpdate() => OnUpdate(fixedItemList);
+        /// <summary>
+        /// Start Coroutine
+        /// </summary>
+        /// <param name="enumerator"></param>
+        /// <param name="isFxiedUpdate">use FixedUpdate or Update </param>
+        public static void StartCoroutine(IEnumerator enumerator,bool isFxiedUpdate=false)
+        {
+            var list = isFxiedUpdate ? fixedItemList : itemList;
+            list.Add(enumerator);
+        }
+        /// <summary>
+        /// Stop Coroutine
+        /// </summary>
+        /// <param name="enumerator"></param>
+        /// <param name="isFxiedUpdate">use FixedUpdate or Update </param>
+        public static void StopCoroutine(IEnumerator enumerator, bool isFxiedUpdate = false)
+        {
+            var list = isFxiedUpdate ? fixedItemList : itemList;
+            if (list.Contains(enumerator))
+                list.Remove(enumerator);
+        }
+        /// <summary>
+        /// Stop All Coroutines
+        /// </summary>
+        public static void StopAllCoroutines()
+        {
+            fixedItemList.Clear();
+            itemList.Clear();
+        }
+
+
     }
 
     public class CoroutineToolBehaviour : MonoBehaviour
     {
-        public static event Action OnUpdateEvent;
+        public static event Action OnUpdateEvent,OnFixedUpdateEvent;
+
 
         void Update()
         {
             OnUpdateEvent?.Invoke();
         }
+        void FixedUpdate()
+        {
+            OnFixedUpdateEvent?.Invoke();
+        }
 
         void OnDestroy()
         {
             OnUpdateEvent = null;
+            OnFixedUpdateEvent = null;
         }
     }
 }

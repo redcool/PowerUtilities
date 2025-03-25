@@ -87,9 +87,6 @@ namespace PowerUtilities
             EditorApplication.update -= AddEvent;
             EditorApplication.update += AddEvent;
 
-            EditorApplication.update -= OnProjectUpdate;
-            EditorApplication.update += OnProjectUpdate;
-
             EditorApplication.playModeStateChanged -= EditorApplication_playModeStateChanged;
             EditorApplication.playModeStateChanged += EditorApplication_playModeStateChanged;
 
@@ -121,17 +118,6 @@ namespace PowerUtilities
             }
 
             isInited = AddKeyEvent(OnGlobalKeyEvent);
-        }
-        /// <summary>
-        /// get a item from coroutineList per frame
-        /// </summary>
-        public static readonly List<IEnumerator> coroutineList = new List<IEnumerator>();
-        static void OnProjectUpdate()
-        {
-            foreach (var enumerator in coroutineList)
-            {
-                enumerator.MoveNext();
-            }
         }
 
         /// <summary>

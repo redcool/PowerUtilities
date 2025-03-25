@@ -10,7 +10,7 @@ namespace PowerUtilities
 
         IEnumerator TestCoroutine()
         {
-            Debug.Log("test 1");
+            Debug.Log("TestCoroutine");
             yield return new WaitForSeconds(5);
             Debug.Log("end WaitForSeconds 5");
 
@@ -48,7 +48,9 @@ namespace PowerUtilities
         // Start is called before the first frame update
         void Start()
         {
-            CoroutineTool.StartCoroutine(TestCoroutine());
+            //CoroutineTool.StartCoroutine(TestCoroutine());
+
+            CoroutineTool.StartCoroutine(TestCoroutine(),true);
         }
 
     }
