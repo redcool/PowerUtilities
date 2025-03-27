@@ -56,6 +56,9 @@ namespace PowerUtilities
                     label.tooltip = tooltip;
 
                 var lastLabelWidth = EditorGUIUtility.labelWidth;
+                
+                EditorGUIUtility.labelWidth = EditorGUIUtility.currentViewWidth * 0.4f ;
+
                 EditorGUI.indentLevel += MaterialGroupTools.GroupIndentLevel(groupName);
                 // ui
                 DrawGroupUI(position, prop, label, editor);

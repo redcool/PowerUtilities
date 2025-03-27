@@ -54,6 +54,16 @@ namespace PowerUtilities
             return ScriptableObject.CreateInstance<T>();
         }
 
+        public static StringListSearchProvider CreateStringListProviderAndShowWin(string title, List<(string, object)> itemList, Action<(string, object)> onSelected)
+        {
+            var p = CreateProvider<StringListSearchProvider>();
+            p.windowTitle = title;
+            p.itemList = itemList;
+            p.onSelectedChanged = onSelected;
+
+            OpenSearchWindow(p);
+            return p;
+        }
     }
 }
 #endif

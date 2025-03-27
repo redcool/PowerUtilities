@@ -6,6 +6,7 @@ namespace PowerUtilities
     using UnityEngine;
     using UnityEditor;
     using System;
+    using UnityEngine.UIElements;
 
     /// <summary>
     /// helper CustomEditor
@@ -19,13 +20,59 @@ namespace PowerUtilities
         public virtual string Version { get; } ="";
         public virtual string TitleHelpStr { get; } = "";
 
+        /// <summary>
+        /// Use uiElement must override this
+        /// otherwise use IMGUI
+        /// </summary>
+        /// <returns></returns>
+        public virtual bool IsUseUIElements() => false;
+
         public (string, bool) foldInfo = ("Options",true);
+        /// <summary>
+        /// current instance
+        /// </summary>
+        public T inst;
 
+        /// <summary>
+        /// Get root element
+        /// </summary>
+        /// <returns></returns>
+        public override VisualElement CreateInspectorGUI()
+        {
+            inst = target as T;
 
+            if (!IsUseUIElements())
+                return null;
+
+            // adjust root container
+            var root = new VisualElement();
+            root.style.marginTop = 10;
+
+            return root;
+        }
+        /// <summary>
+        /// Load uxml ,clone into container
+        /// </summary>
+        /// <param name="container"></param>
+        /// <param name="uxmlFileName"></param>
+        public void LoadUXML(VisualElement container,string uxmlFileName)
+        {
+            if (string.IsNullOrEmpty(uxmlFileName))
+                return;
+
+            // load uxml
+            var nameExt = uxmlFileName.SplitFileNameExt();
+            var layoutAsset = AssetDatabaseTools.FindAssetPathAndLoad<VisualTreeAsset>(out var _, nameExt.name, nameExt.ext, true);
+            layoutAsset.CloneTree(container);
+        }
 
         public override void OnInspectorGUI()
         {
-            var inst = target as T;
+            inst = target as T;
+
+            if (IsUseUIElements())
+                return;
+
             GUILayout.Space(0);
 
             if (!string.IsNullOrEmpty(TitleHelpStr))

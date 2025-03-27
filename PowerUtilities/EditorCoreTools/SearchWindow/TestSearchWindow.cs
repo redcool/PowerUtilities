@@ -26,22 +26,28 @@ namespace PowerUtilities
 
             if (isClicked)
             {
-                var provider = SearchWindowTools.CreateProvider<StringListSearchProvider>();
-
-                provider.windowTitle = "stringList";
-                provider.itemList = new()
+                var windowTitle = "stringList";
+                List<(string name,object userData)> itemList = new()
                 {
                     new (){name="a/b/1",userData= 1 },
                     new (){name="a/b/2",userData= 2 },
                     new() { name = "a/1", userData = 3 },
                 };
 
-                provider.onSelectedChanged = ((string name, object userData) infoItem) =>
+                Action<(string,object)> onSelectedChanged = ((string name, object userData) infoItem) =>
                 {
                     selectedItem = infoItem.name + ":" + infoItem.userData;
                     Debug.Log(selectedItem);
                 };
-                SearchWindowTools.OpenSearchWindow(provider);
+
+                SearchWindowTools.CreateStringListProviderAndShowWin(windowTitle, itemList, onSelectedChanged);
+
+                // same as 
+                //var provider = SearchWindowTools.CreateProvider<StringListSearchProvider>();
+                //provider.windowTitle = windowTitle;
+                //provider.itemList = itemList;
+                //provider.onSelectedChanged += onSelectedChanged;
+                //SearchWindowTools.OpenSearchWindow(provider);
             }
 
         }
