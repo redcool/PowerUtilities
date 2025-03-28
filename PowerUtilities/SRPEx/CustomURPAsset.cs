@@ -28,6 +28,16 @@ using UnityEngine;
 
             GraphicsSettings.currentRenderPipeline.ChangeRefScript(urpAssetExScript);
         }
+
+        [MenuItem("PowerUtilities/SRP/RestoreURPAssetScript")]
+        static void RestoreURPAssetScript()
+        {
+            var urpAssetExScript = MonoScriptTools.GetMonoScript("UniversalRenderPipelineAsset");
+            if (urpAssetExScript == null)
+                return;
+
+            GraphicsSettings.currentRenderPipeline.ChangeRefScript(urpAssetExScript);
+        }
     }
 #endif
     /// <summary>

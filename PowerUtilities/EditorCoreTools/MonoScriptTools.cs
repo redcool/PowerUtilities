@@ -30,7 +30,7 @@ namespace PowerUtilities
 
         public static MonoScript GetMonoScript(string scriptName)
         {
-            var ms = AssetDatabaseTools.FindAssetPathAndLoad<MonoScript>(out var _, scriptName, ".cs");
+            var ms = AssetDatabaseTools.FindAssetPathAndLoad<MonoScript>(out var _, scriptName, ".cs",true);
             return ms;
         }
     }
