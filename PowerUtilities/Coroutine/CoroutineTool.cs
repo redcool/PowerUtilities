@@ -1,4 +1,4 @@
-﻿namespace PowerUtilities
+﻿namespace PowerUtilities.Coroutine
 {
     using System;
     using System.Collections;
@@ -41,10 +41,13 @@
         static void Init()
         {
 #if UNITY_EDITOR
+            // editor mode, not playing
             if (!Application.isPlaying)
             {
                 EditorApplication.update -= OnUpdate;
                 EditorApplication.update += OnUpdate;
+                EditorApplication.update -= OnFixedUpdate;
+                EditorApplication.update += OnFixedUpdate;
             }
 #endif
             if (Application.isPlaying)

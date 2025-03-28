@@ -1,4 +1,4 @@
-namespace PowerUtilities
+namespace PowerUtilities.Coroutine
 {
     using System;
     using System.Collections;
