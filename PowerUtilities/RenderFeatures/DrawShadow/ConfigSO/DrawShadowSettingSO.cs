@@ -86,6 +86,11 @@
         [Tooltip("far clip plane ")]
         public float far = 100;
 
+        [EditorGroup("Light Camera")]
+        [Tooltip("lightCamera.pos use LightPos or CameraPos")]
+        [Range(0,1)]
+        public float lightCameraPosBlend = 1;
+
         [EditorGroup("Shadow", true)]
         [Min(0)] public float shadowDepthBias = 1;
 

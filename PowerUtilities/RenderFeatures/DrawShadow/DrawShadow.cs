@@ -5,7 +5,6 @@ namespace PowerUtilities
     using System.Linq;
 #if UNITY_EDITOR
     using UnityEditor;
-    using UnityEditor.SceneManagement;
 #endif
     using UnityEngine;
     using UnityEngine.Rendering;
@@ -137,14 +136,20 @@ namespace PowerUtilities
         {
             var isMainCamera = cameraData.camera.IsMainCamera();
             var isSceneCamera = cameraData.camera.IsSceneViewCamera();
+            var camera = cameraData.camera;
 
             if (!isMainCamera && !isSceneCamera)
                 return false;
 
+            // sceneView, find mainCamera
+#if UNITY_EDITOR
+            if (isSceneCamera)
+                camera = Camera.main;
+#endif
             // mainCamera follow it,sceneViewCamera dont do follow
             var isExceedMaxDistance = false;
-            if (isMainCamera)
-                isExceedMaxDistance = IsExceedMaxDistanceAndSaveFinalLightPos(cameraData, out currentDistance, ref settingSO.finalLightPos);
+            if(isMainCamera)
+                isExceedMaxDistance = IsExceedMaxDistanceAndSaveFinalLightPos(camera, out currentDistance, ref settingSO.finalLightPos);
 
             var isStepRender = settingSO.isStepRender || isExceedMaxDistance || (bigShadowRenderCount ==0);
             if (isStepRender)
@@ -155,8 +160,18 @@ namespace PowerUtilities
 
             return settingSO.isAutoRendering || isStepRender;
 
+            ///
             //============== methods
-            bool IsExceedMaxDistanceAndSaveFinalLightPos(CameraData cameraData,out float curDistance,ref Vector3 finalLightPos)
+            ///
+
+            Vector3 GetLightCameraBlendPos(Vector3 camPos)
+            {
+                if (lightObj != null)
+                    return Vector3.Lerp(camPos, lightObj.transform.position, settingSO.lightCameraPosBlend);
+                return camPos;
+            }
+            
+            bool IsExceedMaxDistanceAndSaveFinalLightPos(Camera camera, out float curDistance,ref Vector3 finalLightPos)
             {
                 // dont follow camera
                 if (settingSO.maxDistance <= 0)
@@ -167,7 +182,8 @@ namespace PowerUtilities
                 }
 
                 // follow camera append lightPosOffset
-                var finalCameraPos = cameraData.camera.transform.position + settingSO.lightPosOffset; 
+                var lightCamPos = GetLightCameraBlendPos(camera.transform.position);
+                var finalCameraPos = lightCamPos + settingSO.lightPosOffset; 
 
                 var dir = finalCameraPos - finalLightPos; // include lightPosOffset
                 curDistance = dir.magnitude;

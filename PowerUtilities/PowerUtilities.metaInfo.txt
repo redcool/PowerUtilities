@@ -3,7 +3,7 @@ GUID         , AssetPath
 
 GUID:5a5cc6c9cee917248a0beb2ae4b4170f , Assets/PowerXXX/PowerUtilities/PowerUtilities/CoreTools/PowerCoreUtilities.asmdef
 GUID:4ccd971c6cf07f04ea3f16f8ae112570 , Assets/PowerXXX/PowerUtilities/PowerUtilities/EditorCoreTools/PowerEditorUtilities.asmdef
-GUID:fa4b8ca72f33fc44eb52c1a91b2db75d , Assets/PowerXXX/PowerUtilities/PowerUtilities/GameUtilsFramework/GameUtilsFramework.asmdef
+GUID:fa4b8ca72f33fc44eb52c1a91b2db75d , 
 GUID:15fc0a57446b3144c949da3e2b9737a9 , Packages/com.unity.render-pipelines.universal/Runtime/Unity.RenderPipelines.Universal.Runtime.asmdef
 GUID:df380645f10b7bc4b97d4f5eb6303d95 , Packages/com.unity.render-pipelines.core/Runtime/Unity.RenderPipelines.Core.Runtime.asmdef
 GUID:c579267770062bf448e75eb160330b7f , Packages/com.unity.render-pipelines.universal/Editor/Unity.RenderPipelines.Universal.Editor.asmdef
@@ -12,7 +12,7 @@ GUID:02f771204943f4a40949438e873e3eff , Packages/com.unity.timeline/Editor/Unity
 GUID:6055be8ebefd69e48b49212b09b47b2f , Packages/com.unity.textmeshpro/Scripts/Runtime/Unity.TextMeshPro.asmdef
 GUID:6546d7765b4165b40850b3667f981c26 , Packages/com.unity.textmeshpro/Scripts/Editor/Unity.TextMeshPro.Editor.asmdef
 GUID:d8b63aba1907145bea998dd612889d6b , Packages/com.unity.mathematics/Unity.Mathematics/Unity.Mathematics.asmdef
-GUID:870ce330d12521c41ba8a44d9ad3a5fc , 
 GUID:21d1eb854b91ade49bc69a263d12bee2 , Packages/com.unity.splines/Runtime/Unity.Splines.asmdef
 GUID:e0cd26848372d4e5c891c569017e11f1 , Packages/com.unity.collections/Unity.Collections/Unity.Collections.asmdef
+GUID:75469ad4d38634e559750d17036d5f7c , Packages/com.unity.inputsystem/InputSystem/Unity.InputSystem.asmdef
 

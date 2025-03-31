@@ -9,6 +9,7 @@
     using UnityEditor;
 #endif
     using UnityEngine;
+    using Object = UnityEngine.Object;
 
     [ProjectSettingGroup(ProjectSettingGroupAttribute.POWER_UTILS + "/Tools/GUIDFinder")]
     [SOAssetPath("Assets/PowerUtilities/UnityGUIDFinderSetting.asset")]
@@ -29,6 +30,9 @@
 
 #if UNITY_EDITOR
             assetPath = AssetDatabase.GUIDToAssetPath(assetGUID);
+
+            if (!string.IsNullOrEmpty(assetPath))
+                EditorGUIUtility.PingObject(AssetDatabase.LoadAssetAtPath<Object>(assetPath));
 #endif
         }
     }
