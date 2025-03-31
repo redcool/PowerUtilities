@@ -32,7 +32,7 @@
         [Tooltip("call renderer's ShadowCaster pass, more batch than use override material")]
         public bool isCallShadowCaster;
 
-        [EditorGroup("ShadowMapOptions")]
+        [EditorGroup("ShadowMapOptions", intentOffset = 2)]
         [Tooltip("use this material rendering renderer's shadow")]
         [LoadAsset("BigShadowCasterMat.mat")]
         [EditorDisableGroup(targetPropName = nameof(isCallShadowCaster),isRevertMode = true)]
@@ -57,6 +57,7 @@
 
         [EditorGroup("ShadowMapOptions",intentOffset =2)]
         [EditorDisableGroup(targetPropName = nameof(isPreciseRenderQueue))]
+        [Tooltip("Queue range,opaque : 0-2500,transparent:2501-5000")]
         public Vector2Int renderQueueRange = new Vector2Int(0,2500);
 
         [EditorGroup("Light Camera", true)]

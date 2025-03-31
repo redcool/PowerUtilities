@@ -141,11 +141,6 @@ namespace PowerUtilities
             if (!isMainCamera && !isSceneCamera)
                 return false;
 
-            // sceneView, find mainCamera
-#if UNITY_EDITOR
-            if (isSceneCamera)
-                camera = Camera.main;
-#endif
             // mainCamera follow it,sceneViewCamera dont do follow
             var isExceedMaxDistance = false;
             if(isMainCamera)
@@ -161,7 +156,7 @@ namespace PowerUtilities
             return settingSO.isAutoRendering || isStepRender;
 
             ///
-            //============== methods
+            //============== inner methods
             ///
 
             Vector3 GetLightCameraBlendPos(Vector3 camPos)
