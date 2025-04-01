@@ -48,7 +48,7 @@ namespace PowerUtilities
             EditorGUI.BeginDisabledGroup(!shaderObj);
             {
                 EditorGUILayout.LabelField("Update materials keywords by material toggle.");
-                if (GUILayout.Button("Sync Prop Keywords"))
+                if (GUILayout.Button("Sync Material keywords"))
                 {
                     var mats = shaderObj.GetMaterialsRefShader();
                     var result = shaderObj.SyncMaterialKeywords(toggleTypeString, mats);
