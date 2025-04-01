@@ -17,7 +17,21 @@
         /// otherwise check targetPropName's intValue
         /// </summary>
         public string targetPropName;
+        /// <summary>
+        /// multiply propname, and condition
+        /// </summary>
+        public string targetPropNamesStr;
+        string[] targetPropValues;
+        public string[] TargetPropValues
+        {
+            get
+            {
+                if (targetPropValues == null)
+                    targetPropValues = targetPropNamesStr.SplitBy();
 
+                return targetPropValues;
+            }
+        }
         /// <summary>
         /// show gui in disableGroup when {targetPropName} is enabled
         /// </summary>
@@ -27,6 +41,5 @@
         /// line count,
         /// </summary>
         public int heightScale = 1;
-
     }
 }

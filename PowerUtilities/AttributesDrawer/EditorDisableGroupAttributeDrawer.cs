@@ -16,17 +16,25 @@ namespace PowerUtilities
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             var attr = attribute as EditorDisableGroupAttribute;
+
+            // check 1 prop
             var isDisable = string.IsNullOrEmpty(attr.targetPropName);
-            if(!isDisable)
+            if (!isDisable)
             {
-                //colorTargetInfos.Array.data[0].rtSizeMode
-                var prop = property.serializedObject.FindProperty(attr.targetPropName);
-                if (prop == null) // check parent property
-                {
-                    //var curPropPath = property.GetPropertyObjectPath();
-                    prop = property.FindPropertyInObject(attr.targetPropName);
-                }
+                var prop = property.FindPropertyInObject(attr.targetPropName);
                 isDisable = prop != null ? prop.intValue == 0 : false;
+            }
+
+            // check multi props
+            if (attr.TargetPropValues.IsValid())
+            {
+                isDisable = true;
+                foreach (var propName in attr.TargetPropValues)
+                {
+                    var prop = property.FindPropertyInObject(propName);
+
+                    isDisable = isDisable && (prop != null ? prop.intValue == 0 : false);
+                }
             }
 
             if (attr.isRevertMode)

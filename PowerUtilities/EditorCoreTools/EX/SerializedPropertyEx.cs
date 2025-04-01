@@ -260,16 +260,24 @@ public static class SerializedPropertyEx
         return path;
     }
     /// <summary>
-    /// Find property in current object
+    /// 1 Find property in serializedObject
+    /// 2 Find property in current object when 1 not found
     /// </summary>
     /// <param name="prop"></param>
     /// <param name="propName"></param>
     /// <returns></returns>
-    public static SerializedProperty FindPropertyInObject(this SerializedProperty prop,string propName)
+    public static SerializedProperty FindPropertyInObject(this SerializedProperty prop, string propName)
     {
+        var prop1 = prop.serializedObject.FindProperty(propName);
+        if (prop1 != null)
+            return prop1;
+
+        // check parent property
+        //colorTargetInfos.Array.data[0].rtSizeMode
         var objPath = prop.GetPropertyObjectPath();
         return prop.serializedObject.FindProperty($"{objPath}.{propName}");
     }
+
     /// <summary>
     /// get array item index,-1 is not array
     /// </summary>

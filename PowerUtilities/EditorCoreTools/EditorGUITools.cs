@@ -618,6 +618,16 @@ namespace PowerUtilities
         {
             EditorGUIUtility.labelWidth = lastLabelWidth;
         }
+
+        /// <summary>
+        /// currentViewWidth - indentWidth
+        /// </summary>
+        /// <returns></returns>
+        public static float GetCurrentViewWidthWithIndent()
+        {
+            var viewWidth = EditorGUIUtility.currentViewWidth - 15 * EditorGUI.indentLevel;
+            return viewWidth;
+        }
     }
 }
 #endif

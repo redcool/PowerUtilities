@@ -9,7 +9,7 @@ using UnityEngine.Rendering.Universal;
 
 namespace PowerUtilities.RenderFeatures
 {
-    [CreateAssetMenu(menuName = SRP_FEATURE_PASSES_MENU + "/TestSRPFeature")]
+    [CreateAssetMenu(menuName = SRP_FEATURE_PASSES_MENU + "/DrawSkyBox")]
     public class DrawSkyBox : SRPFeature
     {
         [Header("Skybox")]

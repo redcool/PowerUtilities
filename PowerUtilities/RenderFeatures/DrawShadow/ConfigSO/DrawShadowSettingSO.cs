@@ -60,6 +60,8 @@
         [Tooltip("Queue range,opaque : 0-2500,transparent:2501-5000")]
         public Vector2Int renderQueueRange = new Vector2Int(0,2500);
 
+        //=================================================== Light Camera
+
         [EditorGroup("Light Camera", true)]
         [Tooltip("Find by tag,disable DrawShadow when lightTransform not found")]
         public bool isUseLightTransform = true;
@@ -67,9 +69,30 @@
         [EditorGroup("Light Camera")]
         public string lightTag = "BigShadowLight";
 
+        [Tooltip("Control LightCamera use BigShadowLight transform's part(pos)")]
+        [EditorBox("", "isPosEnabled,isRotEnabled,isUpEnabled", "0.3,0.3,0.3", boxType = EditorBoxAttribute.BoxType.HBox)]
+        public bool isPosEnabled = true;
+
+        // dont show these
+        [HideInInspector]
+        [Tooltip("Control LightCamera use BigShadowLight transform's part(rot)")]
+        public bool isRotEnabled = true;
+
+        [HideInInspector]
+        [Tooltip("Control LightCamera use BigShadowLight transform's part(up)")]
+        public bool isUpEnabled = true;
+
         [EditorGroup("Light Camera")]
-        [EditorDisableGroup(targetPropName = "isUseLightTransform",isRevertMode =true,heightScale =2)]
-        public Vector3 pos, rot, up = Vector3.up;
+        [EditorDisableGroup(targetPropName = "isUseLightTransform", isRevertMode = true, heightScale = 2)]
+        public Vector3 pos;
+
+        [EditorGroup("Light Camera")]
+        [EditorDisableGroup(targetPropName = "isUseLightTransform", isRevertMode = true, heightScale = 2)]
+        public Vector3 rot;
+
+        [EditorGroup("Light Camera")]
+        [EditorDisableGroup(targetPropName = "isUseLightTransform", isRevertMode = true, heightScale = 2)]
+        public Vector3 up = Vector3.up;
 
         [EditorGroup("Light Camera")]
         [Tooltip("Offset light position in world space")]
@@ -92,6 +115,10 @@
         [Range(0,1)]
         public float lightCameraPosBlend = 1;
 
+        [EditorGroup("Light Camera")]
+        [Tooltip("Use BIghShadowLight BoxCollider's Bounds, auto set (pos,rot,up,orthoSize,near,far)")]
+        public bool isUseBIghShadowLightBounds = false;
+        //=================================================== Shadow
         [EditorGroup("Shadow", true)]
         [Min(0)] public float shadowDepthBias = 1;
 
@@ -100,7 +127,7 @@
 
         [EditorGroup("Shadow")]
         [Range(0, 1)] public float shadowIntensity = 1;
-
+        //=================================================== others
         [Header("Render control")]
         [Tooltip("draw shadow frame then stop,when isAutoRendering = false")]
         [EditorButton] public bool isStepRender = true;

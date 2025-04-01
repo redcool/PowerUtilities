@@ -33,28 +33,35 @@ namespace PowerUtilities
                 base.OnGUI(position, property, label);
                 return;
             }
+            
 
-            var viewWidth = EditorGUIUtility.currentViewWidth;
-            var vw2 = EditorGUIUtility.currentViewWidth;
-
-            EditorGUITools.UpdateLabelWidth(viewWidth / Mathf.Max(1, attr.PropNames.Length) / 2);
-            var itemWidth = viewWidth * attr.viewWidthRate;
-            if (attr.boxType == EditorBoxAttribute.BoxType.HBox)
-                itemWidth /= Mathf.Max(1, attr.PropNames.Length);
+            //var itemWidth = viewWidth;
+            //if (attr.boxType == EditorBoxAttribute.BoxType.HBox)
+            //    itemWidth /= Mathf.Max(1, attr.PropNames.Length);
 
 
             if (attr.isFolded = BeginHeader(attr))
             {
                 EditorGUI.indentLevel++;
 
+                // setup widths
+                var viewWidth = EditorGUITools.GetCurrentViewWidthWithIndent();
+                var labelWidth = viewWidth / Mathf.Max(1, attr.PropNames.Length) * 0.45f;
+                EditorGUITools.UpdateLabelWidth(labelWidth);
+
                 BeginBox(attr);
 
-                foreach (var propName in attr.PropNames)
+                //foreach (var propName in attr.PropNames)
+                for (int i = 0; i < attr.PropNames.Length; i++) 
                 {
+                    var propName = attr.PropNames[i];
+                    var propWidthRate = attr.propWidthRates[i];
+
                     var prop = property.serializedObject.FindProperty(propName);
                     if (prop != null)
                     {
-                        EditorGUILayout.PropertyField(prop, true, GUILayout.Width(itemWidth));
+                        //use same label
+                        EditorGUILayout.PropertyField(prop, true, GUILayout.Width(viewWidth * propWidthRate));
                     }
                 }
 
@@ -69,6 +76,11 @@ namespace PowerUtilities
         //===========
         static bool BeginHeader(EditorBoxAttribute attr)
         {
+            // empty title 
+            if (string.IsNullOrEmpty(attr.header))
+                return true;
+
+            // show title
             if (attr.isShowFoldout)
                 return EditorGUILayout.BeginFoldoutHeaderGroup(attr.isFolded, attr.header);
             else
