@@ -31,86 +31,41 @@ namespace PowerUtilities
         {
             GUILayout.BeginVertical("Box");
 
-            EditorGUITools.BeginHorizontalBox(() => { 
+            EditorGUITools.BeginHorizontalBox(() =>
+            {
                 EditorGUILayout.PrefixLabel("Shader:");
-                shaderObj = (Shader)EditorGUILayout.ObjectField(shaderObj, typeof(Shader),false);
+                shaderObj = (Shader)EditorGUILayout.ObjectField(shaderObj, typeof(Shader), false);
             });
 
 
-            EditorGUITools.BeginHorizontalBox(() => { 
+            EditorGUITools.BeginHorizontalBox(() =>
+            {
                 EditorGUILayout.PrefixLabel("Toggle Type");
                 toggleTypeString = EditorGUILayout.TextField(toggleTypeString);
-            
+
             });
 
             EditorGUI.BeginDisabledGroup(!shaderObj);
             {
                 EditorGUILayout.LabelField("Update materials keywords by material toggle.");
-                if (GUILayout.Button("Check keywords"))
+                if (GUILayout.Button("Sync Prop Keywords"))
                 {
-                    var result = CheckKeywords(shaderObj, toggleTypeString);
+                    var mats = shaderObj.GetMaterialsRefShader();
+                    var result = shaderObj.SyncMaterialKeywords(toggleTypeString, mats);
                     Debug.Log(result);
                 }
 
                 EditorGUILayout.LabelField("Clear keywords reference target shader.");
                 if (GUILayout.Button("Clear Materials Keywords"))
                 {
-                    ClearKeywords(shaderObj);
+                    shaderObj.ClearMaterialKeywords();
                 }
-                GUILayout.EndVertical();
             }
             EditorGUI.EndDisabledGroup();
+            GUILayout.EndVertical();
         }
 
 
-
-        private static string CheckKeywords(Shader shader,string toggleTypeString)
-        {
-            var propKeywordList = shader.GetShaderPropsHasKeyword(toggleTypeString);
-            Material[] mats = GetMaterialsRefShader(shader);
-            var result = new StringBuilder();
-
-            foreach (var mat in mats)
-            {
-                foreach (var propKeyword in propKeywordList)
-                {
-                    var keywordOn = mat.GetFloat(propKeyword.propName) != 0;
-                    // update keyword
-                    if (keywordOn)
-                        mat.EnableKeyword(propKeyword.keyword);
-                    else
-                        mat.DisableKeyword(propKeyword.keyword);
-
-                    // keyword has changed
-                    if (mat.IsKeywordEnabled(propKeyword.keyword) != keywordOn)
-                    {
-                        result.AppendLine(mat.ToString());
-                    }
-                }
-            }
-            result.Insert(0, $"len:{mats.Length}\n");
-            return result.ToString();
-        }
-
-        private static Material[] GetMaterialsRefShader(Shader shader)
-        {
-            var paths = SelectionTools.GetSelectedFolders();
-            if (paths.Length == 0)
-                paths = new[] { "Assets" };
-
-            var mats = AssetDatabaseTools.FindAssetsInProject<Material>("t:Material", paths);
-            mats = mats.Where(mat => mat.shader == shader).ToArray();
-            return mats;
-        }
-
-        static void ClearKeywords(Shader shader)
-        {
-            Material[] mats = GetMaterialsRefShader(shader);
-            foreach (var mat in mats)
-            {
-                mat.shaderKeywords=null;
-            }
-        }
     }
 }
 #endif

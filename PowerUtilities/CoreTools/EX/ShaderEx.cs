@@ -44,6 +44,49 @@ namespace PowerUtilities
             return list;
         }
 
+        /// <summary>
+        /// Check material's keyword and uniform variables states
+        /// like powervfx, [GroupToggle(,KEY_1)]
+        /// </summary>
+        /// <param name="shader"></param>
+        /// <param name="toggleTypeString"></param>
+        /// <param name="mats">materials use shader</param>
+        /// <returns></returns>
+        public static string SyncMaterialKeywords(this Shader shader, string toggleTypeString, params Material[] mats)
+        {
+            var propKeywordList = shader.GetShaderPropsHasKeyword(toggleTypeString);
+
+            var result = new StringBuilder();
+
+            foreach (var mat in mats)
+            {
+                foreach (var propKeyword in propKeywordList)
+                {
+                    // material dont has property
+                    if (! mat.HasProperty(propKeyword.propName))
+                    {
+                        result.AppendLine($"{mat.name} , {propKeyword.propName} not existed => {propKeyword.keyword}");
+                        mat.DisableKeyword(propKeyword.propName);
+                        continue;
+                    }
+                    var keywordOn = mat.GetFloat(propKeyword.propName) != 0;
+                    // keyword has changed
+                    if (mat.IsKeywordEnabled(propKeyword.keyword) != keywordOn)
+                    {
+                        result.AppendLine($"{mat.name} , {propKeyword.propName} => {propKeyword.keyword}");
+                    }
+
+                    // update keyword
+                    if (keywordOn)
+                        mat.EnableKeyword(propKeyword.keyword);
+                    else
+                        mat.DisableKeyword(propKeyword.keyword);
+
+                }
+            }
+            return result.ToString();
+        }
+
         public static void SetKeywords(bool isOn,params string[] keywords)
         {
             if (keywords== null || keywords.Length == 0) return;

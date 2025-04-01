@@ -10,6 +10,10 @@ namespace PowerUtilities
 
     public static class SelectionTools
     {
+        /// <summary>
+        /// Assets folder
+        /// </summary>
+        public static string[] ASSETS_FOLDER = new[] { "Assets" };
         public static T[] GetSelectedComponents<T>() where T : Component
         {
             return Selection.gameObjects
@@ -29,12 +33,17 @@ namespace PowerUtilities
         /// Get selected objects's folder paths
         /// </summary>
         /// <returns></returns>
-        public static string[] GetSelectedFolders()
+        public static string[] GetSelectedFolders(bool isReturnAssetsWhenNotSelected = false)
         {
-            return Selection.objects
+            var paths = Selection.objects
                 .Select(AssetDatabaseTools.GetAssetFolder)
                 .Where(str => !string.IsNullOrEmpty(str))
                 .ToArray();
+            if(isReturnAssetsWhenNotSelected && paths.Length == 0)
+            {
+                return ASSETS_FOLDER;
+            }
+            return paths;
         }
     }
 }
