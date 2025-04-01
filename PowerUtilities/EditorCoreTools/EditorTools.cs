@@ -158,6 +158,8 @@ namespace PowerUtilities
             editorInst = Editor.CreateEditor(inst, t);
         }
 
+        public static bool DisplayDialog_Ok_Cancel(string text)
+            => EditorUtility.DisplayDialog("Warning", text, "ok", "cancel");
         
     }
 }

@@ -21,7 +21,8 @@ namespace PowerUtilities
         {
             EditorGUITools.BeginHorizontalBox(() =>
             {
-                if (GUILayout.Button("Check keywords"))
+                // 1
+                if (GUILayout.Button("Sync Material keywords"))
                 {
                     foreach (var shaderObj in inst.shaders)
                     {
@@ -31,8 +32,9 @@ namespace PowerUtilities
 
                     }
                 }
-
-                if (GUILayout.Button("Clear Materials Keywords"))
+                
+                // 2
+                if (EditorGUITools.ButtonWithConfirm("Clear Materials Keywords", "remove all material keywords"))
                 {
                     inst.shaders.ForEach(shader =>
                     {

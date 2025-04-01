@@ -488,6 +488,15 @@ namespace PowerUtilities
 #endif
         }
 
+        /// <summary>
+        /// Show Button and confirm dialog
+        /// </summary>
+        /// <returns></returns>
+        public static bool ButtonWithConfirm(string buttonText,string confirmText)
+        {
+            return GUILayout.Button(buttonText) && EditorTools.DisplayDialog_Ok_Cancel(confirmText);
+        }
+
         #region SettingSO 
         /// <summary>
         /// SettingSOType is subclass of ScriptableObject
