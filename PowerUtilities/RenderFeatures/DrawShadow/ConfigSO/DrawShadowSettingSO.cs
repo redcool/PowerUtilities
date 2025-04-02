@@ -69,55 +69,65 @@
         [EditorGroup("Light Camera")]
         public string lightTag = "BigShadowLight";
 
-        [Tooltip("Control LightCamera use BigShadowLight transform's part(pos)")]
-        [EditorBox("", "isPosEnabled,isRotEnabled,isUpEnabled", "0.3,0.3,0.3", boxType = EditorBoxAttribute.BoxType.HBox)]
-        public bool isPosEnabled = true;
+        [EditorGroup("Light Camera")]
+        [Tooltip("Use BIgShadowLight BoxCollider's Bounds, auto set (orthoSize,near,far)")]
+        public bool isUseBigShadowLightBoxCollider = false;
+
+        //=================================================== Light Camera transform
+        [EditorGroup("Light Camera")]
+        [EditorHeader("Light Camera", "BigShadowLight Transform")]
+        [EditorBox("", "isUsePos,isUseRot,isUseUp", "0.3,0.3,0.3", boxType = EditorBoxAttribute.BoxType.HBox)]
+        //[EditorBox("", "isPosEnabled,pos", "0.3,0.3,0.3", boxType = EditorBoxAttribute.BoxType.HBox)]
+        [Tooltip("LightCamera use BigShadowLight transform's position")]
+        public bool isUsePos = true;
 
         // dont show these
         [HideInInspector]
-        [Tooltip("Control LightCamera use BigShadowLight transform's part(rot)")]
-        public bool isRotEnabled = true;
+        [Tooltip("LightCamera use BigShadowLight transform's rotation")]
+        public bool isUseRot = true;
 
         [HideInInspector]
-        [Tooltip("Control LightCamera use BigShadowLight transform's part(up)")]
-        public bool isUpEnabled = true;
+        [Tooltip("LightCamera use BigShadowLight transform's up")]
+        public bool isUseUp = true;
 
         [EditorGroup("Light Camera")]
-        [EditorDisableGroup(targetPropName = "isUseLightTransform", isRevertMode = true, heightScale = 2)]
+        [EditorDisableGroup(targetPropNamesStr = "isUseLightTransform,isUsePos", isRevertMode = true, heightScale = 2)]
         public Vector3 pos;
 
         [EditorGroup("Light Camera")]
-        [EditorDisableGroup(targetPropName = "isUseLightTransform", isRevertMode = true, heightScale = 2)]
+        [EditorDisableGroup(targetPropNamesStr = "isUseLightTransform,isUseRot", isRevertMode = true, heightScale = 2)]
         public Vector3 rot;
 
         [EditorGroup("Light Camera")]
-        [EditorDisableGroup(targetPropName = "isUseLightTransform", isRevertMode = true, heightScale = 2)]
+        [EditorDisableGroup(targetPropNamesStr = "isUseLightTransform,isUseUp", isRevertMode = true, heightScale = 2)]
         public Vector3 up = Vector3.up;
 
         [EditorGroup("Light Camera")]
         [Tooltip("Offset light position in world space")]
         public Vector3 lightPosOffset;
 
-        [EditorGroup("Light Camera")]
+        //[EditorHeader("Light Camera","Frustum")]
+        //=================================================== Light Camera frustum
+        [EditorGroup("LightCameraFrustum",true)]
         [Tooltip("half of height")]
+        [EditorDisableGroup(targetPropName = "isUseBigShadowLightBoxCollider",isRevertMode =true)]
         public float orthoSize = 20;
 
-        [EditorGroup("Light Camera")]
+        [EditorGroup("LightCameraFrustum")]
         [Tooltip("near clip plane ")]
+        [EditorDisableGroup(targetPropName = "isUseBigShadowLightBoxCollider", isRevertMode = true)]
         public float near = 0.3f;
 
-        [EditorGroup("Light Camera")]
+        [EditorGroup("LightCameraFrustum")]
         [Tooltip("far clip plane ")]
+        [EditorDisableGroup(targetPropName = "isUseBigShadowLightBoxCollider", isRevertMode = true)]
         public float far = 100;
-
-        [EditorGroup("Light Camera")]
+        //=================================================== Light Camera pos Blend
+        [EditorGroup("LightCamera Pos Blend",true)]
         [Tooltip("lightCamera.pos use LightPos or CameraPos")]
         [Range(0,1)]
         public float lightCameraPosBlend = 1;
 
-        [EditorGroup("Light Camera")]
-        [Tooltip("Use BIghShadowLight BoxCollider's Bounds, auto set (pos,rot,up,orthoSize,near,far)")]
-        public bool isUseBIghShadowLightBounds = false;
         //=================================================== Shadow
         [EditorGroup("Shadow", true)]
         [Min(0)] public float shadowDepthBias = 1;

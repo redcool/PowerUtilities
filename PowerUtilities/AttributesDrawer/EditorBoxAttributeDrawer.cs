@@ -10,43 +10,29 @@ namespace PowerUtilities
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
             return 0; // 
-            //var attr = (EditorBoxAttribute)attribute;
-
-            //var lines = 0;
-            //if (attr.isFolded)
-            //    lines = 1;
-
-            //if (attr.boxType == EditorBoxAttribute.BoxType.VBox)
-            //{
-            //    lines += attr.PropNames.Length - 1;
-            //}
-
-            //return base.GetPropertyHeight(property, label) * lines;
         }
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            var attr = (EditorBoxAttribute)attribute;
+            position = EditorGUI.IndentedRect(position);
 
+            var attr = (EditorBoxAttribute)attribute;
             if (attr.PropNames.Length == 0)
             {
                 base.OnGUI(position, property, label);
                 return;
             }
-            
-
-            //var itemWidth = viewWidth;
-            //if (attr.boxType == EditorBoxAttribute.BoxType.HBox)
-            //    itemWidth /= Mathf.Max(1, attr.PropNames.Length);
 
 
             if (attr.isFolded = BeginHeader(attr))
             {
-                EditorGUI.indentLevel++;
+                //EditorGUI.indentLevel++;
 
                 // setup widths
                 var viewWidth = EditorGUITools.GetCurrentViewWidthWithIndent();
                 var labelWidth = viewWidth / Mathf.Max(1, attr.PropNames.Length) * 0.45f;
+
+                //labelWidth = Mathf.Max(labelWidth, 120);
                 EditorGUITools.UpdateLabelWidth(labelWidth);
 
                 BeginBox(attr);
@@ -61,13 +47,14 @@ namespace PowerUtilities
                     if (prop != null)
                     {
                         //use same label
+                        //EditorGUILayout.PropertyField(prop, true);
                         EditorGUILayout.PropertyField(prop, true, GUILayout.Width(viewWidth * propWidthRate));
                     }
                 }
 
                 EndBox(attr);
 
-                EditorGUI.indentLevel--;
+                //EditorGUI.indentLevel--;
             }
 
             EndHeader(attr);

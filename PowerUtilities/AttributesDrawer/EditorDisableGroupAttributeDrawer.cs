@@ -1,6 +1,7 @@
 ﻿#if UNITY_EDITOR
 namespace PowerUtilities
 {
+    using System.Linq;
     using UnityEditor;
     using UnityEngine;
     [CustomPropertyDrawer(typeof(EditorDisableGroupAttribute))]
@@ -28,13 +29,10 @@ namespace PowerUtilities
             // check multi props
             if (attr.TargetPropValues.IsValid())
             {
-                isDisable = true;
-                foreach (var propName in attr.TargetPropValues)
-                {
-                    var prop = property.FindPropertyInObject(propName);
-
-                    isDisable = isDisable && (prop != null ? prop.intValue == 0 : false);
-                }
+                isDisable = attr.TargetPropValues
+                    .Select(propName => property.FindPropertyInObject(propName))
+                    .Where(prop => prop != null)
+                    .Any(prop => prop.intValue == 0);
             }
 
             if (attr.isRevertMode)

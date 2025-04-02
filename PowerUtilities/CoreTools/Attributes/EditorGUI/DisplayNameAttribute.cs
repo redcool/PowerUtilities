@@ -24,6 +24,8 @@ namespace PowerUtilities
         }
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
+            position = EditorGUI.IndentedRect(position);
+
             //base.OnGUI(position, property, label);
             var attr = attribute as DisplayNameAttribute;
             var ranges = fieldInfo.GetCustomAttributes(typeof(RangeAttribute), true);

@@ -30,7 +30,7 @@
             if (!isGroupOn)
                 return;
 
-            var pos = position;
+            var pos = EditorGUI.IndentedRect(position);
             pos.x += attr.posOffset;
             pos.y += 5;
 

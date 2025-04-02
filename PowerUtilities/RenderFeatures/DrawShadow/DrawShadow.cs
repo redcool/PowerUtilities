@@ -161,9 +161,8 @@ namespace PowerUtilities
 
             Vector3 GetLightCameraBlendPos(Vector3 camPos)
             {
-                if (lightObj != null)
-                    return Vector3.Lerp(camPos, lightObj.transform.position, settingSO.lightCameraPosBlend);
-                return camPos;
+                var lightPos = (lightObj != null && settingSO.isUsePos) ? lightObj.transform.position : settingSO.pos;
+                return Vector3.Lerp(camPos, lightPos, settingSO.lightCameraPosBlend);
             }
             
             bool IsExceedMaxDistanceAndSaveFinalLightPos(Camera camera, out float curDistance,ref Vector3 finalLightPos)
@@ -178,15 +177,15 @@ namespace PowerUtilities
 
                 // follow camera append lightPosOffset
                 var lightCamPos = GetLightCameraBlendPos(camera.transform.position);
-                var finalCameraPos = lightCamPos + settingSO.lightPosOffset; 
+                lightCamPos += settingSO.lightPosOffset; 
 
-                var dir = finalCameraPos - finalLightPos; // include lightPosOffset
+                var dir = lightCamPos - finalLightPos; // include lightPosOffset
                 curDistance = dir.magnitude;
 
                 var isExceedMaxDistance = curDistance > settingSO.maxDistance;
                 if (isExceedMaxDistance)
                 {
-                    finalLightPos = finalCameraPos;
+                    finalLightPos = lightCamPos;
                 }
 
                 return isExceedMaxDistance;
@@ -299,6 +298,52 @@ namespace PowerUtilities
         private bool TrySetupLightCameraInfo()
         {
             var isNewLight = false;
+            FindBigShadowLight(ref isNewLight);
+
+            if (!lightObj)
+                return isNewLight;
+
+
+            SetupLightCamFromBigShadowLightTransform();
+            if (settingSO.isUseBigShadowLightBoxCollider)
+                SetupLightCamFromBigShadowLightBounds();
+
+            SetupBigShadowLightControl(lightObj);
+            return isNewLight;
+        }
+        /// <summary>
+        /// Get BigShadowLightTransform collider, orthoSize,near,far
+        /// </summary>
+        void SetupLightCamFromBigShadowLightBounds()
+        {
+            var c = lightObj.GetComponent<BoxCollider>();
+            if (!c)
+                return;
+            var halfSize = c.size * 0.5f;
+            settingSO.near = -halfSize.z;
+            settingSO.far = halfSize.z;
+            settingSO.orthoSize = halfSize.y;
+        }
+
+        /// <summary>
+        /// Get BigShadowLightTransform's pos,rot,up
+        /// </summary>
+        void SetupLightCamFromBigShadowLightTransform()
+        {
+            if (settingSO.isUsePos)
+                settingSO.pos = lightObj.transform.position + settingSO.lightPosOffset;
+            if (settingSO.isUseRot)
+                settingSO.rot = lightObj.transform.eulerAngles;
+            if (settingSO.isUseUp)
+                settingSO.up = lightObj.transform.up;
+        }
+
+        /// <summary>
+        /// Find BigShadowLight 
+        /// </summary>
+        /// <param name="isNewLight">when find it first time</param>
+        void FindBigShadowLight(ref bool isNewLight)
+        {
             if (settingSO.isUseLightTransform)
             {
                 if (!lightObj && !string.IsNullOrEmpty(settingSO.lightTag))
@@ -320,17 +365,6 @@ namespace PowerUtilities
             {
                 lightObj = null;
             }
-
-            if (!lightObj)
-                return isNewLight;
-
-            settingSO.pos = lightObj.transform.position + settingSO.lightPosOffset;
-            settingSO.rot = lightObj.transform.eulerAngles;
-            settingSO.up = lightObj.transform.up;
-
-            SetupBigShadowLightControl(lightObj);
-
-            return isNewLight;
         }
 
         private void SetupBigShadowLightControl(GameObject lightObj)

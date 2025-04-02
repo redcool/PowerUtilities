@@ -41,5 +41,7 @@
         /// line count,
         /// </summary>
         public int heightScale = 1;
+
+        public string groupName="";
     }
 }
