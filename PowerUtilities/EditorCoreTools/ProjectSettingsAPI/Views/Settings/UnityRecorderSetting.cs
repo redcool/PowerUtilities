@@ -13,7 +13,6 @@ namespace PowerUtilities
         public override bool NeedDrawDefaultUI() => true;
         public override void DrawInspectorUI(UnityRecorderSetting inst)
         {
-            EditorGUILayout.HelpBox("Recoder Cpature, need set TargetCamera, FileFormat : PNG", MessageType.Info);
             // 
             var so = ProjectSettingManagers.GetAsset(ProjectSettingManagers.ProjectSettingTypes.ProjectSettings);
             so.UpdateIfRequiredOrScript();
@@ -27,20 +26,30 @@ namespace PowerUtilities
             // 2 TRANSPARENCY_ON
             ShaderEx.SetKeywords(inst.isTransparencyKeywordOn, "TRANSPARENCY_ON");
 
-            var cam = Camera.main;
 
-            if (inst.isOverrideUberPostShader && inst.urpUberShader && cam)
+            if (inst.isOverrideUberPostShader && inst.urpUberShader)
             {
                 var postData = PostProcessDataEx.GetDefaultPostProcessData();
                 if (postData)
                     postData.shaders.uberPostPS = inst.urpUberShader;
             }
 
-            if (inst.isOverrideMainCameraAntiAlise && cam)
+            //k Setup MainCamera
+            var cam = Camera.main;
+            if (!cam)
+                return;
+
+            if (inst.isOverrideMainCameraAntiAlise)
             {
-                var addData = cam.GetUniversalAdditionalCameraData();
+            var addData = cam.GetUniversalAdditionalCameraData();
                 if (addData) 
                     addData.antialiasing = inst.aaMode;
+            }
+
+            if (inst.isOverrideMainCameraClearColor)
+            {
+                cam.clearFlags = inst.clearFlags;
+                cam.backgroundColor = inst.clearColor;
             }
         }
 
@@ -54,6 +63,9 @@ namespace PowerUtilities
     [SOAssetPath("Assets/PowerUtilities/UnityRecorderEx.asset")]
     public class UnityRecorderSetting : ScriptableObject
     {
+        [HelpBox]
+        public string helpBox = "Unity Recoder Cpature, 1 set TargetCamera, FileFormat : PNG";
+
         [Header("URP FrameBuffer")]
         [Tooltip("Graphics.preserverCameraTargetAlpha ")]
         public bool preserverCameraTargetAlpha;
@@ -72,6 +84,12 @@ namespace PowerUtilities
         [Tooltip("Set MainCamera's Anti-Aliasing to no")]
         public bool isOverrideMainCameraAntiAlise;
         public AntialiasingMode aaMode;
+
+        [Header("Camera's ClearColor")]
+        [Tooltip("Set MainCamera's ClearColor")]
+        public bool isOverrideMainCameraClearColor;
+        public CameraClearFlags clearFlags = CameraClearFlags.SolidColor;
+        public Color clearColor = Color.clear;
     }
 }
 #endif

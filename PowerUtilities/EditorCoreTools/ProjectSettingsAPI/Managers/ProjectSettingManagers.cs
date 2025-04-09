@@ -41,12 +41,21 @@ namespace PowerUtilities
             DynamicsManager,
             TimeManager,
         }
-
-        public static string GetSettingPath(ProjectSettingTypes type) 
-            => $"ProjectSettings/{Enum.GetName(typeof(ProjectSettingTypes),type)}.asset";
+        /// <summary>
+        /// Get file path that in folder ProjectSettings.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static string GetSettingPath(ProjectSettingTypes type)
+            => $"ProjectSettings/{type}.asset";
 
         static CacheTool<string, SerializedObject> settingAssetCache = new CacheTool<string, SerializedObject>();
 
+        /// <summary>
+        /// Get SerializedObject reference to ProjectSettings file
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public static SerializedObject GetAsset(ProjectSettingTypes type)
         {
             var path = GetSettingPath(type);
