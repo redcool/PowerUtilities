@@ -93,16 +93,27 @@
         {
             var ite = enumerator;
             if (ite.Current == null)
-                ite.MoveNext();
-
-            if (ite.Current is WaitForDone)
             {
-                var wait = ite.Current as WaitForDone;
-                if (wait.CanMoveNext)
+                ite.MoveNext();
+            }
+
+            // WaitForClasses
+            if (ite.Current is WaitForDone waitItem)
+            {
+                if (waitItem.CanMoveNext)
                 {
                     return ite.MoveNext();
                 }
             }
+            else
+            {
+                // number ,move next
+                if (float.TryParse(ite.Current.ToString(), out var waitTime))
+                {
+                    ite.MoveNext();
+                }
+            }
+
             return true;
         }
 

@@ -10,7 +10,9 @@ namespace PowerUtilities.Coroutine
 
         IEnumerator TestCoroutine()
         {
+            yield return 12;
             Debug.Log("TestCoroutine");
+
             yield return new WaitForSeconds(5);
             Debug.Log("end WaitForSeconds 5");
 

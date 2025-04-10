@@ -2,11 +2,16 @@
 {
     using UnityEngine;
 
+    /// <summary>
+    /// Wait for CanMoveNext return true
+    /// </summary>
     public class WaitForDone
     {
         public virtual bool CanMoveNext { get; set; }
     }
-
+    /// <summary>
+    /// Wait for action return true
+    /// </summary>
     public class WaitForActionDone : WaitForDone
     {
         public System.Func<bool> action;
@@ -26,6 +31,9 @@
         }
     }
 
+    /// <summary>
+    /// Wait for frames
+    /// </summary>
     public class WaitForEndOfFrame : WaitForDone
     {
         public int frameCount = 1;
@@ -42,7 +50,9 @@
             set => base.CanMoveNext = value;
         }
     }
-
+    /// <summary>
+    /// Wait for seconds
+    /// </summary>
     public class WaitForSeconds : WaitForDone
     {
         public float seconds;

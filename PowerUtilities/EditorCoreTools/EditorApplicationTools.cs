@@ -84,8 +84,8 @@ namespace PowerUtilities
         {
             AddCompileEvents();
 
-            EditorApplication.update -= AddEvent;
-            EditorApplication.update += AddEvent;
+            EditorApplication.update -= AddGlobalKeyEventUpdate;
+            EditorApplication.update += AddGlobalKeyEventUpdate;
 
             EditorApplication.playModeStateChanged -= EditorApplication_playModeStateChanged;
             EditorApplication.playModeStateChanged += EditorApplication_playModeStateChanged;
@@ -105,7 +105,7 @@ namespace PowerUtilities
             }
         }
 
-        static void AddEvent()
+        static void AddGlobalKeyEventUpdate()
         {
             if (OnGlobalKeyEvent == null)
                 return;
@@ -113,7 +113,7 @@ namespace PowerUtilities
             // add global key events once
             if (isInited)
             {
-                EditorApplication.update -= AddEvent;
+                EditorApplication.update -= AddGlobalKeyEventUpdate;
                 return;
             }
 
@@ -144,6 +144,19 @@ namespace PowerUtilities
             }
             return false;
         }
+
+        /// <summary>
+        /// first remove then add updateAction
+        /// </summary>
+        /// <param name="updateAction"></param>
+        public static void AddEditorUpdate(EditorApplication.CallbackFunction updateAction)
+        {
+            EditorApplication.update -= updateAction;
+            EditorApplication.update += updateAction;
+        }
+
+        public static void RemoveEditorUpdate(EditorApplication.CallbackFunction updateAction) 
+            => EditorApplication.update -= updateAction;
     }
 }
 #endif
