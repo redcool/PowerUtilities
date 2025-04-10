@@ -1,13 +1,16 @@
 using PowerUtilities;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using UnityEngine;
 
 namespace GameUtilsFramework
 {
     public static class SkinnedMeshRendererEx
     {
-        public static void RetargetBones(this SkinnedMeshRenderer skinned,string lastRootBoneName, Transform newRootBone)
+
+        public static void RetargetBones(this SkinnedMeshRenderer skinned,string lastRootBoneName, Transform newRootBone,Func<string,string> onReplaceOldPath = null)
         {
             if (!skinned || !newRootBone)
                 return;
@@ -17,7 +20,19 @@ namespace GameUtilsFramework
             {
                 var bone = skinned.bones[i];
                 var bonePath = GameObjectTools.GetHierarchyPath(bone, lastRootBoneName);
+                // replace bone path
+                if (onReplaceOldPath != null)
+                {
+                    bonePath = onReplaceOldPath(bonePath);
+                }
+
+                // check rootBonew
                 var newBone = newRootBone.Find(bonePath);
+                if(newRootBone.name == bonePath)
+                {
+                    newBone = newRootBone;
+                }
+
                 newBones[i] = newBone; 
             }
             skinned.bones = newBones;
