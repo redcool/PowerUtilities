@@ -20,6 +20,7 @@ namespace PowerUtilities
 
         bool isShowSkeleton;
         private Vector2 scrollPosition;
+        private Dictionary<(object inst, string methodName), Delegate> methodNameDelegateDict = new();
 
         public void OnEnable()
         {
@@ -28,7 +29,6 @@ namespace PowerUtilities
                 var defaultEditorType = Assembly.GetAssembly(typeof(Editor)).GetType("UnityEditor.SkinnedMeshRendererEditor");
                 defaultEditor = CreateEditor(targets, defaultEditorType);
             }
-
             InvokeDefaultEditorMethod(nameof(OnEnable));
         }
 
@@ -50,9 +50,15 @@ namespace PowerUtilities
         }
 
 
-        public void InvokeDefaultEditorMethod(string methodName, params object[] parameters)
+        public void InvokeDefaultEditorMethod(string methodName)
         {
-            defaultEditor.GetType().InvokeMethod(methodName, Type.EmptyTypes, defaultEditor, default);
+            //defaultEditor.GetType().InvokeMethod(methodName, Type.EmptyTypes, defaultEditor, default);
+
+            //defaultEditor.GetType().GetDelegate(defaultEditor,methodName, ReflectionTools.instanceBindings, Type.EmptyTypes).DynamicInvoke();
+            DelegateEx.GetOrCreate<Action>(
+                defaultEditor, 
+                defaultEditor.GetType().GetMethod(methodName, ReflectionTools.instanceBindings)
+                )?.DynamicInvoke();
         }
 
         public void OnSceneGUI()

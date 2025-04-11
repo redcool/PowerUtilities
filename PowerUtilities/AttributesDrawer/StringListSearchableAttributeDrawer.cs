@@ -58,7 +58,7 @@ namespace PowerUtilities
             provider.itemList = names.Select(n => (n, (object)n)).ToList();
             provider.onSelectedChanged = ((string name, object userData) infoItem) =>
             {
-                Debug.Log(property.propertyPath);
+                //Debug.Log(property.propertyPath);
 
                 property.UpdateProperty(() =>
                 {

@@ -51,57 +51,6 @@ namespace PowerUtilities
 
         #endregion
 
-        /// <summary>
-        /// call method by reflection
-        /// </summary>
-        /// <param name="editor"></param>
-        /// <param name="position"></param>
-        /// <param name="prop"></param>
-        /// <param name="label"></param>
-        /// <returns></returns>
-        public static bool DrawMaterialAttribute_(this MaterialEditor editor, ref Rect position, MaterialProperty prop, GUIContent label)
-        {
-            /** ( draw material attribute ) original version
-            MaterialPropertyHandler handler = MaterialPropertyHandler.GetHandler(((Material)base.target).shader, prop.name);
-            if (handler != null)
-            {
-                handler.OnGUI(ref position, prop, (label.text != null) ? label : new GUIContent(prop.displayName), this);
-                if (handler.propertyDrawer != null)
-                {
-                    return;
-                }
-            }
-            */
-
-            //var coreModule = lazyCoreModule.Value;
-            //if (coreModule == null)
-            //    return false;
-
-            //var handlerType = coreModule.GetType("UnityEditor.MaterialPropertyHandler");
-            //// get handler
-            //var GetHandleFunc = handlerType.GetMethod("GetHandler", BindingFlags.Static| BindingFlags.NonPublic, null, new[] { typeof(Shader), typeof(string) }, null);
-            //var handlerInst = GetHandleFunc.Invoke(null, new object[] { ((Material)editor.target).shader, prop.name });
-
-            object handlerInst = null;
-            MaterialPropertyHandlerTools.TryGetMaterialPropertyHandler(ref handlerInst, ((Material)editor.target).shader, prop.name);
-            if (handlerInst == null)
-                return false;
-
-            Type handlerType = handlerInst.GetType();
-
-            // call OnGUI
-            var paramObjs = new object[] { position, prop, (label.text != null) ? label : new GUIContent(prop.displayName), editor };
-            //handlerType.GetMethod("OnGUI")?.Invoke(handlerInst, paramObjs);
-
-            handlerType.InvokeMethod("OnGUI", null, handlerInst, paramObjs);
-
-            //get result
-            position = (Rect)paramObjs[0];
-
-            // check propertyDrawer
-            return handlerType.GetPropertyValue("propertyDrawer", handlerInst, null) != null;
-        }
-
         delegate object GetHandler(Shader shader, string propName);
         delegate void OnGUI(ref Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor);
         /// <summary>
@@ -131,7 +80,7 @@ namespace PowerUtilities
                 return false;
 
             var handlerType = coreModule.GetType("UnityEditor.MaterialPropertyHandler");
-
+            
             // get handler delegate
             var getHandler = DelegateEx.GetOrCreate<GetHandler>(null, handlerType.GetMethod("GetHandler", BindingFlags.Static | BindingFlags.NonPublic));
 
