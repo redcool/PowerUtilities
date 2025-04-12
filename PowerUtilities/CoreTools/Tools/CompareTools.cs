@@ -33,6 +33,12 @@ namespace PowerUtilities
             return false;
         }
 
+        public static bool CompareAndSet<T>(ref T lastValue, T currentValue)
+        {
+            T tmpCurValue = currentValue;
+            return CompareAndSet(ref lastValue, ref tmpCurValue);
+        }
+
         public static bool CompareAndSet<T>(ref T lastValue, T currentValue,Func<T,T,bool> predicate)
         {
             if (predicate(lastValue,currentValue))

@@ -12,30 +12,22 @@ namespace PowerUtilities
     public static class DelegateEx
     {
         /// <summary>
+        /// instance method
         /// {MethodInfo -> {caller -> Delegate}}
         /// </summary>
         static Dictionary<MethodInfo, Dictionary<object, Delegate>> methodTargetDelegateDict = new Dictionary<MethodInfo, Dictionary<object, Delegate>>();
         /// <summary>
+        /// static method
         /// {methdoInfo -> delegate}
         /// </summary>
         static Dictionary<MethodInfo, Delegate> methodDelegataDict = new Dictionary<MethodInfo, Delegate>();
 
-        /// <summary>
-        /// {(object inst,MethodInfo info) -> Delegate}
-        /// </summary>
-        public static Dictionary<(object inst,MethodInfo info),Delegate> targetMethodDelegateDict = new ();
-        /// <summary>
-        /// {(object inst,string methodName) -> Delegate}
-        /// </summary>
-        public static Dictionary<(object inst, string methodName), Delegate> targetMethodNameDelegateDict = new();
 
         [CompileFinished]
         static void OnCompiledDone()
         {
             methodTargetDelegateDict.Clear();
             methodDelegataDict.Clear();
-            targetMethodDelegateDict.Clear();
-            targetMethodNameDelegateDict.Clear();
         }
         /// <summary>
         /// Get a delegate's invocation list,if null return empty array
@@ -47,7 +39,7 @@ namespace PowerUtilities
             return d != null ? d.GetInvocationList() : Array.Empty<Delegate>();
         }
         /// <summary>
-        /// Get a delegate with cache,if not exists create by method
+        /// Get a delegate or get from cache
         /// </summary>
         /// <typeparam name="T">delegate Type</typeparam>
         /// <param name="target">caller,static method target set nul</param>
@@ -59,14 +51,15 @@ namespace PowerUtilities
             var dType = typeof(T);
             if (isForceCreate)
             {
-                return Create(target, method, dType);
+                return Delegate.CreateDelegate(dType,target,method) as T;
             }
+
             //----------- static delegate
-            if (target == null)
+            if (target == null || method.IsStatic)
             {
                 return (T)DictionaryTools.Get(methodDelegataDict, method, (m) =>
                 {
-                    return Create(target, method, dType);
+                    return Delegate.CreateDelegate(dType, target, method) as T;
                 });
             }
             //------------ target delegate
@@ -81,15 +74,9 @@ namespace PowerUtilities
 
             return (T)DictionaryTools.Get(dict, target, (target) =>
             {
-                return Create(target, method, dType);
+                return Delegate.CreateDelegate(dType, target, method) as T;
             });
 
-            //------------ inner methods
-            static T Create(object target, MethodInfo method, Type dType)
-            {
-                var d = Delegate.CreateDelegate(dType, target, method);
-                return (T)d;
-            }
         }
 
         /// <summary>
@@ -109,45 +96,6 @@ namespace PowerUtilities
             if (method.IsStatic)
                 return method.CreateDelegate(delegateType);
             return method.CreateDelegate(delegateType, target);
-        }
-
-        /// <summary>
-        /// Create a delegate from method info
-        /// </summary>
-        /// <param name="target"></param>
-        /// <param name="methodName"></param>
-        /// <param name="flags"></param>
-        /// <param name="paramTypes"></param>
-        /// <returns></returns>
-        public static Delegate CreateDelegate(this Type targetType, object target, string methodName, BindingFlags flags, params Type[] paramTypes)
-        {
-            var m = targetType.GetMethod(methodName, flags, null, paramTypes, null);
-            return m.CreateDelegate(target);
-        }
-
-        /// <summary>
-        /// Create a delegate from method info with cache
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="method"></param>
-        /// <param name="target"></param>
-        /// <returns></returns>
-        public static Delegate GetDelegate(this MethodInfo method, object target)
-        {
-            return DictionaryTools.Get(targetMethodDelegateDict, (target, method), info => CreateDelegate(method, target));
-        }
-
-        /// <summary>
-        /// Get a delegate from targetType and method name with cache
-        /// </summary>
-        /// <param name="target"></param>
-        /// <param name="methodName"></param>
-        /// <param name="flags"></param>
-        /// <param name="paramTypes"></param>
-        /// <returns></returns>
-        public static Delegate GetDelegate(this Type targetType, object target, string methodName, BindingFlags flags, params Type[] paramTypes)
-        {
-            return DictionaryTools.Get(targetMethodNameDelegateDict, (target, methodName), info => CreateDelegate(targetType,target, methodName, flags, paramTypes));
         }
 
     }

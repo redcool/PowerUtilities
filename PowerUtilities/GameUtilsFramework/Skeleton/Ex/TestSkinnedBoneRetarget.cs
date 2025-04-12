@@ -40,11 +40,12 @@ namespace PowerUtilities
             if (string.IsNullOrEmpty(rootBoneName))
                 return;
 
-            skinned.RetargetBones(
+            var result = skinned.RetargetBones(
                 rootBoneName,
                 newRootBone,
                 bonePath=> Regex.Replace(bonePath, bonePathPattern, bonePathReplacement)
             );
+            Debug.Log(result);
         }
 
         void AddShowSkeleton()

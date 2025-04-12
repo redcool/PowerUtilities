@@ -2,6 +2,7 @@ using PowerUtilities;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using System.Text.RegularExpressions;
 using UnityEngine;
 
@@ -10,10 +11,12 @@ namespace GameUtilsFramework
     public static class SkinnedMeshRendererEx
     {
 
-        public static void RetargetBones(this SkinnedMeshRenderer skinned,string lastRootBoneName, Transform newRootBone,Func<string,string> onReplaceOldPath = null)
+        public static string RetargetBones(this SkinnedMeshRenderer skinned,string lastRootBoneName, Transform newRootBone,Func<string,string> onReplaceOldPath = null)
         {
             if (!skinned || !newRootBone)
-                return;
+                return "";
+
+            var sb = new StringBuilder();
 
             var newBones = new Transform[skinned.bones.Length];
             for (int i = 0; i < skinned.bones.Length; i++)
@@ -32,10 +35,17 @@ namespace GameUtilsFramework
                 {
                     newBone = newRootBone;
                 }
+                // 
+                if (!newBone)
+                {
+                    sb.AppendLine($"Bone {i} {bonePath} not found in target");
+                }
 
                 newBones[i] = newBone; 
             }
             skinned.bones = newBones;
+
+            return sb.ToString();
         }
 
         public static string[] GetBonesPath(this SkinnedMeshRenderer skinned,string rootBoneName)
@@ -60,6 +70,5 @@ namespace GameUtilsFramework
             skinned.bones = bones;
         }
 
-        //public static 
     }
 }

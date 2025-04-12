@@ -56,8 +56,15 @@ namespace GameUtilsFramework
                 boneDepths[i] = path.Count(c => c == '/');
             }
         }
-
-        public static void DrawBoneInfos(SkinnedMeshRenderer skinned,string[] bonePaths,int[] boneDepths,ref Vector2 scrollPosition)
+        /// <summary>
+        /// Draw skinned mesh bones hierarchy,
+        /// </summary>
+        /// <param name="skinned"></param>
+        /// <param name="bonePaths"></param>
+        /// <param name="boneDepths"></param>
+        /// <param name="scrollPosition"></param>
+        /// <param name="diffSkinned"> show diff hierarchy</param>
+        public static void DrawBoneInfos(SkinnedMeshRenderer skinned,string[] bonePaths,int[] boneDepths,ref Vector2 scrollPosition,SkinnedMeshRenderer diffSkinned = null)
         {
             EditorGUILayout.HelpBox($"{skinned} bones {skinned.bones.Length}", MessageType.Info);
 
@@ -69,20 +76,35 @@ namespace GameUtilsFramework
             Undo.RecordObject(skinned, "Before change "+skinned.name);
             for (int i = 0; i < skinned.bones.Length; i++)
             {
+                var bonePath = bonePaths[i];
                 var boneTr = bones[i];
 
                 EditorGUI.indentLevel = boneDepths[i];
 
+                GUI.color = boneTr ? Color.white : Color.red;
                 EditorGUITools.BeginHorizontalBox(() =>
                 {
                     GUILayout.Label(i.ToString(), GUILayout.Width(20));
                     bones[i] = (Transform)EditorGUILayout.ObjectField(boneTr, typeof(Transform), true);
+
+                    // show diff
+                    if (diffSkinned)
+                    {
+                        var diffBone = diffSkinned.bones[i];
+                        if (diffBone)
+                        {
+                            EditorGUILayout.SelectableLabel($"{diffBone.name}",GUILayout.Height(18));
+                        }
+                    }
                 });
             }
             EditorGUILayout.EndScrollView();
             EditorGUI.indentLevel = indent;
             //reaasign again
             skinned.bones = bones;
+
+
+            GUI.color = Color.white;
         }
     }
 }

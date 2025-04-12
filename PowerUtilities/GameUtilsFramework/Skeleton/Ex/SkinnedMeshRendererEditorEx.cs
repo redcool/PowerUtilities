@@ -16,20 +16,32 @@ namespace PowerUtilities
     [CanEditMultipleObjects]
     public class SkinnedMeshRendererEditorEx : Editor
     {
+        Type defaultEditorType;
         Editor defaultEditor;
 
         bool isShowSkeleton;
         private Vector2 scrollPosition;
-        private Dictionary<(object inst, string methodName), Delegate> methodNameDelegateDict = new();
+        // diff with this
+        GUIContent diffSkinnedGUI = new GUIContent("Diff Skinned", "sync show original skinned skeleton");
+        SkinnedMeshRenderer diffSkinned;
+
+        MethodInfo onSceneGUIMethod, onEnableMethod;
 
         public void OnEnable()
         {
+            if (defaultEditorType == null)
+                defaultEditorType = Assembly.GetAssembly(typeof(Editor)).GetType("UnityEditor.SkinnedMeshRendererEditor");
             if (defaultEditor == null)
             {
-                var defaultEditorType = Assembly.GetAssembly(typeof(Editor)).GetType("UnityEditor.SkinnedMeshRendererEditor");
                 defaultEditor = CreateEditor(targets, defaultEditorType);
             }
-            InvokeDefaultEditorMethod(nameof(OnEnable));
+
+            if (onSceneGUIMethod == null)
+                onSceneGUIMethod = defaultEditorType.GetMethod("OnSceneGUI", ReflectionTools.instanceBindings);
+            if (onEnableMethod == null)
+                onEnableMethod = defaultEditorType.GetMethod("OnEnable", ReflectionTools.instanceBindings);
+
+            DelegateEx.GetOrCreate<Action>(defaultEditor, onEnableMethod).Invoke();
         }
 
         public override void OnInspectorGUI()
@@ -38,32 +50,25 @@ namespace PowerUtilities
             defaultEditor.OnInspectorGUI();
 
             EditorGUITools.DrawColorLine(1);
-            // show skeleton
+            // show skeleton foldout
             isShowSkeleton = EditorGUILayout.BeginFoldoutHeaderGroup(isShowSkeleton, "Show Skeleton");
             if (isShowSkeleton)
             {
+                // show diff
+                diffSkinned = (SkinnedMeshRenderer)EditorGUILayout.ObjectField(diffSkinnedGUI, diffSkinned, typeof(SkinnedMeshRenderer), true);
+
+                // show cur skinned skeleton
                 var skinned = target as SkinnedMeshRenderer;
                 SkinnedMeshRendererInfoWin.InitBoneInfos(skinned, out var bonePaths, out var boneDepths);
-                SkinnedMeshRendererInfoWin.DrawBoneInfos(skinned, bonePaths, boneDepths, ref scrollPosition);
+                SkinnedMeshRendererInfoWin.DrawBoneInfos(skinned, bonePaths, boneDepths, ref scrollPosition, diffSkinned);
             }
             EditorGUILayout.EndFoldoutHeaderGroup();
         }
 
-
-        public void InvokeDefaultEditorMethod(string methodName)
-        {
-            //defaultEditor.GetType().InvokeMethod(methodName, Type.EmptyTypes, defaultEditor, default);
-
-            //defaultEditor.GetType().GetDelegate(defaultEditor,methodName, ReflectionTools.instanceBindings, Type.EmptyTypes).DynamicInvoke();
-            DelegateEx.GetOrCreate<Action>(
-                defaultEditor, 
-                defaultEditor.GetType().GetMethod(methodName, ReflectionTools.instanceBindings)
-                )?.DynamicInvoke();
-        }
-
         public void OnSceneGUI()
         {
-            InvokeDefaultEditorMethod(nameof(OnSceneGUI));
+            //onSceneGUIMethod.CreateDelegate(defaultEditor).DynamicInvoke();
+            DelegateEx.GetOrCreate<Action>(defaultEditor, onSceneGUIMethod).Invoke();
         }
     }
 }
