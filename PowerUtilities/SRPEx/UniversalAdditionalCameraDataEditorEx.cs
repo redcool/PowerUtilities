@@ -18,21 +18,29 @@ namespace PowerUtilities
             transparentSortModeContent = new GUIContent("TransparentSortMode", "transparent items sorting mode"),
             transparentSortAxis = new GUIContent("transparentSortAxis", "transparentSort Axis"),
             opaqueSortModeContent = new GUIContent("opaqueSortMode", "opaque items sorting mode"),
-            cameraDepthContent = new GUIContent("Depth","camera 's rendering order"),
+            cameraDepthContent = new GUIContent("Depth", "camera 's rendering order"),
             camerasContent = new GUIContent("Cameras", "setup overlay cameras,will sync CameraEditor"),
-            opaqueTextureContent = new GUIContent("Opaque Texture","setup opaque Texture override")
-            ;
+            opaqueTextureContent = new GUIContent("Opaque Texture", "setup opaque Texture override"),
+            showDefaultSettings = new GUIContent("Default Camera Settings", "show all AdditionalCameraData properties");
+
+        bool isFoldDefaultSettings;
 
         public override void OnInspectorGUI()
         {
             var data = target as UniversalAdditionalCameraData;
             var cam = data.GetComponent<Camera>();
 
-            //DrawDefaultInspector();
+
+            EditorGUI.indentLevel++;
+            EditorGUITools.DrawFoldContent(showDefaultSettings, ref isFoldDefaultSettings, () =>
+            {
+                DrawDefaultInspector();
+            });
+
+            EditorGUITools.DrawColorLine(1);
 
             serializedObject.UpdateIfRequiredOrScript();
 
-            EditorGUI.indentLevel++;
             DrawCameras();
 
             DrawCameraSortMode(data,cam);
@@ -43,9 +51,8 @@ namespace PowerUtilities
             // show opaque texture
             EditorGUILayout.PropertyField(serializedObject.FindProperty("m_RequiresOpaqueTextureOption"), opaqueTextureContent);
 
-            EditorGUI.indentLevel--;
-
             serializedObject.ApplyModifiedProperties();
+            EditorGUI.indentLevel--;
         }
 
         private void DrawCameraSortMode(UniversalAdditionalCameraData data, Camera cam)

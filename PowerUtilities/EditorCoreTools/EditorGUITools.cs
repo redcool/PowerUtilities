@@ -175,28 +175,25 @@ namespace PowerUtilities
         /// </summary>
         /// <param name="foldInfo"></param>
         /// <param name="drawContentAction"></param>
-        public static void DrawFoldContent(ref (string title, bool fold) foldInfo, Action drawContentAction)
-        {
-            DrawFoldContent(foldInfo.title, ref foldInfo.fold, drawContentAction, GUI.contentColor);
-        }
-        public static void DrawFoldContent(string title, ref bool fold,Action drawContentAction)
-        {
-            DrawFoldContent(title,ref fold, drawContentAction, GUI.contentColor);
-        }
-        public static void DrawFoldContent(ref (string title, bool fold) foldInfo, Action drawContentAction, Color titleColor, float space = 1)
+        public static void DrawFoldContent(ref (string title, bool fold) foldInfo, Action drawContentAction, Color titleColor=default, float space = 1)
         {
             DrawFoldContent(foldInfo.title, ref foldInfo.fold, drawContentAction, titleColor, space);
         }
-        public static void DrawFoldContent(string title, ref bool fold, Action drawContentAction, Color titleColor, float space = 1)
+        
+        public static void DrawFoldContent(string title, ref bool fold, Action drawContentAction, Color titleColor=default, float space = 1)
+            => DrawFoldContent(new GUIContent(title), ref fold, drawContentAction, titleColor, space);
+
+        public static void DrawFoldContent(GUIContent title, ref bool fold, Action drawContentAction, Color titleColor=default, float space = 1)
         {
             var lastColor = GUI.contentColor;
-            GUI.contentColor = titleColor;
+            if(titleColor != default)
+                GUI.contentColor = titleColor;
 
             var lastBg = GUI.backgroundColor;
             GUI.backgroundColor = Color.gray;
 
             // draw title button bar
-            EditorGUILayout.BeginVertical("Button");
+            EditorGUILayout.BeginVertical(EditorStylesEx.box);
             fold = EditorGUILayout.Foldout(fold, title, true);
             EditorGUILayout.Space(space);
             EditorGUILayout.EndVertical();

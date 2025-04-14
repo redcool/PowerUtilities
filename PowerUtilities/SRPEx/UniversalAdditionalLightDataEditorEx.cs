@@ -18,17 +18,24 @@ namespace PowerUtilities
 
         readonly GUIContent BakingOutputContent = new GUIContent("Output", "setup light baking output");
 
+        GUIContent showDefaultSettings = new GUIContent("ShowDefaultSettings","Show all AdditionalLightData paramerters");
+        bool isFoldShowDefaultSettings;
+
         public override void OnInspectorGUI()
         {
-            //DrawDefaultInspector();
-
-            serializedObject.UpdateIfRequiredOrScript();
             EditorGUI.indentLevel++;
+            serializedObject.UpdateIfRequiredOrScript();
 
+            EditorGUITools.DrawFoldContent(showDefaultSettings,ref isFoldShowDefaultSettings, () =>
+            {
+                DrawDefaultInspector();
+            });
+
+            EditorGUITools.DrawColorLine(1);
             DrawLightBakingSettings();
 
-            EditorGUI.indentLevel--;
             serializedObject.ApplyModifiedProperties();
+            EditorGUI.indentLevel--;
         }
 
         private void DrawLightBakingSettings()
