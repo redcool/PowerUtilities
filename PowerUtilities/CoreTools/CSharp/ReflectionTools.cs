@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using UnityEngine;
 
 namespace PowerUtilities
 {
@@ -435,9 +436,11 @@ namespace PowerUtilities
         /// <summary>
         /// Copy readTarget's fieldInfos to writeTarget same named fieldInfos
         /// </summary>
-        /// <param name="readTarget"></param>
-        /// <param name="writeTarget"></param>
-        public static void CopyFieldInfoValues(object readTarget,object writeTarget,BindingFlags bindingFlags = instanceBindings)
+        /// <param name="readTarget">read field from this</param>
+        /// <param name="writeTarget">write field to this</param>
+        /// <param name="bindingFlags">filed binding flags</param>
+        /// <param name="onSetValue"> onSetValue: (readValue, writeValue),1 : result value object,2 : read value object,3 : write value object</param>
+        public static void CopyFieldInfoValues(object readTarget,object writeTarget,BindingFlags bindingFlags = instanceBindings,Func<object, object,object> onSetValue = null)
         {
             var readType = readTarget.GetType();
             var writeType = writeTarget.GetType();
@@ -457,11 +460,24 @@ namespace PowerUtilities
                 {
                     writeTargetFieldDict.Add(readField.Name, writeType.GetField(readField.Name));
                 }
+
                 //2 get key
                 if(!writeTargetFieldDict.TryGetValue(readField.Name,out var writeField) || writeField == null)
                     continue;
 
-                writeField.SetValue(writeTarget, readField.GetValue(readTarget));
+                //3 set value
+                if (onSetValue == null)
+                {
+                    writeField.SetValue(writeTarget, readField.GetValue(readTarget));
+                }
+                else
+                {
+                    var readValue = readField.GetValue(readTarget);
+                    var writeValue = writeField.GetValue(writeTarget);
+
+                    var result = onSetValue.Invoke(readValue, writeValue);
+                    writeField.SetValue(writeTarget, result);
+                }
             }
         }
     }
