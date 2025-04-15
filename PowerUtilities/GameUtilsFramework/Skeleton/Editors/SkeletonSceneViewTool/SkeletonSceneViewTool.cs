@@ -13,13 +13,19 @@ namespace GameUtilsFramework
 
     public class SkeletonSceneViewTool
     {
+
+        const string SKELETON_VIEW_TOOL_DATA_PATH = "Assets/PowerUtilities/SkeletonData.asset";
+
         static SkeletonSceneViewToolData skeletonToolData = null;
+
+        static readonly GUIContent optionsGUI = new GUIContent("Options", "Open Options");
+
         public static SkeletonSceneViewToolData SkeletonToolData
         {
             get
             {
                 if (skeletonToolData == null)
-                    LoadDefaultSkeletonData(ref skeletonToolData);
+                    skeletonToolData = ScriptableObjectTools.CreateGetInstance<SkeletonSceneViewToolData>(SKELETON_VIEW_TOOL_DATA_PATH);
                 return skeletonToolData;
             }
         }
@@ -216,32 +222,16 @@ namespace GameUtilsFramework
                     data.isShowWeights = GUILayout.Toggle(data.isShowWeights, "Show Weights");
                     data.isShowHierarchy = GUILayout.Toggle(data.isShowHierarchy, "Show Hierarchy");
                     data.isKeepChildren = GUILayout.Toggle(data.isKeepChildren, "Keep Children");
+
+                    if (GUILayout.Button(optionsGUI))
+                    {
+                        Selection.activeObject = data;
+                        EditorGUIUtility.PingObject(data);
+                    }
                 }
             }
             GUILayout.EndHorizontal();
             GUILayout.EndArea();
-        }
-
-        private static void LoadDefaultSkeletonData(ref SkeletonSceneViewToolData data)
-        {
-            if (data)
-                return;
-
-            const string PATH = "Assets/PowerUtilities/SkeletonData.asset";
-            var items = AssetDatabaseTools.FindAssetsInProject<SkeletonSceneViewToolData>("SkeletonData");
-            if (items.Length == 0)
-            {
-                PathTools.CreateAbsFolderPath(PATH);
-                AssetDatabase.Refresh();
-
-                data = ScriptableObject.CreateInstance<SkeletonSceneViewToolData>();
-                AssetDatabase.CreateAsset(data, PATH);
-            }
-            else
-            {
-                data = items[0];
-            }
-
         }
 
         private static void DrawSkeletonHierarchy(SkeletonSceneViewToolData data)
@@ -251,15 +241,25 @@ namespace GameUtilsFramework
 
             if (data.skinned)
             {
-                data.skinned.bones.ForEach(b => {
-                    if (b && b.parent && data.skinned.bones.Contains(b.parent)){
+                var lastHandlerColor = Handles.color;
+                Handles.color = data.boneHierarchyLineColor;
+                data.skinned.bones.ForEach(b =>
+                {
+                    if (b && b.parent && data.skinned.bones.Contains(b.parent))
+                    {
                         var p1 = HandleUtility.WorldToGUIPoint(b.position);
                         var p2 = HandleUtility.WorldToGUIPoint(b.parent.position);
-                        Handles.DrawLine(p1,p2,3);
+                        //Handles.DrawLine(p1, p2, data.boneHierarchyLineWidth);
+                        Handles.DrawAAPolyLine(data.boneHierarchyLineWidth, p1, p2);
                     }
-                }
-                );
-                DrawJoints(data.skinned.bones);
+                });
+                Handles.color = lastHandlerColor;
+
+                EditorGUITools.DrawColorUI(() =>
+                {
+                    DrawJoints(data.skinned.bones);
+                }, GUI.contentColor, data.jointColor);
+
             }
 
             /* 

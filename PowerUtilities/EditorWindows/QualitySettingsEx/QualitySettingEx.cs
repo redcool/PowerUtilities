@@ -1,14 +1,14 @@
 ﻿namespace PowerUtilities
 {
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
 
-using UnityEngine;
-using UnityEngine.Rendering;
-using Random = UnityEngine.Random;
+    using UnityEngine;
+    using UnityEngine.Rendering;
+    using Random = UnityEngine.Random;
 
     [ProjectSettingGroup(ProjectSettingGroupAttribute.POWER_UTILS + "/Project/QualitySettingEx")]
     [SOAssetPath("Assets/PowerUtilities/Resources/QualitySettingEx.asset")]
@@ -26,7 +26,7 @@ using Random = UnityEngine.Random;
 
             [Tooltip("component count(like :particle System Count),exceed is disabled from top to down")]
             [Min(0)]
-            public int componentCount=3;
+            public int componentCount = 3;
         }
 
         /// <summary>
@@ -48,7 +48,7 @@ using Random = UnityEngine.Random;
             public RuntimePlatform[] platform;
             public RenderPipelineAsset defaultAsset;
 
-            [ListItemDraw("qLV:,qualityLevel,assets:,pipelineAsset","50,100,50,250")]
+            [ListItemDraw("qLV:,qualityLevel,assets:,pipelineAsset", "50,100,50,250")]
             public List<QualityPipelineAsset> qualityPipelineAssets = new();
 
         }
@@ -57,14 +57,14 @@ using Random = UnityEngine.Random;
         /// </summary>
         [HelpBox]
         public string helpBoxControlChildrenCount = "control gameobject's max children count";
-        
+
         [ListItemDraw("qLv:,qualityLevel,CompCount:,componentCount", "100,100,100,50")]
         public List<QualityInfo> infos = new();
 
         /// <summary>
         /// manage platform quality renderPipelineAsset
         /// </summary>
-        [EditorBorder(1,bottomColorStr: ColorTools.LIGHT_GREEN)]
+        [EditorBorder(1, bottomColorStr: ColorTools.LIGHT_GREEN)]
         [HelpBox]
         public string helpBoxPlatformPipelineAsset = "manage platform quality renderPipelineAsset";
 
@@ -81,7 +81,7 @@ using Random = UnityEngine.Random;
         /// <summary>
         /// Buttons( hbox)
         /// </summary>
-        [EditorBox("Options", "isApplyPipelineAssetsByEditorBuildTarget,isCleanPipelineAssets",boxType = EditorBoxAttribute.BoxType.HBox)]
+        [EditorBox("Options", "isApplyPipelineAssetsByEditorBuildTarget,isCleanPipelineAssets", boxType = EditorBoxAttribute.BoxType.HBox)]
         [EditorButton(onClickCall = "ApplyPipelineAssetsByEditorBuildTarget")]
         [Tooltip("use profiles match current build target platform")]
         public bool isApplyPipelineAssetsByEditorBuildTarget;
@@ -126,14 +126,14 @@ using Random = UnityEngine.Random;
             OnEditorDisable();
         }
 
-        public QualityInfo GetInfo(int qLevel) 
+        public QualityInfo GetInfo(int qLevel)
         {
-            return infos.Find((QualityInfo info )=> info.qualityLevel == qLevel);
+            return infos.Find((QualityInfo info) => info.qualityLevel == qLevel);
         }
 
         public void ApplyPipelineAssets(PlatformQualityPipelineAsset asset)
         {
-            if(asset.defaultAsset)
+            if (asset.defaultAsset)
                 GraphicsSettings.defaultRenderPipeline = asset.defaultAsset;
 
             for (int i = 0; i < asset.qualityPipelineAssets.Count; i++)
@@ -192,7 +192,7 @@ using Random = UnityEngine.Random;
 
             foreach (var info in platformQualityPipelineAssets)
             {
-                if(info.platform.Contains(platform))
+                if (info.platform.Contains(platform))
                 {
                     return info;
                 }

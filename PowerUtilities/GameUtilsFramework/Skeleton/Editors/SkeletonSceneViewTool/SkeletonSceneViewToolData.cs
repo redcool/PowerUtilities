@@ -24,9 +24,23 @@ namespace GameUtilsFramework
         public bool isShowWeights;
         public List<Vector3> bonesScreenPosList = new List<Vector3>();
 
+        [Header("Skin Weight color")]
+        [Tooltip("material show vertex skin weight, use ShowVertexColor.shader")]
         public Material weightMat;
+
+        [Tooltip("bone weight vertex color")]
+        [ColorUsage(true, true)]
         public Color weightColor = Color.white;
 
+        [Tooltip("joint point color")]
+        [ColorUsage(true, true)]
+        public Color jointColor = Color.gray;
+
+        [Header("Skeleton color")]
+        [ColorUsage(true, true)]
+        [Tooltip("bone line color")]
+        public Color boneHierarchyLineColor;
+        public float boneHierarchyLineWidth =4;
         ///
         public bool isSceneViewMouseDown;
         public bool isSceneViewMouseDrag;
