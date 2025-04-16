@@ -439,7 +439,7 @@ namespace PowerUtilities
         /// <param name="readTarget">read field from this</param>
         /// <param name="writeTarget">write field to this</param>
         /// <param name="bindingFlags">filed binding flags</param>
-        /// <param name="onSetValue"> onSetValue: (readValue, writeValue),1 : result value object,2 : read value object,3 : write value object</param>
+        /// <param name="onSetValue"> onSetValue: (readValue, writeValue), result default result is readValue </param>
         public static void CopyFieldInfoValues(object readTarget,object writeTarget,BindingFlags bindingFlags = instanceBindings,Func<object, object,object> onSetValue = null)
         {
             var readType = readTarget.GetType();
