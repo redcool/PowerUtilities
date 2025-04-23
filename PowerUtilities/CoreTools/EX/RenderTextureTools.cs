@@ -69,6 +69,12 @@ namespace PowerUtilities
         /// <param name="name"></param>
         public static void CreateRT(ref RenderTexture rt,RenderTextureDescriptor desc,string name,FilterMode filterMode)
         {
+            // clone rt info,recreate it
+            if(rt.name != name)
+            {
+                rt = null;
+            }
+            // camera size changed
             if (!rt.IsNeedAlloc(desc))
             {
                 AddRT(rt, name);

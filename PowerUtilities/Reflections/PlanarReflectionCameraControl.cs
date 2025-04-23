@@ -14,11 +14,13 @@
     [ExecuteAlways]
     public class PlanarReflectionCameraControl : MonoBehaviour
     {
-        [Header("Reflection Camera")]
+        [Header("Create reflection target")]
+        [Tooltip("Create rt named reflectionTextureName,uncheck when use SFC/CreateRenderTarget")]
         public bool isCreateReflectionRT = true;
         [Tooltip("property name in shader")]
         public string reflectionTextureName = "_ReflectionTexture";
 
+        [Header("Reflection Camera")]
         [Tooltip("which layer reflection camera can see")]
         public LayerMask layers = -1;
 
