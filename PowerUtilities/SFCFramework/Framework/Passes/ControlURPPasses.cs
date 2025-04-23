@@ -16,7 +16,7 @@ namespace PowerUtilities.RenderFeatures
     /// 1 control copy pass when run
     /// 2 remove passes not want
     /// </summary>
-    [Tooltip("Control Camera's Texture Execution order (Depth,Color,MotionVaetor,Normal)")]
+    [Tooltip("1 Control Camera's Texture Execution order (Depth,Color,MotionVaetor,Normal), \n 2 Remove URP Pass(CopyDepth,FinalBlit)")]
     [CreateAssetMenu(menuName = SRP_FEATURE_PASSES_MENU+"/"+nameof(ControlURPPasses))]
     public class ControlURPPasses : SRPFeature
     {
