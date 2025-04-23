@@ -6,6 +6,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+using Object = UnityEngine.Object;
 
 namespace PowerUtilities
 {
@@ -15,6 +16,7 @@ namespace PowerUtilities
     class UniversalAdditionalCameraDataEditorEx : Editor
     {
         readonly GUIContent
+            rendererGUI = new GUIContent("Renderer","srp renderer current used"),
             transparentSortModeContent = new GUIContent("TransparentSortMode", "transparent items sorting mode"),
             transparentSortAxis = new GUIContent("transparentSortAxis", "transparentSort Axis"),
             opaqueSortModeContent = new GUIContent("opaqueSortMode", "opaque items sorting mode"),
@@ -51,7 +53,17 @@ namespace PowerUtilities
             // show opaque texture
             EditorGUILayout.PropertyField(serializedObject.FindProperty("m_RequiresOpaqueTextureOption"), opaqueTextureContent);
 
+
             serializedObject.ApplyModifiedProperties();
+            /**
+             dont modify serializedObject
+             */
+            // srp renderer
+            var rendererId = serializedObject.FindProperty("m_RendererData");
+            var rendererData = data.GetRendererData<UniversalRendererData>();
+            EditorGUILayout.ObjectField(rendererGUI, rendererData, typeof(UniversalRendererData), true);
+
+
             EditorGUI.indentLevel--;
         }
 
