@@ -197,7 +197,7 @@ namespace PowerUtilities
         /// <returns></returns>
         private bool IsNeedStopShadow()
         {
-            var isUseLightObjButNotExists = settingSO.isUseLightTransform && !string.IsNullOrEmpty(settingSO.lightTag) & !lightObj;
+            var isUseLightObjButNotExists = settingSO.isUseLightTransform && !string.IsNullOrEmpty(settingSO.lightTag) && !lightObj;
             var isDontNeedDrawShadow = settingSO.layers == 0;
             return isUseLightObjButNotExists || isDontNeedDrawShadow;
         }
