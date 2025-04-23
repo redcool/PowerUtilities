@@ -120,8 +120,8 @@ namespace PowerUtilities.RenderFeatures
         /// </summary>
         /// <returns></returns>
         public virtual bool CanExecute()
-        { 
-            if(Feature == null || !Feature.enabled)
+        {
+            if (Feature == null || !Feature.enabled)
                 return false;
 
             if (Feature.isEditorOnly)
@@ -129,13 +129,15 @@ namespace PowerUtilities.RenderFeatures
 
             //check event
             var isMonoPass = true;
-            if(OnCanExecute != null)
+            if (OnCanExecute != null)
                 isMonoPass = OnCanExecute.Invoke(this);
 
-            if (camera && camera.IsGameCamera() &&!string.IsNullOrEmpty(Feature.gameCameraTag))
-                return IsGameCameraValid(camera) && isMonoPass;
+            //check gameCamera
+            var isGameCamPass = true;
+            if (camera && camera.IsGameCamera() && !string.IsNullOrEmpty(Feature.gameCameraTag))
+                isGameCamPass = IsGameCameraValid(camera);
 
-            return true;
+            return isGameCamPass && isMonoPass;
         }
 
         public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)

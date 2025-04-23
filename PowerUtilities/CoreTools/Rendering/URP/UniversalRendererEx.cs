@@ -199,6 +199,25 @@ namespace PowerUtilities
 
         public static RTHandle GetCameraOpaqueTexture(this UniversalRenderer renderer, bool forceMode = false)
         => renderer.GetRTHandle(URPRTHandleNames._CameraOpaqueTexture, forceMode);
+
+        /// <summary>
+        /// Find rtId from
+        /// 1 URP'S RTHandle dict
+        /// 2 RenderTextureTools dict(createRenderTarget)
+        /// </summary>
+        /// <param name="rtName"></param>
+        /// <param name="rtid"></param>
+        public static void FindTarget(this UniversalRenderer renderer, string rtName, ref RenderTargetIdentifier rtid)
+        {
+            if (string.IsNullOrEmpty(rtName))
+                return;
+
+#if UNITY_2022_1_OR_NEWER
+            renderer.TryReplaceURPRTTarget(rtName, ref rtid);
+#endif
+            if (RenderTextureTools.TryGetRT(rtName, out var rt))
+                rtid = rt;
+        }
     }
 
 }

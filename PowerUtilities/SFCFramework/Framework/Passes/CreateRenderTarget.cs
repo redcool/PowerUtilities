@@ -73,17 +73,11 @@ namespace PowerUtilities.RenderFeatures
 
             cmd.CreateTargets(camera, Feature.colorTargetInfos, renderScale, samples);
         }
-        public override void Configure(CommandBuffer cmd, RenderTextureDescriptor cameraTextureDescriptor)
-        {
-            //CreateTargets(cmd);
-        }
+
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
         {
             CreateTargets(cmd);
         }
-        public override void OnFinishCameraStackRendering(CommandBuffer cmd)
-        {
-            base.OnFinishCameraStackRendering(cmd);
-        }
+
     }
 }

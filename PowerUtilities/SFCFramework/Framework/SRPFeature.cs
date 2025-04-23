@@ -100,7 +100,7 @@
         [Tooltip("Compared properties ")]
         public CameraCompareType gameCameraCompareType = CameraCompareType.Tag;
 
-        [Tooltip("Which camera can run this pass ? only work for Game Camera")]
+        [Tooltip("Which camera can run this pass ? only work for Game Camera, empty for all camera")]
 #if UNITY_EDITOR
         [StringListSearchable(type = typeof(TagManager), staticMemberName = nameof(TagManager.GetTags))]
 #endif

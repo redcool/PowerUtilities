@@ -75,17 +75,15 @@ namespace PowerUtilities
                 return;
             }
 
+            Debug.Log("create new rt");
             if (rt)
             {
                 DestroyRT(name);
             }
-
             rt = new RenderTexture(desc);
             rt.filterMode = filterMode;
             rt.Create();
             rt.name = name;
-
-            Shader.SetGlobalTexture(name, rt);
 
             AddRT(rt, name);
         }
@@ -117,8 +115,9 @@ namespace PowerUtilities
         {
             if (string.IsNullOrEmpty(name) || !rt)
                 return;
-
             createdRenderTextureDict[name] = rt;
+            // set global texture
+            Shader.SetGlobalTexture(name, rt);
         }
 
         /// <summary>

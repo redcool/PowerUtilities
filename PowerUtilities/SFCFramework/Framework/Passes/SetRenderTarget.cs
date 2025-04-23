@@ -225,6 +225,10 @@ namespace PowerUtilities.RenderFeatures
 
         private void SetupColorIds(UniversalRenderer renderer)
         {
+            /**
+                1 convert rtName to RenderTargetIdentifier
+                2 get rt from RenderTextureTools.TryGetRT(rtName,out var rt) , createRenderTarget's result
+             */
             RenderingTools.RenderTargetNameToIdentifier(Feature.colorTargetNames, ref colorIds);
 #if UNITY_2022_1_OR_NEWER
             renderer.TryReplaceURPRTTargets(Feature.colorTargetNames, ref colorIds);
