@@ -31,7 +31,6 @@ namespace PowerUtilities.RenderFeatures
         public override ScriptableRenderPass GetPass() => new ControlURPPassesPass(this);      
     }
 
-
     public class ControlURPPassesPass : SRPPass<ControlURPPasses>
     {
         /// <summary>
@@ -43,11 +42,21 @@ namespace PowerUtilities.RenderFeatures
         {
         }
 
+        public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
+        {
+            base.OnCameraSetup(cmd, ref renderingData);
+            if (!CanExecute())
+                return;
+
+            RemovePasses(cmd,ref renderingData);
+        }
+
+        // use OnCameraSetup 
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
         {
         }
 
-        public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
+        public void RemovePasses(CommandBuffer cmd, ref RenderingData renderingData)
         {
             ConfigureInput(Feature.passInputType);
 

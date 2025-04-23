@@ -85,6 +85,8 @@ namespace PowerUtilities
             rt.Create();
             rt.name = name;
 
+            Shader.SetGlobalTexture(name, rt);
+
             AddRT(rt, name);
         }
 

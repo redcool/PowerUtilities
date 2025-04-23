@@ -1,5 +1,6 @@
 ﻿namespace PowerUtilities
 {
+    using PowerUtilities.RenderFeatures;
     using System;
     using System.Collections;
     using System.Collections.Generic;
@@ -14,7 +15,7 @@
     public class PlanarReflectionCameraControl : MonoBehaviour
     {
         [Header("Reflection Camera")]
-        
+        public bool isCreateReflectionRT = true;
         [Tooltip("property name in shader")]
         public string reflectionTextureName = "_ReflectionTexture";
 
@@ -49,6 +50,8 @@
         [Header("Debug")]
         [EditorDisableGroup] public Camera reflectionCam;
         [EditorDisableGroup] public RenderTexture reflectionRT;
+
+        [EditorDisableGroup] public SRPFeature curDrawObjects;
         int lastWidth, lastHeight;
 
         // Start is called before the first frame update
@@ -65,9 +68,15 @@
                 enabled = false;
                 return;
             }
-            
+
+            SRPPass<DrawObjects>.OnBeforeExecute -= OnBeforeExecute;
+            SRPPass<DrawObjects>.OnBeforeExecute += OnBeforeExecute;
         }
 
+        private void OnDisable()
+        {
+            SRPPass<DrawObjects>.OnBeforeExecute -= OnBeforeExecute;
+        }
         private void LateUpdate()
         {
 #if UNITY_EDITOR
@@ -87,10 +96,15 @@
             var width = mainCam.pixelWidth>> samples;
             var height = mainCam.pixelHeight >> samples;
 
-            TryCreateReflectionRT(ref reflectionRT, width, height, isGenerateMips);
+            if (isCreateReflectionRT)
+            {
+                TryCreateReflectionRT(ref reflectionRT, width, height, isGenerateMips);
+                reflectionCam.targetTexture = reflectionRT;
+                Shader.SetGlobalTexture(reflectionTextureName, reflectionRT);
+            }
+
             SetupReflectionCameraStates();
             RenderReflection();
-            SendToShader();
         }
         private void OnDestroy()
         {
@@ -98,6 +112,13 @@
                 reflectionRT.Destroy();
         }
 
+        private void OnBeforeExecute(SRPPass<DrawObjects> pass)
+        {
+            if (pass.Feature.gameCameraTag == cameraTag)
+            {
+                curDrawObjects = pass.Feature;
+            }
+        }
         private void TryCreateReflectionRT(ref RenderTexture rt, int width, int height, bool isGenerateMips)
         {
             if (!rt || lastWidth != width || lastHeight != height)
@@ -112,23 +133,14 @@
                 rt.useMipMap = isGenerateMips;
                 rt.autoGenerateMips = isGenerateMips;
                 //rt.Create();
-                Debug.Log("create "+ lastWidth);
-            }
-            if (rt)
-            {
             }
         }
 
-
-        private void SendToShader()
-        {
-            Shader.SetGlobalTexture(reflectionTextureName, reflectionRT);
-        }
 
         private void SetupReflectionCameraStates()
         {
             reflectionCam.CopyFrom(mainCam);
-            reflectionCam.targetTexture = reflectionRT;
+            
             reflectionCam.cullingMask = layers;
             reflectionCam.backgroundColor = backgroundColor;
             reflectionCam.clearFlags = clearFlags;
@@ -208,7 +220,8 @@
                 tr = camGo.transform;
             }
             tr.parent = transform;
-            tr.gameObject.tag = cameraTag;
+            if(!string.IsNullOrEmpty(cameraTag))
+                tr.gameObject.tag = cameraTag;
             var cam = tr.gameObject.GetOrAddComponent<Camera>();
             SetupCameraAdditionalData(cam);
             return cam;
