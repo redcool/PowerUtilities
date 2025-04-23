@@ -75,7 +75,6 @@ namespace PowerUtilities
                 return;
             }
 
-            Debug.Log("create new rt");
             if (rt)
             {
                 DestroyRT(name);
