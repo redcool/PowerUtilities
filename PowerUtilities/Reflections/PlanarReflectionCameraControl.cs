@@ -57,17 +57,18 @@
         // Start is called before the first frame update
         void OnEnable()
         {
-            reflectionCam = GetOrCreateReflectionCamera("Reflection Camera");
             if (!mainCam)
             {
                 mainCam = Camera.main;
             }
-
             if (!mainCam)
             {
                 enabled = false;
                 return;
             }
+
+            reflectionCam = GetOrCreateReflectionCamera("Reflection Camera");
+
 
             SRPPass<DrawObjects>.OnBeforeExecute -= OnBeforeExecute;
             SRPPass<DrawObjects>.OnBeforeExecute += OnBeforeExecute;
@@ -90,21 +91,23 @@
             var addData = mainCam.GetUniversalAdditionalCameraData();
             var renderScale = UniversalRenderPipeline.asset.renderScale;
 
+
+            SetupReflectionCameraStates();
+            SetupReflectionCameraTransform();
+
+            if (isCreateReflectionRT)
+            {
             // avoid console error
             var samples = Application.isPlaying ? downSamples : 0;
 
             var width = mainCam.pixelWidth>> samples;
             var height = mainCam.pixelHeight >> samples;
-
-            if (isCreateReflectionRT)
-            {
                 TryCreateReflectionRT(ref reflectionRT, width, height, isGenerateMips);
                 reflectionCam.targetTexture = reflectionRT;
                 Shader.SetGlobalTexture(reflectionTextureName, reflectionRT);
             }
 
-            SetupReflectionCameraStates();
-            RenderReflection();
+            reflectionCam.Render();
         }
         private void OnDestroy()
         {
@@ -147,7 +150,7 @@
             reflectionCam.enabled = false;
         }
 
-        private void RenderReflection()
+        private void SetupReflectionCameraTransform()
         {
             Vector3 camForward, camUp, camPos;
 
@@ -162,8 +165,6 @@
 
             reflectionCam.transform.position = camPos;
             reflectionCam.transform.LookAt(camPos + camForward, camUp);
-
-            reflectionCam.Render();
         }
 
         /// <summary>
