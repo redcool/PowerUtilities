@@ -70,7 +70,7 @@ namespace PowerUtilities
         public static void CreateRT(ref RenderTexture rt,RenderTextureDescriptor desc,string name,FilterMode filterMode)
         {
             // clone rt info,recreate it
-            if(rt.name != name)
+            if(rt && rt.name != name)
             {
                 rt = null;
             }
