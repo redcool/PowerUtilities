@@ -100,21 +100,36 @@
             if (isCreateReflectionRT)
             {
                 // avoid console error
-                var samples = Application.isPlaying ? downSamples : 0;
-
-                var width = mainCam.pixelWidth >> samples;
-                var height = mainCam.pixelHeight >> samples;
-                TryCreateReflectionRT(ref reflectionRT, width, height, isGenerateMips);
-                reflectionCam.targetTexture = reflectionRT;
-                Shader.SetGlobalTexture(reflectionTextureName, reflectionRT);
+                CreateRT();
+            }
+            else
+            {
+                ClearRT();
             }
 
             reflectionCam.Render();
         }
-        private void OnDestroy()
+
+        private void CreateRT()
+        {
+            var samples = Application.isPlaying ? downSamples : 0;
+
+            var width = mainCam.pixelWidth >> samples;
+            var height = mainCam.pixelHeight >> samples;
+            TryCreateReflectionRT(ref reflectionRT, width, height, isGenerateMips);
+            reflectionCam.targetTexture = reflectionRT;
+            Shader.SetGlobalTexture(reflectionTextureName, reflectionRT);
+        }
+
+        void ClearRT()
         {
             if (reflectionRT)
                 reflectionRT.Destroy();
+        }
+
+        private void OnDestroy()
+        {
+            ClearRT();
         }
 
         private void OnBeforeExecute(SRPPass<DrawObjects> pass)

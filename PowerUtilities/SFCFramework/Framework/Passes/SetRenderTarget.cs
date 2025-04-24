@@ -21,6 +21,9 @@ namespace PowerUtilities.RenderFeatures
         [Tooltip("Set colors and depth target,skip setTargets when not check")]
         public bool isSetTargets = true;
 
+        [Tooltip("allocl renderTargetIdentifier per frame")]
+        public bool isForceReallocRtId = false;
+
         [Tooltip("When empty use CurrentActive,type CameraTarget use device's cameraTarget")]
         [StringListSearchable(type = typeof(CreateRenderTarget),staticMemberName = nameof(CreateRenderTarget.GetColorTargetNames))]
         public string[] colorTargetNames = new[] { nameof(ShaderPropertyIds._CameraColorAttachmentA) };
@@ -184,11 +187,11 @@ namespace PowerUtilities.RenderFeatures
             var renderer = (UniversalRenderer)cameraData.renderer;
 
             var isAllocColorIds = IsNeedAllocColorIds(renderer);
-            if (isAllocColorIds)
+            if (isAllocColorIds || Feature.isForceReallocRtId)
             {
                 SetupColorIds(renderer);
-
             }
+
             //* unity 2022,urp's bug(RenderingUtils.cs line 599(TextureDesc currentRTDesc = RTHandleResourcePool.CreateTextureDesc(handle.rt.descriptor, 
             depthId = SetupDepthId(renderer);
 
@@ -223,7 +226,7 @@ namespace PowerUtilities.RenderFeatures
             return depthId;
         }
 
-        private void SetupColorIds(UniversalRenderer renderer)
+        public void SetupColorIds(UniversalRenderer renderer)
         {
             /**
                 1 convert rtName to RenderTargetIdentifier
