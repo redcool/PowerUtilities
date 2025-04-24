@@ -11,8 +11,10 @@ namespace PowerUtilities
     /// </summary>
     public static class PassDrawer
     {
-        static GUIContent guiSceneView = new GUIContent("S", "pass can run in SceneView");
-        static GUIContent guiEditorOnly = new GUIContent("E", "only run in Unity Editor");
+        static readonly GUIContent guiSceneView = new GUIContent("S", "pass can run in SceneView"),
+            guiEditorOnly = new GUIContent("E", "only run in Unity Editor"),
+            enabledGUI = new GUIContent("","enable this pass"),
+            gameCameraTagGUI = new GUIContent("","which camera (tag) can run this pass");
 
         public static void DrawPassDetail(SerializedObject passItemSO, Color labelColor, SerializedProperty foldoutProp, GUIContent label)
         {
@@ -89,8 +91,8 @@ namespace PowerUtilities
             var gameCameraTag = passItemSO.FindProperty("gameCameraTag");
             if (gameCameraTag != null)
             {
-                var cameraTag = string.IsNullOrEmpty(gameCameraTag.stringValue) ? "" : gameCameraTag.stringValue;
-                EditorGUI.LabelField(pos, $"T: {cameraTag}");
+                var cameraTag = string.IsNullOrEmpty(gameCameraTag.stringValue) ? "All Camera" : gameCameraTag.stringValue;
+                EditorGUI.LabelField(pos, GUIContentEx.TempContent($"T: {cameraTag}", gameCameraTagGUI.tooltip));
             }
 
             //----- scene only
