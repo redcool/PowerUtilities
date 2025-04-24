@@ -30,9 +30,11 @@
         /// </summary>
         public int borderSize = 2;
         /// <summary>
-        /// unity editor GetHeight use 
+        /// unity editor GetHeight use, default 18
         /// </summary>
-        public int lineHeight = 18;
+        public int lineHeight = 0;
+
+        public string groupName;
 
         public EditorBorderAttribute(int lineCount, string leftColorStr = default, string topColorStr = default, string rightColorStr = default, string bottomColorStr = default)
         {

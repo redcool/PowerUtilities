@@ -32,7 +32,7 @@
         public string cameraTag = "ReflectionCamera";
 
         [Tooltip("texture's scale")]
-        [Range(0,4)]public int downSamples = 1;
+        [Range(0, 4)] public int downSamples = 1;
         [Tooltip("auto generate mipmaps")]
         public bool isGenerateMips = true;
 
@@ -47,7 +47,7 @@
         public Camera mainCam;
 
         [Header("Gizmos")]
-        [Min(1)]public int drawLineBoxCount = 3;
+        [Min(1)] public int drawLineBoxCount = 3;
 
         [Header("Debug")]
         [EditorDisableGroup] public Camera reflectionCam;
@@ -95,15 +95,15 @@
 
 
             SetupReflectionCameraStates();
-            SetupReflectionCameraTransform();
+            mainCam.transform.SetupReflectionCameraTransform(reflectionCam.transform, reflectionPlaneTr, planeYOffset);
 
             if (isCreateReflectionRT)
             {
-            // avoid console error
-            var samples = Application.isPlaying ? downSamples : 0;
+                // avoid console error
+                var samples = Application.isPlaying ? downSamples : 0;
 
-            var width = mainCam.pixelWidth>> samples;
-            var height = mainCam.pixelHeight >> samples;
+                var width = mainCam.pixelWidth >> samples;
+                var height = mainCam.pixelHeight >> samples;
                 TryCreateReflectionRT(ref reflectionRT, width, height, isGenerateMips);
                 reflectionCam.targetTexture = reflectionRT;
                 Shader.SetGlobalTexture(reflectionTextureName, reflectionRT);
@@ -145,73 +145,11 @@
         private void SetupReflectionCameraStates()
         {
             reflectionCam.CopyFrom(mainCam);
-            
+
             reflectionCam.cullingMask = layers;
             reflectionCam.backgroundColor = backgroundColor;
             reflectionCam.clearFlags = clearFlags;
             reflectionCam.enabled = false;
-        }
-
-        private void SetupReflectionCameraTransform()
-        {
-            Vector3 camForward, camUp, camPos;
-
-            if (reflectionPlaneTr)
-            {
-                GetReflection(reflectionPlaneTr, out camForward, out camUp, out camPos);
-            }
-            else
-            {
-                GetReflection(planeYOffset, out camForward, out camUp, out camPos);
-            }
-
-            reflectionCam.transform.position = camPos;
-            reflectionCam.transform.LookAt(camPos + camForward, camUp);
-        }
-
-        /// <summary>
-        /// xz plane
-        /// </summary>
-        /// <param name="planeY"></param>
-        /// <param name="camForward"></param>
-        /// <param name="camUp"></param>
-        /// <param name="camPos"></param>
-        private void GetReflection(float planeY, out Vector3 camForward, out Vector3 camUp, out Vector3 camPos)
-        {
-            camForward = mainCam.transform.forward;
-            camUp = mainCam.transform.up;
-            camPos = mainCam.transform.position;
-            camForward.y *= -1;
-            camUp.y *= -1;
-            camPos.y *= -1;
-
-            camPos.y += planeY;
-        }
-
-        /// <summary>
-        /// any plane
-        /// </summary>
-        /// <param name="reflectionPlane"></param>
-        /// <param name="camForward"></param>
-        /// <param name="camUp"></param>
-        /// <param name="camPos"></param>
-        void GetReflection(Transform reflectionPlane,out Vector3 camForward, out Vector3 camUp, out Vector3 camPos)
-        {
-            camForward = mainCam.transform.forward;
-            camUp = mainCam.transform.up;
-            camPos = mainCam.transform.position;
-
-            var camForwardPlaneSpace = reflectionPlane.InverseTransformDirection(camForward);
-            var camUpPlaneSpace = reflectionPlane.InverseTransformDirection(camUp);
-            var camPosPlaneSpace = reflectionPlane.InverseTransformPoint(camPos);
-
-            camForwardPlaneSpace.y *= -1;
-            camUpPlaneSpace.y *= -1;
-            camPosPlaneSpace.y *= -1;
-
-            camForward = reflectionPlane.TransformDirection(camForwardPlaneSpace);
-            camUp = reflectionPlane.TransformDirection(camUpPlaneSpace);
-            camPos = reflectionPlane.TransformPoint(camPosPlaneSpace);
         }
 
         Camera GetOrCreateReflectionCamera(string cameraName)
@@ -223,7 +161,7 @@
                 tr = camGo.transform;
             }
             tr.parent = transform;
-            if(!string.IsNullOrEmpty(cameraTag))
+            if (!string.IsNullOrEmpty(cameraTag))
                 tr.gameObject.tag = cameraTag;
             var cam = tr.gameObject.GetOrAddComponent<Camera>();
             SetupCameraAdditionalData(cam);
@@ -248,7 +186,7 @@
             if (!mainCam || !reflectionCam)
                 return;
 
-            DebugTools.DrawAxis(mainCam.transform.position, mainCam.transform.right * 10,mainCam.transform.up * 10,mainCam.transform.forward*10);
+            DebugTools.DrawAxis(mainCam.transform.position, mainCam.transform.right * 10, mainCam.transform.up * 10, mainCam.transform.forward * 10);
             DebugTools.DrawAxis(reflectionCam.transform.position, reflectionCam.transform.right * 10, reflectionCam.transform.up * 10, reflectionCam.transform.forward * 10);
 
             // draw xz plane,normal
@@ -263,12 +201,12 @@
             {
                 for (int i = 0; i < drawLineBoxCount; i++)
                     DrawReflectionPlane(Color.green, i * 5 + 5);
-                Debug.DrawRay(reflectionPlaneTr.position, reflectionPlaneTr.up*10, Color.green);
+                Debug.DrawRay(reflectionPlaneTr.position, reflectionPlaneTr.up * 10, Color.green);
             }
 
 
             //----------------
-            void DrawXZPlane(Color c,float len=5)
+            void DrawXZPlane(Color c, float len = 5)
             {
                 var l = Vector3.left * len + new Vector3(0, planeYOffset, 0);
                 var r = Vector3.right * len + new Vector3(0, planeYOffset, 0);
@@ -278,13 +216,13 @@
                 DebugTools.DrawLineStrip(new[] { l, f, r, n }, c);
             }
 
-            void DrawReflectionPlane(Color c,float len=5)
+            void DrawReflectionPlane(Color c, float len = 5)
             {
                 var pos = reflectionPlaneTr.position;
                 var right = reflectionPlaneTr.right * len;
                 var forward = reflectionPlaneTr.forward * len;
 
-                DebugTools.DrawLineStrip(new[] { pos - right, pos + forward, pos + right, pos - forward },c);
+                DebugTools.DrawLineStrip(new[] { pos - right, pos + forward, pos + right, pos - forward }, c);
             }
         }
 

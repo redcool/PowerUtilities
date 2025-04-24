@@ -59,5 +59,26 @@ namespace PowerUtilities
             camTr.position = pos;
             camTr.LookAt(pos + forward, up);
         }
+        /// <summary>
+        /// Setup reflection camera transform
+        /// </summary>
+        /// <param name="mainCamTr"></param>
+        /// <param name="reflectionCamTr"></param>
+        /// <param name="reflectionPlaneTr"></param>
+        /// <param name="planeYOffset"></param>
+        public static void SetupReflectionCameraTransform(this Transform mainCamTr,Transform reflectionCamTr,Transform reflectionPlaneTr,float planeYOffset=0)
+        {
+            Vector3 camForward, camUp, camPos;
+
+            if (reflectionPlaneTr)
+            {
+                mainCamTr.GetReflection(reflectionPlaneTr, out camForward, out camUp, out camPos);
+            }
+            else
+            {
+                mainCamTr.GetReflection(planeYOffset, out camForward, out camUp, out camPos);
+            }
+            reflectionCamTr.SetPosAndLookAt(camPos, camForward, camUp);
+        }
     }
 }

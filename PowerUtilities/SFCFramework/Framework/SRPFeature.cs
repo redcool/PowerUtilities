@@ -75,46 +75,62 @@
 
         public const string SRP_FEATURE_MENU = "PowerUtilities/SrpRenderFeatures";
         public const string SRP_FEATURE_PASSES_MENU = SRP_FEATURE_MENU + "/Passes";
+        const string PASS_OPTIONS_GROUP = "PassOptions";
 
-        [EditorBorder(19)]
-        [Header("Pass Options")]
+
+        [EditorBorder(19,groupName = PASS_OPTIONS_GROUP)]
+        //[Header("Pass Options")]
+        [EditorGroup(PASS_OPTIONS_GROUP, true,tooltip ="Show SRPPass base options")]
         [Tooltip("Skip when false")]
         public bool enabled = true;
         bool lastEnabled = true;
 
+        [EditorGroup(PASS_OPTIONS_GROUP)]
         [Tooltip("Interrupt others pass when this pass done")]
         public bool interrupt;
 
-        [Header("Pass Options / CameraType")]
+        [EditorHeader(PASS_OPTIONS_GROUP, "Pass Options / CameraType")]
+        [EditorGroup("PassOptions")]
         [Tooltip("Which camera can run")]
         public CameraType cameraType = CameraType.Reflection;
+
+        [EditorGroup(PASS_OPTIONS_GROUP)]
         [Tooltip("Camera compare function")]
         public CameraTypeCompareFunc cameraTypeCompareFunc;
 
+        [EditorGroup(PASS_OPTIONS_GROUP)]
         [Tooltip("Only work in editor")]
         public bool isEditorOnly;
 
+        [EditorGroup(PASS_OPTIONS_GROUP)]
         [Tooltip("prefab stage show all objects?")]
         public bool isShowAllInPrefabStage = true;
-        [Header("Pass Options / Filters")]
+
+        [EditorHeader(PASS_OPTIONS_GROUP, "Pass Options / Filters")]
+        [EditorGroup(PASS_OPTIONS_GROUP)]
         [Tooltip("Compared properties ")]
         public CameraCompareType gameCameraCompareType = CameraCompareType.Tag;
 
+        [EditorGroup(PASS_OPTIONS_GROUP)]
         [Tooltip("Which camera can run this pass ? only work for Game Camera, empty for all camera")]
 #if UNITY_EDITOR
         [StringListSearchable(type = typeof(TagManager), staticMemberName = nameof(TagManager.GetTags))]
 #endif
         public string gameCameraTag = "MainCamera";
 
-        [Header("Pass Options / URP Event")]
+        [EditorHeader(PASS_OPTIONS_GROUP, "Pass Options / URP Event")]
+        [EditorGroup(PASS_OPTIONS_GROUP)]
         public RenderPassEvent renderPassEvent = RenderPassEvent.BeforeRenderingSkybox;
+
+        [EditorGroup(PASS_OPTIONS_GROUP)]
         public int renderPassEventOffset = 0;
 
         /// <summary>
         /// output this pass's log,show in inspector
         /// </summary>
-        [Header("Pass Options / Pass Log")]
         //[Multiline]
+        [EditorGroup(PASS_OPTIONS_GROUP)]
+        [EditorHeader(PASS_OPTIONS_GROUP, "Pass Options / Pass Log")]
         public string log;
 
         /// <summary>

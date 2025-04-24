@@ -17,7 +17,6 @@
     using UnityEngine.SceneManagement;
     using PowerUtilities;
     using Object = UnityEngine.Object;
-    using RenderQueueType = RenderQueueType;
 #if UNITY_2020
     using UniversalRenderer = UnityEngine.Rendering.Universal.ForwardRenderer;
     using Tooltip = PowerUtilities.TooltipAttribute;
@@ -178,7 +177,26 @@
         [HideInInspector]
         public bool isEnterCheckOverdraw;
 
+        //---------------------ReflectionCamera
+        [EditorGroup("ReflectionCamera",true)]
+        [Tooltip("rendering scene use reflection camera")]
+        [EditorButton(onClickCall = "OnSetupReflectionCamera")]
+        public bool isSetupReflectionCamera;
+
+
         public override ScriptableRenderPass GetPass() => new DrawObjectsPassControl(this);
+
+        void OnSetupReflectionCamera()
+        {
+            var planarReflectionGo = Object.FindObjectOfType(typeof(PlanarReflectionCameraControl));
+            if (planarReflectionGo == null)
+            {
+                planarReflectionGo = new GameObject("PlanarReflectionCamera").AddComponent<PlanarReflectionCameraControl>();
+            }
+#if UNITY_EDITOR
+            UnityEditor.EditorGUIUtility.PingObject(planarReflectionGo);
+#endif
+        }
     }
 
     public class DrawObjectsPassControl : SRPPass<DrawObjects>
@@ -214,13 +232,13 @@
             if(Feature.IsUpdateSkyboxTarget)
                 DrawSkyBoxPass.SetupSkyboxTargets(renderer,camera);
 
+            // draw scene
             drawObjectsPass.OnExecute(context, ref renderingData, cmd);
 
             if (Feature.isDrawChildrenInstancedOn)
                 drawChildrenInstancedPass.OnExecute(context, ref renderingData, cmd);
         }
-
-
+        
     }
 
     public class DrawChildrenInstancedPass : SRPPass<DrawObjects>
@@ -403,8 +421,8 @@
         {
             ApplicationTools.OnDomainUnload += DisposeNative;
         }
-         
-        public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
+
+        void DrawScene(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
         {
             var drawObjectPassData = new Vector4(0, 0, 0, Feature.renderQueueType == RenderQueueType.opaque ? 1 : 0);
             cmd.SetGlobalVector(s_DrawObjectPassDataPropID, drawObjectPassData);
@@ -444,6 +462,11 @@
 
             RestoreDrawSettings(ref renderingData, cmd);
         }
+        
+        public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
+        {
+            DrawScene(context,ref renderingData, cmd);
+        }
 
         public override void OnCameraCleanup(CommandBuffer cmd)
         {
@@ -452,8 +475,6 @@
                 UniversalRenderPipeline.asset.useSRPBatcher = lastSRPBatchEnabled;
             }
         }
-
-
 
         private void RestoreDrawSettings(ref RenderingData renderingData, CommandBuffer cmd)
         {
@@ -470,8 +491,6 @@
                 RenderingUtils.SetViewAndProjectionMatrices(cmd, cameraData.GetViewMatrix(), cameraData.GetProjectionMatrix(), false);
             }
         }
-
-
 
         private DrawingSettings GetDrawSettings(ScriptableRenderContext context, CommandBuffer cmd, ref RenderingData renderingData, ref CameraData cameraData)
         {

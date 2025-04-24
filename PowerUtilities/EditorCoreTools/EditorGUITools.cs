@@ -210,6 +210,31 @@ namespace PowerUtilities
             }
         }
 
+        /// <summary>
+        /// Show (triangle,title ,style background)Foldout
+        /// like (EditorGUILayout.BeginFoldoutHeaderGroup) 
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="isOn"></param>
+        /// <param name="title"></param>
+        /// <param name="titleColor"></param>
+        /// <param name="style"></param>
+        /// <returns></returns>
+        public static bool DrawTitleFoldout(Rect position, bool isOn, GUIContent title, Color titleColor, GUIStyle style,int lineHeight=22)
+        {
+            var pos = position;
+            pos.height = lineHeight;
+
+            // show only a style
+            GUI.BeginGroup(pos, style);
+            GUI.EndGroup();
+
+            var isFold = EditorGUI.Foldout(pos, isOn, title, true);
+            return isFold;
+        }
+        public static bool DrawTitleFoldout(Rect position, bool isOn, string title, Color titleColor, GUIStyle style)
+        => DrawTitleFoldout(position, isOn, GUIContentEx.TempContent(title, ""), titleColor, style);
+
         #endregion
 
         #region Additional Controls
