@@ -29,6 +29,7 @@
 
             if (!isGroupOn)
                 return;
+            EditorGUI.indentLevel += attr.indentLevel;
 
             var pos = EditorGUI.IndentedRect(position);
             pos.x += attr.posOffset;
@@ -44,6 +45,7 @@
             EditorGUI.LabelField(pos,GUIContentEx.TempContent(attr.header), style);
             GUI.color = lastColor;
             
+            EditorGUI.indentLevel -= attr.indentLevel;
         }
     }
 
@@ -54,6 +56,8 @@
         public string header;
         public Color color = new Color(0.1f, 0.82f, 0.1f);
         public int posOffset = 0;
+        public int indentLevel=-1;
+
         public EditorHeaderAttribute(string groupName, string header, string colorStr = null)
         {
             this.groupName = groupName;

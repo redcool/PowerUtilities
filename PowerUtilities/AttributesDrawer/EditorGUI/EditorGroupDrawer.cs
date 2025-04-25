@@ -3,6 +3,7 @@ namespace PowerUtilities
 {
     using UnityEngine;
     using UnityEditor;
+    using System.Reflection;
 
     [CustomPropertyDrawer(typeof(EditorGroupAttribute))]
     public class EditorGroupDrawer : PropertyDrawer
@@ -44,6 +45,13 @@ namespace PowerUtilities
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             var groupAttr = attribute as EditorGroupAttribute;
+            // find tooltip attribute
+            if (string.IsNullOrEmpty(groupAttr.tooltip))
+            {
+                var tooltipAttr = fieldInfo.GetCustomAttribute<TooltipAttribute>(true);
+                if (tooltipAttr != null)
+                    groupAttr.tooltip = tooltipAttr.tooltip;
+            }
 
             //return;
             groupInfo.groupName = groupAttr.groupName;
@@ -55,7 +63,7 @@ namespace PowerUtilities
                 if (groupInfo.isOn)
                     position.height -= TITLE_LINE_HEIGHT;
 
-                groupInfo.isOn = EditorGUITools.DrawTitleFoldout(position, groupInfo.isOn, GUIContentEx.TempContent(groupInfo.groupName, groupAttr.tooltip), groupAttr.titleColor, EditorStyles.helpBox);
+                groupInfo.isOn = EditorGUITools.DrawTitleFoldout(position, groupInfo.isOn, GUIContentEx.TempContent(groupInfo.groupName, groupAttr.tooltip), groupAttr.titleColor, EditorStylesEx.HelpBox);
 
                 MaterialGroupTools.SetState(groupInfo.groupName, groupInfo.isOn);
                 position.y += TITLE_LINE_HEIGHT;
