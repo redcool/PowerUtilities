@@ -17,7 +17,10 @@ namespace PowerUtilities.RenderFeatures
     [CreateAssetMenu(menuName = SRP_FEATURE_PASSES_MENU + "/SetRenderTarget")]
     public class SetRenderTarget : SRPFeature
     {
-        [Header("Targets")]
+        const string CLEAR_OPTIONS_GROUP = "Clear Options";
+        const string SET_TARGET_GROUP = "Set Targets";
+        /// ------------- set targets
+        [Header(SET_TARGET_GROUP)]
         [Tooltip("Set colors and depth target,skip setTargets when not check")]
         public bool isSetTargets = true;
 
@@ -32,36 +35,37 @@ namespace PowerUtilities.RenderFeatures
         [StringListSearchable(type = typeof(CreateRenderTarget), staticMemberName = nameof(CreateRenderTarget.GetColorTargetNames))]
         public string depthTargetName;
 
-        //==========Clear
-        [EditorGroup("Clear Options", true)]
-        [Header("Clear ")]
+        /// ------------- Clear
+        [EditorBorder(13,groupName = CLEAR_OPTIONS_GROUP)]
+        [EditorGroup(CLEAR_OPTIONS_GROUP, true)]
+        [Tooltip("clear targets before setTargets")]
         public bool clearTarget;
 
-        [EditorGroup("Clear Options")]
-        [EditorHeader("Clear Options", "--- Override Clear ")]
-        [Tooltip("clear target use camera's setting or settings below")]
+        [EditorGroup(CLEAR_OPTIONS_GROUP)]
+        [EditorHeader(CLEAR_OPTIONS_GROUP, "--- Override Clear Options")]
+        [Tooltip("clear targets use camera's setting or override settings ")]
         public bool isOverrideClear;
 
-        [EditorGroup("Clear Options")]
+        [EditorGroup(CLEAR_OPTIONS_GROUP)]
         [Space(10)]
         [Tooltip("target 0,use clearColor,otherwise use Color.clear")]
         public bool isClearColor = true;
 
-        [EditorGroup("Clear Options")]
+        [EditorGroup(CLEAR_OPTIONS_GROUP)]
         public Color clearColor = Color.clear;
 
-        [EditorGroup("Clear Options")]
+        [EditorGroup(CLEAR_OPTIONS_GROUP)]
         [Space(10)]
         public bool isClearDepth = true;
 
-        [EditorGroup("Clear Options")]
+        [EditorGroup(CLEAR_OPTIONS_GROUP)]
         [Range(0, 1)] public float depth = 1;
 
-        [EditorGroup("Clear Options")]
+        [EditorGroup(CLEAR_OPTIONS_GROUP)]
         [Space(10)]
         public bool isClearStencil = true;
 
-        [EditorGroup("Clear Options")]
+        [EditorGroup(CLEAR_OPTIONS_GROUP)]
         [Range(0, 255)] public uint stencil;
 
         public override ScriptableRenderPass GetPass() => new SetRenderTargetPass(this);
