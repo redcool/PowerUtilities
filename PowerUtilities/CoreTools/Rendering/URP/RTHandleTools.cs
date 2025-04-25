@@ -47,6 +47,39 @@ namespace PowerUtilities
 
     public static class RTHandleTools
     {
+        /// <summary>
+        /// RTHandle array count 1
+        /// </summary>
+        public static readonly RTHandle[] RTHandleArray_1 = new RTHandle[1];
+
+        /// <summary>
+        /// RTHandle array count 2
+        /// </summary>
+        public static readonly RTHandle[] RTHandleArray_2 = new RTHandle[2];
+        /// <summary>
+        /// RTHandle array count 3
+        /// </summary>
+        public static readonly RTHandle[] RTHandleArray_3 = new RTHandle[3];
+        /// <summary>
+        /// RTHandle array count 4
+        /// </summary>
+        public static readonly RTHandle[] RTHandleArray_4 = new RTHandle[4];
+        /// <summary>
+        /// RTHandle array count 5
+        /// </summary>
+        public static readonly RTHandle[] RTHandleArray_5 = new RTHandle[5];
+        /// <summary>
+        /// RTHandle array count 6
+        /// </summary>
+        public static readonly RTHandle[] RTHandleArray_6 = new RTHandle[6];
+        /// <summary>
+        /// RTHandle array count 7
+        /// </summary>
+        public static readonly RTHandle[] RTHandleArray_7 = new RTHandle[7];
+        /// <summary>
+        /// RTHandle array count 8
+        /// </summary>
+        public static readonly RTHandle[] RTHandleArray_8 = new RTHandle[8];
 
         /// <summary>
         /// URPRTHandleNames -> UniversalRenderer's rtHandle path
@@ -98,7 +131,7 @@ namespace PowerUtilities
         /// <param name="cam"></param>
         /// <param name="rtStrName"></param>
         /// <returns></returns>
-        public static bool IsURPRTAlloced(Camera cam,string rtStrName)
+        public static bool IsURPRTAlloced(Camera cam, string rtStrName)
         {
             if (urpStrName2HandleDict.TryGetValue(rtStrName, out var rtHandleName))
             {
@@ -119,7 +152,7 @@ namespace PowerUtilities
         /// <param name="rtId"></param>
         /// <param name="handleName"></param>
         /// <returns></returns>
-        public static bool TryGetURPTextureName(RenderTargetIdentifier rtId,out URPRTHandleNames handleName)
+        public static bool TryGetURPTextureName(RenderTargetIdentifier rtId, out URPRTHandleNames handleName)
         {
             var nameId = rtId.GetNameId();
             return urpRTIdNameDict.TryGetValue(nameId, out handleName);
@@ -135,7 +168,7 @@ namespace PowerUtilities
         {
 
 #if UNITY_2022_1_OR_NEWER
-               // check handle and handle.rt
+            // check handle and handle.rt
             if (handle != null && handle.rt)
                 return;
 #else
@@ -165,7 +198,7 @@ namespace PowerUtilities
         /// RenderTargetIdentifier to RTHandle
         /// </summary>
         public static Func<RenderTargetIdentifier, RTHandle> GetRTHandleByID = (rtId) => RTHandles.Alloc(rtId);
-        
+
         public readonly static RTHandle ZeroHandle = RTHandles.Alloc(0);
         public readonly static RTHandle CameraTargetHandle = RTHandles.Alloc(BuiltinRenderTextureType.CameraTarget);
     }

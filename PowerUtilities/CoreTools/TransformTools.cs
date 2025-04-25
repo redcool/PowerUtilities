@@ -53,6 +53,26 @@ namespace PowerUtilities
             camUp = reflectionPlane.TransformDirection(camUpPlaneSpace);
             camPos = reflectionPlane.TransformPoint(camPosPlaneSpace);
         }
+        /// <summary>
+        /// Get reflection camera transform(use reflectionPlaneTr if eists otherwise use planeYOffset)
+        /// </summary>
+        /// <param name="mainCamTr"></param>
+        /// <param name="reflectionPlaneTr"></param>
+        /// <param name="planeYOffset"></param>
+        /// <param name="camForward"></param>
+        /// <param name="camUp"></param>
+        /// <param name="camPos"></param>
+        public static void GetReflection(this Transform mainCamTr, Transform reflectionPlaneTr, float planeYOffset, out Vector3 camForward, out Vector3 camUp, out Vector3 camPos)
+        {
+            if (reflectionPlaneTr)
+            {
+                mainCamTr.GetReflection(reflectionPlaneTr, out camForward, out camUp, out camPos);
+            }
+            else
+            {
+                mainCamTr.GetReflection(planeYOffset, out camForward, out camUp, out camPos);
+            }
+        }
 
         public static void SetPosAndLookAt(this Transform camTr, Vector3 pos, Vector3 forward, Vector3 up)
         {
@@ -68,16 +88,7 @@ namespace PowerUtilities
         /// <param name="planeYOffset"></param>
         public static void SetupReflectionCameraTransform(this Transform mainCamTr,Transform reflectionCamTr,Transform reflectionPlaneTr,float planeYOffset=0)
         {
-            Vector3 camForward, camUp, camPos;
-
-            if (reflectionPlaneTr)
-            {
-                mainCamTr.GetReflection(reflectionPlaneTr, out camForward, out camUp, out camPos);
-            }
-            else
-            {
-                mainCamTr.GetReflection(planeYOffset, out camForward, out camUp, out camPos);
-            }
+            mainCamTr.GetReflection(reflectionPlaneTr, planeYOffset, out var camForward,out var camUp, out var camPos);
             reflectionCamTr.SetPosAndLookAt(camPos, camForward, camUp);
         }
     }

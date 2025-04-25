@@ -17,6 +17,7 @@
     using UnityEngine.SceneManagement;
     using PowerUtilities;
     using Object = UnityEngine.Object;
+    using Unity.Mathematics;
 #if UNITY_2020
     using UniversalRenderer = UnityEngine.Rendering.Universal.ForwardRenderer;
     using Tooltip = PowerUtilities.TooltipAttribute;
@@ -170,6 +171,26 @@
         [Tooltip("show additive overdraw mode")]
         public bool isSwitchOverdrawMode;
 
+        //---------------------PlanarReflectionCamera
+        [EditorGroup("PlanarReflectionCamera",true)]
+        [Tooltip("create planar reflection camera")]
+        [EditorButton(onClickCall = "OnCreatePlanarReflectionCamera")]
+        public bool isCreatePlanarReflectionCamera;
+
+        //---------------------ReflectionCamera
+        [EditorGroup("ReflectionCamera", true)]
+        [Tooltip("render scene use camera's reflection view matrix")]
+        public bool isUseReflectionCamera;
+
+        [EditorGroup("ReflectionCamera")]
+        [Tooltip("water plane's height, when reflectionPlaneTr is empty ")]
+        public float planeYOffset;
+
+        [EditorGroup("ReflectionCamera")]
+        [Tooltip("mirror plane,result mirror effects")]
+        public Transform reflectionPlaneTr;
+
+        //---------------------DebugTools
         [EditorGroup("DebugTools")]
         [LoadAsset("SFC_ShowOverdrawAdd.mat")]
         public Material overdrawMat;
@@ -177,16 +198,9 @@
         [HideInInspector]
         public bool isEnterCheckOverdraw;
 
-        //---------------------ReflectionCamera
-        [EditorGroup("ReflectionCamera",true)]
-        [Tooltip("rendering scene use reflection camera")]
-        [EditorButton(onClickCall = "OnSetupReflectionCamera")]
-        public bool isSetupReflectionCamera;
-
-
         public override ScriptableRenderPass GetPass() => new DrawObjectsPassControl(this);
 
-        void OnSetupReflectionCamera()
+        void OnCreatePlanarReflectionCamera()
         {
             var planarReflectionGo = Object.FindObjectOfType(typeof(PlanarReflectionCameraControl));
             if (planarReflectionGo == null)
@@ -230,15 +244,41 @@
 
             // reset skybox 's target in gameview
             if(Feature.IsUpdateSkyboxTarget)
-                DrawSkyBoxPass.SetupSkyboxTargets(renderer,camera);
+                DrawSkyBoxPass.SetupURPSkyboxTargets(renderer,camera);
+
+            // draw scene use reflection camera(view,proj)
+            var viewMat = cameraData.GetViewMatrix();
+            var projMat = cameraData.GetProjectionMatrix();
+            if (Feature.isUseReflectionCamera)
+                SetupRenderReflectionCamera(ref cameraData,cmd,viewMat,projMat);
 
             // draw scene
             drawObjectsPass.OnExecute(context, ref renderingData, cmd);
 
             if (Feature.isDrawChildrenInstancedOn)
                 drawChildrenInstancedPass.OnExecute(context, ref renderingData, cmd);
+
+            // restore camera (view,proj)
+            if (Feature.isUseReflectionCamera)
+                RenderingUtils.SetViewAndProjectionMatrices(cmd, viewMat, projMat, false);
         }
-        
+
+        private void SetupRenderReflectionCamera(ref CameraData cameraData, CommandBuffer cmd, Matrix4x4 viewMat, Matrix4x4 projMat)
+        {
+            var camTr = cameraData.camera.transform;
+            camTr.GetReflection(Feature.reflectionPlaneTr, Feature.planeYOffset, out var camForward, out var camUp, out var camPos);
+
+            //camForward = math.reflect(camForward, Vector3.up);
+
+            var v = float4x4.LookAt(camPos, camPos + camTr.forward, camUp);
+            if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLCore || SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLES3)
+            {
+                v.c2 *= -1;
+            }
+            DebugTools.DrawAxis(camPos, v.c0.xyz, v.c1.xyz, v.c2.xyz);
+
+            RenderingUtils.SetViewAndProjectionMatrices(cmd, v, projMat, false);
+        }
     }
 
     public class DrawChildrenInstancedPass : SRPPass<DrawObjects>

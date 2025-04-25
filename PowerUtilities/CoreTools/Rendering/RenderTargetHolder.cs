@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+using static PowerUtilities.RTHandleTools;
 
 namespace PowerUtilities
 {
@@ -14,6 +15,8 @@ namespace PowerUtilities
     /// </summary>
     public static class RenderTargetHolder
     {
+
+
         /// <summary>
         /// {rtid , rtHandle}
         /// </summary>
@@ -24,20 +27,7 @@ namespace PowerUtilities
         /// </summary>
         static Dictionary<int, RTHandle[]> placeHolderHandleDict = new Dictionary<int, RTHandle[]>();
         static Dictionary<int, RenderTargetIdentifier[]> placeHolderRtIDDict = new Dictionary<int, RenderTargetIdentifier[]>();
-        /// <summary>
-        /// Get array(with lengthAsKey length)
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="placeHolderDict"> plance holder dictionary</param>
-        /// <param name="lengthAsKey"> length : an array's length as key</param>
-        /// <returns></returns>
-        //public static T[] GetArrayFromPlaceHolderDict<T>(Dictionary<int, T[]> placeHolderDict,int lengthAsKey)
-        //{
-        //    placeHolderDict.TryGetValue(lengthAsKey, out var arr);
-        //    if(arr == null)
-        //        arr =placeHolderDict[lengthAsKey] = new T[lengthAsKey];
-        //    return arr;
-        //}
+
 
 
         /// <summary>
@@ -50,12 +40,13 @@ namespace PowerUtilities
 
         static int lastColorIdsLength = 0;
 
-
         /// <summary>
         /// cached funcs
         /// </summary>
         static Func<int, RenderTargetIdentifier[]> GetIDArray = (lengthAsKey) => new RenderTargetIdentifier[lengthAsKey];
         static Func<int, RTHandle[]> GetRTHandleArray = (lengthAsKey) => new RTHandle[lengthAsKey];
+
+
 
         /// <summary>
         /// Save current targets, sfcpass can reuse these
@@ -98,5 +89,30 @@ namespace PowerUtilities
         }
 
         public static RTHandle LastColorTargetHandle => IsLastTargetValid() ? LastColorTargetHandles[0] : default;
+
+        /// <summary>
+        /// Get renderer's target or SFC last saved Targets
+        /// </summary>
+        /// <param name="renderer"></param>
+        /// <param name="colorIds"></param>
+        /// <param name="depthId"></param>
+        public static void GetLastTargets(UniversalRenderer renderer, out RTHandle[] colorIds, out RTHandle depthId)
+        {
+            var colorTarget = renderer.CameraColorTargetHandle();
+            var depthTarget = renderer.CameraDepthTargetHandle();
+
+            if (IsLastTargetValid())
+            {
+                colorIds = LastColorTargetHandles;
+                depthId = LastDepthTargetHandle;
+            }
+            else
+            {
+                RTHandleArray_1[0] = colorTarget;
+
+                colorIds = RTHandleArray_1;
+                depthId = depthTarget;
+            }
+        }
     }
 }

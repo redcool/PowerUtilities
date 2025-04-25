@@ -134,11 +134,11 @@ namespace PowerUtilities
             DrawLines(new[] {(start,end),(end,e1),(end,e2)},color);
         }
 
-        public static void DrawAxis(Vector3 pos, Vector3 right, Vector3 up, Vector3 forward)
+        public static void DrawAxis(Vector3 pos, Vector3 right, Vector3 up, Vector3 forward, float length = 1)
         {
-            Debug.DrawRay(pos, right, Color.red);
-            Debug.DrawRay(pos, up, Color.green);
-            Debug.DrawRay(pos, forward, Color.blue);
+            Debug.DrawRay(pos, right * length, Color.red);
+            Debug.DrawRay(pos, up * length, Color.green);
+            Debug.DrawRay(pos, forward * length, Color.blue);
         }
 
         public static void DrawCircle(Vector3 start,Vector3 end,int segments = 10)
