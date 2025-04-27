@@ -108,14 +108,11 @@ namespace PowerUtilities
 
         static RTHandleTools()
         {
-            var names = Enum.GetNames(typeof(URPRTHandleNames));
-            foreach (var name in names)
+            EnumEx.ForEach<URPRTHandleNames>((name, value) =>
             {
-                var rtHandeName = EnumEx.Parse<URPRTHandleNames>(name);
-
-                urpRTIdNameDict.Add(Shader.PropertyToID(name), rtHandeName);
-                urpStrName2HandleDict.Add(name, rtHandeName);
-            }
+                urpRTIdNameDict.Add(Shader.PropertyToID(name), value);
+                urpStrName2HandleDict.Add(name, value);
+            });
         }
         /// <summary>
         /// is rtStrName UniversalRenderer's rtHanle variables ?

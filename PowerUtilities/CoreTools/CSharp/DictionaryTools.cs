@@ -40,7 +40,7 @@ namespace PowerUtilities
         /// <param name="onNotExists">call when key not exists or value is null</param>
         /// <returns></returns>
 
-        public static TValue Get<TKey, TValue>(Dictionary<TKey, TValue> dict, TKey key, Func<TKey, TValue> onNotExists)
+        public static TValue Get<TKey, TValue>(this Dictionary<TKey, TValue> dict, TKey key, Func<TKey, TValue> onNotExists)
         {
             var isExists = dict.TryGetValue(key, out TValue value);
             if ((onNotExists != null) && (!isExists || value == null))
