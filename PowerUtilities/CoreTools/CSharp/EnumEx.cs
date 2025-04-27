@@ -1,10 +1,5 @@
-﻿using Jint.Parser.Ast;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine.UIElements;
 
 namespace PowerUtilities
 {
@@ -15,7 +10,10 @@ namespace PowerUtilities
         /// </summary>
         public readonly static Dictionary<Type, string[]> enumNamesDict = new();
 
-        public readonly static Dictionary<Type, KeyValuePair<string,object>[]> enumNameValueDict = new();
+        /// <summary>
+        /// enumType => values
+        /// </summary>
+        public readonly static Dictionary<Type, Array> enumValuesDict = new();
 
         /// <summary>
         /// Get enum names with cache
@@ -25,13 +23,22 @@ namespace PowerUtilities
         public static string[] GetNames<TEnum>() where TEnum : Enum
             => GetNames(typeof(TEnum));
 
+        /// <summary>
+        /// Get enum names with cache
+        /// </summary>
+        /// <param name="enumType"></param>
+        /// <returns></returns>
         public static string[] GetNames(Type enumType)
             => DictionaryTools.Get(enumNamesDict, enumType, (enumType) => Enum.GetNames(enumType));
 
-        public static TValue[] GetValues<TValue>(Type enumType)
-        {
-            return (TValue[])Enum.GetValues(enumType);
-        }
+        /// <summary>
+        /// Get enum values with cache
+        /// </summary>
+        /// <typeparam name="TEnum"></typeparam>
+        /// <returns></returns>
+        public static TEnum[] GetValues<TEnum>() where TEnum : Enum
+            => (TEnum[])DictionaryTools.Get(enumValuesDict, typeof(TEnum), (enumType) => Enum.GetValues(enumType));
+        
 
         /// <summary>
         /// Iterate enum items
@@ -39,7 +46,7 @@ namespace PowerUtilities
         /// <typeparam name="TValue"></typeparam>
         /// <param name="enumType"></param>
         /// <param name="action"></param>
-        public static void ForEach<TEnum>(Action<string, TEnum> action)
+        public static void ForEach<TEnum>(Action<string, TEnum> action) where TEnum : Enum
         {
             if (action == null)
                 return;
@@ -47,11 +54,12 @@ namespace PowerUtilities
             var enumType = typeof(TEnum);
 
             var names = GetNames(enumType);
-            var values = GetValues<TEnum>(enumType);
+            var values = GetValues<TEnum>();
             for (int i = 0; i < names.Length; i++)
             {
                 action(names[i], values[i]);
             }
         }
+
     }
 }
