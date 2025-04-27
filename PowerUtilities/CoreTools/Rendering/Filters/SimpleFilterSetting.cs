@@ -4,6 +4,9 @@ using UnityEngine.Rendering;
 
 namespace PowerUtilities
 {
+    /// <summary>
+    /// Corresponding UnityEngine.Rendering.FilteringSettings
+    /// </summary>
     [Serializable]
     public class SimpleFilterSetting
     {

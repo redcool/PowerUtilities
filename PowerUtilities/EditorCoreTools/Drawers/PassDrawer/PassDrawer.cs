@@ -32,7 +32,7 @@ namespace PowerUtilities
             {
                 EditorGUI.indentLevel++;
                 GUILayout.BeginVertical("Box");
-                EditorGUITools.DrawDefaultInspect(passItemSO);
+                EditorGUITools.DrawDefaultInspect(passItemSO,out _);
                 GUILayout.EndVertical();
                 EditorGUI.indentLevel--;
             }

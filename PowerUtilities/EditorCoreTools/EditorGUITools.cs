@@ -16,7 +16,22 @@ namespace PowerUtilities
         public static Color darkGray = new Color(0.2f, 0.3f, 0.4f);
         public static int defaultLabelWidth = 200;
 
+        /// <summary>
+        /// editor gui a row height :18
+        /// </summary>
+        public static float singleLineHeight => EditorGUIUtility.singleLineHeight;
+        /// <summary>
+        /// editor gui rows height gap : 2
+        /// </summary>
+        public static float lineHeightGap => 2;
+        /// <summary>
+        /// editor gui a row total height : (height + gap(
+        /// </summary>
+        public static float lineHeightTotal => singleLineHeight + lineHeightGap;
+
         static float lastLabelWidth;
+
+
 
         [CompileFinished]
         public static void Init()
@@ -412,15 +427,20 @@ namespace PowerUtilities
             },nameof(EditorStylesEx.GroupBox));
         }
 
-
-        public static bool DrawDefaultInspect(SerializedObject obj)
+        /// <summary>
+        /// Draw default inspector,
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="pos">occupy position(rect)</param>
+        /// <returns></returns>
+        public static bool DrawDefaultInspect(SerializedObject obj,out Rect pos)
         {
+            // first pos(rect) is used to editor gui
+            pos =  EditorGUILayout.GetControlRect(true,0);
+
             EditorGUI.BeginChangeCheck();
-            //obj.UpdateIfRequiredOrScript();
             var iterator = obj.GetIterator();
-
             var enterChildren = true;
-
             while (iterator.NextVisible(enterChildren))
             {
                 using (new EditorGUI.DisabledScope("m_Script" == iterator.propertyPath))
@@ -428,8 +448,13 @@ namespace PowerUtilities
                     EditorGUILayout.PropertyField(iterator, true);
                 }
                 enterChildren = false;
+                var lastRect = GUILayoutUtility.GetLastRect();
+                // accumulation 
+                pos.height += lastRect.height + EditorGUITools.lineHeightGap;
             }
-            //obj.ApplyModifiedProperties();
+
+            //DrawBoxColors(pos, backgroundColor: Color.red * 0.5f);
+
             return EditorGUI.EndChangeCheck();
         }
 
@@ -441,20 +466,24 @@ namespace PowerUtilities
         /// |       |
         /// _________
         /// </summary>
-        /// <param name="position"></param>
+        /// <param name="position">ugui position</param>
+        /// <param name="borderSize">edge size</param>
         /// <param name="backgroundColor"></param>
         /// <param name="leftColor"></param>
-        public static void DrawBoxColors(Rect position, float borderSize = 2, Color backgroundColor = default, Color leftColor = default, Color upColor = default, Color rightColor = default, Color bottomColor = default)
+        /// <param name="topColor"></param>
+        /// <param name="rightColor"></param>
+        /// <param name="bottomColor"></param>
+        public static void DrawBoxColors(Rect position, float borderSize = 2, Color backgroundColor = default, Color leftColor = default, Color topColor = default, Color rightColor = default, Color bottomColor = default)
         {
             var positions = new[] {
-                position, // background
-                new Rect(position.x, position.y, borderSize, position.height), // left
-                new Rect(position.x,position.y,position.width,borderSize), // top
-                new Rect(position.xMax-borderSize, position.y, borderSize, position.height), //right
-                new Rect(position.x, position.yMax - borderSize, position.width, borderSize) //bottom
+                position, // background rect
+                new Rect(position.x, position.y, borderSize, position.height), // left edge
+                new Rect(position.x,position.y,position.width,borderSize), // top edge
+                new Rect(position.xMax-borderSize, position.y, borderSize, position.height), //right edge
+                new Rect(position.x, position.yMax - borderSize, position.width, borderSize) //bottom edge
             };
             var colors = new[] {
-                backgroundColor,leftColor, upColor, rightColor, bottomColor
+                backgroundColor,leftColor, topColor, rightColor, bottomColor
             };
             colors.ForEach((color, id) =>
             {
@@ -463,13 +492,13 @@ namespace PowerUtilities
             });
         }
 
-        public static void DrawColorLine(Rect pos, string colorStr = "#749C75")
+        public static void DrawColorLine(Rect pos, string colorStr = ColorTools.G_LIGHT_GREEN)
         {
             ColorUtility.TryParseHtmlString(colorStr, out var color);
             DrawBoxColors(pos, backgroundColor: color);
         }
 
-        public static void DrawColorLine(int height =2, string colorStr = "#749C75")
+        public static void DrawColorLine(int height =2, string colorStr = ColorTools.G_LIGHT_GREEN)
         {
             DrawColorLine(EditorGUILayout.GetControlRect(GUILayout.Height(height)), colorStr);
         }

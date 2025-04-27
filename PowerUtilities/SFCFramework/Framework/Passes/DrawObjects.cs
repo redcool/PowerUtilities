@@ -62,12 +62,19 @@
     [CreateAssetMenu(menuName = SRP_FEATURE_PASSES_MENU+ "/DrawObjects")]
     public class DrawObjects : SRPFeature
     {
+        const string FILTERS_GROUP = "Filters";
+
         [Header("Draw Objects Options")]
+        [Tooltip("Assign shader tags ,correspond Tags{\"LightMode\"=\"UniversalForward\"}")]
         public string[] shaderTags = new[] {
             "UniversalForwardOnly",
             "UniversalForward",
             "SRPDefaultUnlit"
         };
+
+        //-------------------------------------- FILTERS_GROUP
+        [EditorBorder(7)]
+        [Header("BaseFilters")]
         [Tooltip("render opaque, opque:[0,2500],transparent:[2501,5000],all:[0,5000]")]
         public RenderQueueType renderQueueType = RenderQueueType.opaque;
         public LayerMask layers = -1;
@@ -75,18 +82,23 @@
         [Header("---Override FilterSetting")]
         [Tooltip("use full filterSetting")]
         public bool isOverrideFilterSetting;
+
         [EditorDisableGroup(targetPropName = "isOverrideFilterSetting")]
         public SimpleFilterSetting filterSetting = new();
 
+        //-------------------------------------- override stencil depth
         [Header("--- Override depth")]
+        [EditorBorder()]
         [Tooltip("depth state control")]
         public DepthStateInfo depthState;
 
         [Header("--- Override stencil")]
+        [EditorBorder()]
         [Tooltip("stencil state control")]
         public StencilStateData stencilData;
-
+        //-------------------------------------- override material
         [Header("--- override material")]
+        [EditorBorder(4)]
         [Tooltip("use this material render objects when not empty")]
         public Material overrideMaterial;
 
@@ -96,16 +108,18 @@
         [Tooltip("lightMode canot match, use this material")]
         public Material fallbackMaterial;
 
-
+        //-------------------------------------- per object data
         [Header("--- Per Object Data")]
+        [EditorBorder(3)]
         [Tooltip("overridePerObjectData,Lightmap : (Lightmaps,LightProbe,LightProbeProxyVolume),ShadowMask:(ShadowMask,OcclusionProbe,OcclusionProbeProxyVolume)")]
         public bool overridePerObjectData;
         
         [EditorDisableGroup(targetPropName = "overridePerObjectData")]
         public PerObjectData perObjectData;
 
-
+        //-------------------------------------- override light
         [Header("--- override mainLight")]
+        [EditorBorder(6)]
         public bool overrideMainLightIndex;
 
         [Tooltip("restore mainLightIndex when draw finish")]
@@ -121,7 +135,7 @@
         [EditorDisableGroup(targetPropName = "overrideMainLightIndex")]
         public List<string> visibleLightNames = new List<string>();
 
-
+        //-------------------------------------- dynamic batch
         [Header("--- override dynamic batch")]
         [Tooltip("override urp Pipeline Asset")]
         public bool overrideDynamicBatching;
@@ -129,7 +143,7 @@
         [EditorDisableGroup(targetPropName = "overrideDynamicBatching")]
         public bool enableDynamicBatching;
 
-
+        //-------------------------------------- override instancing
         [Header("--- override instancing")]
         [Tooltip("override instancing")]
         public bool overrideGPUInstancing;
@@ -137,13 +151,13 @@
         [EditorDisableGroup(targetPropName = "overrideGPUInstancing")]
         public bool enableGPUInstancing;
 
-
+        //-------------------------------------- override srp batch
         [Header("--- override srp batch")]
         public bool overrideSRPBatch;
         [EditorDisableGroup(targetPropName = "overrideSRPBatch")]
         public bool enableSRPBatch;
 
-
+        //-------------------------------------- override camera
         [Header("--- override camera")]
         public bool overrideCamera;
 
@@ -151,25 +165,20 @@
         public float cameraFOV = 60;
         [EditorDisableGroup(targetPropName = "overrideCamera")]
         public Vector4 cameraOffset;
-
+        //-------------------------------------- override skybox
         [Header("SkyBox Pass")]
         [Tooltip("skyboxPass use last target,passEvent <= BeforeRenderingSkybox")]
         public bool IsUpdateSkyboxTarget;
-
+        //---------------------DrawChildrenInstanced
         [Header("DrawChildrenInstanced")]
         public bool isDrawChildrenInstancedOn;
 
         [EditorDisableGroup(targetPropName = "isDrawChildrenInstancedOn")]
         public bool forceFindDrawChildrenInstanced;
 
+        //---------------------ColorSpace
         [Header("Color Space")]
         public ColorSpaceTransform.ColorSpaceMode colorSpaceMode;
-
-
-        [EditorGroup("DebugTools",true)]
-        [EditorButton()]
-        [Tooltip("show additive overdraw mode")]
-        public bool isSwitchOverdrawMode;
 
         //---------------------PlanarReflectionCamera
         [EditorGroup("PlanarReflectionCamera",true)]
@@ -191,6 +200,11 @@
         public Transform reflectionPlaneTr;
 
         //---------------------DebugTools
+        [EditorGroup("DebugTools",true)]
+        [EditorButton()]
+        [Tooltip("show additive overdraw mode")]
+        public bool isSwitchOverdrawMode;
+
         [EditorGroup("DebugTools")]
         [LoadAsset("SFC_ShowOverdrawAdd.mat")]
         public Material overdrawMat;

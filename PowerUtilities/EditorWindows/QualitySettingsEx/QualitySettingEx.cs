@@ -64,7 +64,7 @@
         /// <summary>
         /// manage platform quality renderPipelineAsset
         /// </summary>
-        [EditorBorder(1, bottomColorStr: ColorTools.LIGHT_GREEN)]
+        [EditorBorder(1, bottomColorStr: ColorTools.G_LIGHT_GREEN)]
         [HelpBox]
         public string helpBoxPlatformPipelineAsset = "manage platform quality renderPipelineAsset";
 

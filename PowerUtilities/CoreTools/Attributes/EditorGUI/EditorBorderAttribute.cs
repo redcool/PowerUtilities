@@ -20,11 +20,9 @@
         /// </summary>
         public int lineRowCount = 1;
         /// <summary>
-        /// left 
+        /// edge colors (left,right,top,bottom)
         /// </summary>
-        public Color color = default;
-
-        public Color right = default, top = default, bottom = default;
+        public Color leftColor = default, rightColor = default, topColor = default, bottomColor = default;
         /// <summary>
         /// line pixel size
         /// </summary>
@@ -33,22 +31,33 @@
         /// unity editor GetHeight use, default 18
         /// </summary>
         public int lineHeight = 0;
-
+        /// <summary>
+        /// check groupName is on or off
+        /// </summary>
         public string groupName;
+        /// <summary>
+        /// Rect.y offset
+        /// </summary>
+        public float posYOffset = 0;
+        public float posXOffset = -2;
+        /// <summary>
+        /// indent current rect
+        /// </summary>
+        public bool isIndentRect = true;
 
         public EditorBorderAttribute(int lineCount, string leftColorStr = default, string topColorStr = default, string rightColorStr = default, string bottomColorStr = default)
         {
             this.lineRowCount = lineCount;
-            ColorTools.SetupColor(leftColorStr, ref color);
-            ColorTools.SetupColor(rightColorStr, ref right);
-            ColorTools.SetupColor(topColorStr, ref top);
-            ColorTools.SetupColor(bottomColorStr, ref bottom);
+            ColorTools.SetupColor(leftColorStr, ref leftColor);
+            ColorTools.SetupColor(rightColorStr, ref rightColor);
+            ColorTools.SetupColor(topColorStr, ref topColor);
+            ColorTools.SetupColor(bottomColorStr, ref bottomColor);
         }
 
         public EditorBorderAttribute(int lineCount = 1)
         {
             this.lineRowCount = lineCount;
-            ColorTools.SetupColor(ColorTools.LIGHT_GREEN, ref color);
+            ColorTools.SetupColor(ColorTools.G_LIGHT_GREEN, ref leftColor);
         }
 
 
