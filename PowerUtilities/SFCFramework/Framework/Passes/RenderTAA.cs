@@ -11,6 +11,13 @@ using UnityEngine.Rendering.Universal;
 
 namespace PowerUtilities.RenderFeatures
 {
+    /// <summary>
+    /// Reference:
+    /// 
+    /// https://zhuanlan.zhihu.com/p/142922246
+    /// 
+    /// https://github.com/CMDRSpirit/URPTemporalAA
+    /// </summary>
 #if UNITY_2021_1_OR_NEWER
     [Tooltip("Render TAA")]
 #endif
