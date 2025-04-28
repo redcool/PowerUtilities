@@ -62,9 +62,15 @@
     [CreateAssetMenu(menuName = SRP_FEATURE_PASSES_MENU+ "/DrawObjects")]
     public class DrawObjects : SRPFeature
     {
-        const string FILTERS_GROUP = "Filters";
+        const string FILTERS_GROUP = "Filters",
+            DEBUG_TOOLS_GROUP = "DebugTools",
+            REFLECTION_CAMERA_GROUP = "ReflectionCamera",
+            CREATE_REFLECTION_CAMERA_GROUP = "CreateReflectionCamera"
+            ;
+
 
         [Header("Draw Objects Options")]
+        [EditorBorder]
         [Tooltip("Assign shader tags ,correspond Tags{\"LightMode\"=\"UniversalForward\"}")]
         public string[] shaderTags = new[] {
             "UniversalForwardOnly",
@@ -73,8 +79,8 @@
         };
 
         //-------------------------------------- FILTERS_GROUP
-        [EditorBorder(7)]
         [Header("BaseFilters")]
+        [EditorBorder(6)]
         [Tooltip("render opaque, opque:[0,2500],transparent:[2501,5000],all:[0,5000]")]
         public RenderQueueType renderQueueType = RenderQueueType.opaque;
         public LayerMask layers = -1;
@@ -98,7 +104,7 @@
         public StencilStateData stencilData;
         //-------------------------------------- override material
         [Header("--- override material")]
-        [EditorBorder(4)]
+        [EditorBorder(3)]
         [Tooltip("use this material render objects when not empty")]
         public Material overrideMaterial;
 
@@ -110,7 +116,7 @@
 
         //-------------------------------------- per object data
         [Header("--- Per Object Data")]
-        [EditorBorder(3)]
+        [EditorBorder(2)]
         [Tooltip("overridePerObjectData,Lightmap : (Lightmaps,LightProbe,LightProbeProxyVolume),ShadowMask:(ShadowMask,OcclusionProbe,OcclusionProbeProxyVolume)")]
         public bool overridePerObjectData;
         
@@ -119,7 +125,7 @@
 
         //-------------------------------------- override light
         [Header("--- override mainLight")]
-        [EditorBorder(6)]
+        [EditorBorder(5)]
         public bool overrideMainLightIndex;
 
         [Tooltip("restore mainLightIndex when draw finish")]
@@ -137,6 +143,7 @@
 
         //-------------------------------------- dynamic batch
         [Header("--- override dynamic batch")]
+        [EditorBorder(2)]
         [Tooltip("override urp Pipeline Asset")]
         public bool overrideDynamicBatching;
 
@@ -145,6 +152,7 @@
 
         //-------------------------------------- override instancing
         [Header("--- override instancing")]
+        [EditorBorder(2)]
         [Tooltip("override instancing")]
         public bool overrideGPUInstancing;
 
@@ -153,12 +161,14 @@
 
         //-------------------------------------- override srp batch
         [Header("--- override srp batch")]
+        [EditorBorder(2)]
         public bool overrideSRPBatch;
         [EditorDisableGroup(targetPropName = "overrideSRPBatch")]
         public bool enableSRPBatch;
 
         //-------------------------------------- override camera
         [Header("--- override camera")]
+        [EditorBorder(3)]
         public bool overrideCamera;
 
         [EditorDisableGroup(targetPropName = "overrideCamera")]
@@ -167,10 +177,12 @@
         public Vector4 cameraOffset;
         //-------------------------------------- override skybox
         [Header("SkyBox Pass")]
+        [EditorBorder(1)]
         [Tooltip("skyboxPass use last target,passEvent <= BeforeRenderingSkybox")]
         public bool IsUpdateSkyboxTarget;
         //---------------------DrawChildrenInstanced
         [Header("DrawChildrenInstanced")]
+        [EditorBorder(2)]
         public bool isDrawChildrenInstancedOn;
 
         [EditorDisableGroup(targetPropName = "isDrawChildrenInstancedOn")]
@@ -178,34 +190,38 @@
 
         //---------------------ColorSpace
         [Header("Color Space")]
+        [EditorBorder(1)]
         public ColorSpaceTransform.ColorSpaceMode colorSpaceMode;
 
         //---------------------PlanarReflectionCamera
-        [EditorGroup("PlanarReflectionCamera",true)]
+        [EditorBorder(2,groupName = CREATE_REFLECTION_CAMERA_GROUP)]
+        [EditorGroup(CREATE_REFLECTION_CAMERA_GROUP, true)]
         [Tooltip("create planar reflection camera")]
         [EditorButton(onClickCall = "OnCreatePlanarReflectionCamera")]
         public bool isCreatePlanarReflectionCamera;
 
         //---------------------ReflectionCamera
-        [EditorGroup("ReflectionCamera", true)]
+        [EditorBorder(4,groupName = REFLECTION_CAMERA_GROUP)]
+        [EditorGroup(REFLECTION_CAMERA_GROUP, true)]
         [Tooltip("render scene use camera's reflection view matrix")]
         public bool isUseReflectionCamera;
 
-        [EditorGroup("ReflectionCamera")]
+        [EditorGroup(REFLECTION_CAMERA_GROUP)]
         [Tooltip("water plane's height, when reflectionPlaneTr is empty ")]
         public float planeYOffset;
 
-        [EditorGroup("ReflectionCamera")]
+        [EditorGroup(REFLECTION_CAMERA_GROUP)]
         [Tooltip("mirror plane,result mirror effects")]
         public Transform reflectionPlaneTr;
 
         //---------------------DebugTools
-        [EditorGroup("DebugTools",true)]
+        [EditorBorder(3,groupName = DEBUG_TOOLS_GROUP)]
+        [EditorGroup(DEBUG_TOOLS_GROUP, true)]
         [EditorButton()]
         [Tooltip("show additive overdraw mode")]
         public bool isSwitchOverdrawMode;
 
-        [EditorGroup("DebugTools")]
+        [EditorGroup(DEBUG_TOOLS_GROUP)]
         [LoadAsset("SFC_ShowOverdrawAdd.mat")]
         public Material overdrawMat;
         // keep for restore

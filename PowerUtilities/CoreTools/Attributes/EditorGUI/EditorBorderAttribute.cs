@@ -38,7 +38,7 @@
         /// <summary>
         /// Rect.y offset
         /// </summary>
-        public float posYOffset = 0;
+        public float posYOffset = 1;
         public float posXOffset = -2;
         /// <summary>
         /// indent current rect
