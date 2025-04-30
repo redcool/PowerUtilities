@@ -18,7 +18,7 @@ namespace UnityEngine.Experimental.Rendering.Universal
         public class RenderObjectsSettings
         {
             public string passTag = "MultiPassRenderObjects";
-            public RenderPassEvent Event = RenderPassEvent.AfterRenderingSkybox;
+            public RenderPassEvent Event = RenderPassEvent.AfterRenderingTransparents;
 
             public FilterSettings filterSettings = new FilterSettings();
 

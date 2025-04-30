@@ -79,6 +79,11 @@ namespace PowerUtilities.RenderFeatures
         [Range(0.01f,2)] public float renderScale = 1;
         //used for check Feature.isOverriderRenderScale
         [HideInInspector]public bool lastIsOverrideRenderScale;
+
+        [Header("Material Shader Lod")]
+        [Tooltip("update materialList shader maxLod")]
+        [ListItemDraw("on:,isUpdateShaderMaxLod,mats:,materialList,lod:,shaderMaxLod","50,100,50,.5,50,100",rowCountArrayPropName = "materialList")]
+        public List<ShaderLodInfo> materialShaderLodList = new();
         public override ScriptableRenderPass GetPass() => new SetVarialbesPass(this);
     }
 
@@ -201,6 +206,16 @@ namespace PowerUtilities.RenderFeatures
             SetupVariables(cmd, ref renderingData);
 
             UpdateURPAsset();
+            UpdateMaterialShaderLod();
+        }
+
+        private void UpdateMaterialShaderLod()
+        {
+            foreach (var info in Feature.materialShaderLodList)
+            {
+                if(info != null)
+                    info.UpdateShaderLods();
+            }
         }
 
         private void UpdateURPAsset()
