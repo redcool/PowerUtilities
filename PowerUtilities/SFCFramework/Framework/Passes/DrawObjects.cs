@@ -281,7 +281,6 @@
             var projMat = cameraData.GetProjectionMatrix();
             if (Feature.isUseReflectionCamera)
                 SetupRenderReflectionCamera(ref cameraData,cmd,viewMat,projMat);
-
             // draw scene
             drawObjectsPass.OnExecute(context, ref renderingData, cmd);
 
@@ -293,18 +292,14 @@
                 RenderingUtils.SetViewAndProjectionMatrices(cmd, viewMat, projMat, false);
         }
 
+
+
         private void SetupRenderReflectionCamera(ref CameraData cameraData, CommandBuffer cmd, Matrix4x4 viewMat, Matrix4x4 projMat)
         {
             var camTr = cameraData.camera.transform;
             camTr.GetReflection(Feature.reflectionPlaneTr, Feature.planeYOffset, out var camForward, out var camUp, out var camPos);
 
-            //camForward = math.reflect(camForward, Vector3.up);
-
-            var v = float4x4.LookAt(camPos, camPos + camTr.forward, camUp);
-            if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLCore || SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLES3)
-            {
-                v.c2 *= -1;
-            }
+            var v = float4x4Ex.LookAtInverse(camPos, camPos + camForward, camUp);
             DebugTools.DrawAxis(camPos, v.c0.xyz, v.c1.xyz, v.c2.xyz);
 
             RenderingUtils.SetViewAndProjectionMatrices(cmd, v, projMat, false);

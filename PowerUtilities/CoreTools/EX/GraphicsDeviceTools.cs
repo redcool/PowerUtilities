@@ -7,11 +7,14 @@ namespace PowerUtilities
 {
     public static class GraphicsDeviceTools
     {
-        public static bool IsDeviceSupportInstancing()=>
+        public static bool IsDeviceSupportInstancing() =>
         SystemInfo.supportsInstancing;
-        
 
-        public static bool IsGLES3
-            => SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLES3;
+
+        public static bool IsGLDevice()
+            => SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLCore ||
+            SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLES3 ||
+            SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLES2
+            ;
     }
 }

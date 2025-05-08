@@ -150,46 +150,5 @@ namespace PowerUtilities
                 m[i] = nums[i];
             }
         }
-
-        public static Vector4 GetRow(this float3x4 m, int id)
-        => new Vector4(m.c0[id], m.c1[id], m.c2[id], m.c3[id]);
-
-        public static Vector4 GetRow(this float4x4 m, int id)
-        => new Vector4(m.c0[id], m.c1[id], m.c2[id], m.c3[id]);
-
-        //public static Vector4[] ToRowVectors(this float3x4 m)
-        //=> new[]{
-        //        m.GetRow(0),
-        //        m.GetRow(1),
-        //        m.GetRow(2),
-        //        };
-
-        public static Vector4[] ToColumnVectors(this float3x4 m)
-        =>new[]{
-                new Vector4(m.c0.x,m.c0.y,m.c0.z,m.c1.x),
-                new Vector4(m.c1.y,m.c1.z,m.c2.x,m.c2.y),
-                new Vector4(m.c2.z,m.c3.x,m.c3.y,m.c3.z),
-                };
-
-        public static float[] ToColumnArray(this float3x4 m)
-        {
-            var nums = new float[12];
-            for (int i = 0; i < 3; i++)
-                for (int j = 0; j < 4; j++)
-                    nums[i+j*3] = m[j][i];
-            return nums;
-        }
-
-        /// <summary>
-        /// Construct float3x4 from float[12],column base
-        /// </summary>
-        /// <param name="m"></param>
-        /// <param name="nums"></param>
-        public static void From(ref this float3x4 m, float[] nums)
-        {
-            for (int i = 0; i < 3; i++)
-                for (int j = 0; j < 4; j++)
-                    m[j][i] = nums[i + j * 3];
-        }
     }
 }
