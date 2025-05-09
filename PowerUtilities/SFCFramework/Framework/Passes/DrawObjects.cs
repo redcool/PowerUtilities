@@ -299,7 +299,7 @@
             var camTr = cameraData.camera.transform;
             camTr.GetReflection(Feature.reflectionPlaneTr, Feature.planeYOffset, out var camForward, out var camUp, out var camPos);
 
-            var v = float4x4Ex.LookAtInverse(camPos, camPos + camForward, camUp);
+            var v = Float4x4Ex.LookAtInverse(camPos, camPos + camForward, camUp);
             DebugTools.DrawAxis(camPos, v.c0.xyz, v.c1.xyz, v.c2.xyz);
 
             RenderingUtils.SetViewAndProjectionMatrices(cmd, v, projMat, false);

@@ -3,7 +3,10 @@ using UnityEngine;
 
 namespace PowerUtilities
 {
-    public static class float4x4Ex
+    /// <summary>
+    /// Unity.Mathematics float4x4 extension
+    /// </summary>
+    public static class Float4x4Ex
     {
 
         /// <summary>
@@ -63,23 +66,24 @@ namespace PowerUtilities
         /// </summary>
         /// <param name="m"></param>
         /// <returns></returns>
-        //public static float4x4 FastInverse(this float4x4 m)
-        //{
-        //    var r0 = m.GetRow(0).xyz;
-        //    var r1 = m.GetRow(1).xyz;
-        //    var r2 = m.GetRow(2).xyz;
-        //    var pos = -m.c3.xyz; // pos
+        public static float4x4 FastInverse(this float4x4 tr)
+        {
+            // pos inverse
+            var pos = -tr.c3.xyz;
 
-        //    //var r = (float3x3)m;
-        //    var r = new float3x3(m.c0.xyz, m.c1.xyz, m.c2.xyz);
-        //    r = math.transpose(r);
+            //rot inverse
+            tr = math.transpose(tr);
+            var t0 = math.dot(tr.GetRow(0).xyz, pos);
+            var t1 = math.dot(tr.GetRow(1).xyz, pos);
+            var t2 = math.dot(tr.GetRow(2).xyz, pos);
 
-        //    return new float4x4(r, new float3(
-        //        math.dot(r0,pos),
-        //        math.dot(r1,pos),
-        //        math.dot(r2,pos)
-        //        ));
-        //}
+            tr.c3 = new float4(t0, t1, t2, 1.0f);
+
+            // set row3
+            tr.SetRow(3, new float4(0, 0, 0, 1));
+
+            return tr;
+        }
         /// <summary>
         /// Construct a inversed look-at matrix from the eye position, target position, and up vector.
         /// </summary>
@@ -87,37 +91,17 @@ namespace PowerUtilities
         /// <param name="target"></param>
         /// <param name="up"></param>
         /// <returns></returns>
-        public static float4x4 LookAtInverse(Vector3 eye, Vector3 target, Vector3 up)
+        public static float4x4 LookAtInverse(float3 eye, float3 target, float3 up)
         {
             float3x3 rot = float3x3.LookRotation(math.normalize(target - eye), up);
             if (GraphicsDeviceTools.IsGLDevice())
             {
                 rot.c2 *= -1;
             }
-
-            //return FastInverse(new float4x4(rot,eye));
-
-            // simple version
-            rot = math.transpose(rot);
-            eye *= -1;
-
-            var t0 = math.dot(rot.GetRow(0), eye);
-            var t1 = math.dot(rot.GetRow(1), eye);
-            var t2 = math.dot(rot.GetRow(2), eye);
-
-            return math.float4x4(rot,new float3(t0,t1,t2));
+            //rot = math.transpose(rot);
+            var tr = math.float4x4(rot, eye);
+            return FastInverse(tr);
         }
-        /*
-        public static float4x4 LookAtInverse(Vector3 eye, Vector3 target, Vector3 up)
-        {
-            float3x3 rot = float3x3.LookRotation(math.normalize(target - eye), up);
-            if (GraphicsDeviceTools.IsGLDevice())
-            {
-                rot.c2 *= -1;
-            }
-            return math.fastinverse(math.float4x4(rot, eye));
-        }
-        */
 
         /// <summary>
         /// Row major matrix mulplication
