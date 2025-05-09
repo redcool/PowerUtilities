@@ -24,6 +24,9 @@
         {
             x1=1,x2=2,x4=4,x8=8
         }
+        // show as title
+        [HideInInspector]
+        public string title="";
 
         [Tooltip("rt name")]
         public string name;
@@ -100,6 +103,11 @@
             return isValid;
         }
 
+        void UpdateTitle()
+        {
+            var skipState = isSkip ? "(Skip)" : "";
+            title = $"{name}{skipState}";
+        }
         /// <summary>
         /// Set suitable format and get
         /// </summary>
@@ -119,6 +127,7 @@
 
         public void CreateRT(CommandBuffer cmd, RenderTextureDescriptor desc, Camera cam)
         {
+            UpdateTitle();
             if (!IsValid(cam))
                 return;
 
