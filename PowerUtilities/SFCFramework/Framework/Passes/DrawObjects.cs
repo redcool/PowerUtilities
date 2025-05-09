@@ -64,8 +64,8 @@
     {
         const string FILTERS_GROUP = "Filters",
             DEBUG_TOOLS_GROUP = "DebugTools",
-            REFLECTION_CAMERA_GROUP = "ReflectionCamera",
-            CREATE_REFLECTION_CAMERA_GROUP = "CreateReflectionCamera"
+            REFLECTION_CAMERA_GROUP = "SetupReflectionCameraView",
+            CREATE_REFLECTION_CAMERA_GROUP = "CreateReflectionCameraControl"
             ;
 
 
