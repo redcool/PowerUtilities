@@ -230,7 +230,7 @@ namespace PowerUtilities
         public static void BlitTriangle(this CommandBuffer cmd, RenderTargetIdentifier sourceId, RenderTargetIdentifier colorTargetId, Material mat, int pass,
             Camera camera = null, BlendMode finalSrcMode = BlendMode.One, BlendMode finalDstMode = BlendMode.Zero,
             ClearFlag clearFlags = ClearFlag.None, Color clearColor = default, RenderTargetIdentifier depthTargetId = default,
-            bool isTryReplaceUrpTarget = true, bool drawTriangleMesh = false)
+            bool isTryReplaceUrpTarget = true, bool drawTriangleMesh = false,Rect viewPortRect=default)
         {
 #if UNITY_2022_1_OR_NEWER
             if (isTryReplaceUrpTarget)
@@ -269,6 +269,10 @@ namespace PowerUtilities
             if (camera)
             {
                 cmd.SetViewport(camera.pixelRect);
+            }
+            if(viewPortRect != default)
+            {
+                cmd.SetViewport(viewPortRect);
             }
 
             // draw trangle or procedural

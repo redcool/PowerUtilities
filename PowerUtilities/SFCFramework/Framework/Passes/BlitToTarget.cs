@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Mathematics;
+
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -83,6 +85,8 @@ namespace PowerUtilities.RenderFeatures
     [CreateAssetMenu(menuName=SRP_FEATURE_PASSES_MENU+ "/BlitToTarget")]
     public class BlitToTarget : SRPFeature
     {
+        const string VIEWPORT_GROUP = "Viewport";
+
         [EditorHeader("", "--- Source")]
         [Tooltip("When empty will use Current Active")]
         [StringListSearchable(type = typeof(CreateRenderTarget), staticMemberName = nameof(CreateRenderTarget.GetColorTargetNames))]
@@ -124,10 +128,20 @@ namespace PowerUtilities.RenderFeatures
         [Tooltip("clear target ")]
         public ClearFlag clearFlags = ClearFlag.None;
 
+        [EditorGroup(VIEWPORT_GROUP,isHeader =true)]
+        [Tooltip("override viewport rect")]
+        public bool isOverrideViewport;
+
+        [EditorGroup(VIEWPORT_GROUP)]
+        public Rect viewPortRect = new Rect(0, 0, 1, 1);
+
+        [EditorGroup(VIEWPORT_GROUP)]
+        [Tooltip("use uv space[0,1] * camera.pixelSize,otherwise use pixel coordinate")]
+        public bool isUseUVSpace = true;
+
         [EditorHeader("", "--- Other Blits")]
         [Tooltip("more blit")]
         public List<BlitToTargetInfo> otherBlitToTargetInfos = new();
-
         /// <summary>
         /// 
         /// </summary>
@@ -272,12 +286,24 @@ namespace PowerUtilities.RenderFeatures
 
             ColorSpaceTransform.SetColorSpace(cmd, info.colorSpaceMode);
 
+            Rect viewportRect = default;
+            if (Feature.isOverrideViewport)
+            {
+                viewportRect = Feature.viewPortRect;
+                if (Feature.isUseUVSpace)
+                {
+                    var rect = new Rect(camera.pixelRect.size, camera.pixelRect.size);
+                    viewportRect = Feature.viewPortRect.Mul(rect);
+                }
+            }
+
             if (info.blitMat)
             {
                 cmd.BlitTriangle(sourceId, targetId, info.blitMat, info.blitMatPassId,
                     finalSrcMode: info.srcMode,
                     finalDstMode: info.dstMode,
-                    clearFlags: info.clearFlags);
+                    clearFlags: info.clearFlags, 
+                    viewPortRect:viewportRect);
             }
             else
             {
