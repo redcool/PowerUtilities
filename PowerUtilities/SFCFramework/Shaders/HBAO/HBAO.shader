@@ -6,8 +6,14 @@ Shader "Hidden/Unlit/HBAO"
 {
     Properties
     {
-        [GroupVectorSlider(,AORangeMin AORangeMax,0_1 0_1)]_AORange("_AORange",vector) = (0,1,0,0)
+        _AORangeMin("_AORangeMin",range(0,1)) = 0.1
+        _AORangeMax("_AORangeMax",range(0,1)) = 1
         _StepScale("_StepScale",range(0.02,.2)) = 0.1
+
+        _DirCount("_DirCount",float) = 10
+        _StepCount("_StepCount",float) = 4
+        
+        [GroupToggle(,_NORMAL_FROM_DEPTH)] _NormalFromDepth("_NormalFromDepth",float) = 0
     }
     SubShader
     {
@@ -21,6 +27,7 @@ Shader "Hidden/Unlit/HBAO"
             HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
+            #pragma shader_feature _NORMAL_FROM_DEPTH
 
             #include "../../../../../PowerShaderLib/Lib/UnityLib.hlsl"
             #include "../../../../../PowerShaderLib/Lib/BlitLib.hlsl"
@@ -44,8 +51,9 @@ Shader "Hidden/Unlit/HBAO"
             // sampler2D _CameraNormalsTexture;
 
             CBUFFER_START(UnityPerMaterial)
-            float2 _AORange;
+            float _AORangeMax,_AORangeMin;
             float _StepScale;
+            float _DirCount,_StepCount;
             CBUFFER_END
 
             v2f vert (appdata i)
@@ -71,12 +79,17 @@ Shader "Hidden/Unlit/HBAO"
                 float3 worldPos = ScreenToWorld(uv);
                 float3 viewPos = WorldToViewPos(worldPos);
                 float4 screenCol = GetScreenColor(uv);
+
+                #if defined(_NORMAL_FROM_DEPTH)
+                float3 worldNormal = CalcWorldNormal(worldPos);
+                #else
                 float3 worldNormal = (GetScreenNormal(uv));
+                #endif
                 float3 viewNormal = normalize(WorldToViewNormal(worldNormal));
 
-                const float radiusSS = 64.0 / 512.0;
-                const int directionsCount = 4;
-                const int stepsCount = 10;
+                float radiusSS = 64.0 / 512.0;
+                int directionsCount =_DirCount;
+                int stepsCount = _StepCount;
 
                 float theta = 2 * PI /float(directionsCount);
                 float2x2 deltaRotationMatrix = float2x2(
@@ -106,12 +119,8 @@ Shader "Hidden/Unlit/HBAO"
                 }
 
                 occlusion = 1 - occlusion/directionsCount;
-                occlusion = smoothstep(_AORange.x,_AORange.y,occlusion);
+                occlusion = smoothstep(_AORangeMin,_AORangeMax,occlusion);
                 
-                // occlusion = saturate(pow(occlusion,2.7));
-                // occlusion = pow(occlusion,0.4545);
-                // return saturate(occlusion);
-
                 return half4(screenCol.xyz * occlusion,1);
             }
             ENDHLSL
