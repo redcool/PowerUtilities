@@ -136,7 +136,7 @@ namespace PowerUtilities.RenderFeatures
         public Rect viewPortRect = new Rect(0, 0, 1, 1);
 
         [EditorGroup(VIEWPORT_GROUP)]
-        [Tooltip("use uv space[0,1] * camera.pixelSize,otherwise use pixel coordinate")]
+        [Tooltip("use uv space[0,1] * currentRT.size,otherwise use pixel coordinate")]
         public bool isUseUVSpace = true;
 
         [EditorHeader("", "--- Other Blits")]
@@ -157,6 +157,7 @@ namespace PowerUtilities.RenderFeatures
 
     public class BlitToTargetPass : SRPPass<BlitToTarget>
     {
+        CameraData cameraData;
         BlitToTargetInfo defaultBlitInfo;
         public BlitToTargetPass(BlitToTarget feature) : base(feature) { }
 
@@ -196,7 +197,7 @@ namespace PowerUtilities.RenderFeatures
 
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
         {
-            ref var cameraData = ref renderingData.cameraData;
+            cameraData = renderingData.cameraData;
             var renderer = (UniversalRenderer)cameraData.renderer;
 
             UpdateDefaultBlitInfo();
@@ -292,7 +293,8 @@ namespace PowerUtilities.RenderFeatures
                 viewportRect = Feature.viewPortRect;
                 if (Feature.isUseUVSpace)
                 {
-                    var rect = new Rect(camera.pixelRect.size, camera.pixelRect.size);
+                    var size = new Vector2(cameraData.cameraTargetDescriptor.width, cameraData.cameraTargetDescriptor.height);
+                    var rect = new Rect(size, size);
                     viewportRect = Feature.viewPortRect.Mul(rect);
                 }
             }
