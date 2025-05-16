@@ -11,6 +11,8 @@ namespace PowerUtilities.RenderFeatures
         [Header(nameof(RenderHBAO))]
         [LoadAsset("Hidden_Unlit_HBAO.mat")]
         public Material hbaoMat;
+        [Tooltip("override hbao material's parameters")]
+        public bool isOverrideMaterial;
 
         [Tooltip("ao size")]
         [Range(0,1)] public float aoRangeMin=0.1f,aoRangeMax=1;
@@ -41,14 +43,16 @@ namespace PowerUtilities.RenderFeatures
         {
             var cam = renderingData.cameraData.camera;
             var renderer = renderingData.cameraData.renderer;
+            if (Feature.isOverrideMaterial)
+            {
+                Feature.hbaoMat.SetFloat("_AORangeMin", Feature.aoRangeMin);
+                Feature.hbaoMat.SetFloat("_AORangeMax", Feature.aoRangeMax);
+                Feature.hbaoMat.SetFloat("_StepScale", Feature.stepScale);
+                Feature.hbaoMat.SetInt("_DirCount", Feature.dirCount);
+                Feature.hbaoMat.SetInt("_StepCount", Feature.stepCount);
 
-            Feature.hbaoMat.SetFloat("_AORangeMin", Feature.aoRangeMin);
-            Feature.hbaoMat.SetFloat("_AORangeMax", Feature.aoRangeMax);
-            Feature.hbaoMat.SetFloat("_StepScale", Feature.stepScale);
-            Feature.hbaoMat.SetInt("_DirCount", Feature.dirCount);
-            Feature.hbaoMat.SetInt("_StepCount", Feature.stepCount);
-
-            Feature.hbaoMat.SetKeyword("_NORMAL_FROM_DEPTH", Feature.isNormalFromDepth);
+                Feature.hbaoMat.SetKeyword("_NORMAL_FROM_DEPTH", Feature.isNormalFromDepth);
+            }
 
             cmd.BlitTriangle(BuiltinRenderTextureType.None, renderer.cameraColorTargetHandle, Feature.hbaoMat, 0);
             cmd.Execute(ref context);
