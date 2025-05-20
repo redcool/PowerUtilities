@@ -18,6 +18,7 @@
     using PowerUtilities;
     using Object = UnityEngine.Object;
     using Unity.Mathematics;
+    using RenderQueueType = PowerUtilities.RenderQueueType;
 #if UNITY_2020
     using UniversalRenderer = UnityEngine.Rendering.Universal.ForwardRenderer;
     using Tooltip = PowerUtilities.TooltipAttribute;
@@ -77,7 +78,7 @@
             "UniversalForward",
             "SRPDefaultUnlit"
         };
-
+        
         //-------------------------------------- FILTERS_GROUP
         [Header("BaseFilters")]
         [EditorBorder(6)]
