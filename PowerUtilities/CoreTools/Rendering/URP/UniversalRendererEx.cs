@@ -88,6 +88,17 @@ namespace PowerUtilities
         /// <returns></returns>
         public static RTHandle GetRTHandle(this UniversalRenderer renderer, URPRTHandleNames rtName, bool forceMode = false)
         {
+            // get renderer target
+            if (rtName == URPRTHandleNames._CameraDepthAttachment ||
+                rtName == URPRTHandleNames.m_CameraDepthAttachment ||
+                rtName == URPRTHandleNames.m_ActiveCameraDepthAttachment)
+                return renderer.CameraDepthTargetHandle();
+
+            if (rtName == URPRTHandleNames._CameraColorAttachmentA ||
+                rtName == URPRTHandleNames.m_ActiveCameraColorAttachment)
+                return renderer.CameraColorTargetHandle();
+
+            // get others
             if (!rendererRTHandleInfoDict.TryGetValue(renderer, out var handleInfo))
             {
                 handleInfo = rendererRTHandleInfoDict[renderer] = new ScriptableRendererRTHandleInfo();
