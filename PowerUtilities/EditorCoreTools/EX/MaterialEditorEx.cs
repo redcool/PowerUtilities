@@ -271,8 +271,6 @@ namespace PowerUtilities
         /// <param name="props"></param>
         public static void PropertiesDefaultGUINoChangeWidths(this MaterialEditor materialEditorI, MaterialProperty[] props)
         {
-
-
             for (int i = 0; i < props.Length; i++)
             {
                 if ((props[i].flags & MaterialProperty.PropFlags.HideInInspector) == 0)

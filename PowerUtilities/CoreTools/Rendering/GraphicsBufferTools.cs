@@ -18,6 +18,11 @@ namespace PowerUtilities
         public static int MATRIX_BYTES = 64;
         public static int FLOAT3X4_BYTES = 12;
 
+        public static bool IsValidSafe(this GraphicsBuffer buffer)
+        {
+            return buffer != null && buffer.IsValid();
+        }
+
         /// <summary>
         /// Set continuous Data block and update graphBufferStartId
         /// 

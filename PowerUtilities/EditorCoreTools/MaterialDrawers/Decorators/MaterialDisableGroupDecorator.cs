@@ -14,11 +14,17 @@ namespace PowerUtilities
     /// </summary>
     public class MaterialDisableGroupDecorator : MaterialPropertyDrawer
     {
-
         public string targetPropName;
+        public bool isReverse; 
+
         public MaterialDisableGroupDecorator(string targetPropName)
         {
             this.targetPropName = targetPropName;
+        }
+        public MaterialDisableGroupDecorator(string targetPropName,string reverseStr)
+        {
+            this.targetPropName = targetPropName;
+            isReverse = !string.IsNullOrEmpty(reverseStr);
         }
 
         public override float GetPropertyHeight(MaterialProperty prop, string label, MaterialEditor editor)
@@ -48,12 +54,15 @@ namespace PowerUtilities
                 return false;
 
             //2 get targetPropName is setted?
-            var disableGroupAttr = editor.GetPropertyAttribute<MaterialDisableGroupDecorator>(propName);
-            if (string.IsNullOrEmpty(disableGroupAttr.targetPropName))
+            var attr = editor.GetPropertyAttribute<MaterialDisableGroupDecorator>(propName);
+            if (string.IsNullOrEmpty(attr.targetPropName))
                 return false;
 
-            var disableTargetProp = editor.GetProperty(disableGroupAttr.targetPropName);
-            return disableTargetProp.floatValue == 0;
+            var disableTargetProp = editor.GetProperty(attr.targetPropName);
+            var isDisabled = disableTargetProp.floatValue == 0;
+            if(attr.isReverse)
+                isDisabled = !isDisabled;
+            return isDisabled;
         }
 
     }

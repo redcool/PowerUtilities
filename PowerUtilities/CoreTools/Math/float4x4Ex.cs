@@ -48,18 +48,16 @@ namespace PowerUtilities
             return nums;
         }
 
-        //public static Vector4[] ToRowVectors(this float3x4 m)
-        //=> new[]{
-        //        m.GetRow(0),
-        //        m.GetRow(1),
-        //        m.GetRow(2),
-        //        };
+        public static Vector4[] ToRowVectors(this float3x4 m)
+        => new Vector4[]{
+                m.GetRow(0),
+                m.GetRow(1),
+                m.GetRow(2),
+                };
 
-        public static Vector4[] ToColumnVectors(this float3x4 m)
-        => new[]{
-                new Vector4(m.c0.x,m.c0.y,m.c0.z,m.c1.x),
-                new Vector4(m.c1.y,m.c1.z,m.c2.x,m.c2.y),
-                new Vector4(m.c2.z,m.c3.x,m.c3.y,m.c3.z),
+        public static Vector3[] ToColumnVectors(this float3x4 m)
+        => new Vector3[]{
+                m.c0,m.c1,m.c2,m.c3
                 };
 
         /// <summary>
