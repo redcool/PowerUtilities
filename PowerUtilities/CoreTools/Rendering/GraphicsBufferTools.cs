@@ -18,10 +18,7 @@ namespace PowerUtilities
         public static int MATRIX_BYTES = 64;
         public static int FLOAT3X4_BYTES = 12;
 
-        public static bool IsValidSafe(this GraphicsBuffer buffer)
-        {
-            return buffer != null && buffer.IsValid();
-        }
+
 
         /// <summary>
         /// Set continuous Data block and update graphBufferStartId
@@ -67,7 +64,22 @@ namespace PowerUtilities
                 dataStartIds[i] = startId;
             }
         }
-
+        public static bool IsValidSafe(this GraphicsBuffer buffer)
+        {
+            return buffer != null && buffer.IsValid();
+        }
+        /// <summary>
+        /// create new when buffer is null or invalid
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="target"></param>
+        /// <param name="count"></param>
+        /// <param name="stride"></param>
+        public static void TryCreateBuffer(ref GraphicsBuffer buffer,GraphicsBuffer.Target target,int count,int stride)
+        {
+            if (!buffer.IsValidSafe())
+                buffer = new GraphicsBuffer(target, count, stride);
+        }
     }
 
 

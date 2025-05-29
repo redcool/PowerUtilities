@@ -4,6 +4,7 @@
     using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Text;
     using UnityEngine;
 
     public static class MeshTools
@@ -193,7 +194,7 @@
         {
             if (!a || !b)
                 return;
-
+            
             a.Clear();
             a.vertices = b.vertices;
             a.uv = b.uv;
@@ -216,6 +217,27 @@
 #if UNITY_2021_1_OR_NEWER
             a.indexBufferTarget = b.indexBufferTarget;
 #endif
+        }
+        /// <summary>
+        /// Get bone start index for per vertex,index is mesh.GetAllBoneWeights
+        /// </summary>
+        /// <param name="bonesPerVertex"></param>
+        /// <returns></returns>
+        public static int[] GetBoneStartPerVertex(this Mesh mesh)
+        {
+            var bonesPerVertex = mesh.GetBonesPerVertex();
+            var bonesStartPerVertex = new int[bonesPerVertex.Length];
+            
+            var startIndex = 0;
+
+            for (int i = 0; i < bonesPerVertex.Length; i++)
+            {
+                bonesStartPerVertex[i] = startIndex;
+                var count = bonesPerVertex[i];
+
+                startIndex += count;
+            }
+            return bonesStartPerVertex;
         }
     }
 }

@@ -25,7 +25,12 @@ Material:
     m_TexEnvs: []
     m_Ints: []
     m_Floats:
-    - _StepScale: 0.072
+    - _AORangeMax: 0.671
+    - _AORangeMin: 0
+    - _DirCount: 30
+    - _NormalFromDepth: 0
+    - _StepCount: 30
+    - _StepScale: 0.1004
     m_Colors:
     - _AORange: {r: 0.172, g: 1, b: 0, a: 0}
   m_BuildTextureStacks: []
