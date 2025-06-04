@@ -313,8 +313,10 @@ namespace PowerUtilities.Features
                 var depthId = ShaderPropertyIds.PropertyToID(info.depthTargetName);
 
                 cmd.SetRenderTarget(colorId, depthId);
-                if (info.isClearDepth)
-                    cmd.ClearRenderTarget(true, false, Color.black);
+                if (info.clearFlags != RTClearFlags.None)
+                {
+                    cmd.ClearRenderTarget(info.clearFlags, Color.clear, 1, 0);
+                }
                 cmd.Execute(ref context);
             }
             //2 rebind targets
@@ -358,8 +360,8 @@ namespace PowerUtilities.Features
                 info.isWriteTargetTextureOnce = false;
                 dstId = info.targetTexture;
             }
-
-            cmd.BlitTriangle(srcId, dstId, settings.blitMat, 0);
+            var mat = info.blitMat ?? settings.blitMat;
+            cmd.BlitTriangle(srcId, dstId, mat, 0);
         }
 
         bool AnyCameraHasPostProcessing()

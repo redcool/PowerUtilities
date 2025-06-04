@@ -28,10 +28,12 @@ namespace PowerUtilities
 
         [Header("Set Targets")]
         public bool isRetarget;
+        [Tooltip("color target name")]
         public string colorTargetName;
+        [Tooltip("depth target name")]
         public string depthTargetName;
-        public bool isClearDepth;
-
+        [Tooltip("clear color depth target")]
+        public RTClearFlags clearFlags = RTClearFlags.None;
 
         [Header("Rebind Targets")]
         public List<RebingTargetNameInfo> rebindTargetList = new List<RebingTargetNameInfo> ();
@@ -39,6 +41,8 @@ namespace PowerUtilities
         [EditorHeader("","------ Copy Screen Color")]
         [Tooltip("blit srcName to dstName,when draw done")]
         public bool isBlitToTarget;
+        [Tooltip("use settings.blitMat when empty")]
+        public Material blitMat;
         public string srcName = "_GammaTex";
         public string dstName = "_CameraOpaqueTexture";
 

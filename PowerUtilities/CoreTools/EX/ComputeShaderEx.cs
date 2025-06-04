@@ -18,5 +18,8 @@ namespace PowerUtilities
             var zGroups = Mathf.CeilToInt(resultTexDepth / (float)zSize);
             cs.Dispatch(kernelId, xGroups, yGroups, zGroups);
         }
+
+        public static bool CanExecute(this ComputeShader cs)
+        => SystemInfo.supportsComputeShaders && cs;
     }
 }
