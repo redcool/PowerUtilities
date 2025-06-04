@@ -49,8 +49,8 @@ namespace PowerUtilities
 #if UNITY_2022_3_OR_NEWER
             var renderer = UniversalRenderPipeline.asset.GetDefaultRenderer();
             RenderTargetIdentifier rtId = id;
-            if (renderer.TryReplaceURPRTTarget(name, ref rtId))
-                return rtId;
+            renderer.FindTarget(name, ref rtId);
+
 #endif
             return id;
         }
