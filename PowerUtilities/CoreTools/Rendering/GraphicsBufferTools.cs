@@ -18,7 +18,10 @@ namespace PowerUtilities
         public static int MATRIX_BYTES = 64;
         public static int FLOAT3X4_BYTES = 12;
 
-
+        /// <summary>
+        /// {bufferName , GraphicsBuffer}
+        /// </summary>
+        public static Dictionary<string,GraphicsBuffer> bufferDict = new ();
 
         /// <summary>
         /// Set continuous Data block and update graphBufferStartId
@@ -68,6 +71,19 @@ namespace PowerUtilities
         {
             return buffer != null && buffer.IsValid();
         }
+
+        public static bool IsValidSafe(this GraphicsBuffer buffer,int count,int stride)
+        {
+            return buffer != null && buffer.IsValid() 
+                && buffer.count == count 
+                && buffer.stride == stride;
+        }
+
+        public static void TryRelease(this GraphicsBuffer buffer)
+        {
+            if (buffer.IsValidSafe())
+                buffer.Release();
+        }
         /// <summary>
         /// create new when buffer is null or invalid
         /// </summary>
@@ -79,6 +95,29 @@ namespace PowerUtilities
         {
             if (!buffer.IsValidSafe())
                 buffer = new GraphicsBuffer(target, count, stride);
+        }
+
+        /// <summary>
+        /// Get a cached buffer
+        /// </summary>
+        /// <param name="bufferName"></param>
+        /// <param name="target"></param>
+        /// <param name="count"></param>
+        /// <param name="stride"></param>
+        /// <returns></returns>
+        public static GraphicsBuffer GetBuffer(string bufferName, GraphicsBuffer.Target target, int count, int stride)
+        {
+            bufferDict.TryGetValue(bufferName, out var buffer);
+
+            if (!buffer.IsValidSafe(count, stride))
+            {
+                buffer.TryRelease();
+                buffer = bufferDict[bufferName] = new GraphicsBuffer(target, count, stride);
+                buffer.name = bufferName;
+            }
+            return buffer;
+
+            //return DictionaryTools.Get(bufferDict, bufferName, bufferName => new GraphicsBuffer(target, count, stride));
         }
     }
 

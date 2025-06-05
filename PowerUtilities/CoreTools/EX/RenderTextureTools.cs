@@ -7,6 +7,7 @@ using UnityEngine.Rendering.Universal;
 using UnityEngine.Rendering;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
+using Unity.Collections;
 
 namespace PowerUtilities
 {
@@ -154,6 +155,39 @@ namespace PowerUtilities
 
             createdRenderTextureDict[name].Destroy();
             createdRenderTextureDict.Remove(name);
+        }
+
+        public static void AsyncGPUReadRenderTexture(this RenderTexture rt, int pixelByteCount = 4, Action<byte[]> onDone = null)
+        {
+            if (onDone == null || !rt)
+                return;
+
+            var buffer = new NativeArray<byte>(rt.width * rt.height * pixelByteCount, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
+
+            AsyncGPUReadback.RequestIntoNativeArray(ref buffer, rt, 0, request =>
+            {
+                if (request.hasError)
+                {
+                    buffer.Dispose();
+                    return;
+                }
+                using var enc = ImageConversion.EncodeNativeArrayToPNG(buffer, rt.graphicsFormat, (uint)rt.width, (uint)rt.height);
+                onDone(enc.ToArray());
+                buffer.Dispose();
+            });
+        }
+
+        public static void ReadRenderTexture(this RenderTexture sourceTex, ref Texture2D targetTex)
+        {
+            if (!sourceTex)
+                return;
+
+            if (!targetTex)
+                targetTex = new Texture2D(sourceTex.width, sourceTex.height, TextureFormat.ARGB32, false, true);
+
+            RenderTexture.active = sourceTex;
+            targetTex.ReadPixels(new Rect(0, 0, sourceTex.width, sourceTex.height), 0, 0, false);
+            RenderTexture.active = null;
         }
     }
 }

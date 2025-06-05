@@ -75,7 +75,7 @@
             var path = $"{Path.GetDirectoryName(scene.path)}/{scene.name}.png";
 
             var colorTex = new Texture2D(width, height, TextureFormat.ARGB32, false, true);
-            GPUTools.ReadRenderTexture(Feature.tempRT, ref colorTex);
+            Feature.tempRT.ReadRenderTexture(ref colorTex);
 
             SaveTexture(path, colorTex);
         }
