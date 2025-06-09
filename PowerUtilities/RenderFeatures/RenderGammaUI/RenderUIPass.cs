@@ -194,7 +194,6 @@ namespace PowerUtilities.Features
 
             // to gamma space
             ColorSpaceTransform.SetColorSpace(cmd, ColorSpaceTransform.ColorSpaceMode.LinearToSRGB);
-            settings.blitMat.shaderKeywords = null;
 
             //---------------------  1 to gamma tex
             if (settings.isBlitActiveColorTarget && lastColorHandle.nameID != colorHandle.nameID)
