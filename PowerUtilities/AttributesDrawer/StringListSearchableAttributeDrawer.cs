@@ -10,8 +10,20 @@ namespace PowerUtilities
     [CustomPropertyDrawer(typeof(StringListSearchableAttribute))]
     public class StringListSearchableAttributeDrawer : PropertyDrawer
     {
+        bool isIndentAdd1;
+        bool isGroupOn;
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+        {
+            // check EditorGroup attr
+            CheckGroupAttr(ref isIndentAdd1,ref isGroupOn);
+
+            return isGroupOn? base.GetPropertyHeight(property, label) : -2;
+        }
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
+            if (!isGroupOn)
+                return;
+
             var attr = attribute as StringListSearchableAttribute;
             // check enumType
             if (attr.enumType == null && property.propertyType == SerializedPropertyType.Enum)
@@ -21,14 +33,31 @@ namespace PowerUtilities
 
             var pos = position;
             pos.width = position.width - 20;
-            EditorGUI.PropertyField(pos, property, label);
+
+            EditorGUITools.DrawIndent(() =>
+            {
+                EditorGUI.PropertyField(pos, property, label);
+            }, isIndentAdd1, 1);
 
             pos.x += pos.width;
             pos.width = 20;
-            var isClicked = GUI.Button(pos, "+", EditorStyles.popup);
+            var isClicked = GUI.Button(pos, "", EditorStyles.popup);
             if (isClicked)
                 ShowSearchWindow(property, attr);
 
+        }
+
+        private void CheckGroupAttr(ref bool isIndentAdd,ref bool isGroupOn)
+        {
+            var groupAttrs = fieldInfo.GetCustomAttributes(typeof(EditorGroupAttribute), false);
+            if (EditorGUI.indentLevel == 0 && groupAttrs != null && groupAttrs.Length > 0)
+            {
+                if (groupAttrs[0] is EditorGroupAttribute groupAttr)
+                {
+                    isIndentAdd1 = !groupAttr.isHeader;
+                    isGroupOn = MaterialGroupTools.IsGroupOn(groupAttr.groupName);
+                }
+            }
         }
 
         public string[] GetNames(StringListSearchableAttribute attr)

@@ -112,6 +112,15 @@ namespace PowerUtilities
 
         #endregion
 
+        public static void DrawIndent(Action drawAction,bool hasIndent,int indentLevelAdd=1)
+        {
+            if (drawAction == null)
+                return;
+            var intent = hasIndent ? indentLevelAdd : 0;
+            EditorGUI.indentLevel += intent;
+            drawAction();
+            EditorGUI.indentLevel -= intent;
+        }
         #region Box And Group
 
         public static void BeginVerticalBox(Action drawAction, string style = "Box",int indentLevelAdd=0)

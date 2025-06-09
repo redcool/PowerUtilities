@@ -72,11 +72,13 @@ namespace PowerUtilities
             return buffer != null && buffer.IsValid();
         }
 
-        public static bool IsValidSafe(this GraphicsBuffer buffer,int count,int stride)
+        public static bool IsValidSafe(this GraphicsBuffer buffer,GraphicsBuffer.Target target,int count,int stride)
         {
-            return buffer != null && buffer.IsValid() 
+            return IsValidSafe(buffer)
                 && buffer.count == count 
-                && buffer.stride == stride;
+                && buffer.stride == stride
+                && buffer.target == target
+                ;
         }
 
         public static void TryRelease(this GraphicsBuffer buffer)
@@ -98,18 +100,18 @@ namespace PowerUtilities
         }
 
         /// <summary>
-        /// Get a cached buffer
+        /// Get a global named (cached )buffer
         /// </summary>
         /// <param name="bufferName"></param>
         /// <param name="target"></param>
         /// <param name="count"></param>
         /// <param name="stride"></param>
         /// <returns></returns>
-        public static GraphicsBuffer GetBuffer(string bufferName, GraphicsBuffer.Target target, int count, int stride)
+        public static GraphicsBuffer GetGlobalBuffer(string bufferName, GraphicsBuffer.Target target, int count, int stride)
         {
             bufferDict.TryGetValue(bufferName, out var buffer);
 
-            if (!buffer.IsValidSafe(count, stride))
+            if (!buffer.IsValidSafe(target,count, stride))
             {
                 buffer.TryRelease();
                 buffer = bufferDict[bufferName] = new GraphicsBuffer(target, count, stride);
