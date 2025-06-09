@@ -34,10 +34,6 @@
         /// </summary>
         string[] propNames;
         public string[] PropNames => propNames;
-        /// <summary>
-        /// property width rate, like 0.3,0.5
-        /// </summary>
-        public float[] propWidthRates;
 
         /// <summary>
         /// Show a title
@@ -64,16 +60,6 @@
             if (!string.IsNullOrEmpty(propNamesStr))
                 propNames = propNamesStr.SplitBy();
 
-            if (!string.IsNullOrEmpty(propWidthRatesStr))
-            {
-                propWidthRates = propWidthRatesStr.SplitBy().
-                    Select(floatItem => Convert.ToSingle(floatItem))
-                    .ToArray();
-            }
-            else
-            {
-                propWidthRates = ArrayTools.Create(propNames.Length, 1f);
-            }
         }
     }
 }

@@ -20,6 +20,12 @@ namespace PowerUtilities
         public readonly static GUIContent projectSettingContentInst = new GUIContent();
         static CacheTool<Type, Editor> cachedEditors = new CacheTool<Type, Editor>();
 
+        [CompileFinished]
+        static void OnCompileFinished()
+        {
+            cachedEditors.Clear(); 
+        }
+
         [SettingsProviderGroup]
         public static SettingsProvider[] CreateProviders()
         {
@@ -65,8 +71,9 @@ namespace PowerUtilities
                 EditorGUILayout.SelectableLabel($"{type} cannot load.");
                 return;
             }
-            var settingEditor = cachedEditors.Get(type, () => Editor.CreateEditor(setting.targetObject));
+            setting.Update();
 
+            var settingEditor = cachedEditors.Get(type, () => Editor.CreateEditor(setting.targetObject));
             // show so properties
             if (rootElement != null)
             {

@@ -23,7 +23,7 @@ namespace PowerUtilities
             pos.x += attr.posXOffset;
             //pos.y += EditorGUIUtility.singleLineHeight/2;
             pos.width += 4;
-
+            pos.y -= 2;// upwards ,remove 2px(lines gaps)
             pos.y += attr.posYOffset;
             pos.height = EditorGUIUtility.singleLineHeight * attr.lineRowCount;
 

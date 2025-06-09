@@ -3,6 +3,7 @@ namespace PowerUtilities
 {
     using UnityEditor;
     using UnityEngine;
+    using UnityEngine.UIElements;
 
     [CustomPropertyDrawer(typeof(EditorBoxAttribute))]
     public class EditorBoxAttributeDrawer : PropertyDrawer
@@ -26,10 +27,9 @@ namespace PowerUtilities
 
             if (attr.isFolded = BeginHeader(attr))
             {
-                //EditorGUI.indentLevel++;
-
                 // setup widths
                 var viewWidth = EditorGUITools.GetCurrentViewWidthWithIndent();
+
                 var labelWidth = viewWidth / Mathf.Max(1, attr.PropNames.Length) * 0.45f;
 
                 //labelWidth = Mathf.Max(labelWidth, 120);
@@ -41,20 +41,16 @@ namespace PowerUtilities
                 for (int i = 0; i < attr.PropNames.Length; i++) 
                 {
                     var propName = attr.PropNames[i];
-                    var propWidthRate = attr.propWidthRates[i];
 
                     var prop = property.serializedObject.FindProperty(propName);
                     if (prop != null)
                     {
                         //use same label
-                        //EditorGUILayout.PropertyField(prop, true);
-                        EditorGUILayout.PropertyField(prop, true, GUILayout.Width(viewWidth * propWidthRate));
+                        EditorGUILayout.PropertyField(prop, true);
                     }
                 }
 
                 EndBox(attr);
-
-                //EditorGUI.indentLevel--;
             }
 
             EndHeader(attr);
