@@ -49,7 +49,6 @@ namespace PowerUtilities
 
         private void CheckGroupAttr(ref bool isIndentAdd,ref bool isGroupOn)
         {
-            Debug.Log(EditorGUI.indentLevel);
             var groupAttrs = fieldInfo.GetCustomAttributes(typeof(EditorGroupAttribute), false);
             if (groupAttrs != null && groupAttrs.Length > 0) // EditorGUI.indentLevel == 0 && 
             {
