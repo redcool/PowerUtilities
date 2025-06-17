@@ -34,10 +34,10 @@ namespace PowerUtilities
             var pos = position;
             pos.width = position.width - 20;
 
-            EditorGUITools.DrawIndent(() =>
-            {
+            //EditorGUITools.DrawIndent(() =>
+            //{
                 EditorGUI.PropertyField(pos, property, label);
-            }, isIndentAdd1, 1);
+            //}, isIndentAdd1, 1);
 
             pos.x += pos.width;
             pos.width = 20;
@@ -49,12 +49,13 @@ namespace PowerUtilities
 
         private void CheckGroupAttr(ref bool isIndentAdd,ref bool isGroupOn)
         {
+            Debug.Log(EditorGUI.indentLevel);
             var groupAttrs = fieldInfo.GetCustomAttributes(typeof(EditorGroupAttribute), false);
-            if (EditorGUI.indentLevel == 0 && groupAttrs != null && groupAttrs.Length > 0)
+            if (groupAttrs != null && groupAttrs.Length > 0) // EditorGUI.indentLevel == 0 && 
             {
                 if (groupAttrs[0] is EditorGroupAttribute groupAttr)
                 {
-                    isIndentAdd1 = !groupAttr.isHeader;
+                    //isIndentAdd1 = !groupAttr.isHeader;
                     isGroupOn = MaterialGroupTools.IsGroupOn(groupAttr.groupName);
                 }
             }
