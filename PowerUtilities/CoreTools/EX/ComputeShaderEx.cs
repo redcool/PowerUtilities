@@ -27,7 +27,31 @@ namespace PowerUtilities
 
             cs.SetFloats("_DispatchGroupSize", xGroups, yGroups, zGroups,0);
             cs.SetFloats("_NumThreads", xSize, ySize, zSize, xSize * ySize * zSize);
+
+            SetCommons(cs);
             cs.Dispatch(kernelId, xGroups, yGroups, zGroups);
+        }
+
+        public static void SetCommons(ComputeShader cs)
+        {
+            cs.SetFloat("_DeltaTime",Time.deltaTime);
+            cs.SetFloat("_Time", Time.time);
+        }
+
+        /// <summary>
+        /// Clear rt,dispatch CSClear
+        /// </summary>
+        /// <param name="desc"></param>
+        /// <param name="cs"></param>
+        public static void ClearRT(this ComputeShader cs, string rtName, RenderTexture rt, string colorName = "_ClearColor", Color clearColor = default)
+        {
+            if (!cs.HasKernel("CSClear"))
+                return;
+
+            var clearKernel = cs.FindKernel("CSClear");
+            cs.SetVector(colorName, clearColor);
+            cs.SetTexture(clearKernel, rtName, rt);
+            cs.DispatchKernel(clearKernel, rt.width, rt.height, 1);
         }
 
         public static bool CanExecute(this ComputeShader cs)
