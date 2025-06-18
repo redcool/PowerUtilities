@@ -62,11 +62,28 @@ namespace PowerUtilities
         /// <param name="v"></param>
         /// <param name="initValue"></param>
         /// <returns></returns>
-        public static bool IsSetFirstTime(ref bool v)
+        //public static bool IsSetFirstTime(ref bool v)
+        //{
+        //    if (!v)
+        //    {
+        //        v = true;
+        //        return true;
+        //    }
+        //    return false;
+        //}
+        /// <summary>
+        /// Check value state change
+        /// 
+        /// Value is true set it false then return true.
+        /// otherwise return false
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static bool IsTiggerOnce(ref bool value)
         {
-            if (!v)
+            if (value)
             {
-                v = true;
+                value = false;
                 return true;
             }
             return false;

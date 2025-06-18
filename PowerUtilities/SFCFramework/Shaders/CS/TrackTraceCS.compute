@@ -1,0 +1,46 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+#pragma kernel CSClear
+
+#include "../../../../../PowerShaderLib/Lib/CSLib.hlsl"
+
+RWTexture2D<float4> _TrackTexture;
+float4 _ClearColor;
+
+float3 _MinPos,_MaxPos;
+uint _TargetCount;
+float4 _TrackTargets[10];
+
+float _Radius;
+
+[numthreads(8,8,1)]
+void CSClear (uint3 id : SV_DispatchThreadID)
+{
+    _TrackTexture[id.xy] = 0;
+}
+
+ 
+[numthreads(8,8,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    uint width,height;
+    _TrackTexture.GetDimensions (width/**/,height/**/);
+
+    float2 curUV = id.xy/float2(width,height);
+    float2 curPos = lerp(_MinPos.xz,_MaxPos.xz,curUV);
+
+    float3 pos = _TrackTargets[0];
+
+    float distPos = _Radius - distance(curPos,pos.xz);
+
+    // float2 posUV = (pos - _MinPos).xz/(_MaxPos - _MinPos).xz;
+    // float dist = distance(curUV,posUV);
+    // dist = smoothstep(0.1,0.01,dist);
+    
+    // float isRangeValid = dist<0.05;
+    // if(dist < .1)
+    {
+    _TrackTexture[id.xy] += saturate(distPos);
+    }
+
+}

@@ -170,10 +170,11 @@ namespace PowerUtilities.RenderFeatures
             OnExecute(context, ref renderingData,cmd);
 
             //cmd.EndSampleExecute(featureName, ref context);
+            cmd.Execute(ref context);
+
             // ========== trigger end execute
             OnEndExecute?.Invoke(this);
 
-            cmd.Execute(ref context);
         }
 
         public override void OnFinishCameraStackRendering(CommandBuffer cmd)
