@@ -1,7 +1,9 @@
 using PowerUtilities.RenderFeatures;
 using System.Linq;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
+using static PowerUtilities.TargetTrackingTools;
 
 namespace PowerUtilities
 {
@@ -17,7 +19,7 @@ namespace PowerUtilities
         [Header("TargetTrackTrace")]
 
         [Tooltip("cs calc fog map")]
-        [LoadAsset("TrackTraceCS.compute")]
+        [LoadAsset("TargetTrackingCS.compute")]
         public ComputeShader trackTraceCS;
 
         [Header("Target ")]
@@ -48,6 +50,8 @@ namespace PowerUtilities
         public RenderTexture trackRT;
         [Tooltip("shader set global texture")]
         public string trackTextureName = "_TrackTexture";
+        [Tooltip("texture channel mask(1:on,0:off)")]
+        public Vector4 trackTextureChannelMask = new Vector4(1, 0, 0, 0);
         public Color clearColor;
         public bool isClearRT;
 
@@ -65,7 +69,6 @@ namespace PowerUtilities
                 boxSceneFogRender = GetComponent<Renderer>();
             }
 
-            var cam = Camera.main;
             desc = new RenderTextureDescriptor(1, 1, RenderTextureFormat.ARGB32, 0, 0);
             desc.SetupColorDescriptor(Camera.main, renderScale);
         }
@@ -75,67 +78,38 @@ namespace PowerUtilities
             var trackTargets = GameObject.FindGameObjectsWithTag(targetTag);
             if (trackTargets.Length == 0)
                 return;
-            
-            TrySetupRT(desc);
+            TrySetupRT(desc, trackTextureName, ref trackRT);
 
-            FindBorderObjects();
-
-            var traceCS = trackTraceCS;
-
-            if (CompareTools.IsTiggerOnce(ref isClearRT))
-            {
-                traceCS.ClearRT("_TrackTexture", trackRT, clearColor: clearColor);
-            }
-
-            //------ main
-            var kernel = traceCS.FindKernel("CSMain");
-            traceCS.SetTexture(kernel, "_TrackTexture", trackRT);
+            FindBorderObjectsInChildren(transform, minPosTrName, ref minPosTr, ref minPos, maxPosTrName, ref minPosTr, ref minPos);
 
             var targetPosArray = trackTargets.Select(target => (Vector4)target.transform.position).ToArray();
-            traceCS.SetVectorArray("_TrackTargets", targetPosArray);
-            traceCS.SetFloat("_TargetCount", targetPosArray.Length);
-            traceCS.SetVector("_MinPos", minPos);
-            traceCS.SetVector("_MaxPos", maxPos);
-            traceCS.SetFloat("_Radius", radius);
-            traceCS.SetFloat("_ResumeSpeed", resumeSpeed);
+            DispatchTrackingCS(trackTraceCS,targetPosArray);
 
-            traceCS.DispatchKernel(kernel, desc.width, desc.height, 1);
-
-            UpdateBoxSceneFog();
+            UpdateBoxSceneFogMaterial(boxSceneFogRender, ref boxSceneFogMat, minPos, maxPos, trackRT);
             Shader.SetGlobalTexture(trackTextureName, trackRT);
         }
 
-        void TrySetupRT(RenderTextureDescriptor desc)
+        private void DispatchTrackingCS(ComputeShader cs,Vector4[] trackTargetPositions)
         {
-            var isRealloc = !trackRT && !RenderTextureTools.TryGetRT(trackTextureName, out trackRT);
-            if (!isRealloc)
-                isRealloc = trackRT.IsNeedAlloc(desc);
-
-            if (isRealloc)
+            //-------- clear kernel
+            if (CompareTools.IsTiggerOnce(ref isClearRT))
             {
-                desc.sRGB = false;
-                desc.enableRandomWrite = true;
-                trackRT = new RenderTexture(desc);
+                cs.DispatchKernel_CSClear("_TrackTexture", trackRT, clearColor: clearColor);
             }
-        }
 
-        void UpdateBoxSceneFog()
-        {
-            if (!boxSceneFogRender)
-                return;
+            //------ main
+            var kernel = cs.FindKernel("CSMain");
+            cs.SetTexture(kernel, "_TrackTexture", trackRT);
+            cs.SetVectorArray("_TrackTargets", trackTargetPositions);
+            cs.SetFloat("_TargetCount", trackTargetPositions.Length);
+            cs.SetVector("_MinPos", minPos);
+            cs.SetVector("_MaxPos", maxPos);
+            cs.SetFloat("_Radius", radius);
+            cs.SetFloat("_ResumeSpeed", resumeSpeed);
+            trackTextureChannelMask = math.clamp(trackTextureChannelMask, 0, 1);
+            cs.SetVector("_TrackTextureChannelMask", trackTextureChannelMask);
 
-            var mat = boxSceneFogMat = Application.isPlaying ? boxSceneFogRender.material : boxSceneFogRender.sharedMaterial;
-            mat.SetVector("_MinWorldPos", minPos);
-            mat.SetVector("_MaxWorldPos", maxPos);
-            mat.SetTexture("_SceneFogMap", trackRT);
-        }
-
-        private void FindBorderObjects()
-        {
-            if (!boxSceneFogRender || boxSceneFogRender.transform.childCount < 2)
-                return;
-            RenderTargetTrackingMapPass.FindChildObj(boxSceneFogRender.transform, minPosTrName, ref minPosTr, ref minPos);
-            RenderTargetTrackingMapPass.FindChildObj(boxSceneFogRender.transform, maxPosTrName, ref maxPosTr, ref maxPos);
+            cs.DispatchKernel(kernel, desc.width, desc.height, 1);
         }
     }
 }

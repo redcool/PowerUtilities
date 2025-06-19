@@ -43,7 +43,7 @@ namespace PowerUtilities
         /// </summary>
         /// <param name="desc"></param>
         /// <param name="cs"></param>
-        public static void ClearRT(this ComputeShader cs, string rtName, RenderTexture rt, string colorName = "_ClearColor", Color clearColor = default)
+        public static void DispatchKernel_CSClear(this ComputeShader cs, string rtName, RenderTexture rt, string colorName = "_ClearColor", Color clearColor = default)
         {
             if (!cs.HasKernel("CSClear"))
                 return;

@@ -2,7 +2,7 @@
 #pragma kernel CSMain
 #pragma kernel CSClear
 
-#include "../../../../../PowerShaderLib/Lib/CSLib.hlsl"
+#include "../../../PowerShaderLib/Lib/CSLib.hlsl"
 
 RWTexture2D<float4> _TrackTexture;
 float4 _ClearColor;
@@ -14,6 +14,7 @@ float4 _TrackTargets[10];
 float _Radius;
 float _DeltaTime;
 float _ResumeSpeed;
+float4 _TrackTextureChannelMask; // fill this channel,default(1,0,0,0)
 
 [numthreads(8,8,1)]
 void CSClear (uint3 id : SV_DispatchThreadID)
@@ -31,15 +32,19 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     float2 curUV = id.xy/float2(width,height);
     float2 curPos = lerp(_MinPos.xz,_MaxPos.xz,curUV);
 
-    _TrackTexture[id.xy] -= _ResumeSpeed * _DeltaTime;
+    // resume value per frame
+    float4 minusCol =_ResumeSpeed * _DeltaTime;
+    _TrackTexture[id.xy] -= minusCol * _TrackTextureChannelMask;
 
+    // add all tracks per frame
     for(uint x=0;x<_TargetCount;x++){
         float3 pos = _TrackTargets[x];
 
         float distPos = _Radius - distance(curPos,pos.xz);
 
         // float isRangeValid = dist<0.05;
-        _TrackTexture[id.xy] += saturate(distPos);
+        float4 addCol = saturate(distPos);
+        _TrackTexture[id.xy] += addCol * _TrackTextureChannelMask;
     }
 
 }
