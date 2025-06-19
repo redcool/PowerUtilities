@@ -13,17 +13,20 @@ namespace PowerUtilities
     [ExecuteAlways]
     public class RenderTargetTrackingMapControl : MonoBehaviour
     {
-        [Tooltip("update renderer's sceneFogMap")]
+        [Tooltip("renderer's sceneFogMap")]
         public Renderer boxSceneFogRender;
 
-        [Header("TargetTrackTrace")]
+        [Header("TargetTracking")]
 
         [Tooltip("cs calc fog map")]
         [LoadAsset("TargetTrackingCS.compute")]
-        public ComputeShader trackTraceCS;
+        public ComputeShader trackingCS;
 
         [Header("Target ")]
         [Tooltip("track all targets with tag")]
+#if UNITY_EDITOR
+        [StringListSearchable(type = typeof(TagManager), staticMemberName = nameof(TagManager.GetTags))]
+#endif
         public string targetTag = "TrackTarget";
 
         [Tooltip("target radius")]
@@ -47,6 +50,7 @@ namespace PowerUtilities
         [Header("Texture")]
         [Range(0.1f,1)]
         public float renderScale=1;
+        float lastRenderScale=1;
         public RenderTexture trackRT;
         [Tooltip("shader set global texture")]
         public string trackTextureName = "_TrackTexture";
@@ -59,8 +63,31 @@ namespace PowerUtilities
         [EditorDisableGroup]
         public Material boxSceneFogMat;
 
+        [EditorButton(onClickCall =nameof(TryCreateMinMaxPosTrs))]
+        public bool isAddPosTrs;
 
         RenderTextureDescriptor desc;
+
+        void TryCreateMinMaxPosTrs()
+        {
+            if (!transform.Find(minPosTrName))
+            {
+                SetupPosTr(minPosTrName, transform,new Vector3(-50,0,-50));
+            }
+
+            if (!transform.Find(maxPosTrName))
+            {
+                SetupPosTr(maxPosTrName, transform, new Vector3(50, 0, 50));
+            }
+
+            //----- inner method
+            static void SetupPosTr(string goName,Transform parent,Vector3 pos)
+            {
+                var minPosGo = new GameObject(goName);
+                minPosGo.transform.SetParent(parent);
+                minPosGo.transform.position = pos;
+            }
+        }
 
         public void OnEnable()
         {
@@ -72,18 +99,28 @@ namespace PowerUtilities
             desc = new RenderTextureDescriptor(1, 1, RenderTextureFormat.ARGB32, 0, 0);
             desc.SetupColorDescriptor(Camera.main, renderScale);
         }
+        public void OnDestroy()
+        {
+            RenderTextureTools.DestroyRT(trackRT);
+            Shader.SetGlobalTexture(trackTextureName, Texture2D.blackTexture);
+        }
 
         private void Update()
         {
             var trackTargets = GameObject.FindGameObjectsWithTag(targetTag);
-            if (trackTargets.Length == 0)
+            if (trackTargets.Length == 0 || !trackingCS)
                 return;
+
+            if(CompareTools.CompareAndSet(ref lastRenderScale, renderScale))
+            {
+                desc.SetupColorDescriptor(Camera.main, renderScale);
+            }
             TrySetupRT(desc, trackTextureName, ref trackRT);
 
             FindBorderObjectsInChildren(transform, minPosTrName, ref minPosTr, ref minPos, maxPosTrName, ref minPosTr, ref minPos);
 
             var targetPosArray = trackTargets.Select(target => (Vector4)target.transform.position).ToArray();
-            DispatchTrackingCS(trackTraceCS,targetPosArray);
+            DispatchTrackingCS(trackingCS,targetPosArray);
 
             UpdateBoxSceneFogMaterial(boxSceneFogRender, ref boxSceneFogMat, minPos, maxPos, trackRT);
             Shader.SetGlobalTexture(trackTextureName, trackRT);

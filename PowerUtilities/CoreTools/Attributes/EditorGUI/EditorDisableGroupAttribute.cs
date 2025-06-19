@@ -9,6 +9,8 @@
 
     /// <summary>
     /// show editor gui in disable mode
+    /// 
+    /// * must below of StringListSearchableAttribute
     /// </summary>
     public class EditorDisableGroupAttribute : PropertyAttribute
     {
@@ -43,5 +45,10 @@
         public int heightScale = 1;
 
         public string groupName="";
+
+        /// <summary>
+        /// cur state is disabled
+        /// </summary>
+        public bool isGroupDisabled;
     }
 }

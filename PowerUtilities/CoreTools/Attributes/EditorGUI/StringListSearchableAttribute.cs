@@ -13,6 +13,7 @@ namespace PowerUtilities
     /// 
     /// like EnumSearchableAttribute but use StringListSearchProvider
     /// 
+    /// * must on top of EditorDisableGroupAttribute
     /// 
     /// </summary>
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]

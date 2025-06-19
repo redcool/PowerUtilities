@@ -19,7 +19,7 @@ float4 _TrackTextureChannelMask; // fill this channel,default(1,0,0,0)
 [numthreads(8,8,1)]
 void CSClear (uint3 id : SV_DispatchThreadID)
 {
-    _TrackTexture[id.xy] = 0;
+    _TrackTexture[id.xy] = _ClearColor;
 }
 
 

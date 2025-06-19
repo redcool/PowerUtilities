@@ -7,6 +7,9 @@ using UnityEngine;
 
 namespace PowerUtilities
 {
+    /// <summary>
+    /// add feature: EditorDisableGroup 
+    /// </summary>
     [CustomPropertyDrawer(typeof(StringListSearchableAttribute))]
     public class StringListSearchableAttributeDrawer : PropertyDrawer
     {
@@ -34,10 +37,14 @@ namespace PowerUtilities
             var pos = position;
             pos.width = position.width - 20;
 
+            // check EditorDisableGroupAttribute
+            CheckEditorDisableGroupAttr(out var isDisabledisDisable);
+            EditorGUI.BeginDisabledGroup(isDisabledisDisable);
             //EditorGUITools.DrawIndent(() =>
             //{
                 EditorGUI.PropertyField(pos, property, label);
             //}, isIndentAdd1, 1);
+            EditorGUI.EndDisabledGroup();
 
             pos.x += pos.width;
             pos.width = 20;
@@ -47,8 +54,23 @@ namespace PowerUtilities
 
         }
 
+        void CheckEditorDisableGroupAttr(out bool isGroupDisabled)
+        {
+            isGroupDisabled = false;
+            var groupAttrs = fieldInfo.GetCustomAttributes(typeof(EditorDisableGroupAttribute), false);
+            if (groupAttrs != null && groupAttrs.Length > 0) // EditorGUI.indentLevel == 0 && 
+            {
+                if (groupAttrs[0] is EditorDisableGroupAttribute groupAttr)
+                {
+                    isGroupDisabled = groupAttr.isGroupDisabled;
+                }
+            }
+        }
+
         private void CheckGroupAttr(ref bool isIndentAdd,ref bool isGroupOn)
         {
+            isGroupOn = true; // default group is on
+
             var groupAttrs = fieldInfo.GetCustomAttributes(typeof(EditorGroupAttribute), false);
             if (groupAttrs != null && groupAttrs.Length > 0) // EditorGUI.indentLevel == 0 && 
             {
