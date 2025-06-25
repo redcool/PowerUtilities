@@ -43,6 +43,7 @@ namespace PowerUtilities
             "com.unity.modules.terrain",
             "com.unity.modules.terrainphysics",
             "com.unity.polybrush",
+            "com.unity.formats.fbx",
         };
 
         [Tooltip("install packages")]
