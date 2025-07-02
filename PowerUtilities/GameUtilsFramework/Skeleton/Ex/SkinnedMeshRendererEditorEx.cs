@@ -20,6 +20,7 @@ namespace PowerUtilities
         Editor defaultEditor;
 
         bool isShowSkeleton;
+        bool isShowWeights;
         private Vector2 scrollPosition;
         // diff with this
         GUIContent diffSkinnedGUI = new GUIContent("Diff Skinned", "sync show original skinned skeleton");
@@ -50,6 +51,7 @@ namespace PowerUtilities
             defaultEditor.OnInspectorGUI();
 
             EditorGUITools.DrawColorLine(1);
+            var skinned = target as SkinnedMeshRenderer;
             // show skeleton foldout
             isShowSkeleton = EditorGUILayout.BeginFoldoutHeaderGroup(isShowSkeleton, "Show Skeleton");
             if (isShowSkeleton)
@@ -58,9 +60,16 @@ namespace PowerUtilities
                 diffSkinned = (SkinnedMeshRenderer)EditorGUILayout.ObjectField(diffSkinnedGUI, diffSkinned, typeof(SkinnedMeshRenderer), true);
 
                 // show cur skinned skeleton
-                var skinned = target as SkinnedMeshRenderer;
                 SkinnedMeshRendererInfoWin.InitBoneInfos(skinned, out var bonePaths, out var boneDepths);
                 SkinnedMeshRendererInfoWin.DrawBoneInfos(skinned, bonePaths, boneDepths, ref scrollPosition, diffSkinned);
+            }
+            EditorGUILayout.EndFoldoutHeaderGroup();
+
+            //------ show bone weight
+            isShowWeights = EditorGUILayout.BeginFoldoutHeaderGroup(isShowWeights, "Show BoneWeights");
+            if (isShowWeights)
+            {
+                SkinnedMeshRendererInfoWin.DrawBoneWeigth1Info(skinned);
             }
             EditorGUILayout.EndFoldoutHeaderGroup();
         }

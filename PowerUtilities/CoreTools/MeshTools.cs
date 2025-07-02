@@ -239,5 +239,21 @@
             }
             return bonesStartPerVertex;
         }
+        /// <summary>
+        /// Get PerVertex's BoneWeight1 array
+        /// </summary>
+        /// <param name="mesh"></param>
+        /// <returns></returns>
+        public static (byte count, int start)[] GetBoneWeight1_InfoPerVertex(this Mesh mesh)
+        {
+            var weights = mesh.GetAllBoneWeights();
+            var bonesStartIndexPerVertex = mesh.GetBoneStartPerVertex();
+            var bonesPerVertex = mesh.GetBonesPerVertex();
+
+            var boneInfoPerVertices = bonesPerVertex
+                    .Zip(bonesStartIndexPerVertex, (count, start) => (count, start))
+                    .ToArray();
+            return boneInfoPerVertices;
+        }
     }
 }

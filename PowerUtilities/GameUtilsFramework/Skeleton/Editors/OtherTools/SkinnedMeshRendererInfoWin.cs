@@ -106,6 +106,25 @@ namespace GameUtilsFramework
 
             GUI.color = Color.white;
         }
+
+        public static void DrawBoneWeigth1Info(SkinnedMeshRenderer skinned)
+        {
+            var mesh = skinned.sharedMesh;
+            var boneWeights = mesh.GetAllBoneWeights();
+            var boneWeightInfos = mesh.GetBoneWeight1_InfoPerVertex();
+            for (int i = 0; i < mesh.vertexCount; i++)
+            {
+                var info = boneWeightInfos[i];
+                EditorGUILayout.LabelField($"vertex:{i},start:{info.start},count:{info.count}");
+                EditorGUI.indentLevel++;
+                for (int boneId = 0; boneId < info.count; boneId++)
+                {
+                    var weight = boneWeights[boneId + info.start];
+                    EditorGUILayout.LabelField($"boneId:{boneId},weights:{weight.weight}");
+                }
+                EditorGUI.indentLevel--;
+            }
+        }
     }
 }
 #endif

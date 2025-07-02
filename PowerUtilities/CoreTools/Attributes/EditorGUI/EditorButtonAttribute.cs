@@ -6,25 +6,34 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+    using static EditorButtonAttribute;
 
 #if UNITY_EDITOR
     using UnityEditor;
     [CustomPropertyDrawer(typeof(EditorButtonAttribute))]
     public class EditorButtonAttributeDrawer : PropertyDrawer
     {
+
+        public string GetNameTypeText(EditorButtonAttribute attr, SerializedProperty prop) => attr.nameType switch
+        {
+            NameType.AttributeText => attr.text,
+            NameType.MethodName => attr.onClickCall,
+            _ => prop.displayName,
+        };
+
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             //property.serializedObject.Update();
             var attr = attribute as EditorButtonAttribute;
-            
-            if (!string.IsNullOrEmpty(attr.text))
-                label.text = attr.text;
+
+            label.text = GetNameTypeText(attr, property);
+            label.tooltip = attr.tooltip;
 
             if (!string.IsNullOrEmpty(attr.imageAssetPath))
                 label.image = AssetDatabase.LoadAssetAtPath<Texture>(attr.imageAssetPath);
 
             position = EditorGUI.IndentedRect(position);
-            
+
             if (GUI.Button(position, label))
             {
                 property.boolValue = true;
@@ -57,6 +66,12 @@ using UnityEngine;
     /// </summary>
     public class EditorButtonAttribute : PropertyAttribute
     {
+        public enum NameType
+        {
+            MethodName, // method name called
+            FieldName, // current property name
+            AttributeText // text
+        }
         /// <summary>
         /// call instance method
         /// </summary>
@@ -70,5 +85,7 @@ using UnityEngine;
         /// </summary>
         public string imageAssetPath;
 
+        public NameType nameType = NameType.MethodName;
+        public string tooltip;
     }
 }
