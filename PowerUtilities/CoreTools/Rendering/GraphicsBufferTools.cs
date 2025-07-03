@@ -95,7 +95,8 @@ namespace PowerUtilities
         /// <param name="stride"></param>
         public static void TryCreateBuffer(ref GraphicsBuffer buffer,GraphicsBuffer.Target target,int count,int stride)
         {
-            if (!buffer.IsValidSafe(target, count, stride)) { 
+            if (!buffer.IsValidSafe(target, count, stride)) {
+                TryRelease(buffer);
                 buffer = new GraphicsBuffer(target, count, stride);
             }
         }
