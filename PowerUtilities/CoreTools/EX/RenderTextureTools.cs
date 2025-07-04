@@ -47,18 +47,19 @@ namespace PowerUtilities
             return shadowTexture;
         }
         /// <summary>
-        /// check rt.size with desc
+        /// check rt.size,uav, with desc
         /// </summary>
         /// <param name="rt"></param>
         /// <param name="desc"></param>
         /// <returns></returns>
         public static bool IsNeedAlloc(this RenderTexture rt, RenderTextureDescriptor desc)
         {
-            return IsNeedAlloc(rt, desc.width, desc.height, desc.depthBufferBits);
-        }
-        public static bool IsNeedAlloc(this RenderTexture rt, int width,int height,int depth)
-        {
-            return (!rt || rt.width != width || rt.height != height || rt.depth != depth);
+            var isSizeInvalid = (!rt || rt.width != desc.width || rt.height != desc.height || rt.depth != desc.depthBufferBits);
+            if (isSizeInvalid)
+                return true;
+            var isDimension = rt.dimension != desc.dimension;
+            var isUAV = rt.enableRandomWrite != desc.enableRandomWrite;
+            return isUAV || isDimension;
         }
 
         /// <summary>

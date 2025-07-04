@@ -22,6 +22,7 @@ namespace PowerUtilities
         {
             desc.sRGB = false;
             desc.enableRandomWrite = true;
+            desc.colorFormat = RenderTextureFormat.ARGB32; // random write format
             RenderTextureTools.TryCreateRT(ref trackRT, desc, trackTextureName, FilterMode.Bilinear);
         }
 

@@ -36,8 +36,9 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     float4 minusCol =_ResumeSpeed * _DeltaTime;
     _TrackTexture[id.xy] -= minusCol * _TrackTextureChannelMask;
 
+    uint targetCount = min(10,_TargetCount);
     // add all tracks per frame
-    for(uint x=0;x<_TargetCount;x++){
+    for(uint x=0;x<targetCount;x++){
         float3 pos = _TrackTargets[x];
 
         float distPos = _Radius - distance(curPos,pos.xz);
