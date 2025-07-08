@@ -32,17 +32,12 @@ namespace PowerUtilities
             // get MeshRendererEditor
             EditorTools.GetOrCreateUnityEditor(ref meshRendererEditor, targets, ref meshRendererType, "UnityEditor.MeshRendererEditor");
 
-            meshRendererType.GetMethod(ref onEnable,nameof(OnEnable),ReflectionTools.callBindings);
+            meshRendererType.GetMethod(ref onEnable, nameof(OnEnable), ReflectionTools.callBindings);
             meshRendererType.GetMethod(ref onInspectorGUI, nameof(OnInspectorGUI), ReflectionTools.callBindings);
 
             DelegateEx.GetOrCreate<Action>(meshRendererEditor, onEnable).Invoke();
-
             // get SortingLayerEditorUtility
-            EditorTools.GetTypeFromEditorAssembly(ref sortingLayerEditorUtilityType, "UnityEditor.SortingLayerEditorUtility");
-            var argTypes = new Type[] { typeof(SerializedProperty), typeof(SerializedProperty) };
-            sortingLayerEditorUtilityType.GetMethod(ref renderSortingLayerFields, "RenderSortingLayerFields", ReflectionTools.callBindings,null,argTypes,null);
-
-            DelegateEx.GetOrCreate<Action<SerializedProperty, SerializedProperty>>(null, renderSortingLayerFields);
+            RendererEditorTools.GetSortingLayerEditorUtility(ref sortingLayerEditorUtilityType, ref renderSortingLayerFields);
         }
 
         public override void OnInspectorGUI()
@@ -53,27 +48,11 @@ namespace PowerUtilities
             // call default
             DelegateEx.GetOrCreate<Action>(meshRendererEditor, onInspectorGUI).Invoke();
 
-            DrawInspectorGUI();
-        }
-
-        private void DrawInspectorGUI()
-        {
             EditorGUITools.DrawColorLine(1);
-            var mr = (MeshRenderer)target;
-
-            var sortingLayerIdProp = serializedObject.FindProperty("m_SortingLayerID");
-            var sorintgOrderProp = serializedObject.FindProperty("m_SortingOrder");
-            var sortingLayerName = SortingLayer.IDToName(sortingLayerIdProp.intValue);
-
-            serializedObject.Update();
-            if (isShowSortingLayerSetting = EditorGUILayout.BeginFoldoutHeaderGroup(isShowSortingLayerSetting, sortingLayerSettingGUI))
-            {
-                renderSortingLayerFields.Invoke(null, new[] { sorintgOrderProp, sortingLayerIdProp });
-            }
-            EditorGUILayout.EndFoldoutHeaderGroup();
-
-            serializedObject.ApplyModifiedProperties();
+            RendererEditorTools.DrawRenderSortingLayerFields(serializedObject, renderSortingLayerFields, ref isShowSortingLayerSetting, sortingLayerSettingGUI);
         }
+
+
     }
 }
 #endif

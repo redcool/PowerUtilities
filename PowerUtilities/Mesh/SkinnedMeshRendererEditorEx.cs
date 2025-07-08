@@ -16,6 +16,9 @@ namespace PowerUtilities
     [CanEditMultipleObjects]
     public class SkinnedMeshRendererEditorEx : Editor
     {
+        //==================
+        //SkinnedMeshRenderer
+        //==================
         Type skinnedMeshRendererEditorType;
         Editor skinnedMeshEditor;
 
@@ -28,6 +31,16 @@ namespace PowerUtilities
 
         MethodInfo onSceneGUIMethod, onEnableMethod;
 
+        //==================
+        //SortingLayerEditorUtility
+        //==================
+        // 
+        public Type sortingLayerEditorUtilityType;
+        MethodInfo renderSortingLayerFields;
+
+        public bool isShowSortingLayerSetting;
+        GUIContent sortingLayerSettingGUI = new GUIContent("SortingLayer", "SortingLayer,order");
+
         public void OnEnable()
         {
             EditorTools.GetOrCreateUnityEditor(ref skinnedMeshEditor, targets, ref skinnedMeshRendererEditorType, "UnityEditor.SkinnedMeshRendererEditor");
@@ -36,6 +49,9 @@ namespace PowerUtilities
             skinnedMeshRendererEditorType.GetMethod(ref onSceneGUIMethod, nameof(OnSceneGUI), ReflectionTools.instanceBindings);
 
             DelegateEx.GetOrCreate<Action>(skinnedMeshEditor, onEnableMethod).Invoke();
+
+            // get SortingLayerEditorUtility
+            RendererEditorTools.GetSortingLayerEditorUtility(ref sortingLayerEditorUtilityType, ref renderSortingLayerFields);
         }
 
 
@@ -45,12 +61,15 @@ namespace PowerUtilities
             // show default
             skinnedMeshEditor.OnInspectorGUI();
 
-            DrawInspectorGUI();
+            EditorGUITools.DrawColorLine(1);
+
+            RendererEditorTools.DrawRenderSortingLayerFields(serializedObject, renderSortingLayerFields, ref isShowSortingLayerSetting, sortingLayerSettingGUI);
+
+            DrawSkinnedBoneInfoGUI();
         }
 
-        private void DrawInspectorGUI()
+        private void DrawSkinnedBoneInfoGUI()
         {
-            EditorGUITools.DrawColorLine(1);
             var skinned = target as SkinnedMeshRenderer;
             // show skeleton foldout
             isShowSkeleton = EditorGUILayout.BeginFoldoutHeaderGroup(isShowSkeleton, "Show Skeleton");
