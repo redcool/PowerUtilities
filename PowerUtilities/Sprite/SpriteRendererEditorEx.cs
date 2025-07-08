@@ -13,6 +13,7 @@ namespace PowerUtilities
     //[CustomEditor(typeof(SpriteRenderer))]
     public class SpriteRendererEditorEx : Editor
     {
+        Type spriteRendererEditorType;
         Editor spriteRendererEditor;
 
         GUIContent ExSettingText = new GUIContent("Ex Settings");
@@ -22,7 +23,7 @@ namespace PowerUtilities
         {
             serializedObject.UpdateIfRequiredOrScript();
 
-            EditorTools. GetUnityEditor(ref spriteRendererEditor,target, "SpriteRendererEditor");
+            EditorTools. GetOrCreateUnityEditor(ref spriteRendererEditor,targets,ref spriteRendererEditorType, "SpriteRendererEditor");
             spriteRendererEditor?.OnInspectorGUI();
 
 

@@ -112,6 +112,11 @@ namespace GameUtilsFramework
             var mesh = skinned.sharedMesh;
             var boneWeights = mesh.GetAllBoneWeights();
             var boneWeightInfos = mesh.GetBoneWeight1_InfoPerVertex();
+            if(boneWeights.Length == 0)
+            {
+                EditorGUILayout.SelectableLabel("bone weights not found");
+                return;
+            }
             for (int i = 0; i < mesh.vertexCount; i++)
             {
                 var info = boneWeightInfos[i];

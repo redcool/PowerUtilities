@@ -16,8 +16,8 @@ namespace PowerUtilities
     [CanEditMultipleObjects]
     public class SkinnedMeshRendererEditorEx : Editor
     {
-        Type defaultEditorType;
-        Editor defaultEditor;
+        Type skinnedMeshRendererEditorType;
+        Editor skinnedMeshEditor;
 
         bool isShowSkeleton;
         bool isShowWeights;
@@ -30,26 +30,26 @@ namespace PowerUtilities
 
         public void OnEnable()
         {
-            if (defaultEditorType == null)
-                defaultEditorType = Assembly.GetAssembly(typeof(Editor)).GetType("UnityEditor.SkinnedMeshRendererEditor");
-            if (defaultEditor == null)
-            {
-                defaultEditor = CreateEditor(targets, defaultEditorType);
-            }
+            EditorTools.GetOrCreateUnityEditor(ref skinnedMeshEditor, targets, ref skinnedMeshRendererEditorType, "UnityEditor.SkinnedMeshRendererEditor");
 
-            if (onSceneGUIMethod == null)
-                onSceneGUIMethod = defaultEditorType.GetMethod("OnSceneGUI", ReflectionTools.instanceBindings);
-            if (onEnableMethod == null)
-                onEnableMethod = defaultEditorType.GetMethod("OnEnable", ReflectionTools.instanceBindings);
+            skinnedMeshRendererEditorType.GetMethod(ref onEnableMethod, nameof(OnEnable), ReflectionTools.instanceBindings);
+            skinnedMeshRendererEditorType.GetMethod(ref onSceneGUIMethod, nameof(OnSceneGUI), ReflectionTools.instanceBindings);
 
-            DelegateEx.GetOrCreate<Action>(defaultEditor, onEnableMethod).Invoke();
+            DelegateEx.GetOrCreate<Action>(skinnedMeshEditor, onEnableMethod).Invoke();
         }
+
+
 
         public override void OnInspectorGUI()
         {
             // show default
-            defaultEditor.OnInspectorGUI();
+            skinnedMeshEditor.OnInspectorGUI();
 
+            DrawInspectorGUI();
+        }
+
+        private void DrawInspectorGUI()
+        {
             EditorGUITools.DrawColorLine(1);
             var skinned = target as SkinnedMeshRenderer;
             // show skeleton foldout
@@ -77,7 +77,7 @@ namespace PowerUtilities
         public void OnSceneGUI()
         {
             //onSceneGUIMethod.CreateDelegate(defaultEditor).DynamicInvoke();
-            DelegateEx.GetOrCreate<Action>(defaultEditor, onSceneGUIMethod).Invoke();
+            DelegateEx.GetOrCreate<Action>(skinnedMeshEditor, onSceneGUIMethod).Invoke();
         }
     }
 }

@@ -11,6 +11,7 @@ namespace PowerUtilities
     using System.Collections.Generic;
     using System.Text;
     using PowerUtilities;
+    using System.Reflection;
 
     public static class EditorTools
     {
@@ -137,30 +138,36 @@ namespace PowerUtilities
         }
 
         /// <summary>
-        /// Get Untiy'sEditor from UnityEditor.dll
+        /// Get or create Editor from UnityEditor.dll
         /// like:
         /// EditorTools. GetUnityEditor(ref spriteRendererEditor,target, "SpriteRendererEditor");
         /// </summary>
-        /// <param name="editorInst"></param>
-        /// <param name="inst"></param>
-        /// <param name="editorTypeName"></param>
-        public static void GetUnityEditor(ref Editor editorInst, Object inst, string editorTypeName)
+        /// <param name="editorInst">current editor instance</param>
+        /// <param name="target">editor wrapper target</param>
+        /// <param name="editorType">editor type in UnityEditor.dll</param>
+        /// <param name="editorTypeName">class name</param>
+        public static void GetOrCreateUnityEditor(ref Editor editorInst, Object[] targets,ref Type editorType, string editorTypeName)
         {
-            if (editorInst)
-            {
-                return;
-            }
+            GetTypeFromEditorAssembly(ref editorType,editorTypeName);
 
-            var t = typeof(Editor).Assembly.GetTypes()
-                .Where(t => t.Name == editorTypeName)
-                .FirstOrDefault()
-                ;
-            editorInst = Editor.CreateEditor(inst, t);
+            if (editorInst == null)
+                editorInst = Editor.CreateEditor(targets, editorType);
+        }
+
+        public static void GetTypeFromEditorAssembly(ref Type type,string typeName)
+        {
+            //editorType = typeof(Editor).Assembly.GetTypes()
+            //    .Where(t => t.Name == editorTypeName)
+            //    .FirstOrDefault()
+            //    ;
+
+            if(type == null)
+                type = Assembly.GetAssembly(typeof(Editor)).GetType(typeName);
         }
 
         public static bool DisplayDialog_Ok_Cancel(string text)
             => EditorUtility.DisplayDialog("Warning", text, "ok", "cancel");
-        
+
     }
 }
 #endif

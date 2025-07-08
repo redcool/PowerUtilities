@@ -47,6 +47,23 @@ namespace PowerUtilities
         }
 
         /// <summary>
+        /// Get method when methodInfo is null
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="methodInfo"></param>
+        /// <param name="methodName"></param>
+        /// <param name="flags"></param>
+        public static void GetMethod(this Type type, ref MethodInfo methodInfo, string methodName, BindingFlags flags)
+        {
+            if (methodInfo == null)
+                methodInfo = type.GetMethod(methodName, flags);
+        }
+        public static void GetMethod(this Type type, ref MethodInfo methodInfo, string methodName, BindingFlags flags,Binder binder, Type[] argTypes, ParameterModifier[] mods)
+        {
+            if (methodInfo == null)
+                methodInfo = type.GetMethod(methodName, flags, binder, argTypes, mods);
+        }
+        /// <summary>
         /// Get type's methods have attribute<T> with cached
         /// </summary>
         /// <typeparam name="T"></typeparam>

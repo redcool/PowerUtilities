@@ -48,6 +48,9 @@ namespace PowerUtilities
         /// <returns></returns>
         public static T GetOrCreate<T>(object target, MethodInfo method,bool isForceCreate=false) where T : Delegate
         {
+            if (method == null)
+                throw new ArgumentNullException("method is null");
+
             var dType = typeof(T);
             if (isForceCreate)
             {
