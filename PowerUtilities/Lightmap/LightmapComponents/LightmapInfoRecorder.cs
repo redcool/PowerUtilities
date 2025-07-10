@@ -53,8 +53,6 @@
             targets.ForEach(t =>
             {
                 var inst = t as LightmapInfoRecorder;
-                if (!inst.rootGo)
-                    return;
 
                 onAction(inst);
             });
@@ -94,7 +92,11 @@
         public Vector4[] lightmapUVs;
         public int[] lightmapIds;
 
+        [Tooltip("load lightmapInfo when play")]
         public bool isAutoLoad = true;
+
+        [Tooltip("find current gameobject's renderers when ApplyLightmapInfos")]
+        public bool isRefindRenderers;
 
         void Start()
         {
@@ -132,6 +134,8 @@
                 var item = renderers[i];
                 if (!item)
                     continue;
+                if (i >= lightmapIds.Length)
+                    break;
 
                 item.lightmapIndex = lightmapIds[i];
                 item.lightmapScaleOffset = lightmapUVs[i];
@@ -158,6 +162,13 @@
 
         public void ApplyLightmapInfos()
         {
+            if (!rootGo)
+                rootGo = gameObject;
+
+            if (isRefindRenderers)
+            {
+                renderers = rootGo.GetComponentsInChildren<MeshRenderer>();
+            }
             ApplyLightmapInfos(renderers, lightmapUVs, lightmapIds);
         }
 

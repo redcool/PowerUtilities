@@ -63,8 +63,10 @@ namespace PowerUtilities
 
             EditorGUITools.DrawColorLine(1);
 
+            serializedObject.Update();
             RendererEditorTools.DrawRenderSortingLayerFields(serializedObject, renderSortingLayerFields, ref isShowSortingLayerSetting, sortingLayerSettingGUI);
 
+            serializedObject.ApplyModifiedProperties();
             DrawSkinnedBoneInfoGUI();
         }
 

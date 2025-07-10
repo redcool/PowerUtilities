@@ -37,15 +37,11 @@ namespace PowerUtilities
             var sorintgOrderProp = serializedObject.FindProperty("m_SortingOrder");
             //var sortingLayerName = SortingLayer.IDToName(sortingLayerIdProp.intValue);
 
-            serializedObject.Update();
-            if (isShowSortingLayerSetting = EditorGUILayout.BeginFoldoutHeaderGroup(isShowSortingLayerSetting, sortingLayerSettingGUI))
+            EditorGUITools.BeginFoldoutHeaderGroupBox(ref isShowSortingLayerSetting, sortingLayerSettingGUI, () =>
             {
                 DelegateEx.GetOrCreate<Action<SerializedProperty, SerializedProperty>>(null, renderSortingLayerFields)
                     .Invoke(sorintgOrderProp, sortingLayerIdProp);
-            }
-            EditorGUILayout.EndFoldoutHeaderGroup();
-
-            serializedObject.ApplyModifiedProperties();
+            });
         }
     }
 }

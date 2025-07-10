@@ -15,6 +15,14 @@ namespace PowerUtilities
     [CanEditMultipleObjects]
     public class MeshRendererEditorEx : Editor
     {
+        readonly GUIContent
+            sortingLayerSettingGUI = new GUIContent("SortingLayer", "SortingLayer,order"),
+            lightmapIndexGUI = new GUIContent("LightmapIndex", "lightmap Index"),
+            lightmapScaleOffsetGUI = new GUIContent("LightmapScaleOffset", "Lightmap Scale Offset"),
+            showLightmapSettingGUI = new GUIContent("LightmapSetting","lightmap setting")
+            ;
+        
+
         public Type meshRendererType;
         public Editor meshRendererEditor;
 
@@ -25,7 +33,9 @@ namespace PowerUtilities
         MethodInfo renderSortingLayerFields;
 
         public bool isShowSortingLayerSetting;
-        GUIContent sortingLayerSettingGUI = new GUIContent("SortingLayer", "SortingLayer,order");
+
+        // lightmap
+        public bool isShowLightmapSetting;
 
         private void OnEnable()
         {
@@ -44,15 +54,28 @@ namespace PowerUtilities
         {
             if (onInspectorGUI == null)
                 OnEnable();
-
+            
             // call default
             DelegateEx.GetOrCreate<Action>(meshRendererEditor, onInspectorGUI).Invoke();
 
             EditorGUITools.DrawColorLine(1);
+            serializedObject.Update();
             RendererEditorTools.DrawRenderSortingLayerFields(serializedObject, renderSortingLayerFields, ref isShowSortingLayerSetting, sortingLayerSettingGUI);
+            DrawLightmapSetting();
+            serializedObject.ApplyModifiedProperties();
         }
 
-
+        public void DrawLightmapSetting()
+        {
+            var mr = (MeshRenderer)target;
+            var lightmapIndexProp = serializedObject.FindProperty("m_LightmapIndex");
+            var lightmapScaleOffsetProp = serializedObject.FindProperty("m_LightmapTilingOffset");
+            EditorGUITools.BeginFoldoutHeaderGroupBox(ref isShowLightmapSetting, showLightmapSettingGUI, () =>
+            {
+                EditorGUILayout.PropertyField(lightmapIndexProp);
+                EditorGUILayout.PropertyField(lightmapScaleOffsetProp);
+            });
+        }
     }
 }
 #endif
