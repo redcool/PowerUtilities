@@ -21,6 +21,7 @@ namespace PowerUtilities
 
     public class BakePbrLighting : ScriptableObject
     {
+        [HelpBox]
         public string helpBox = "Bake pbr lighting to texture";
 
         [Tooltip("select target for bake")]
