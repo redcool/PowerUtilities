@@ -1,0 +1,5 @@
+﻿// Material Property 中文翻译, k = v
+_Color = 主颜色
+
+// document url
+DocumentURLDesc =点击右侧 [?] 图标，访问说明文档
