@@ -178,7 +178,7 @@ namespace PowerUtilities
             });
         }
 
-        public static void ReadRenderTexture(this RenderTexture sourceTex, ref Texture2D targetTex)
+        public static void ReadRenderTexture(this RenderTexture sourceTex, ref Texture2D targetTex,bool reCalcMipMaps=false)
         {
             if (!sourceTex)
                 return;
@@ -187,7 +187,7 @@ namespace PowerUtilities
                 targetTex = new Texture2D(sourceTex.width, sourceTex.height, TextureFormat.ARGB32, false, true);
 
             RenderTexture.active = sourceTex;
-            targetTex.ReadPixels(new Rect(0, 0, sourceTex.width, sourceTex.height), 0, 0, false);
+            targetTex.ReadPixels(new Rect(0, 0, sourceTex.width, sourceTex.height), 0, 0,reCalcMipMaps);
             RenderTexture.active = null;
         }
     }
