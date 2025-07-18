@@ -20,7 +20,7 @@
 
             GUI.contentColor = !isValid ? Color.red : Color.white;
 
-            EditorGUI.PropertyField(position, property, label);
+            EditorGUI.PropertyField(position, property, label,true);
         }
     }
 #endif
