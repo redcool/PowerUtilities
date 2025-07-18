@@ -124,9 +124,7 @@ namespace PowerUtilities.RenderFeatures
             if (Feature == null || !Feature.enabled)
                 return false;
 
-            if (Feature.isEditorOnly)
-                return Application.isEditor;
-
+            var isEditorValid = Feature.isEditorOnly ? Application.isEditor : true;
             //check event
             var isMonoPass = true;
             if (OnCanExecute != null)
@@ -137,7 +135,7 @@ namespace PowerUtilities.RenderFeatures
             if (camera && camera.IsGameCamera() && !string.IsNullOrEmpty(Feature.gameCameraTag))
                 isGameCamPass = IsGameCameraValid(camera);
 
-            return isGameCamPass && isMonoPass;
+            return isGameCamPass && isMonoPass && isEditorValid;
         }
 
         public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
