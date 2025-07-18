@@ -92,25 +92,28 @@
         static bool TryMoveNext(IEnumerator enumerator)
         {
             var ite = enumerator;
+
             if (ite.Current == null)
             {
                 ite.MoveNext();
             }
-
-            // WaitForClasses
-            if (ite.Current is WaitForDone waitItem)
-            {
-                if (waitItem.CanMoveNext)
-                {
-                    return ite.MoveNext();
-                }
-            }
             else
             {
-                // number ,move next
-                if (float.TryParse(ite.Current.ToString(), out var waitTime))
+                // WaitForClasses
+                if (ite.Current is WaitForDone waitItem)
                 {
-                    ite.MoveNext();
+                    if (waitItem.CanMoveNext)
+                    {
+                        return ite.MoveNext();
+                    }
+                }
+                else
+                {
+                    // number ,move next
+                    if (float.TryParse(ite.Current.ToString(), out var waitTime))
+                    {
+                        ite.MoveNext();
+                    }
                 }
             }
 

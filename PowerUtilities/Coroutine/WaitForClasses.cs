@@ -43,7 +43,6 @@
         {
             get
             {
-                Debug.Log("WaitForEndOfFrame " + frameCount);
                 frameCount--;
                 return frameCount <= 0;
             }
