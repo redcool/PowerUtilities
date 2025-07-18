@@ -79,7 +79,7 @@ namespace PowerUtilities
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        public static bool IsTiggerOnce(ref bool value)
+        public static bool IsTriggerOnce(ref bool value)
         {
             if (value)
             {

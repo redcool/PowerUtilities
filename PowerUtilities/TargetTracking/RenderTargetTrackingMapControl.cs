@@ -129,7 +129,7 @@ namespace PowerUtilities
         private void DispatchTrackingCS(ComputeShader cs,Vector4[] trackTargetPositions)
         {
             //-------- clear kernel
-            if (CompareTools.IsTiggerOnce(ref isClearRT))
+            if (CompareTools.IsTriggerOnce(ref isClearRT))
             {
                 cs.DispatchKernel_CSClear("_TrackTexture", trackRT, clearColor: clearColor);
             }
