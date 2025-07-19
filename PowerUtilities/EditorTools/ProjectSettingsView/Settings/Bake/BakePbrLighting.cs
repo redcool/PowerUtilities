@@ -1,20 +1,22 @@
 ﻿#if UNITY_EDITOR
-using PowerUtilities.Coroutine;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEditor;
-using UnityEngine;
-using UnityEngine.Experimental.Rendering;
-using Object = UnityEngine.Object;
-using WaitForEndOfFrame = PowerUtilities.Coroutine.WaitForEndOfFrame;
-
 namespace PowerUtilities
 {
+    using System.IO;
+    using System.Linq;
+
+    using UnityEditor;
+    using UnityEngine;
+    using Object = UnityEngine.Object;
+
+    [CustomEditor(typeof(BakePbrLighting))]
+    public class BakePbrLightingEditor : PowerEditor<BakePbrLighting>
+    {
+        public override bool NeedDrawDefaultUI()
+        => true;
+
+
+    }
+
 
     [ProjectSettingGroup(ProjectSettingGroupAttribute.POWER_UTILS + "/Bake/BakePbrLighting")]
     [SOAssetPath("Assets/PowerUtilities/BakePbrLighting.asset")]
@@ -41,27 +43,30 @@ namespace PowerUtilities
         public Color backgroundColor = Color.clear;
         public CameraClearFlags cameraClearFlags = CameraClearFlags.SolidColor;
 
-        [EditorDisableGroup(targetPropName = nameof(isUseSceneCamPos),isRevertMode =true)]
+        //[EditorDisableGroup(targetPropName = nameof(isUseSceneCamPos), isRevertMode = true)]
         [Tooltip("bake camera's position")]
         public float camDistance = 10;
 
-        [Tooltip("bake camera's position use sceneView camera position")]
+        [Tooltip("bake lighting use sceneView camera or main camera(Tag:MainCamera)")]
         public bool isUseSceneCamPos = false;
 
         [EditorButton(onClickCall = "BakeLighting")]
         public bool isBake;
 
-        [EditorGroup("Debug",true)]
+        [EditorGroup("Debug", true)]
         public RenderTexture rt;
         [EditorGroup("Debug")]
         public Texture2D tex;
+
+        Camera sceneCam;
+        Camera bakeCam;
 
         public void BakeLighting()
         {
             if (!target)
             {
                 target = Selection.activeGameObject;
-                if(!target)
+                if (!target)
                 {
                     //EditorTools.DisplayDialog_Ok_Cancel("select a gameobject");
                     Debug.LogError("select a gameobject");
@@ -69,44 +74,69 @@ namespace PowerUtilities
                 }
             }
 
+            if (isUseSceneCamPos && sceneCam)
+                bakeCam = sceneCam;
+
 
             TryCreateRT(ref rt);
 
             var allObjs = Object.FindObjectsByType<Renderer>(sortMode: FindObjectsSortMode.None);
 
             //======================= begin render
-            Camera cam;
-            BeforeDraw(allObjs, out cam, out var lastTarget,out var lastPos,out var lastClearFlags);
+            BeforeDraw(allObjs, out var lastTarget, out var lastPos, out var lastClearFlags);
 
-            cam.Render();
+            bakeCam.Render();
 
             //======================= after render
             AfterDraw(allObjs);
-            cam.targetTexture = lastTarget;
-            cam.transform.position = lastPos;
-            cam.clearFlags = lastClearFlags;
+            bakeCam.targetTexture = lastTarget;
+            bakeCam.transform.position = lastPos;
+            bakeCam.clearFlags = lastClearFlags;
 
             SaveTex();
         }
 
         private void OnEnable()
         {
+            if (!sceneCam)
+            {
+                SceneView sceneView = null;
+                TryGetFirstSceneView(ref sceneView);
+                sceneCam = sceneView?.camera;
+            }
+
+            bakeCam = Camera.main;
+
+            SceneView.duringSceneGui -= OnGizmos;
             SceneView.duringSceneGui += OnGizmos;
         }
+
+        public static void TryGetFirstSceneView(ref SceneView sv)
+        {
+            if (sv || SceneView.sceneViews.Count == 0)
+                return;
+
+            sv = (SceneView)SceneView.sceneViews[0];
+        }
+
         private void OnDisable()
         {
             SceneView.duringSceneGui -= OnGizmos;
         }
 
+
         void OnGizmos(SceneView sceneView)
         {
             if (!target)
                 return;
-            var cam = Camera.main;
-            var camBakePos = target.transform.position - cam.transform.forward * camDistance;
-            Handles.color = Color.magenta;
-            Handles.DrawLine(camBakePos, target.transform.position);
 
+                sceneCam = sceneView.camera;
+
+            CalcBakeCamPos(out var camPos, out var camForward);
+            camPos = sceneCam.transform.position + sceneCam.transform.forward;
+
+            Handles.color = Color.magenta;
+            Handles.DrawLine(camPos, target.transform.position);
             Handles.color = Color.white;
         }
 
@@ -121,7 +151,7 @@ namespace PowerUtilities
 
         private void SaveTex()
         {
-            rt.ReadRenderTexture(ref tex,true);
+            rt.ReadRenderTexture(ref tex, true);
             //tex.Apply();
 
             PathTools.CreateAbsFolderPath(outputPath);
@@ -131,7 +161,19 @@ namespace PowerUtilities
             Selection.activeObject = AssetDatabase.LoadAssetAtPath<Object>(outputPath);
         }
 
-        private void BeforeDraw(Renderer[] allObjs, out Camera cam, out RenderTexture lastTarget, out Vector3 lastPos, out CameraClearFlags lastClearFlags)
+        void CalcBakeCamPos(out Vector3 camPos, out Vector3 camForward)
+        {
+            camPos = target.transform.position - bakeCam.transform.forward * camDistance;
+            camForward = bakeCam.transform.forward;
+
+            if (isUseSceneCamPos && sceneCam)
+            {
+                camPos = sceneCam.transform.position + sceneCam.transform.forward*0.1f;
+                camForward = sceneCam.transform.forward;
+            }
+        }
+
+        private void BeforeDraw(Renderer[] allObjs, out RenderTexture lastTarget, out Vector3 lastPos, out CameraClearFlags lastClearFlags)
         {
             foreach (var obj in allObjs)
             {
@@ -144,27 +186,18 @@ namespace PowerUtilities
 
             Shader.SetGlobalFloat("_FullScreenOn", 1);
 
-            cam = Camera.main;
             // keep
-            lastTarget = cam.targetTexture;
-            lastPos = cam.transform.position;
-            lastClearFlags = cam.clearFlags;
+            lastTarget = bakeCam.targetTexture;
+            lastPos = bakeCam.transform.position;
+            lastClearFlags = bakeCam.clearFlags;
 
-            cam.targetTexture = rt;
-            cam.clearFlags = cameraClearFlags;
-            cam.backgroundColor = backgroundColor;
+            bakeCam.targetTexture = rt;
+            bakeCam.clearFlags = cameraClearFlags;
+            bakeCam.backgroundColor = backgroundColor;
 
-            cam.transform.position = target.transform.position - cam.transform.forward * camDistance;
-            if (isUseSceneCamPos)
-            {
-
-                var sceneCam = Camera.allCameras.Where(cam => cam.cameraType == CameraType.SceneView).FirstOrDefault();
-                if (sceneCam)
-                {
-                    cam.transform.position = sceneCam.transform.position;
-                    cam.transform.forward = sceneCam.transform.forward;
-                }
-            }
+            CalcBakeCamPos(out var bakePos, out var bakeForward);
+            bakeCam.transform.position = bakePos;
+            bakeCam.transform.forward = bakeForward;
         }
 
         private void TryCreateRT(ref RenderTexture rt)
@@ -172,12 +205,12 @@ namespace PowerUtilities
             var w = (int)resolution;
             if (!rt)
             {
-                rt = new RenderTexture(w, w, 32, GraphicsFormatTools.GetColorTextureFormat(true,false));
+                rt = new RenderTexture(w, w, 32, GraphicsFormatTools.GetColorTextureFormat(true, false));
             }
 
             if (!tex)
             {
-                tex = new Texture2D(w, w, TextureFormat.ARGB32,false,true);
+                tex = new Texture2D(w, w, TextureFormat.ARGB32, false, true);
             }
         }
 
