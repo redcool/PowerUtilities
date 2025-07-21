@@ -2,6 +2,7 @@
 {
     using PowerUtilities.Coroutine;
     using System.Collections;
+    using System.Collections.Generic;
     using System.IO;
     using System.Linq;
 
@@ -27,6 +28,12 @@
 
     public class BakePbrLighting : ScriptableObject
     {
+
+        public enum TextureBatchType
+        {
+            TexArr, Atlas
+        }
+
         [HelpBox]
         public string helpBox = "Bake pbr lighting to texture";
 
@@ -56,6 +63,9 @@
         [Tooltip("bake texture's resolution")]
         public TextureResolution resolution = TextureResolution.x2048;
 
+        [Tooltip("texture batch")]
+        public TextureBatchType texBatchType;
+
         //====================== camera options
         [Header("Camera Options")]
         [Tooltip("bake camera clear color")]
@@ -81,6 +91,7 @@
         Camera sceneCam;
         Camera bakeCam;
         Renderer[] lastShowRenderers;
+        List<Vector4> lastRenderersUVList = new();
 
         public void BakeLighting()
         {
@@ -103,12 +114,18 @@
             TryCreateRT(ref rt);
 
             var allObjs = Object.FindObjectsByType<Renderer>(sortMode: FindObjectsSortMode.None);
+            var renders = target.GetComponentsInChildren<Renderer>(isIncludeInvisible);
 
             //======================= begin render
             BeforeDraw(allObjs, out var lastTarget, out var lastPos, out var lastClearFlags);
 
             // bake objects 1 by 1
-            RenderObjects_Atlas();
+            lastRenderersUVList = RenderObjects_Atlas(renders);
+
+            // readbake rt
+            rt.ReadRenderTexture(ref tex,true);
+            SaveTexAtlas();
+            CombineRenderers(renders,lastRenderersUVList);
 
             //======================= after render
             AfterDraw(allObjs);
@@ -116,7 +133,8 @@
             bakeCam.transform.position = lastPos;
             bakeCam.clearFlags = lastClearFlags;
 
-            SaveTex();
+
+            RefreshAssetDatabase();
         }
 
         void RenderObjects()
@@ -126,10 +144,15 @@
 
             bakeCam.Render();
         }
-
-        private void RenderObjects_Atlas()
+        /// <summary>
+        /// render objects 1by1
+        /// output objects uv ranges
+        /// </summary>
+        /// <returns>xy : range start, zw : uv range size</returns>
+        public List<Vector4> RenderObjects_Atlas(Renderer[] renders)
         {
-            var renders = target.GetComponentsInChildren<Renderer>(isIncludeInvisible);
+            var tileUVOffsetTilingList = new List<Vector4>();
+            
 
             int tileCount = GetTileCountARow(renders.Length);
 
@@ -143,6 +166,10 @@
                 var y = i / tileCount;
 
                 var tileStart = new Vector2(x * tileSize.x, y * tileSize.y);
+                // xy : range start, zw : uv range size
+                tileUVOffsetTilingList.Add(new Vector4(tileStart.x, tileStart.y, tileSize.x, tileSize.y));
+
+                //xy : range start, zw : range end
                 var tileUV = new Vector4(tileStart.x, tileStart.y, tileSize.x + tileStart.x, tileSize.y + tileStart.y);
                 Debug.Log($"id:{x},{y},count: {tileCount},suv :{tileUV}");
                 Shader.SetGlobalVector("_FullScreenUVRange", tileUV);
@@ -154,6 +181,8 @@
                 render.enabled = false;
             }
             Shader.SetGlobalVector("_FullScreenUVRange", new Vector4(0, 0, 1, 1));
+
+            return tileUVOffsetTilingList;
         }
         /// <summary>
         /// render objects into texture2d array
@@ -260,16 +289,30 @@
                 obj.enabled = true;
         }
 
-        private void SaveTex()
+        private void SaveTexAtlas()
         {
-            rt.ReadRenderTexture(ref tex, true);
-            //tex.Apply();
-
             PathTools.CreateAbsFolderPath(outputPath);
             File.WriteAllBytes($"{outputPath}/{target.name}.png", tex.EncodeToPNG());
+        }
+        void RefreshAssetDatabase()
+        {
 #if UNITY_EDITOR
             AssetDatabase.Refresh();
             Selection.activeObject = AssetDatabase.LoadAssetAtPath<Object>(outputPath);
+#endif
+        }
+
+        void CombineRenderers(Renderer[] renders,List<Vector4> tileUVList)
+        {
+            var mfList = renders.Select(r => r.GetComponent<MeshFilter>()).ToList();
+            //tileUVList = new List<Vector4>() { 
+            //new Vector4(0,0,.5f,.5f),
+            //new Vector4(0.5f,0.5f,.5f,.5f),
+            //};
+            var mesh = MeshTools.CombineMesh(mfList, tileUVList);
+#if UNITY_EDITOR
+            var path = $"{outputPath}/{target.name}.asset";
+            AssetDatabase.CreateAsset(mesh, path);
 #endif
         }
 
@@ -292,8 +335,6 @@
             {
                 obj.enabled = false;
             }
-
-
 
             Shader.SetGlobalFloat("_FullScreenOn", 1);
 

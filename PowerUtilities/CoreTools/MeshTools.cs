@@ -5,7 +5,9 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
+    using Unity.Mathematics;
     using UnityEngine;
+    using UnityEngine.Rendering;
 
     public static class MeshTools
     {
@@ -68,23 +70,29 @@
             return m;
         }
 
-        public static Mesh CombineMesh(List<MeshFilter> mfs)
+        public static Mesh CombineMesh(List<MeshFilter> mfs,List<Vector4> uvScaleTilingList)
         {
             var verts = new List<Vector3>();
-            var uv = new List<Vector2>();
-            var uv2 = new List<Vector2>();
+            List<Vector2> uv = new(), uv2 = new()
+                , uv3 = new(), uv4 = new()
+                , uv5 = new(), uv6 = new()
+                ,uv7 = new(), uv8 = new ();
+
+            var allUVList = new List<List<Vector2>>() { uv, uv2, uv3, uv4, uv5, uv6, uv7, uv8 };
+
             var colors = new List<Color>();
             var triangles = new List<int>();
 
             var vertexCount = 0;
-            foreach (var mf in mfs)
+            for (int i = 0; i < mfs.Count; i++)
             {
+                var mf = mfs[i];
                 var m = mf.sharedMesh;
                 verts.AddRange(m.vertices.Select(v => mf.transform.localToWorldMatrix.MultiplyPoint(v)).ToArray());
-                uv.AddRange(m.uv);
-                uv2.AddRange(m.uv2.Length > 0 ? m.uv2 : m.vertices.Select(v => Vector2.zero));
                 colors.AddRange(m.colors.Length > 0 ? m.colors : m.vertices.Select(v => Color.white).ToArray());
                 triangles.AddRange(m.triangles.Select(vertexId => vertexId + vertexCount).ToArray());
+
+                CalcUV8(m, ref allUVList, uvScaleTilingList[i]);
 
                 vertexCount += m.vertexCount;
                 if(colors.Count != 0 && colors.Count != verts.Count)
@@ -97,6 +105,14 @@
             mesh.vertices = verts.ToArray();
             mesh.uv = uv.ToArray();
             mesh.uv2 = uv2.ToArray();
+            mesh.uv3 = uv3.ToArray();
+            mesh.uv4 = uv4.ToArray();
+                
+            mesh.uv5 = uv5.ToArray();
+            mesh.uv6 = uv6.ToArray();
+            mesh.uv7 = uv7.ToArray();
+            mesh.uv8 = uv8.ToArray();
+
             mesh.colors = colors.ToArray();
             mesh.triangles = triangles.ToArray();
 
@@ -104,6 +120,36 @@
             mesh.RecalculateNormals();
             mesh.RecalculateTangents();
             return mesh;
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="uvsList"></param>
+        /// <param name="uvOffsetTiling">xy:offset,zw:scale</param>
+        public static void CalcUV8(Mesh m, ref List<List<Vector2>> uvsList, Vector4 uvOffsetTiling)
+        {
+            var uvs = new Vector2[][] { m.uv, m.uv2, m.uv3, m.uv4, m.uv5, m.uv6, m.uv7, m.uv8 };
+            for (int i = 0; i < uvsList.Count; i++)
+            {
+                var attr = VertexAttribute.TexCoord0 + i;
+                if (m.HasVertexAttribute(attr))
+                {
+                    var uv = uvs[i];
+                    // transform uv items
+                    if(uvOffsetTiling != default)
+                    {
+                        for (var j = 0; j < uv.Length; j++)
+                        {
+                            float4 scaleTiling = uvOffsetTiling;
+                            uv[j] = (float2)uv[j] * scaleTiling.zw + scaleTiling.xy;
+                        }
+                    }
+                    uvsList[i].AddRange(uv);
+                }
+            }
         }
 
         /// <summary>
