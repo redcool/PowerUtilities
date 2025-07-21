@@ -134,6 +134,9 @@ namespace PowerUtilities.RenderFeatures
 
             foreach (var feature in featureListSO.featureList)
             {
+                if(!feature)
+                    continue;
+
                 feature.OnDisable();
                 feature.OnDestroy();
             }
