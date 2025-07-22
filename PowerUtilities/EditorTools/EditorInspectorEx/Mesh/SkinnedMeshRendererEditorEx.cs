@@ -98,7 +98,8 @@ namespace PowerUtilities
         public void OnSceneGUI()
         {
             //onSceneGUIMethod.CreateDelegate(defaultEditor).DynamicInvoke();
-            DelegateEx.GetOrCreate<Action>(skinnedMeshEditor, onSceneGUIMethod).Invoke();
+            //DelegateEx.GetOrCreate<Action>(skinnedMeshEditor, onSceneGUIMethod).Invoke();
+            skinnedMeshEditor.InvokeDelegate<Action>(onSceneGUIMethod);
         }
     }
 }

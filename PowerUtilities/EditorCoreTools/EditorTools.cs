@@ -154,6 +154,11 @@ namespace PowerUtilities
                 editorInst = Editor.CreateEditor(targets, editorType);
         }
 
+        /// <summary>
+        /// Get Type from UnityEditor.dll
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="typeName"></param>
         public static void GetTypeFromEditorAssembly(ref Type type,string typeName)
         {
             //editorType = typeof(Editor).Assembly.GetTypes()

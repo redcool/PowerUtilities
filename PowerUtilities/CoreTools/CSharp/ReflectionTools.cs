@@ -53,7 +53,7 @@ namespace PowerUtilities
         /// <param name="methodInfo"></param>
         /// <param name="methodName"></param>
         /// <param name="flags"></param>
-        public static void GetMethod(this Type type, ref MethodInfo methodInfo, string methodName, BindingFlags flags)
+        public static void GetMethod(this Type type, ref MethodInfo methodInfo, string methodName, BindingFlags flags = ReflectionTools.callBindings)
         {
             if (methodInfo == null)
                 methodInfo = type.GetMethod(methodName, flags);

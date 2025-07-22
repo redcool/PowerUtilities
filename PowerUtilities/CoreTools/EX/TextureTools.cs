@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Experimental.Rendering;
 
 namespace PowerUtilities
 {
@@ -51,25 +52,21 @@ namespace PowerUtilities
             return textureList;
         }
 
-        public static Texture2DArray Create2DArray(List<Texture2D> textures, int width, int height, TextureFormat tf,bool mipChain,bool linear)
+        public static Texture2DArray Create2DArray(List<Texture2D> textures, int width, int height, TextureFormat tf,int mipCount, bool linear)
         {
-            var arr = new Texture2DArray(width, height, textures.Count, tf, mipChain, linear);
-            textures.ForEach((tex, id) =>
-            {
-                Graphics.CopyTexture(tex, 0, arr, id);
-            });
+            var arr = new Texture2DArray(width, height, textures.Count, tf, mipCount, linear,true);
+            arr.Fill(textures);
             return arr;
         }
 
-        public static Texture2DArray Create2DArray(List<Texture2D> textures,bool linear)
+        public static Texture2DArray Create2DArray(List<Texture2D> textures, bool linear)
         {
-            var q = textures.Where(t => t);
-            if (q.Count()==0)
+            var q = textures.Where(t => t).ToList();
+            if (q.Count == 0)
                 return null;
 
-            var sample = textures[0];
-            
-            return Create2DArray(textures, sample.width, sample.height, sample.format,true, linear);
+            var sample = q[0];
+            return Create2DArray(q, sample.width, sample.height, sample.format, sample.mipmapCount, linear);
         }
     }
 }

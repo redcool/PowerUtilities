@@ -107,17 +107,21 @@ namespace GameUtilsFramework
             GUI.color = Color.white;
         }
 
-        public static void DrawBoneWeigth1Info(SkinnedMeshRenderer skinned)
+        public static void DrawBoneWeigth1Info(SkinnedMeshRenderer skinned,int startId=0,int endId =-1)
         {
             var mesh = skinned.sharedMesh;
             var boneWeights = mesh.GetAllBoneWeights();
             var boneWeightInfos = mesh.GetBoneWeight1_InfoPerVertex();
+
+            if (endId == -1 || endId > mesh.vertexCount)
+                endId = mesh.vertexCount;
+
             if(boneWeights.Length == 0)
             {
                 EditorGUILayout.SelectableLabel("bone weights not found");
                 return;
             }
-            for (int i = 0; i < mesh.vertexCount; i++)
+            for (int i = startId; i < endId; i++)
             {
                 var info = boneWeightInfos[i];
                 EditorGUILayout.LabelField($"vertex:{i},start:{info.start},count:{info.count}");
@@ -129,6 +133,8 @@ namespace GameUtilsFramework
                 }
                 EditorGUI.indentLevel--;
             }
+
+            EditorGUILayout.SelectableLabel($"--- Show {endId} only");
         }
     }
 }

@@ -13,7 +13,7 @@ namespace PowerUtilities
 {
     [CustomEditor(typeof(MeshRenderer))]
     [CanEditMultipleObjects]
-    public class MeshRendererEditorEx : Editor
+    public class MeshRendererEditorEx : BaseEditorEx
     {
         readonly GUIContent
             sortingLayerSettingGUI = new GUIContent("SortingLayer", "SortingLayer,order"),
@@ -22,11 +22,6 @@ namespace PowerUtilities
             showLightmapSettingGUI = new GUIContent("LightmapSetting","lightmap setting")
             ;
         
-
-        public Type meshRendererType;
-        public Editor meshRendererEditor;
-
-        MethodInfo onEnable, onInspectorGUI;
 
         // SortingLayerEditorUtility
         public Type sortingLayerEditorUtilityType;
@@ -37,28 +32,20 @@ namespace PowerUtilities
         // lightmap
         public bool isShowLightmapSetting;
 
-        private void OnEnable()
+        public override string GetDefaultInspectorTypeName() => "UnityEditor.MeshRendererEditor";
+
+        public override void OnEnable()
         {
-            // get MeshRendererEditor
-            EditorTools.GetOrCreateUnityEditor(ref meshRendererEditor, targets, ref meshRendererType, "UnityEditor.MeshRendererEditor");
+            base.OnEnable();
 
-            meshRendererType.GetMethod(ref onEnable, nameof(OnEnable), ReflectionTools.callBindings);
-            meshRendererType.GetMethod(ref onInspectorGUI, nameof(OnInspectorGUI), ReflectionTools.callBindings);
-
-            DelegateEx.GetOrCreate<Action>(meshRendererEditor, onEnable).Invoke();
             // get SortingLayerEditorUtility
             RendererEditorTools.GetSortingLayerEditorUtility(ref sortingLayerEditorUtilityType, ref renderSortingLayerFields);
         }
 
         public override void OnInspectorGUI()
         {
-            if (onInspectorGUI == null)
-                OnEnable();
-            
-            // call default
-            DelegateEx.GetOrCreate<Action>(meshRendererEditor, onInspectorGUI).Invoke();
+            base.OnInspectorGUI();
 
-            EditorGUITools.DrawColorLine(1);
             serializedObject.Update();
             RendererEditorTools.DrawRenderSortingLayerFields(serializedObject, renderSortingLayerFields, ref isShowSortingLayerSetting, sortingLayerSettingGUI);
             DrawLightmapSetting();
@@ -76,6 +63,7 @@ namespace PowerUtilities
                 EditorGUILayout.PropertyField(lightmapScaleOffsetProp);
             });
         }
+
     }
 }
 #endif

@@ -31,7 +31,7 @@
 
         public enum TextureBatchType
         {
-            TexArr, Atlas
+            TexArr, TexAtlas
         }
 
         [HelpBox]
@@ -65,6 +65,9 @@
 
         [Tooltip("texture batch")]
         public TextureBatchType texBatchType;
+
+        [Tooltip("combine children meshes ")]
+        public bool isCombineMeshes;
 
         //====================== camera options
         [Header("Camera Options")]
@@ -111,21 +114,17 @@
             if (isUseSceneCamPos && sceneCam)
                 bakeCam = sceneCam;
 
+            var renders = target.GetComponentsInChildren<Renderer>(isIncludeInvisible);
+            if (renders.Length == 0)
+                return;
+
             TryCreateRT(ref rt);
 
             var allObjs = Object.FindObjectsByType<Renderer>(sortMode: FindObjectsSortMode.None);
-            var renders = target.GetComponentsInChildren<Renderer>(isIncludeInvisible);
-
             //======================= begin render
             BeforeDraw(allObjs, out var lastTarget, out var lastPos, out var lastClearFlags);
 
-            // bake objects 1 by 1
-            lastRenderersUVList = RenderObjects_Atlas(renders);
-
-            // readbake rt
-            rt.ReadRenderTexture(ref tex,true);
-            SaveTexAtlas();
-            CombineRenderers(renders,lastRenderersUVList);
+            StartDraw(renders);
 
             //======================= after render
             AfterDraw(allObjs);
@@ -137,9 +136,28 @@
             RefreshAssetDatabase();
         }
 
-        void RenderObjects()
+        private void StartDraw(Renderer[] renders)
         {
-            var renders = target.GetComponentsInChildren<Renderer>(isIncludeInvisible);
+            if (texBatchType == TextureBatchType.TexAtlas)
+            {
+                // bake objects 1 by 1
+                lastRenderersUVList = RenderObjects_Atlas(renders);
+                // readbake rt
+                rt.ReadRenderTexture(ref tex, true);
+                SaveTexAtlas();
+
+                if (renders.Length > 1)
+                    CombineRenderers(renders, lastRenderersUVList);
+            }
+            else
+            {
+                RenderObjects_TexArray(renders);
+            }
+
+        }
+
+        void RenderObjects(Renderer[] renders)
+        {
             renders.ForEach(r => r.enabled = true);
 
             bakeCam.Render();
@@ -152,7 +170,6 @@
         public List<Vector4> RenderObjects_Atlas(Renderer[] renders)
         {
             var tileUVOffsetTilingList = new List<Vector4>();
-            
 
             int tileCount = GetTileCountARow(renders.Length);
 
@@ -187,15 +204,25 @@
         /// <summary>
         /// render objects into texture2d array
         /// </summary>
-        void RenderObjects_TexArray()
+        void RenderObjects_TexArray(Renderer[] renders)
         {
-            var renders = target.GetComponentsInChildren<Renderer>(isIncludeInvisible);
+            var texList = new List<Texture2D>();
             for (int i = 0; i < renders.Length; i++)
             {
                 var render = renders[i];
                 render.enabled = true;
                 bakeCam.Render();
+                
+                Texture2D sliceTex = new Texture2D(rt.width,rt.height,TextureFormat.RGB24,true);
+                rt.ReadRenderTexture(ref sliceTex);
+                texList.Add(sliceTex);
+
+                render.enabled = false;
             }
+#if UNITY_EDITOR
+            var path = $"{outputPath}/{target}_texArr.asset";
+            EditorTextureTools.Create2DArray(texList, path);
+#endif
         }
 
         /// <summary>
