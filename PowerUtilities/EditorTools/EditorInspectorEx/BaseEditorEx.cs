@@ -58,43 +58,35 @@ namespace PowerUtilities
 
             methodNames.ForEach(name =>
             {
-                MethodInfo methodInfo = null;
-                defaultEditorType.GetMethod(ref methodInfo, name);
-
-                methodInfoDict[name] = methodInfo;
+            methodInfoDict[name] = defaultEditorType.GetMethod(name, ReflectionTools.callBindings);
             });
 
-
-            defaultEditor.InvokeDelegate<Action>(methodInfoDict[nameof(OnEnable)]);
+            if(methodInfoDict.ContainsKey(nameof(OnEnable)))
+                defaultEditor.InvokeDelegate<Action>(methodInfoDict[nameof(OnEnable)]);
         }
         public virtual void OnDisable()
         {
-            defaultEditor.InvokeDelegate<Action>(methodInfoDict[nameof(OnDisable)]);
+            if (methodInfoDict.ContainsKey(nameof(OnDisable)))
+                defaultEditor.InvokeDelegate<Action>(methodInfoDict[nameof(OnDisable)]);
         }
+        //public virtual void OnDestroy()
+        //{
+        //    if (methodInfoDict.ContainsKey(nameof(OnDestroy)))
+        //        defaultEditor.InvokeDelegate<Action>(methodInfoDict[nameof(OnDestroy)]);
+        //}
         //public virtual void OnSceneGUI()
         //{
         //    //defaultEditor.InvokeDelegate<Action>(methodInfoDict[nameof(OnSceneGUI)]);
         //}
-
-        private void OnDestroy()
-        {
-            defaultEditor.InvokeDelegate<Action>(methodInfoDict[nameof(OnDestroy)]);
-        }
-        public virtual Bounds OnGetFrameBounds()
-        {
-            return defaultEditor.InvokeDelegate<Func<Bounds>,Bounds>(methodInfoDict[nameof(OnGetFrameBounds)]);
-        }
-        public virtual void OnValidate()
-        {
-            defaultEditor.InvokeDelegate<Action>(methodInfoDict[nameof(OnValidate)]);
-        }
-
         public override void OnInspectorGUI()
         {
-            defaultEditor.InvokeDelegate<Action>(methodInfoDict[nameof(OnInspectorGUI)]);
+            if (methodInfoDict.ContainsKey(nameof(OnInspectorGUI)))
+                defaultEditor.InvokeDelegate<Action>(methodInfoDict[nameof(OnInspectorGUI)]);
 
             EditorGUITools.DrawColorLine(1);
         }
+
+
 
         public override bool HasPreviewGUI()
         {
@@ -103,16 +95,29 @@ namespace PowerUtilities
 
         public override void DrawPreview(Rect previewArea)
         {
-            defaultEditor.InvokeDelegate<Action<Rect>>(methodInfoDict[nameof(DrawPreview)], previewArea);
+            if (methodInfoDict.ContainsKey(nameof(DrawPreview)))
+                defaultEditor.InvokeDelegate<Action<Rect>>(methodInfoDict[nameof(DrawPreview)], previewArea);
+        }
+
+        public virtual Bounds OnGetFrameBounds()
+        {
+            return defaultEditor.InvokeDelegate<Func<Bounds>, Bounds>(methodInfoDict[nameof(OnGetFrameBounds)]);
+        }
+        public virtual void OnValidate()
+        {
+            if (methodInfoDict.ContainsKey(nameof(OnValidate)))
+                defaultEditor.InvokeDelegate<Action>(methodInfoDict[nameof(OnValidate)]);
         }
 
         public override void OnPreviewGUI(Rect r, GUIStyle background)
         {
-            defaultEditor.InvokeDelegate<Action<Rect, GUIStyle>>(methodInfoDict[nameof(OnPreviewGUI)], r, background);
+            if (methodInfoDict.ContainsKey(nameof(OnPreviewGUI)))
+                defaultEditor.InvokeDelegate<Action<Rect, GUIStyle>>(methodInfoDict[nameof(OnPreviewGUI)], r, background);
         }
         public override void OnPreviewSettings()
         {
-            defaultEditor.InvokeDelegate<Action>(methodInfoDict[nameof(OnPreviewSettings)]);
+            if (methodInfoDict.ContainsKey(nameof(OnPreviewSettings)))
+                defaultEditor.InvokeDelegate<Action>(methodInfoDict[nameof(OnPreviewSettings)]);
         }
 
         public override Texture2D RenderStaticPreview(string assetPath, UnityEngine.Object[] subAssets, int width, int height)
@@ -121,7 +126,8 @@ namespace PowerUtilities
         }
         public override void OnInteractivePreviewGUI(Rect r, GUIStyle background)
         {
-            defaultEditor.InvokeDelegate<Action<Rect, GUIStyle>>(methodInfoDict[nameof(OnInteractivePreviewGUI)], r, background);
+            if (methodInfoDict.ContainsKey(nameof(OnInteractivePreviewGUI)))
+                defaultEditor.InvokeDelegate<Action<Rect, GUIStyle>>(methodInfoDict[nameof(OnInteractivePreviewGUI)], r, background);
         }
 
     }

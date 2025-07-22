@@ -19,6 +19,8 @@ namespace PowerUtilities
         public static object InvokeDelegate<DelegateType>(this object target,MethodInfo m,params object[] args)
             where DelegateType : Delegate
         {
+            if (m == null)
+                return default;
             return DelegateEx.GetOrCreate<DelegateType>(target, m).DynamicInvoke(args);
         }
 
@@ -34,6 +36,9 @@ namespace PowerUtilities
         public static ReturnType InvokeDelegate<DelegateType,ReturnType>(this object target, MethodInfo m, params object[] args)
             where DelegateType : Delegate
         {
+            if (m == null)
+                return default;
+
             return (ReturnType)DelegateEx.GetOrCreate<DelegateType>(target, m).DynamicInvoke(args);
         }
     }

@@ -14,14 +14,11 @@ namespace PowerUtilities
 {
     [CustomEditor(typeof(SkinnedMeshRenderer))]
     [CanEditMultipleObjects]
-    public class SkinnedMeshRendererEditorEx : Editor
+    public class SkinnedMeshRendererEditorEx : BaseEditorEx
     {
         //==================
         //SkinnedMeshRenderer
         //==================
-        Type skinnedMeshRendererEditorType;
-        Editor skinnedMeshEditor;
-
         bool isShowSkeleton;
         bool isShowWeights;
         private Vector2 scrollPosition;
@@ -29,7 +26,7 @@ namespace PowerUtilities
         GUIContent diffSkinnedGUI = new GUIContent("Diff Skinned", "sync show original skinned skeleton");
         SkinnedMeshRenderer diffSkinned;
 
-        MethodInfo onSceneGUIMethod, onEnableMethod;
+        MethodInfo onSceneGUI;
 
         //==================
         //SortingLayerEditorUtility
@@ -41,14 +38,13 @@ namespace PowerUtilities
         public bool isShowSortingLayerSetting;
         GUIContent sortingLayerSettingGUI = new GUIContent("SortingLayer", "SortingLayer,order");
 
-        public void OnEnable()
+        public override string GetDefaultInspectorTypeName() => "UnityEditor.SkinnedMeshRendererEditor";
+
+        public override void OnEnable()
         {
-            EditorTools.GetOrCreateUnityEditor(ref skinnedMeshEditor, targets, ref skinnedMeshRendererEditorType, "UnityEditor.SkinnedMeshRendererEditor");
+            base.OnEnable();
 
-            skinnedMeshRendererEditorType.GetMethod(ref onEnableMethod, nameof(OnEnable), ReflectionTools.instanceBindings);
-            skinnedMeshRendererEditorType.GetMethod(ref onSceneGUIMethod, nameof(OnSceneGUI), ReflectionTools.instanceBindings);
-
-            DelegateEx.GetOrCreate<Action>(skinnedMeshEditor, onEnableMethod).Invoke();
+            defaultEditorType.GetMethod(ref onSceneGUI, name);
 
             // get SortingLayerEditorUtility
             RendererEditorTools.GetSortingLayerEditorUtility(ref sortingLayerEditorUtilityType, ref renderSortingLayerFields);
@@ -58,10 +54,7 @@ namespace PowerUtilities
 
         public override void OnInspectorGUI()
         {
-            // show default
-            skinnedMeshEditor.OnInspectorGUI();
-
-            EditorGUITools.DrawColorLine(1);
+            base.OnInspectorGUI();
 
             serializedObject.Update();
             RendererEditorTools.DrawRenderSortingLayerFields(serializedObject, renderSortingLayerFields, ref isShowSortingLayerSetting, sortingLayerSettingGUI);
@@ -90,17 +83,17 @@ namespace PowerUtilities
             isShowWeights = EditorGUILayout.BeginFoldoutHeaderGroup(isShowWeights, "Show BoneWeights");
             if (isShowWeights)
             {
-                SkinnedMeshRendererInfoWin.DrawBoneWeigth1Info(skinned);
+                SkinnedMeshRendererInfoWin.DrawBoneWeigth1Info(skinned, 0, 1000);
             }
             EditorGUILayout.EndFoldoutHeaderGroup();
         }
 
         public void OnSceneGUI()
         {
-            //onSceneGUIMethod.CreateDelegate(defaultEditor).DynamicInvoke();
-            //DelegateEx.GetOrCreate<Action>(skinnedMeshEditor, onSceneGUIMethod).Invoke();
-            skinnedMeshEditor.InvokeDelegate<Action>(onSceneGUIMethod);
+            defaultEditor.InvokeDelegate<Action>(onSceneGUI);
         }
+
+
     }
 }
 #endif
