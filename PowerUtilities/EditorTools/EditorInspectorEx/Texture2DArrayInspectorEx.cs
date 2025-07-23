@@ -48,31 +48,14 @@ namespace PowerUtilities
             serializedObject.UpdateIfRequiredOrScript();
             EditorGUITools.EnumPropertyFieldSearchable(formatProp, typeof(GraphicsFormat));
 
-            //colorSpaceProp.intValue =  (int)(ColorSpace)EditorGUILayout.EnumPopup(colorSpaceProp.displayName,(ColorSpace)colorSpaceProp.intValue);
-
             wrapUProp.intValue = (int)(WrapMode)EditorGUILayout.EnumPopup(wrapUProp.displayName, (WrapMode)wrapUProp.intValue);
             wrapVProp.intValue = (int)(WrapMode)EditorGUILayout.EnumPopup(wrapVProp.displayName, (WrapMode)wrapVProp.intValue);
             wrapWProp.intValue = (int)(WrapMode)EditorGUILayout.EnumPopup(wrapWProp.displayName, (WrapMode)wrapWProp.intValue);
-            //EditorGUITools.EnumPropertyFieldSearchable(wrapUProp, typeof(WrapMode));
-            //EditorGUITools.EnumPropertyFieldSearchable(wrapVProp, typeof(WrapMode));
-            //EditorGUITools.EnumPropertyFieldSearchable(wrapWProp, typeof(WrapMode));
 
 
             serializedObject.ApplyModifiedProperties();
         }
 
-        //public static void DoFilterModePopup<T>(SerializedProperty filterModeProp,T enumType) where T : Enum
-        //{
-        //    EditorGUI.BeginChangeCheck();
-        //    EditorGUI.showMixedValue = filterModeProp.hasMultipleDifferentValues;
-        //    var intValue = filterModeProp.intValue;
-        //    intValue = (T)EditorGUILayout.EnumPopup(EditorGUIUtility.TrTempContent("Filter Mode"), (T)intValue);
-        //    EditorGUI.showMixedValue = false;
-        //    if (EditorGUI.EndChangeCheck())
-        //    {
-        //        filterModeProp.intValue = (int)intValue;
-        //    }
-        //}
     }
 }
 #endif

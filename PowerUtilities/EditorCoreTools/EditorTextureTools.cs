@@ -44,6 +44,14 @@ namespace PowerUtilities
             SaveTexturesToFolder(textures, folder, countInRow);
         }
 
+        /// <summary>
+        /// Create tex Array and fill with textures,
+        /// texture array info get from textures[0]
+        /// 
+        /// </summary>
+        /// <param name="textures"></param>
+        /// <param name="assetPath"></param>
+        /// <param name="isLinear"></param>
         public static void Create2DArray(List<Texture2D> textures,string assetPath,bool isLinear = true)
         {
             if (textures == null || textures.Count == 0)

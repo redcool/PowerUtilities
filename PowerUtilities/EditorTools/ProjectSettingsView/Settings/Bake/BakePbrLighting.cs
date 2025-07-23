@@ -214,7 +214,12 @@
                 bakeCam.Render();
                 
                 Texture2D sliceTex = new Texture2D(rt.width,rt.height,TextureFormat.RGB24,true);
-                rt.ReadRenderTexture(ref sliceTex);
+                rt.ReadRenderTexture(ref sliceTex,true);
+#if UNITY_EDITOR
+                EditorUtility.CompressTexture(sliceTex, TextureFormat.ASTC_6x6,TextureCompressionQuality.Normal);
+#else
+                sliceTex.Compress(false);
+#endif
                 texList.Add(sliceTex);
 
                 render.enabled = false;
