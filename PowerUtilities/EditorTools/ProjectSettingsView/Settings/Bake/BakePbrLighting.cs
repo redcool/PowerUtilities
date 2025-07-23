@@ -146,12 +146,15 @@
                 rt.ReadRenderTexture(ref tex, true);
                 SaveTexAtlas();
 
-                if (renders.Length > 1)
+                if (isCombineMeshes && renders.Length > 1)
                     CombineRenderers(renders, lastRenderersUVList);
             }
             else
             {
                 RenderObjects_TexArray(renders);
+
+                if (isCombineMeshes && renders.Length > 1)
+                    CombineRenderers(renders, null);
             }
 
         }
@@ -333,7 +336,11 @@
             Selection.activeObject = AssetDatabase.LoadAssetAtPath<Object>(outputPath);
 #endif
         }
-
+        /// <summary>
+        /// Combine renders
+        /// </summary>
+        /// <param name="renders"></param>
+        /// <param name="tileUVList">offset uvs[0-8], null : dont offset uv</param>
         void CombineRenderers(Renderer[] renders,List<Vector4> tileUVList)
         {
             var mfList = renders.Select(r => r.GetComponent<MeshFilter>()).ToList();

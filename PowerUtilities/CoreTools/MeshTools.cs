@@ -69,7 +69,12 @@
             m.CombineMeshes(q.ToArray(), true, true, true);
             return m;
         }
-
+        /// <summary>
+        /// Combine meshFilters, 
+        /// </summary>
+        /// <param name="mfs"></param>
+        /// <param name="uvScaleTilingList">offsetScale uvs[0-7], null : dont offset uvs</param>
+        /// <returns></returns>
         public static Mesh CombineMesh(List<MeshFilter> mfs,List<Vector4> uvScaleTilingList)
         {
             var verts = new List<Vector3>();
@@ -92,7 +97,8 @@
                 colors.AddRange(m.colors.Length > 0 ? m.colors : m.vertices.Select(v => Color.white).ToArray());
                 triangles.AddRange(m.triangles.Select(vertexId => vertexId + vertexCount).ToArray());
 
-                CalcUV8(m, ref allUVList, uvScaleTilingList[i]);
+                var uvScaleTiling = uvScaleTilingList !=null ? uvScaleTilingList[i] : default;
+                CalcUV8(m, ref allUVList, uvScaleTiling);
 
                 vertexCount += m.vertexCount;
                 if(colors.Count != 0 && colors.Count != verts.Count)
@@ -129,7 +135,7 @@
         /// <param name="m"></param>
         /// <param name="uvsList"></param>
         /// <param name="uvOffsetTiling">xy:offset,zw:scale</param>
-        public static void CalcUV8(Mesh m, ref List<List<Vector2>> uvsList, Vector4 uvOffsetTiling)
+        public static void CalcUV8(Mesh m, ref List<List<Vector2>> uvsList, Vector4 uvOffsetTiling = default)
         {
             var uvs = new Vector2[][] { m.uv, m.uv2, m.uv3, m.uv4, m.uv5, m.uv6, m.uv7, m.uv8 };
             for (int i = 0; i < uvsList.Count; i++)
