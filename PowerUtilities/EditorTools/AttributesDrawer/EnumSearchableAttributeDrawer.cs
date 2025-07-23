@@ -35,7 +35,7 @@ namespace PowerUtilities
                 ShowSearchWindow(property, attr);
 
         }
-        static void ShowSearchWindow(SerializedProperty property, EnumSearchableAttribute attr)
+        public static void ShowSearchWindow(SerializedProperty property, EnumSearchableAttribute attr)
         {
             var provider = SearchWindowTools.CreateProvider<EnumSearchProvider>();
             provider.windowTitle = attr.enumType.Name;
@@ -51,6 +51,7 @@ namespace PowerUtilities
 
             SearchWindowTools.OpenSearchWindow(provider);
         }
+
     }
 }
 #endif

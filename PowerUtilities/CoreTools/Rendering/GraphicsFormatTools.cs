@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
+using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
 namespace PowerUtilities
@@ -101,5 +102,8 @@ namespace PowerUtilities
 
             //return SystemInfo.GetGraphicsFormat(DefaultFormat.LDR); //GraphicsFormat.R8G8B8A8_SRGB
         }
+
+        public static GraphicsFormat Get(DefaultFormat df)
+            => SystemInfo.GetGraphicsFormat(df);
     }
 }

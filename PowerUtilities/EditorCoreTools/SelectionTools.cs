@@ -30,7 +30,7 @@ namespace PowerUtilities
         }
 
         /// <summary>
-        /// Get selected objects's folder paths
+        /// Get selected objects's folder asset paths
         /// </summary>
         /// <returns></returns>
         public static string[] GetSelectedFolders(bool isReturnAssetsWhenNotSelected = false)
@@ -44,6 +44,15 @@ namespace PowerUtilities
                 return ASSETS_FOLDER;
             }
             return paths;
+        }
+        /// <summary>
+        /// Get seleced folder asset path
+        /// </summary>
+        /// <param name="isReturnAssetsWhenNotSelected"></param>
+        /// <returns></returns>
+        public static string GetSelectedFolder(bool isReturnAssetsWhenNotSelected = false)
+        {
+            return GetSelectedFolders(isReturnAssetsWhenNotSelected).FirstOrDefault();
         }
     }
 }

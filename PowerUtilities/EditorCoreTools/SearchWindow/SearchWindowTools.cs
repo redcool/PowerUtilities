@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEditor;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
@@ -63,6 +64,18 @@ namespace PowerUtilities
 
             OpenSearchWindow(p);
             return p;
+        }
+
+        public static EnumSearchProvider CreateEnumProviderAndShowWin(SerializedProperty property, Type enumType,Action<int> onSelected)
+        {
+            var provider = CreateProvider<EnumSearchProvider>();
+            provider.windowTitle = enumType.Name;
+            //provider.textFileName = attr.textFileName;
+            provider.onSelectedChanged = onSelected;
+            provider.enumType = enumType;
+
+            OpenSearchWindow(provider);
+            return provider;
         }
     }
 }

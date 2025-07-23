@@ -347,11 +347,45 @@ namespace PowerUtilities
                 }
             }
         }
-
+        /// <summary>
+        /// draw tab window with multi selected
+        /// </summary>
+        /// <param name="contents"></param>
+        /// <param name="toggles"></param>
+        /// <param name="selectedIds"></param>
+        /// <param name="xCount"></param>
+        /// <param name="rowStyle"></param>
+        /// <param name="columnStyle"></param>
+        /// <returns></returns>
         public static bool MultiSelectionGrid(string[] contents, bool[] toggles, List<int> selectedIds, int xCount, GUIStyle rowStyle = null, GUIStyle columnStyle = null)
         {
             var guiContents = contents.Select(str => new GUIContent(str)).ToArray();
             return MultiSelectionGrid(guiContents, toggles, selectedIds, xCount, rowStyle, columnStyle);
+        }
+
+        /// <summary>
+        /// Draw Enum propertyField + enum searchable window
+        /// </summary>
+        /// <param name="prop"></param>
+        /// <param name="enumType"></param>
+        public static void EnumPropertyFieldSearchable(SerializedProperty prop, Type enumType)
+        {
+            EditorGUITools.BeginHorizontalBox(() =>
+            {
+                var labelWidth = EditorGUIUtility.labelWidth;
+
+                EditorGUILayout.PrefixLabel(prop.displayName);
+                var formatName = Enum.GetName(enumType, prop.intValue);
+                if (GUILayout.Button(formatName, EditorStylesEx.DropDownButton))
+                {
+                    SearchWindowTools.CreateEnumProviderAndShowWin(prop, enumType, (id) =>
+                    {
+                        prop.serializedObject.Update();
+                        prop.intValue = id;
+                        prop.serializedObject.ApplyModifiedProperties();
+                    });
+                }
+            }, "");
         }
 
         /// <summary>

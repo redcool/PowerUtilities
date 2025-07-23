@@ -12,6 +12,9 @@ using UnityEngine;
 
 namespace PowerUtilities
 {
+    /// <summary>
+    /// Extends Unity SkinnedMeshRenderer Editor
+    /// </summary>
     [CustomEditor(typeof(SkinnedMeshRenderer))]
     [CanEditMultipleObjects]
     public class SkinnedMeshRendererEditorEx : BaseEditorEx

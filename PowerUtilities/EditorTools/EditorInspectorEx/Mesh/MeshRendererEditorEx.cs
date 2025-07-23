@@ -11,6 +11,9 @@ using UnityEngine;
 
 namespace PowerUtilities
 {
+    /// <summary>
+    /// Extends Unity MeshRenderer Editor
+    /// </summary>
     [CustomEditor(typeof(MeshRenderer))]
     [CanEditMultipleObjects]
     public class MeshRendererEditorEx : BaseEditorEx
