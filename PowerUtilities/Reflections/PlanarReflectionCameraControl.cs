@@ -9,17 +9,41 @@
     using Debug = UnityEngine.Debug;
 
     /// <summary>
-    /// planar reflection camera 
+    /// planar reflection camera .
+    /// ===============
+    /// =============== (SFC only renderObjects
+    /// create DrawObjects ,tag (CeflectionCamera)
+    /// 
+    /// =============== (SFC only(dont need PlanarReflectionCameraControl)
+    /// (tag MainCamera)
+    /// create reflection target and set
+    ///     create CreateTarget _ReflectionTexture
+    ///     create SetRenderTarget _ReflectionTexture
+    /// drawObjects
+    ///     create DrawObjects 
+    ///     create DrawSkybox
+    /// 
     /// </summary>
     [ExecuteAlways]
     public class PlanarReflectionCameraControl : MonoBehaviour
     {
+        [HelpBox(lineCount =7)]
+        public string helpBox = @"
+        /// for SFC
+    /// create reflection target and set
+    ///     create CreateTarget _ReflectionTexture
+    ///     create SetRenderTarget _ReflectionTexture
+    /// drawObjects( Debug Cur Draw Objects  will show)
+    ///     create DrawObjects (tag ReflectionCamera)
+";
+        //=============================Create reflection target
         [Header("Create reflection target")]
         [Tooltip("Create rt named reflectionTextureName,uncheck when use SFC/CreateRenderTarget")]
         public bool isCreateReflectionRT = true;
         [Tooltip("property name in shader")]
         public string reflectionTextureName = "_ReflectionTexture";
 
+        //=============================Reflection Camera
         [Header("Reflection Camera")]
         [Tooltip("which layer reflection camera can see")]
         public LayerMask layers = -1;
@@ -35,7 +59,9 @@
         [Range(0, 4)] public int downSamples = 1;
         [Tooltip("auto generate mipmaps")]
         public bool isGenerateMips = true;
-
+        [Tooltip("skip 1 frame, when rt recreate ")]
+        public bool isSkip1FrameRTRecreate; 
+        //=============================Plane
         [Header("Plane ")]
         [Tooltip("water plane's height, when reflectionPlaneTr is empty ")]
         public float planeYOffset;
@@ -54,6 +80,7 @@
         [EditorDisableGroup] public RenderTexture reflectionRT;
 
         [EditorDisableGroup] public SRPFeature curDrawObjects;
+        public string log;
         int lastWidth, lastHeight;
 
         // Start is called before the first frame update
@@ -83,6 +110,7 @@
         private void LateUpdate()
         {
 #if UNITY_EDITOR
+            CheckTargetInfo();
             if (!reflectionCam)
             {
                 OnEnable();
@@ -90,35 +118,47 @@
 #endif
             if (!mainCam)
                 return;
-            var addData = mainCam.GetUniversalAdditionalCameraData();
-            var renderScale = UniversalRenderPipeline.asset.renderScale;
+            //var addData = mainCam.GetUniversalAdditionalCameraData();
+            //var renderScale = UniversalRenderPipeline.asset.renderScale;
 
 
             SetupReflectionCameraStates();
             mainCam.transform.SetupReflectionCameraTransform(reflectionCam.transform, reflectionPlaneTr, planeYOffset);
 
+            var needRender = true;
             if (isCreateReflectionRT)
             {
                 // avoid console error
-                CreateRT();
+                var isNew = CreateRT();
+                needRender = isSkip1FrameRTRecreate ? !isNew : true;
             }
             else
             {
                 ClearRT();
             }
 
-            reflectionCam.Render();
+            if(needRender)
+                reflectionCam.Render();
         }
-
-        private void CreateRT()
+        void CheckTargetInfo()
+        {
+            log = "";
+            if(RenderTextureTools.createdRenderTextureDict.TryGetValue(reflectionTextureName,out var reflectRT))
+            {
+                log = $"{reflectionTextureName} is created by SFC/CreateRenderTarget";
+            }
+        }
+        private bool CreateRT()
         {
             var samples = Application.isPlaying ? downSamples : 0;
 
             var width = mainCam.pixelWidth >> samples;
             var height = mainCam.pixelHeight >> samples;
-            TryCreateReflectionRT(ref reflectionRT, width, height, isGenerateMips);
+            var isNew = TryCreateReflectionRT(ref reflectionRT, width, height, isGenerateMips);
+
             reflectionCam.targetTexture = reflectionRT;
             Shader.SetGlobalTexture(reflectionTextureName, reflectionRT);
+            return isNew;
         }
 
         void ClearRT()
@@ -139,10 +179,13 @@
                 curDrawObjects = pass.Feature;
             }
         }
-        private void TryCreateReflectionRT(ref RenderTexture rt, int width, int height, bool isGenerateMips)
+
+        private bool TryCreateReflectionRT(ref RenderTexture rt, int width, int height, bool isGenerateMips)
         {
             if (!rt || lastWidth != width || lastHeight != height)
             {
+                rt?.Destroy();
+
                 lastWidth = width;
                 lastHeight = height;
 
@@ -152,8 +195,9 @@
                 rt = new RenderTexture(w, h, 16);
                 rt.useMipMap = isGenerateMips;
                 rt.autoGenerateMips = isGenerateMips;
-                //rt.Create();
+                return true;
             }
+            return false;
         }
 
 

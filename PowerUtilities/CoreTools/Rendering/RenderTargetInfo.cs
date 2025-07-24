@@ -129,7 +129,10 @@
         {
             UpdateTitle();
             if (!IsValid(cam))
+            {
+                RenderTextureTools.DestroyRT(name);
                 return;
+            }
 
             SetupDescFormat(ref desc);
             SetupDescSize(ref desc, cam);
