@@ -5,12 +5,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.Experimental.Rendering;
 
 namespace PowerUtilities
 {
+    public enum TextureEncodeType
+    {
+        PNG, TGA, EXR, JPG
+    }
+
     public static class TextureTools
     {
+
         /// <summary>
         /// Split Textures by resolution
         /// </summary>
@@ -68,5 +73,13 @@ namespace PowerUtilities
             var sample = q[0];
             return Create2DArray(q, sample.width, sample.height, sample.format, sample.mipmapCount, linear);
         }
+
+        public static byte[] GetEncodeBytes(this Texture2D tex, TextureEncodeType texType) => texType switch
+        {
+            TextureEncodeType.TGA => tex.EncodeToJPG(),
+            TextureEncodeType.EXR => tex.EncodeToJPG(),
+            TextureEncodeType.JPG => tex.EncodeToJPG(),
+            _ => tex.EncodeToJPG(),
+        };
     }
 }

@@ -1,7 +1,5 @@
 ﻿namespace PowerUtilities
 {
-    using PowerUtilities.Coroutine;
-    using System.Collections;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
@@ -13,7 +11,6 @@
     using UnityEngine;
     using UnityEngine.UIElements;
     using Object = UnityEngine.Object;
-    using WaitForEndOfFrame = Coroutine.WaitForEndOfFrame;
 
 #if UNITY_EDITOR
     [CustomEditor(typeof(BakePbrLighting))]
@@ -28,33 +25,49 @@
 
     public class BakePbrLighting : ScriptableObject
     {
-
         public enum TextureBatchType
         {
-            TexArr, TexAtlas
+            TexArr, TexAtlas,PerObject
         }
+
+        public const string
+            _FullScreenOn = "_FullScreenOn",
+            _FullScreenUVRange = "_FullScreenUVRange",
+            _CullMode = "_CullMode"
+            ;
 
         [HelpBox]
         public string helpBox = "Bake pbr lighting to texture";
 
+        //====================== baked target
         [Header("Baked Target")]
         [Tooltip("select target for bake")]
         [EditorObjectField]
         public GameObject target;
 
+        [Tooltip("Get selected target when bake start")]
+        public bool isUseSelectedAlways;
+
         [Tooltip("bakeCamera align to target pivot")]
         [EditorObjectField]
         public GameObject targetPosPivot;
+
+        //====================== object settings
+        [Tooltip("target children renderer include  invisible ")]
+        public bool isIncludeInvisible;
+
+        [Tooltip("set object material CullOff")]
+        public bool isSetCullOff;
+
+        //====================== baked camera
+        [Header("BakeCamera")]
+        [Tooltip("bake lighting use sceneView camera or main camera(Tag:MainCamera)")]
+        public bool isUseSceneCamPos = false;
 
         [EditorDisableGroup(targetPropName = nameof(isUseSceneCamPos), isRevertMode = true)]
         [Tooltip("bake camera's position offset alone camera's forward")]
         public float camOffsetDistance = 10;
 
-        [Tooltip("target children renderer include  invisible ")]
-        public bool isIncludeInvisible;
-
-        [Tooltip("bake lighting use sceneView camera or main camera(Tag:MainCamera)")]
-        public bool isUseSceneCamPos = false;
         //====================== output 
         [Header("Output")]
         [Tooltip("baked texture path for save")]
@@ -66,6 +79,8 @@
         [Tooltip("texture batch")]
         public TextureBatchType texBatchType;
 
+        [Tooltip("output texture type (texAtlas)")]
+        public TextureEncodeType texEncodeType;
         [Tooltip("combine children meshes ")]
         public bool isCombineMeshes;
 
@@ -75,21 +90,33 @@
         public Color backgroundColor = Color.clear;
         public CameraClearFlags cameraClearFlags = CameraClearFlags.SolidColor;
 
-        [EditorButton(onClickCall = "BakeLighting")]
+        //======================  bake
+        [EditorButton(onClickCall = nameof(BakeLighting))]
         public bool isBake;
 
-        [EditorBox("Tools", "isShowTargetOnly,isShowScene", boxType = EditorBoxAttribute.BoxType.HBox)]
-        [EditorButton(onClickCall = "ShowTargetOnly")]
+        //====================== tools
+        [Header("Tools")]
+        [Tooltip("_FullScreenOn set on")]
+        public bool isShowFullscreen;
+
+        [EditorBox("", "isShowTargetOnly,isShowScene,isSelectOutputFolder", boxType = EditorBoxAttribute.BoxType.HBox)]
+        [EditorButton(onClickCall = nameof(ShowTargetOnly))]
         public bool isShowTargetOnly;
 
-        [EditorButton(onClickCall = "ResumeShowScene")]
+        [EditorButton(onClickCall = nameof(ResumeShowScene))]
         [HideInInspector]
         public bool isShowScene;
 
+        [EditorButton(onClickCall = nameof(RefreshAssetDatabase),text ="SelectOutputFolder",nameType = EditorButtonAttribute.NameType.AttributeText)]
+        [HideInInspector]
+        public bool isSelectOutputFolder;
+
+
+        //====================== debug
         [EditorGroup("Debug", true)]
-        public RenderTexture rt;
+        public RenderTexture targetRT;
         [EditorGroup("Debug")]
-        public Texture2D tex;
+        public Texture2D outputTex;
 
         Camera sceneCam;
         Camera bakeCam;
@@ -99,7 +126,7 @@
         public void BakeLighting()
         {
 #if UNITY_EDITOR
-            if (!target)
+            if (!target || isUseSelectedAlways)
             {
                 target = Selection.activeGameObject;
             }
@@ -111,14 +138,15 @@
                 return;
             }
 
-            if (isUseSceneCamPos && sceneCam)
-                bakeCam = sceneCam;
-
             var renders = target.GetComponentsInChildren<Renderer>(isIncludeInvisible);
             if (renders.Length == 0)
                 return;
 
-            TryCreateRT(ref rt);
+            bakeCam = Camera.main;
+            if (isUseSceneCamPos && sceneCam)
+                bakeCam = sceneCam;
+
+            TryCreateRT(ref targetRT);
 
             var allObjs = Object.FindObjectsByType<Renderer>(sortMode: FindObjectsSortMode.None);
             //======================= begin render
@@ -138,33 +166,80 @@
 
         private void StartDraw(Renderer[] renders)
         {
-            if (texBatchType == TextureBatchType.TexAtlas)
+            switch (texBatchType)
             {
-                // bake objects 1 by 1
-                lastRenderersUVList = RenderObjects_Atlas(renders);
-                // readbake rt
-                rt.ReadRenderTexture(ref tex, true);
-                SaveTexAtlas();
-
-                if (isCombineMeshes && renders.Length > 1)
-                    CombineRenderers(renders, lastRenderersUVList);
+                case TextureBatchType.TexAtlas:
+                    StartTexAtlasFlow(renders);
+                    break;
+                case TextureBatchType.TexArr:
+                    StartTexArrayFlow(renders);
+                    break;
+                case TextureBatchType.PerObject:
+                    StartPerObjectFlow(renders);
+                    break;
             }
-            else
-            {
-                RenderObjects_TexArray(renders);
-
-                if (isCombineMeshes && renders.Length > 1)
-                    CombineRenderers(renders, null);
-            }
-
         }
 
-        void RenderObjects(Renderer[] renders)
+        private void AfterDraw(Renderer[] allObjs)
         {
-            renders.ForEach(r => r.enabled = true);
+            //cam.clearFlags = CameraClearFlags.Skybox;
+            Shader.SetGlobalFloat(_FullScreenOn, 0);
 
-            bakeCam.Render();
+            foreach (var obj in allObjs)
+                obj.enabled = true;
         }
+
+        private void StartPerObjectFlow(Renderer[] renders)
+        {
+            for (int i = 0; i < renders.Length; i++)
+            {
+                ShowProgressBar(i, renders.Length);
+
+                var render = renders[i];
+
+                StartRenderObject(ref render, ref outputTex);
+
+                SaveOutputTex(render.name);
+            }
+
+            ClearProgressBar();
+        }
+
+        private void StartTexArrayFlow(Renderer[] renders)
+        {
+            var texList = RenderObjects_TexArray(renders);
+            SaveTexArray(texList);
+
+            if (isCombineMeshes)
+                CombineRenderers(renders, null);
+        }
+
+        private void StartTexAtlasFlow(Renderer[] renders)
+        {
+            // bake objects 1 by 1
+            lastRenderersUVList = RenderObjects_Atlas(renders);
+            // readbake rt
+            targetRT.ReadRenderTexture(ref outputTex, true);
+            SaveOutputTex(target.name);
+
+            if (isCombineMeshes)
+                CombineRenderers(renders, lastRenderersUVList);
+        }
+
+
+        /// <summary>
+        /// Get tiles count in a row
+        /// </summary>
+        /// <param name="totalCount"></param>
+        /// <returns></returns>
+        public static int GetTileCountARow(int totalCount)
+        {
+            int rowCount = Mathf.NextPowerOfTwo(totalCount);
+            if (rowCount > 2)
+                rowCount /= 2;
+            return rowCount;
+        }
+
         /// <summary>
         /// render objects 1by1
         /// output objects uv ranges
@@ -180,6 +255,8 @@
 
             for (int i = 0; i < renders.Length; i++)
             {
+                ShowProgressBar(i,renders.Length);
+
                 var render = renders[i];
 
                 var x = i % tileCount;
@@ -192,59 +269,98 @@
                 //xy : range start, zw : range end
                 var tileUV = new Vector4(tileStart.x, tileStart.y, tileSize.x + tileStart.x, tileSize.y + tileStart.y);
                 Debug.Log($"id:{x},{y},count: {tileCount},suv :{tileUV}");
-                Shader.SetGlobalVector("_FullScreenUVRange", tileUV);
+                Shader.SetGlobalVector(_FullScreenUVRange, tileUV);
 
-                render.enabled = true;
-                bakeCam.Render();
-
+                StartRenderObject(ref render,ref outputTex);
+                
+                //no need clear, is ok, 
                 bakeCam.clearFlags = CameraClearFlags.Nothing;
-                render.enabled = false;
             }
-            Shader.SetGlobalVector("_FullScreenUVRange", new Vector4(0, 0, 1, 1));
+            Shader.SetGlobalVector(_FullScreenUVRange, new Vector4(0, 0, 1, 1));
+
+            ClearProgressBar();
 
             return tileUVOffsetTilingList;
+        }
+
+
+        /// <summary>
+        /// render 1 object ,save to tex
+        /// </summary>
+        /// <param name="render"></param>
+        /// <param name="tex"></param>
+        void StartRenderObject(ref Renderer render,ref Texture2D tex)
+        {
+            render.enabled = true;
+            var lastCullMode = render.sharedMaterial.GetFloat(_CullMode);
+            if (isSetCullOff)
+                render.sharedMaterial.SetFloat(_CullMode, 0);
+
+            bakeCam.Render();
+
+            targetRT.ReadRenderTexture(ref tex, true);
+
+            render.enabled = false;
+            render.sharedMaterial.SetFloat(_CullMode, lastCullMode);
+            
         }
         /// <summary>
         /// render objects into texture2d array
         /// </summary>
-        void RenderObjects_TexArray(Renderer[] renders)
+        List<Texture2D> RenderObjects_TexArray(Renderer[] renders)
         {
             var texList = new List<Texture2D>();
             for (int i = 0; i < renders.Length; i++)
             {
+                ShowProgressBar(i, renders.Length);
+
+                Texture2D sliceTex = new Texture2D(targetRT.width,targetRT.height,TextureFormat.RGB24,true);
                 var render = renders[i];
-                render.enabled = true;
-                bakeCam.Render();
-                
-                Texture2D sliceTex = new Texture2D(rt.width,rt.height,TextureFormat.RGB24,true);
-                rt.ReadRenderTexture(ref sliceTex,true);
+                StartRenderObject(ref render,ref sliceTex);
 #if UNITY_EDITOR
                 EditorUtility.CompressTexture(sliceTex, TextureFormat.ASTC_6x6,TextureCompressionQuality.Normal);
 #else
                 sliceTex.Compress(false);
 #endif
                 texList.Add(sliceTex);
-
-                render.enabled = false;
             }
+
+            ClearProgressBar();
+
+            return texList;
+        }
+
+        private void SaveTexArray(List<Texture2D> texList)
+        {
+            PathTools.CreateAbsFolderPath(outputPath);
 #if UNITY_EDITOR
             var path = $"{outputPath}/{target}_texArr.asset";
             EditorTextureTools.Create2DArray(texList, path);
 #endif
         }
 
-        /// <summary>
-        /// Get tiles count in a row
-        /// </summary>
-        /// <param name="totalCount"></param>
-        /// <returns></returns>
-        public static int GetTileCountARow(int totalCount)
+        private void SaveOutputTex(string targetName)
         {
-            int rowCount = Mathf.NextPowerOfTwo(totalCount);
-            if (rowCount > 2)
-                rowCount /= 2;
-            return rowCount;
+            PathTools.CreateAbsFolderPath(outputPath);
+
+            var extName = texEncodeType.ToString();
+            var fileName = $"{targetName}.{extName}";
+            File.WriteAllBytes($"{outputPath}/{fileName}", outputTex.GetEncodeBytes(texEncodeType));
         }
+
+        private void ShowProgressBar(int i, int length)
+        {
+#if UNITY_EDITOR
+            EditorUtility.DisplayProgressBar("Warning", "Bake PbrLighting", i / (float)length);
+#endif
+        }
+        void ClearProgressBar()
+        {
+#if UNITY_EDITOR
+            EditorUtility.ClearProgressBar();
+#endif
+        }
+
 #if UNITY_EDITOR
         private void OnEnable()
         {
@@ -299,7 +415,11 @@
 
             var renders = target.GetComponentsInChildren<Renderer>(isIncludeInvisible);
             foreach (var render in renders)
+            {
                 render.enabled = true;
+            }
+
+            Shader.SetGlobalFloat(_FullScreenOn, isShowFullscreen?1:0);
         }
 
         void ResumeShowScene()
@@ -313,22 +433,9 @@
             }
 
             lastShowRenderers = null;
+            Shader.SetGlobalFloat(_FullScreenOn, 0);
         }
 
-        private void AfterDraw(Renderer[] allObjs)
-        {
-            //cam.clearFlags = CameraClearFlags.Skybox;
-            Shader.SetGlobalFloat("_FullScreenOn", 0);
-
-            foreach (var obj in allObjs)
-                obj.enabled = true;
-        }
-
-        private void SaveTexAtlas()
-        {
-            PathTools.CreateAbsFolderPath(outputPath);
-            File.WriteAllBytes($"{outputPath}/{target.name}.png", tex.EncodeToPNG());
-        }
         void RefreshAssetDatabase()
         {
 #if UNITY_EDITOR
@@ -343,6 +450,11 @@
         /// <param name="tileUVList">offset uvs[0-8], null : dont offset uv</param>
         void CombineRenderers(Renderer[] renders,List<Vector4> tileUVList)
         {
+            if (renders.Length <= 1)
+            {
+                Debug.Log("dont need combine meshes, renders.Length == 0");
+                return;
+            }
             var mfList = renders.Select(r => r.GetComponent<MeshFilter>()).ToList();
             //tileUVList = new List<Vector4>() { 
             //new Vector4(0,0,.5f,.5f),
@@ -375,14 +487,14 @@
                 obj.enabled = false;
             }
 
-            Shader.SetGlobalFloat("_FullScreenOn", 1);
+            Shader.SetGlobalFloat(_FullScreenOn, 1);
 
             // keep
             lastTarget = bakeCam.targetTexture;
             lastPos = bakeCam.transform.position;
             lastClearFlags = bakeCam.clearFlags;
 
-            bakeCam.targetTexture = rt;
+            bakeCam.targetTexture = targetRT;
             bakeCam.clearFlags = cameraClearFlags;
             bakeCam.backgroundColor = backgroundColor;
 
@@ -399,9 +511,9 @@
                 rt = new RenderTexture(w, w, 32, GraphicsFormatTools.GetColorTextureFormat(true, false));
             }
 
-            if (!tex)
+            if (!outputTex)
             {
-                tex = new Texture2D(w, w, TextureFormat.ARGB32, false, true);
+                outputTex = new Texture2D(w, w, TextureFormat.ARGB32, false, true);
             }
         }
 
