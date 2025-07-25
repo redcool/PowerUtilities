@@ -76,10 +76,10 @@ namespace PowerUtilities
 
         public static byte[] GetEncodeBytes(this Texture2D tex, TextureEncodeType texType) => texType switch
         {
-            TextureEncodeType.TGA => tex.EncodeToJPG(),
-            TextureEncodeType.EXR => tex.EncodeToJPG(),
+            TextureEncodeType.TGA => tex.EncodeToTGA(),
+            TextureEncodeType.EXR => tex.EncodeToEXR(),
             TextureEncodeType.JPG => tex.EncodeToJPG(),
-            _ => tex.EncodeToJPG(),
+            _ => tex.EncodeToPNG(),
         };
     }
 }
