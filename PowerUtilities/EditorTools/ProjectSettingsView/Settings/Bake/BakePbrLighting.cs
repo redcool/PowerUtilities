@@ -27,7 +27,15 @@
     {
         public enum TextureBatchType
         {
-            TexArr, TexAtlas,PerObject
+            /**objects to texture array*/
+            TexArr, 
+            /** objects to texture atlas*/
+            TexAtlas, 
+            /** objects to texture atlas( uv pre combined)*/
+            AllInOne,
+            /** objects texture one by one*/
+            PerObject,
+
         }
 
         public const string
@@ -184,6 +192,9 @@
                 case TextureBatchType.PerObject:
                     StartPerObjectFlow(renders);
                     break;
+                case TextureBatchType.AllInOne:
+                    StartAllInOneFlow(renders);
+                    break;
             }
         }
 
@@ -196,6 +207,33 @@
                 if (r)
                     r.enabled = true;
             }
+        }
+
+        void StartAllInOneFlow(Renderer[] renderers)
+        {
+            var list = new List<float>();
+            foreach (Renderer render in renderers)
+            {
+                list.Add(render.sharedMaterial.GetFloat(_CullMode));
+                if (isSetCullOff)
+                    render.sharedMaterial.SetFloat(_CullMode, 0);
+
+                render.enabled = true;
+            }
+
+            bakeCam.Render();
+
+            targetRT.ReadRenderTexture(ref outputTex, true);
+
+            for (int i = 0; i < list.Count; i++)
+            { 
+                var lastCullMode = list[i];
+                var render = renderers[i];
+                render.sharedMaterial.SetFloat(_CullMode, lastCullMode);
+            }
+
+            // save
+            SaveOutputTex(target.name);
         }
 
         private void StartPerObjectFlow(Renderer[] renders)
