@@ -1,7 +1,7 @@
+#if UNITY_EDITOR
 namespace PowerUtilities
 {
     using System;
-#if UNITY_EDITOR
     using System.Collections;
     using System.Collections.Generic;
     using UnityEditor;
@@ -23,7 +23,6 @@ namespace PowerUtilities
                 AssetDatabase.RenameAsset(path, newName);
             }
         }
-
 
         public static void ModifyPrefab(GameObject prefab, Action<GameObject> onModify)
         {
@@ -64,6 +63,13 @@ namespace PowerUtilities
             => PrefabUtility.GetPrefabAssetType(target)== PrefabAssetType.Regular
             && PrefabUtility.GetPrefabInstanceStatus(target) == PrefabInstanceStatus.NotAPrefab;
 
+        public static GameObject CreatePrefab(this GameObject go, string assetpath, bool isSyncHierarchyObject=true)
+        {
+            if (isSyncHierarchyObject)
+                return PrefabUtility.SaveAsPrefabAssetAndConnect(go, assetpath, InteractionMode.AutomatedAction);
+            else
+                return PrefabUtility.SaveAsPrefabAsset(go, assetpath);
+        }
     }
-#endif
 }
+#endif

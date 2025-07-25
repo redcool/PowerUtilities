@@ -81,8 +81,12 @@
 
         [Tooltip("output texture type (texAtlas)")]
         public TextureEncodeType texEncodeType;
-        [Tooltip("combine children meshes ")]
+        [Tooltip("combine children meshes and create prefab")]
         public bool isCombineMeshes;
+
+        [Tooltip("create prefab mat use this shader")]
+        [LoadAsset("Unlit_ColorMRT.shader")]
+        public Shader bakedPbrLgihtShader;
 
         //====================== camera options
         [Header("Camera Options")]
@@ -210,8 +214,7 @@
             var texList = RenderObjects_TexArray(renders);
             SaveTexArray(texList);
 
-            if (isCombineMeshes)
-                CombineRenderers(renders, null);
+            CombineRenderersAndSavePrefab(renders, null);
         }
 
         private void StartTexAtlasFlow(Renderer[] renders)
@@ -222,8 +225,7 @@
             targetRT.ReadRenderTexture(ref outputTex, true);
             SaveOutputTex(target.name);
 
-            if (isCombineMeshes)
-                CombineRenderers(renders, lastRenderersUVList);
+            CombineRenderersAndSavePrefab(renders, lastRenderersUVList);
         }
 
 
@@ -334,7 +336,7 @@
         {
             PathTools.CreateAbsFolderPath(outputPath);
 #if UNITY_EDITOR
-            var path = $"{outputPath}/{target}_texArr.asset";
+            var path = $"{outputPath}/{target.name}_texArr.asset";
             EditorTextureTools.Create2DArray(texList, path);
 #endif
         }
@@ -448,22 +450,54 @@
         /// </summary>
         /// <param name="renders"></param>
         /// <param name="tileUVList">offset uvs[0-8], null : dont offset uv</param>
-        void CombineRenderers(Renderer[] renders,List<Vector4> tileUVList)
+        void CombineRenderersAndSavePrefab(Renderer[] renders, List<Vector4> tileUVList)
         {
-            if (renders.Length <= 1)
+            if (!isCombineMeshes || renders.Length <= 1)
             {
-                Debug.Log("dont need combine meshes, renders.Length == 0");
+                //Debug.Log("dont need combine meshes, renders.Length == 0");
                 return;
             }
             var mfList = renders.Select(r => r.GetComponent<MeshFilter>()).ToList();
-            //tileUVList = new List<Vector4>() { 
-            //new Vector4(0,0,.5f,.5f),
-            //new Vector4(0.5f,0.5f,.5f,.5f),
-            //};
-            var mesh = MeshTools.CombineMesh(mfList, tileUVList);
 #if UNITY_EDITOR
-            var path = $"{outputPath}/{target.name}.asset";
-            AssetDatabase.CreateAsset(mesh, path);
+            AssetDatabase.Refresh();
+            var tex = AssetDatabaseTools.FindAssetPathAndLoad<Texture2D>(out _, target.name, searchInFolders: outputPath);
+            var texArr = AssetDatabaseTools.FindAssetPathAndLoad<Texture2DArray>(out _, $"{target.name}_texArr", searchInFolders: outputPath);
+            // create combine mesh
+            Mesh meshAsset = SaveMesh(tileUVList, mfList);
+            // create mat
+            Material matPrefab = SaveMat(tex, texArr);
+            // create prefab
+            SavePrefab(meshAsset, matPrefab);
+
+            //------------ inner methods
+            Mesh SaveMesh(List<Vector4> tileUVList, List<MeshFilter> mfList)
+            {
+                var mesh = MeshTools.CombineMesh(mfList, tileUVList);
+                var meshPath = $"{outputPath}/{target.name}.mesh";
+                var meshAsset = AssetDatabaseTools.CreateAssetThenLoad<Mesh>(mesh, meshPath);
+                return meshAsset;
+            }
+            Material SaveMat(Texture2D tex, Texture2DArray texArr)
+            {
+                var matPath = $"{outputPath}/{target.name}.mat";
+                var mat = new Material(bakedPbrLgihtShader);
+                mat.SetFloat("_UseUV1", 1);
+                mat.SetFloat("_UV1ReverseY", 1);
+
+                mat.SetTexture("_MainTex", tex);
+                mat.SetTexture("_MainTexArray", texArr);
+                var matPrefab = AssetDatabaseTools.CreateAssetThenLoad<Material>(mat, matPath);
+                return matPrefab;
+            }
+
+            void SavePrefab(Mesh meshAsset, Material matPrefab)
+            {
+                var go = new GameObject($"{target.name}");
+                go.AddComponent<MeshFilter>().sharedMesh = meshAsset;
+                go.AddComponent<MeshRenderer>().sharedMaterial = matPrefab;
+                var prefab = PrefabTools.CreatePrefab(go, $"{outputPath}/{target.name}.prefab");
+                Selection.activeObject = prefab;
+            }
 #endif
         }
 
