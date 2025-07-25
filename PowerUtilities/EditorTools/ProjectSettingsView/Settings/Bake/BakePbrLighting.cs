@@ -127,6 +127,9 @@
         Renderer[] lastShowRenderers;
         List<Vector4> lastRenderersUVList = new();
 
+        Renderer[] targetRenderers;
+        Renderer[] allRenderers;
+
         public void BakeLighting()
         {
 #if UNITY_EDITOR
@@ -142,8 +145,8 @@
                 return;
             }
 
-            var renders = target.GetComponentsInChildren<Renderer>(isIncludeInvisible);
-            if (renders.Length == 0)
+            targetRenderers = target.GetComponentsInChildren<Renderer>(isIncludeInvisible);
+            if (targetRenderers.Length == 0)
                 return;
 
             bakeCam = Camera.main;
@@ -152,14 +155,14 @@
 
             TryCreateRT(ref targetRT);
 
-            var allObjs = Object.FindObjectsByType<Renderer>(sortMode: FindObjectsSortMode.None);
+            allRenderers = Object.FindObjectsByType<Renderer>(sortMode: FindObjectsSortMode.None);
             //======================= begin render
-            BeforeDraw(allObjs, out var lastTarget, out var lastPos, out var lastClearFlags);
+            BeforeDraw(allRenderers, out var lastTarget, out var lastPos, out var lastClearFlags);
 
-            StartDraw(renders);
+            StartDraw(targetRenderers);
 
             //======================= after render
-            AfterDraw(allObjs);
+            AfterDraw(allRenderers);
             bakeCam.targetTexture = lastTarget;
             bakeCam.transform.position = lastPos;
             bakeCam.clearFlags = lastClearFlags;
@@ -184,13 +187,15 @@
             }
         }
 
-        private void AfterDraw(Renderer[] allObjs)
+        private void AfterDraw(Renderer[] allRenderers)
         {
-            //cam.clearFlags = CameraClearFlags.Skybox;
             Shader.SetGlobalFloat(_FullScreenOn, 0);
 
-            foreach (var obj in allObjs)
-                obj.enabled = true;
+            foreach (Renderer r in allRenderers)
+            {
+                if (r)
+                    r.enabled = true;
+            }
         }
 
         private void StartPerObjectFlow(Renderer[] renders)
@@ -316,7 +321,7 @@
             {
                 ShowProgressBar(i, renders.Length);
 
-                Texture2D sliceTex = new Texture2D(targetRT.width,targetRT.height,TextureFormat.RGB24,true);
+                Texture2D sliceTex = new Texture2D(targetRT.width,targetRT.height,TextureFormat.RGB24,true,true);
                 var render = renders[i];
                 StartRenderObject(ref render,ref sliceTex);
 #if UNITY_EDITOR
@@ -346,8 +351,18 @@
             PathTools.CreateAbsFolderPath(outputPath);
 
             var extName = texEncodeType.ToString();
-            var fileName = $"{targetName}.{extName}";
-            File.WriteAllBytes($"{outputPath}/{fileName}", outputTex.GetEncodeBytes(texEncodeType));
+            var filePath = $"{outputPath}/{targetName}.{extName}";
+            File.WriteAllBytes(filePath, outputTex.GetEncodeBytes(texEncodeType));
+
+#if UNITY_EDITOR
+            AssetDatabase.Refresh();
+            var tex = AssetDatabase.LoadAssetAtPath<Texture2D>(filePath);
+            tex?.Setting(texImp =>
+            {
+                texImp.sRGBTexture = false;
+                texImp.SaveAndReimport();
+            });
+#endif
         }
 
         private void ShowProgressBar(int i, int length)
@@ -461,6 +476,7 @@
 #if UNITY_EDITOR
             AssetDatabase.Refresh();
             var tex = AssetDatabaseTools.FindAssetPathAndLoad<Texture2D>(out _, target.name, searchInFolders: outputPath);
+
             var texArr = AssetDatabaseTools.FindAssetPathAndLoad<Texture2DArray>(out _, $"{target.name}_texArr", searchInFolders: outputPath);
             // create combine mesh
             Mesh meshAsset = SaveMesh(tileUVList, mfList);
@@ -514,11 +530,12 @@
             }
         }
 
-        private void BeforeDraw(Renderer[] allObjs, out RenderTexture lastTarget, out Vector3 lastPos, out CameraClearFlags lastClearFlags)
+        private void BeforeDraw(Renderer[] allRenderers, out RenderTexture lastTarget, out Vector3 lastPos, out CameraClearFlags lastClearFlags)
         {
-            foreach (var obj in allObjs)
+            foreach (var r in allRenderers)
             {
-                obj.enabled = false;
+                if (r)
+                    r.enabled = false;
             }
 
             Shader.SetGlobalFloat(_FullScreenOn, 1);
