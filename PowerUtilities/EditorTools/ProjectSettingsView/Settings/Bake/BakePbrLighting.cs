@@ -35,13 +35,18 @@
             AllInOne,
             /** objects texture one by one*/
             PerObject,
+        }
 
+        public enum UVMode
+        {
+            UV,UV1,UV2,UV3
         }
 
         public const string
             _FullScreenOn = "_FullScreenOn",
             _FullScreenUVRange = "_FullScreenUVRange",
-            _CullMode = "_CullMode"
+            _CullMode = "_CullMode",
+            _FullScreenUVId = "_FullScreenUVId"
             ;
 
         [HelpBox]
@@ -66,6 +71,10 @@
 
         [Tooltip("set object material CullOff")]
         public bool isSetCullOff;
+
+        [Tooltip("set object material CullOff,[0-3]")]
+
+        public UVMode uvMode = UVMode.UV1;
 
         //====================== baked camera
         [Header("BakeCamera")]
@@ -93,7 +102,7 @@
         public bool isCombineMeshes;
 
         [Tooltip("create prefab mat use this shader")]
-        [LoadAsset("Unlit_ColorMRT.shader")]
+        [LoadAsset("BakedPbrLit.shader")]
         public Shader bakedPbrLgihtShader;
 
         //====================== camera options
@@ -133,6 +142,7 @@
         Camera sceneCam;
         Camera bakeCam;
         Renderer[] lastShowRenderers;
+        List<(Renderer,float)> lastRendererCullModeList = new();
         List<Vector4> lastRenderersUVList = new();
 
         Renderer[] targetRenderers;
@@ -201,6 +211,8 @@
         private void AfterDraw(Renderer[] allRenderers)
         {
             Shader.SetGlobalFloat(_FullScreenOn, 0);
+            Shader.SetGlobalFloat(_FullScreenUVId, 1);
+            
 
             foreach (Renderer r in allRenderers)
             {
@@ -462,7 +474,14 @@
 
         void ShowTargetOnly()
         {
+            if(!target)
+            {
+                Debug.Log("select a target first");
+                return;
+            }
             lastShowRenderers = Object.FindObjectsByType<Renderer>(sortMode: FindObjectsSortMode.None);
+            lastRendererCullModeList.Clear();
+
             foreach (var obj in lastShowRenderers)
             {
                 obj.enabled = false;
@@ -471,16 +490,24 @@
             var renders = target.GetComponentsInChildren<Renderer>(isIncludeInvisible);
             foreach (var render in renders)
             {
+                lastRendererCullModeList.Add((render,render.sharedMaterial.GetFloat(_CullMode)));
                 render.enabled = true;
+                render.sharedMaterial.SetFloat(_CullMode, isSetCullOff ? 0 : 2);
             }
 
             Shader.SetGlobalFloat(_FullScreenOn, isShowFullscreen?1:0);
+            Shader.SetGlobalFloat(_FullScreenUVId, isShowFullscreen ? (int)uvMode: 1);
         }
 
         void ResumeShowScene()
         {
-            if (lastShowRenderers == null)
+            if (lastShowRenderers == null || target)
                 return;
+
+            foreach ((Renderer r,float cullMode) info in lastRendererCullModeList)
+            {
+                info.r.sharedMaterial.SetFloat(_CullMode, info.cullMode);
+            }
 
             foreach (var obj in lastShowRenderers)
             {
@@ -577,6 +604,7 @@
             }
 
             Shader.SetGlobalFloat(_FullScreenOn, 1);
+            Shader.SetGlobalFloat(_FullScreenUVId, (int)uvMode);
 
             // keep
             lastTarget = bakeCam.targetTexture;
