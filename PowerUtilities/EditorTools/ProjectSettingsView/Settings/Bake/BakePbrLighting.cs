@@ -501,7 +501,7 @@
 
         void ResumeShowScene()
         {
-            if (lastShowRenderers == null || target)
+            if (lastShowRenderers == null || !target)
                 return;
 
             foreach ((Renderer r,float cullMode) info in lastRendererCullModeList)
