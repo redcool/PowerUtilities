@@ -497,6 +497,7 @@
 
             Shader.SetGlobalFloat(_FullScreenOn, isShowFullscreen?1:0);
             Shader.SetGlobalFloat(_FullScreenUVId, isShowFullscreen ? (int)uvMode: 1);
+            Shader.SetGlobalVector(_FullScreenUVRange,new Vector4(0,0,1,1));
         }
 
         void ResumeShowScene()
@@ -605,6 +606,7 @@
 
             Shader.SetGlobalFloat(_FullScreenOn, 1);
             Shader.SetGlobalFloat(_FullScreenUVId, (int)uvMode);
+            Shader.SetGlobalVector(_FullScreenUVRange, new Vector4(0, 0, 1, 1));
 
             // keep
             lastTarget = bakeCam.targetTexture;
