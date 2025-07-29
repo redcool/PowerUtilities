@@ -6,15 +6,15 @@ using UnityEngine.Rendering;
 
 namespace PowerUtilities
 {
-    [ExecuteAlways]
     public class SetShaderVariables : MonoBehaviour
     {
         [EditorButton(onClickCall = "SetVariables")]
-        public bool isTest;
+        public bool isSetGlobalVars;
 
+        [Tooltip("SetVariables per frame")]
         public bool isUpdateMode;
 
-        [Header("--- Set Variables")]
+        [Header("--- Set Global Variables")]
         [Tooltip("binding global float variables")]
         public List<ShaderValue<float>> floatValues = new List<ShaderValue<float>>();
         public List<ShaderValue<int>> intValues = new List<ShaderValue<int>>();
@@ -46,6 +46,13 @@ namespace PowerUtilities
         [Tooltip("subshader lod [100,300]")]
         public bool isMinVersionOn;
 
+        [Header("Set Per Shader")]
+        public List<Shader> shaderList = new();
+        public int shaderMaxLod = 600;
+
+        [EditorButton(onClickCall = "SetShadersMaxLod")]
+        public bool isSetShaderLod;
+
         // Start is called before the first frame update
         void OnEnable()
         {
@@ -55,8 +62,8 @@ namespace PowerUtilities
         // Update is called once per frame
         void Update()
         {
-            if(isUpdateMode)
-            SetVariables();
+            if (isUpdateMode)
+                SetVariables();
         }
 
         public void SetVariables()
@@ -91,6 +98,8 @@ namespace PowerUtilities
             {
                 SetShaderTimeValues(Time.unscaledTime, Time.unscaledDeltaTime, Time.smoothDeltaTime);
             }
+
+            SetShadersMaxLod();
         }
 
         public static void SetShaderTimeValues(float time, float deltaTime, float smoothDeltaTime)
@@ -111,6 +120,16 @@ namespace PowerUtilities
             //cmd.SetGlobalVector(ShaderPropertyIds.cosTime, cosTimeVector);
             //cmd.SetGlobalVector(ShaderPropertyIds.deltaTime, deltaTimeVector);
             //cmd.SetGlobalVector(ShaderPropertyIds.timeParameters, timeParametersVector);
+        }
+
+        public void SetShadersMaxLod()
+        {
+            foreach (var s in shaderList)
+            {
+                if (!s)
+                    continue;
+                s.maximumLOD = shaderMaxLod;
+            }
         }
     }
 }
