@@ -26,6 +26,9 @@ namespace PowerUtilities
     }
 #endif
 
+    /// <summary>
+    /// Show tooltips in decorator line
+    /// </summary>
     public class TooltipsAttribute : PropertyAttribute
     {
         public string tooltip = "";

@@ -109,15 +109,12 @@
 
             var mesh = new Mesh();
             mesh.vertices = verts.ToArray();
-            mesh.uv = uv.ToArray();
-            mesh.uv2 = uv2.ToArray();
-            mesh.uv3 = uv3.ToArray();
-            mesh.uv4 = uv4.ToArray();
-                
-            mesh.uv5 = uv5.ToArray();
-            mesh.uv6 = uv6.ToArray();
-            mesh.uv7 = uv7.ToArray();
-            mesh.uv8 = uv8.ToArray();
+
+            for (int i = 0; i < allUVList.Count; i++)
+            {
+                if (allUVList[i].Count == mesh.vertices.Length)
+                    mesh.SetUVs(i, allUVList[i]);
+            }
 
             mesh.colors = colors.ToArray();
             mesh.triangles = triangles.ToArray();
@@ -125,6 +122,8 @@
             mesh.RecalculateBounds();
             mesh.RecalculateNormals();
             mesh.RecalculateTangents();
+
+            
             return mesh;
 
         }
