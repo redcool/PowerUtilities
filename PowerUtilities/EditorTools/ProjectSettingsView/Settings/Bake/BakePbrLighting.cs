@@ -73,7 +73,6 @@
         public bool isSetCullOff;
 
         [Tooltip("set object material CullOff,[0-3]")]
-
         public UVMode uvMode = UVMode.UV1;
 
         //====================== baked camera
@@ -135,7 +134,9 @@
 
         //====================== debug
         [EditorGroup("Debug", true)]
+        [Tooltip("intermediate target,double click you change rt params")]
         public RenderTexture targetRT;
+
         [EditorGroup("Debug")]
         public Texture2D outputTex;
 
@@ -191,9 +192,12 @@
 
         private void StartDraw(Renderer[] renders)
         {
+            lastRenderersUVList = null;
+
             switch (texBatchType)
             {
                 case TextureBatchType.TexAtlas:
+                    // fill  lastRenderersUVList
                     StartTexAtlasFlow(renders);
                     break;
                 case TextureBatchType.TexArr:
@@ -206,6 +210,9 @@
                     StartAllInOneFlow(renders);
                     break;
             }
+
+            // try combines
+            CombineRenderersAndSavePrefab(renders, lastRenderersUVList);
         }
 
         private void AfterDraw(Renderer[] allRenderers)
@@ -268,8 +275,6 @@
         {
             var texList = RenderObjects_TexArray(renders);
             SaveTexArray(texList);
-
-            CombineRenderersAndSavePrefab(renders, null);
         }
 
         private void StartTexAtlasFlow(Renderer[] renders)
@@ -279,8 +284,6 @@
             // readbake rt
             targetRT.ReadRenderTexture(ref outputTex, true);
             SaveOutputTex(target.name);
-
-            CombineRenderersAndSavePrefab(renders, lastRenderersUVList);
         }
 
 
