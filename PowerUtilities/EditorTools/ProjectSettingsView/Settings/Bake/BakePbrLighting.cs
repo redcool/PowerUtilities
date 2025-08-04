@@ -33,19 +33,23 @@
             TexAtlas, 
             /** objects to texture atlas( uv pre combined)*/
             AllInOne,
+            /** objects to textures (uv1 to lightmap uv)*/
+            AllInOneLightmapUV,
             /** objects texture one by one*/
             PerObject,
+
         }
 
         public enum UVMode
         {
-            UV,UV1,UV2,UV3
+            UV,UV1,UV2,UV3,
         }
 
         public const string
             _FullScreenOn = "_FullScreenOn",
             _FullScreenUVRange = "_FullScreenUVRange",
             _CullMode = "_CullMode",
+            _UV1TransformToLightmapUV = "_UV1TransformToLightmapUV",
             _FullScreenUVId = "_FullScreenUVId"
             ;
 
@@ -72,8 +76,10 @@
         [Tooltip("set object material CullOff")]
         public bool isSetCullOff;
 
+        [Header("UV Space")]
         [Tooltip("set object material CullOff,[0-3]")]
         public UVMode uvMode = UVMode.UV1;
+
 
         //====================== baked camera
         [Header("BakeCamera")]
@@ -118,6 +124,10 @@
         [Header("Tools")]
         [Tooltip("_FullScreenOn set on")]
         public bool isShowFullscreen;
+
+        /**object uv1 scale offset to scene lightmap*/
+        [Tooltip("bake object to sceneLightmapUV,for uvMode.uv1,TexBatchType.AllInOneLightmapUV")]
+        public bool isUV1TransformToLightmapUV;
 
         [EditorBox("", "isShowTargetOnly,isShowScene,isSelectOutputFolder", boxType = EditorBoxAttribute.BoxType.HBox)]
         [EditorButton(onClickCall = nameof(ShowTargetOnly))]
@@ -170,7 +180,7 @@
 
             bakeCam = Camera.main;
             if (isUseSceneCamPos && sceneCam)
-                bakeCam = sceneCam;
+                bakeCam.transform.position = sceneCam.transform.position;
 
             TryCreateRT(ref targetRT);
 
@@ -209,6 +219,9 @@
                 case TextureBatchType.AllInOne:
                     StartAllInOneFlow(renders);
                     break;
+                case TextureBatchType.AllInOneLightmapUV:
+                    StartAllInOneLightmapUVFlow(renders);
+                    break;
             }
 
             // try combines
@@ -219,7 +232,7 @@
         {
             Shader.SetGlobalFloat(_FullScreenOn, 0);
             Shader.SetGlobalFloat(_FullScreenUVId, 1);
-            
+            Shader.SetGlobalFloat(_UV1TransformToLightmapUV, 0);
 
             foreach (Renderer r in allRenderers)
             {
@@ -227,8 +240,33 @@
                     r.enabled = true;
             }
         }
+        /// <summary>
+        /// Render objects ,uv1 to lightmapUV
+        /// </summary>
+        /// <param name="renders"></param>
+        void StartAllInOneLightmapUVFlow(Renderer[] renders)
+        {
+            //uvMode = UVMode.UV1;
 
-        void StartAllInOneFlow(Renderer[] renderers)
+            Shader.SetGlobalFloat(_UV1TransformToLightmapUV, 1);
+
+            var texList = new List<Texture2D>();
+            var groups = renders.GroupBy(r => r.lightmapIndex);
+            foreach (var group in groups)
+            {
+                var groupName = $"{target.name}_Lightmap_{group.Key}";
+                var groupRenders = group.ToArray();
+                StartAllInOneFlow(groupRenders,groupName);
+
+                foreach (var r in groupRenders)
+                {
+                    r.enabled = false;
+                }
+            }
+
+        }
+
+        void StartAllInOneFlow(Renderer[] renderers,string texName=null)
         {
             var list = new List<float>();
             foreach (Renderer render in renderers)
@@ -240,6 +278,7 @@
                 render.enabled = true;
             }
 
+            //Shader.SetGlobalFloat(_UV1TransformToLightmapUV, isUV1TransformToLightmapUV ? 1 : 0);
             bakeCam.Render();
 
             targetRT.ReadRenderTexture(ref outputTex, true);
@@ -252,7 +291,7 @@
             }
 
             // save
-            SaveOutputTex(target.name);
+            SaveOutputTex(texName ?? target.name);
         }
 
         private void StartPerObjectFlow(Renderer[] renders)
@@ -501,6 +540,7 @@
             Shader.SetGlobalFloat(_FullScreenOn, isShowFullscreen?1:0);
             Shader.SetGlobalFloat(_FullScreenUVId, isShowFullscreen ? (int)uvMode: 1);
             Shader.SetGlobalVector(_FullScreenUVRange,new Vector4(0,0,1,1));
+            Shader.SetGlobalFloat(_UV1TransformToLightmapUV, isUV1TransformToLightmapUV ? 1 : 0);
         }
 
         void ResumeShowScene()
@@ -520,6 +560,7 @@
 
             lastShowRenderers = null;
             Shader.SetGlobalFloat(_FullScreenOn, 0);
+            Shader.SetGlobalFloat(_UV1TransformToLightmapUV,0);
         }
 
         void RefreshAssetDatabase()
