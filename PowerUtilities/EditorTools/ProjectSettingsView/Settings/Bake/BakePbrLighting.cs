@@ -1,5 +1,6 @@
 ﻿namespace PowerUtilities
 {
+    using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
@@ -20,30 +21,38 @@
     }
 #endif
 
+    public enum TextureBatchType
+    {
+        /**objects to texture array*/
+        TexArr,
+        /** objects to texture atlas*/
+        TexAtlas,
+        /** objects to texture atlas( uv pre combined)*/
+        AllInOne,
+        /** objects to textures (uv1 to lightmap uv)*/
+        AllInOneLightmapUV,
+        /** objects texture one by one*/
+        PerObject,
+
+    }
+
+    public enum UVMode
+    {
+        UV, UV1, UV2, UV3,
+    }
+
+    public enum TextureSuffix
+    {
+        C, N
+    }
+
+
     [ProjectSettingGroup(ProjectSettingGroupAttribute.POWER_UTILS + "/Bake/BakePbrLighting")]
     [SOAssetPath("Assets/PowerUtilities/BakePbrLighting.asset")]
 
     public class BakePbrLighting : ScriptableObject
     {
-        public enum TextureBatchType
-        {
-            /**objects to texture array*/
-            TexArr, 
-            /** objects to texture atlas*/
-            TexAtlas, 
-            /** objects to texture atlas( uv pre combined)*/
-            AllInOne,
-            /** objects to textures (uv1 to lightmap uv)*/
-            AllInOneLightmapUV,
-            /** objects texture one by one*/
-            PerObject,
 
-        }
-
-        public enum UVMode
-        {
-            UV,UV1,UV2,UV3,
-        }
 
         public const string
             _FullScreenOn = "_FullScreenOn",
@@ -75,6 +84,9 @@
 
         [Tooltip("set object material CullOff")]
         public bool isSetCullOff;
+
+        [Tooltip("cameraTarget & outputTex is hdr")]
+        public bool isHDR;
 
         [Header("UV Space")]
         [Tooltip("set object material CullOff,[0-3]")]
@@ -146,9 +158,10 @@
         [EditorGroup("Debug", true)]
         [Tooltip("intermediate target,double click you change rt params")]
         public RenderTexture targetRT;
-
         [EditorGroup("Debug")]
-        public Texture2D outputTex;
+        public RenderTexture targetRT1; // normal
+        // temp tex
+        Texture2D outputTex,outputTex1;
 
         Camera sceneCam;
         Camera bakeCam;
@@ -179,13 +192,16 @@
                 return;
 
             bakeCam = Camera.main;
-            if (isUseSceneCamPos && sceneCam)
-                bakeCam.transform.position = sceneCam.transform.position;
-
+            var w = (int)resolution;
             TryCreateRT(ref targetRT);
+            TryCreateRT(ref targetRT1);
+
+            CreateOutputTex(ref outputTex);
+            CreateOutputTex(ref outputTex1);
 
             allRenderers = Object.FindObjectsByType<Renderer>(sortMode: FindObjectsSortMode.None);
             //======================= begin render
+            var lastForward = bakeCam.transform.forward;
             BeforeDraw(allRenderers, out var lastTarget, out var lastPos, out var lastClearFlags);
 
             StartDraw(targetRenderers);
@@ -193,9 +209,9 @@
             //======================= after render
             AfterDraw(allRenderers);
             bakeCam.targetTexture = lastTarget;
-            bakeCam.transform.position = lastPos;
             bakeCam.clearFlags = lastClearFlags;
-
+            bakeCam.transform.position = lastPos;
+            bakeCam.transform.forward = lastForward;
 
             RefreshAssetDatabase();
         }
@@ -416,11 +432,7 @@
                 Texture2D sliceTex = new Texture2D(targetRT.width,targetRT.height,TextureFormat.RGB24,true,true);
                 var render = renders[i];
                 StartRenderObject(ref render,ref sliceTex);
-#if UNITY_EDITOR
-                EditorUtility.CompressTexture(sliceTex, TextureFormat.ASTC_6x6,TextureCompressionQuality.Normal);
-#else
-                sliceTex.Compress(false);
-#endif
+                sliceTex.Compress(true);
                 texList.Add(sliceTex);
             }
 
@@ -440,18 +452,44 @@
 
         private void SaveOutputTex(string targetName)
         {
+            SaveOutputTex(targetName, outputTex, TextureSuffix.C);
+            //SaveOutputTex(targetName, outputTex1, TextureSuffix.N);
+        }
+        private void SaveOutputTex(string targetName,Texture2D tex,TextureSuffix suffixName)
+        {
             PathTools.CreateAbsFolderPath(outputPath);
+            tex.Apply();
 
             var extName = texEncodeType.ToString();
-            var filePath = $"{outputPath}/{targetName}.{extName}";
-            File.WriteAllBytes(filePath, outputTex.GetEncodeBytes(texEncodeType));
+            var filePath = $"{outputPath}/{targetName}_{suffixName}.{extName}";
+            File.WriteAllBytes(filePath, tex.GetEncodeBytes(texEncodeType));
 
+            ReimportSavedTex(suffixName, filePath);
+        }
+
+        void ReimportSavedTex(TextureSuffix suffixName, string filePath)
+        {
 #if UNITY_EDITOR
+            Texture2D tex=null;
+
             AssetDatabase.Refresh();
-            var tex = AssetDatabase.LoadAssetAtPath<Texture2D>(filePath);
+            tex = AssetDatabase.LoadAssetAtPath<Texture2D>(filePath);
             tex?.Setting(texImp =>
             {
-                texImp.sRGBTexture = false;
+                if (isHDR)
+                {
+                    //texImp.textureFormat = TextureImporterFormat.ASTC_HDR_6x6;
+                    texImp.textureCompression = TextureImporterCompression.CompressedHQ;
+                }
+                if (suffixName == TextureSuffix.C)
+                {
+                    texImp.sRGBTexture = false;
+                }
+                else if (suffixName == TextureSuffix.N)
+                {
+                    texImp.textureType = TextureImporterType.NormalMap;
+                }
+
                 texImp.SaveAndReimport();
             });
 #endif
@@ -577,13 +615,13 @@
         /// <param name="tileUVList">offset uvs[0-8], null : dont offset uv</param>
         void CombineRenderersAndSavePrefab(Renderer[] renders, List<Vector4> tileUVList)
         {
+#if UNITY_EDITOR
             if (!isCombineMeshes || renders.Length <= 1)
             {
                 //Debug.Log("dont need combine meshes, renders.Length == 0");
                 return;
             }
             var mfList = renders.Select(r => r.GetComponent<MeshFilter>()).ToList();
-#if UNITY_EDITOR
             AssetDatabase.Refresh();
             var tex = AssetDatabaseTools.FindAssetPathAndLoad<Texture2D>(out _, target.name, searchInFolders: outputPath);
 
@@ -640,6 +678,18 @@
             }
         }
 
+        void AssignCameraTargets()
+        {
+            var depthBuffer = targetRT.depthBuffer;
+            var colorBuffers = new RenderBuffer[]
+            {
+                targetRT.colorBuffer,
+                targetRT1.colorBuffer
+            };
+            
+            bakeCam.SetTargetBuffers(targetRT.colorBuffer, depthBuffer);
+        }
+
         private void BeforeDraw(Renderer[] allRenderers, out RenderTexture lastTarget, out Vector3 lastPos, out CameraClearFlags lastClearFlags)
         {
             foreach (var r in allRenderers)
@@ -657,7 +707,9 @@
             lastPos = bakeCam.transform.position;
             lastClearFlags = bakeCam.clearFlags;
 
+            //AssignCameraTargets();
             bakeCam.targetTexture = targetRT;
+
             bakeCam.clearFlags = cameraClearFlags;
             bakeCam.backgroundColor = backgroundColor;
 
@@ -670,16 +722,16 @@
         {
             var w = (int)resolution;
             if (!rt)
-            {
-                rt = new RenderTexture(w, w, 32, GraphicsFormatTools.GetColorTextureFormat(true, false));
-            }
-
-            if (!outputTex)
-            {
-                outputTex = new Texture2D(w, w, TextureFormat.ARGB32, false, true);
-            }
+                rt = new RenderTexture(w, w, 32, GraphicsFormatTools.GetColorTextureFormat(isHDR, true));
         }
 
-
+        private void CreateOutputTex(ref Texture2D tex)
+        {
+            var w = (int)resolution;
+            if (!tex)
+            {
+                tex = new Texture2D(w, w, TextureFormat.ARGB32,false, true);
+            }
+        }
     }
 }
