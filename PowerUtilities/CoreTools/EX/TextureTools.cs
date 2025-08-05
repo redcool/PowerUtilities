@@ -4,6 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 using UnityEngine;
 
 namespace PowerUtilities
@@ -74,12 +77,21 @@ namespace PowerUtilities
             return Create2DArray(q, sample.width, sample.height, sample.format, sample.mipmapCount, linear);
         }
 
-        public static byte[] GetEncodeBytes(this Texture2D tex, TextureEncodeType texType) => texType switch
+        public static byte[] GetEncodeBytes(this Texture2D tex, TextureEncodeType texType,Texture2D.EXRFlags exrFlags = Texture2D.EXRFlags.OutputAsFloat) => texType switch
         {
             TextureEncodeType.TGA => tex.EncodeToTGA(),
-            TextureEncodeType.EXR => tex.EncodeToEXR(),
+            TextureEncodeType.EXR => tex.EncodeToEXR(exrFlags),
             TextureEncodeType.JPG => tex.EncodeToJPG(),
             _ => tex.EncodeToPNG(),
         };
+
+        public static void Compress(this Texture2D tex,bool isHighQuality,TextureFormat tf = TextureFormat.ASTC_6x6)
+        {
+#if UNITY_EDITOR
+            EditorUtility.CompressTexture(tex, tf, isHighQuality ? 100 : 50);
+#else
+            tex.Compress(isHighQuality);
+#endif
+        }
     }
 }
