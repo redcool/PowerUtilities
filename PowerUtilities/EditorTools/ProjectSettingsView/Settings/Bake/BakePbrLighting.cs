@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using Unity.Mathematics;
 
 #if UNITY_EDITOR
     using UnityEditor;
@@ -113,6 +114,13 @@
         [Tooltip("texture batch")]
         public TextureBatchType texBatchType;
 
+        [Tooltip("output texture asset also")]
+        public bool isOutputTexAsset;
+
+        [Tooltip("output texture asset format")]
+        [EnumSearchable(enumType = typeof(TextureFormat))]
+        public TextureFormat outputTexAssetFormat = TextureFormat.ASTC_HDR_6x6;
+
         [Tooltip("output texture type (texAtlas)")]
         public TextureEncodeType texEncodeType;
         [Tooltip("combine children meshes and create prefab")]
@@ -160,8 +168,6 @@
         public RenderTexture targetRT;
         [EditorGroup("Debug")]
         public RenderTexture targetRT1; // normal
-        // temp tex
-        Texture2D outputTex,outputTex1;
 
         Camera sceneCam;
         Camera bakeCam;
@@ -195,9 +201,6 @@
             var w = (int)resolution;
             TryCreateRT(ref targetRT);
             TryCreateRT(ref targetRT1);
-
-            CreateOutputTex(ref outputTex);
-            CreateOutputTex(ref outputTex1);
 
             allRenderers = Object.FindObjectsByType<Renderer>(sortMode: FindObjectsSortMode.None);
             //======================= begin render
@@ -297,8 +300,6 @@
             //Shader.SetGlobalFloat(_UV1TransformToLightmapUV, isUV1TransformToLightmapUV ? 1 : 0);
             bakeCam.Render();
 
-            targetRT.ReadRenderTexture(ref outputTex, true);
-
             for (int i = 0; i < list.Count; i++)
             { 
                 var lastCullMode = list[i];
@@ -318,7 +319,7 @@
 
                 var render = renders[i];
 
-                StartRenderObject(ref render, ref outputTex);
+                StartRenderObject(ref render);
 
                 SaveOutputTex(render.name);
             }
@@ -336,8 +337,7 @@
         {
             // bake objects 1 by 1
             lastRenderersUVList = RenderObjects_Atlas(renders);
-            // readbake rt
-            targetRT.ReadRenderTexture(ref outputTex, true);
+
             SaveOutputTex(target.name);
         }
 
@@ -386,7 +386,7 @@
                 Debug.Log($"id:{x},{y},count: {tileCount},suv :{tileUV}");
                 Shader.SetGlobalVector(_FullScreenUVRange, tileUV);
 
-                StartRenderObject(ref render,ref outputTex);
+                StartRenderObject(ref render);
                 
                 //no need clear, is ok, 
                 bakeCam.clearFlags = CameraClearFlags.Nothing;
@@ -404,7 +404,7 @@
         /// </summary>
         /// <param name="render"></param>
         /// <param name="tex"></param>
-        void StartRenderObject(ref Renderer render,ref Texture2D tex)
+        void StartRenderObject(ref Renderer render)
         {
             render.enabled = true;
             var lastCullMode = render.sharedMaterial.GetFloat(_CullMode);
@@ -412,8 +412,6 @@
                 render.sharedMaterial.SetFloat(_CullMode, 0);
 
             bakeCam.Render();
-
-            targetRT.ReadRenderTexture(ref tex, true);
 
             render.enabled = false;
             render.sharedMaterial.SetFloat(_CullMode, lastCullMode);
@@ -431,7 +429,9 @@
 
                 Texture2D sliceTex = new Texture2D(targetRT.width,targetRT.height,TextureFormat.RGB24,true,true);
                 var render = renders[i];
-                StartRenderObject(ref render,ref sliceTex);
+                StartRenderObject(ref render);
+
+                targetRT.ReadRenderTexture(ref sliceTex);
                 sliceTex.Compress(true);
                 texList.Add(sliceTex);
             }
@@ -452,19 +452,41 @@
 
         private void SaveOutputTex(string targetName)
         {
-            SaveOutputTex(targetName, outputTex, TextureSuffix.C);
+            SaveOutputTex(targetRT,targetName, TextureSuffix.C);
             //SaveOutputTex(targetName, outputTex1, TextureSuffix.N);
         }
-        private void SaveOutputTex(string targetName,Texture2D tex,TextureSuffix suffixName)
+        private void SaveOutputTex(RenderTexture rt,string targetName,TextureSuffix suffixName)
         {
             PathTools.CreateAbsFolderPath(outputPath);
-            tex.Apply();
+
+            Texture2D tex = null;
+            rt.ReadRenderTexture(ref tex, true);
+
+            if (isHDR && texEncodeType != TextureEncodeType.EXR)
+                tex.ConvertColorSpace();
+            //tex.Compress(true, TextureFormat.ASTC_HDR_6x6);
 
             var extName = texEncodeType.ToString();
             var filePath = $"{outputPath}/{targetName}_{suffixName}.{extName}";
             File.WriteAllBytes(filePath, tex.GetEncodeBytes(texEncodeType));
+            tex.Destroy();
+
+            if (isOutputTexAsset)
+                SaveTexAsset(rt, targetName, suffixName);
 
             ReimportSavedTex(suffixName, filePath);
+        }
+
+        void SaveTexAsset(RenderTexture rt, string targetName, TextureSuffix suffixName)
+        {
+#if UNITY_EDITOR
+            Texture2D tex = null;
+            rt.ReadRenderTexture(ref tex);
+            tex.Compress(true, outputTexAssetFormat);
+            var assetPath = $"{outputPath}/{targetName}_{suffixName}.asset";
+            AssetDatabase.DeleteAsset(assetPath);
+            AssetDatabase.CreateAsset(tex, assetPath);
+#endif
         }
 
         void ReimportSavedTex(TextureSuffix suffixName, string filePath)
@@ -476,14 +498,14 @@
             tex = AssetDatabase.LoadAssetAtPath<Texture2D>(filePath);
             tex?.Setting(texImp =>
             {
-                if (isHDR)
-                {
-                    //texImp.textureFormat = TextureImporterFormat.ASTC_HDR_6x6;
-                    texImp.textureCompression = TextureImporterCompression.CompressedHQ;
-                }
+                //if (isHDR)
+                //{
+                //    //texImp.textureFormat = TextureImporterFormat.ASTC_HDR_6x6;
+                //    texImp.textureCompression = TextureImporterCompression.CompressedHQ;
+                //}
                 if (suffixName == TextureSuffix.C)
                 {
-                    texImp.sRGBTexture = false;
+                    //texImp.sRGBTexture = false;
                 }
                 else if (suffixName == TextureSuffix.N)
                 {
@@ -725,13 +747,5 @@
                 rt = new RenderTexture(w, w, 32, GraphicsFormatTools.GetColorTextureFormat(isHDR, true));
         }
 
-        private void CreateOutputTex(ref Texture2D tex)
-        {
-            var w = (int)resolution;
-            if (!tex)
-            {
-                tex = new Texture2D(w, w, TextureFormat.ARGB32,false, true);
-            }
-        }
     }
 }

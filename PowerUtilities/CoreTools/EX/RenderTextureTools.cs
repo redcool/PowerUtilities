@@ -184,7 +184,9 @@ namespace PowerUtilities
                 return;
 
             if (!targetTex)
-                targetTex = new Texture2D(sourceTex.width, sourceTex.height, TextureFormat.ARGB32, false, true);
+            {
+                targetTex = new Texture2D(sourceTex.width, sourceTex.height, TextureFormat.RGBAHalf, false, true);
+            }
 
             RenderTexture.active = sourceTex;
             targetTex.ReadPixels(new Rect(0, 0, sourceTex.width, sourceTex.height), 0, 0,reCalcMipMaps);

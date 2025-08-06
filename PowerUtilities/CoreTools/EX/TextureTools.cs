@@ -4,6 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Unity.Mathematics;
+
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -18,7 +20,6 @@ namespace PowerUtilities
 
     public static class TextureTools
     {
-
         /// <summary>
         /// Split Textures by resolution
         /// </summary>
@@ -77,7 +78,7 @@ namespace PowerUtilities
             return Create2DArray(q, sample.width, sample.height, sample.format, sample.mipmapCount, linear);
         }
 
-        public static byte[] GetEncodeBytes(this Texture2D tex, TextureEncodeType texType,Texture2D.EXRFlags exrFlags = Texture2D.EXRFlags.OutputAsFloat) => texType switch
+        public static byte[] GetEncodeBytes(this Texture2D tex, TextureEncodeType texType,Texture2D.EXRFlags exrFlags = (Texture2D.EXRFlags)(3)) => texType switch
         {
             TextureEncodeType.TGA => tex.EncodeToTGA(),
             TextureEncodeType.EXR => tex.EncodeToEXR(exrFlags),
@@ -92,6 +93,22 @@ namespace PowerUtilities
 #else
             tex.Compress(isHighQuality);
 #endif
+        }
+        /// <summary>
+        /// Convert to srgb or linear
+        /// </summary>
+        /// <param name="tex"></param>
+        /// <param name="coefficient">to srgb: 2 , to linear : 1/2</param>
+        public static void ConvertColorSpace(this Texture2D tex,float coefficient = 1/2.2f)
+        {
+            var pixels = tex.GetPixels();
+            for (int i = 0; i < pixels.Length; i++)
+            {
+                float4 c = (Vector4)pixels[i];
+                c.xyz = math.pow(c.xyz, coefficient);
+                pixels[i] = (Vector4)c;
+            }
+            tex.SetPixels(pixels);
         }
     }
 }
