@@ -130,6 +130,8 @@
         [LoadAsset("BakedPbrLit.shader")]
         public Shader bakedPbrLgihtShader;
 
+        [LoadAsset("ColorConvert.compute")]
+        public ComputeShader colorConvertCS;
         //====================== camera options
         [Header("Camera Options")]
         [Tooltip("bake camera clear color")]
@@ -463,7 +465,9 @@
             rt.ReadRenderTexture(ref tex, true);
 
             if (isHDR && texEncodeType != TextureEncodeType.EXR)
-                tex.ConvertColorSpace();
+            {
+                tex.ConvertColorSpace(colorConvertCS, "ConvertColorSpace");
+            }
             //tex.Compress(true, TextureFormat.ASTC_HDR_6x6);
 
             var extName = texEncodeType.ToString();

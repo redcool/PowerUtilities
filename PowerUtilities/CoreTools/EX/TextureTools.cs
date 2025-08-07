@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using Unity.Mathematics;
@@ -108,6 +109,33 @@ namespace PowerUtilities
                 c.xyz = math.pow(c.xyz, coefficient);
                 pixels[i] = (Vector4)c;
             }
+            tex.SetPixels(pixels);
+        }
+
+        public static void ConvertColorSpace(this Texture2D tex, ComputeShader cs, string kernelName, float coefficient = 1 / 2.2f, bool isApplyGT6Tone = true)
+        {
+            if (!cs)
+            {
+                ConvertColorSpace(tex, coefficient);
+                return;
+            }
+
+            var pixels = tex.GetPixels();
+
+            GraphicsBuffer colorBuffer = null;
+            GraphicsBufferTools.TryCreateBuffer(ref colorBuffer, GraphicsBuffer.Target.Structured, pixels.Length, Marshal.SizeOf<Vector4>());
+            colorBuffer.SetData(pixels);
+
+            var kernel = cs.FindKernel(kernelName);
+            cs.SetFloat("_Coefficient", coefficient);
+            cs.SetBuffer(kernel, "_ColorBuffer", colorBuffer);
+            cs.SetBool("_ApplyGT6Tone", isApplyGT6Tone);
+
+            cs.DispatchKernel(kernel, tex.width, tex.height, 1);
+
+            colorBuffer.GetData(pixels);
+            colorBuffer.TryRelease();
+
             tex.SetPixels(pixels);
         }
     }
