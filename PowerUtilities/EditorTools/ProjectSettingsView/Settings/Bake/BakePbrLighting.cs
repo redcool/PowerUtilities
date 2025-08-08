@@ -118,6 +118,10 @@
         [Tooltip("bake camera's position offset alone camera's forward")]
         public float camOffsetDistance = 10;
 
+        [Tooltip("wait n frame ")]
+        public int waitFramesForSetTargets = 10;
+        public int waitFramesForClearTargets = 10;
+
         //====================== output 
         [Header("Output")]
         [Tooltip("baked texture path for save")]
@@ -253,10 +257,10 @@
         {
             SetCameraTargets();
 
-            yield return new Coroutine.WaitForEndOfFrame(1);
+            yield return new Coroutine.WaitForEndOfFrame(waitFramesForSetTargets);
             StartBaking();
 
-            yield return new Coroutine.WaitForEndOfFrame(10);
+            yield return new Coroutine.WaitForEndOfFrame(waitFramesForClearTargets);
 
             if (setRenderTargetFeature)
             {
@@ -557,9 +561,8 @@
 
             if (isHDR && texEncodeType != TextureEncodeType.EXR)
             {
-                if(suffixName == TextureSuffix.C)
+                if (IsColorTexture(suffixName))
                     tex.ConvertColorSpace(colorConvertCS, "ConvertColorSpace");
-                
             }
             //tex.Compress(true, TextureFormat.ASTC_HDR_6x6);
 
@@ -572,7 +575,10 @@
                 SaveTexAsset(rt, targetName, suffixName);
 
             ReimportSavedTex(suffixName, filePath);
+
         }
+        public static bool IsColorTexture(TextureSuffix suffix)
+            => suffix == TextureSuffix.C || suffix == TextureSuffix.E;
 
         void SaveTexAsset(RenderTexture rt, string targetName, TextureSuffix suffixName)
         {
@@ -595,14 +601,9 @@
             tex = AssetDatabase.LoadAssetAtPath<Texture2D>(filePath);
             tex?.Setting(texImp =>
             {
-                //if (isHDR)
-                //{
-                //    //texImp.textureFormat = TextureImporterFormat.ASTC_HDR_6x6;
-                //    texImp.textureCompression = TextureImporterCompression.CompressedHQ;
-                //}
-                if (suffixName == TextureSuffix.C)
+                if (suffixName == TextureSuffix.PM)
                 {
-                    //texImp.sRGBTexture = false;
+                    texImp.sRGBTexture = false;
                 }
                 else if (suffixName == TextureSuffix.N)
                 {

@@ -99,16 +99,9 @@ namespace PowerUtilities
                 return SystemInfo.GetGraphicsFormat(DefaultFormat.HDR);
             }
             // ldr
-            if (hasAlpha)
-            {
-                if(RenderingUtils.SupportsGraphicsFormat(GraphicsFormat.R8G8B8A8_UNorm, FormatUsage.Linear | FormatUsage.Render))
+
+            if (RenderingUtils.SupportsGraphicsFormat(GraphicsFormat.R8G8B8A8_UNorm, FormatUsage.Linear | FormatUsage.Render))
                 return GraphicsFormat.R8G8B8A8_UNorm;
-            }
-            else
-            {
-                if (RenderingUtils.SupportsGraphicsFormat(GraphicsFormat.R8G8B8_UNorm, FormatUsage.Linear | FormatUsage.Render))
-                return GraphicsFormat.R8G8B8_UNorm;
-            }
 
             return SystemInfo.GetGraphicsFormat(DefaultFormat.LDR); //GraphicsFormat.R8G8B8A8_SRGB
         }
