@@ -1,5 +1,6 @@
 ﻿namespace PowerUtilities.Coroutine
 {
+    using System;
     using UnityEngine;
 
     /// <summary>
@@ -54,17 +55,18 @@
     /// </summary>
     public class WaitForSeconds : WaitForDone
     {
-        public float seconds;
+        public float second;
+        float startSec;
         public WaitForSeconds(float seconds)
         {
-            this.seconds = seconds;
+            this.second = seconds;
+            startSec = DateTime.Now.Second;
         }
         public override bool CanMoveNext
         {
             get
             {
-                seconds -= Time.deltaTime;
-                return seconds <= 0;
+                return (DateTime.Now.Second - startSec) > second;
             }
             set => base.CanMoveNext = value;
         }
