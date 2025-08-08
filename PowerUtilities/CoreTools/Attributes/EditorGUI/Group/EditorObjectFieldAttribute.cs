@@ -1,5 +1,6 @@
 ﻿namespace PowerUtilities
 {
+    using System;
 #if UNITY_EDITOR
     using UnityEditor;
 #endif
@@ -12,8 +13,10 @@
     {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
+            var attr = attribute as EditorObjectFieldAttribute;
+
             //property.serializedObject.Update();
-            var obj = EditorGUI.ObjectField(position, label, property.objectReferenceValue, typeof(Object), true);
+            var obj = EditorGUI.ObjectField(position, label, property.objectReferenceValue, attr.objectType, true);
             if (property.serializedObject.targetObject != null)
                 fieldInfo.SetValue(property.serializedObject.targetObject, obj);
             //property.serializedObject.ApplyModifiedProperties();
@@ -25,6 +28,9 @@
     /// </summary>
     public class EditorObjectFieldAttribute : PropertyAttribute
     {
-
+        /// <summary>
+        /// object 's type
+        /// </summary>
+        public Type objectType = typeof(Object);
     }
 }
