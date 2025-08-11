@@ -56,17 +56,17 @@
     public class WaitForSeconds : WaitForDone
     {
         public float second;
-        float startSec;
+        DateTime startTime;
         public WaitForSeconds(float seconds)
         {
             this.second = seconds;
-            startSec = DateTime.Now.Second;
+            startTime = DateTime.Now;
         }
         public override bool CanMoveNext
         {
             get
             {
-                return (DateTime.Now.Second - startSec) > second;
+                return (DateTime.Now - startTime).TotalSeconds > second;
             }
             set => base.CanMoveNext = value;
         }

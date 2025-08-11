@@ -118,10 +118,6 @@
         [Tooltip("bake camera's position offset alone camera's forward")]
         public float camOffsetDistance = 10;
 
-        [Tooltip("wait n frame ")]
-        public int waitFramesForSetTargets = 10;
-        public int waitFramesForClearTargets = 10;
-
         //====================== output 
         [Header("Output")]
         [Tooltip("baked texture path for save")]
@@ -182,7 +178,7 @@
         [HideInInspector]
         public bool isSelectOutputFolder;
 
-        [EditorButton(onClickCall = nameof(ClearRTs), text = "SelectOutputFolder", nameType = EditorButtonAttribute.NameType.AttributeText)]
+        [EditorButton(onClickCall = nameof(ClearRTs), text = "ClearRTs", nameType = EditorButtonAttribute.NameType.AttributeText)]
         //[HideInInspector]
         public bool isClearRTs;
 
@@ -198,9 +194,6 @@
         [EditorGroup("Debug")]
         public RenderTexture depthRT;
 
-        string[] colorTargetNames;
-        string depthTargetName = nameof(depthRT);
-
         Camera sceneCam;
         Camera bakeCam;
         Renderer[] lastShowRenderers;
@@ -213,8 +206,7 @@
         // sfc pass(urp
         SRPRenderFeatureControl srpControl = null;
         (SRPFeature,bool)[] setTargetFeatureInfos;
-        SetRenderTarget setRenderTargetFeature;
-        string setRenderTargetFeatureName = "bake pbr lighting(SetTargets)";
+        CameraRender1Frame cameraRender1Frame;
 
         public void BakeLighting()
         {
@@ -250,26 +242,34 @@
 
 
             //======================= begin render
-            CoroutineTool.StartCoroutine(WaitForBaking());
-            //StartBaking();
+            //CoroutineTool.StartCoroutine(WaitForBaking());
+            StartBaking();
         }
         IEnumerator WaitForBaking()
         {
             SetCameraTargets();
 
-            yield return new Coroutine.WaitForEndOfFrame(waitFramesForSetTargets);
-            StartBaking();
+            var lastForward = bakeCam.transform.forward;
+            BeforeDraw(allRenderers, out var lastTarget, out var lastPos, out var lastClearFlags);
 
-            yield return new Coroutine.WaitForEndOfFrame(waitFramesForClearTargets);
+            StartDraw(targetRenderers);
 
-            if (setRenderTargetFeature)
-            {
-                srpControl?.featureListSO?.featureList.Remove(setRenderTargetFeature);
-            }
+            //======================= after render
+            yield return new WaitForSeconds(1);
+            AfterDraw(allRenderers);
+
+            bakeCam.targetTexture = null;
+            bakeCam.clearFlags = lastClearFlags;
+            bakeCam.transform.position = lastPos;
+            bakeCam.transform.forward = lastForward;
+
+            RefreshAssetDatabase();
+
         }
         private void StartBaking()
         {
             Debug.Log("StartBaking");
+            SetCameraTargets();
             var lastForward = bakeCam.transform.forward;
             BeforeDraw(allRenderers, out var lastTarget, out var lastPos, out var lastClearFlags);
 
@@ -278,7 +278,6 @@
             //======================= after render
             AfterDraw(allRenderers);
 
-            //bakeCam.targetTexture = lastTarget;
             bakeCam.targetTexture = null;
             bakeCam.clearFlags = lastClearFlags;
             bakeCam.transform.position = lastPos;
@@ -311,14 +310,6 @@
             {
                 depthRT = new RenderTexture(w, w, 0, RenderTextureFormat.Depth) { name = nameof(depthRT) };
             }
-            RenderTextureTools.AddRT(targetRT, targetRT.name);
-            RenderTextureTools.AddRT(targetRT1, targetRT1.name);
-            RenderTextureTools.AddRT(targetRT2, targetRT2.name);
-            RenderTextureTools.AddRT(targetRT3, targetRT3.name);
-            RenderTextureTools.AddRT(depthRT, depthRT.name);
-
-            var targets = new[] { targetRT, targetRT1, targetRT2, targetRT3 };
-            colorTargetNames = targets.Select(t => t.name).ToArray();
         }
 
         private void StartDraw(Renderer[] renders)
@@ -505,7 +496,7 @@
             }
 
 
-            bakeCam.Render();
+            //bakeCam.Render();
 
             render.enabled = false;
             mat.SetFloat(_CullMode, lastCullMode);
@@ -805,33 +796,28 @@
         void SetCameraTargets()
         {
             // find sfc setRenderTarget
-            
-            setTargetFeatureInfos = GetSetRenderTargetFeatures(ref srpControl,ref setRenderTargetFeature);
+            setTargetFeatureInfos = GetSetRenderTargetFeatures(ref srpControl);
 
             if (!srpControl) // not sfc
             {
                 bakeCam.targetTexture = targetRT; // use main rt
                 return;
             }
-
             SetEnableFeatures(setTargetFeatureInfos, false);
 
-            if (!setRenderTargetFeature)
+            cameraRender1Frame = (CameraRender1Frame)(srpControl.featureListSO.featureList.Where(feature => feature.GetType() == typeof(CameraRender1Frame)).FirstOrDefault());
+            if (!cameraRender1Frame)
             {
-                setRenderTargetFeature = SetRenderTarget.CreateInstance<SetRenderTarget>();
+                cameraRender1Frame = ScriptableObject.CreateInstance<CameraRender1Frame>();
+                srpControl.featureListSO.featureList.Add(cameraRender1Frame);
             }
-            if(! srpControl.featureListSO.featureList.Contains(setRenderTargetFeature))
-                srpControl.featureListSO.featureList.Add(setRenderTargetFeature);
-
-            setRenderTargetFeature.isEditorOnly = true;
-            setRenderTargetFeature.renderPassEvent = RenderPassEvent.BeforeRenderingOpaques;
-            setRenderTargetFeature.name = setRenderTargetFeatureName;
-
-            setRenderTargetFeature.colorTargetNames = colorTargetNames;
-            setRenderTargetFeature.depthTargetName = depthTargetName;
-            setRenderTargetFeature.enabled = true;
-
-            setRenderTargetFeature.clearTarget = true;
+            cameraRender1Frame.name = "bake_cameraRender1Frame";
+            cameraRender1Frame.renderPassEvent = RenderPassEvent.AfterRenderingShadows;
+            cameraRender1Frame.isEditorOnly = true;
+            cameraRender1Frame.cameraType = CameraType.Game;
+            cameraRender1Frame.colorTargets = new[] { targetRT, targetRT1, targetRT2, targetRT3 };
+            cameraRender1Frame.depthTarget = depthRT;
+            cameraRender1Frame.enabled = true;
         }
 
         private void BeforeDraw(Renderer[] allRenderers, out RenderTexture lastTarget, out Vector3 lastPos, out CameraClearFlags lastClearFlags)
@@ -881,18 +867,13 @@
             RestoreFeatures(setTargetFeatureInfos);
         }
 
-        (SRPFeature, bool)[] GetSetRenderTargetFeatures(ref SRPRenderFeatureControl srpControl, ref SetRenderTarget bakePbrLightingSetTarget)
+        (SRPFeature, bool)[] GetSetRenderTargetFeatures(ref SRPRenderFeatureControl srpControl)
         {
-            //SRPPass<SetRenderTarget>.OnCanExecute += OnSetRenderTarget;
             srpControl = bakeCam.GetUniversalAdditionalCameraData()?.GetRendererData<UniversalRendererData>()?.GetFeature<SRPRenderFeatureControl>();
             var setRenderTargets = srpControl?.featureListSO?.featureList
                 .Where(feature => feature is SetRenderTarget);
 
-            var setTargetFeature = setRenderTargets.Where(info => info.name == setRenderTargetFeatureName).FirstOrDefault();
-            if (setTargetFeature)
-                bakePbrLightingSetTarget = (SetRenderTarget)setTargetFeature;
-
-            return setRenderTargets.Select(feature => (feature, feature.enabled))
+            return setRenderTargets?.Select(feature => (feature, feature.enabled))
                 .ToArray();
         }
 
@@ -908,8 +889,14 @@
         }
         void RestoreFeatures((SRPFeature feature, bool enabled)[] setRenderTargetInfos)
         {
+            if (setRenderTargetInfos == null)
+                return;
+
             foreach (var info in setRenderTargetInfos)
             {
+                if(info == default)
+                    continue;
+
                 info.feature.enabled = info.enabled;
             }
 

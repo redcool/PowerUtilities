@@ -12,23 +12,36 @@ using UniversalRenderer = UnityEngine.Rendering.Universal.ForwardRenderer;
 #endif
 namespace PowerUtilities.RenderFeatures
 {
-    [CreateAssetMenu(menuName = SRP_FEATURE_PASSES_MENU+"/TestSRPFeature")]
-    public class TestSRPFeature : SRPFeature
+    /// <summary>
+    /// SetTarget ,DrawScene
+    /// </summary>
+    [CreateAssetMenu(menuName = SRP_FEATURE_PASSES_MENU+ "/CameraRender1Frame")]
+    public class CameraRender1Frame : SRPFeature
     {
-        public LayerMask layers;
+        public LayerMask layers = -1;
 
+        public bool isUseOverrideMat;
         [LoadAsset("SFC_ShowOverdrawAdd.mat")]
         public Material overrideMat;
+
+        public RenderTexture[] colorTargets;
+        public RenderTexture depthTarget;
+
+        public string[] shaderTags = new[]
+        {
+            "SRPDefaultUnlit"
+            ,"UniversalForward"
+        };
         public override ScriptableRenderPass GetPass()
         {
-            return new TestSRPPass(this);
+            return new CameraRender1FramePass(this);
         }
     }
 
 
-    public class TestSRPPass : SRPPass<TestSRPFeature>
+    public class CameraRender1FramePass : SRPPass<CameraRender1Frame>
     {
-        public TestSRPPass(TestSRPFeature feature) : base(feature) { }
+        public CameraRender1FramePass(CameraRender1Frame feature) : base(feature) { }
 
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
         {
@@ -36,30 +49,23 @@ namespace PowerUtilities.RenderFeatures
             ref var cameraData = ref renderingData.cameraData;
             var desc = cameraData.cameraTargetDescriptor;
 
-            var colorIds = new[] { 
-                Shader.PropertyToID("_CameraColorAttachmentA"),
-                Shader.PropertyToID("_ColorBuffer1"),
-            };
-            for (int i = 0; i < colorIds.Length; i++)
-            {
-                cmd.GetTemporaryRT(colorIds[i], desc.width, desc.height, 0,FilterMode.Bilinear,RenderTextureFormat.Default);
-            }
+            var colorIds = Feature.colorTargets
+                .Where( target => target)
+                .Select(target => new RenderTargetIdentifier(target))
+                .ToArray();
 
-            var depthBuffer = Shader.PropertyToID("depthBuffer");
-            cmd.GetTemporaryRT(depthBuffer, desc.width, desc.height, 16, FilterMode.Point, RenderTextureFormat.Depth);
+            if (colorIds.Length <= 0 || Feature.depthTarget == default)
+                return;
 
-            var ids = colorIds.Select(id => new RenderTargetIdentifier(id)).ToArray();
-            ids[0] = renderer.GetCameraColorAttachmentA().nameID;
-
-
-            cmd.SetRenderTarget(ids, depthBuffer);
+            cmd.SetRenderTarget(colorIds, Feature.depthTarget);
             cmd.ClearRenderTarget(true, true, Color.clear, 1);
             cmd.Execute(ref context);
 
-            var shaderTags = new[] { 
-                new ShaderTagId("SRPDefaultUnlit"),
-                new ShaderTagId("UniversalForward")
-            };
+            var shaderTags = Feature.shaderTags
+                .Where(tag => !string.IsNullOrEmpty(tag))
+                .Select(tag => new ShaderTagId(tag))
+                .ToArray();
+
             var drawSettings = new DrawingSettings();
             for (int i = 0;i < shaderTags.Length;i++)
             {
@@ -72,7 +78,8 @@ namespace PowerUtilities.RenderFeatures
             drawSettings.perObjectData = renderingData.perObjectData;
             drawSettings.mainLightIndex = renderingData.lightData.mainLightIndex;
 
-            drawSettings.overrideMaterial = Feature.overrideMat;
+            if(Feature.isUseOverrideMat)
+                drawSettings.overrideMaterial = Feature.overrideMat;
 
             var filterSettings = new FilteringSettings(RenderQueueRange.opaque);
             filterSettings.layerMask = Feature.layers;
