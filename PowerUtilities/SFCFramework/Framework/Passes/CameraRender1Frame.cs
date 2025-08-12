@@ -20,6 +20,9 @@ namespace PowerUtilities.RenderFeatures
     {
         public LayerMask layers = -1;
 
+        [Tooltip("set enabled false when render 1 frame")]
+        public bool isDisableWhenDone = true;
+
         public bool isUseOverrideMat;
         [LoadAsset("SFC_ShowOverdrawAdd.mat")]
         public Material overrideMat;
@@ -90,6 +93,9 @@ namespace PowerUtilities.RenderFeatures
             sortSettings.criteria = SortingCriteria.CommonTransparent;
             filterSettings.renderQueueRange = RenderQueueRange.transparent;
             context.DrawRenderers(renderingData.cullResults, ref drawSettings, ref filterSettings);
+
+            if(Feature.isDisableWhenDone)
+                Feature.enabled = false;
         }
     }
 }

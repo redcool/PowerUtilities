@@ -47,12 +47,14 @@
         UV, UV1, UV2, UV3,
     }
 
+    [Flags]
     public enum TextureSuffix
     {
-        C, N,PM,/*pbrMask*/
-        E
+        C=1,
+        N=2,
+        PM = 4,
+        E=8
     }
-
 
     [ProjectSettingGroup(ProjectSettingGroupAttribute.POWER_UTILS + "/Bake/BakePbrLighting")]
     [SOAssetPath("Assets/PowerUtilities/BakePbrLighting.asset")]
@@ -122,6 +124,9 @@
         [Header("Output")]
         [Tooltip("baked texture path for save")]
         public string outputPath = "Assets/PowerUtilities/BakeLighting";
+
+        [Tooltip("output textures ")]
+        public TextureSuffix outputTextureType = (TextureSuffix)15;
 
         [Tooltip("bake texture's resolution")]
         public TextureResolution resolution = TextureResolution.x2048;
@@ -236,35 +241,14 @@
             if (targetRenderers.Length == 0)
                 return;
 
+            // c ,must include
+            outputTextureType |= TextureSuffix.C;
+
             SetupRTs();
 
             allRenderers = Object.FindObjectsByType<Renderer>(sortMode: FindObjectsSortMode.None);
 
-
-            //======================= begin render
-            //CoroutineTool.StartCoroutine(WaitForBaking());
             StartBaking();
-        }
-        IEnumerator WaitForBaking()
-        {
-            SetCameraTargets();
-
-            var lastForward = bakeCam.transform.forward;
-            BeforeDraw(allRenderers, out var lastTarget, out var lastPos, out var lastClearFlags);
-
-            StartDraw(targetRenderers);
-
-            //======================= after render
-            yield return new WaitForSeconds(1);
-            AfterDraw(allRenderers);
-
-            bakeCam.targetTexture = null;
-            bakeCam.clearFlags = lastClearFlags;
-            bakeCam.transform.position = lastPos;
-            bakeCam.transform.forward = lastForward;
-
-            RefreshAssetDatabase();
-
         }
         private void StartBaking()
         {
@@ -537,10 +521,17 @@
 
         private void SaveOutputTex(string targetName)
         {
-            SaveOutputTex(targetRT, targetName, TextureSuffix.C);
-            SaveOutputTex(targetRT1, targetName, TextureSuffix.N);
-            SaveOutputTex(targetRT2, targetName, TextureSuffix.PM);
-            SaveOutputTex(targetRT3, targetName, TextureSuffix.E);
+            if (outputTextureType.HasFlag(TextureSuffix.C))
+                SaveOutputTex(targetRT, targetName, TextureSuffix.C);
+
+            if (outputTextureType.HasFlag(TextureSuffix.N))
+                SaveOutputTex(targetRT1, targetName, TextureSuffix.N);
+
+            if (outputTextureType.HasFlag(TextureSuffix.PM))
+                SaveOutputTex(targetRT2, targetName, TextureSuffix.PM);
+
+            if (outputTextureType.HasFlag(TextureSuffix.E))
+                SaveOutputTex(targetRT3, targetName, TextureSuffix.E);
         }
 
         private void SaveOutputTex(RenderTexture rt,string targetName,TextureSuffix suffixName)

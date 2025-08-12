@@ -64,6 +64,11 @@ namespace PowerUtilities.RenderFeatures
         /// </summary>
         public static Action<SRPPass<T>> OnEndExecute;
 
+        /// <summary>
+        /// Call this when OnCameraCleanup
+        /// </summary>
+        public static Action<SRPPass<T>> OnCameraRenderFinish;
+
         public SRPPass(T feature)
         {
             Feature = feature;
@@ -173,6 +178,11 @@ namespace PowerUtilities.RenderFeatures
             // ========== trigger end execute
             OnEndExecute?.Invoke(this);
 
+        }
+
+        public override void OnCameraCleanup(CommandBuffer cmd)
+        {
+            OnCameraRenderFinish?.Invoke(this);
         }
 
         public override void OnFinishCameraStackRendering(CommandBuffer cmd)
