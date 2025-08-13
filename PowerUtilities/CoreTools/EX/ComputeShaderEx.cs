@@ -5,13 +5,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Rendering;
 using static UnityEngine.Networking.UnityWebRequest;
 
 namespace PowerUtilities
 {
     public static class ComputeShaderEx
     {
-        static Dictionary<string, ComputeShader> csDict = new();
+        public static Dictionary<string, ComputeShader> csDict = new();
         /// <summary>
         /// Send var : _DispatchGroupSize
         /// </summary>
@@ -55,19 +56,39 @@ namespace PowerUtilities
             texCS.DispatchKernel(kernel, resultRT.width, resultRT.height, 1);
         }
         /// <summary>
-        /// Dispatch TextureTools.CopyTexture
+        /// cs TextureTools 's keyword
+        /// </summary>
+        /// <param name="texDim"></param>
+        /// <returns></returns>
+        public static string GetKeyWordTextureTools(TextureDimension texDim) => (texDim) switch
+        {
+            TextureDimension.Tex3D => "_3D",
+            TextureDimension.Tex2DArray => "_2DArr",
+            _ => ""
+        };
+        /// <summary>
+        /// Copy sourceTex to resultRT, no worry about different texture size
+        /// sourceTex: 2d,2dArray,3d
         /// </summary>
         /// <param name="sourceTex"></param>
         /// <param name="resultRT"></param>
-        public static void DispatchKernel_CopyTexture(Texture sourceTex, Texture resultRT)
+        public static void DispatchKernel_CopyTexture(Texture sourceTex, Texture resultRT, int sourceTexId = 0, int sourceTexLod = 0)
         {
             var texCS = GetCS("TextureTools");
-
             var kernel = texCS.FindKernel("CopyTexture");
+
+            var keyword = GetKeyWordTextureTools(sourceTex.dimension);
+            texCS.EnableKeyword(keyword);
+
             texCS.SetTexture(kernel, "_SourceTex", sourceTex);
+
+            texCS.SetFloat("_SourceTexId", sourceTexId);
             texCS.SetVector("_SourceTex_TexelSize", new Vector4(sourceTex.width, sourceTex.height, 1f / sourceTex.width, 1f / sourceTex.height));
+            texCS.SetFloat("_SourceTexLod", sourceTexLod);
+
             texCS.SetTexture(kernel, "_ResultTex", resultRT);
             texCS.SetVector("_ResultTex_TexelSize", new Vector4(resultRT.width, resultRT.height, 1f / resultRT.width, 1f / resultRT.height));
+
             texCS.DispatchKernel(kernel, resultRT.width, resultRT.height, 1);
         }
 
@@ -75,16 +96,15 @@ namespace PowerUtilities
         => SystemInfo.supportsComputeShaders && cs;
 
         /// <summary>
-        /// Get cs when not ecists
         /// Load computeShader from Resources/Shaders folder 
         /// </summary>
         /// <param name="csName">TextureTools,ColorConvert</param>
-        /// <param name="folderName">Resources folder,like: Resources/Shaders/TextureTools.compute</param>
+        /// <param name="resourceSubFolderName">Resources subfolder,like: Resources/Shaders/TextureTools.compute</param>
         /// <returns></returns>
 
-        public static ComputeShader GetCS(string csName,string folderName="Shaders")
+        public static ComputeShader GetCS(string csName,string resourceSubFolderName="Shaders")
         {
-            return DictionaryTools.Get(csDict, csName, csName => (ComputeShader)Resources.Load($"{folderName}/{csName}") );
+            return DictionaryTools.Get(csDict, csName, csName => (ComputeShader)Resources.Load($"{resourceSubFolderName}/{csName}") );
         }
 
     }

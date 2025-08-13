@@ -368,8 +368,11 @@ namespace PowerUtilities
         /// </summary>
         /// <param name="prop"></param>
         /// <param name="enumType"></param>
-        public static void EnumPropertyFieldSearchable(SerializedProperty prop, Type enumType)
+        public static void EnumPropertyFieldSearchable(SerializedProperty prop, Type enumType, Action<SerializedProperty, int> OnValueChanged=default)
         {
+            if (OnValueChanged == null)
+                OnValueChanged = DefulatValueChanged;
+
             EditorGUITools.BeginHorizontalBox(() =>
             {
                 var labelWidth = EditorGUIUtility.labelWidth;
@@ -380,12 +383,18 @@ namespace PowerUtilities
                 {
                     SearchWindowTools.CreateEnumProviderAndShowWin(prop, enumType, (id) =>
                     {
-                        prop.serializedObject.Update();
-                        prop.intValue = id;
-                        prop.serializedObject.ApplyModifiedProperties();
+                        OnValueChanged(prop, id);
                     });
                 }
             }, "");
+
+            //------- inner methods
+            static void DefulatValueChanged(SerializedProperty prop, int id)
+            {
+                prop.serializedObject.Update();
+                prop.intValue = id;
+                prop.serializedObject.ApplyModifiedProperties();
+            }
         }
 
         /// <summary>

@@ -178,7 +178,7 @@ namespace PowerUtilities
             });
         }
 
-        public static void ReadRenderTexture(this RenderTexture sourceTex, ref Texture2D targetTex,bool reCalcMipMaps=false)
+        public static void ReadRenderTexture(this RenderTexture sourceTex, ref Texture2D targetTex,bool reCalcMipMaps=true)
         {
             if (!sourceTex)
                 return;
@@ -191,6 +191,25 @@ namespace PowerUtilities
             RenderTexture.active = sourceTex;
             targetTex.ReadPixels(new Rect(0, 0, sourceTex.width, sourceTex.height), 0, 0,reCalcMipMaps);
             RenderTexture.active = null;
+        }
+        /// <summary>
+        /// get temporary Unordered Access Views
+        /// </summary>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        /// <param name="format"></param>
+        /// <returns></returns>
+        public static RenderTexture GetTemporaryUAV(int width,int height,RenderTextureFormat format)
+        {
+            var desc = new RenderTextureDescriptor(width, height, format);
+            desc.enableRandomWrite = true;
+            return RenderTexture.GetTemporary(desc);
+        }
+
+        public static void ReleaseSafe(this RenderTexture rt)
+        {
+            RenderTexture.ReleaseTemporary(rt);
+            rt.Release();
         }
     }
 }

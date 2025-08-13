@@ -424,6 +424,23 @@ namespace PowerUtilities
             return BuildPipeline.BuildAssetBundles(bundlePath, buildMap.ToArray(), buildOptions, buildTarget);
         }
 
+        /// <summary>
+        /// Load assets in assetFolder
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="assetFolder"></param>
+        /// <returns></returns>
+        public static T[] LoadAssets<T>(string assetFolder) where T : Object
+        {
+            if (!AssetDatabase.IsValidFolder(assetFolder))
+                return default;
+
+            var absFolder = PathTools.GetAssetAbsPath(assetFolder);
+            return Directory.GetFiles(absFolder)
+                .Where(path => !path.EndsWith("meta"))
+                .Select(filePath => AssetDatabase.LoadAssetAtPath<T>(PathTools.GetAssetPath(filePath)))
+                .ToArray();
+        }
     }
 }
 #endif
