@@ -16,11 +16,13 @@ namespace PowerUtilities
             textures.ForEach((tex, id) =>
             {
                 Graphics.CopyTexture(tex, 0, arr, id);
-                //for (int mipId = 0; mipId < tex.mipmapCount; mipId++)
-                //{
-                //    Graphics.CopyTexture(tex, 0, mipId, arr, id, mipId);
-                //}
-
+            });
+        }
+        public static void Fill<T>(this Texture2DArray arr, T[] textures) where T : Texture
+        {
+            textures.ForEach((tex, id) =>
+            {
+                Graphics.CopyTexture(tex, 0, arr, id);
             });
         }
     }

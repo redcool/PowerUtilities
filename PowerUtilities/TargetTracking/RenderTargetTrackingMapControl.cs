@@ -117,7 +117,7 @@ namespace PowerUtilities
             }
             TrySetupRT(desc, trackTextureName, ref trackRT);
 
-            FindBorderObjectsInChildren(transform, minPosTrName, ref minPosTr, ref minPos, maxPosTrName, ref minPosTr, ref minPos);
+            FindBorderObjectsInChildren(transform, minPosTrName, ref minPosTr, ref minPos, maxPosTrName, ref maxPosTr, ref maxPos);
 
             var targetPosArray = trackTargets.Select(target => (Vector4)target.transform.position).ToArray();
             DispatchTrackingCS(trackingCS,targetPosArray);
@@ -131,7 +131,7 @@ namespace PowerUtilities
             //-------- clear kernel
             if (CompareTools.IsTriggerOnce(ref isClearRT))
             {
-                cs.DispatchKernel_CSClear("_TrackTexture", trackRT, clearColor: clearColor);
+                ComputeShaderEx.DispatchKernel_CSClear(trackRT, clearColor);
             }
 
             //------ main

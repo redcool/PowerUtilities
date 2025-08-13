@@ -1,11 +1,9 @@
 // Each #kernel tells which function to compile; you can have many kernels
 #pragma kernel CSMain
-#pragma kernel CSClear
 
 #include "../../../PowerShaderLib/Lib/CSLib.hlsl"
 
 RWTexture2D<float4> _TrackTexture;
-float4 _ClearColor;
 
 float3 _MinPos,_MaxPos;
 uint _TargetCount;
@@ -15,12 +13,6 @@ float _Radius;
 float _DeltaTime;
 float _ResumeSpeed;
 float4 _TrackTextureChannelMask; // fill this channel,default(1,0,0,0)
-
-[numthreads(8,8,1)]
-void CSClear (uint3 id : SV_DispatchThreadID)
-{
-    _TrackTexture[id.xy] = _ClearColor;
-}
 
 
 [numthreads(8,8,1)]

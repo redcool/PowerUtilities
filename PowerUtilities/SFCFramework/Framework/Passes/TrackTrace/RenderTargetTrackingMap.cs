@@ -123,7 +123,7 @@ namespace PowerUtilities.RenderFeatures
         {
             if (CompareTools.IsTriggerOnce(ref Feature.isClearRT))
             {
-                cs.DispatchKernel_CSClear("_TrackTexture", Feature.trackRT, clearColor: Feature.clearColor);
+                ComputeShaderEx.DispatchKernel_CSClear(Feature.trackRT, clearColor: Feature.clearColor);
             }
 
             //------ call main
