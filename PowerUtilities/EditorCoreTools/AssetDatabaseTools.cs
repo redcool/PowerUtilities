@@ -441,6 +441,21 @@ namespace PowerUtilities
                 .Select(filePath => AssetDatabase.LoadAssetAtPath<T>(PathTools.GetAssetPath(filePath)))
                 .ToArray();
         }
+        /// <summary>
+        /// Override assetExists with newAsset
+        /// </summary>
+        /// <param name="assetExists"></param>
+        /// <param name="newAsset"></param>
+        /// <returns>asset saved</returns>
+        public static T SaveNewAsset<T>(Object assetExists, T newAsset) where T : Object
+        {
+            var path = AssetDatabase.GetAssetPath(assetExists);
+            AssetDatabase.DeleteAsset(path);
+            AssetDatabase.CreateAsset(newAsset, path);
+
+            AssetDatabase.Refresh();
+            return AssetDatabase.LoadAssetAtPath<T>(path);
+        }
     }
 }
 #endif

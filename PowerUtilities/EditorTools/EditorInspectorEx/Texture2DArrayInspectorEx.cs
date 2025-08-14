@@ -96,7 +96,7 @@ namespace PowerUtilities
             EditorGUI.BeginChangeCheck();
             EditorGUITools.EnumPropertyFieldSearchable(formatProp, typeof(GraphicsFormat), (SerializedProperty prop, int formatId) =>
             {
-                ChangeFormat();
+                ChangeFormat(formatId);
             });
 
             wrapUProp.intValue = (int)(WrapMode)EditorGUILayout.EnumPopup(wrapUProp.displayName, (WrapMode)wrapUProp.intValue);
@@ -129,7 +129,7 @@ namespace PowerUtilities
         public void CombineSlices()
         {
             var sourceTexs = slices.Where(t => t).ToArray();
-            if (sourceTexs.Length <= 0)
+            if (sourceTexs.Length == 0)
                 return;
 
             const int MIN_SIZE = 32;
@@ -137,11 +137,9 @@ namespace PowerUtilities
             var h = Mathf.Max(MIN_SIZE, sourceTexs[0].height);
             var count = sourceTexs.Length;
 
-            var desc = new RenderTextureDescriptor(w, h, RenderTextureFormat.Default);
-            desc.enableRandomWrite = true;
-            var resultRT = RenderTexture.GetTemporary(desc);
+            var resultRT = RenderTextureTools.GetTemporaryUAV(w, h, RenderTextureFormat.Default);
 
-            var texArr = new Texture2DArray(w, h, count, TextureFormat.ASTC_6x6, true);
+            var texArr = new Texture2DArray(w, h, count, TextureFormat.ASTC_6x6, true,true);
             var texList = new Texture2D[count];
             for (int i = 0; i < count; i++) {
                 var sourceTex = sourceTexs[i];
@@ -156,16 +154,13 @@ namespace PowerUtilities
                 Graphics.CopyTexture(tex, 0, texArr, i);
             }
             
-            RenderTexture.ReleaseTemporary(resultRT);
+            resultRT.ReleaseSafe();
 
-            var path = AssetDatabase.GetAssetPath(inst);
-            AssetDatabase.DeleteAsset(path);
-            AssetDatabase.CreateAsset(texArr,path);
-
-            AssetDatabase.Refresh();
-            Selection.activeObject = AssetDatabase.LoadAssetAtPath(path, typeof(Texture2DArray));
+            Selection.activeObject = AssetDatabaseTools.SaveNewAsset(inst, texArr);
         }
-        public string GetSlicesFolderAssetPath()
+
+
+        public string GetTextureArraySlicesFolder()
         {
             var path = AssetDatabase.GetAssetPath(inst);
             var folderPath = $"{Path.GetDirectoryName(path)}/{inst.name}_Slices";
@@ -174,7 +169,7 @@ namespace PowerUtilities
 
         public void DumpSlicesToDisk()
         {
-            var folderPath = GetSlicesFolderAssetPath();
+            var folderPath = GetTextureArraySlicesFolder();
             PathTools.CreateAbsFolderPath(folderPath);
             
             var tex = new Texture2D(inst.width, inst.height, TextureFormat.ARGB32, true);
@@ -198,7 +193,7 @@ namespace PowerUtilities
 
         public void SetupSlicesFromFolder()
         {
-            var folderPath = GetSlicesFolderAssetPath();
+            var folderPath = GetTextureArraySlicesFolder();
             if(!AssetDatabase.IsValidFolder(folderPath))
                 return;
 
@@ -209,35 +204,53 @@ namespace PowerUtilities
         }
 
 
-        public static List<Texture2D> GetSlices(Texture2DArray inst)
+        public static List<Texture2D> GetSlices(Texture2DArray texArr,TextureFormat sliceFormat,float gammaValue = 1)
         {
             var list = new List<Texture2D>();
-            var resultRT = RenderTextureTools.GetTemporaryUAV(inst.width, inst.height, RenderTextureFormat.Default);
-            for (int i = 0; i < inst.depth; i++)
+            var resultRT = RenderTextureTools.GetTemporaryUAV(texArr.width, texArr.height, RenderTextureFormat.Default);
+            var isCompressFormat = GraphicsFormatUtility.IsCompressedFormat(sliceFormat);
+
+            for (int i = 0; i < texArr.depth; i++)
             {
-                var tex = new Texture2D(inst.width, inst.height, TextureFormat.ARGB32, true);
+                var tex = new Texture2D(texArr.width, texArr.height, TextureFormat.RGBA32, true,true);
+
                 tex.name = i.ToString();
-                ComputeShaderEx.DispatchKernel_CopyTexture(inst, resultRT, i, 0);
+                ComputeShaderEx.DispatchKernel_CopyTexture(texArr, resultRT, i, 0, gammaValue);
                 resultRT.ReadRenderTexture(ref tex);
                 list.Add(tex);
+
+                if (isCompressFormat)
+                {
+                    tex.Compress(true, sliceFormat);
+                }
+
             }
             resultRT.Release();
 
             return list;
         }
 
-        public void ChangeFormat()
+        public void ChangeFormat(int newFormatId)
         {
-            var gf = (GraphicsFormat)formatProp.intValue;
-            Debug.Log(gf);
-
-            return;
-            var list = GetSlices(inst);
-
-            foreach (var tex in list)
+            if (formatProp.intValue == newFormatId)
+                return;
+            var gf = (GraphicsFormat)newFormatId;
+            var tf = GraphicsFormatUtility.GetTextureFormat(gf);
+            Debug.Log(tf);
+            if(tf == 0)
             {
+                Debug.Log("error format");
+                return;
             }
+
+            var list = GetSlices(inst, tf);
+            var assetPath = AssetDatabase.GetAssetPath(inst);
+            var path = $"{Path.GetDirectoryName(assetPath)}/new.asset";
+
+            EditorTextureTools.Create2DArray(list, assetPath, true);
         }
+
+
     }
 }
 #endif

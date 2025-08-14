@@ -108,5 +108,21 @@ namespace PowerUtilities
 
         public static GraphicsFormat Get(DefaultFormat df)
             => SystemInfo.GetGraphicsFormat(df);
+
+        public static void ShowFormatRelations()
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine("GraphicsFormat      TextureFormat      RenderTextureFormat");
+            var ns = Enum.GetValues(typeof(GraphicsFormat));
+            const int width = -50;
+            foreach (GraphicsFormat gf in ns)
+            {
+                var tf = GraphicsFormatUtility.GetTextureFormat(gf);
+                var rtf = GraphicsFormatUtility.GetRenderTextureFormat(gf);
+
+                sb.AppendLine($"{gf,width}    {tf,width}    {rtf,width}");
+            }
+            Debug.Log(sb);
+        }
     }
 }

@@ -72,11 +72,13 @@ namespace PowerUtilities
         /// </summary>
         /// <param name="sourceTex"></param>
         /// <param name="resultRT"></param>
-        public static void DispatchKernel_CopyTexture(Texture sourceTex, Texture resultRT, int sourceTexId = 0, int sourceTexLod = 0)
+        public static void DispatchKernel_CopyTexture(Texture sourceTex, Texture resultRT, int sourceTexId = 0, int sourceTexLod = 0,float gammaValue=1)
         {
             var texCS = GetCS("TextureTools");
             var kernel = texCS.FindKernel("CopyTexture");
 
+            // clear keywords
+            texCS.enabledKeywords.ForEach(key => texCS.DisableKeyword(key));
             var keyword = GetKeyWordTextureTools(sourceTex.dimension);
             texCS.EnableKeyword(keyword);
 
@@ -85,11 +87,21 @@ namespace PowerUtilities
             texCS.SetFloat("_SourceTexId", sourceTexId);
             texCS.SetVector("_SourceTex_TexelSize", new Vector4(sourceTex.width, sourceTex.height, 1f / sourceTex.width, 1f / sourceTex.height));
             texCS.SetFloat("_SourceTexLod", sourceTexLod);
+            texCS.SetFloat("_GammaValue", gammaValue);
 
             texCS.SetTexture(kernel, "_ResultTex", resultRT);
             texCS.SetVector("_ResultTex_TexelSize", new Vector4(resultRT.width, resultRT.height, 1f / resultRT.width, 1f / resultRT.height));
 
             texCS.DispatchKernel(kernel, resultRT.width, resultRT.height, 1);
+        }
+
+        public static void DispatchKernel_CopyTexture(Texture sourceTex, Texture2D resultTex, int sourceTexId = 0, int sourceTexLod = 0)
+        {
+            var resultRT = RenderTextureTools.GetTemporaryUAV(sourceTex.width, sourceTex.height, RenderTextureFormat.Default);
+
+            DispatchKernel_CopyTexture(sourceTex, resultRT, sourceTexId, sourceTexLod);
+            resultRT.ReadRenderTexture(ref resultTex);
+            resultRT.ReleaseSafe();
         }
 
         public static bool CanExecute(this ComputeShader cs)

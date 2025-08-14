@@ -199,17 +199,19 @@ namespace PowerUtilities
         /// <param name="height"></param>
         /// <param name="format"></param>
         /// <returns></returns>
-        public static RenderTexture GetTemporaryUAV(int width,int height,RenderTextureFormat format)
+        public static RenderTexture GetTemporaryUAV(int width,int height,RenderTextureFormat format,TextureDimension dimension = TextureDimension.Tex2D)
         {
             var desc = new RenderTextureDescriptor(width, height, format);
+            desc.dimension = dimension;
             desc.enableRandomWrite = true;
             return RenderTexture.GetTemporary(desc);
         }
 
         public static void ReleaseSafe(this RenderTexture rt)
         {
-            RenderTexture.ReleaseTemporary(rt);
-            rt.Release();
+            if (rt)
+                RenderTexture.ReleaseTemporary(rt);
+            rt?.Release();
         }
     }
 }
