@@ -151,7 +151,7 @@
 
         [Tooltip("create prefab mat use this shader")]
         [LoadAsset("BakedPbrLit.shader")]
-        public Shader bakedPbrLgihtShader;
+        public Shader bakedPbrLitShader;
 
         [LoadAsset("ColorConvert.compute")]
         public ComputeShader colorConvertCS;
@@ -752,7 +752,7 @@
             Material SaveMat(Texture2D tex, Texture2DArray texArr)
             {
                 var matPath = $"{outputPath}/{target.name}.mat";
-                var mat = new Material(bakedPbrLgihtShader);
+                var mat = new Material(bakedPbrLitShader);
                 mat.SetFloat("_UseUV1", 1);
                 mat.SetFloat("_UV1ReverseY", 1);
 
