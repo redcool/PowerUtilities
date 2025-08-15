@@ -212,7 +212,7 @@ namespace PowerUtilities
 
             for (int i = 0; i < texArr.depth; i++)
             {
-                var tex = new Texture2D(texArr.width, texArr.height, TextureFormat.RGBA32, true,true);
+                var tex = new Texture2D(texArr.width, texArr.height, TextureFormat.RGBA32, true, true);
 
                 tex.name = i.ToString();
                 ComputeShaderEx.DispatchKernel_CopyTexture(texArr, resultRT, i, 0, gammaValue);
@@ -223,6 +223,7 @@ namespace PowerUtilities
                 {
                     tex.Compress(true, sliceFormat);
                 }
+                tex.Apply();
 
             }
             resultRT.Release();
@@ -236,16 +237,20 @@ namespace PowerUtilities
                 return;
             var gf = (GraphicsFormat)newFormatId;
             var tf = GraphicsFormatUtility.GetTextureFormat(gf);
-            Debug.Log(tf);
+            
             if(tf == 0)
             {
                 Debug.Log("error format");
                 return;
             }
 
-            var list = GetSlices(inst, tf);
             var assetPath = AssetDatabase.GetAssetPath(inst);
-            var path = $"{Path.GetDirectoryName(assetPath)}/new.asset";
+            if(!EditorTools.DisplayDialog_Ok_Cancel($"Override {inst}?"))
+            {
+                assetPath = $"{Path.GetDirectoryName(assetPath)}/{inst}_.asset";
+            }
+
+            var list = GetSlices(inst, tf);
 
             EditorTextureTools.Create2DArray(list, assetPath, true);
         }
