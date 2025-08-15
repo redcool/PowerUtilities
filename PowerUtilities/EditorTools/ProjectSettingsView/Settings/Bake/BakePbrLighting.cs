@@ -101,6 +101,9 @@
         [Tooltip("cameraTarget & outputTex is hdr")]
         public bool isHDR;
 
+        [Tooltip("set _FullScreenOn when bake ")]
+        public bool isSetFullscreenOn = true;
+
         [Header("UV Space")]
         [Tooltip("set object material CullOff,[0-3]")]
         public UVMode uvMode = UVMode.UV1;
@@ -362,7 +365,6 @@
                 render.enabled = true;
             }
 
-            //Shader.SetGlobalFloat(_UV1TransformToLightmapUV, isUV1TransformToLightmapUV ? 1 : 0);
             bakeCam.Render();
 
             for (int i = 0; i < list.Count; i++)
@@ -479,8 +481,7 @@
                 mat.SetFloat(_CullMode, 0);
             }
 
-
-            //bakeCam.Render();
+            bakeCam.Render();
 
             render.enabled = false;
             mat.SetFloat(_CullMode, lastCullMode);
@@ -803,12 +804,13 @@
                 srpControl.featureListSO.featureList.Add(cameraRender1Frame);
             }
             cameraRender1Frame.name = "bake_cameraRender1Frame";
-            cameraRender1Frame.renderPassEvent = RenderPassEvent.AfterRenderingShadows;
+            cameraRender1Frame.renderPassEvent = RenderPassEvent.BeforeRenderingOpaques;
             cameraRender1Frame.isEditorOnly = true;
             cameraRender1Frame.cameraType = CameraType.Game;
             cameraRender1Frame.colorTargets = new[] { targetRT, targetRT1, targetRT2, targetRT3 };
             cameraRender1Frame.depthTarget = depthRT;
             cameraRender1Frame.enabled = true;
+            cameraRender1Frame.isDisableWhenDone = true;
         }
 
         private void BeforeDraw(Renderer[] allRenderers, out RenderTexture lastTarget, out Vector3 lastPos, out CameraClearFlags lastClearFlags)
@@ -820,7 +822,7 @@
             }
 
             Shader.globalMaximumLOD = int.MaxValue;
-            Shader.SetGlobalFloat(_FullScreenOn, 1);
+            Shader.SetGlobalFloat(_FullScreenOn, isSetFullscreenOn?1:0);
             Shader.SetGlobalFloat(_FullScreenUVId, (int)uvMode);
             Shader.SetGlobalVector(_FullScreenUVRange, new Vector4(0, 0, 1, 1));
 

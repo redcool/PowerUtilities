@@ -48,6 +48,8 @@ namespace PowerUtilities.RenderFeatures
 
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
         {
+            cmd.BeginSampleExecute(nameof(CameraRender1FramePass),ref context);
+
             var renderer = (UniversalRenderer)renderingData.cameraData.renderer;
             ref var cameraData = ref renderingData.cameraData;
             var desc = cameraData.cameraTargetDescriptor;
@@ -93,6 +95,8 @@ namespace PowerUtilities.RenderFeatures
             sortSettings.criteria = SortingCriteria.CommonTransparent;
             filterSettings.renderQueueRange = RenderQueueRange.transparent;
             context.DrawRenderers(renderingData.cullResults, ref drawSettings, ref filterSettings);
+
+            cmd.EndSampleExecute(nameof(CameraRender1FramePass), ref context);
 
             if(Feature.isDisableWhenDone)
                 Feature.enabled = false;
