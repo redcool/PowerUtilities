@@ -7,6 +7,14 @@ namespace PowerUtilities
 {
     public class UGUIDefaultMaterialSetter : MonoBehaviour
     {
+#if UNITY_EDITOR
+        [UnityEditor.MenuItem("PowerUtilities/UGUI/AddDefaultMatSetter")]
+        static void AddDefaultMatSetter()
+        {
+            new GameObject("DefaultMatSetter").AddComponent<UGUIDefaultMaterialSetter>();
+        }
+#endif
+
         [EditorButton(onClickCall = "UpdateUGUIDefaultMat")]
         public bool isTest;
 

@@ -50,9 +50,10 @@ namespace GameUtilsFramework
             bonePaths = new string[skinned.bones.Length];
             boneDepths = new int[skinned.bones.Length];
 
+            var rootBone = skinned.rootBone ?? skinned.transform;
             for (int i = 0; i < skinned.bones.Length; i++)
             {
-                var path = bonePaths[i] = skinned.bones[i].GetHierarchyPath(skinned.rootBone.name);
+                var path = bonePaths[i] = skinned.bones[i].GetHierarchyPath(rootBone.name);
                 boneDepths[i] = path.Count(c => c == '/');
             }
         }
