@@ -19,6 +19,9 @@ namespace PowerUtilities
             new GUIContent("_ZTestMode"),
             new GUIContent("_CullMode"),
             new GUIContent("_GrayOn"),
+            new GUIContent("_FaceColorRange"),
+            new GUIContent("_FaceColor2"),
+
         };
 }
 }

@@ -29,6 +29,9 @@ namespace PowerUtilities
 #endif
         public string targetTag = "TrackTarget";
 
+        [Tooltip("find targets in update")]
+        public bool isFindTargetPerFrame;
+
         [Tooltip("target radius")]
         public float radius = 2;
 
@@ -67,6 +70,7 @@ namespace PowerUtilities
         public bool isAddPosTrs;
 
         RenderTextureDescriptor desc;
+        GameObject[] trackTargets;
 
         void TryCreateMinMaxPosTrs()
         {
@@ -107,11 +111,11 @@ namespace PowerUtilities
 
         private void Update()
         {
-            var trackTargets = GameObject.FindGameObjectsWithTag(targetTag);
+            FindTrackTargets(ref trackTargets);
             if (trackTargets.Length == 0 || !trackingCS)
                 return;
 
-            if(CompareTools.CompareAndSet(ref lastRenderScale, renderScale))
+            if (CompareTools.CompareAndSet(ref lastRenderScale, renderScale))
             {
                 desc.SetupColorDescriptor(Camera.main, renderScale);
             }
@@ -120,10 +124,16 @@ namespace PowerUtilities
             FindBorderObjectsInChildren(transform, minPosTrName, ref minPosTr, ref minPos, maxPosTrName, ref maxPosTr, ref maxPos);
 
             var targetPosArray = trackTargets.Select(target => (Vector4)target.transform.position).ToArray();
-            DispatchTrackingCS(trackingCS,targetPosArray);
+            DispatchTrackingCS(trackingCS, targetPosArray);
 
             UpdateBoxSceneFogMaterial(boxSceneFogRender, ref boxSceneFogMat, minPos, maxPos, trackRT);
             Shader.SetGlobalTexture(trackTextureName, trackRT);
+        }
+
+        private void FindTrackTargets(ref GameObject[] trackTargets)
+        {
+            if (isFindTargetPerFrame || trackTargets == null || trackTargets.Length == 0)
+                trackTargets = GameObject.FindGameObjectsWithTag(targetTag);
         }
 
         private void DispatchTrackingCS(ComputeShader cs,Vector4[] trackTargetPositions)
