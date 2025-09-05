@@ -15,6 +15,9 @@ namespace PowerUtilities
     /// 
     /// * must on top of EditorDisableGroupAttribute
     /// 
+    // #if UNITY_EDITOR
+    // [StringListSearchable(type = typeof(TagManager), staticMemberName = nameof(TagManager.GetTags))]
+    // #endif
     /// </summary>
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
     public class StringListSearchableAttribute : PropertyAttribute

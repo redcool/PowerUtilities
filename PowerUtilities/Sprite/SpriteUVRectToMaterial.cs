@@ -13,8 +13,8 @@ namespace PowerUtilities
 
 #if UNITY_EDITOR
 
-    [CustomEditor(typeof(UVRectToMaterial))]
-    public class UVRectToMaterialEditor : PowerEditor<UVRectToMaterial>
+    [CustomEditor(typeof(SpriteUVRectToMaterial))]
+    public class SpriteUVRectToMaterialEditor : PowerEditor<SpriteUVRectToMaterial>
     {
         public override bool NeedDrawDefaultUI() => true;
         public override string Version => "0.0.4";
@@ -22,7 +22,7 @@ namespace PowerUtilities
         readonly GUIContent SetUVBySpriteRect = new GUIContent("SetUVBySprite", "Set material uv by sprite size ");
         readonly GUIContent SetScaleBySpriteSize = new GUIContent("SetTransform", "Set (Scale,Position) by sprite size");
 
-        public override void DrawInspectorUI(UVRectToMaterial inst)
+        public override void DrawInspectorUI(SpriteUVRectToMaterial inst)
         {
             GUILayout.Label("Options", EditorStyles.boldLabel);
 
@@ -43,7 +43,7 @@ namespace PowerUtilities
     /// send sprite's uv in altas to material(_MainTex_ST
     /// </summary>
     [ExecuteAlways]
-    public class UVRectToMaterial : MonoBehaviour
+    public class SpriteUVRectToMaterial : MonoBehaviour
     {
         [HelpBox]
         public string helpStr = "Send sprite's uv in atlas to material";
@@ -92,7 +92,7 @@ namespace PowerUtilities
 
         Object lastSelectionObject;
 
-        MaterialPropertyBlock block; // block will break srp batch, will apply in EditorMode
+        MaterialPropertyBlock block; // block will break srp batch, will apply in EditorMode,runtimeMode is ok
 
         private void Update()
         {
@@ -127,7 +127,7 @@ namespace PowerUtilities
             }
         }
 
-        public static void SetupMeshFilter(UVRectToMaterial inst)
+        public static void SetupMeshFilter(SpriteUVRectToMaterial inst)
         {
             var mf = inst.GetComponent<MeshFilter>();
             if (!mf)
@@ -168,7 +168,7 @@ namespace PowerUtilities
             //========= inner methods
             void ApplyBlock()
             {
-                if (render && !Application.isPlaying)
+                if (block != null && render && !Application.isPlaying)
                 {
                     render.SetPropertyBlock(block);
                 }

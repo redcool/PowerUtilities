@@ -59,6 +59,9 @@ namespace PowerUtilities
         public FilterMode filterMode = FilterMode.Exclude;
 
         [Tooltip("match gameObject tag, when not empty")]
+        #if UNITY_EDITOR
+        [StringListSearchable(type = typeof(TagManager), staticMemberName = nameof(TagManager.GetTags))]
+        #endif
         [EditorGroup("Camera Filter")]
         public string filterTag;
 
