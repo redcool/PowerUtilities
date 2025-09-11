@@ -35,7 +35,22 @@ namespace PowerUtilities
         /// </summary>
         public static event Action OnEnterPlayingMode, OnExitPlayingMode,OnEnterEditMode,OnExitEditMode;
 
+        /// <summary>
+        /// Show context menu.
+        /// right click in unity inspector ,below script 
+        /// </summary>
+        public static event Action<GenericMenu /*menu*/, SerializedProperty /*property*/> OnInspectorContextMenu;
+
+        static EditorApplication.SerializedPropertyCallbackFunction OnDefaultInspectorContextMenu = (menu, property) =>
+        {
+            OnInspectorContextMenu?.Invoke(menu, property);
+        };
         static bool isInited;
+
+        public static void AddInspectorContextMenu<T>()
+        {
+
+        }
 
         static void AddCompileEvents()
         {
@@ -89,6 +104,9 @@ namespace PowerUtilities
 
             EditorApplication.playModeStateChanged -= EditorApplication_playModeStateChanged;
             EditorApplication.playModeStateChanged += EditorApplication_playModeStateChanged;
+
+            EditorApplication.contextualPropertyMenu -= OnDefaultInspectorContextMenu;
+            EditorApplication.contextualPropertyMenu += OnDefaultInspectorContextMenu;
 
             if (OnEditorReload != null)
                 OnEditorReload();

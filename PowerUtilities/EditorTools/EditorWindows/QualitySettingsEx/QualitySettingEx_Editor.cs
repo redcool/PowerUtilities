@@ -18,9 +18,8 @@ namespace PowerUtilities
 
         partial void OnEditorEnable()
         {
-
-            EditorApplication.contextualPropertyMenu -= OnContextMenu;
-            EditorApplication.contextualPropertyMenu += OnContextMenu;
+            EditorApplicationTools.OnInspectorContextMenu -= OnContextMenu;
+            EditorApplicationTools.OnInspectorContextMenu += OnContextMenu;
         }
 
         void OnContextMenu(GenericMenu menu, SerializedProperty property)

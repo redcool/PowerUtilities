@@ -17,10 +17,13 @@ namespace PowerUtilities
     public class ApplyPresetsToSelected
     {
         const string ROOT_MENU = "PowerUtilities/Presets/";
-        const string APPLY_PRESET_TO_SELECTED = ROOT_MENU + "Apply Preset To Selected Folder";
+        const string APPLY_PRESET_TO_SELECTED = ROOT_MENU + "Apply Default Preset To Selected Folder";
 
+        /// <summary>
+        /// Apply default presets(Preset Manager config) to selected folder items
+        /// </summary>
         [MenuItem(APPLY_PRESET_TO_SELECTED)]
-        static void ApplyPresetsToFolderItems()
+        public static void ApplyPresetsToFolderItems()
         {
             var defaultPresets= PresetTools.GetAllDefaultPresets();
 
