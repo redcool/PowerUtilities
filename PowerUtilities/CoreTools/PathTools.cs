@@ -10,6 +10,7 @@
 
     public static class PathTools
     {
+        public const string PATH_SEPARATOR = @"/";
         /// <summary>
         /// dont set value
         /// </summary>
@@ -47,7 +48,7 @@
 
         public static string GetAssetAbsPath(string assetPath)
         {
-            return Application.dataPath + "/" + assetPath.Substring("Assets".Length);
+            return Application.dataPath + assetPath.Substring("Assets".Length);
         }
 
         public static string GetAssetPath(string absPath)
@@ -98,5 +99,35 @@
         /// <returns></returns>
         public static string ChangeExtName(string assetPath,string newExtName)
         => RemoveExtName(assetPath) + newExtName;
+
+        /// <summary>
+        /// Unity format path, a/b/c
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public static string GetFolderName(string path)
+        {
+            var dirName = Path.GetDirectoryName(path);
+            return dirName.Replace(@"\",PATH_SEPARATOR);
+        }
+
+        /// <summary>
+        /// Get folder chain , from folderName to Assets
+        /// </summary>
+        /// <param name="folderName"></param>
+        /// <returns></returns>
+        public static string[] GetParentFolders(string folderName)
+        {
+            var list = new List<string>();
+            list.Add(folderName);
+            
+            var indexList = folderName.FindIndexAll(ch => ch == '/');
+            indexList.Reverse();
+            foreach (var chIndex in indexList)
+            {
+                list.Add(folderName.Substring(0,chIndex));
+            }
+            return list.ToArray();
+        }
     }
 }

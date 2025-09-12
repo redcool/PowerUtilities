@@ -34,7 +34,7 @@ namespace PowerUtilities
 
 
         /// <summary>
-        /// Find asset in searchInFolders, return T[]
+        /// Find asset in searchInFolders{Assets,Packages}, return T[]
         /// 
         /// * Global search is slow, results should be cached.
         /// </summary>
@@ -42,36 +42,55 @@ namespace PowerUtilities
         /// <param name="filter"></param>
         /// <param name="searchInFolders"></param>
         /// <returns></returns>
-        public static T[] FindAssetsInProject<T>(string filter = "", params string[] searchInFolders)
-            where T : Object
+        public static T[] FindAssetsInProject<T>(string filter = "", params string[] searchInFolders) where T : Object
         {
             var paths = AssetDatabase.FindAssets($"{filter} t:{typeof(T).Name}", searchInFolders);
 
             var q = paths.Select(pathStr => AssetDatabase.LoadAssetAtPath<T>(AssetDatabase.GUIDToAssetPath(pathStr)))
                 .Where(item => item);
+            
             return q.ToArray();
         }
+        /// <summary>
+        /// Find asset paths in searchInFolders{Assets,Packages}
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="filter"></param>
+        /// <param name="searchInFolders"></param>
+        /// <returns></returns>
+        public static string[] FindAssetPathsInProject<T>(string filter = "", params string[] searchInFolders)
+        {
+            var paths = AssetDatabase.FindAssets($"{filter} t:{typeof(T).Name}", searchInFolders);
+            return paths.Select(pathStr => AssetDatabase.GUIDToAssetPath(pathStr)).ToArray();
+        }
 
-        //public enum SearchFilter
-        //{
-        //    Object, GameObject, Texture, Material, Shader, AnimationClip, AudioClip
-        //}
-
-        //public static T[] FindAssetsInProject<T>(SearchFilter filterEnum, params string[] searchInFolders)
-        //    where T : Object
-        //{
-        //    var filter = "t:" + Enum.GetName(typeof(SearchFilter), filterEnum);
-        //    return FindAssetsInProject<T>(filter, searchInFolders);
-        //}
-
-        //public static T[] FindAssetsInProjectByType<T>(params string[] folders) where T : UnityEngine.Object
-        //{
-        //    var filter = "t:" + typeof(T).Name;
-        //    var paths = AssetDatabase.FindAssets(filter, folders);
-        //    var q = paths.Select(pathStr => AssetDatabase.LoadAssetAtPath<T>(AssetDatabase.GUIDToAssetPath(pathStr)));
-        //    return q.ToArray();
-        //}
-
+        /// <summary>
+        /// Find asset paths in a searchInFolder {Assets,Packages}, no sub folder
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="filter"></param>
+        /// <param name="searchInFolders"></param>
+        /// <returns></returns>
+        public static string[] FindAssetPathsInFolder<T>(string filter, string searchInFolder /*"Assets"*/)
+        {
+            var paths = AssetDatabase.FindAssets($"{filter} t:{typeof(T).Name}", new[] { searchInFolder });
+            return paths.Select(pathStr => AssetDatabase.GUIDToAssetPath(pathStr))
+                .Where(path => PathTools.GetFolderName(path) == searchInFolder)
+                .ToArray();
+        }
+        /// <summary>
+        /// Find assets in a searchInFolder {Assets,Packages}, no sub folder
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="filter"></param>
+        /// <param name="searchInFolders"></param>
+        /// <returns></returns>
+        public static T[] FindAssetsInFolder<T>(string filter, string searchInFolder /*"Assets"*/) where T : Object
+        {
+            return FindAssetPathsInFolder<T> (filter, searchInFolder)
+                .Select(path => AssetDatabase.LoadAssetAtPath<T>(path))
+                .ToArray();
+        }
         /// <summary>
         /// Create scene adjoint folder
         /// if not exists create it
