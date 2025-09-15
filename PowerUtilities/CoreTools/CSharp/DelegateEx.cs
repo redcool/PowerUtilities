@@ -88,7 +88,7 @@ namespace PowerUtilities
         /// <param name="method"></param>
         /// <param name="target"></param>
         /// <returns></returns>
-        public static Delegate CreateDelegate(this MethodInfo method, object target)
+        public static T CreateDelegate<T>(this MethodInfo method, object target) where T : Delegate
         {
             var paramReturnTypes = method.GetParameters()
                 .Select(p => p.ParameterType)
@@ -97,8 +97,8 @@ namespace PowerUtilities
             var delegateType = Expression.GetDelegateType(paramReturnTypes);
 
             if (method.IsStatic)
-                return method.CreateDelegate(delegateType);
-            return method.CreateDelegate(delegateType, target);
+                return (T)method.CreateDelegate(delegateType);
+            return (T)method.CreateDelegate(delegateType, target);
         }
 
     }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -146,18 +147,26 @@ namespace PowerUtilities
                 return false;
             }
         }
-
-        public static IEnumerable<Type> GetTypesDerivedFrom<T>(Func<Type, bool> predication)
+        /// <summary>
+        /// Search Types from (T)'s assembly or all current domain assemblies
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="predication"></param>
+        /// <param name="isIncludeDomain"></param>
+        /// <returns></returns>
+        public static IEnumerable<Type> GetTypesDerivedFrom<T>(Func<Type, bool> predication, bool isIncludeDomain = false)
         {
-            var types = typeof(T).Assembly.GetTypes();
-
             if (predication == null)
                 return Enumerable.Empty<Type>();
+
+            IEnumerable<Type> types = typeof(T).Assembly.GetTypes();
+            if (isIncludeDomain)
+                types = GetAppDomainTypesDerivedFrom<T>();
 
             return types.Where(predication);
         }
 
-        public static IEnumerable<Type> GetTypesDerivedFrom<T>()
+        public static IEnumerable<Type> GetTypesDerivedFrom<T>(bool isIncludeDomain = false)
         {
             var tType = typeof(T);
             return GetTypesDerivedFrom<T>(t => t.BaseType != null && t.BaseType == tType);
@@ -168,7 +177,12 @@ namespace PowerUtilities
             var tType = typeof(T);
             return GetAppDomainTypesDerivedFrom<T>(t => t.BaseType != null && t.BaseType == tType);
         }
-
+        /// <summary>
+        /// Search Types from currentDomain assemblies
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="predicate"></param>
+        /// <returns></returns>
         public static IEnumerable<Type> GetAppDomainTypesDerivedFrom<T>(Func<Type, bool> predicate)
         {
             if (predicate == null)

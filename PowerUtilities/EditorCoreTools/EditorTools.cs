@@ -159,15 +159,14 @@ namespace PowerUtilities
         /// </summary>
         /// <param name="type"></param>
         /// <param name="typeName"></param>
-        public static void GetTypeFromEditorAssembly(ref Type type,string typeName)
+        public static void GetTypeFromEditorAssembly(ref Type type, string typeName)
         {
-            //editorType = typeof(Editor).Assembly.GetTypes()
-            //    .Where(t => t.Name == editorTypeName)
-            //    .FirstOrDefault()
-            //    ;
-
-            if(type == null)
+            if (type == null)
                 type = Assembly.GetAssembly(typeof(Editor)).GetType(typeName);
+            if (type == null)
+                type = ReflectionTools.GetAppDomainTypesDerivedFrom<Type>(type => type.FullName == typeName).FirstOrDefault();
+
+            Debug.Assert(type != null);
         }
 
         public static bool DisplayDialog_Ok_Cancel(string text)

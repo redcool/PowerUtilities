@@ -40,6 +40,7 @@ namespace PowerUtilities
             "OnGetFrameBounds",
             "OnValidate",
             "HasPreviewGUI",
+            "CreateInspectorGUI",
         };
 
         /// <summary>
@@ -107,7 +108,7 @@ namespace PowerUtilities
         {
             defaultEditor.InvokeDelegate<Action>(ref methodInfoDict, nameof(OnPreviewSettings));
         }
-
+        
         public override Texture2D RenderStaticPreview(string assetPath, Object[] subAssets, int width, int height)
         {
             return (Texture2D)defaultEditor.InvokeDelegate<Func<string, Object[], int, int, Texture2D>>(ref methodInfoDict, nameof(RenderStaticPreview), assetPath, subAssets, width, height);
@@ -117,6 +118,24 @@ namespace PowerUtilities
             defaultEditor.InvokeDelegate<Action<Rect, GUIStyle>>(ref methodInfoDict, nameof(OnInteractivePreviewGUI), r, background);
         }
 
+        public override VisualElement CreateInspectorGUI()
+        {
+            var rootUI = (VisualElement)defaultEditor.InvokeDelegate<Func<VisualElement>>(ref methodInfoDict, nameof(CreateInspectorGUI));
+            //rootUI.style.marginLeft = -30;
+
+            var rootContainer = new VisualElement();
+            rootContainer.style.flexGrow = 1;
+            rootContainer.Add(rootUI);
+
+            var line = new VisualElement();
+            ColorUtility.TryParseHtmlString("#749C75", out var color);
+            line.style.backgroundColor = color;
+            line.style.height = 1;
+            line.style.flexGrow = 0;
+            rootContainer.Add(line);
+
+            return rootContainer;
+        }
     }
 }
 #endif
