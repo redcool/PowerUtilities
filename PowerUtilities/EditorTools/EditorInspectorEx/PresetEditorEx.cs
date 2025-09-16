@@ -14,11 +14,6 @@ using UnityEngine.UIElements;
 namespace PowerUtilities
 {
 
-    public class CustomListViewController  : ListViewController
-    {
-
-    }
-
     [CustomEditor(typeof(Preset))]
     [CanEditMultipleObjects]
     public class PresetEditorEx : BaseEditorEx
@@ -73,12 +68,14 @@ namespace PowerUtilities
             listView.headerTitle = "ExcludeProperpies";
             listView.style.flexGrow = 1f;
 
-            //listView.itemsAdded -= ListView_itemsAdded;
-            //listView.itemsAdded += ListView_itemsAdded;
-
-            listView.itemsRemoved -= ListView_itemsRemoved;
-            listView.itemsRemoved += ListView_itemsRemoved;
+            // use this jinstead listView.itemsRemoved,(has bug)
+            listView.viewController.itemsSourceSizeChanged += ViewController_itemsSourceSizeChanged;
             return listView;
+        }
+
+        private void ViewController_itemsSourceSizeChanged()
+        {
+            SaveExcludeProperties();
         }
 
         private void OnTextFieldValueChanged(ChangeEvent<string> evt)
@@ -104,18 +101,16 @@ namespace PowerUtilities
             foreach (var item in results)
             {
                 if (item >= 0 && item < excludePropertiesList.Count)
-                    excludePropertiesListView.itemsSource?.RemoveAt(item);
+                    excludePropertiesList?.RemoveAt(item);
             }
+            excludePropertiesListView.ClearSelection();
 
-            //excludePropertiesListView.RefreshItems();
+            excludePropertiesListView.RefreshItems();
 
-            SaveExcludeProperties();
+            
+            Debug.Log("done");
         }
 
-        private void ListView_itemsAdded(IEnumerable<int> results)
-        {
-            results.ForEach(i => excludePropertiesList.Add());
-        }
     }
 }
 #endif

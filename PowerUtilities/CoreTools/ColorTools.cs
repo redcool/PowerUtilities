@@ -14,7 +14,7 @@ namespace PowerUtilities
     public static class ColorTools
     {
         /// <summary>
-        /// Nice color strings
+        /// Nice html color strings
         /// </summary>
         public const string
             //red series
@@ -43,6 +43,12 @@ namespace PowerUtilities
         {
             if (!string.IsNullOrEmpty(str))
                 ColorUtility.TryParseHtmlString(str, out c);
+        }
+
+        public static Color Parse(string htmlStr)
+        {
+            ColorUtility.TryParseHtmlString(htmlStr, out var c);
+            return c;
         }
     }
 }

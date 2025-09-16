@@ -18,7 +18,7 @@ namespace PowerUtilities
     /// </summary>
     public static class PresetApplyContextMenu
     {
-        public const string ASSET_POWER_TOOLS_MENU = "Assets/PowerUtils";
+        public const string ASSET_POWER_TOOLS_MENU = ContextMenuConsts.ASSETS + "PowerUtils";
 
         /// <summary>
         /// Apply preset in selected folder(
@@ -30,7 +30,9 @@ namespace PowerUtilities
             foreach (var selectedFolder in selectedFolders)
             {
                 var presetsList = PresetTools.GetPresetsInFolderChain(selectedFolder);
-                var objs = AssetDatabaseTools.FindAssetsInProject<Object>("", selectedFolder);
+                var objs = AssetDatabaseTools.FindAssetsInProject<Object>("", selectedFolder)
+                    .Where(obj => obj.GetType() != typeof(Preset))
+                    ;
 
                 foreach (var obj in objs)
                 {
@@ -59,6 +61,7 @@ namespace PowerUtilities
                 PresetTools.TryApplyDefaultPreset(obj);
             });
         }
+
     }
 }
 #endif

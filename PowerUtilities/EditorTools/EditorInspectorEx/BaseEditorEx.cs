@@ -128,8 +128,8 @@ namespace PowerUtilities
             rootContainer.Add(rootUI);
 
             var line = new VisualElement();
-            ColorUtility.TryParseHtmlString("#749C75", out var color);
-            line.style.backgroundColor = color;
+
+            line.style.backgroundColor = ColorTools.Parse("#749C75");
             line.style.height = 1;
             line.style.flexGrow = 0;
             rootContainer.Add(line);
