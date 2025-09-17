@@ -43,6 +43,7 @@ namespace PowerUtilities
             "CreateInspectorGUI",
         };
         /// <summary>
+        /// Set true will use CreateInspectorGUI ,false use OnInspectorGUI
         /// new UnityEditor use UIToolkit,like PresetEditor
         /// </summary>
         public virtual bool IsUIToolkitGUI => false;
