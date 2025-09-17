@@ -22,6 +22,8 @@ namespace PowerUtilities
         public List<string> excludePropertiesList = new();
         ListView excludePropertiesListView;
 
+        public override bool IsUIToolkitGUI => true;
+
         public override void OnEnable()
         {
             base.OnEnable();

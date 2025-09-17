@@ -42,6 +42,10 @@ namespace PowerUtilities
             "HasPreviewGUI",
             "CreateInspectorGUI",
         };
+        /// <summary>
+        /// new UnityEditor use UIToolkit,like PresetEditor
+        /// </summary>
+        public virtual bool IsUIToolkitGUI => false;
 
         /// <summary>
         /// className : like "UnityEditor.Texture2DArrayInspector"
@@ -120,6 +124,9 @@ namespace PowerUtilities
 
         public override VisualElement CreateInspectorGUI()
         {
+            if (!IsUIToolkitGUI)
+                return default;
+
             var rootUI = (VisualElement)defaultEditor.InvokeDelegate<Func<VisualElement>>(ref methodInfoDict, nameof(CreateInspectorGUI));
             //rootUI.style.marginLeft = -30;
 
