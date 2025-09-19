@@ -91,6 +91,9 @@ namespace GameUtilsFramework
                     // show diff
                     if (diffSkinned)
                     {
+                        if (i >= diffSkinned.bones.Length)
+                            return;
+
                         var diffBone = diffSkinned.bones[i];
                         if (diffBone)
                         {

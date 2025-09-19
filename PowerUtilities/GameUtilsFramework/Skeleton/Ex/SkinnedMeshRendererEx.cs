@@ -70,5 +70,16 @@ namespace GameUtilsFramework
             skinned.bones = bones;
         }
 
+        public static void SetBlendShapeWeight(this SkinnedMeshRenderer skinned,string name,float weight)
+        {
+            var id = skinned.sharedMesh.GetBlendShapeIndex(name);
+            skinned.SetBlendShapeWeight(id, weight);
+        }
+
+        public static float GetBlendShapeWeight(this SkinnedMeshRenderer skinned, string name)
+        {
+            var id = skinned.sharedMesh.GetBlendShapeIndex(name);
+            return skinned.GetBlendShapeWeight(id);
+        }
     }
 }
