@@ -31,8 +31,9 @@ RWTexture2D<float> _ReflectionHeightBuffer;
 
 SamplerState sampler_point_clamp,sampler_linear_clamp;
 TEXTURE2D(_CameraOpaqueTexture);
+float4 _CameraOpaqueTexture_TexelSize; 
 
-TEXTURE2D(_CameraDepthTexture);
+TEXTURE2D_FLOAT(_CameraDepthTexture);
 float2 _CameraTexture_TexelSize; // width,height
 
 float4 _Plane; // xyz:plane direction, w : - dot(plane location, plane direction)
@@ -97,6 +98,7 @@ float LoadDepth(float2 uv){
 }
 
 float4 SampleColorTexture(float2 uv){
+	// uv += _CameraOpaqueTexture_TexelSize.xy * 0.5; // offset .5 pixel, make blur
 	float4 c = SAMPLE_TEXTURE2D_LOD(_CameraOpaqueTexture,sampler_point_clamp,uv,0);
 	#if defined(UNITY_UV_STARTS_AT_TOP)
 	float fade = uv.y;
@@ -111,13 +113,13 @@ void CSClear(uint3 id:SV_DispatchThreadID){
 	if(any(id.xy > uint2(_TexSize.xy)))
 		return;
     _ReflectionTexture[id.xy] = 0;
-    _ReflectionHeightBuffer[id.xy] = HALF_MAX;
+    _ReflectionHeightBuffer[id.xy] = FLT_MAX;
 }
 
 [numthreads(THREAD_X,THREAD_Y,THREAD_Z)]
 void CSMain(uint3 id:SV_DispatchThreadID){
-	if(any(id.xy > uint2(_TexSize.xy)))
-		return;
+	// if(any(id.xy > uint2(_TexSize.xy)))
+	// 	return;
 	
 	float2 uv = id.xy * _TexSize.zw;
 	float depth = LoadDepth(uv);
@@ -125,7 +127,7 @@ void CSMain(uint3 id:SV_DispatchThreadID){
 	float3 wpos = ComputeWorldSpacePosition(uv,depth,UNITY_MATRIX_I_VP);
 
 	float distance = dot(wpos,_Plane.xyz) + _Plane.w;
-	if(distance < 0.001)
+	if(distance < 0.0001)
 		return;
 	
 	float3 reflectPosWS = wpos - _Plane.xyz * distance * 2;
@@ -159,11 +161,15 @@ void CSHashClear(uint3 id:SV_DispatchThreadID){
     _ReflectionTexture[id.xy] = 0;
 	_HashResult[INDEX(id.xy)] = 0xffffffff;
 }
-
+/**
+	Get reflection id(texel position) ,
+	y in high 16 bits,y in low 16 bits
+*/
 [numthreads(THREAD_X,THREAD_Y,THREAD_Z)]
 void CSHash(uint3 id:SV_DispatchThreadID){
-	if(any(id.xy > uint2(_TexSize.xy)))
-		return;
+	bool isIdInvalid = any(id.xy > uint2(_TexSize.xy));
+	// if(isIdInvalid)
+	// 	return;
 	
 	float2 uv = id.xy * _TexSize.zw;
 
@@ -171,13 +177,16 @@ void CSHash(uint3 id:SV_DispatchThreadID){
 	float3 wpos = ComputeWorldSpacePosition(uv,depth,_InvVP);
 
 	float distance = dot(wpos,_Plane.xyz) + _Plane.w;
-	if(distance < 0.001)
-		return;
+	bool isTooNear = distance < 0.0001;
+	// if(isTooNear)
+	// 	return;
 
 	float3 reflectPosWS = wpos - _Plane.xyz * distance * 2;
 	float4 reflectPosCS = mul(_VP,float4(reflectPosWS,1));  //TransformWorldToHClip(reflectPosWS);
 	float2 reflectUV = reflectPosCS.xy/reflectPosCS.w * 0.5 + 0.5;
-	if(all(reflectUV >= 0) && all(reflectUV <= 1))
+	bool isReflectUVValid = all(reflectUV >= 0) && all(reflectUV <= 1);
+	bool isValid = !isIdInvalid && !isTooNear && isReflectUVValid;
+	// if(isReflectUVValid)
 	{
 		if(_Stretch.w)
 			ApplyStretch(reflectUV,distance);
@@ -189,6 +198,7 @@ void CSHash(uint3 id:SV_DispatchThreadID){
 		uint2 location = uint2(reflectUV * _TexSize.xy);
         
 		uint hash = (id.y<<16)|(id.x & 0xffff);
+		hash = isValid? hash : 0xffffffff;
 
 		uint _;
 		InterlockedMin(_HashResult[INDEX(location)],hash,_);
@@ -196,8 +206,10 @@ void CSHash(uint3 id:SV_DispatchThreadID){
 }
 
 uint GetHash4Corners(uint2 id,uint hash){
-	const uint2 offsets[4] = {-1,-1, 1,1, -1,1, 1,-1};
-	for(int i=0;i<4;i++){
+	const uint2 offsets[4] = {-1,-1, -1,1, 1,1, 1,-1};
+	UNITY_UNROLL
+	for(int i=0;i<4;i++)
+	{
 		hash = min(_HashResult[INDEX(id.xy + offsets[i])],hash);
 	}
 	return hash;
@@ -215,13 +227,13 @@ uint GetHash4Corners(uint2 id,uint hash){
 
 float4 SampleColorTexture(uint hash){
 	float4 c = 0;
-	if(hash < 0xffffffff){
-		float2 pos = float2(hash&0xffff,hash>>16);
-		float2 uv = pos*_TexSize.zw;
+	float2 pos = float2(hash&0xffff,hash>>16);
+	float2 uv = pos*_TexSize.zw;
+	uv += 0.5 * _TexSize.zw; // offset 0.5 pixel, make blur little
 
-		c = SampleColorTexture(uv);
-	}
-	return c;
+	c = SampleColorTexture(uv);
+	half isValid = (hash < 0xffffffff);
+	return c * isValid;
 }
 
 [numthreads(THREAD_X,THREAD_Y,THREAD_Z)]

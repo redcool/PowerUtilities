@@ -25,13 +25,15 @@
         [Header("Key Options")]
         public RunMode runMode;
         public bool runModeAuto = true;
-        public bool isFixedHoleInHashMode;
+        public bool isFixedHoleInHashMode = true;
 
         [Header("control buffer's resolution")]
-        [Range(0, 2)] public int downSamples;
+        [Range(0, 2)] public int downSamples = 0;
+
         [Header("Blur")]
         public bool isApplyBlur;
         public BlurPassMode blurPassMode;
+        [Range(0, 2)] public int blurDownSamples = 1;
 
         [LoadAsset("Hidden_SSPR_Blur.mat")]
         public Material blurMat;
@@ -39,8 +41,14 @@
         [Range(2, 10)] public int stepCount = 10;
 
         [Header("Render")]
+        [Tooltip("urp render pass event")]
         public RenderPassEvent renderEvent = RenderPassEvent.AfterRenderingSkybox;
         public int renderEventOffset = 0;
+
+#if UNITY_EDITOR
+        [StringListSearchable(type = typeof(TagManager), staticMemberName = nameof(TagManager.GetTags))]
+#endif
+        [Tooltip("Which camera run this")]
         public string gameCameraTag = "MainCamera";
     }
 

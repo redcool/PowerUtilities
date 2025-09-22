@@ -8,14 +8,18 @@ Shader "Hidden/SSPR/Blur"
     HLSLINCLUDE
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "../../../../../PowerShaderLib/Lib/BlurLib.hlsl"
+            #include "../../../../../PowerShaderLib/Lib/ScreenTextures.hlsl"
             SAMPLER(sampler_linear_repeat);
 
             int _StepCount;
             float _BlurSize;
+            Texture2D<uint> _HashResult;
             
             TEXTURE2D(_MainTex);
+
+            CBUFFER_START(UnityPerMaterial)
             float4 _MainTex_TexelSize;
-            Texture2D<uint> _HashResult;
+            CBUFFER_END
 
             struct appdata
             {
@@ -52,26 +56,37 @@ Shader "Hidden/SSPR/Blur"
 
             half4 frag (v2f i) : SV_Target
             {
-                uint hash = LOAD_TEXTURE2D(_HashResult, i.vertex.xy);
+                float2 screenUV= i.vertex.xy / _ScaledScreenParams.xy;
+                float depthTex = GetScreenDepth(screenUV);
                 float fading = 1;
-                if(hash < 0xffffffff){
-                    float2 pos = float2(hash & 0xffff,hash >> 16);
-                    #if defined(UNITY_UV_STARTS_AT_TOP)
-                    fading = pos.y;
-                    #else
-                    fading = (1-pos.y)*10;
-                    #endif
-                }
                 
-                // float4 col = SAMPLE_TEXTURE2D(_MainTex,sampler_linear_repeat,i.uv);
+                uint hash = LOAD_TEXTURE2D(_HashResult, i.vertex.xy);
+                float2 refUV = float2(hash & 0xffff,hash >> 16);
+                fading = refUV.y/_ScaledScreenParams.y;
+
+                bool isReflected = hash < 0xffffffff;
+                
+                float2 pos = float2(hash & 0xffff,hash >> 16);
+                #if defined(UNITY_UV_STARTS_AT_TOP)
+                fading = pos.y;
+                #else
+                fading = (1-pos.y)*1;
+                #endif
+                fading *= isReflected;
+                
+                half4 col = 0;
+                float2 uv = i.uv;
+                uv += 0.5 * _MainTex_TexelSize.xy * _BlurSize;
+                col = SAMPLE_TEXTURE2D(_MainTex,sampler_linear_repeat,uv);
+
                 float2 uvOffset = _MainTex_TexelSize.xy * _BlurSize;
-                float4 blurCol = BoxBlur(_MainTex,sampler_linear_repeat,i.uv,uvOffset * float2(1,0),_StepCount);
+                float4 blurCol = BoxBlur(_MainTex,sampler_linear_repeat,uv,uvOffset * float2(1,0),_StepCount);
                 #if defined(_SSPR_BLUR_SINGLE_PASS)
-                    blurCol += BoxBlur(_MainTex,sampler_linear_repeat,i.uv,uvOffset * float2(0,1),_StepCount);
+                    blurCol += BoxBlur(_MainTex,sampler_linear_repeat,uv,uvOffset * float2(0,1),_StepCount);
                     blurCol *= 0.5;
                 #endif
-                return blurCol;
-                // return lerp(col,blurCol,saturate(fading));
+                // return blurCol;
+                return lerp(col,blurCol,saturate(fading));
             }
             ENDHLSL
         }

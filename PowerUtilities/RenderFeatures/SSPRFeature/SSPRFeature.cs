@@ -14,9 +14,8 @@ namespace PowerUtilities.SSPR
 
     public enum BlurPassMode
     {
-        TwoPasses,
         SinglePass,
-        SinglePassCalcVerticle
+        TwoPasses,
     }
 
     /// <summary>
@@ -103,7 +102,10 @@ namespace PowerUtilities.SSPR
                 return false;
 #endif
             }
-
+            /// <summary>
+            /// Metal use RWBuffer
+            /// </summary>
+            /// <returns></returns>
             bool IsUseRWBuffer()
             {
                 //return true;
@@ -173,7 +175,7 @@ namespace PowerUtilities.SSPR
                 cmd.SetComputeIntParam(cs, _RunMode, (int)settings.runMode);
                 cmd.SetComputeFloatParam(cs, _Fading, settings.fading);
 
-                cmd.SetComputeVectorParam(cs, _CameraTexture_TexelSize, new Vector4(desc.width, desc.height));
+                //cmd.SetComputeVectorParam(cs, _CameraTexture_TexelSize, new Vector4(desc.width, desc.height));
 
                 //cmd.SetComputeShaderKeywords(cs, IsUseRWBuffer(), "TEST_BUFFER");
 
@@ -231,7 +233,7 @@ namespace PowerUtilities.SSPR
                 cmd.SetComputeTextureParam(cs, csMain, _ReflectionTexture, _ReflectionTexture);
                 cmd.SetComputeTextureParam(cs, csMain, _ReflectionHeightBuffer, _ReflectionHeightBuffer);
 
-                cmd.SetComputeTextureParam(cs, csMain, _CameraDepthTexture, _CameraDepthTexture);
+                cmd.SetComputeTextureParam(cs, csMain, _CameraDepthTexture, renderer.CameraDepthTargetHandle());
                 cmd.SetComputeTextureParam(cs, csMain, _CameraOpaqueTexture, renderer.CameraColorTargetHandle());
                 //// main 1
                 WaitDispatchCS(cs, csMain, cmd, threads);
@@ -260,7 +262,7 @@ namespace PowerUtilities.SSPR
 
                 // hash
                 var csHash = cs.FindKernel("CSHash");
-                cmd.SetComputeTextureParam(cs, csHash, _CameraDepthTexture, _CameraDepthTexture);
+                cmd.SetComputeTextureParam(cs, csHash, _CameraDepthTexture, renderer.CameraDepthTargetHandle());
 
                 if (IsUseRWBuffer())
                     cmd.SetComputeBufferParam(cs, csHash, _HashResult, hashBuffer);
@@ -285,25 +287,30 @@ namespace PowerUtilities.SSPR
 
             private void ApplyBlur(CommandBuffer cmd)
             {
+                const string _SSPR_BLUR_SINGLE_PASS = "_SSPR_BLUR_SINGLE_PASS";
+
                 if (!settings.blurMat)
                     return;
+
+                settings.blurMat.shaderKeywords = null;
 
                 settings.blurMat.SetFloat(_BlurSize, settings.blurSize);
                 settings.blurMat.SetInt(_StepCount, settings.stepCount);
 
-                cmd.Blit(_ReflectionTexture, _BlurReflectTex,settings.blurMat,0);
-                if (settings.blurPassMode != BlurPassMode.TwoPasses)
+                cmd.Blit(_ReflectionTexture, _BlurReflectTex, settings.blurMat, 0);
+
+                var isSinglePassBlur = settings.blurPassMode != BlurPassMode.TwoPasses;
+                if (isSinglePassBlur)
                 {
-                    const string _SSPR_BLUR_SINGLE_PASS = "_SSPR_BLUR_SINGLE_PASS";
-                    if (settings.blurPassMode == BlurPassMode.SinglePassCalcVerticle)
-                        cmd.EnableShaderKeyword(_SSPR_BLUR_SINGLE_PASS);
-                    else
-                        cmd.DisableShaderKeyword(_SSPR_BLUR_SINGLE_PASS);
+                    settings.blurMat.EnableKeyword(_SSPR_BLUR_SINGLE_PASS);
 
                     cmd.SetGlobalTexture(_ReflectionTexture, _BlurReflectTex);
-                    return;
                 }
-                cmd.Blit(_BlurReflectTex, _ReflectionTexture, settings.blurMat, 1);
+                else
+                {
+                    cmd.Blit(_BlurReflectTex, _ReflectionTexture, settings.blurMat, 1);
+                }
+
             }
 
             private static void WaitDispatchCS(ComputeShader cs, int csId, CommandBuffer cmd, Vector2Int threads, bool needFence = false)
@@ -347,13 +354,17 @@ namespace PowerUtilities.SSPR
                     cmd.GetTemporaryRT(_HashResult, desc);
                 }
 
-                desc.colorFormat = RenderTextureFormat.RFloat;
-                cmd.GetTemporaryRT(_ReflectionHeightBuffer, desc);
+                // csMain use
+                if (settings.runMode == RunMode.CS_PASS_2)
+                {
+                    desc.colorFormat = RenderTextureFormat.RFloat;
+                    cmd.GetTemporaryRT(_ReflectionHeightBuffer, desc);
+                }
 
                 if (settings.isApplyBlur)
                 {
-                    var width = desc.width >> (settings.downSamples ==0 ? 1 : settings.downSamples);
-                    var height = desc.height >>  (settings.downSamples ==0 ? 1 : settings.downSamples);
+                    var width = desc.width >> settings.blurDownSamples;
+                    var height = desc.height >>  settings.blurDownSamples;
                     cmd.GetTemporaryRT(_BlurReflectTex, width, height, 0, FilterMode.Bilinear);
                 }
 
