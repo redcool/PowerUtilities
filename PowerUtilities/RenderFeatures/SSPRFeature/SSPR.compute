@@ -34,12 +34,12 @@ TEXTURE2D(_CameraOpaqueTexture);
 float4 _CameraOpaqueTexture_TexelSize; 
 
 TEXTURE2D_FLOAT(_CameraDepthTexture);
-float2 _CameraTexture_TexelSize; // width,height
+float4 _CameraTexture_TexelSize; // width,height,1/width,1/height
 
 float4 _Plane; // xyz:plane direction, w : - dot(plane location, plane direction)
 float4 _TexSize; //x:width,height,1/width,1/height
 float4 _Stretch; //x:camera forward.z, stretch threshold,stretch intensity,isApplyStretch
-float _Fading;
+float2 _FadingRange; //[min,max]
 int _FixedHole;
 float4x4 _VP,_InvVP;
 
@@ -60,52 +60,49 @@ float4x4 _VP,_InvVP;
 void ApplyStretch(inout float2 reflectUV,float distance){
 	// stretch 
 	float heightStretch = distance;
-	float angleStretch = saturate(-_Stretch.x);
+	float angleStretch = saturate(_Stretch.x);
 	float screensStretch = saturate(abs(reflectUV.x * 2 -1) - _Stretch.y);
 	reflectUV.x *= 1 + heightStretch * angleStretch * screensStretch * _Stretch.z;
-}
-
-float4 BlurSample(uint2 id){
-	const int2 offsets[9] = {
-		int2(-1,-1), int2(-1,0), int2(-1,1),
-		int2(0,-1), int2(0,0), int2(0,1),
-		int2(1,-1), int2(1,0), int2(1,1)
-	};
-	const float weights[9] = {0.125,0.0625,0.125,0.0625,0.25,0.125,0.0625,0.125,0.0625};
-	float4 c = 0;
-	float2 uv = id.xy * _TexSize.zw;
-	[unroll]
-	for(int i=0;i<9;i++){
-		// c += LOAD_TEXTURE2D(_CameraOpaqueTexture,id.xy + offsets[i]) * weights[i];
-		c += SAMPLE_TEXTURE2D_LOD(_CameraOpaqueTexture,sampler_point_clamp,uv.xy + offsets[i] * _TexSize.zw,0) * weights[i];
-	}
-
-	return c;
 }
 
 float LoadDepth(float2 uv){
 	uint2 pos = uint2(uv * _CameraTexture_TexelSize.xy);
 	float depth = LOAD_TEXTURE2D(_CameraDepthTexture,pos).x;
 
-	// sample with uv,cannot work on metal
-	// float depth = SAMPLE_TEXTURE2D_LOD(_CameraDepthTexture,sampler_point_clamp,uv,0).x;
-	
 	#if ! defined(UNITY_REVERSED_Z)
 		depth = depth * 2 - 1;
 	#endif
 
 	return depth;
 }
+/**
+	Get distance from plane to world space position
+*/
+float CalcDistance(float2 uv){
+	float depth = LoadDepth(uv);
+	float3 wpos = ComputeWorldSpacePosition(uv,depth,_InvVP);
+
+	float distance = dot(wpos,_Plane.xyz) + _Plane.w;
+	return distance;
+}
 
 float4 SampleColorTexture(float2 uv){
-	// uv += _CameraOpaqueTexture_TexelSize.xy * 0.5; // offset .5 pixel, make blur
+	float distance = CalcDistance(uv);
 	float4 c = SAMPLE_TEXTURE2D_LOD(_CameraOpaqueTexture,sampler_point_clamp,uv,0);
-	#if defined(UNITY_UV_STARTS_AT_TOP)
-	float fade = uv.y;
-	#else
-	float fade = (1-uv.y);
-	#endif
-	return half4(c.xyz,fade * _Fading);
+	float rate = (distance - _FadingRange.x)/(_FadingRange.y - _FadingRange.x);
+	return half4(c.xyz,saturate(1-rate));
+}
+
+void CalcDistanceAndReflectUV(float2 uv,out float distance,out float2 reflectUV){
+	float depth = LoadDepth(uv);
+	float3 wpos = ComputeWorldSpacePosition(uv,depth,_InvVP);
+
+	distance = dot(wpos,_Plane.xyz) + _Plane.w;
+
+	float3 reflectPosWS = wpos - _Plane.xyz * distance * 2;
+	float4 reflectPosCS = mul(_VP,float4(reflectPosWS,1));  //TransformWorldToHClip(reflectPosWS);
+	reflectUV = reflectPosCS.xy/reflectPosCS.w * 0.5 + 0.5;
+
 }
 
 [numthreads(THREAD_X,THREAD_Y,THREAD_Z)]
@@ -118,8 +115,8 @@ void CSClear(uint3 id:SV_DispatchThreadID){
 
 [numthreads(THREAD_X,THREAD_Y,THREAD_Z)]
 void CSMain(uint3 id:SV_DispatchThreadID){
-	// if(any(id.xy > uint2(_TexSize.xy)))
-	// 	return;
+	if(any(id.xy > uint2(_TexSize.xy)))
+		return;
 	
 	float2 uv = id.xy * _TexSize.zw;
 	float depth = LoadDepth(uv);
@@ -156,8 +153,8 @@ void CSMain(uint3 id:SV_DispatchThreadID){
 
 [numthreads(THREAD_X,THREAD_Y,THREAD_Z)]
 void CSHashClear(uint3 id:SV_DispatchThreadID){
-	if(any(id.xy > uint2(_TexSize.xy)))
-		return;
+	// if(any(id.xy > uint2(_TexSize.xy)))
+	// 	return;
     _ReflectionTexture[id.xy] = 0;
 	_HashResult[INDEX(id.xy)] = 0xffffffff;
 }
@@ -168,35 +165,33 @@ void CSHashClear(uint3 id:SV_DispatchThreadID){
 [numthreads(THREAD_X,THREAD_Y,THREAD_Z)]
 void CSHash(uint3 id:SV_DispatchThreadID){
 	bool isIdInvalid = any(id.xy > uint2(_TexSize.xy));
-	// if(isIdInvalid)
-	// 	return;
+	if(isIdInvalid)
+		return;
 	
 	float2 uv = id.xy * _TexSize.zw;
+	float distance = 0;
+	float2 reflectUV = 0;
+	
+	CalcDistanceAndReflectUV(uv,distance/**/,reflectUV/**/);
 
-	float depth = LoadDepth(uv);
-	float3 wpos = ComputeWorldSpacePosition(uv,depth,_InvVP);
-
-	float distance = dot(wpos,_Plane.xyz) + _Plane.w;
 	bool isTooNear = distance < 0.0001;
-	// if(isTooNear)
-	// 	return;
+	if(isTooNear)
+		return;
 
-	float3 reflectPosWS = wpos - _Plane.xyz * distance * 2;
-	float4 reflectPosCS = mul(_VP,float4(reflectPosWS,1));  //TransformWorldToHClip(reflectPosWS);
-	float2 reflectUV = reflectPosCS.xy/reflectPosCS.w * 0.5 + 0.5;
 	bool isReflectUVValid = all(reflectUV >= 0) && all(reflectUV <= 1);
 	bool isValid = !isIdInvalid && !isTooNear && isReflectUVValid;
-	// if(isReflectUVValid)
+
+	if(isValid)
 	{
 		if(_Stretch.w)
-			ApplyStretch(reflectUV,distance);
+			ApplyStretch(reflectUV/**/,distance);
 		
 		#if UNITY_UV_STARTS_AT_TOP
 			reflectUV.y = 1 - reflectUV.y;
 		#endif
 
 		uint2 location = uint2(reflectUV * _TexSize.xy);
-        
+		
 		uint hash = (id.y<<16)|(id.x & 0xffff);
 		hash = isValid? hash : 0xffffffff;
 

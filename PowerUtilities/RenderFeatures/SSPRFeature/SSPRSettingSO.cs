@@ -16,18 +16,24 @@
 
         public Vector3 planeLocation = new Vector3(0, 0.01f, 0);
         public Quaternion planeRotation = Quaternion.identity;
-        public float fading = 10;
+        public Vector2 fadingRange = new Vector2(5,10);
 
         [Header("Stretch Options")]
+        [Tooltip("Horizontal stretch")]
         public bool isApplyStretch;
-        public float stretchThreshold = 0.95f, stretchIntensity = 1;
+        [Tooltip("stretch start from center,[-1,1], 0.5: fixed range [-0.5,0.5]")]
+        [Range(0,1)]
+        public float stretchThreshold = 0.95f;
+        [Tooltip("stretch scale")]
+        public float stretchIntensity = 1;
 
         [Header("Key Options")]
         public RunMode runMode;
         public bool runModeAuto = true;
+        [Tooltip("multi sample _HashTexture")]
         public bool isFixedHoleInHashMode = true;
 
-        [Header("control buffer's resolution")]
+        [Tooltip("control hash texture or buffer's resolution")]
         [Range(0, 2)] public int downSamples = 0;
 
         [Header("Blur")]

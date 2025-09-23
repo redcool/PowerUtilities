@@ -14,6 +14,7 @@ namespace PowerUtilities.SSPR
 
     public enum BlurPassMode
     {
+        OffsetHalfPixel,
         SinglePass,
         TwoPasses,
     }
@@ -58,7 +59,7 @@ namespace PowerUtilities.SSPR
                 _TexSize = Shader.PropertyToID(nameof(_TexSize)),
                 _Plane = Shader.PropertyToID(nameof(_Plane)),
                 _Stretch = Shader.PropertyToID(nameof(_Stretch)),
-                _Fading = Shader.PropertyToID(nameof(_Fading)),
+                _FadingRange = Shader.PropertyToID(nameof(_FadingRange)),
                 _BlurSize = Shader.PropertyToID(nameof(_BlurSize)),
                 _StepCount = Shader.PropertyToID(nameof(_StepCount)),
 
@@ -173,9 +174,9 @@ namespace PowerUtilities.SSPR
 
                 cmd.SetComputeIntParam(cs, _FixedHole, settings.isFixedHoleInHashMode ? 1 : 0);
                 cmd.SetComputeIntParam(cs, _RunMode, (int)settings.runMode);
-                cmd.SetComputeFloatParam(cs, _Fading, settings.fading);
+                cmd.SetComputeVectorParam(cs, _FadingRange, settings.fadingRange);
 
-                //cmd.SetComputeVectorParam(cs, _CameraTexture_TexelSize, new Vector4(desc.width, desc.height));
+                cmd.SetComputeVectorParam(cs, _CameraTexture_TexelSize, new Vector4(desc.width, desc.height,1f/desc.width,1f/desc.height));
 
                 //cmd.SetComputeShaderKeywords(cs, IsUseRWBuffer(), "TEST_BUFFER");
 
@@ -287,7 +288,9 @@ namespace PowerUtilities.SSPR
 
             private void ApplyBlur(CommandBuffer cmd)
             {
-                const string _SSPR_BLUR_SINGLE_PASS = "_SSPR_BLUR_SINGLE_PASS";
+                const string 
+                    _SSPR_BLUR_SINGLE_PASS = "_SSPR_BLUR_SINGLE_PASS",
+                    _SSPR_OFFSET_HALF_PIXEL = "_SSPR_OFFSET_HALF_PIXEL";
 
                 if (!settings.blurMat)
                     return;
@@ -302,7 +305,8 @@ namespace PowerUtilities.SSPR
                 var isSinglePassBlur = settings.blurPassMode != BlurPassMode.TwoPasses;
                 if (isSinglePassBlur)
                 {
-                    settings.blurMat.EnableKeyword(_SSPR_BLUR_SINGLE_PASS);
+                    var blurKeyword = settings.blurPassMode == BlurPassMode.OffsetHalfPixel ? _SSPR_OFFSET_HALF_PIXEL : _SSPR_BLUR_SINGLE_PASS;
+                    settings.blurMat.EnableKeyword(blurKeyword);
 
                     cmd.SetGlobalTexture(_ReflectionTexture, _BlurReflectTex);
                 }
