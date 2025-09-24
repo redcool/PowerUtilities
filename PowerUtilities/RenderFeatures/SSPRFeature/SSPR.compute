@@ -75,6 +75,15 @@ float LoadDepth(float2 uv){
 
 	return depth;
 }
+
+/*
+	Fading out by distance,save to _ReflectionTexture.w
+*/
+float GetDistanceFading(float distance){
+	float rate = (distance - _FadingRange.x)/(_FadingRange.y - _FadingRange.x);
+	return saturate(1-rate);
+}
+
 /**
 	Get distance from plane to world space position
 */
@@ -86,11 +95,9 @@ float CalcDistance(float2 uv){
 	return distance;
 }
 
-float4 SampleColorTexture(float2 uv){
-	float distance = CalcDistance(uv);
-	float4 c = SAMPLE_TEXTURE2D_LOD(_CameraOpaqueTexture,sampler_point_clamp,uv,0);
-	float rate = (distance - _FadingRange.x)/(_FadingRange.y - _FadingRange.x);
-	return half4(c.xyz,saturate(1-rate));
+half4 SampleColorTexture(float2 uv){
+	half4 c = SAMPLE_TEXTURE2D_LOD(_CameraOpaqueTexture,sampler_point_clamp,uv,0);
+	return half4(c.xyz,0);
 }
 
 void CalcDistanceAndReflectUV(float2 uv,out float distance,out float2 reflectUV){
@@ -144,7 +151,9 @@ void CSMain(uint3 id:SV_DispatchThreadID){
         if(wpos.y < _ReflectionHeightBuffer[location])
         {
             _ReflectionHeightBuffer[location] = wpos.y;
-			_ReflectionTexture[location] = SampleColorTexture(uv);
+			half4 reflectCol =  SampleColorTexture(uv);
+			half distanceFading = GetDistanceFading(distance);
+			_ReflectionTexture[location] =half4(reflectCol.xyz,distanceFading);
         }
 
 	}
@@ -165,41 +174,41 @@ void CSHashClear(uint3 id:SV_DispatchThreadID){
 [numthreads(THREAD_X,THREAD_Y,THREAD_Z)]
 void CSHash(uint3 id:SV_DispatchThreadID){
 	bool isIdInvalid = any(id.xy > uint2(_TexSize.xy));
-	if(isIdInvalid)
-		return;
 	
 	float2 uv = id.xy * _TexSize.zw;
 	float distance = 0;
 	float2 reflectUV = 0;
+	float2 reflectPos = id.xy;
 	
 	CalcDistanceAndReflectUV(uv,distance/**/,reflectUV/**/);
 
 	bool isTooNear = distance < 0.0001;
-	if(isTooNear)
-		return;
 
 	bool isReflectUVValid = all(reflectUV >= 0) && all(reflectUV <= 1);
 	bool isValid = !isIdInvalid && !isTooNear && isReflectUVValid;
 
-	if(isValid)
-	{
-		if(_Stretch.w)
-			ApplyStretch(reflectUV/**/,distance);
-		
-		#if UNITY_UV_STARTS_AT_TOP
-			reflectUV.y = 1 - reflectUV.y;
-		#endif
+	if(_Stretch.w)
+		ApplyStretch(reflectUV/**/,distance);
+	
+	#if UNITY_UV_STARTS_AT_TOP
+		reflectUV.y = 1 - reflectUV.y;
+		reflectPos.y = _TexSize.y - reflectPos.y;
+	#endif
 
-		uint2 location = uint2(reflectUV * _TexSize.xy);
-		
-		uint hash = (id.y<<16)|(id.x & 0xffff);
-		hash = isValid? hash : 0xffffffff;
+	uint2 location = uint2(reflectUV * _TexSize.xy);
+	
+	uint hash = (id.y<<16)|(id.x & 0xffff);
+	hash = isValid? hash : 0xffffffff;
 
-		uint _;
-		InterlockedMin(_HashResult[INDEX(location)],hash,_);
-	}
+	uint _;
+	InterlockedMin(_HashResult[INDEX(location)],hash,_);
+	// save distance
+	_ReflectionTexture[reflectPos] = half4(0,0,0,GetDistanceFading(distance));
 }
-
+/**
+	Get a valid sample from 5 samples,
+	0xffffffff means invalid
+*/
 uint GetHash4Corners(uint2 id,uint hash){
 	const uint2 offsets[4] = {-1,-1, -1,1, 1,1, 1,-1};
 	UNITY_UNROLL
@@ -240,5 +249,8 @@ void CSResolve(uint3 id:SV_DispatchThreadID){
 	if(_FixedHole)
 		hash = GetHash4Corners(id.xy,hash);
 
-	_ReflectionTexture[id.xy] = SampleColorTexture(hash);
+	half4 col = SampleColorTexture(hash);
+	float4 lastCol = _ReflectionTexture[id.xy];
+	half alpha = lastCol.w;// distance fading
+	_ReflectionTexture[id.xy] = float4(col.xyz,alpha);
 }

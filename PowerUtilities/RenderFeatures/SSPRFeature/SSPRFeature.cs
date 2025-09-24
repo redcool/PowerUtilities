@@ -269,7 +269,7 @@ namespace PowerUtilities.SSPR
                     cmd.SetComputeBufferParam(cs, csHash, _HashResult, hashBuffer);
                 else
                     cmd.SetComputeTextureParam(cs, csHash, _HashResult, _HashResult);
-
+                cmd.SetComputeTextureParam(cs, csHash, _ReflectionTexture, _ReflectionTexture);
 
                 WaitDispatchCS(cs, csHash, cmd, threads);
 

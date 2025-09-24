@@ -58,15 +58,13 @@ Shader "Hidden/SSPR/Blur"
 
             half4 frag (v2f i) : SV_Target
             {
-                float2 screenUV= i.vertex.xy / _ScaledScreenParams.xy;
-                
                 half4 col = 0;
                 float2 uv = i.uv;
                 uv += (0.5 * _OffsetHalfPixelOn) * _MainTex_TexelSize.xy;
                 col = SAMPLE_TEXTURE2D(_MainTex,sampler_linear_repeat,uv);
                 
                 col.xyz *= col.w; // w is distance Fading
-
+// return col.w;
                 #if defined(_SSPR_OFFSET_HALF_PIXEL)
                     return col;
                 #else
