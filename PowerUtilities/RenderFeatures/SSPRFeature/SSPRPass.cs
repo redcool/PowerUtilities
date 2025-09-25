@@ -59,13 +59,18 @@ namespace PowerUtilities.SSPR
 #endif
         }
         /// <summary>
-        /// Metal use RWBuffer
+        /// use RWBuffer
+        /// 
+        /// _HashTexture
+        /// 1 RWTexture<uint> : metal not support
+        /// 2 Vulkan, rint maybe not support on deivice
         /// </summary>
         /// <returns></returns>
         bool IsUseRWBuffer()
         {
-            //return true;
-            return SystemInfo.graphicsDeviceType == GraphicsDeviceType.Metal;
+            return SystemInfo.graphicsDeviceType == GraphicsDeviceType.Metal
+                || SystemInfo.graphicsDeviceType == GraphicsDeviceType.Vulkan
+                ;
         }
 
         void TestCS(ScriptableRenderContext context, ref RenderingData renderingData)

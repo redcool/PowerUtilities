@@ -47,7 +47,7 @@ float4x4 _VP,_InvVP;
 
 // #define TEST_BUFFER // for debug RWBuffer
 
-#if defined(SHADER_API_METAL) || defined(TEST_BUFFER)
+#if defined(SHADER_API_METAL) || defined(SHADER_API_VULKAN)
 	RWBuffer<uint> _HashResult;
 	uint GetIndex(uint2 id){
 		return id.y * _TexSize.x + id.x;
@@ -190,12 +190,12 @@ void CSHash(uint3 id:SV_DispatchThreadID){
 	
 	CalcDistanceAndReflectUV(uv,distance/**/,reflectUV/**/);
 
-	bool isTooNear = distance < 0.01;
+	bool isTooNear = distance < 0.0001;
 
 	bool isReflectUVValid = all(reflectUV >= 0) && all(reflectUV <= 1);
 	bool isValid = !isTooNear && isReflectUVValid;
-	if(!isValid)
-		return;
+	// if(!isValid)
+	// 	return;
 
 	if(_Stretch.w)
 		ApplyStretch(reflectUV/**/,distance);
@@ -207,7 +207,7 @@ void CSHash(uint3 id:SV_DispatchThreadID){
 	uint2 location = uint2(reflectUV * _TexSize.xy);
 	
 	uint hash = (id.y<<16)|(id.x & 0xffff);
-	// hash = isValid? hash : 0xffffffff;
+	hash = isValid? hash : 0xffffffff;
 
 	uint _;
 	InterlockedMin(_HashResult[INDEX(location)],hash,_);
