@@ -34,12 +34,12 @@
         public bool isFixedHoleInHashMode = true;
 
         [Tooltip("control hash texture or buffer's resolution")]
-        [Range(0, 2)] public int downSamples = 0;
+        [Range(0.1f, 1)] public float renderScale = 0.8f;
 
         [Header("Blur")]
         public bool isApplyBlur;
         public BlurPassMode blurPassMode;
-        [Range(0, 2)] public int blurDownSamples = 1;
+        [Range(0.1f, 1)] public float blurRenderScale = 0.5f;
 
         [LoadAsset("Hidden_SSPR_Blur.mat")]
         public Material blurMat;

@@ -35,8 +35,9 @@ namespace PowerUtilities.SSPR
 
         ComputeBuffer hashBuffer;
 
-        int GetWidth(int width) => width >> settings.downSamples;
-        int GetHeight(int height) => height >> settings.downSamples;
+        int GetWidth(int width) => (int)(width * settings.renderScale);
+        int GetHeight(int height) => (int)(height * settings.renderScale);
+        CommandBuffer cmd;
 
         bool CanRunHashPass()
         {
@@ -47,6 +48,7 @@ namespace PowerUtilities.SSPR
                     || SystemInfo.graphicsDeviceType == GraphicsDeviceType.Direct3D12
                     || SystemInfo.graphicsDeviceType == GraphicsDeviceType.Metal
                     || SystemInfo.graphicsDeviceType == GraphicsDeviceType.Vulkan
+                    || SystemInfoTools.IsGLES3_1Plus()
                     )
                     return true;
 
@@ -95,7 +97,8 @@ namespace PowerUtilities.SSPR
             if (!cs || !SystemInfo.supportsComputeShaders)
                 return;
 
-            var cmd = CommandBufferPool.Get(nameof(SSPRFeature));
+            if (cmd == null)
+                cmd = new CommandBuffer { name = nameof(SSPRFeature) };
             //ExecuteCommand(context, cmd);
 
             ref var cameraData = ref renderingData.cameraData;
@@ -163,7 +166,6 @@ namespace PowerUtilities.SSPR
             }
 
             cmd.Execute(ref context);
-            CommandBufferPool.Release(cmd);
         }
 
         private void TryUpdateRunMode()
@@ -212,8 +214,7 @@ namespace PowerUtilities.SSPR
                 cmd.SetComputeTextureParam(cs, csHashClear, _HashResult, _HashResult);
 
             cmd.SetComputeTextureParam(cs, csHashClear, _ReflectionTexture, _ReflectionTexture);
-            WaitDispatchCS(cs, csHashClear, cmd, threads);
-
+            WaitDispatchCS(cs, csHashClear, cmd, threads,true);
             // hash
             var csHash = cs.FindKernel("CSHash");
             cmd.SetComputeTextureParam(cs, csHash, _CameraDepthTexture, renderer.CameraDepthTargetHandle());
@@ -224,7 +225,7 @@ namespace PowerUtilities.SSPR
                 cmd.SetComputeTextureParam(cs, csHash, _HashResult, _HashResult);
             cmd.SetComputeTextureParam(cs, csHash, _ReflectionTexture, _ReflectionTexture);
 
-            WaitDispatchCS(cs, csHash, cmd, threads);
+            WaitDispatchCS(cs, csHash, cmd, threads,true);
 
             //resolve 
             var csResolve = cs.FindKernel("CSResolve");
@@ -235,7 +236,7 @@ namespace PowerUtilities.SSPR
 
             cmd.SetComputeTextureParam(cs, csResolve, _ReflectionTexture, _ReflectionTexture);
             cmd.SetComputeTextureParam(cs, csResolve, _CameraOpaqueTexture, renderer.CameraColorTargetHandle());
-            WaitDispatchCS(cs, csResolve, cmd, threads);
+            WaitDispatchCS(cs, csResolve, cmd, threads,true);
         }
 
 
@@ -320,8 +321,8 @@ namespace PowerUtilities.SSPR
 
             if (settings.isApplyBlur)
             {
-                var width = desc.width >> settings.blurDownSamples;
-                var height = desc.height >> settings.blurDownSamples;
+                var width = (int)(desc.width * settings.blurRenderScale);
+                var height = (int)(desc.height * settings.blurRenderScale);
                 cmd.GetTemporaryRT(_BlurReflectTex, width, height, 0, FilterMode.Bilinear);
             }
 

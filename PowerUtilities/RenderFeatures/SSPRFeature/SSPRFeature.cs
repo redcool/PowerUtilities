@@ -40,11 +40,13 @@ namespace PowerUtilities.SSPR
     public class SSPRFeature : ScriptableRendererFeature
     {
 
-        [HelpBox(lineCount =6)]
+        [HelpBox(lineCount =7)]
         [SerializeField]
-        string helpStr = @"usage:
+        string helpStr = @"
+    version : 0.2
+    Usage:
     1 add SSPRFeature to UniversalRenderPipelineAsset_Renderer
-        1.1 ssprFeature add ssprCore
+        1.1 create Setting SO
         1.2 change params
     2 add 3D plane to scene
         2.1 assign SSPRFeature/Shaders/ShowReflectionTexture.mat to plane
@@ -73,6 +75,12 @@ namespace PowerUtilities.SSPR
             enabled = enabled || cameraData.cameraType != CameraType.Game;
             if (!enabled)
                 return;
+
+            // close msaa
+            if (UniversalRenderPipeline.asset && UniversalRenderPipeline.asset.msaaSampleCount > 1)
+            {
+                UniversalRenderPipeline.asset.msaaSampleCount = 1;
+            }
 
             if (ssprPass == null)
                 ssprPass = new SSPRPass();
