@@ -63,7 +63,7 @@ namespace PowerUtilities.SSPR
         /// 
         /// _HashTexture
         /// 1 RWTexture<uint> : metal not support
-        /// 2 Vulkan, rint maybe not support on deivice
+        /// 2 Vulkan,not work on device( iqoo z3)
         /// </summary>
         /// <returns></returns>
         bool IsUseRWBuffer()
@@ -71,29 +71,6 @@ namespace PowerUtilities.SSPR
             return SystemInfo.graphicsDeviceType == GraphicsDeviceType.Metal
                 || SystemInfo.graphicsDeviceType == GraphicsDeviceType.Vulkan
                 ;
-        }
-
-        void TestCS(ScriptableRenderContext context, ref RenderingData renderingData)
-        {
-            var cmd = CommandBufferPool.Get(nameof(SSPRFeature));
-
-            var _ResultTex = Shader.PropertyToID("Result");
-            var desc = renderingData.cameraData.cameraTargetDescriptor;
-            desc.enableRandomWrite = true;
-            desc.sRGB = false;
-            cmd.GetTemporaryRT(_ResultTex, desc);
-
-            var cs = Resources.Load<ComputeShader>("Test1");
-            var k = cs.FindKernel("CSMain");
-
-            cmd.SetComputeTextureParam(cs, k, _ResultTex, _ResultTex);
-            cs.GetKernelThreadGroupSizes(k, out var _x, out var _y, out _);
-            var x = Mathf.CeilToInt(desc.width / _x);
-            var y = Mathf.CeilToInt(desc.height / _y);
-            cmd.DispatchCompute(cs, k, x, y, 1);
-
-            cmd.Execute(ref context);
-            CommandBufferPool.Release(cmd);
         }
 
         public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
@@ -213,35 +190,37 @@ namespace PowerUtilities.SSPR
         void HashPass(ComputeShader cs, CommandBuffer cmd, ScriptableRenderer renderer, Vector2Int threads)
         {
             var csHashClear = cs.FindKernel("CSHashClear");
-            if (IsUseRWBuffer())
-                cmd.SetComputeBufferParam(cs, csHashClear, _HashResult, hashBuffer);
-            else
-                cmd.SetComputeTextureParam(cs, csHashClear, _HashResult, _HashResult);
+            SetBufferOrTexture(cs, cmd, csHashClear);
 
             cmd.SetComputeTextureParam(cs, csHashClear, _ReflectionTexture, _ReflectionTexture);
-            WaitDispatchCS(cs, csHashClear, cmd, threads,true);
+            WaitDispatchCS(cs, csHashClear, cmd, threads, true);
+
             // hash
             var csHash = cs.FindKernel("CSHash");
             cmd.SetComputeTextureParam(cs, csHash, _CameraDepthTexture, renderer.CameraDepthTargetHandle());
 
-            if (IsUseRWBuffer())
-                cmd.SetComputeBufferParam(cs, csHash, _HashResult, hashBuffer);
-            else
-                cmd.SetComputeTextureParam(cs, csHash, _HashResult, _HashResult);
+            SetBufferOrTexture(cs, cmd, csHash);
             cmd.SetComputeTextureParam(cs, csHash, _ReflectionTexture, _ReflectionTexture);
 
-            WaitDispatchCS(cs, csHash, cmd, threads,true);
+            WaitDispatchCS(cs, csHash, cmd, threads, true);
 
             //resolve 
             var csResolve = cs.FindKernel("CSResolve");
-            if (IsUseRWBuffer())
-                cmd.SetComputeBufferParam(cs, csResolve, _HashResult, hashBuffer);
-            else
-                cmd.SetComputeTextureParam(cs, csResolve, _HashResult, _HashResult);
+
+            SetBufferOrTexture(cs, cmd, csResolve);
 
             cmd.SetComputeTextureParam(cs, csResolve, _ReflectionTexture, _ReflectionTexture);
             cmd.SetComputeTextureParam(cs, csResolve, _CameraOpaqueTexture, renderer.CameraColorTargetHandle());
-            WaitDispatchCS(cs, csResolve, cmd, threads,true);
+            WaitDispatchCS(cs, csResolve, cmd, threads, true);
+
+        }
+
+        private void SetBufferOrTexture(ComputeShader cs, CommandBuffer cmd, int kernelId)
+        {
+            if (IsUseRWBuffer())
+                cmd.SetComputeBufferParam(cs, kernelId, _HashResult, hashBuffer);
+            else
+                cmd.SetComputeTextureParam(cs, kernelId, _HashResult, _HashResult);
         }
 
 
