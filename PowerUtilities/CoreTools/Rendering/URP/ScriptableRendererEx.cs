@@ -79,7 +79,10 @@ namespace PowerUtilities
             XROcclusionMeshPass,
 
         }
-        public const string URP_PASS_NAMESPACE_PREFIX = "UnityEngine.Rendering.Universal.Internal.";
+        public const string
+            UNITYENGINE_RENDERING_UNIVERSAL_INTERVAL = "UnityEngine.Rendering.Universal.Internal.",
+            UNITYENGINE_RENDERING_UNIVERSAL = "UnityEngine.Rendering.Universal.";
+
 
         static Dictionary<UrpPassType, Type> urpPassTypeDict = new Dictionary<UrpPassType, Type>();
 
@@ -110,7 +113,7 @@ namespace PowerUtilities
             foreach (UrpPassType passType in passTypes)
             {
                 var passName = Enum.GetName(typeof(UrpPassType), passType);
-                urpPassTypeDict[passType] = dll.GetType(URP_PASS_NAMESPACE_PREFIX + passName);
+                urpPassTypeDict[passType] = dll.GetType(UNITYENGINE_RENDERING_UNIVERSAL_INTERVAL + passName) ?? dll.GetType(UNITYENGINE_RENDERING_UNIVERSAL + passName);
             }
         }
 
