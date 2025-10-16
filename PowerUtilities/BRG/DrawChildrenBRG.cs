@@ -13,6 +13,7 @@ using UnityEngine.XR;
 
 namespace PowerUtilities
 {
+    [ExecuteInEditMode]
     public partial class DrawChildrenBRG : MonoBehaviour
     {
         public class DrawBatchInfo
@@ -52,6 +53,18 @@ namespace PowerUtilities
             }
         }
 
+        private void OnDisable()
+        {
+            foreach (var brgBatch in batchList)
+            {
+                brgBatch.Dispose();
+            }
+            if (brg != null)
+            {
+                brg.Dispose();
+                brg = null;
+            }
+        }
         void RecordChildren()
         {
             if (brg == null)
@@ -133,6 +146,7 @@ namespace PowerUtilities
                         );
 
                     brgBatch.AddRenderers(brgGroupInfo.rendererList);
+                    brgBatch.visibleIdList = brgGroupInfo.visibleIdList;
 
                     return brgBatch;
                 })
@@ -161,15 +175,6 @@ namespace PowerUtilities
         }
 
 
-        private void OnDisable()
-        {
-            foreach (var brgBatch in batchList)
-            {
-                brgBatch.Dispose();
-            }
-            if (brg != null)
-                brg.Dispose();
-        }
 
         public unsafe JobHandle OnPerformCulling(
             BatchRendererGroup rendererGroup,
@@ -177,15 +182,32 @@ namespace PowerUtilities
             BatchCullingOutput cullingOutput,
             IntPtr userContext)
         {
+            var drawCmdPt = (BatchCullingOutputDrawCommands*)cullingOutput.drawCommands.GetUnsafePtr();
+
+            //Test1Batch(drawCmdPt);
+
+            DrawBatchList(drawCmdPt);
+
+            return new JobHandle();
+        }
+
+        private unsafe void DrawBatchList(BatchCullingOutputDrawCommands* drawCmdPt)
+        {
             var numInstances = batchList.Sum(b => b.numInstances);
-            BRGTools.SetupBatchDrawCommands(cullingOutput, batchList.Count, numInstances);
+            BRGTools.SetupBatchDrawCommands(drawCmdPt, batchList.Count, numInstances);
 
             foreach (var brgBatch in batchList)
             {
-                brgBatch.DrawBatch(cullingOutput);
+                brgBatch.DrawBatch(drawCmdPt, brgBatch.visibleIdList.Count);
             }
+        }
 
-            return new JobHandle();
+        private unsafe void Test1Batch(BatchCullingOutputDrawCommands* drawCmdPt)
+        {
+            // test 1 batch
+
+            BRGTools.SetupBatchDrawCommands(drawCmdPt, 1, batchList[0].numInstances);
+            batchList[0].DrawBatch(drawCmdPt, batchList[0].visibleIdList.Count);
         }
     }
 }

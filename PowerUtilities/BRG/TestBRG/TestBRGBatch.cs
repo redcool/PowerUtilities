@@ -177,11 +177,13 @@ public class TestBRGBatch : MonoBehaviour
         BatchCullingOutput cullingOutput,
         IntPtr userContext)
     {
+        var drawCmdPt = (BatchCullingOutputDrawCommands*)cullingOutput.drawCommands.GetUnsafePtr();
+
         var numInstances = brgBatches.Sum(b=> b.numInstances);
-        BRGTools.SetupBatchDrawCommands(cullingOutput, brgBatches.Count, numInstances);
+        BRGTools.SetupBatchDrawCommands(drawCmdPt, brgBatches.Count, numInstances);
         foreach (var batch in brgBatches)
         {
-            batch.DrawBatch(cullingOutput);
+            batch.DrawBatch(drawCmdPt);
         }
 
         return new JobHandle();

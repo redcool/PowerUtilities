@@ -20,13 +20,6 @@ using Random = UnityEngine.Random;
 
 public class TestBRG : MonoBehaviour
 {
-    [EditorButton(onClickCall = "OnTest")]
-    public bool isTest;
-
-    void OnTest()
-    {
-
-    }
 
     public Mesh mesh;
     public Material material;
@@ -39,6 +32,7 @@ public class TestBRG : MonoBehaviour
     private BatchMaterialID m_MaterialID;
 
     public int numInstances = 3;
+    public int visibleCount = 1;
     public int updateId = 2;
 
     //update
@@ -189,8 +183,9 @@ public class TestBRG : MonoBehaviour
         BatchCullingOutput cullingOutput,
         IntPtr userContext)
     {
-        BRGTools.SetupBatchDrawCommands(cullingOutput, 1, numInstances);
-        BRGTools.FillBatchDrawCommands(cullingOutput, 0, m_BatchID, m_MaterialID, m_MeshID, numInstances);
+        var drawCmdPt = (BatchCullingOutputDrawCommands*)cullingOutput.drawCommands.GetUnsafePtr();
+        BRGTools.SetupBatchDrawCommands(drawCmdPt, 1, numInstances);
+        BRGTools.FillBatchDrawCommands(drawCmdPt, 0, m_BatchID, m_MaterialID, m_MeshID, visibleCount);
         return new JobHandle();
 
     }

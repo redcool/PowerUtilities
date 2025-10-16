@@ -33,6 +33,9 @@ namespace PowerUtilities
         int[] dataStartIdStrides;
         int[] dataStartIds;
 
+        // visible id list
+        public List<int> visibleIdList;
+
         public int GetDataStartId(int matPropId)
         => dataStartIds[matPropId];
 
@@ -49,6 +52,7 @@ namespace PowerUtilities
         public void Dispose()
         {
             instanceBuffer.Dispose();
+            instanceBuffer = null;
         }
 
         public void SetupGraphBuffer(int matPropfloatCount,string[] matPropNames,List<int> dataStartIdStrideList)
@@ -120,9 +124,13 @@ namespace PowerUtilities
             }
         }
 
-        public void DrawBatch(BatchCullingOutput output)
+        public unsafe void DrawBatch(BatchCullingOutputDrawCommands* drawCmdPt,int visibleNumInstances=0)
         {
-            BRGTools.FillBatchDrawCommands(output, brgBatchId, batchId, matId, meshId, numInstances);
+            var visibleCount = visibleNumInstances <= 0 ? numInstances : visibleNumInstances;
+            BRGTools.FillBatchDrawCommands(drawCmdPt, brgBatchId, batchId, matId, meshId, visibleCount);
+
+            if (visibleIdList.Count > 0)
+                BRGTools.UpdateBatchVisible(drawCmdPt, visibleIdList);
         }
     }
 }

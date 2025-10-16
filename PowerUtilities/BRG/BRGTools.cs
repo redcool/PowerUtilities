@@ -49,10 +49,9 @@ namespace PowerUtilities
                 return brg.AddBatch(metadatas, graphBuffer.bufferHandle);
         }
 
-        public static unsafe void SetupBatchDrawCommands(BatchCullingOutput cullingOutput,int batchCount,int allVisibleInstanceCount)
+        public static unsafe void SetupBatchDrawCommands(BatchCullingOutputDrawCommands* drawCmdPt, int batchCount,int allVisibleInstanceCount)
         {
             int alignment = UnsafeUtility.AlignOf<long>();
-            var drawCmdPt = (BatchCullingOutputDrawCommands*)cullingOutput.drawCommands.GetUnsafePtr();
 
             drawCmdPt->drawCommands = (BatchDrawCommand*)UnsafeUtility.Malloc(UnsafeUtility.SizeOf<BatchDrawCommand>() * batchCount, alignment, Allocator.TempJob);
             drawCmdPt->visibleInstances=(int*)UnsafeUtility.Malloc(sizeof(int) * allVisibleInstanceCount,alignment, Allocator.TempJob);
@@ -74,13 +73,10 @@ namespace PowerUtilities
             drawCmdPt->drawRanges[0].drawCommandsBegin = 0;
             drawCmdPt->drawRanges[0].drawCommandsCount = (uint)drawCmdPt->drawCommandCount;
             drawCmdPt->drawRanges[0].filterSettings = new BatchFilterSettings { renderingLayerMask = 0xffffffff, };
-
         }
 
-        public static unsafe void FillBatchDrawCommands(BatchCullingOutput cullingOutput, int cmdId, BatchID batchId, BatchMaterialID materialId, BatchMeshID meshId, int numInstances)
+        public static unsafe void FillBatchDrawCommands(BatchCullingOutputDrawCommands* drawCmdPt, int cmdId, BatchID batchId, BatchMaterialID materialId, BatchMeshID meshId, int numInstances)
         {
-            var drawCmdPt = (BatchCullingOutputDrawCommands*)cullingOutput.drawCommands.GetUnsafePtr();
-
             drawCmdPt->drawCommands[cmdId].batchID = batchId;
             drawCmdPt->drawCommands[cmdId].flags = 0;
             drawCmdPt->drawCommands[cmdId].materialID = materialId;
@@ -92,6 +88,13 @@ namespace PowerUtilities
             drawCmdPt->drawCommands[cmdId].visibleOffset = 0;
         }
 
+        public static unsafe void UpdateBatchVisible(BatchCullingOutputDrawCommands* drawCmdPt, List<int> visibleIds)
+        {
+            var allVisibleInstanceCount = visibleIds.Count;
+            drawCmdPt->visibleInstanceCount = allVisibleInstanceCount;
+            for (int i = 0; i < allVisibleInstanceCount; ++i)
+                drawCmdPt->visibleInstances[i] = visibleIds[i];
+        }
 
         /// <summary>
         /// Find shader propNames,and need how many floats
