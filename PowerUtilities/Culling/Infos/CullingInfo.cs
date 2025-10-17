@@ -4,12 +4,18 @@ using UnityEngine;
 namespace PowerUtilities
 {
     /// <summary>
-    /// common sphere info
+    /// culling sphere info
     /// </summary>
     [Serializable]
     public class CullingInfo
     {
+        /// <summary>
+        /// sphere radius
+        /// </summary>
         public float size;
+        /// <summary>
+        /// sphere center
+        /// </summary>
         public Vector3 pos;
 
         /// <summary>

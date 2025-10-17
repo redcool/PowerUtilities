@@ -36,9 +36,17 @@ namespace PowerUtilities
     public class CommonCullingGroupControl : MonoBehaviour
     {
         [Header("--- Culling Info")]
+        [Tooltip("Use MainCamera when empty")]
         public Camera cam;
+
+        [Tooltip("Get Renderer from rootGo")]
+        public GameObject rootGo;
         public List<CommomCullingInfo> cullingInfos = new List<CommomCullingInfo>();
-        public float[] boundingDistances;
+        
+        [EditorButton(onClickCall = "FindRenderers",tooltip ="setup cullingInfo from rootGo children")]
+        public bool isFindRenderers;
+
+        public float[] boundingDistances = new float[] { 5f, 10f, 20f, 50f };
 
         [EditorHeader("","--- Shared boundingSpheres")]
         [Tooltip("share other control's boundingSpheres")]
@@ -74,6 +82,30 @@ namespace PowerUtilities
             if (IsUseSharedBoundingSpheres())
             {
                 TryInitGroup();
+            }
+        }
+        public void Update()
+        {
+            if (group != null && group.targetCamera)
+                group.SetDistanceReferencePoint(group.targetCamera.transform.position);
+        }
+
+        public void FindRenderers()
+        {
+            if (!rootGo)
+                return;
+
+            var renders = rootGo.GetComponentsInChildren<Renderer>();
+            cullingInfos.Clear();
+
+            foreach (var render in renders)
+            {
+                var pos = render.bounds.center;
+                var boundSize = render.bounds.extents.magnitude;
+                var cullingInfo = new CommomCullingInfo(pos, boundSize);
+                cullingInfo.contentGameObjects.Add(render.gameObject);
+
+                cullingInfos.Add(cullingInfo);
             }
         }
 
