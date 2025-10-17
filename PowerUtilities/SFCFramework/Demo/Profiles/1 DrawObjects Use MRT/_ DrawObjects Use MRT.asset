@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 020239da890028742becb2d5aad81070, type: 3}
+  m_Name: _ DrawObjects Use MRT
+  m_EditorClassIdentifier: 
+  enabled: 1
+  featureList:
+  - {fileID: 11400000, guid: 1b857e2bf3d818740ae8d78a1b454ecc, type: 2}
+  - {fileID: 11400000, guid: 18cd9b83ea2216442abe69cd17d1d0c4, type: 2}
+  - {fileID: 11400000, guid: 88032fec6939ff1419aa111c3db12da5, type: 2}
+  - {fileID: 11400000, guid: 51525a9f2b0360c46b711e1967b484c3, type: 2}
+  - {fileID: 11400000, guid: c628102af3e82214182cfbb519f466d8, type: 2}
+  - {fileID: 11400000, guid: 21edc62aa394d51429dada468fb189b5, type: 2}
+  - {fileID: 11400000, guid: 50edbf849449a45409c31b19b3fda47d, type: 2}
+  - {fileID: 11400000, guid: 29d03b4d4d387ea448a5881447dfa007, type: 2}
+  - {fileID: 11400000, guid: c2097b3b60cc7f24aa9173060ab9f7b7, type: 2}
+  isDetailsFoldout: 1
+  labelWidth: 250

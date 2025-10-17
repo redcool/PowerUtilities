@@ -1,0 +1,51 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9de0f74c61e5e6e4ab0a53c364b0797f, type: 3}
+  m_Name: 2 Set Render Target mrt
+  m_EditorClassIdentifier: 
+  nodeInfo:
+    pos:
+      serializedVersion: 2
+      x: 0
+      y: 100
+      width: 200
+      height: 100
+    guid: 
+    title: 2 Set Render Target mrt
+  enabled: 1
+  interrupt: 0
+  cameraType: 1
+  cameraTypeCompareFunc: 0
+  isEditorOnly: 0
+  isShowAllInPrefabStage: 1
+  gameCameraCompareType: 0
+  gameCameraTag: MainCamera
+  renderPassEvent: 250
+  renderPassEventOffset: 0
+  log: 
+  isFoldout: 1
+  isBaseOptionsFoldout: 0
+  isSetTargets: 1
+  isForceReallocRtId: 0
+  colorTargetNames:
+  - _CameraColorAttachmentA
+  - _CameraNormalTexture
+  - _CameraMotionVector
+  depthTargetName: _DepthBuffer
+  clearTarget: 1
+  isOverrideClear: 0
+  isClearColor: 1
+  clearColor: {r: 0, g: 0, b: 0, a: 0}
+  isClearDepth: 1
+  depth: 1
+  isClearStencil: 1
+  stencil: 0

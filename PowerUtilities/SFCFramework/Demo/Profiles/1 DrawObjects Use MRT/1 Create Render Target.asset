@@ -1,0 +1,111 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f161de703236717458c35a45cc616f8c, type: 3}
+  m_Name: 1 Create Render Target
+  m_EditorClassIdentifier: 
+  nodeInfo:
+    pos:
+      serializedVersion: 2
+      x: 0
+      y: 100
+      width: 200
+      height: 100
+    guid: 
+    title: 1 Create Render Target
+  enabled: 1
+  interrupt: 0
+  cameraType: 16
+  cameraTypeCompareFunc: 0
+  isEditorOnly: 0
+  isShowAllInPrefabStage: 1
+  gameCameraCompareType: 0
+  gameCameraTag: MainCamera
+  renderPassEvent: 0
+  renderPassEventOffset: 0
+  log: 
+  isFoldout: 0
+  isBaseOptionsFoldout: 0
+  colorTargetInfos:
+  - title: _ColorBuffer0
+    name: _ColorBuffer0
+    format: 12
+    depthStencilFormat: 0
+    isOverrideSize: 0
+    rtSizeMode: 0
+    renderScale: 0
+    width: 0
+    height: 0
+    filterMode: 1
+    sampleMode: 1
+    isCreateRenderTexture: 1
+    rt: {fileID: 0}
+    isAutoGraphicsFormat: 0
+    isHdr: 0
+    isNormalColorTexture: 0
+    isSkip: 0
+    isFastSetFormat: 0
+  - title: _CameraNormalTexture
+    name: _CameraNormalTexture
+    format: 8
+    depthStencilFormat: 0
+    isOverrideSize: 0
+    rtSizeMode: 0
+    renderScale: 0
+    width: 0
+    height: 0
+    filterMode: 0
+    sampleMode: 1
+    isCreateRenderTexture: 0
+    rt: {fileID: 0}
+    isAutoGraphicsFormat: 0
+    isHdr: 0
+    isNormalColorTexture: 0
+    isSkip: 0
+    isFastSetFormat: 0
+  - title: _CameraMotionVector
+    name: _CameraMotionVector
+    format: 46
+    depthStencilFormat: 0
+    isOverrideSize: 0
+    rtSizeMode: 0
+    renderScale: 0
+    width: 0
+    height: 0
+    filterMode: 0
+    sampleMode: 1
+    isCreateRenderTexture: 1
+    rt: {fileID: 0}
+    isAutoGraphicsFormat: 0
+    isHdr: 0
+    isNormalColorTexture: 0
+    isSkip: 0
+    isFastSetFormat: 0
+  - title: _DepthBuffer
+    name: _DepthBuffer
+    format: 0
+    depthStencilFormat: 92
+    isOverrideSize: 0
+    rtSizeMode: 0
+    renderScale: 0
+    width: 0
+    height: 0
+    filterMode: 0
+    sampleMode: 1
+    isCreateRenderTexture: 1
+    rt: {fileID: 0}
+    isAutoGraphicsFormat: 0
+    isHdr: 0
+    isNormalColorTexture: 0
+    isSkip: 0
+    isFastSetFormat: 1
+  overrideURPRenderScale: 0
+  renderScale: 1
