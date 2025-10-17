@@ -21,9 +21,6 @@ namespace PowerUtilities.RenderFeatures
         [LoadAsset("CopyColor.mat")]
         public Material blitMat;
 
-        [LoadAsset("Sampling Mat.mat")]
-        public Material samplingMat;
-
         [Tooltip("diable urp asset 's opaque texture")]
         public bool disableURPOpaqueTexture = true;
         public Downsampling downSampling = Downsampling._2xBilinear;
@@ -47,15 +44,12 @@ namespace PowerUtilities.RenderFeatures
         public override bool CanExecute()
         {
             Feature.log = "";
-            if (!Feature.blitMat || !Feature.samplingMat)
+            if (!Feature.blitMat)
             {
-                Feature.log = $"warning : blitMat is {Feature.blitMat}, samplingMat is {Feature.samplingMat}";
+                Feature.log = $"warning : blitMat is {Feature.blitMat}";
             }
 
-            return base.CanExecute()
-                && Feature.blitMat
-                && Feature.samplingMat
-                ;
+            return base.CanExecute() && Feature.blitMat;
         }
 
         public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
