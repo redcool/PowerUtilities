@@ -19,6 +19,9 @@ namespace PowerUtilities
         [Tooltip("disable orignal renderers when combined")]
         public bool isDisableOriginalRenderers = true;
 
+        [Tooltip("Save combined meshes to SceneFolder")]
+        public bool isSaveMeshes = true;
+
         [EditorButton(onClickCall = "Start",tooltip ="combine children meshes now")]
         public bool isCombine;
 
@@ -26,80 +29,23 @@ namespace PowerUtilities
         void Start()
         {
             if (isCombineOnStart)
-                CombineMeshesGroupByMaterial(gameObject, isDisableOriginalRenderers, isIncludeInactive);
-        }
-
-        /// <summary>
-        /// Combine meshes for same material 
-        /// </summary>
-        /// <param name="root"></param>
-        /// <param name="isIncludeInactive"></param>
-        public static void CombineMeshesGroupByMaterial(GameObject root, bool isDisableRenderer, bool isIncludeInactive = false)
-        {
-            var mrs = root.GetComponentsInChildren<MeshRenderer>(isIncludeInactive);
-            if (mrs.Length == 0)
-                return;
-
-            List<Vector3> vertices = new();
-            List<int> triangles = new();
-            List<Vector3> normals = new();
-            List<Vector2> uvs0 = new();
-            List<Color> colors = new();
-
-            var groupDict = mrs
-                .Where(mr =>
-                {
-                    var mf = mr.GetComponent<MeshFilter>();
-                    return mf && mf.sharedMesh;
-                })
-                .GroupBy(mr => mr.sharedMaterial)
-                .ToDictionary(g => g.Key, g => g.ToList())
-                ;
-            var vertexOffset = 0;
-            var groupId = 0;
-            foreach (var group in groupDict)
             {
-                var mat = group.Key;
-                var renderers = group.Value;
-                var meshId = 0;
+                var meshList = MeshTools.CombineMeshesGroupByMaterial(gameObject, isDisableOriginalRenderers, isIncludeInactive);
 
-                foreach (var renderer in renderers)
+#if UNITY_EDITOR
+                if (isSaveMeshes)
                 {
-                    var mf = renderer.GetComponent<MeshFilter>();
-                    var childMesh = mf.sharedMesh;
-
-                    vertices.AddRange(childMesh.vertices.Select(v => mf.transform.TransformPoint(v)));
-
-                    normals.AddRange(childMesh.normals.Select(n => mf.transform.TransformDirection(n)));
-                    uvs0.AddRange(childMesh.uv);
-                    colors.AddRange(Enumerable.Repeat(Random.ColorHSV(), childMesh.vertexCount));
-                    triangles.AddRange(childMesh.triangles.Select(id => id + vertexOffset));
-                    vertexOffset += childMesh.vertexCount;
-
-                    meshId++;
-
-                    renderer.enabled = !isDisableRenderer;
+                    var sceneAssetFolder = AssetDatabaseTools.CreateGetSceneFolder();
+                    foreach (var mesh in meshList)
+                    {
+                        AssetDatabaseTools.CreateAssetAtSceneFolder(mesh, mesh.name + ".asset");
+                    }
+                    AssetDatabaseTools.SaveRefresh();
                 }
-
-                var bigMesh = new Mesh();
-                bigMesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
-                bigMesh.SetVertices(vertices);
-                bigMesh.SetNormals(normals);
-                bigMesh.SetColors(colors);
-                bigMesh.SetTriangles(triangles, 0);
-                bigMesh.SetUVs(0, uvs0);
-
-                bigMesh.RecalculateBounds();
-                bigMesh.RecalculateNormals();
-                bigMesh.Optimize();
-
-                var go = new GameObject("Group "+ groupId);
-                go.AddComponent<MeshFilter>().sharedMesh = bigMesh;
-                go.AddComponent<MeshRenderer>().sharedMaterial = mat;
-                go.transform.parent = root.transform;
-
-                groupId++;
+#endif
             }
         }
+
+
     }
 }
