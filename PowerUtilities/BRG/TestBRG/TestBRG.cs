@@ -185,7 +185,7 @@ public class TestBRG : MonoBehaviour
     {
         var drawCmdPt = (BatchCullingOutputDrawCommands*)cullingOutput.drawCommands.GetUnsafePtr();
         BRGTools.SetupBatchDrawCommands(drawCmdPt, 1, numInstances);
-        BRGTools.FillBatchDrawCommands(drawCmdPt, 0, m_BatchID, m_MaterialID, m_MeshID, visibleCount);
+        BRGTools.FillBatchDrawCommand(drawCmdPt, 0, m_BatchID, m_MaterialID, m_MeshID, visibleCount);
         return new JobHandle();
 
     }

@@ -75,7 +75,8 @@ namespace PowerUtilities
             drawCmdPt->drawRanges[0].filterSettings = new BatchFilterSettings { renderingLayerMask = 0xffffffff, };
         }
 
-        public static unsafe void FillBatchDrawCommands(BatchCullingOutputDrawCommands* drawCmdPt, int cmdId, BatchID batchId, BatchMaterialID materialId, BatchMeshID meshId, int numInstances)
+
+        public static unsafe BatchDrawCommand FillBatchDrawCommand(BatchCullingOutputDrawCommands* drawCmdPt, int cmdId, BatchID batchId, BatchMaterialID materialId, BatchMeshID meshId, int visibleCount,int visibleOffset=0)
         {
             drawCmdPt->drawCommands[cmdId].batchID = batchId;
             drawCmdPt->drawCommands[cmdId].flags = 0;
@@ -84,16 +85,23 @@ namespace PowerUtilities
             drawCmdPt->drawCommands[cmdId].sortingPosition = 0;
             drawCmdPt->drawCommands[cmdId].splitVisibilityMask = 0;
             drawCmdPt->drawCommands[cmdId].submeshIndex = 0;
-            drawCmdPt->drawCommands[cmdId].visibleCount = (uint)numInstances;
-            drawCmdPt->drawCommands[cmdId].visibleOffset = 0;
+            drawCmdPt->drawCommands[cmdId].visibleCount = (uint)visibleCount;
+            drawCmdPt->drawCommands[cmdId].visibleOffset = (uint)visibleOffset;
+
+            return drawCmdPt->drawCommands[cmdId];
         }
 
-        public static unsafe void UpdateBatchVisible(BatchCullingOutputDrawCommands* drawCmdPt, List<int> visibleIds)
+        /// <summary>
+        /// Setup all visiable instance id list for BRG
+        /// </summary>
+        /// <param name="drawCmdPt"></param>
+        /// <param name="allVisibleIdList"></param>
+        public static unsafe void SetupBatchAllVisible(BatchCullingOutputDrawCommands* drawCmdPt, List<int> allVisibleIdList)
         {
-            var allVisibleInstanceCount = visibleIds.Count;
+            var allVisibleInstanceCount = allVisibleIdList.Count;
             drawCmdPt->visibleInstanceCount = allVisibleInstanceCount;
             for (int i = 0; i < allVisibleInstanceCount; ++i)
-                drawCmdPt->visibleInstances[i] = visibleIds[i];
+                drawCmdPt->visibleInstances[i] = allVisibleIdList[i];
         }
 
         /// <summary>

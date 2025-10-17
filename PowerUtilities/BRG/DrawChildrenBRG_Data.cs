@@ -22,7 +22,7 @@ namespace PowerUtilities
         {
             brgGroupInfoList.Clear();
 
-
+            var instanceIdStart = 0;
             foreach (IGrouping<(int lightmapId, BatchMeshID meshId, BatchMaterialID matId), MeshRenderer> groupInfo in groupInfos)
             {
                 var instCount = groupInfo.Count();
@@ -45,6 +45,9 @@ namespace PowerUtilities
                     instanceCount = instCount,
                     lightmapId = groupInfo.Key.lightmapId,
                 };
+                
+                // sum instanceIdStart
+                instanceIdStart += instCount;
 
                 //----- get mat prop infos
                 brgGroupInfo.matGroupList.AddRange(
@@ -61,7 +64,7 @@ namespace PowerUtilities
 
                 // iterate renderers
                 brgGroupInfo.rendererList = groupInfo.Select(r => (Renderer)r).ToList();
-
+                brgGroupInfo.visibleIdList = Enumerable.Range(0, brgGroupInfo.rendererList.Count).ToList();
                 // analysis shader 's cuffer
                 AddShaderCBuffer(brgGroupInfo, shaderCBufferVarInfoList);
 

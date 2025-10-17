@@ -124,13 +124,10 @@ namespace PowerUtilities
             }
         }
 
-        public unsafe void DrawBatch(BatchCullingOutputDrawCommands* drawCmdPt,int visibleNumInstances=0)
+        public unsafe void DrawBatch(BatchCullingOutputDrawCommands* drawCmdPt,int visibleNumInstances=-1,int visibleOffset=0)
         {
-            var visibleCount = visibleNumInstances <= 0 ? numInstances : visibleNumInstances;
-            BRGTools.FillBatchDrawCommands(drawCmdPt, brgBatchId, batchId, matId, meshId, visibleCount);
-
-            if (visibleIdList.Count > 0)
-                BRGTools.UpdateBatchVisible(drawCmdPt, visibleIdList);
+            var visibleCount = visibleNumInstances < 0 ? numInstances : visibleNumInstances;
+            BRGTools.FillBatchDrawCommand(drawCmdPt, brgBatchId, batchId, matId, meshId, visibleCount, visibleOffset);
         }
     }
 }

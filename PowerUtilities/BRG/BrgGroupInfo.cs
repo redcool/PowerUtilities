@@ -26,6 +26,11 @@ namespace PowerUtilities
         [Header("Instance Info")]
         public int instanceCount;
         public List<Renderer> rendererList = new();
+
+        /// <summary>
+        /// Which instance id will draw
+        /// </summary>
         public List<int> visibleIdList = new();
+
     }
 }

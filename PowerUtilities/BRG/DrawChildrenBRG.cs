@@ -106,6 +106,7 @@ namespace PowerUtilities
             batchList.Clear();
 
             var groupId = 0;
+            var instIdStart = 0;
             foreach (IGrouping<(int lightmapId, BatchMeshID meshId, BatchMaterialID matId), MeshRenderer> groupInfo in groupInfos)
             {
                 var instCount = groupInfo.Count();
@@ -124,6 +125,7 @@ namespace PowerUtilities
 
                 batchList.Add(brgBatch);
                 groupId++;
+                instIdStart += instCount;
             }
 
         }
@@ -193,12 +195,19 @@ namespace PowerUtilities
 
         private unsafe void DrawBatchList(BatchCullingOutputDrawCommands* drawCmdPt)
         {
-            var numInstances = batchList.Sum(b => b.numInstances);
-            BRGTools.SetupBatchDrawCommands(drawCmdPt, batchList.Count, numInstances);
+            var allVisibleList = batchList.SelectMany(b => b.visibleIdList).ToList();
+            var allVisibleCount = allVisibleList.Count();
 
-            foreach (var brgBatch in batchList)
+            BRGTools.SetupBatchDrawCommands(drawCmdPt, batchList.Count, allVisibleCount);
+            BRGTools.SetupBatchAllVisible(drawCmdPt, allVisibleList);
+
+            var visibleOffset = 0;
+            for (int i = 0; i < batchList.Count; i++)
             {
-                brgBatch.DrawBatch(drawCmdPt, brgBatch.visibleIdList.Count);
+                var brgBatch = batchList[i];
+                brgBatch.DrawBatch(drawCmdPt, brgBatch.visibleIdList.Count, visibleOffset);
+
+                visibleOffset += brgBatch.visibleIdList.Count;
             }
         }
 
