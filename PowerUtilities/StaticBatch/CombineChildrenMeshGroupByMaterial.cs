@@ -18,6 +18,10 @@ namespace PowerUtilities
 
         [Tooltip("disable orignal renderers when combined")]
         public bool isDisableOriginalRenderers = true;
+
+        [EditorButton(onClickCall = "Start",tooltip ="combine children meshes now")]
+        public bool isCombine;
+
         // Start is called before the first frame update
         void Start()
         {
@@ -89,7 +93,7 @@ namespace PowerUtilities
                 bigMesh.RecalculateNormals();
                 bigMesh.Optimize();
 
-                var go = new GameObject("group"+ groupId);
+                var go = new GameObject("Group "+ groupId);
                 go.AddComponent<MeshFilter>().sharedMesh = bigMesh;
                 go.AddComponent<MeshRenderer>().sharedMaterial = mat;
                 go.transform.parent = root.transform;
