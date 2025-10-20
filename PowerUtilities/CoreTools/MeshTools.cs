@@ -8,6 +8,7 @@
     using Unity.Mathematics;
     using UnityEngine;
     using UnityEngine.Rendering;
+    using Random = UnityEngine.Random;
 
     public static class MeshTools
     {
@@ -305,6 +306,84 @@
                     .Zip(bonesStartIndexPerVertex, (count, start) => (count, start))
                     .ToArray();
             return boneInfoPerVertices;
+        }
+
+
+        /// <summary>
+        /// Combine meshes for same material 
+        /// </summary>
+        /// <param name="root"></param>
+        /// <param name="isIncludeInactive"></param>
+        public static List<Mesh> CombineMeshesGroupByMaterial(GameObject root, bool isDisableRenderer, bool isIncludeInactive = false)
+        {
+            var meshList = new List<Mesh>();
+            var mrs = root.GetComponentsInChildren<MeshRenderer>(isIncludeInactive);
+            if (mrs.Length == 0)
+                return meshList;
+
+            List<Vector3> vertices = new();
+            List<int> triangles = new();
+            List<Vector3> normals = new();
+            List<Vector2> uvs0 = new();
+            List<Color> colors = new();
+
+            var groupDict = mrs
+                .Where(mr =>
+                {
+                    var mf = mr.GetComponent<MeshFilter>();
+                    return mf && mf.sharedMesh;
+                })
+                .GroupBy(mr => mr.sharedMaterial)
+                .ToDictionary(g => g.Key, g => g.ToList())
+                ;
+            var vertexOffset = 0;
+            var groupId = 0;
+            foreach (var group in groupDict)
+            {
+                var mat = group.Key;
+                var renderers = group.Value;
+                var meshId = 0;
+
+                foreach (var renderer in renderers)
+                {
+                    var mf = renderer.GetComponent<MeshFilter>();
+                    var childMesh = mf.sharedMesh;
+
+                    vertices.AddRange(childMesh.vertices.Select(v => mf.transform.TransformPoint(v)));
+
+                    normals.AddRange(childMesh.normals.Select(n => mf.transform.TransformDirection(n)));
+                    uvs0.AddRange(childMesh.uv);
+                    colors.AddRange(Enumerable.Repeat(Random.ColorHSV(), childMesh.vertexCount));
+                    triangles.AddRange(childMesh.triangles.Select(id => id + vertexOffset));
+                    vertexOffset += childMesh.vertexCount;
+
+                    meshId++;
+
+                    renderer.enabled = !isDisableRenderer;
+                }
+
+                var bigMesh = new Mesh();
+                bigMesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
+                bigMesh.SetVertices(vertices);
+                bigMesh.SetNormals(normals);
+                bigMesh.SetColors(colors);
+                bigMesh.SetTriangles(triangles, 0);
+                bigMesh.SetUVs(0, uvs0);
+                bigMesh.name = "Group " + groupId;
+
+                bigMesh.RecalculateBounds();
+                bigMesh.RecalculateNormals();
+                bigMesh.Optimize();
+                meshList.Add(bigMesh);
+
+                var go = new GameObject(bigMesh.name);
+                go.AddComponent<MeshFilter>().sharedMesh = bigMesh;
+                go.AddComponent<MeshRenderer>().sharedMaterial = mat;
+                go.transform.parent = root.transform;
+
+                groupId++;
+            }
+            return meshList;
         }
     }
 }
