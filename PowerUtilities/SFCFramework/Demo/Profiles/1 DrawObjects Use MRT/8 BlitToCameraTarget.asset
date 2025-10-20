@@ -21,7 +21,7 @@ MonoBehaviour:
       height: 100
     guid: 
     title: 8 BlitToCameraTarget
-  enabled: 0
+  enabled: 1
   interrupt: 0
   cameraType: 1
   cameraTypeCompareFunc: 0
@@ -34,9 +34,9 @@ MonoBehaviour:
   log: 
   isFoldout: 0
   isBaseOptionsFoldout: 0
-  sourceName: _ColorBuffer0
+  sourceName: _CameraColorAttachmentA
   isShowCurMainLightShadowMapTexture: 0
-  targetName: _CameraColorAttachmentA
+  targetName: 
   isBlitToNextPostTarget: 0
   isEnable: 1
   isBlitOnce: 0
