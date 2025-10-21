@@ -16,14 +16,6 @@ namespace PowerUtilities
     {
         [Header("Reactions game object")]
         public List<GameObject> contentGameObjects = new List<GameObject>();
-
-        [Header("Reactions")]
-        [Tooltip("when isVisible change, update gameobjects's active")]
-        public bool isSetContentGameObjectsActive = true;
-
-        public UnityEvent<CommomCullingInfo> OnVisibleChanged;
-        //[SerializeField]
-        bool lastIsVisible;
         
         /// <summary>
         /// Set IsVisible and trigger reactive events
@@ -35,27 +27,22 @@ namespace PowerUtilities
             set
             {
                 isVisible = value;
-                if(CompareTools.CompareAndSet(ref lastIsVisible, ref isVisible))
-                {
-                    if(isSetContentGameObjectsActive)
-                        SetGameObjectsActive();
-
-                    TriggerEvents();
-                }
             }
         }
 
-        private void TriggerEvents()
+        public void SetGameObjectsActive(CommonCullingGroupControl.ReactionType reactionType )
         {
-            OnVisibleChanged?.Invoke(this);
-        }
+            if (reactionType == CommonCullingGroupControl.ReactionType.None)
+                return;
 
-        private void SetGameObjectsActive()
-        {
             foreach (var go in contentGameObjects)
             {
-                if (go)
-                    go.SetActive(isVisible);
+                if(reactionType == CommonCullingGroupControl.ReactionType.GameObject)
+                    go?.SetActive(isVisible);
+                else
+                {
+                    go.GetComponent<Renderer>()?.SetEnable(isVisible);
+                }
             }
         }
 

@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace PowerUtilities
 {
-    public class CommonCullingResponse : MonoBehaviour
+    public class CommonCullingGroupControlResponse : MonoBehaviour
     {
         public void OnVisibleChanged(CommomCullingInfo info)
         {

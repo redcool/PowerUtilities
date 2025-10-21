@@ -35,6 +35,11 @@ namespace PowerUtilities
     [ExecuteInEditMode]
     public class CommonCullingGroupControl : MonoBehaviour
     {
+        public enum ReactionType
+        {
+            None,GameObject,Renderer
+        }
+
         [Header("--- Culling Info")]
         [Tooltip("Use MainCamera when empty")]
         public Camera cam;
@@ -57,7 +62,11 @@ namespace PowerUtilities
         public Color boundingSphereColor = Color.green;
 
         [Header("Reactions")]
+        [Tooltip("visible state changed callback")]
         public UnityEvent<CullingGroupEvent> OnSphereStateChanged;
+
+        [Tooltip("active type when visible changed")]
+        public ReactionType reactionType;
 
         [HideInInspector]
         public BoundingSphere[] cullingSpheres;
@@ -66,6 +75,9 @@ namespace PowerUtilities
 
         private void OnEnable()
         {
+            if(!cam)
+                cam = Camera.main;
+
             if (!IsUseSharedBoundingSpheres())
                 TryInitGroup();
         }
@@ -107,6 +119,7 @@ namespace PowerUtilities
 
                 cullingInfos.Add(cullingInfo);
             }
+            SetupCullingInfosVisible();
         }
 
         public bool IsUseSharedBoundingSpheres() => isUseOtherControlBoundingSpheres && otherControl != null;
@@ -134,7 +147,6 @@ namespace PowerUtilities
 
 
             group.SetBoundingSpheres(cullingSpheres);
-
             group.SetBoundingDistances(boundingDistances);
         }
 
@@ -155,7 +167,8 @@ namespace PowerUtilities
         {
             for (int i = 0; i < cullingInfos.Count; i++)
             {
-                cullingInfos[i].IsVisible = (group.IsVisible(i));
+                cullingInfos[i].IsVisible = group.IsVisible(i);
+                cullingInfos[i].SetGameObjectsActive(reactionType);
             }
         }
 
@@ -166,6 +179,7 @@ namespace PowerUtilities
                 var info = cullingInfos[e.index];
                 info.IsVisible = (e.isVisible);
                 info.distanceBands = e.currentDistance;
+                info.SetGameObjectsActive(reactionType);
             }
 
             OnSphereStateChanged?.Invoke(e);
