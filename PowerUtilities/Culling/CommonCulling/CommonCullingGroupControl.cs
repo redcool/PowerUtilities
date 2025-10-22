@@ -74,6 +74,11 @@ namespace PowerUtilities
 
         public CullingGroup group;
 
+        /// <summary>
+        /// culling state changed callbake
+        /// </summary>
+        public event Action<CommomCullingInfo> OnStateChanged;
+
         private void OnEnable()
         {
             if (!cam)
@@ -106,18 +111,38 @@ namespace PowerUtilities
                 return;
 
             var renders = rootGo.GetComponentsInChildren<Renderer>();
-            cullingInfos.Clear();
+            SetupCullingInfos(renders,true,true,0);
+        }
+        /// <summary>
+        /// Setup cullingInfos from renders
+        /// </summary>
+        /// <param name="renders"></param>
+        /// <param name="isClearLastInfos">Clear list</param>
+        /// <param name="isSetBoundingSpheres">set cullingGroup boundingSphere and set cullingInfo item's isVisible</param>
+        public void SetupCullingInfos(IList<Renderer> renders, bool isClearLastInfos, bool isSetBoundingSpheres,int batchGroupId)
+        {
+            if (isClearLastInfos)
+                cullingInfos.Clear();
 
-            foreach (var render in renders)
+            for(int i = 0; i < renders.Count; i++)
             {
+                var render = renders[i];
                 var pos = render.bounds.center;
                 var boundSize = render.bounds.extents.magnitude;
                 var cullingInfo = new CommomCullingInfo(pos, boundSize);
                 cullingInfo.contentGameObjects.Add(render.gameObject);
+                // brg info
+                cullingInfo.batchGroupId = batchGroupId;
+                cullingInfo.visibleId = i;
 
                 cullingInfos.Add(cullingInfo);
             }
-            SetupCullingInfosVisible();
+
+            if (isSetBoundingSpheres)
+            {
+                SetBoundingSphere();
+                SetupCullingInfosVisible();
+            }
         }
 
         public bool IsUseSharedBoundingSpheres() => isUseOtherControlBoundingSpheres && otherControl != null;
@@ -132,7 +157,7 @@ namespace PowerUtilities
             }
         }
 
-        private void SetBoundingSphere()
+        public void SetBoundingSphere()
         {
             if (IsUseSharedBoundingSpheres())
             {
@@ -142,7 +167,6 @@ namespace PowerUtilities
             {
                 cullingSpheres = cullingInfos.Select(item => new BoundingSphere(item.pos, item.size)).ToArray();
             }
-
 
             group.SetBoundingSpheres(cullingSpheres);
             group.SetBoundingDistances(boundingDistances);
@@ -160,24 +184,42 @@ namespace PowerUtilities
             SetBoundingSphere();
             SetupCullingInfosVisible();
         }
-
-        void SetupCullingInfosVisible()
+        /// <summary>
+        /// setup visible query cullingGroup
+        /// </summary>
+        /// <param name="startId"></param>
+        public void SetupCullingInfosVisible(int startId = 0)
         {
-            for (int i = 0; i < cullingInfos.Count; i++)
+            for (int i = startId; i < cullingInfos.Count; i++)
             {
-                cullingInfos[i].IsVisible = group.IsVisible(i);
-                cullingInfos[i].SetActive(reactionType);
+                var info = cullingInfos[i];
+                
+                SetupCullingInfo(info,group.IsVisible(i),group.GetDistance(i));
             }
         }
 
+        private void SetupCullingInfo(CommomCullingInfo info,bool isVisible,int distanceBands)
+        {
+            info.isVisible = isVisible;
+            info.distanceBands = distanceBands;
+            info.SetActive(reactionType);
+
+            OnStateChanged?.Invoke(info);
+        }
+
+        /// <summary>
+        /// cullingGroup callback setup visible 
+        /// </summary>
+        /// <param name="e"></param>
         void OnCullingChanged(CullingGroupEvent e)
         {
+            if (!enabled)
+                return;
+
             if (cullingInfos != null && e.index < cullingInfos.Count)
             {
                 var info = cullingInfos[e.index];
-                info.IsVisible = (e.isVisible);
-                info.distanceBands = e.currentDistance;
-                info.SetActive(reactionType);
+                SetupCullingInfo(info, e.isVisible, e.currentDistance);
             }
 
             OnSphereStateChanged?.Invoke(e);

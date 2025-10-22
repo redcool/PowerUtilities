@@ -17,7 +17,13 @@ namespace PowerUtilities
 
         public List<ShaderCBufferVarInfo> shaderCBufferVarInfoList = new();
 
+        [Header("CommonCullingGroup")]
+        public CommonCullingGroupControl cullingGroupControl;
 
+        /// <summary>
+        /// Setup brgGroupInfoList
+        /// </summary>
+        /// <param name="groupInfos"></param>
         public void SetupBRGGroupInfoList(IEnumerable<IGrouping<(int lightmapIndex, BatchMeshID, BatchMaterialID), MeshRenderer>> groupInfos)
         {
             brgGroupInfoList.Clear();

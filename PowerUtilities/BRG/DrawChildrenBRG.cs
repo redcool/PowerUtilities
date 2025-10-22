@@ -44,13 +44,14 @@ namespace PowerUtilities
 
             if (brgGroupInfoList.Count == 0)
             {
-                var groupInfos = RegisterChildren();
+                var groupInfos = GetChildrenGroups();
                 FillBatchListWithGroupInfos(groupInfos);
             }
             else
             {
                 FillBatchListWithBrgGroupInfoList();
             }
+            SetupCommonCullingGroup();
         }
 
         private void OnDisable()
@@ -70,17 +71,19 @@ namespace PowerUtilities
             if (brg == null)
                 brg = new BatchRendererGroup(OnPerformCulling, IntPtr.Zero);
 
-            var groupInfos = RegisterChildren();
+            var groupInfos = GetChildrenGroups();
             SetupBRGGroupInfoList(groupInfos);
 
             FillBatchListWithBrgGroupInfoList();
+
+            SetupCommonCullingGroup();
         }
 
 
         /// <summary>
         /// Same batch means : same (material,mesh)
         /// </summary>
-        public IEnumerable<IGrouping<(int lightmapIndex, BatchMeshID, BatchMaterialID), MeshRenderer>> RegisterChildren()
+        public IEnumerable<IGrouping<(int lightmapIndex, BatchMeshID, BatchMaterialID), MeshRenderer>> GetChildrenGroups()
         {
             var mrs = GetComponentsInChildren<MeshRenderer>(isIncludeInvisible);
             var groupInfos = from mr in mrs
@@ -136,8 +139,6 @@ namespace PowerUtilities
             batchList.AddRange(
                 brgGroupInfoList.Select((brgGroupInfo, groupId) =>
                 {
-                    Debug.Log(groupId);
-
                     var meshId = brg.RegisterMesh(brgGroupInfo.mesh);
                     var matId = brg.RegisterMaterial(brgGroupInfo.mat);
 
@@ -154,29 +155,35 @@ namespace PowerUtilities
                 })
             );
 
-            //var groupId = 0;
-            //for (int i = 0; i < brgGroupInfoList.Count; i++)
-            //{
-            //    var brgGroupInfo = brgGroupInfoList[i];
-
-            //    var meshId = brg.RegisterMesh(brgGroupInfo.mesh);
-            //    var matId = brg.RegisterMaterial(brgGroupInfo.mat);
-
-            //    var brgBatch = new BRGBatch(brg, brgGroupInfo.instanceCount, meshId, matId, groupId);
-            //    brgBatch.SetupGraphBuffer(brgGroupInfo.floatsCount,
-            //        brgGroupInfo.matGroupList.Select(matInfo => matInfo.propName).ToArray(),
-            //        brgGroupInfo.matGroupList.Select(matInfo => matInfo.floatsCount).ToList()
-            //        );
-
-            //    AddRenderer(brgGroupInfo.rendererList, brgBatch);
-
-            //    batchList.Add(brgBatch);
-
-            //    groupId++;
-            //}
         }
 
+        public void SetupCommonCullingGroup()
+        {
+            if (!cullingGroupControl)
+                return;
+            for (int i = 0; i < brgGroupInfoList.Count; i++)
+            {
+                var isClear = i == 0;
+                var isSetBoundingSpheres = i == brgGroupInfoList.Count - 1;
+                var brgGroupInfo = brgGroupInfoList[i];
+                cullingGroupControl.SetupCullingInfos(brgGroupInfo.rendererList, isClear, isSetBoundingSpheres,i);
+            }
 
+            cullingGroupControl.OnStateChanged -= CullingGroupControl_OnStateChanged;
+            cullingGroupControl.OnStateChanged += CullingGroupControl_OnStateChanged;
+        }
+
+        private void CullingGroupControl_OnStateChanged(CommomCullingInfo info)
+        {
+            var groupInfo = brgGroupInfoList[info.batchGroupId];
+
+            if (info.IsVisible)
+                groupInfo.visibleIdList.Add(info.visibleId);
+            else 
+                groupInfo.visibleIdList.Remove(info.visibleId);
+
+            //Debug.Log($"visible changed: groupid: {info.batchGroupId}, visibleId:{info.visibleId}");
+        }
 
         public unsafe JobHandle OnPerformCulling(
             BatchRendererGroup rendererGroup,
@@ -206,6 +213,7 @@ namespace PowerUtilities
             {
                 var brgBatch = batchList[i];
                 brgBatch.DrawBatch(drawCmdPt, brgBatch.visibleIdList.Count, visibleOffset);
+                //brgBatch.DrawBatch(drawCmdPt);
 
                 visibleOffset += brgBatch.visibleIdList.Count;
             }

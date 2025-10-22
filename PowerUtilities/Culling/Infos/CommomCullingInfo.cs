@@ -16,7 +16,15 @@ namespace PowerUtilities
     {
         [Header("Reactions game object")]
         public List<GameObject> contentGameObjects = new List<GameObject>();
-        
+
+        /// <summary>
+        /// batch group id
+        /// </summary>
+        public int batchGroupId;
+        /// <summary>
+        /// visible item id in a batchGroup
+        /// </summary>
+        public int visibleId;
         /// <summary>
         /// Set IsVisible and trigger reactive events
         /// </summary>
