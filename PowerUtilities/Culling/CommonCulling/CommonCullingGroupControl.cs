@@ -48,9 +48,10 @@ namespace PowerUtilities
         public GameObject rootGo;
         public List<CommomCullingInfo> cullingInfos = new List<CommomCullingInfo>();
         
-        [EditorButton(onClickCall = "FindRenderers",tooltip ="setup cullingInfo from rootGo children")]
-        public bool isFindRenderers;
+        [EditorButton(onClickCall = "SetupCullingInfos", tooltip ="setup cullingInfo from rootGo children")]
+        public bool isSetupCullingInfos;
 
+        [Tooltip("distance lods")]
         public float[] boundingDistances = new float[] { 5f, 10f, 20f, 50f };
 
         [EditorHeader("","--- Shared boundingSpheres")]
@@ -71,38 +72,35 @@ namespace PowerUtilities
         [HideInInspector]
         public BoundingSphere[] cullingSpheres;
 
-        CullingGroup group;
+        public CullingGroup group;
 
         private void OnEnable()
         {
-            if(!cam)
+            if (!cam)
                 cam = Camera.main;
 
-            if (!IsUseSharedBoundingSpheres())
-                TryInitGroup();
+            TryInitGroup();
         }
         private void OnDisable()
         {
             DisposeGroup();
         }
 
-        /// <summary>
-        /// use shared,need delay get boundingSphere
-        /// </summary>
-        private void Start()
-        {
-            if (IsUseSharedBoundingSpheres())
-            {
-                TryInitGroup();
-            }
-        }
         public void Update()
         {
-            if (group != null && group.targetCamera)
-                group.SetDistanceReferencePoint(group.targetCamera.transform.position);
+            UpdateTargetCam();
         }
 
-        public void FindRenderers()
+        public void UpdateTargetCam()
+        {
+            if (group != null && cam)
+            {
+                group.targetCamera = cam;
+                group.SetDistanceReferencePoint(group.targetCamera.transform.position);
+            }
+        }
+
+        public void SetupCullingInfos()
         {
             if (!rootGo)
                 return;
@@ -168,7 +166,7 @@ namespace PowerUtilities
             for (int i = 0; i < cullingInfos.Count; i++)
             {
                 cullingInfos[i].IsVisible = group.IsVisible(i);
-                cullingInfos[i].SetGameObjectsActive(reactionType);
+                cullingInfos[i].SetActive(reactionType);
             }
         }
 
@@ -179,7 +177,7 @@ namespace PowerUtilities
                 var info = cullingInfos[e.index];
                 info.IsVisible = (e.isVisible);
                 info.distanceBands = e.currentDistance;
-                info.SetGameObjectsActive(reactionType);
+                info.SetActive(reactionType);
             }
 
             OnSphereStateChanged?.Invoke(e);

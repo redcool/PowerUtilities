@@ -23,7 +23,7 @@ namespace PowerUtilities
         /// </summary>
         public bool isVisible = true;
         /// <summary>
-        /// current distance level index
+        /// current distance level index,use for lod
         /// </summary>
         public int distanceBands;
 

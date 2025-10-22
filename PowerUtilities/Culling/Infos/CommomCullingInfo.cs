@@ -30,7 +30,7 @@ namespace PowerUtilities
             }
         }
 
-        public void SetGameObjectsActive(CommonCullingGroupControl.ReactionType reactionType )
+        public void SetActive(CommonCullingGroupControl.ReactionType reactionType )
         {
             if (reactionType == CommonCullingGroupControl.ReactionType.None)
                 return;
