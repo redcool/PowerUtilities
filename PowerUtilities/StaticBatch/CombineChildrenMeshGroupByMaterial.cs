@@ -22,6 +22,9 @@ namespace PowerUtilities
         [Tooltip("Save combined meshes to SceneFolder")]
         public bool isSaveMeshes = true;
 
+        [Tooltip("Per mesh per color")]
+        public bool isRandomMeshColor;
+
         [EditorButton(onClickCall = "Start",tooltip ="combine children meshes now")]
         public bool isCombine;
 

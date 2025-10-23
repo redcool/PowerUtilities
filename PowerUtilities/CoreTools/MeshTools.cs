@@ -314,7 +314,7 @@
         /// </summary>
         /// <param name="root"></param>
         /// <param name="isIncludeInactive"></param>
-        public static List<Mesh> CombineMeshesGroupByMaterial(GameObject root, bool isDisableRenderer, bool isIncludeInactive = false)
+        public static List<Mesh> CombineMeshesGroupByMaterial(GameObject root, bool isDisableRenderer, bool isIncludeInactive = false,bool isRandomMeshColor=false)
         {
             var meshList = new List<Mesh>();
             var mrs = root.GetComponentsInChildren<MeshRenderer>(isIncludeInactive);
@@ -343,9 +343,13 @@
                 var mat = group.Key;
                 var renderers = group.Value;
                 var meshId = 0;
-
                 foreach (var renderer in renderers)
                 {
+                    var colorId = (meshId % 255f)/255f;
+                    var meshColor = new Color(colorId, colorId, colorId);
+                    if (isRandomMeshColor)
+                        meshColor = Random.ColorHSV();
+
                     var mf = renderer.GetComponent<MeshFilter>();
                     var childMesh = mf.sharedMesh;
 
@@ -353,7 +357,8 @@
 
                     normals.AddRange(childMesh.normals.Select(n => mf.transform.TransformDirection(n)));
                     uvs0.AddRange(childMesh.uv);
-                    colors.AddRange(Enumerable.Repeat(Random.ColorHSV(), childMesh.vertexCount));
+
+                    colors.AddRange(Enumerable.Repeat(meshColor, childMesh.vertexCount));
                     triangles.AddRange(childMesh.triangles.Select(id => id + vertexOffset));
                     vertexOffset += childMesh.vertexCount;
 
