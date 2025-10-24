@@ -91,5 +91,22 @@ namespace PowerUtilities
             mainCamTr.GetReflection(reflectionPlaneTr, planeYOffset, out var camForward,out var camUp, out var camPos);
             reflectionCamTr.SetPosAndLookAt(camPos, camForward, camUp);
         }
+        /// <summary>
+        /// Find child by name,if null create new child
+        /// </summary>
+        /// <param name="tr"></param>
+        /// <param name="childName"></param>
+        /// <returns></returns>
+        public static Transform FindGet(this Transform tr,string childName)
+        {
+            var childTr = tr.Find(childName);
+            if (!childTr)
+            {
+                childTr = new GameObject(childName).transform;
+                childTr.parent = tr;
+                childTr.position = Vector3.zero;
+            }
+            return childTr;
+        }
     }
 }

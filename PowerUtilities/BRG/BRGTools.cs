@@ -19,6 +19,7 @@ namespace PowerUtilities
     {
 
         public static readonly Matrix4x4[] ZERO_MATRICES = new []{Matrix4x4.zero};
+        private static readonly int FLOAT_BYTES = 4;
 
 
         /// <summary>
@@ -47,6 +48,37 @@ namespace PowerUtilities
                 return brg.AddBatch(metadatas, graphBuffer.bufferHandle, 0, (uint)BatchRendererGroup.GetConstantBufferMaxWindowSize());
             else
                 return brg.AddBatch(metadatas, graphBuffer.bufferHandle);
+        }
+
+        /// <summary>
+        /// Fill metadata (metadataList,startByteAddressDict,dataStartIds)
+        /// </summary>
+        /// <param name="dataStartIdOffsets"></param>
+        /// <param name="matPropNames"></param>
+        /// <param name="metadataList"></param>
+        /// <param name="startByteAddressDict"></param>
+        /// <param name="dataStartIds"></param>
+        public static void FillMetadatas(int[] dataStartIdOffsets, string[] matPropNames,
+            ref NativeArray<MetadataValue> metadataList, ref Dictionary<string, int> startByteAddressDict, ref int[] dataStartIds)
+        {
+            for (int i = 0; i < matPropNames.Length; i++)
+            {
+                var startId = dataStartIdOffsets.Take(i + 1).Sum();
+                //Debug.Log("FillMetadatas,startId : " + startId);
+
+                var matPropName = matPropNames[i];
+
+                var startByteAddr = startId * FLOAT_BYTES;
+                // metadatas
+                metadataList[i] = new MetadataValue
+                {
+                    NameID = Shader.PropertyToID(matPropName),
+                    Value = (uint)(0x80000000 | startByteAddr)
+                };
+
+                startByteAddressDict.Add(matPropName, startByteAddr);
+                dataStartIds[i] = startId;
+            }
         }
 
         public static unsafe void SetupBatchDrawCommands(BatchCullingOutputDrawCommands* drawCmdPt, int batchCount,int allVisibleInstanceCount)

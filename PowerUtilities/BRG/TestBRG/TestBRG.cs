@@ -130,7 +130,7 @@ public class TestBRG : MonoBehaviour
         dataStartIds = new int[matNames.Length];
 
         var metadataList = new NativeArray<MetadataValue>(matNames.Length, Allocator.Temp);
-        GraphicsBufferTools.FillMetadatas(dataStartIdStrides, matNames,ref metadataList,ref startByteAddressDict,ref dataStartIds);
+        BRGTools.FillMetadatas(dataStartIdStrides, matNames,ref metadataList,ref startByteAddressDict,ref dataStartIds);
         Debug.Log(string.Join(',', dataStartIds));
         Debug.Log(string.Join(',', startByteAddressDict.Values));
 

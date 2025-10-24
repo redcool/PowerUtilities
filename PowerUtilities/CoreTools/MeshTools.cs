@@ -316,17 +316,25 @@
         /// <param name="isIncludeInactive"></param>
         public static List<Mesh> CombineMeshesGroupByMaterial(GameObject root, bool isDisableRenderer, bool isIncludeInactive = false,bool isRandomMeshColor=false)
         {
+            //clear last Groups
+            const string GROUP_NAME = "MeshGroups";
+            var parentTr = root.transform.FindGet(GROUP_NAME);
+            parentTr.gameObject.DestroyChildren();
+
+            //get children meshes
             var meshList = new List<Mesh>();
             var mrs = root.GetComponentsInChildren<MeshRenderer>(isIncludeInactive);
             if (mrs.Length == 0)
                 return meshList;
 
+            // setup lists
             List<Vector3> vertices = new();
             List<int> triangles = new();
             List<Vector3> normals = new();
             List<Vector2> uvs0 = new();
             List<Color> colors = new();
 
+            // group children 
             var groupDict = mrs
                 .Where(mr =>
                 {
@@ -336,16 +344,25 @@
                 .GroupBy(mr => mr.sharedMaterial)
                 .ToDictionary(g => g.Key, g => g.ToList())
                 ;
-            var vertexOffset = 0;
+
+            // collect meshes info
             var groupId = 0;
             foreach (var group in groupDict)
             {
+                vertices.Clear();
+                triangles.Clear();
+                normals.Clear();
+                uvs0.Clear();
+                colors.Clear();
+
+                var vertexOffset = 0;
                 var mat = group.Key;
                 var renderers = group.Value;
-                var meshId = 0;
-                foreach (var renderer in renderers)
+                
+                for (int i = 0;i< renderers.Count;i++) 
                 {
-                    var colorId = (meshId % 255f)/255f;
+                    var renderer = renderers[i];
+                    var colorId = (i % 255f)/255f;
                     var meshColor = new Color(colorId, colorId, colorId);
                     if (isRandomMeshColor)
                         meshColor = Random.ColorHSV();
@@ -362,29 +379,30 @@
                     triangles.AddRange(childMesh.triangles.Select(id => id + vertexOffset));
                     vertexOffset += childMesh.vertexCount;
 
-                    meshId++;
-
                     renderer.enabled = !isDisableRenderer;
                 }
 
-                var bigMesh = new Mesh();
-                bigMesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
-                bigMesh.SetVertices(vertices);
-                bigMesh.SetNormals(normals);
-                bigMesh.SetColors(colors);
-                bigMesh.SetTriangles(triangles, 0);
-                bigMesh.SetUVs(0, uvs0);
-                bigMesh.name = "Group " + groupId;
+                // create new group mesh 
+                var groupMesh = new Mesh();
+                groupMesh.indexFormat = IndexFormat.UInt32;
+                groupMesh.SetVertices(vertices);
+                groupMesh.SetNormals(normals);
+                groupMesh.SetColors(colors);
+                groupMesh.SetTriangles(triangles, 0);
+                groupMesh.SetUVs(0, uvs0);
+                groupMesh.name = "Group " + groupId;
 
-                bigMesh.RecalculateBounds();
-                bigMesh.RecalculateNormals();
-                bigMesh.Optimize();
-                meshList.Add(bigMesh);
+                groupMesh.RecalculateBounds();
+                groupMesh.RecalculateNormals();
+                groupMesh.Optimize();
+                meshList.Add(groupMesh);
 
-                var go = new GameObject(bigMesh.name);
-                go.AddComponent<MeshFilter>().sharedMesh = bigMesh;
+                // create gameObject
+                var go = new GameObject(groupMesh.name);
+                go.AddComponent<MeshFilter>().sharedMesh = groupMesh;
                 go.AddComponent<MeshRenderer>().sharedMaterial = mat;
-                go.transform.parent = root.transform;
+                go.transform.parent = parentTr;
+                go.transform.position = Vector3.zero;
 
                 groupId++;
             }

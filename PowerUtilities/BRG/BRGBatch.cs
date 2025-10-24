@@ -20,7 +20,9 @@ namespace PowerUtilities
         public BatchID batchId;
         public BatchMeshID meshId;
         public BatchMaterialID matId;
-
+        /// <summary>
+        /// {prop name , start float address}
+        /// </summary>
         public Dictionary<string, int> startByteAddressDict = new();
 
         // from outside
@@ -71,7 +73,7 @@ namespace PowerUtilities
             dataStartIds = new int[matPropNames.Length];
 
             var metadataList = new NativeArray<MetadataValue>(matPropNames.Length, Allocator.Temp);
-            GraphicsBufferTools.FillMetadatas(dataStartIdStrides, matPropNames, ref metadataList, ref startByteAddressDict, ref dataStartIds);
+            BRGTools.FillMetadatas(dataStartIdStrides, matPropNames, ref metadataList, ref startByteAddressDict, ref dataStartIds);
 
             batchId = brg.AddBatch(metadataList, instanceBuffer);
             metadataList.Dispose();

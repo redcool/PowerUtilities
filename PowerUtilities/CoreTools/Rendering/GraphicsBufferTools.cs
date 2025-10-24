@@ -45,28 +45,6 @@ namespace PowerUtilities
             buffer.SetData(datas, 0, graphBufferStartId + graphBufferStartIdOffset, datas.Length);
         }
 
-        public static void FillMetadatas(int[] dataStartIdOffsets,string[] matPropNames, 
-            ref NativeArray<MetadataValue> metadataList, ref Dictionary<string, int> startByteAddressDict,ref int[] dataStartIds)
-        {
-            for (int i = 0; i<matPropNames.Length; i++)
-            {
-                var startId = dataStartIdOffsets.Take(i+1).Sum();
-                //Debug.Log("FillMetadatas,startId : " + startId);
-
-                var matPropName = matPropNames[i];
-
-                var startByteAddr = startId * FLOAT_BYTES;
-                // metadatas
-                metadataList[i] = new MetadataValue
-                {
-                    NameID = Shader.PropertyToID(matPropName),
-                    Value = (uint)(0x80000000 | startByteAddr)
-                };
-
-                startByteAddressDict.Add(matPropName, startByteAddr);
-                dataStartIds[i] = startId;
-            }
-        }
         public static bool IsValidSafe(this GraphicsBuffer buffer)
         {
             return buffer != null && buffer.IsValid();

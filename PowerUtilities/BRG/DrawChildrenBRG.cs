@@ -81,6 +81,7 @@ namespace PowerUtilities
 
 
         /// <summary>
+        /// Group children by (lightmapIndex,mesh,material)
         /// Same batch means : same (material,mesh)
         /// </summary>
         public IEnumerable<IGrouping<(int lightmapIndex, BatchMeshID, BatchMaterialID), MeshRenderer>> GetChildrenGroups()
@@ -102,7 +103,10 @@ namespace PowerUtilities
             return groupInfos;
 
         }
-
+        /// <summary>
+        /// Fill batchList from groupInfo grouped by { (lightmapIndex,batchMeshId,batchMaterialId), renderers}
+        /// </summary>
+        /// <param name="groupInfos"></param>
         public void FillBatchListWithGroupInfos(IEnumerable<IGrouping<(int lightmapIndex, BatchMeshID, BatchMaterialID), MeshRenderer>> groupInfos)
         {
             var groupCount = groupInfos.Count();
@@ -132,7 +136,9 @@ namespace PowerUtilities
             }
 
         }
-
+        /// <summary>
+        /// Fill batchList from brgGroupInfo(saved)
+        /// </summary>
         private void FillBatchListWithBrgGroupInfoList()
         {
             batchList.Clear();
