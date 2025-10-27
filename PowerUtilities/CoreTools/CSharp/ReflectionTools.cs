@@ -194,7 +194,7 @@ namespace PowerUtilities
         }
 
         /// <summary>
-        /// Is type implements interface?
+        /// Is type implements interfaceType?
         /// </summary>
         /// <param name="type"></param>
         /// <param name="interfaceType"></param>
@@ -206,6 +206,16 @@ namespace PowerUtilities
                     || interfaceType.IsAssignableFrom(type)
                 )
                 ;
+        }
+        /// <summary>
+        /// Is type is List<>
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static bool IsList(this Type type)
+        {
+            return IsImplementOf(type, typeof(IList<>));
+            //return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>);
         }
 
         /// <summary>

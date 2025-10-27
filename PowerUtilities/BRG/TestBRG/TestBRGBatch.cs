@@ -66,7 +66,7 @@ public class TestBRGBatch : MonoBehaviour
 
             var brgBatch = new BRGBatch(brg, numInstancesPerGroup, meshId, matId,j);
 
-            brgBatch.SetupGraphBuffer(12 + 12 + 4,
+            brgBatch.Setup(12 + 12 + 4,
                 new[] {"unity_ObjectToWorld","unity_WorldToObject","_Color" } ,
                 new List<int>{ 12,12,4}
                 );

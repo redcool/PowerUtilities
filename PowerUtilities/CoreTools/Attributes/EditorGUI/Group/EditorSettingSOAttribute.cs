@@ -19,10 +19,14 @@
         /// use fieldInfo.FieldType when null
         /// </summary>
         public Type settingType;
-
-        public EditorSettingSOAttribute(Type settingType=null)
+        /// <summary>
+        /// show List property
+        /// </summary>
+        public string listPropName;
+        public EditorSettingSOAttribute(Type settingType=null,string listPropName = "")
         {
             this.settingType = settingType;
+            this.listPropName = listPropName;
         }
     }
 }

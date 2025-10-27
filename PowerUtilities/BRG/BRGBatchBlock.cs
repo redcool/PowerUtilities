@@ -7,6 +7,9 @@ using UnityEngine;
 
 namespace PowerUtilities
 {
+    /// <summary>
+    /// Update instanceBuffer per renderer , Like MaterialPropertyBlock
+    /// </summary>
     public class BRGBatchBlock : MonoBehaviour
     {
         public int instId;

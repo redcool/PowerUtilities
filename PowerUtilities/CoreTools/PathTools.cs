@@ -8,9 +8,16 @@
     using System.Text;
     using UnityEngine;
 
+    /// <summary>
+    /// Project path const and tools 
+    /// 
+    /// </summary>
     public static class PathTools
     {
         public const string PATH_SEPARATOR = @"/";
+
+        public const string PATH_POWER_UTILITIES = "Assets/PowerUtilities";
+
         /// <summary>
         /// dont set value
         /// </summary>

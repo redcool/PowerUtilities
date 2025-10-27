@@ -38,6 +38,8 @@ namespace PowerUtilities
         // visible id list
         public List<int> visibleIdList;
 
+        public Action<BRGBatch, int, Renderer> OnFillMaterialDatas;
+
         public int GetDataStartId(int matPropId)
         => dataStartIds[matPropId];
 
@@ -56,8 +58,14 @@ namespace PowerUtilities
             instanceBuffer.Dispose();
             instanceBuffer = null;
         }
-
-        public void SetupGraphBuffer(int matPropfloatCount,string[] matPropNames,List<int> dataStartIdStrideList)
+        /// <summary>
+        /// Setup this batch info 
+        /// (dataStartIdStrides,instanceBuffer,dataStartIds,batchId)
+        /// </summary>
+        /// <param name="matPropfloatCount"></param>
+        /// <param name="matPropNames"></param>
+        /// <param name="dataStartIdStrideList"></param>
+        public void Setup(int matPropfloatCount,string[] matPropNames,List<int> dataStartIdStrideList)
         {
             //--
             if (dataStartIdStrideList.Count == matPropNames.Length)
@@ -79,43 +87,44 @@ namespace PowerUtilities
             metadataList.Dispose();
         }
 
-        public void FillGraphBuffer(MeshRenderer[] mrs)
-        {
-            for (int i = 0; i < mrs.Length; i++)
-            {
-                var mr = mrs[i];
-                var objectToWorld = mr.transform.localToWorldMatrix.ToFloat3x4();
-                var worldToObject = mr.transform.worldToLocalMatrix.ToFloat3x4();
-                var color = mr.sharedMaterial.color;
+        //public void FillGraphBuffer(MeshRenderer[] mrs)
+        //{
+        //    for (int i = 0; i < mrs.Length; i++)
+        //    {
+        //        var mr = mrs[i];
+        //        var objectToWorld = mr.transform.localToWorldMatrix.ToFloat3x4();
+        //        var worldToObject = mr.transform.worldToLocalMatrix.ToFloat3x4();
+        //        var color = mr.sharedMaterial.color;
 
-                FillData(objectToWorld.ToColumnArray(), i, 0);
-                FillData(worldToObject.ToColumnArray(), i, 1);
-                FillData(color.ToArray(), i, 2);
-            }
-        }
-
+        //        FillData(objectToWorld.ToColumnArray(), i, 0);
+        //        FillData(worldToObject.ToColumnArray(), i, 1);
+        //        FillData(color.ToArray(), i, 2);
+        //    }
+        //}
+        /// <summary>
+        /// Fill dato into instanceBuffer(RawByteBuffer)
+        /// </summary>
+        /// <param name="datas"></param>
+        /// <param name="instanceId"></param>
+        /// <param name="matPropId"></param>
         public void FillData(float[] datas,int instanceId,int matPropId)
         {
             instanceBuffer.FillData(datas, instanceId* datas.Length, GetDataStartId(matPropId));
         }
-
-        public void AddRenderers(IEnumerable<Renderer> renderers)
+        /// <summary>
+        /// Add renderers material data to instanceBuffer
+        /// 
+        /// </summary>
+        /// <param name="renderers"></param>
+        public void AddRenderers(IEnumerable<Renderer> renderers,Action<BRGBatch,int ,Renderer> onFillMaterailData)
         {
             var instId = 0;
             foreach (var mr in renderers)
             {
                 mr.enabled = false;
 
-                var objectToWorld = mr.transform.localToWorldMatrix.ToFloat3x4();
-                var worldToObject = mr.transform.worldToLocalMatrix.ToFloat3x4();
-                Vector4 mainTex_ST = new float4(mr.sharedMaterial.mainTextureScale, mr.sharedMaterial.mainTextureOffset);
-                var color = mr.sharedMaterial.color;
-
-
-                FillData(objectToWorld.ToColumnArray(), instId, 0);
-                FillData(worldToObject.ToColumnArray(), instId, 1);
-                FillData(mainTex_ST.ToArray(), instId, 2);
-                FillData(color.ToArray(), instId, 3);
+                //FillMaterialDatas(this,instId, mr);
+                onFillMaterailData?.Invoke(this, instId, mr);
 
                 //========== block component
                 var block = mr.gameObject.GetOrAddComponent<BRGBatchBlock>();
@@ -126,6 +135,37 @@ namespace PowerUtilities
             }
         }
 
+
+        /// <summary>
+        /// Fill this datas into graphBuffer
+        /// {
+        ///     objectToWorld,
+        ///     worldToObject,
+        ///     mainTex_ST,
+        ///     color
+        /// }
+        /// </summary>
+        /// <param name="instId"></param>
+        /// <param name="mr"></param>
+        public static void DefaultFillMaterialDatas(BRGBatch brgBatch, int instId, Renderer mr)
+        {
+            var objectToWorld = mr.transform.localToWorldMatrix.ToFloat3x4();
+            var worldToObject = mr.transform.worldToLocalMatrix.ToFloat3x4();
+            Vector4 mainTex_ST = new float4(mr.sharedMaterial.mainTextureScale, mr.sharedMaterial.mainTextureOffset);
+            var color = mr.sharedMaterial.color;
+
+            brgBatch.FillData(objectToWorld.ToColumnArray(), instId, 0);
+            brgBatch.FillData(worldToObject.ToColumnArray(), instId, 1);
+            brgBatch.FillData(mainTex_ST.ToArray(), instId, 2);
+            brgBatch.FillData(color.ToArray(), instId, 3);
+        }
+
+        /// <summary>
+        /// setup drawCmdPt prepare batch draw
+        /// </summary>
+        /// <param name="drawCmdPt"></param>
+        /// <param name="visibleNumInstances"></param>
+        /// <param name="visibleOffset"></param>
         public unsafe void DrawBatch(BatchCullingOutputDrawCommands* drawCmdPt,int visibleNumInstances=-1,int visibleOffset=0)
         {
             var visibleCount = visibleNumInstances < 0 ? numInstances : visibleNumInstances;

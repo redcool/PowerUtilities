@@ -28,6 +28,12 @@ public static class SerializedPropertyEx
         return -1;
     }
 
+    /// <summary>
+    /// AppendElement to arrayProp,need ApplyModifiedProperties
+    /// </summary>
+    /// <param name="arrayProp"></param>
+    /// <param name="onFillContent"></param>
+    /// <returns></returns>
     public static SerializedProperty AppendElement(this SerializedProperty arrayProp, Action<SerializedProperty> onFillContent = null)
     {
         if (!arrayProp.isArray)

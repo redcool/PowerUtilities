@@ -18,6 +18,21 @@ namespace PowerUtilities
         /// <returns></returns>
         public static string GetName(this ScriptableObject so)
         => DictionaryTools.Get(soNameDict, so, so => so.name);
-        
+
+        /// <summary>
+        /// SettingSOType is subclass of ScriptableObject
+        /// </summary>
+        /// <param name="SettingSOType"></param>
+        /// <returns></returns>
+        public static bool IsExtendsScriptableObject(Type SettingSOType)
+        {
+            if (!SettingSOType.IsSubclassOf(typeof(ScriptableObject)) && SettingSOType != typeof(ScriptableObject))
+            {
+
+                return false;
+            }
+
+            return true;
+        }
     }
 }

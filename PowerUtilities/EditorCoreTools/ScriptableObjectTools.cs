@@ -77,6 +77,21 @@ namespace PowerUtilities
         {
             return GetSerializedInstance(typeof(T), path);
         }
+
+
+        /// <summary>
+        /// Create ScriptableObject, save to {PathTools.PATH_POWER_UTILITIES}/{folderName}/{filePrefixName}_{nextId}.asset
+        /// </summary>
+        /// <param name="settingSOType"></param>
+        /// <param name="subFolderName"></param>
+        /// <param name="filePrefixName"></param>
+        public static Object CreateSettingSO(Type settingSOType, string subFolderName, string filePrefixName)
+        {
+            var nextId = Resources.FindObjectsOfTypeAll(settingSOType).Length + 1;
+            var path = $"{PathTools.PATH_POWER_UTILITIES}/{subFolderName}/{filePrefixName}_{nextId}.asset";
+            var newSO = ScriptableObjectTools.CreateGetInstance(settingSOType, path);
+            return newSO;
+        }
     }
 }
 #endif

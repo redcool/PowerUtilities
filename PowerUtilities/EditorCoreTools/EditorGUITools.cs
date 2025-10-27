@@ -601,21 +601,7 @@ namespace PowerUtilities
         }
 
         #region SettingSO 
-        /// <summary>
-        /// SettingSOType is subclass of ScriptableObject
-        /// </summary>
-        /// <param name="SettingSOType"></param>
-        /// <returns></returns>
-        public static bool IsExtendsScriptableObject(Type SettingSOType)
-        {
-            if (!SettingSOType.IsSubclassOf(typeof(ScriptableObject)) && SettingSOType != typeof(ScriptableObject))
-            {
-                Debug.LogError($"{SettingSOType} need extends ScriptableObject");
-                return false;
-            }
 
-            return true;
-        }
 
 
         /// <summary>
@@ -627,8 +613,11 @@ namespace PowerUtilities
         /// <param name="SettingSOType"></param>
         public static void DrawSettingSO(SerializedProperty settingSOProp, ref Editor targetEditor, ref bool isTargetEditorFolded, Type SettingSOType)
         {
-            if (!IsExtendsScriptableObject(SettingSOType))
+            if (!ScriptableObjectEx.IsExtendsScriptableObject(SettingSOType))
+            {
+                Debug.LogError($"{SettingSOType} need extends ScriptableObject");
                 return;
+            }
 
             if (settingSOProp == null)
                 return;
@@ -653,7 +642,7 @@ namespace PowerUtilities
         }
 
 
-        public static void DrawSettingSO(Type SettingSOType, SerializedProperty settingSOProp)
+        public static void DrawSettingSO(Type settingSOType, SerializedProperty settingSOProp)
         {
             EditorGUILayout.BeginHorizontal();
             //1,2 label and settingSO
@@ -661,18 +650,11 @@ namespace PowerUtilities
             //3 create new
             if (GUILayout.Button("Create New",GUILayout.Width(100)))
             {
-                var so = ScriptableObject.CreateInstance(SettingSOType);
-                var nextId = Resources.FindObjectsOfTypeAll(SettingSOType).Length;
+                var nextId = Resources.FindObjectsOfTypeAll(settingSOType).Length+1;
+                var soPath = $"{PathTools.PATH_POWER_UTILITIES}/{settingSOType.Name}/_{settingSOType.Name}_{nextId}.asset";
 
-                var settingsFolder = AssetDatabaseTools.CreateFolder("Assets/PowerUtilities", SettingSOType.Name, true);
-                var soPath = $"{settingsFolder}/_{SettingSOType.Name}_{nextId}.asset";
-                AssetDatabase.CreateAsset(so, soPath);
-                AssetDatabaseTools.SaveRefresh();
-
-                //
-                var newAsset = AssetDatabase.LoadAssetAtPath(soPath, SettingSOType);
+                var newAsset = ScriptableObjectTools.CreateGetInstance(settingSOType,soPath);
                 EditorGUIUtility.PingObject(newAsset);
-
                 settingSOProp.objectReferenceValue = newAsset;
             }
             EditorGUILayout.EndHorizontal();

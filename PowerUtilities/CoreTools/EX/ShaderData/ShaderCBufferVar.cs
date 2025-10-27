@@ -9,11 +9,13 @@ namespace PowerUtilities
     /// Save shader cbuffer properties
     /// </summary>
     [Serializable]
-    public class ShaderCBufferVarInfo : ScriptableObject
+    public class ShaderCBufferVar : ScriptableObject
     {
+        [Tooltip("cbuffer target shader")]
         public Shader shader;
         [Multiline()]
         public string shaderCBufferLayoutText;
+
         [EditorButton(onClickCall ="StartAnalysis")]
         public bool isAnalysis;
 

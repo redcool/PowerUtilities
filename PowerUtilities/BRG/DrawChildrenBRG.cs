@@ -127,8 +127,8 @@ namespace PowerUtilities
                 mat.shader.FindShaderPropNames_BRG(ref matPropNameList, ref floatsCount, floatsCountList);
                 
                 var brgBatch = new BRGBatch(brg, instCount, groupInfo.Key.meshId, groupInfo.Key.matId, groupId);
-                brgBatch.SetupGraphBuffer(floatsCount, matPropNameList.ToArray(), floatsCountList);
-                brgBatch.AddRenderers(groupInfo);
+                brgBatch.Setup(floatsCount, matPropNameList.ToArray(), floatsCountList);
+                brgBatch.AddRenderers(groupInfo,BRGBatch.DefaultFillMaterialDatas);
 
                 batchList.Add(brgBatch);
                 groupId++;
@@ -149,12 +149,12 @@ namespace PowerUtilities
                     var matId = brg.RegisterMaterial(brgGroupInfo.mat);
 
                     var brgBatch = new BRGBatch(brg, brgGroupInfo.instanceCount, meshId, matId, groupId);
-                    brgBatch.SetupGraphBuffer(brgGroupInfo.floatsCount,
+                    brgBatch.Setup(brgGroupInfo.floatsCount,
                         brgGroupInfo.matGroupList.Select(matInfo => matInfo.propName).ToArray(),
                         brgGroupInfo.matGroupList.Select(matInfo => matInfo.floatsCount).ToList()
                         );
 
-                    brgBatch.AddRenderers(brgGroupInfo.rendererList);
+                    brgBatch.AddRenderers(brgGroupInfo.rendererList,BRGBatch.DefaultFillMaterialDatas);
                     brgBatch.visibleIdList = brgGroupInfo.visibleIdList;
 
                     return brgBatch;
