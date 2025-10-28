@@ -182,10 +182,12 @@ namespace PowerUtilities
         private void CullingGroupControl_OnStateChanged(CommomCullingInfo info)
         {
             var groupInfo = brgGroupInfoList[info.batchGroupId];
+            // remove target id first
+            groupInfo.visibleIdList.Remove(info.visibleId);
 
             if (info.IsVisible)
                 groupInfo.visibleIdList.Add(info.visibleId);
-            else 
+            else
                 groupInfo.visibleIdList.Remove(info.visibleId);
 
             //Debug.Log($"visible changed: groupid: {info.batchGroupId}, visibleId:{info.visibleId}");

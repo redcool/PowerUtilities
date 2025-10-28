@@ -73,7 +73,8 @@ namespace PowerUtilities
 
                 // iterate renderers
                 brgGroupInfo.rendererList = groupInfo.Select(r => (Renderer)r).ToList();
-                brgGroupInfo.visibleIdList = Enumerable.Range(0, brgGroupInfo.rendererList.Count).ToList();
+                // visibleIdList set empty default
+                //brgGroupInfo.visibleIdList = Enumerable.Range(0, brgGroupInfo.rendererList.Count).ToList();
                 // analysis shader 's cuffer
                 AddShaderCBuffer(brgGroupInfo, shaderCBufferVarListSO?.shaderCBufferVarList);
 

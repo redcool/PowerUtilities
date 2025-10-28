@@ -41,7 +41,11 @@ namespace PowerUtilities
         public Action<BRGBatch, int, Renderer> OnFillMaterialDatas;
 
         public int GetDataStartId(int matPropId)
-        => dataStartIds[matPropId];
+        {
+            if (matPropId >= dataStartIds.Length)
+                throw new Exception($"matPropId({matPropId}) > dataStartIds length ({dataStartIds.Length})");
+            return dataStartIds[matPropId];
+        }
 
 
         public BRGBatch(BatchRendererGroup brg, int numInstances, BatchMeshID meshId,BatchMaterialID matId,int brgBatchId)
