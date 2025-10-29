@@ -20,6 +20,7 @@ namespace PowerUtilities
 
         [Header("Material Info")]
         public Material mat;
+
         [ListItemDraw("name:,propName,type:,propType,floats:,floatsCount", "40,200,40,80,40,")]
         public List<CBufferPropInfo> matGroupList = new();
 

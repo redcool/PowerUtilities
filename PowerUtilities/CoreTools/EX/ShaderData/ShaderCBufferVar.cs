@@ -13,7 +13,7 @@ namespace PowerUtilities
     {
         [Tooltip("cbuffer target shader")]
         public Shader shader;
-        [Multiline()]
+        [Multiline(10)]
         public string shaderCBufferLayoutText;
 
         [EditorButton(onClickCall ="StartAnalysis")]

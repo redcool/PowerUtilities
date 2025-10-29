@@ -2,6 +2,8 @@
 #if !defined(BRG_INPUT_HLSL)
 #define BRG_INPUT_HLSL
 
+#include "../../../../PowerShaderLib/Lib/InstancingLib.hlsl"
+
 struct appdata
 {
     float4 vertex : POSITION;

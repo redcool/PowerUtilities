@@ -14,6 +14,7 @@ namespace PowerUtilities
         Type settingSOType;
 
         SerializedObject subSO; // property is (MonoBehavriour, ScriptableObject)
+        readonly GUIContent GUI_CREATE_BUTTON = new GUIContent();
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
             return 0;
@@ -30,30 +31,42 @@ namespace PowerUtilities
             EditorGUITools.DrawSettingSO(property, ref targetEditor, ref isTargetEditorFolded, settingSOType);
 
             // draw create list item
-            if (isTargetEditorFolded && !string.IsNullOrEmpty(attr.listPropName) && property.objectReferenceValue)
+            if (isTargetEditorFolded)
             {
-                //var itemType = fieldInfo.FieldType.GetGenericArguments().FirstOrDefault();
-                //Debug.Log(itemType);
-                if (subSO == null)
-                    subSO = new SerializedObject(property.objectReferenceValue);
-
-                subSO.UpdateIfRequiredOrScript();
-                var listProp = subSO.FindProperty(attr.listPropName);
-
-                var listFieldType = property.objectReferenceValue.GetFieldInfoHierarchy(attr.listPropName, out var _);
-                var listGenericType = listFieldType.FieldType.GetGenericArguments().FirstOrDefault();
-
-                if (GUILayout.Button($"Create New {listGenericType.Name}"))
-                {
-                    var newSO = ScriptableObjectTools.CreateSettingSO(listGenericType, property.name, listGenericType.Name);
-                    listProp.AppendElement().objectReferenceValue = newSO;
-                    subSO.ApplyModifiedProperties();
-                }
+                DrawCreateListItem(property, attr.listPropName,ref subSO);
             }
 
             serializedObject.ApplyModifiedProperties();
         }
 
+        /// <summary>
+        /// Draw Create New{Type} gui,
+        /// </summary>
+        /// <param name="property"></param>
+        /// <param name="listPropName"></param>
+        /// <param name="listSO">list serializedObject</param>
+        private void DrawCreateListItem(SerializedProperty property, string listPropName,ref SerializedObject listSO)
+        {
+            if (string.IsNullOrEmpty(listPropName) || !property.objectReferenceValue)
+                return;
+
+            if (listSO == null || listSO.targetObject != property.objectReferenceValue)
+                listSO = new SerializedObject(property.objectReferenceValue);
+
+            listSO.UpdateIfRequiredOrScript();
+            var listProp = listSO.FindProperty(listPropName);
+
+            var listFieldType = property.objectReferenceValue.GetFieldInfoHierarchy(listPropName, out var _);
+            var listGenericType = listFieldType.FieldType.GetGenericArguments().FirstOrDefault();
+
+            GUI_CREATE_BUTTON.Set($"Create New {listGenericType.Name}", $"create {listGenericType.Name}, append {listPropName}", null);
+            if (GUILayout.Button(GUI_CREATE_BUTTON))
+            {
+                var newSO = ScriptableObjectTools.CreateSettingSO(listGenericType, property.name, listGenericType.Name);
+                listProp.AppendElement().objectReferenceValue = newSO;
+                listSO.ApplyModifiedProperties();
+            }
+        }
     }
 }
 

@@ -201,16 +201,29 @@ namespace PowerUtilities
             return floats;
         }
 
-        public static List<CBufferPropInfo> GetShaderCBufferInfo(this string cbufferDef)
+        /// <summary>
+        /// Get CBufferPropInfo list from cbufferVariableString
+        /// </summary>
+        /// <param name="cbufferVariableString"> float4 _Color; float4 _Color1, _Color2;</param>
+        /// <returns></returns>
+        public static List<CBufferPropInfo> GetShaderCBufferInfo(this string cbufferVariableString)
         {
+            /*
+            float4 _Color;
+            float4 _Color1, _Color2;
+             */
+            const string PATTERN_DEF_VARIABLE = @"(\w+)";
+
             List<CBufferPropInfo> list = new();
-            foreach (var line in cbufferDef.ReadLines())
-                foreach (Match m in Regex.Matches(line, RegExTools.CBUFFER_VARS))
+            foreach (var line in cbufferVariableString.ReadLines())
+            {
+                var ms = Regex.Matches(line, PATTERN_DEF_VARIABLE);
+                var varType = ms?.First().Value;
+
+                foreach (Match valueMatch in ms?.Skip(1))
                 {
-                    if (m.Groups.Count == 3)
                     {
-                        var varType = m.Groups[1].Value;
-                        var varName = m.Groups[2].Value;
+                        var varName = valueMatch.Value;
                         var floats = CalcFloatsCount(varType);
                         list.Add(new CBufferPropInfo
                         {
@@ -220,6 +233,7 @@ namespace PowerUtilities
                         });
                     }
                 }
+            }
             return list;
         }
     }

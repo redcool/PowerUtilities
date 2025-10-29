@@ -92,9 +92,11 @@ namespace PowerUtilities
 
             var cbufferInfo = cbufferInfoList.Find(cbufferInfo => cbufferInfo.shader == info.mat.shader);
             if (cbufferInfo == null)
-                return;
+            {
+                throw new Exception($"{info.mat.shader} cbuffer info not found,check {nameof(DrawChildrenBRG)}.;shaderCBufferVarListSO");
+            }
 
             info.matGroupList.AddRange( cbufferInfo.bufferPropList);
-        }
+        } 
     }
 }
