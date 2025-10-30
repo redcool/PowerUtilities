@@ -20,6 +20,9 @@ namespace PowerUtilities
         public BatchID batchId;
         public BatchMeshID meshId;
         public BatchMaterialID matId;
+
+        public Material mat;
+        public Mesh mesh;
         /// <summary>
         /// {prop name , start float address}
         /// </summary>
@@ -38,7 +41,10 @@ namespace PowerUtilities
         // visible id list
         public List<int> visibleIdList;
 
-        public Action<BRGBatch, int, Renderer> OnFillMaterialDatas;
+        /// <summary>
+        /// tools
+        /// </summary>
+        public ShaderCBufferVar shaderCBufferVar;
 
         public int GetDataStartId(int matPropId)
         {
@@ -55,6 +61,9 @@ namespace PowerUtilities
             this.meshId = meshId;
             this.matId = matId;
             this.brgBatchId = brgBatchId;
+
+            mat = brg.GetRegisteredMaterial(matId);
+            mesh = brg.GetRegisteredMesh(meshId);
         }
 
         public void Dispose()
@@ -91,20 +100,6 @@ namespace PowerUtilities
             metadataList.Dispose();
         }
 
-        //public void FillGraphBuffer(MeshRenderer[] mrs)
-        //{
-        //    for (int i = 0; i < mrs.Length; i++)
-        //    {
-        //        var mr = mrs[i];
-        //        var objectToWorld = mr.transform.localToWorldMatrix.ToFloat3x4();
-        //        var worldToObject = mr.transform.worldToLocalMatrix.ToFloat3x4();
-        //        var color = mr.sharedMaterial.color;
-
-        //        FillData(objectToWorld.ToColumnArray(), i, 0);
-        //        FillData(worldToObject.ToColumnArray(), i, 1);
-        //        FillData(color.ToArray(), i, 2);
-        //    }
-        //}
         /// <summary>
         /// Fill dato into instanceBuffer(RawByteBuffer)
         /// </summary>
@@ -117,10 +112,11 @@ namespace PowerUtilities
         }
         /// <summary>
         /// Add renderers material data to instanceBuffer
-        /// 
+        /// 1 Fill material data
+        /// 2 Setup BrgBatchBlock to renderer.gameObject
         /// </summary>
         /// <param name="renderers"></param>
-        public void AddRenderers(IEnumerable<Renderer> renderers,Action<BRGBatch,int ,Renderer> onFillMaterailData)
+        public void FillMaterialDataAndSetupBatchBlock(IEnumerable<Renderer> renderers,Action<BRGBatch,int ,Renderer> onFillMaterailData)
         {
             var instId = 0;
             foreach (var mr in renderers)
@@ -134,6 +130,7 @@ namespace PowerUtilities
                 var block = mr.gameObject.GetOrAddComponent<BRGBatchBlock>();
                 block.brgBatch = this;
                 block.instId = instId;
+                block.shaderCBufferVar = shaderCBufferVar;
 
                 instId++;
             }
@@ -151,18 +148,18 @@ namespace PowerUtilities
         /// </summary>
         /// <param name="instId"></param>
         /// <param name="mr"></param>
-        public static void DefaultFillMaterialDatas(BRGBatch brgBatch, int instId, Renderer mr)
-        {
-            var objectToWorld = mr.transform.localToWorldMatrix.ToFloat3x4();
-            var worldToObject = mr.transform.worldToLocalMatrix.ToFloat3x4();
-            Vector4 mainTex_ST = new float4(mr.sharedMaterial.mainTextureScale, mr.sharedMaterial.mainTextureOffset);
-            var color = mr.sharedMaterial.color;
+        //public static void DefaultFillMaterialDatas(BRGBatch brgBatch, int instId, Renderer mr)
+        //{
+        //    var objectToWorld = mr.transform.localToWorldMatrix.ToFloat3x4();
+        //    var worldToObject = mr.transform.worldToLocalMatrix.ToFloat3x4();
+        //    Vector4 mainTex_ST = new float4(mr.sharedMaterial.mainTextureScale, mr.sharedMaterial.mainTextureOffset);
+        //    var color = mr.sharedMaterial.color;
 
-            brgBatch.FillData(objectToWorld.ToColumnArray(), instId, 0);
-            brgBatch.FillData(worldToObject.ToColumnArray(), instId, 1);
-            brgBatch.FillData(mainTex_ST.ToArray(), instId, 2);
-            brgBatch.FillData(color.ToArray(), instId, 3);
-        }
+        //    brgBatch.FillData(objectToWorld.ToColumnArray(), instId, 0);
+        //    brgBatch.FillData(worldToObject.ToColumnArray(), instId, 1);
+        //    brgBatch.FillData(mainTex_ST.ToArray(), instId, 2);
+        //    brgBatch.FillData(color.ToArray(), instId, 3);
+        //}
 
         /// <summary>
         /// setup drawCmdPt prepare batch draw

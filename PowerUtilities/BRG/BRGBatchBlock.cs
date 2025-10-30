@@ -7,6 +7,7 @@ using UnityEngine;
 
 namespace PowerUtilities
 {
+    [ExecuteInEditMode]
     /// <summary>
     /// Update instanceBuffer per renderer , Like MaterialPropertyBlock
     /// </summary>
@@ -17,6 +18,9 @@ namespace PowerUtilities
 
         public Color color;
         Color lastColor;
+
+        [EditorSettingSO]
+        public ShaderCBufferVar shaderCBufferVar;
 
         public void Update()
         {

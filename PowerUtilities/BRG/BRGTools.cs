@@ -154,7 +154,7 @@ namespace PowerUtilities
         /// <returns></returns>
         public static void FindShaderPropNames_BRG(this Shader shader, ref List<string> propNameList, ref int floatsCount, List<int> propFloatCountList, bool isFindShaderProp = true)
         {
-            // add 2 matrix floatCount
+            //1 add 2 matrix floatCount
             floatsCount = 12 + 12;
             // add 2 matrix
             propNameList.Clear();
@@ -167,6 +167,7 @@ namespace PowerUtilities
                 propFloatCountList.Add(12);
             }
 
+            //2 add material properties continue
             if (isFindShaderProp)
                 shader.FindShaderPropNames(ref propNameList, ref floatsCount, propFloatCountList);
         }

@@ -9,6 +9,8 @@ namespace PowerUtilities
     [Serializable]
     public class BrgGroupInfo
     {
+        [Tooltip("{mesh}_{material}_{instanceCount}")]
+        public string groupName;
         [Header("brg")]
         //public BatchMeshID meshId;
         //public BatchMaterialID matId;
@@ -32,6 +34,9 @@ namespace PowerUtilities
         /// Which instance id will draw
         /// </summary>
         public List<int> visibleIdList = new();
+
+        [Tooltip("shader for batch renderers, RecordChildren auto set")]
+        public ShaderCBufferVar shaderCBufferVar;
 
     }
 }

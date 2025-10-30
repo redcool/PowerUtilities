@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -175,6 +176,27 @@ namespace PowerUtilities
                 block.SetTexture(ShaderPropertyIds._MainTex, texture);
                 block.SetTexture(ShaderPropertyIds.sourceTex, texture);
             }
+        }
+        /// <summary>
+        /// Get Texture scale and offset,{xy:scale,zw:offset}
+        /// </summary>
+        /// <param name="mat"></param>
+        /// <param name="textureName"></param>
+        /// <returns></returns>
+        public static Vector4 GetTextureST(this Material mat,string textureName)
+        {
+            return new float4(mat.GetTextureScale(textureName),mat.GetTextureOffset(textureName));
+        }
+
+        public static float[] GetFloats(this Material mat, string propName)
+        {
+            float[] floats = default;
+            if (mat.HasFloat(propName)) // float,int
+                floats = mat.GetFloatArray(propName);
+            else if (mat.HasVector(propName)) // vector,color
+                floats = mat.GetVector(propName).ToArray();
+
+            return floats;
         }
     }
 }

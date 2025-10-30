@@ -16,14 +16,6 @@ namespace PowerUtilities
     [ExecuteInEditMode]
     public partial class DrawChildrenBRG : MonoBehaviour
     {
-        public class DrawBatchInfo
-        {
-            public GraphicsBuffer buffer;
-            public BatchMaterialID matId;
-            public BatchMeshID meshId;
-            public BatchID batchId;
-            public int instanceCount;
-        }
 
         [EditorButton(onClickCall = "RecordChildren")]
         public bool isRecord;
@@ -127,8 +119,13 @@ namespace PowerUtilities
                 mat.shader.FindShaderPropNames_BRG(ref matPropNameList, ref floatsCount, floatsCountList);
                 
                 var brgBatch = new BRGBatch(brg, instCount, groupInfo.Key.meshId, groupInfo.Key.matId, groupId);
+                //setup shaderCBufferVar
+                var shaderCBufferVar = shaderCBufferVarListSO.shaderCBufferVarList.Find(bufferVar => bufferVar.shader == mat.shader);
+                brgBatch.shaderCBufferVar = shaderCBufferVar;
+
                 brgBatch.Setup(floatsCount, matPropNameList.ToArray(), floatsCountList);
-                brgBatch.AddRenderers(groupInfo,BRGBatch.DefaultFillMaterialDatas);
+                brgBatch.FillMaterialDataAndSetupBatchBlock(groupInfo, shaderCBufferVar.FillMaterialDatas);
+
 
                 batchList.Add(brgBatch);
                 groupId++;
@@ -149,12 +146,14 @@ namespace PowerUtilities
                     var matId = brg.RegisterMaterial(brgGroupInfo.mat);
 
                     var brgBatch = new BRGBatch(brg, brgGroupInfo.instanceCount, meshId, matId, groupId);
+                    brgBatch.shaderCBufferVar = brgGroupInfo.shaderCBufferVar;
+
                     brgBatch.Setup(brgGroupInfo.floatsCount,
                         brgGroupInfo.matGroupList.Select(matInfo => matInfo.propName).ToArray(),
                         brgGroupInfo.matGroupList.Select(matInfo => matInfo.floatsCount).ToList()
                         );
 
-                    brgBatch.AddRenderers(brgGroupInfo.rendererList,BRGBatch.DefaultFillMaterialDatas);
+                    brgBatch.FillMaterialDataAndSetupBatchBlock(brgGroupInfo.rendererList, brgGroupInfo.shaderCBufferVar.FillMaterialDatas);
                     brgBatch.visibleIdList = brgGroupInfo.visibleIdList;
 
                     return brgBatch;

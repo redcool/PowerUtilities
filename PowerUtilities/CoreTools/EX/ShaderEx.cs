@@ -147,12 +147,13 @@ namespace PowerUtilities
             _ => 0,
         };
 
+
         /// <summary>
         /// Find shader propNames,and need how many floats
         /// 
         /// cause incorrect when _Texture not match _Texture_ST
         /// 
-        ///likke:
+        ///like:
         //{
         //    "unity_ObjectToWorld", //12 floats
         //    "unity_WorldToObject", //12
@@ -161,8 +162,9 @@ namespace PowerUtilities
         //var floatsCount = 12 + 12 + 4;
         /// </summary>
         /// <param name="shader"></param>
-        /// <param name="floatsCount"></param>
-        /// <returns></returns>
+        /// <param name="propNameList">property name list</param>
+        /// <param name="floatsCount">all properties float count</param>
+        /// <param name="propFloatCountList">property float count</param>
         public static void FindShaderPropNames(this Shader shader, ref List<string> propNameList, ref int floatsCount, List<int> propFloatCountList)
         {
             var propCount = shader.GetPropertyCount();

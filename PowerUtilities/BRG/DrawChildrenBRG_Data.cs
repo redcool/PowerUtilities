@@ -80,23 +80,24 @@ namespace PowerUtilities
 
                 //final calc total buffer floats
                 brgGroupInfo.floatsCount = brgGroupInfo.matGroupList.Sum(item => item.floatsCount);
-
+                brgGroupInfo.groupName = $"{mesh.name}_{mat.name}_{instCount}";
                 brgGroupInfoList.Add(brgGroupInfo);
             }
         }
 
-        public static void AddShaderCBuffer(BrgGroupInfo info, List<ShaderCBufferVar> cbufferInfoList)
+        public static void AddShaderCBuffer(BrgGroupInfo info, List<ShaderCBufferVar> cbufferVarList)
         {
-            if (cbufferInfoList == null)
+            if (cbufferVarList == null)
                 return;
 
-            var cbufferInfo = cbufferInfoList.Find(cbufferInfo => cbufferInfo.shader == info.mat.shader);
-            if (cbufferInfo == null)
+            var cbufferVar = cbufferVarList.Find(cbufferInfo => cbufferInfo.shader == info.mat.shader);
+            if (cbufferVar == null)
             {
                 throw new Exception($"{info.mat.shader} cbuffer info not found,check {nameof(DrawChildrenBRG)}.;shaderCBufferVarListSO");
             }
 
-            info.matGroupList.AddRange( cbufferInfo.bufferPropList);
+            info.matGroupList.AddRange( cbufferVar.bufferPropList);
+            info.shaderCBufferVar = cbufferVar;
         } 
     }
 }

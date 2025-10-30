@@ -15,5 +15,17 @@ namespace PowerUtilities
                 list.Add(items[i]);
             }
         }
+
+
+        /// <summary>
+        /// Show Array items string
+        /// </summary>
+        /// <param name="arr"></param>
+        /// <param name="seperator"></param>
+        /// <returns></returns>
+        public static string ToString<T>(this IEnumerable<T> arr, string seperator)
+        {
+            return string.Join(seperator, arr);
+        }
     }
 }
