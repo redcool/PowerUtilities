@@ -39,6 +39,9 @@ namespace PowerUtilities
 
         public void Update()
         {
+            if (brgBatch == null)
+                return;
+
             if (transform.hasChanged)
             {
                 var objectToWorld = transform.localToWorldMatrix.ToFloat3x4();

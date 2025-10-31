@@ -38,7 +38,7 @@ namespace PowerUtilities
 
         public static void FillData(this GraphicsBuffer buffer, float[] datas, int graphBufferStartId,int graphBufferStartIdOffset)
         {
-            if (!buffer.IsValid())
+            if (!buffer.IsValidSafe())
                 return;
 
             //Debug.Log($"FillData startId : {graphBufferStartId} + {graphBufferStartIdOffset} ="+ (graphBufferStartId + graphBufferStartIdOffset));

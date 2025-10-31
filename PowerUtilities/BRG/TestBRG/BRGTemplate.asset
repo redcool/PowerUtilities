@@ -12,14 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1d033e37f736d854da4faf65af8719e5, type: 3}
   m_Name: BRGTemplate
   m_EditorClassIdentifier: 
-  name: BRGTemplate
   shader: {fileID: 4800000, guid: 7708e989ec5f4ec4cb553ae21fbf5655, type: 3}
   shaderCBufferLayoutText: "    float4 _MainTex_ST;\r\n    float4 _Color;"
   isAnalysis: 1
   bufferPropList:
-  - propType: float4
-    propName: _MainTex_ST
+  - propName: _MainTex_ST
+    propType: float4
     floatsCount: 4
-  - propType: float4
-    propName: _Color
+  - propName: _Color
+    propType: float4
     floatsCount: 4
+  isLogDotsMacros: 1

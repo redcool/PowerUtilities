@@ -36,7 +36,7 @@ namespace PowerUtilities
         public List<int> visibleIdList = new();
 
         [Tooltip("shader for batch renderers, RecordChildren auto set")]
-        public BRGMaterialInfo shaderCBufferVar;
+        public BRGMaterialInfo brgMaterialInfo;
 
     }
 }

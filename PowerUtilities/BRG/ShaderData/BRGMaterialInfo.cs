@@ -92,7 +92,7 @@ namespace PowerUtilities
             {
                 float[] floatArr = mat.GetFloats(propInfo.propName);
                 brgBatch.FillData(floatArr, instId, matPropId);
-                Debug.Log($"{propInfo.propName} -> {floatArr.ToString(",")}");
+                //Debug.Log($"{propInfo.propName} -> {floatArr.ToString(",")}");
                 matPropId++;
             }
 

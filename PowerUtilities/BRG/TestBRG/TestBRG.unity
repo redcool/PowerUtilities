@@ -327,7 +327,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   instId: 0
-  color: {r: 0, g: 0, b: 0, a: 0}
+  brgMaterialInfo: {fileID: 11400000, guid: c86fc2dc8f02d494dbf481e328c8ff07, type: 2}
+  propName: 
+  propType: 2
+  floatValue: 0
+  vectorValue: {x: 0, y: 0, z: 0, w: 0}
+  colorValue: {r: 0, g: 0, b: 0, a: 0}
+  isUpdateBlock: 0
 --- !u!1 &416885601
 GameObject:
   m_ObjectHideFlags: 0
@@ -447,7 +453,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   instId: 2
-  color: {r: 0, g: 0, b: 0, a: 0}
+  brgMaterialInfo: {fileID: 11400000, guid: 1d919fb28c41c7949ab529d68f73a791, type: 2}
+  propName: 
+  propType: 2
+  floatValue: 0
+  vectorValue: {x: 0, y: 0, z: 0, w: 0}
+  colorValue: {r: 0, g: 0, b: 0, a: 0}
+  isUpdateBlock: 0
 --- !u!1 &441995014
 GameObject:
   m_ObjectHideFlags: 0
@@ -814,7 +826,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   instId: 4
-  color: {r: 0, g: 0, b: 0, a: 0}
+  brgMaterialInfo: {fileID: 11400000, guid: 1d919fb28c41c7949ab529d68f73a791, type: 2}
+  propName: 
+  propType: 2
+  floatValue: 0
+  vectorValue: {x: 0, y: 0, z: 0, w: 0}
+  colorValue: {r: 0, g: 0, b: 0, a: 0}
+  isUpdateBlock: 0
 --- !u!1 &753780613
 GameObject:
   m_ObjectHideFlags: 0
@@ -934,7 +952,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   instId: 1
-  color: {r: 0, g: 0, b: 0, a: 0}
+  brgMaterialInfo: {fileID: 11400000, guid: c86fc2dc8f02d494dbf481e328c8ff07, type: 2}
+  propName: 
+  propType: 2
+  floatValue: 0
+  vectorValue: {x: 0, y: 0, z: 0, w: 0}
+  colorValue: {r: 0, g: 0, b: 0, a: 0}
+  isUpdateBlock: 0
 --- !u!1 &961681840
 GameObject:
   m_ObjectHideFlags: 0
@@ -1234,7 +1258,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   instId: 1
-  color: {r: 0.07496214, g: 1, b: 0, a: 0}
+  brgMaterialInfo: {fileID: 11400000, guid: 1d919fb28c41c7949ab529d68f73a791, type: 2}
+  propName: _MainTex_ST
+  propType: 1
+  floatValue: 0
+  vectorValue: {x: 2, y: 2, z: 1, w: 1}
+  colorValue: {r: 1, g: 0, b: 0, a: 0}
+  isUpdateBlock: 1
 --- !u!1 &1144127320
 GameObject:
   m_ObjectHideFlags: 0
@@ -1354,7 +1384,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   instId: 7
-  color: {r: 0, g: 0, b: 0, a: 0}
+  brgMaterialInfo: {fileID: 11400000, guid: 1d919fb28c41c7949ab529d68f73a791, type: 2}
+  propName: 
+  propType: 2
+  floatValue: 0
+  vectorValue: {x: 0, y: 0, z: 0, w: 0}
+  colorValue: {r: 0, g: 0, b: 0, a: 0}
+  isUpdateBlock: 0
 --- !u!1 &1157692015
 GameObject:
   m_ObjectHideFlags: 0
@@ -1721,7 +1757,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   instId: 0
-  color: {r: 1, g: 0.058490515, b: 0.058490515, a: 0}
+  brgMaterialInfo: {fileID: 11400000, guid: 1d919fb28c41c7949ab529d68f73a791, type: 2}
+  propName: 
+  propType: 2
+  floatValue: 0
+  vectorValue: {x: 0, y: 0, z: 0, w: 0}
+  colorValue: {r: 0, g: 0, b: 0, a: 0}
+  isUpdateBlock: 0
 --- !u!1 &1352866416
 GameObject:
   m_ObjectHideFlags: 0
@@ -1841,7 +1883,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   instId: 4
-  color: {r: 0, g: 0, b: 0, a: 0}
+  brgMaterialInfo: {fileID: 11400000, guid: c86fc2dc8f02d494dbf481e328c8ff07, type: 2}
+  propName: 
+  propType: 2
+  floatValue: 0
+  vectorValue: {x: 0, y: 0, z: 0, w: 0}
+  colorValue: {r: 0, g: 0, b: 0, a: 0}
+  isUpdateBlock: 0
 --- !u!1 &1417585618
 GameObject:
   m_ObjectHideFlags: 0
@@ -2018,7 +2066,7 @@ MonoBehaviour:
     visibleIdList: 0000000001000000020000000300000004000000
     shaderCBufferVar: {fileID: 11400000, guid: 1d919fb28c41c7949ab529d68f73a791, type: 2}
   shaderInfoHelp: 
-  shaderCBufferVarListSO: {fileID: 11400000, guid: 5a4bd7bc681ba174ab928d76ea9b9c92,
+  brgMaterialInfoListSO: {fileID: 11400000, guid: 5a4bd7bc681ba174ab928d76ea9b9c92,
     type: 2}
   cullingGroupControl: {fileID: 961681841}
 --- !u!4 &1417585620
@@ -2170,7 +2218,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   instId: 2
-  color: {r: 0, g: 0, b: 0, a: 0}
+  brgMaterialInfo: {fileID: 11400000, guid: c86fc2dc8f02d494dbf481e328c8ff07, type: 2}
+  propName: 
+  propType: 2
+  floatValue: 0
+  vectorValue: {x: 0, y: 0, z: 0, w: 0}
+  colorValue: {r: 0, g: 0, b: 0, a: 0}
+  isUpdateBlock: 0
 --- !u!1 &1560779959
 GameObject:
   m_ObjectHideFlags: 0
@@ -2427,7 +2481,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   instId: 5
-  color: {r: 0, g: 0, b: 0, a: 0}
+  brgMaterialInfo: {fileID: 11400000, guid: 1d919fb28c41c7949ab529d68f73a791, type: 2}
+  propName: 
+  propType: 2
+  floatValue: 0
+  vectorValue: {x: 0, y: 0, z: 0, w: 0}
+  colorValue: {r: 0, g: 0, b: 0, a: 0}
+  isUpdateBlock: 0
 --- !u!1 &1582833074
 GameObject:
   m_ObjectHideFlags: 0
@@ -2547,7 +2607,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   instId: 3
-  color: {r: 0, g: 0, b: 0, a: 0}
+  brgMaterialInfo: {fileID: 11400000, guid: c86fc2dc8f02d494dbf481e328c8ff07, type: 2}
+  propName: 
+  propType: 2
+  floatValue: 0
+  vectorValue: {x: 0, y: 0, z: 0, w: 0}
+  colorValue: {r: 0, g: 0, b: 0, a: 0}
+  isUpdateBlock: 0
 --- !u!1 &2048693409
 GameObject:
   m_ObjectHideFlags: 0
@@ -2667,7 +2733,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   instId: 8
-  color: {r: 0, g: 0, b: 0, a: 0}
+  brgMaterialInfo: {fileID: 11400000, guid: 1d919fb28c41c7949ab529d68f73a791, type: 2}
+  propName: 
+  propType: 2
+  floatValue: 0
+  vectorValue: {x: 0, y: 0, z: 0, w: 0}
+  colorValue: {r: 0, g: 0, b: 0, a: 0}
+  isUpdateBlock: 0
 --- !u!1 &2101242208
 GameObject:
   m_ObjectHideFlags: 0
@@ -2787,7 +2859,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   instId: 5
-  color: {r: 0, g: 0, b: 0, a: 0}
+  brgMaterialInfo: {fileID: 11400000, guid: c86fc2dc8f02d494dbf481e328c8ff07, type: 2}
+  propName: 
+  propType: 2
+  floatValue: 0
+  vectorValue: {x: 0, y: 0, z: 0, w: 0}
+  colorValue: {r: 0, g: 0, b: 0, a: 0}
+  isUpdateBlock: 0
 --- !u!1 &2105314722
 GameObject:
   m_ObjectHideFlags: 0
@@ -2907,7 +2985,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   instId: 6
-  color: {r: 0, g: 0, b: 0, a: 0}
+  brgMaterialInfo: {fileID: 11400000, guid: 1d919fb28c41c7949ab529d68f73a791, type: 2}
+  propName: 
+  propType: 2
+  floatValue: 0
+  vectorValue: {x: 0, y: 0, z: 0, w: 0}
+  colorValue: {r: 0, g: 0, b: 0, a: 0}
+  isUpdateBlock: 0
 --- !u!1 &2127106345
 GameObject:
   m_ObjectHideFlags: 0
@@ -3027,7 +3111,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   instId: 3
-  color: {r: 0, g: 0, b: 0, a: 0}
+  brgMaterialInfo: {fileID: 11400000, guid: 1d919fb28c41c7949ab529d68f73a791, type: 2}
+  propName: 
+  propType: 2
+  floatValue: 0
+  vectorValue: {x: 0, y: 0, z: 0, w: 0}
+  colorValue: {r: 0, g: 0, b: 0, a: 0}
+  isUpdateBlock: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

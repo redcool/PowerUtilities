@@ -31,6 +31,7 @@ namespace PowerUtilities
 
         void OnEnable()
         {
+            CheckBRGMaterialInfoListSO();
             if (brg == null)
                 brg = new BatchRendererGroup(OnPerformCulling, IntPtr.Zero);
 
@@ -60,6 +61,7 @@ namespace PowerUtilities
         }
         void RecordChildren()
         {
+            CheckBRGMaterialInfoListSO();
             if (brg == null)
                 brg = new BatchRendererGroup(OnPerformCulling, IntPtr.Zero);
 
@@ -69,6 +71,14 @@ namespace PowerUtilities
             FillBatchListWithBrgGroupInfoList();
 
             SetupCommonCullingGroup();
+        }
+
+        private void CheckBRGMaterialInfoListSO()
+        {
+            if (!brgMaterialInfoListSO || brgMaterialInfoListSO.brgMaterialInfoList.Count == 0)
+            {
+                throw new Exception($"{nameof(brgMaterialInfoListSO)} need config first");
+            }
         }
 
 
@@ -120,11 +130,11 @@ namespace PowerUtilities
                 
                 var brgBatch = new BRGBatch(brg, instCount, groupInfo.Key.meshId, groupInfo.Key.matId, groupId);
                 //setup shaderCBufferVar
-                var shaderCBufferVar = shaderCBufferVarListSO.brgMaterialInfoList.Find(bufferVar => bufferVar.shader == mat.shader);
-                brgBatch.shaderCBufferVar = shaderCBufferVar;
+                var brgMaterialInfo = brgMaterialInfoListSO.brgMaterialInfoList.Find(bufferVar => bufferVar.shader == mat.shader);
+                brgBatch.brgMaterialInfo = brgMaterialInfo;
 
                 brgBatch.Setup(floatsCount, matPropNameList.ToArray(), floatsCountList);
-                brgBatch.FillMaterialDataAndSetupBatchBlock(groupInfo, shaderCBufferVar.FillMaterialDatas);
+                brgBatch.FillMaterialDataAndSetupBatchBlock(groupInfo, brgMaterialInfo.FillMaterialDatas);
 
 
                 batchList.Add(brgBatch);
@@ -146,14 +156,14 @@ namespace PowerUtilities
                     var matId = brg.RegisterMaterial(brgGroupInfo.mat);
 
                     var brgBatch = new BRGBatch(brg, brgGroupInfo.instanceCount, meshId, matId, groupId);
-                    brgBatch.shaderCBufferVar = brgGroupInfo.shaderCBufferVar;
+                    brgBatch.brgMaterialInfo = brgGroupInfo.brgMaterialInfo;
 
                     brgBatch.Setup(brgGroupInfo.floatsCount,
                         brgGroupInfo.matGroupList.Select(matInfo => matInfo.propName).ToArray(),
                         brgGroupInfo.matGroupList.Select(matInfo => matInfo.floatsCount).ToList()
                         );
 
-                    brgBatch.FillMaterialDataAndSetupBatchBlock(brgGroupInfo.rendererList, brgGroupInfo.shaderCBufferVar.FillMaterialDatas);
+                    brgBatch.FillMaterialDataAndSetupBatchBlock(brgGroupInfo.rendererList, brgGroupInfo.brgMaterialInfo.FillMaterialDatas);
                     brgBatch.visibleIdList = brgGroupInfo.visibleIdList;
 
                     return brgBatch;
@@ -176,6 +186,8 @@ namespace PowerUtilities
 
             cullingGroupControl.OnStateChanged -= CullingGroupControl_OnStateChanged;
             cullingGroupControl.OnStateChanged += CullingGroupControl_OnStateChanged;
+
+            cullingGroupControl.SetupCullingInfosVisible();
         }
 
         private void CullingGroupControl_OnStateChanged(CommomCullingInfo info)
