@@ -12,8 +12,8 @@ namespace PowerUtilities
     /// ShaderCBufferVar Container
     /// </summary>
     [Serializable]
-    public class ShaderCBufferVarListSO : ScriptableObject
+    public class BRGMaterialInfoListSO : ScriptableObject
     {
-        public List<ShaderCBufferVar> shaderCBufferVarList = new List<ShaderCBufferVar>();
+        public List<BRGMaterialInfo> brgMaterialInfoList = new List<BRGMaterialInfo>();
     }
 }

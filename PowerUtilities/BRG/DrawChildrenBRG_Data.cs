@@ -17,8 +17,8 @@ namespace PowerUtilities
 
         [Header("Shader Info")]
         public string shaderInfoHelp="";
-        [EditorSettingSO(listPropName = "shaderCBufferVarList")]
-        public ShaderCBufferVarListSO shaderCBufferVarListSO;
+        [EditorSettingSO(listPropName = nameof(BRGMaterialInfoListSO.brgMaterialInfoList))]
+        public BRGMaterialInfoListSO shaderCBufferVarListSO;
 
         [Header("CommonCullingGroup")]
         public CommonCullingGroupControl cullingGroupControl;
@@ -76,7 +76,7 @@ namespace PowerUtilities
                 // visibleIdList set empty default
                 //brgGroupInfo.visibleIdList = Enumerable.Range(0, brgGroupInfo.rendererList.Count).ToList();
                 // analysis shader 's cuffer
-                AddShaderCBuffer(brgGroupInfo, shaderCBufferVarListSO?.shaderCBufferVarList);
+                AddShaderCBuffer(brgGroupInfo, shaderCBufferVarListSO?.brgMaterialInfoList);
 
                 //final calc total buffer floats
                 brgGroupInfo.floatsCount = brgGroupInfo.matGroupList.Sum(item => item.floatsCount);
@@ -85,7 +85,7 @@ namespace PowerUtilities
             }
         }
 
-        public static void AddShaderCBuffer(BrgGroupInfo info, List<ShaderCBufferVar> cbufferVarList)
+        public static void AddShaderCBuffer(BrgGroupInfo info, List<BRGMaterialInfo> cbufferVarList)
         {
             if (cbufferVarList == null)
                 return;

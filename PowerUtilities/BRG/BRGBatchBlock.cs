@@ -1,9 +1,11 @@
-﻿using System;
+﻿using PowerUtilities.RenderFeatures;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace PowerUtilities
 {
@@ -16,11 +18,24 @@ namespace PowerUtilities
         public int instId;
         public BRGBatch brgBatch;
 
-        public Color color;
-        Color lastColor;
-
         [EditorSettingSO]
-        public ShaderCBufferVar shaderCBufferVar;
+        public BRGMaterialInfo brgMaterialInfo;
+
+        [Header("Update Block")]
+        [Tooltip("material property name")]
+        public string propName;
+        [Tooltip("property type value")]
+        public ShaderPropertyType propType = ShaderPropertyType.Float;
+
+        [Tooltip("property float value")]
+        public float floatValue;
+        [Tooltip("property vector value")]
+        public Vector4 vectorValue;
+        [Tooltip("property color value")]
+        public Color colorValue;
+
+        [EditorButton(onClickCall = nameof(UpdateBlock))]
+        public bool isUpdateBlock;
 
         public void Update()
         {
@@ -31,10 +46,22 @@ namespace PowerUtilities
                 brgBatch.FillData(objectToWorld.ToColumnArray(), instId, 0);
                 brgBatch.FillData(worldToObject.ToColumnArray(), instId, 1);
             }
-            if (CompareTools.CompareAndSet(ref lastColor, ref color))
+        }
+
+        public void UpdateBlock()
+        {
+            if (string.IsNullOrEmpty(propName) || brgBatch == null || !brgMaterialInfo)
+                return;
+
+            float[] floats = default;
+            if (propType == ShaderPropertyType.Float)
+                floats = new float[] { floatValue };
+            else
             {
-                brgBatch.FillData(color.ToArray(), instId, 3);
+                floats = propType == ShaderPropertyType.Color ? colorValue.ToArray() : vectorValue.ToArray();
             }
+
+            brgMaterialInfo.FillMaterialData(brgBatch, instId, propName, floats);
         }
     }
 }

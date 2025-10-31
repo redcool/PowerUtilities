@@ -1234,7 +1234,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   instId: 1
-  color: {r: 0, g: 0, b: 0, a: 0}
+  color: {r: 0.07496214, g: 1, b: 0, a: 0}
 --- !u!1 &1144127320
 GameObject:
   m_ObjectHideFlags: 0
@@ -1530,12 +1530,12 @@ MonoBehaviour:
     sh[18]: 0
     sh[19]: 0
     sh[20]: 0
-    sh[21]: 0
-    sh[22]: 0
-    sh[23]: 0
-    sh[24]: 0
-    sh[25]: 0
-    sh[26]: 0
+    sh[21]: 1.942e-42
+    sh[22]: 8.07e-43
+    sh[23]: 1e-45
+    sh[24]: 1e-45
+    sh[25]: NaN
+    sh[26]: 6e-45
   shAmbientLight: {r: 0, g: 0, b: 0, a: 0}
   shLights: []
   isUpdateFog: 0
@@ -1586,12 +1586,12 @@ MonoBehaviour:
       sh[18]: 0
       sh[19]: 0
       sh[20]: 0
-      sh[21]: 0
-      sh[22]: 0
-      sh[23]: 0
-      sh[24]: 0
-      sh[25]: 0
-      sh[26]: 0
+      sh[21]: 1.942e-42
+      sh[22]: 8.07e-43
+      sh[23]: 1e-45
+      sh[24]: 1e-45
+      sh[25]: NaN
+      sh[26]: 6e-45
     shAmbientLight: {r: 0, g: 0, b: 0, a: 0}
     shLights: []
   sceneFogInfo:
@@ -1721,7 +1721,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   instId: 0
-  color: {r: 0, g: 0, b: 0, a: 0}
+  color: {r: 1, g: 0.058490515, b: 0.058490515, a: 0}
 --- !u!1 &1352866416
 GameObject:
   m_ObjectHideFlags: 0
@@ -1874,7 +1874,8 @@ MonoBehaviour:
   isRecord: 1
   isIncludeInvisible: 1
   brgGroupInfoList:
-  - lightmapId: -1
+  - groupName: Sphere_BRGTemplate_6
+    lightmapId: -1
     floatsCount: 32
     mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
     mat: {fileID: 2100000, guid: e7bc7e750d99c384f834df109ffde849, type: 2}
@@ -1899,9 +1900,11 @@ MonoBehaviour:
     - {fileID: 1582833077}
     - {fileID: 1352866419}
     - {fileID: 2101242211}
-    visibleIdList: 010000000300000005000000020000000000000004000000
-  - lightmapId: -1
-    floatsCount: 63
+    visibleIdList: 000000000100000002000000030000000400000005000000
+    shaderCBufferVar: {fileID: 11400000, guid: c86fc2dc8f02d494dbf481e328c8ff07, type: 2}
+  - groupName: Cube_BakedPbrLit_9
+    lightmapId: -1
+    floatsCount: 71
     mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
     mat: {fileID: 2100000, guid: fb1cb133a81eef844b4ff3e2574b11fc, type: 2}
     matGroupList:
@@ -1920,6 +1923,15 @@ MonoBehaviour:
     - propName: _FogOn
       propType: half
       floatsCount: 1
+    - propName: _FogNoiseOn
+      propType: half
+      floatsCount: 1
+    - propName: _DepthFogOn
+      propType: half
+      floatsCount: 1
+    - propName: _HeightFogOn
+      propType: half
+      floatsCount: 1
     - propName: _Cutoff
       propType: half
       floatsCount: 1
@@ -1927,6 +1939,9 @@ MonoBehaviour:
       propType: half
       floatsCount: 1
     - propName: _UseUV
+      propType: half
+      floatsCount: 1
+    - propName: _UseUVReverseY
       propType: half
       floatsCount: 1
     - propName: _MainTexArrayId
@@ -1942,6 +1957,12 @@ MonoBehaviour:
       propType: half4
       floatsCount: 4
     - propName: _Metallic
+      propType: half
+      floatsCount: 1
+    - propName: _Smoothness
+      propType: half
+      floatsCount: 1
+    - propName: _Occlusion
       propType: half
       floatsCount: 1
     - propName: _EnvIntensity
@@ -1962,10 +1983,16 @@ MonoBehaviour:
     - propName: _PremulAlpha
       propType: half
       floatsCount: 1
+    - propName: _RGBMScale
+      propType: half
+      floatsCount: 1
     - propName: _MainLightShadowSoftScale
       propType: half
       floatsCount: 1
     - propName: _CustomShadowNormalBias
+      propType: half
+      floatsCount: 1
+    - propName: _CustomShadowDepthBias
       propType: half
       floatsCount: 1
     - propName: _GIDiffuseColor
@@ -1988,7 +2015,8 @@ MonoBehaviour:
     - {fileID: 2105314725}
     - {fileID: 1144127323}
     - {fileID: 2048693412}
-    visibleIdList: 0300000004000000000000000100000002000000
+    visibleIdList: 0000000001000000020000000300000004000000
+    shaderCBufferVar: {fileID: 11400000, guid: 1d919fb28c41c7949ab529d68f73a791, type: 2}
   shaderInfoHelp: 
   shaderCBufferVarListSO: {fileID: 11400000, guid: 5a4bd7bc681ba174ab928d76ea9b9c92,
     type: 2}

@@ -44,7 +44,7 @@ namespace PowerUtilities
         /// <summary>
         /// tools
         /// </summary>
-        public ShaderCBufferVar shaderCBufferVar;
+        public BRGMaterialInfo shaderCBufferVar;
 
         public int GetDataStartId(int matPropId)
         {
@@ -130,7 +130,7 @@ namespace PowerUtilities
                 var block = mr.gameObject.GetOrAddComponent<BRGBatchBlock>();
                 block.brgBatch = this;
                 block.instId = instId;
-                block.shaderCBufferVar = shaderCBufferVar;
+                block.brgMaterialInfo = shaderCBufferVar;
 
                 instId++;
             }

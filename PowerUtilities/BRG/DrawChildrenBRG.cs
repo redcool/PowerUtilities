@@ -120,7 +120,7 @@ namespace PowerUtilities
                 
                 var brgBatch = new BRGBatch(brg, instCount, groupInfo.Key.meshId, groupInfo.Key.matId, groupId);
                 //setup shaderCBufferVar
-                var shaderCBufferVar = shaderCBufferVarListSO.shaderCBufferVarList.Find(bufferVar => bufferVar.shader == mat.shader);
+                var shaderCBufferVar = shaderCBufferVarListSO.brgMaterialInfoList.Find(bufferVar => bufferVar.shader == mat.shader);
                 brgBatch.shaderCBufferVar = shaderCBufferVar;
 
                 brgBatch.Setup(floatsCount, matPropNameList.ToArray(), floatsCountList);

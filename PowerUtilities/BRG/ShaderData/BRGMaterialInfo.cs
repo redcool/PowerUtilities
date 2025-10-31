@@ -11,7 +11,7 @@ namespace PowerUtilities
     /// Save shader cbuffer properties
     /// </summary>
     [Serializable]
-    public class ShaderCBufferVar : ScriptableObject
+    public class BRGMaterialInfo : ScriptableObject
     {
         [Tooltip("cbuffer target shader")]
         public Shader shader;
@@ -97,6 +97,18 @@ namespace PowerUtilities
             }
 
         }
+
+        public void FillMaterialData(BRGBatch brgBatch,int instId,string propName, float[] floats)
+        {
+            var propId = bufferPropList.FindIndex(info => info.propName == propName);
+            if(propId < 0)
+            {
+                throw new Exception($"{propName} not found!");
+            }
+            propId += 2; // add objectToWorld,worldToObject
+            brgBatch.FillData(floats,instId, propId);
+        }
+
     }
 
 }
