@@ -15,10 +15,10 @@ namespace PowerUtilities
         [Header("Draw Info")]
         public List<BrgGroupInfo> brgGroupInfoList = new();
 
-        [Header("Shader Info")]
-        public string shaderInfoHelp="";
+        [EditorHeader("","Shader Info","0xffffff", indentLevel = 0)]
+        //public string shaderInfoHelp="";
         [EditorSettingSO(listPropName = nameof(BRGMaterialInfoListSO.brgMaterialInfoList))]
-        public BRGMaterialInfoListSO brgMaterialInfoListSO = new();
+        public BRGMaterialInfoListSO brgMaterialInfoListSO;
 
         [Header("CommonCullingGroup")]
         public CommonCullingGroupControl cullingGroupControl;

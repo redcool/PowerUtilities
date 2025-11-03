@@ -39,7 +39,7 @@ namespace PowerUtilities
         int[] dataStartIds;
 
         // visible id list
-        public List<int> visibleIdList;
+        public List<int> visibleIdList = new();
 
         /// <summary>
         /// tools

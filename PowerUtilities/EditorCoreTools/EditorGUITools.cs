@@ -610,12 +610,12 @@ namespace PowerUtilities
         /// <param name="settingSOProp"></param>
         /// <param name="targetEditor"></param>
         /// <param name="isTargetEditorFolded"></param>
-        /// <param name="SettingSOType"></param>
-        public static void DrawSettingSO(SerializedProperty settingSOProp, ref Editor targetEditor, ref bool isTargetEditorFolded, Type SettingSOType)
+        /// <param name="settingSOType"></param>
+        public static void DrawSettingSO(SerializedProperty settingSOProp, ref Editor targetEditor, ref bool isTargetEditorFolded, Type settingSOType)
         {
-            if (!ScriptableObjectEx.IsExtendsScriptableObject(SettingSOType))
+            if (!settingSOType.IsAssignableTo(typeof(ScriptableObject)))
             {
-                Debug.LogError($"{SettingSOType} need extends ScriptableObject");
+                Debug.LogError($"{settingSOType} need extends ScriptableObject");
                 return;
             }
 
@@ -623,7 +623,7 @@ namespace PowerUtilities
                 return;
 
             //========================================  settingSO header
-            DrawSettingSO(SettingSOType, settingSOProp);
+            DrawSettingSO(settingSOType, settingSOProp);
 
             //========================================  splitter line 
             var rect = EditorGUILayout.GetControlRect(false, 2);

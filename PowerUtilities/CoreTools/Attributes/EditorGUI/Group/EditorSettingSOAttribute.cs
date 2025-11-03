@@ -20,7 +20,7 @@
         /// </summary>
         public Type settingType;
         /// <summary>
-        /// show List property
+        /// show List property(create item button)
         /// </summary>
         public string listPropName;
         public EditorSettingSOAttribute(Type settingType=null,string listPropName = "")

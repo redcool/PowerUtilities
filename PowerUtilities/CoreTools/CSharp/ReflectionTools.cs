@@ -217,6 +217,16 @@ namespace PowerUtilities
             return IsImplementOf(type, typeof(IList<>));
             //return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>);
         }
+        /// <summary>
+        /// Can convert to targetType?
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="targetType"></param>
+        /// <returns></returns>
+        public static bool IsAssignableTo(this Type type,Type targetType)
+        {
+            return targetType.IsAssignableFrom(type);
+        }
 
         /// <summary>
         /// Get a private field

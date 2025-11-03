@@ -14,6 +14,11 @@ namespace PowerUtilities
     [Serializable]
     public class BRGMaterialInfoListSO : ScriptableObject
     {
-        public List<BRGMaterialInfo> brgMaterialInfoList = new ();
+        public List<BRGMaterialInfo> brgMaterialInfoList;
+        private void Awake()
+        {
+            if (brgMaterialInfoList == null)
+                brgMaterialInfoList = new();
+        }
     }
 }

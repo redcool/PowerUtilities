@@ -20,6 +20,7 @@ namespace PowerUtilities
         [EditorButton(onClickCall = "RecordChildren")]
         public bool isRecord;
 
+        [Tooltip("Find meshRenderer from children include invisible")]
         public bool isIncludeInvisible = false;
 
         BatchRendererGroup brg;
@@ -192,6 +193,9 @@ namespace PowerUtilities
 
         private void CullingGroupControl_OnStateChanged(CommomCullingInfo info)
         {
+            if (brgGroupInfoList.Count <= info.batchGroupId)
+                return;
+
             var groupInfo = brgGroupInfoList[info.batchGroupId];
             // remove target id first
             groupInfo.visibleIdList.Remove(info.visibleId);
