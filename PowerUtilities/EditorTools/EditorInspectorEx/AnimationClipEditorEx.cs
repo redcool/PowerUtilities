@@ -14,8 +14,11 @@ namespace PowerUtilities
     [CustomEditor(typeof(AnimationClip))]
     public class AnimationClipEditorEx : BaseEditorEx
     {
+        public static readonly GUIContent GUI_ANIMATION_WIN = new GUIContent("Animation","Show Animation Window");
+        public static readonly GUIContent GUI_ANIMATOR_WIN = new GUIContent("Animator", "Show Animator Window");
+
         Vector2 scrollPos;
-        bool isFolded;
+        bool isFolded = true;
         public override string GetDefaultInspectorTypeName() => "UnityEditor.AnimationClipEditor";
 
         public override void OnInspectorGUI()
@@ -24,11 +27,23 @@ namespace PowerUtilities
 
             var clip = target as AnimationClip;
 
+            DrawButtons();
+
             isFolded = EditorGUILayout.Foldout(isFolded, "Curves", true);
             if (isFolded)
             {
                 DrawCurvesInfo(clip, ref scrollPos);
             }
+        }
+
+        private static void DrawButtons()
+        {
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button(GUI_ANIMATION_WIN))
+                EditorWindow.GetWindow<AnimationWindow>().Show();
+            if (GUILayout.Button(GUI_ANIMATOR_WIN))
+                EditorApplication.ExecuteMenuItem("Window/Animation/Animator");
+            GUILayout.EndHorizontal();
         }
 
         public static void DrawCurvesInfo(AnimationClip clip, ref Vector2 scrollPos)
@@ -39,9 +54,12 @@ namespace PowerUtilities
             labelStyle.richText = true;
 
             scrollPos = GUILayout.BeginScrollView(scrollPos);
-            foreach (var binding in bindings)
+            
+            for (int i = 0; i < bindings.Length; i++) 
             {
-                var info = ($"<b>{binding.path}</b>.<color=#008800ff>{binding.propertyName}</color> ({binding.type})");
+                var binding = bindings[i];
+
+                var info = ($"{i} <b>{binding.path}</b>.<color=#008800ff>{binding.propertyName}</color> ({binding.type})");
                 guiX.tooltip = $"delete : {info}";
 
                 GUILayout.BeginHorizontal();
