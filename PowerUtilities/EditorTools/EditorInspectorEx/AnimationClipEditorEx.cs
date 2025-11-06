@@ -15,6 +15,7 @@ namespace PowerUtilities
     public class AnimationClipEditorEx : BaseEditorEx
     {
         Vector2 scrollPos;
+        bool isFolded;
         public override string GetDefaultInspectorTypeName() => "UnityEditor.AnimationClipEditor";
 
         public override void OnInspectorGUI()
@@ -22,10 +23,15 @@ namespace PowerUtilities
             base.OnInspectorGUI();
 
             var clip = target as AnimationClip;
-            DrawCurvesInfo(clip,ref scrollPos);
+
+            isFolded = EditorGUILayout.Foldout(isFolded, "Curves", true);
+            if (isFolded)
+            {
+                DrawCurvesInfo(clip, ref scrollPos);
+            }
         }
 
-        public static void DrawCurvesInfo(AnimationClip clip,ref Vector2 scrollPos)
+        public static void DrawCurvesInfo(AnimationClip clip, ref Vector2 scrollPos)
         {
             var bindings = AnimationUtility.GetCurveBindings(clip);
             var guiX = new GUIContent("X");
@@ -39,10 +45,10 @@ namespace PowerUtilities
                 guiX.tooltip = $"delete : {info}";
 
                 GUILayout.BeginHorizontal();
-                if (GUILayout.Button(guiX,GUILayout.Width(30)))
+                if (GUILayout.Button(guiX, GUILayout.Width(30)))
                 {
-                    if(EditorUtility.DisplayDialog("Warning",$"delete curve: {binding.path}.{binding.propertyName}","ok"))
-                        RemoveCurvesByProperty(clip, binding.type, binding.propertyName);
+                    if (EditorUtility.DisplayDialog("Warning", $"delete curve: {binding.path}.{binding.propertyName}", "ok"))
+                        RemoveCurvesByProperty(clip, binding.type, binding.path, binding.propertyName);
                 }
                 EditorGUILayout.LabelField(info, labelStyle);
 
@@ -51,7 +57,7 @@ namespace PowerUtilities
             GUILayout.EndScrollView();
         }
 
-        public static void RemoveCurvesByProperty(AnimationClip clip, Type targetType, string propertyName, NameMatchMode matchMode = NameMatchMode.Full)
+        public static void RemoveCurvesByProperty(AnimationClip clip, Type targetType, string path, string propertyName, NameMatchMode matchMode = NameMatchMode.Full)
         {
             if (!clip)
                 return;
@@ -60,10 +66,12 @@ namespace PowerUtilities
             var removedCount = 0;
             foreach (var binding in bindings)
             {
+
                 var isTypeValid = binding.type == targetType;
                 var isPropValid = binding.propertyName.IsMatch(propertyName, matchMode);
+                var isPathValid = binding.path == path;
 
-                if (isTypeValid && isPropValid)
+                if (isTypeValid && isPropValid && isPathValid)
                 {
                     Undo.RecordObject(clip, $"delete curve {binding.path}");
                     AnimationUtility.SetEditorCurve(clip, binding, null);
@@ -72,7 +80,8 @@ namespace PowerUtilities
                     //Debug.Log($"removed curve : path{binding.path} , name:{binding.propertyName}");
                 }
             }
-            if (removedCount > 0) {
+            if (removedCount > 0)
+            {
                 EditorUtility.SetDirty(clip);
                 AssetDatabaseTools.SaveRefresh();
             }
