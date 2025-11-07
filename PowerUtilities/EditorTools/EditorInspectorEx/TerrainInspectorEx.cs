@@ -23,13 +23,11 @@ namespace PowerUtilities
             GUI_EXPORT_CONTROLMAPS = new GUIContent("ControlMaps", "export controlMaps to exportTerrainMapPath"),
             GUI_EXPORT_MAP_PATH = new GUIContent("Map Path","export maps to this folder"),
 
-            GUI_UPDATE_HEIGHTMAP_RESOLUTION = new GUIContent("Update heightmap resolution","sync terrainData heightmap resolution with texture"),
 
             GUI_SHOW_CONTROLMAP = new GUIContent("ControlMaps","show controlMap(SplatAlpha) , replace"),
             GUI_SHOW_HEIGHT_MAP = new GUIContent("HeightMap","show heightmap, replace"),
-            GUI_SHOW_HOLES_MAP = new GUIContent("HolesMap","show holesmap, replace"),
+            GUI_SHOW_HOLES_MAP = new GUIContent("HolesMap","show holesmap, replace")
 
-            GUI_HOLESMAP_THRESHOLD = new GUIContent("HolesMap Threshold","> threshold is hole")
             ;
 
 
@@ -79,18 +77,27 @@ namespace PowerUtilities
                 return;
 
             // heightmap
-            GUILayout.BeginHorizontal();
+            //GUILayout.Label(GUI_UPDATE_HEIGHTMAP_RESOLUTION);
+            GUILayout.BeginVertical(EditorStyles.helpBox);
+            //isUpdateHeightmapResolution = GUILayout.Toggle(isUpdateHeightmapResolution, GUI_UPDATE_HEIGHTMAP_RESOLUTION);
+            
+            isUpdateHeightmapResolution = EditorGUILayout.ToggleLeft(GUIContentEx.TempContent("Update resolution", "sync terrainData heightmap resolution with texture"),isUpdateHeightmapResolution);
 
-            isUpdateHeightmapResolution = EditorGUILayout.ToggleLeft(GUI_UPDATE_HEIGHTMAP_RESOLUTION, isUpdateHeightmapResolution);
+            GUILayout.BeginHorizontal(EditorStyles.helpBox);
             DrawTerrainMap(td.heightmapTexture, ref targetReplaceMap);
             if (targetReplaceMap && EditorUtility.DisplayDialog("Waring", $"replace {td} heightmap", "ok"))
             {
                 td.ApplyHeightmap(targetReplaceMap, isUpdateHeightmapResolution);
                 targetReplaceMap = null;
             }
+
+            if (GUILayout.Button(GUIContentEx.TempContent("Clear","Clear heightmap")))
+            {
+                td.ApplyHeightmap(Texture2D.blackTexture);
+            }
             GUILayout.EndHorizontal();
 
-
+            GUILayout.EndVertical();
         }
 
         private void DrawHolesMap(TerrainData td)
@@ -99,8 +106,8 @@ namespace PowerUtilities
             if (!td || !isHolesMapFolded)
                 return;
 
-            GUILayout.BeginHorizontal();
-            GUILayout.Label(GUI_HOLESMAP_THRESHOLD);
+            GUILayout.BeginHorizontal(EditorStyles.helpBox);
+            GUILayout.Label(GUIContentEx.TempContent("HolesMap Threshold", "> threshold is hole"));
             holesmapThreshold = EditorGUILayout.Slider(holesmapThreshold, 0, 1);
             // holes map
             DrawTerrainMap(td.holesTexture, ref targetReplaceMap);
@@ -110,6 +117,10 @@ namespace PowerUtilities
                 targetReplaceMap = null;
             }
 
+            if (GUILayout.Button(GUIContentEx.TempContent("Clear","Clear holesmap")))
+            {
+                td.SetHolesMap(Texture2D.whiteTexture);
+            }
             GUILayout.EndHorizontal();
         }
 
@@ -123,10 +134,12 @@ namespace PowerUtilities
             if (!td || !isControlMapFolded)
                 return;
 
+            GUILayout.BeginVertical(EditorStyles.helpBox);
             for (int i = 0; i< td.alphamapTextures.Length;i++)
             {
                 var tex = td.alphamapTextures[i];
 
+                GUILayout.BeginHorizontal(EditorStyles.helpBox);
                 DrawTerrainMap(tex, ref targetReplaceMap);
                 if (targetReplaceMap && EditorUtility.DisplayDialog("Waring", $"replace {td} {tex}", "ok"))
                 {
@@ -135,7 +148,13 @@ namespace PowerUtilities
                     td.ApplyAlphamap(i, map);
                     break;
                 }
+                if(GUILayout.Button($"Clear {tex.name}"))
+                {
+                    td.ApplyAlphamap(i, Texture2D.blackTexture);
+                }
+                GUILayout.EndHorizontal();
             }
+            GUILayout.EndVertical();
         }
 
         /// <summary>
@@ -168,30 +187,35 @@ namespace PowerUtilities
             exportMapInfoList.Clear();
 
             EditorGUI.indentLevel++;
-
-            EditorGUILayout.TextField(GUI_EXPORT_MAP_PATH, exportMapPath);
-            PathTools.CreateAbsFolderPath(exportMapPath);
-
-            GUILayout.BeginHorizontal("Box");
-            if (GUILayout.Button(GUI_EXPORT_HEIGHTMAP))
+            GUILayout.BeginVertical(EditorStyles.helpBox);
             {
-                var path = $"{exportMapPath}/{td.name}_heightmap.tga";
-                exportMapInfoList.Add((td.GetHeightmap(), path));
+                exportMapPath = EditorGUILayout.TextField(GUI_EXPORT_MAP_PATH, exportMapPath);
+                PathTools.CreateAbsFolderPath(exportMapPath);
+
+                GUILayout.BeginHorizontal(EditorStyles.helpBox);
+                if (GUILayout.Button(GUI_EXPORT_HEIGHTMAP))
+                {
+                    var path = $"{exportMapPath}/{td.name}_heightmap.tga";
+                    exportMapInfoList.Add((td.GetHeightmap(), path));
+
+                }
+                if (GUILayout.Button(GUI_EXPORT_HOLESMAP))
+                {
+                    var path = $"{exportMapPath}/{td.name}_holesmap.tga";
+                    exportMapInfoList.Add((td.GetHolesMap(), path));
+                }
+                if (GUILayout.Button(GUI_EXPORT_CONTROLMAPS))
+                {
+                    exportMapInfoList.AddRange(td.alphamapTextures.Select(tex => (
+                    tex,
+                    $"{exportMapPath}/{td.name}_{tex.name}.tga"
+                    )));
+                }
+                GUILayout.EndHorizontal();
 
             }
-            if (GUILayout.Button(GUI_EXPORT_HOLESMAP))
-            {
-                var path = $"{exportMapPath}/{td.name}_holesmap.tga";
-                exportMapInfoList.Add((td.GetHolesMap(), path));
-            }
-            if (GUILayout.Button(GUI_EXPORT_CONTROLMAPS))
-            {
-                exportMapInfoList.AddRange(td.alphamapTextures.Select(tex => (
-                tex,
-                $"{exportMapPath}/{td.name}_{tex.name}.tga"
-                )));
-            }
-            GUILayout.EndHorizontal();
+            GUILayout.EndVertical();
+
             EditorGUI.indentLevel--;
 
             if (exportMapInfoList.Count > 0)
