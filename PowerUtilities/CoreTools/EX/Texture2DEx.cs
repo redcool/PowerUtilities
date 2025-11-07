@@ -71,6 +71,21 @@ namespace PowerUtilities
             textureImporter.isReadable = isReadable;
             textureImporter.SaveAndReimport();
         }
+
+        /// <summary>
+        /// Clone new tex in memory, it can read/write
+        /// </summary>
+        /// <param name="tex"></param>
+        /// <returns></returns>
+        public static Texture2D Clone(this Texture tex)
+        {
+            Texture2D newTex = null;
+            var rt = RenderTexture.GetTemporary(tex.width, tex.height);
+            Graphics.Blit(tex, rt);
+            rt.ReadRenderTexture(ref newTex);
+            RenderTexture.ReleaseTemporary(rt);
+            return newTex;
+        }
 #endif
 
         /// <summary>

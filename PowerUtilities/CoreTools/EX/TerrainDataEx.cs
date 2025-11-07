@@ -10,15 +10,21 @@ namespace PowerUtilities
 {
     public static class TerrainDataEx
     {
-        public static void ApplyHeightmap(this TerrainData td, Texture2D heightmap)
+        /// <summary>
+        /// Update terrainData's heightmap
+        /// </summary>
+        /// <param name="td"></param>
+        /// <param name="heightmap"></param>
+        /// <param name="isUpdateHeightmapResolution"></param>
+        public static void ApplyHeightmap(this TerrainData td, Texture2D heightmap,bool isUpdateHeightmapResolution=false)
         {
             if (!heightmap)
                 return;
 
-            td.heightmapResolution = heightmap.width;
+            if(isUpdateHeightmapResolution)
+                td.heightmapResolution = heightmap.width;
 
             td.BlitToHeightmap(heightmap);
-            //td.SetHeights(heightmap);
         }
 
         static void SetHeights(this TerrainData td,Texture2D heightmap)
@@ -120,6 +126,36 @@ namespace PowerUtilities
             tex.BlitFrom(td.heightmapTexture);
             return tex;
         }
+        public static Texture2D GetHolesMap(this TerrainData td, int resolution = -1)
+        {
+            var hmSize = resolution <= 0 ? td.heightmapResolution - 1 : resolution;
+            var tex = new Texture2D(hmSize, hmSize, TextureFormat.R16, false, true);
+            tex.BlitFrom(td.holesTexture);
+            return tex;
+        }
+
+        public static void SetHolesMap(this TerrainData td,Texture2D maskTex,float threshold = 0.5f)
+        {
+#if UNITY_EDITOR
+            if (!maskTex.isReadable)
+                maskTex = maskTex.Clone();
+#endif
+            var res = td.holesResolution;
+
+            var holes = new bool[res, res];
+            for (int i = 0; i < res; i++) {
+                for (int j = 0; j < res; j++)
+                {
+                    var u = (float)i / (res - 1);
+                    var v = (float)j / (res - 1);
+
+                    var c = maskTex.GetPixelBilinear(u, v);
+                    holes[j, i] = c.r > threshold;
+                }
+            }
+
+            td.SetHoles(0, 0, holes);
+        }
 
         /// <summary>
         /// 
@@ -160,6 +196,10 @@ namespace PowerUtilities
             for (int id = 0; id < controlMaps.Length; id++)
             {
                 var controlMap = controlMaps[id];
+#if UNITY_EDITOR
+                if (!controlMap.isReadable)
+                    controlMap = controlMap.Clone();
+#endif
                 var colors = controlMap.GetPixels();
                 var controlMapRes = controlMap.width;
 
@@ -180,6 +220,48 @@ namespace PowerUtilities
                     }
                 }
             }
+            td.SetAlphamaps(0, 0, map);
+        }
+
+        public static void ApplyAlphamap(this TerrainData td, int layerId, Texture2D tex)
+        {
+#if UNITY_EDITOR
+            if (!tex.isReadable)
+                tex = tex.Clone();
+#endif
+
+            // check terrain layers, one controlmap control 4 splatmaps
+            var controlMapLayers = td.alphamapLayers;
+            var alphamapLayers = td.alphamapLayers;
+            if (layerId >= td.alphamapLayers)
+            {
+                throw new Exception(string.Format($"layerId out of range ! terrainData's alphamapLayers: {alphamapLayers}"));
+            }
+
+            var res = td.alphamapResolution;
+            float[,,] map = new float[res, res, td.alphamapLayers];
+
+            Vector2 uv = Vector2.one;
+
+            var colors = tex.GetPixels();
+            var controlMapRes = tex.width;
+
+            for (int y = 0; y < res; y++)
+            {
+                uv.y = (float)y / res;
+                for (int x = 0; x < res; x++)
+                {
+                    uv.x = (float)x / res;
+
+                    // set alpha[x,y,z,w]
+                    {
+                        var pixelX = Mathf.FloorToInt(uv.x * controlMapRes);
+                        var pixelY = Mathf.FloorToInt(uv.y * controlMapRes);
+                        map[y, x, layerId] = colors[pixelX + pixelY * controlMapRes][layerId];
+                    }
+                }
+            }
+
             td.SetAlphamaps(0, 0, map);
         }
 
