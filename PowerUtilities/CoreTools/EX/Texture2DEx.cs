@@ -7,6 +7,8 @@ using UnityEngine;
 using UnityEngine.Profiling;
 using System.Diagnostics;
 using Debug = UnityEngine.Debug;
+using Unity.Mathematics;
+
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -71,6 +73,7 @@ namespace PowerUtilities
             textureImporter.isReadable = isReadable;
             textureImporter.SaveAndReimport();
         }
+#endif
 
         /// <summary>
         /// Clone new tex in memory, it can read/write
@@ -86,7 +89,23 @@ namespace PowerUtilities
             RenderTexture.ReleaseTemporary(rt);
             return newTex;
         }
-#endif
+        /// <summary>
+        /// Transform (x,y) to uv[0,1],
+        /// Samples the color from the specified texture at the given pixel coordinates and mip level.
+        /// </summary>
+        /// <param name="tex">The texture from which to sample the color. Cannot be <see langword="null"/>.</param>
+        /// <param name="x">The horizontal pixel coordinate. Must be within the range [0, <c>tex.width - 1</c>].</param>
+        /// <param name="y">The vertical pixel coordinate. Must be within the range [0, <c>tex.height - 1</c>].</param>
+        /// <param name="width">when less 0 use texture width</param>
+        /// <param name="height">when less 0 use texture height</param>
+        /// <param name="mipLevel">The mip level to sample from. Defaults to 0.</param>
+        /// <returns>The color sampled from the texture at the specified coordinates and mip level.</returns>
+        public static Color Sample(this Texture2D tex, int x, int y, int width = -1, int height = -1, int mipLevel = 0)
+        {
+            var u = (float)x / (width < 1 ? tex.width - 1 : width - 1);
+            var v = (float)y / (height < 1 ? tex.height - 1 : height - 1);
+            return tex.GetPixelBilinear(u, v, mipLevel);
+        }
 
         /// <summary>
         /// split texture to textures

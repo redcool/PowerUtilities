@@ -52,6 +52,11 @@ namespace PowerUtilities
             return new Material(Shader.Find("Hidden/Terrain/BlitTextureToHeightmap"));
         }
 
+        /// <summary>
+        /// Change heightmap resolution
+        /// </summary>
+        /// <param name="terrainData"></param>
+        /// <param name="resolution"></param>
         public static void ResizeHeightmap(this TerrainData terrainData, int resolution)
         {
             RenderTexture oldRT = RenderTexture.active;
@@ -105,6 +110,11 @@ namespace PowerUtilities
         }
 
         public const float normalizedHeightScale = 32765.0f / 65535.0f;
+        /// <summary>
+        /// Blit texture to Heightmap
+        /// </summary>
+        /// <param name="td"></param>
+        /// <param name="heightmap"></param>
         public static void BlitToHeightmap(this TerrainData td, Texture2D heightmap)
         {
             var blitMat = GetBlitHeightmapMaterial();
@@ -126,6 +136,12 @@ namespace PowerUtilities
             tex.BlitFrom(td.heightmapTexture);
             return tex;
         }
+        /// <summary>
+        /// Get holesMap use blit
+        /// </summary>
+        /// <param name="td"></param>
+        /// <param name="resolution"></param>
+        /// <returns></returns>
         public static Texture2D GetHolesMap(this TerrainData td, int resolution = -1)
         {
             var hmSize = resolution <= 0 ? td.heightmapResolution - 1 : resolution;
@@ -133,8 +149,14 @@ namespace PowerUtilities
             tex.BlitFrom(td.holesTexture);
             return tex;
         }
-
-        public static void SetHolesMap(this TerrainData td,Texture2D maskTex,float threshold = 0.5f)
+        /// <summary>
+        /// Set holesMap from texture
+        /// </summary>
+        /// <param name="td"></param>
+        /// <param name="maskTex"></param>
+        /// <param name="threshold"></param>
+        /// <param name="channelId"></param>
+        public static void SetHolesMap(this TerrainData td,Texture2D maskTex,float threshold = 0.5f,int channelId = 0)
         {
 #if UNITY_EDITOR
             if (!maskTex.isReadable)
@@ -150,7 +172,7 @@ namespace PowerUtilities
                     var v = (float)j / (res - 1);
 
                     var c = maskTex.GetPixelBilinear(u, v);
-                    holes[j, i] = c.r > threshold;
+                    holes[j, i] = c[channelId] > threshold;
                 }
             }
 
@@ -222,7 +244,13 @@ namespace PowerUtilities
             }
             td.SetAlphamaps(0, 0, map);
         }
-
+        /// <summary>
+        /// Set alphamap from texture
+        /// </summary>
+        /// <param name="td"></param>
+        /// <param name="layerId"></param>
+        /// <param name="tex"></param>
+        /// <exception cref="Exception"></exception>
         public static void ApplyAlphamap(this TerrainData td, int layerId, Texture2D tex)
         {
 #if UNITY_EDITOR
@@ -264,7 +292,11 @@ namespace PowerUtilities
 
             td.SetAlphamaps(0, 0, map);
         }
-
+        /// <summary>
+        /// Copy alphamaps from TerrainData
+        /// </summary>
+        /// <param name="td"></param>
+        /// <param name="from"></param>
         public static void CopyAlphamapsFrom(this TerrainData td, TerrainData from)
         {
             if (!from)
@@ -273,7 +305,11 @@ namespace PowerUtilities
             var maps = from.GetAlphamaps(0, 0, from.alphamapResolution, from.alphamapResolution);
             td.SetAlphamaps(0, 0, maps);
         }
-
+        /// <summary>
+        /// Noise alphamap
+        /// </summary>
+        /// <param name="td"></param>
+        /// <param name="noiseScale"></param>
         public static void AddAlphaNoise(this TerrainData td, float noiseScale)
         {
             float[,,] maps = td.GetAlphamaps(0, 0, td.alphamapWidth, td.alphamapHeight);
@@ -298,5 +334,50 @@ namespace PowerUtilities
             td.SetAlphamaps(0, 0, maps);
         }
 
+        /// <summary>
+        /// Get DetailLayer to Texture
+        /// </summary>
+        /// <param name="td"></param>
+        /// <param name="layerId"></param>
+        /// <returns></returns>
+        public static Texture2D GetDetailLayerTexture(this TerrainData td, int layerId)
+        {
+            var map = td.GetDetailLayer(0, 0, td.detailWidth, td.detailHeight, layerId);
+            var splatCount = td.detailPrototypes.Length;
+            var tex = new Texture2D(td.detailWidth, td.detailHeight) { name = $"detail {layerId}" };
+            for (int y = 0; y < td.detailHeight; y++)
+            {
+                for (int x = 0; x < td.detailWidth; x++)
+                {
+                    var c = map[y, x] / (float)splatCount;
+                    tex.SetPixel(x, y, new Color(c, c, c));
+                }
+            }
+            tex.Apply();
+            return tex;
+        }
+        /// <summary>
+        /// Set DetailLayer from texture
+        /// </summary>
+        /// <param name="td"></param>
+        /// <param name="layerId"></param>
+        /// <param name="tex"></param>
+        public static void SetDetailLayerTexture(this TerrainData td, int layerId, Texture2D tex,float threshold = 0.5f, float maxDensity=100)
+        {
+#if UNITY_EDITOR
+            if (!tex.isReadable)
+                tex = tex.Clone();
+#endif
+            int[,] map = new int[td.detailHeight, td.detailWidth];
+            for (int y = 0; y < td.detailHeight; y++)
+            {
+                for (int x = 0; x < td.detailWidth; x++)
+                {
+                    var col = tex.Sample(x, y, td.detailWidth, td.detailHeight);
+                    map[y, x] = Mathf.FloorToInt(Mathf.Clamp01(col.r - threshold) * maxDensity);
+                }
+            }
+            td.SetDetailLayer(0, 0, layerId, map);
+        }
     }
 }
