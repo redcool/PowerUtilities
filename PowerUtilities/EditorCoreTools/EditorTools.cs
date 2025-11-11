@@ -155,10 +155,15 @@ namespace PowerUtilities
         }
 
         /// <summary>
-        /// Get Type from UnityEditor.dll
+        /// Attempts to retrieve a <see cref="Type"/> from the editor assembly or the application domain based on the
+        /// specified type name.
         /// </summary>
-        /// <param name="type"></param>
-        /// <param name="typeName"></param>
+        /// <remarks>This method first attempts to resolve the type from the assembly containing the <see
+        /// cref="Editor"/> class. If the type is not found, it searches the application domain for a type with the
+        /// specified name.</remarks>
+        /// <param name="type">A reference to a <see cref="Type"/> variable. If the variable is <see langword="null"/>, it will be assigned
+        /// the resolved type if found.</param>
+        /// <param name="typeName">The fully qualified name of the type to retrieve. This parameter cannot be <see langword="null"/> or empty.</param>
         public static void GetTypeFromEditorAssembly(ref Type type, string typeName)
         {
             if (type == null)
@@ -169,9 +174,29 @@ namespace PowerUtilities
             Debug.Assert(type != null);
         }
 
+        /// <summary>
+        /// Displays a dialog box with "OK" and "Cancel" options and a warning message.
+        /// </summary>
+        /// <param name="text">The message to display in the dialog box.</param>
+        /// <returns><see langword="true"/> if the "OK" button is clicked; otherwise, <see langword="false"/> if the "Cancel"
+        /// button is clicked.</returns>
         public static bool DisplayDialog_Ok_Cancel(string text)
             => EditorUtility.DisplayDialog("Warning", text, "ok", "cancel");
 
+        /// <summary>
+        /// Displays a progress bar indicating the progress of an operation.
+        /// </summary>
+        /// <remarks>The progress bar is updated based on the ratio of <paramref name="id"/> to <paramref
+        /// name="count"/>. When <paramref name="id"/> equals <paramref name="count"/>, the progress bar is
+        /// cleared.</remarks>
+        /// <param name="id">The current progress step, where 0 represents the start of the operation.</param>
+        /// <param name="count">The total number of steps in the operation. Must be greater than 0.</param>
+        public static void DisplayProgress(int id, int count)
+        {
+            EditorUtility.DisplayProgressBar("Progress", "Export Progress", (float)id / count);
+            if (id == count)
+                EditorUtility.ClearProgressBar();
+        }
     }
 }
 #endif

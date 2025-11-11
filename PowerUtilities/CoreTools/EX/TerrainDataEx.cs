@@ -16,7 +16,7 @@ namespace PowerUtilities
         /// <param name="td"></param>
         /// <param name="heightmap"></param>
         /// <param name="isUpdateHeightmapResolution"></param>
-        public static void ApplyHeightmap(this TerrainData td, Texture2D heightmap,bool isUpdateHeightmapResolution=false)
+        public static void ApplyHeightmap(this TerrainData td, Texture2D heightmap,bool isUpdateHeightmapResolution=false,float heightmapScale=1)
         {
             if (!heightmap)
                 return;
@@ -24,7 +24,7 @@ namespace PowerUtilities
             if(isUpdateHeightmapResolution)
                 td.heightmapResolution = heightmap.width;
 
-            td.BlitToHeightmap(heightmap);
+            td.BlitToHeightmap(heightmap,heightmapScale);
         }
 
         static void SetHeights(this TerrainData td,Texture2D heightmap)
@@ -115,11 +115,11 @@ namespace PowerUtilities
         /// </summary>
         /// <param name="td"></param>
         /// <param name="heightmap"></param>
-        public static void BlitToHeightmap(this TerrainData td, Texture2D heightmap)
+        public static void BlitToHeightmap(this TerrainData td, Texture2D heightmap,float heightmapScale=1)
         {
             var blitMat = GetBlitHeightmapMaterial();
             blitMat.SetFloat("_Height_Offset", 0 * normalizedHeightScale);
-            blitMat.SetFloat("_Height_Scale", normalizedHeightScale);
+            blitMat.SetFloat("_Height_Scale", normalizedHeightScale * heightmapScale);
             Graphics.Blit(heightmap, td.heightmapTexture, blitMat);
             td.DirtyHeightmapRegion(new RectInt(0, 0, td.heightmapResolution, td.heightmapResolution), TerrainHeightmapSyncControl.HeightAndLod);
         }
@@ -378,6 +378,20 @@ namespace PowerUtilities
                 }
             }
             td.SetDetailLayer(0, 0, layerId, map);
+        }
+        /// <summary>
+        /// Get all detailLayers
+        /// </summary>
+        /// <param name="td"></param>
+        /// <param name="texList"></param>
+        public static void GetDetailLayerTextures(this TerrainData td,ref List<Texture2D> texList)
+        {
+            texList = texList ?? new List<Texture2D>();
+            
+            for(int i = 0; i < td.detailPrototypes.Length; i++)
+            {
+                texList.Add(td.GetDetailLayerTexture(i));
+            }
         }
     }
 }

@@ -102,8 +102,8 @@ namespace PowerUtilities
         /// <returns>The color sampled from the texture at the specified coordinates and mip level.</returns>
         public static Color Sample(this Texture2D tex, int x, int y, int width = -1, int height = -1, int mipLevel = 0)
         {
-            var u = (float)x / (width < 1 ? tex.width - 1 : width - 1);
-            var v = (float)y / (height < 1 ? tex.height - 1 : height - 1);
+            var u = (float)x / (width < 1 ? tex.width - 1 : width);
+            var v = (float)y / (height < 1 ? tex.height - 1 : height);
             return tex.GetPixelBilinear(u, v, mipLevel);
         }
 

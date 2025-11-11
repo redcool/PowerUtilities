@@ -25,21 +25,22 @@ namespace PowerUtilities
             isHeightMapFolded,
             isHolesMapFolded,
             isDetailMapFolded,
+            isTileTerrainFolded,
             isUpdateHeightmapResolution
             ;
 
         public float holesmapThreshold = 0.5f;
+        public float heightmapScale = 1;
 
         public Texture2D targetReplaceMap;
         public List<Texture2D> detailTextureList = new();
         // details
-        float detailMapThreshold = 0.5f;
-        float detailMaxDensity = 500;
+        public float detailMapThreshold = 0.5f;
+        public float detailMaxDensity = 500;
 
 
         // for export maps
         List<(Texture2D texture,string path)> exportMapInfoList = new();
-
 
         public override string GetDefaultInspectorTypeName() => "UnityEditor.TerrainInspector";
 
@@ -60,6 +61,7 @@ namespace PowerUtilities
                     return;
                 }
                 DrawExportMapsButton(td);
+                DrawTileTerrain();
                 DrawControlMaps(td);
                 DrawHeightMap(td);
                 DrawHolesMap(td);
@@ -67,6 +69,15 @@ namespace PowerUtilities
 
             }, nameof(EditorStylesEx.HelpBox));
 
+        }
+
+        private void DrawTileTerrain()
+        {
+            isTileTerrainFolded = EditorGUILayout.Foldout(isTileTerrainFolded, GUIContentEx.TempContent("TileTerrain", "show TileTerrainWindow"), true);
+            if (!isTileTerrainFolded)
+                return;
+            if (GUILayout.Button("TileTerrainWindow"))
+                EditorApplication.ExecuteMenuItem(TileTerrainWindow.SHOW_TILE_TERRAIN_WINDOW);
         }
 
         private void DrawDetailMap(TerrainData td)
@@ -87,7 +98,7 @@ namespace PowerUtilities
             GUILayout.BeginVertical(EditorStyles.helpBox);
             {
                 // options
-                detailMapThreshold = EditorGUILayout.Slider(GUIContentEx.TempContent("threshold", ""), detailMapThreshold, 0, 1);
+                detailMapThreshold = EditorGUILayout.Slider(GUIContentEx.TempContent("threshold", "detail map pixel threshold"), detailMapThreshold, 0, 1);
                 detailMaxDensity = EditorGUILayout.Slider(GUIContentEx.TempContent("maxDensity", "detail map max density"), detailMaxDensity, 0, 1000);
                 // detail maps
             }
@@ -129,7 +140,8 @@ namespace PowerUtilities
             // heightmap options
             GUILayout.BeginVertical(EditorStyles.helpBox);
             {
-                isUpdateHeightmapResolution = EditorGUILayout.ToggleLeft(GUIContentEx.TempContent("Update heightmap resolution", "sync terrainData heightmap resolution with texture"), isUpdateHeightmapResolution);
+                isUpdateHeightmapResolution = EditorGUILayout.Toggle(GUIContentEx.TempContent("Update heightmap resolution", "sync terrainData heightmap resolution with texture"), isUpdateHeightmapResolution);
+                heightmapScale = EditorGUILayout.Slider(GUIContentEx.TempContent("HeightmapScale","heightmap pixel scale"),heightmapScale, 0, 1);
             }
             GUILayout.EndVertical();
 
@@ -140,7 +152,7 @@ namespace PowerUtilities
                 {
                     if (EditorUtility.DisplayDialog("Waring", $"replace {td} heightmap", "ok"))
                     {
-                        td.ApplyHeightmap(targetReplaceMap, isUpdateHeightmapResolution);
+                        td.ApplyHeightmap(targetReplaceMap, isUpdateHeightmapResolution, heightmapScale);
                     }
                 });
 
@@ -158,10 +170,11 @@ namespace PowerUtilities
             if (!td || !isHolesMapFolded)
                 return;
 
-            GUILayout.BeginHorizontal(EditorStyles.helpBox);
+            GUILayout.BeginVertical(EditorStyles.helpBox);
             {
-                GUILayout.Label(GUIContentEx.TempContent("HolesMap Threshold", "> threshold is hole"));
-                holesmapThreshold = EditorGUILayout.Slider(holesmapThreshold, 0, 1);
+                holesmapThreshold = EditorGUILayout.Slider(GUIContentEx.TempContent("HolesMap Threshold", "> threshold is hole"), holesmapThreshold, 0, 1);
+
+                GUILayout.BeginHorizontal(EditorStyles.helpBox);
                 // holes map
                 DrawTerrainMap(td.holesTexture, ref targetReplaceMap, () =>
                 {
@@ -175,6 +188,7 @@ namespace PowerUtilities
                 {
                     td.SetHolesMap(Texture2D.whiteTexture);
                 }
+                GUILayout.EndHorizontal();
             }
             GUILayout.EndHorizontal();
         }
@@ -278,6 +292,14 @@ namespace PowerUtilities
                     $"{exportMapPath}/{td.name}_{tex.name}.tga"
                     )));
                 }
+
+                if(GUILayout.Button(GUIContentEx.TempContent("DetailMaps", "export detail maps to exportTerrainMapPath")))
+                {
+                    List<Texture2D> texList = null;
+                    td.GetDetailLayerTextures(ref texList);
+                    exportMapInfoList.AddRange(texList.Select(tex => (tex, $"{exportMapPath}/{td.name}_{tex.name}.tga")));
+                }
+
                 GUILayout.EndHorizontal();
 
             }

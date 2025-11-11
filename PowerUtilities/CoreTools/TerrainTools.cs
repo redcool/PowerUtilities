@@ -7,6 +7,7 @@
     using System.Linq;
     using System.Text;
     using System.Threading;
+    using UnityEditor.EditorTools;
     using UnityEngine;
     using UnityEngine.TerrainTools;
     using Object = UnityEngine.Object;
@@ -79,7 +80,63 @@
 
             return tex;
         }
+        /// <summary>
+        /// Generates a collection of tile meshes from the specified terrain, dividing it into a grid of tiles.
+        /// </summary>
+        /// <remarks>The terrain is divided into a grid of tiles, with each tile represented by a mesh.
+        /// The number of tiles is determined by the <paramref name="tileRowCount"/> parameter, which specifies the
+        /// number of tiles along one side of the grid. The total number of tiles will be <paramref
+        /// name="tileRowCount"/> squared.  The <paramref name="saveResolution"/> parameter controls the resolution of
+        /// the generated meshes. A value of 1 retains the full resolution, while higher values reduce the resolution
+        /// proportionally.  Each generated mesh is named using the format "Tile-X_Y", where X and Y represent the
+        /// tile's position in the grid.</remarks>
+        /// <param name="terrain">The terrain from which the tile meshes will be generated. Cannot be <see langword="null"/>.</param>
+        /// <param name="tileRowCount">The number of tiles along one side of the grid. Must be a power of two. If not, the closest power of two
+        /// greater than or equal to the value will be used.</param>
+        /// <param name="saveResolution">The resolution scale factor for the generated meshes. A higher value reduces the resolution of the meshes,
+        /// improving performance at the cost of detail. Defaults to 1.</param>
+        /// <returns>A list of <see cref="Mesh"/> objects representing the generated tile meshes. Each mesh corresponds to a tile
+        /// in the grid.</returns>
+        public static List<Mesh> GenerateTileMeshes(Terrain terrain, int tileRowCount, int saveResolution=1)
+        {
+            tileRowCount = Mathf.Max(1, Mathf.ClosestPowerOfTwo(tileRowCount)); // need pow of 2
+            var resScale = (int)Mathf.Pow(2, Mathf.Max(0, saveResolution));
 
+            var list = new List<Mesh>();
+
+            var td = terrain.terrainData;
+            var heightmapSize = (td.heightmapResolution - 1) / tileRowCount;
+
+            var count = tileRowCount * tileRowCount;
+
+            for (int x = 0; x < tileRowCount; x++)
+            {
+                for (int z = 0; z < tileRowCount; z++)
+                {
+                    var heightmapRect = new RectInt(x * heightmapSize, z * heightmapSize, heightmapSize + 1, heightmapSize + 1);
+                    var tileMesh = GenerateTileMesh(terrain, heightmapRect, resScale);
+                    tileMesh.name = $"Tile-{x}_{z}";
+
+                    list.Add(tileMesh);
+                }
+            }
+            return list;
+        }
+
+        /// <summary>
+        /// Generates a 3D mesh representing a tile of terrain based on the specified heightmap region and resolution
+        /// scale.
+        /// </summary>
+        /// <remarks>The generated mesh is scaled according to the terrain's heightmap scale, and the UV
+        /// coordinates are adjusted to fit within the appropriate tile region. This method is useful for creating tiled
+        /// terrain meshes for rendering or physics simulations.</remarks>
+        /// <param name="terrain">The <see cref="Terrain"/> object from which the heightmap data is retrieved.</param>
+        /// <param name="heightmapRect">A <see cref="RectInt"/> defining the region of the heightmap to use for generating the mesh. The width and
+        /// height of the rectangle determine the resolution of the mesh.</param>
+        /// <param name="resScale">The resolution scale factor. A higher value reduces the number of vertices in the mesh, resulting in lower
+        /// detail. Must be a positive integer.</param>
+        /// <returns>A <see cref="Mesh"/> object representing the generated terrain tile. The mesh includes vertices, UVs, and
+        /// triangles based on the specified heightmap region and resolution scale.</returns>
         public static Mesh GenerateTileMesh(Terrain terrain, RectInt heightmapRect, int resScale)
         {
             var td = terrain.terrainData;
