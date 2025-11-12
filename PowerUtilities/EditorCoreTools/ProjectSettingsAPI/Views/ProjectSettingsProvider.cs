@@ -102,13 +102,11 @@ namespace PowerUtilities
             {
                 DrawSettingSO_SplitLine(setting);
                 // show script
-                using (new EditorGUI.DisabledGroupScope(true))
-                {
-                    EditorGUILayout.PropertyField(setting.FindProperty("m_Script"));
-                }
+                EditorGUITools.DrawScriptProperty(setting.FindProperty("m_Script"));
             }));
             rootElement.Add(settingEditor.CreateInspectorGUI());
         }
+
 
         /// <summary>
         /// Draw SettingSO (property) and split line

@@ -713,6 +713,30 @@ namespace PowerUtilities
             var viewWidth = EditorGUIUtility.currentViewWidth - 15 * EditorGUI.indentLevel;
             return viewWidth;
         }
+
+        /// <summary>
+        /// Draws the script property in the inspector with a disabled state, preventing modifications.
+        /// </summary>
+        /// <remarks>This method renders the script property in a read-only state using the Unity Editor
+        /// GUI. Clicking the invisible button associated with the property selects the target script in the Unity
+        /// Editor.</remarks>
+        /// <param name="scriptProp">The <see cref="SerializedProperty"/> representing the script property to be drawn.  This parameter cannot be
+        /// <see langword="null"/>.</param>
+        public static void DrawScriptProperty(SerializedProperty scriptProp)
+        {
+            if (scriptProp == null)
+                return;
+
+            using (new EditorGUI.DisabledGroupScope(true))
+            {
+                EditorGUILayout.PropertyField(scriptProp);
+                // add invisible button, can trigger click selected target script
+                if (GUILayout.Button(scriptProp.name, GUILayout.Height(0)))
+                {
+                    Selection.activeObject = scriptProp.objectReferenceValue;
+                }
+            }
+        }
     }
 }
 #endif
