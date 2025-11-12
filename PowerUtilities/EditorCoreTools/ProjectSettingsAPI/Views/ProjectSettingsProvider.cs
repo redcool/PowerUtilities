@@ -23,7 +23,7 @@ namespace PowerUtilities
         [CompileFinished]
         static void OnCompileFinished()
         {
-            cachedEditors.Clear(); 
+            cachedEditors.Clear();
         }
 
         [SettingsProviderGroup]
@@ -43,7 +43,7 @@ namespace PowerUtilities
                     guiHandler = (searchContex) =>
                     {
                         //EditorGUIUtility.labelWidth = 250;// EditorGUIUtility.currentViewWidth * groupAttr.labelWidthRate;
-                        ShowSetting(settingType, null);
+                        DrawSettingGUI(settingType, null);
                     },
                 };
                 // use UIElements
@@ -53,7 +53,7 @@ namespace PowerUtilities
                     sp.activateHandler = (searchContex, rootElement) =>
                     {
 
-                        ShowSetting(settingType, rootElement);
+                        DrawSettingGUI(settingType, rootElement);
                     };
                 }
 
@@ -63,7 +63,7 @@ namespace PowerUtilities
         }
 
 
-        public static void ShowSetting(Type type, VisualElement rootElement)
+        public static void DrawSettingGUI(Type type, VisualElement rootElement)
         {
             var setting = ScriptableObjectTools.GetSerializedInstance(type);
             if (setting.targetObject == null)
@@ -71,48 +71,62 @@ namespace PowerUtilities
                 EditorGUILayout.SelectableLabel($"{type} cannot load.");
                 return;
             }
-            setting.Update();
+            setting.UpdateIfRequiredOrScript();
 
             var settingEditor = cachedEditors.Get(type, () => Editor.CreateEditor(setting.targetObject));
             // show so properties
             if (rootElement != null)
             {
-                // add bold title
-                var title = new Label(type.Name);
-                title.style.fontSize = 20;
-                title.style.unityFontStyleAndWeight = FontStyle.Bold;
-                rootElement.Add(title);
-
-                // add content
-                rootElement.Add(new IMGUIContainer(() =>
-                {
-                    ShowSettingSO_SplitLine(setting);
-                }));
-                rootElement.Add(settingEditor.CreateInspectorGUI());
+                DrawSettingUIElements(type, rootElement, setting, settingEditor);
             }
             else
             {
-                ShowSettingSO_SplitLine(setting);
+                DrawSettingSO_SplitLine(setting);
                 settingEditor.OnInspectorGUI();
             }
 
             setting.ApplyModifiedProperties();
 
-            //----- inner methods
-            static void ShowSettingSO_SplitLine(SerializedObject setting)
+        }
+
+        private static void DrawSettingUIElements(Type type, VisualElement rootElement, SerializedObject setting, Editor settingEditor)
+        {
+            // add bold title
+            var title = new Label(type.Name);
+            title.style.fontSize = 20;
+            title.style.unityFontStyleAndWeight = FontStyle.Bold;
+            rootElement.Add(title);
+
+            // add content
+            rootElement.Add(new IMGUIContainer(() =>
             {
-                // show so object 
-                EditorGUITools.BeginHorizontalBox(() =>
+                DrawSettingSO_SplitLine(setting);
+                // show script
+                using (new EditorGUI.DisabledGroupScope(true))
                 {
-                    GUILayout.Label("SO:");
-                    EditorGUILayout.ObjectField(setting.targetObject, typeof(ScriptableObject), false);
-                });
+                    EditorGUILayout.PropertyField(setting.FindProperty("m_Script"));
+                }
+            }));
+            rootElement.Add(settingEditor.CreateInspectorGUI());
+        }
 
-                EditorGUIUtility.labelWidth = GUILayoutUtility.GetLastRect().width * 0.415F;
+        /// <summary>
+        /// Draw SettingSO (property) and split line
+        /// </summary>
+        /// <param name="setting"></param>
+        public static void DrawSettingSO_SplitLine(SerializedObject setting)
+        {
+            // show so object 
+            EditorGUITools.BeginHorizontalBox(() =>
+            {
+                GUILayout.Label("SO:");
+                EditorGUILayout.ObjectField(setting.targetObject, typeof(ScriptableObject), false);
+            });
 
-                // draw splitter 
-                EditorGUITools.DrawColorLine();
-            }
+            EditorGUIUtility.labelWidth = GUILayoutUtility.GetLastRect().width * 0.415F;
+
+            // draw splitter 
+            EditorGUITools.DrawColorLine();
         }
     }
 }
