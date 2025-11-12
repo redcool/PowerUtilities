@@ -83,7 +83,6 @@ namespace PowerUtilities.RenderFeatures
         [HideInInspector]
         bool isFeatureListFoldout;
 
-
         public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
         {
             if ( featureListSO == null || featureListSO.featureList.Count == 0 || !featureListSO.enabled)
@@ -93,6 +92,7 @@ namespace PowerUtilities.RenderFeatures
             // cached last use instance
             SRPFeatureListSO.instance = featureListSO;
             ref var cameraData = ref renderingData.cameraData;
+            var isFirstPass = true;
 
             foreach (var feature in featureListSO.featureList)
             {
@@ -105,13 +105,17 @@ namespace PowerUtilities.RenderFeatures
                     continue;
 
                 feature.UpdateSceneState();
+                if(!feature.IsCameraValid(camera))
+                    continue;
 
                 var pass = feature.PassInstance;
                 if (pass == null)
                     continue;
 
-                if(!feature.IsCameraValid(camera))
-                    continue;
+                if (CompareTools.IsTriggerOnce(ref isFirstPass))
+                {
+                    ((SRPPass)pass).isFirstPass = true;
+                }
 
                 pass.renderPassEvent = feature.renderPassEvent + feature.renderPassEventOffset;
                 renderer.EnqueuePass(pass);

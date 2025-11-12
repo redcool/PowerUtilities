@@ -80,7 +80,7 @@ namespace PowerUtilities.RenderFeatures
         string[] lastColorNames;
         string lastDepthName;
 
-        RenderTargetIdentifier lastColorTargetNameId;
+        RTHandle lastCameraAttachmentA;
 
         // trace urp 's rt changed
         bool isURPRTChanged;
@@ -124,10 +124,13 @@ namespace PowerUtilities.RenderFeatures
         public bool IsURPRTChanged(UniversalRenderer renderer)
         {
             var mainRT = renderer.GetCameraColorAttachmentA();
-            var isRTChanged = (mainRT.nameID != lastColorTargetNameId);
 
-            lastColorTargetNameId = mainRT.nameID;
-            return isRTChanged;
+            var isSame = CompareTools.CompareAndSet(ref lastCameraAttachmentA, mainRT);
+#if UNITY_EDITOR
+            // sceneView,gameView, show in sametime
+            isSame = false;
+#endif
+            return !isSame;
         }
 
         public void TrySetTargets(ref RenderingData renderingData, CommandBuffer cmd)

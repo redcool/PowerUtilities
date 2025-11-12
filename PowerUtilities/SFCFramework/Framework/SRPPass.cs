@@ -15,6 +15,10 @@ namespace PowerUtilities.RenderFeatures
     public abstract class SRPPass : ScriptableRenderPass
     {
         /// <summary>
+        /// is pass run first, can do init once
+        /// </summary>
+        public bool isFirstPass;
+        /// <summary>
         /// SRPFeature's name
         /// </summary>
         public string featureName;
@@ -68,6 +72,11 @@ namespace PowerUtilities.RenderFeatures
         /// Call this when OnCameraCleanup
         /// </summary>
         public static Action<SRPPass<T>> OnCameraRenderFinish;
+
+        /// <summary>
+        /// Call when first pass run success in rendering loop
+        /// </summary>
+        public static Action<RenderingData> OnFirstPassRunCameraSetup;
 
         public SRPPass(T feature)
         {
@@ -147,6 +156,9 @@ namespace PowerUtilities.RenderFeatures
         {
             ref var cameraData = ref renderingData.cameraData;
             this.camera = cameraData.camera;
+
+            if (isFirstPass)
+                OnFirstPassRunCameraSetup?.Invoke(renderingData);
         }
 
         public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
@@ -178,6 +190,12 @@ namespace PowerUtilities.RenderFeatures
             // ========== trigger end execute
             OnEndExecute?.Invoke(this);
 
+        }
+
+        private void CheckRTHandles(ref CameraData cameraData)
+        {
+            var rh = cameraData.renderer.CameraColorTargetHandle();
+            Debug.Log (rh.rt);
         }
 
         public override void OnCameraCleanup(CommandBuffer cmd)

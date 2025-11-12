@@ -35,9 +35,6 @@ namespace PowerUtilities
             ApplicationTools.OnDomainUnload -= ClearCachedRTHandles;
             ApplicationTools.OnDomainUnload += ClearCachedRTHandles;
 
-            //RenderPipelineManager.endFrameRendering -= RenderPipelineManager_endFrameRendering;
-            //RenderPipelineManager.endFrameRendering += RenderPipelineManager_endFrameRendering;
-
             RenderPipelineManager.endCameraRendering -= RenderPipelineManager_endCameraRendering;
             RenderPipelineManager.endCameraRendering += RenderPipelineManager_endCameraRendering;
 
@@ -45,9 +42,9 @@ namespace PowerUtilities
             ScreenTools.OnScreenSizeChanged += ClearCachedRTHandles;
         }
 
-        private static void RenderPipelineManager_endCameraRendering(ScriptableRenderContext arg1, Camera arg2)
+        private static void RenderPipelineManager_endCameraRendering(ScriptableRenderContext context, Camera cam)
         {
-            var cameraData = arg2.GetUniversalAdditionalCameraData();
+            var cameraData = cam.GetUniversalAdditionalCameraData();
             ClearActiveCameraColorAttachmentCache(cameraData.scriptableRenderer);
         }
 
