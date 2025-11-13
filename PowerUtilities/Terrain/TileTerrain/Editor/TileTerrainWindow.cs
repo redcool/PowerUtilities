@@ -7,7 +7,7 @@
     using UnityEditor;
     using UnityEngine;
 
-    public class TileTerrainWindow : EditorWindow
+    public class TileTerrainWindow : BaseEditorWindow
     {
         public const string 
             ROOT_PATH = "PowerUtilities/Terrain/Command",
@@ -35,8 +35,10 @@
             win.Show();
         }
 
-        private void OnGUI()
+        public override void OnGUI()
         {
+            base.OnGUI();
+
             EditorGUILayout.HelpBox("Export Terrain to Mesh", MessageType.Info);
 
             if (GUILayout.Button("Check Terrain"))

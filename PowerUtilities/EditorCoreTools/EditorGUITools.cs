@@ -600,10 +600,6 @@ namespace PowerUtilities
             return GUILayout.Button(buttonText) && EditorTools.DisplayDialog_Ok_Cancel(confirmText);
         }
 
-        #region SettingSO 
-
-
-
         /// <summary>
         /// Draw SettingSO(ScriptableObject) row
         /// </summary>
@@ -677,13 +673,42 @@ namespace PowerUtilities
         public static void DrawScriptScope(SerializedObject serializedObject)
         {
             var prop = serializedObject.FindProperty("m_Script");
-            using (new EditorGUI.DisabledScope(true))
+            DrawScriptProperty(prop);
+        }
+        /// <summary>
+        /// Draws the script property in the inspector with a disabled state, preventing modifications.
+        /// </summary>
+        /// <remarks>This method renders the script property in a read-only state using the Unity Editor
+        /// GUI. Clicking the invisible button associated with the property selects the target script in the Unity
+        /// Editor.</remarks>
+        /// <param name="scriptProp">The <see cref="SerializedProperty"/> representing the script property to be drawn.  This parameter cannot be
+        /// <see langword="null"/>.</param>
+        public static void DrawScriptProperty(SerializedProperty scriptProp)
+        {
+            if (scriptProp == null)
+                return;
+
+            using (new EditorGUI.DisabledGroupScope(true))
             {
-                EditorGUILayout.PropertyField(prop, true);
+                EditorGUILayout.PropertyField(scriptProp);
+                // add invisible button, can trigger click selected target script
+                if (GUILayout.Button(scriptProp.name, GUILayout.Height(0)))
+                {
+                    Selection.activeObject = scriptProp.objectReferenceValue;
+                }
             }
         }
 
-        #endregion
+        public static void DrawDisableScope(bool isDisable,Action onDraw)
+        {
+            if (onDraw == null)
+                return;
+
+            using (new EditorGUI.DisabledGroupScope(isDisable))
+            {
+                onDraw();
+            }
+        }
 
         /// <summary>
         /// Save current labelWidth, then use labelWidth
@@ -714,29 +739,7 @@ namespace PowerUtilities
             return viewWidth;
         }
 
-        /// <summary>
-        /// Draws the script property in the inspector with a disabled state, preventing modifications.
-        /// </summary>
-        /// <remarks>This method renders the script property in a read-only state using the Unity Editor
-        /// GUI. Clicking the invisible button associated with the property selects the target script in the Unity
-        /// Editor.</remarks>
-        /// <param name="scriptProp">The <see cref="SerializedProperty"/> representing the script property to be drawn.  This parameter cannot be
-        /// <see langword="null"/>.</param>
-        public static void DrawScriptProperty(SerializedProperty scriptProp)
-        {
-            if (scriptProp == null)
-                return;
 
-            using (new EditorGUI.DisabledGroupScope(true))
-            {
-                EditorGUILayout.PropertyField(scriptProp);
-                // add invisible button, can trigger click selected target script
-                if (GUILayout.Button(scriptProp.name, GUILayout.Height(0)))
-                {
-                    Selection.activeObject = scriptProp.objectReferenceValue;
-                }
-            }
-        }
     }
 }
 #endif

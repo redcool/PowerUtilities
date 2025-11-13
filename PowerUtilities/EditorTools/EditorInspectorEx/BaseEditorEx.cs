@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using UnityEditor;
 using UnityEditor.EditorTools;
 using UnityEditor.TerrainTools;
+using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Object = UnityEngine.Object;
@@ -52,6 +53,7 @@ namespace PowerUtilities
         /// className : like "UnityEditor.Texture2DArrayInspector"
         /// </summary>
         public abstract string GetDefaultInspectorTypeName();
+        public Object scriptObj;
 
         public virtual void OnEnable()
         {
@@ -65,6 +67,8 @@ namespace PowerUtilities
             });
 
             defaultEditor.InvokeDelegate<Action>(ref methodInfoDict, nameof(OnEnable));
+
+            scriptObj = AssetDatabaseTools.FindAssetPathAndLoad<Object>(out _, GetType().Name);
         }
         public virtual void OnDisable()
         {
@@ -81,8 +85,12 @@ namespace PowerUtilities
         public override void OnInspectorGUI()
         {
             defaultEditor.InvokeDelegate<Action>(ref methodInfoDict, nameof(OnInspectorGUI));
-
             EditorGUITools.DrawColorLine(1);
+
+            using (new EditorGUI.DisabledGroupScope(true))
+            {
+                EditorGUILayout.ObjectField(GUIContentEx.TempContent("Script : ", "Script draw gui "),scriptObj, typeof(Object), false);
+            }
         }
 
         public override bool HasPreviewGUI()
@@ -136,11 +144,16 @@ namespace PowerUtilities
             rootContainer.Add(rootUI);
 
             var line = new VisualElement();
-
             line.style.backgroundColor = ColorTools.Parse("#749C75");
             line.style.height = 1;
             line.style.flexGrow = 0;
             rootContainer.Add(line);
+
+            var scriptField = new ObjectField("Script");
+            scriptField.tooltip = "Script draw gui";
+            scriptField.SetEnabled(false);
+            scriptField.value = scriptObj;
+            rootContainer.Add(scriptField);
 
             return rootContainer;
         }
