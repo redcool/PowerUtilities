@@ -2,31 +2,51 @@
 {
 #if UNITY_EDITOR
     using PowerUtilities;
+    using System;
     using System.Collections;
     using System.Collections.Generic;
+    using System.Linq;
     using UnityEditor;
+    using UnityEditorInternal;
     using UnityEngine;
+    using Object = UnityEngine.Object;
 
     public class TileTerrainWindow : BaseEditorWindow
     {
+        /// <summary>
+        /// 1,1/2,1/4,1/8,1/16
+        /// </summary>
+        public enum SaveResolution { Full, Half, Quarter, Eighth, Sixteeth }
+
+        [Serializable]
+        public class ExportTileTerrainLODInfo
+        {
+            public SaveResolution saveResolution = SaveResolution.Half;
+            //public int tileRowCount = 1;
+            public float screenSzieRate = 1;
+        }
+        // mesh lodGroup
+        public List<ExportTileTerrainLODInfo> lodInfoList = new()
+        {
+            new ExportTileTerrainLODInfo{ saveResolution = SaveResolution.Half ,screenSzieRate = 0.96f},
+            new ExportTileTerrainLODInfo{ saveResolution = SaveResolution.Quarter, screenSzieRate = 0.93f },
+            new ExportTileTerrainLODInfo{ saveResolution = SaveResolution.Eighth , screenSzieRate = 0.1f},
+
+        };
         public const string 
             ROOT_PATH = "PowerUtilities/Terrain/Command",
             SHOW_TILE_TERRAIN_WINDOW = ROOT_PATH + "/Tile Terrain Window"
             ;
-
 
         Material terrainMat;
         Terrain[] terrainObjs;
 
         int tileRowCount = 1;
         string tileTerrainFolder = "Assets/TileTerrain";
-
-        /// <summary>
-        /// 1,1/2,1/4,1/8,1/16
-        /// </summary>
-        public enum SaveResolution { Full, Half, Quarter, Eighth, Sixteeth }
-        SaveResolution saveResolution = SaveResolution.Half;
         private Vector2 scrollPosition;
+
+        ReorderableList lodInfoRList;
+        SerializedObject soObj;
 
         [MenuItem(SHOW_TILE_TERRAIN_WINDOW)]
         static void Init()
@@ -35,8 +55,20 @@
             win.Show();
         }
 
+        public override void OnEnable()
+        {
+            base.OnEnable();
+
+            soObj = new SerializedObject(this);
+
+            lodInfoRList = EditorGUITools.SetupReorderableList<ExportTileTerrainLODInfo>(soObj,soObj.FindProperty("lodInfoList"));
+        }
+
         public override void OnGUI()
         {
+            if (lodInfoRList == null)
+                OnEnable();
+
             base.OnGUI();
 
             EditorGUILayout.HelpBox("Export Terrain to Mesh", MessageType.Info);
@@ -64,8 +96,9 @@
                 EditorGUILayout.HelpBox("Terrain not found", MessageType.Info);
                 return;
             }
+            lodInfoRList.DoLayoutList();
 
-            saveResolution = (SaveResolution)EditorGUILayout.EnumPopup(GUIContentEx.TempContent("Save Resolution:","larger value ,mesh density small"), saveResolution);
+            //saveResolution = (SaveResolution)EditorGUILayout.EnumPopup(GUIContentEx.TempContent("Save Resolution:","larger value ,mesh density small"), saveResolution);
 
             tileRowCount = Mathf.Max(1, EditorGUILayout.IntField(GUIContentEx.TempContent("Tile Row Count:","tile count in a row"), Mathf.NextPowerOfTwo(tileRowCount)));
             terrainMat = (Material)EditorGUILayout.ObjectField(GUIContentEx.TempContent("Terrain Material:","material for generated meshRenderer"), terrainMat, typeof(Material), false);
@@ -90,23 +123,35 @@
             var saveFolder = $"{tileTerrainFolder}/{terrainObj.terrainData.name}";
             PathTools.CreateAbsFolderPath(saveFolder);
 
-            // generate tile mesh
+            // create root object
             var terrainGo = new GameObject(terrainObj.gameObject.name + " Mesh");
             terrainGo.transform.localPosition = terrainObj.gameObject.transform.localPosition;
             terrainGo.transform.localRotation = terrainObj.transform.localRotation;
             terrainGo.transform.localScale = terrainObj.transform.localScale;
             terrainGo.transform.SetParent(rootTr, false);
 
-            var tileList = GenerateTiles(terrainObj, tileRowCount, terrainGo.transform, saveResolution);
-            foreach (var tileGo in tileList)
+            var lods = new LOD[lodInfoList.Count+1];
+            // generate tile mesh objects
+            for (int i = 0; i < lodInfoList.Count; i++)
             {
-                if (terrainMat)
-                    tileGo.GetComponent<MeshRenderer>().sharedMaterial = terrainMat;
+                var lodInfo = lodInfoList[i];
+                var tileList = GenerateTiles(terrainObj, tileRowCount, terrainGo.transform, lodInfo.saveResolution);
+                foreach (var tileGo in tileList)
+                {
+                    var mr = tileGo.GetComponent<MeshRenderer>();
+                    if (terrainMat)
+                        mr.sharedMaterial = terrainMat;
 
-                var tileMesh = tileGo.GetComponent<MeshFilter>().sharedMesh;
-                var path = $"{saveFolder}/{tileMesh.name}.asset";
-                AssetDatabase.CreateAsset(tileMesh, path);
+                    var tileMesh = tileGo.GetComponent<MeshFilter>().sharedMesh;
+                    var path = $"{saveFolder}/{tileMesh.name}.asset";
+                    AssetDatabase.CreateAsset(tileMesh, path);
+                    lods[i] = new LOD(lodInfo.screenSzieRate, new[] { mr });
+                }
             }
+
+            var lodGroup = terrainGo.GetOrAddComponent<LODGroup>();
+            lodGroup.SetLODs(lods);
+            lodGroup.size = 90; //
 
             AssetDatabaseTools.SaveRefresh();
             Selection.activeObject = AssetDatabase.LoadAssetAtPath(saveFolder, typeof(Object));
@@ -131,7 +176,7 @@
                 {
                     var heightmapRect = new RectInt(x * heightmapSize, z * heightmapSize, heightmapSize + 1, heightmapSize + 1);
                     var tileMesh = TerrainTools.GenerateTileMesh(terrain, heightmapRect, resScale);
-                    tileMesh.name = $"Tile-{x}_{z}";
+                    tileMesh.name = $"Tile-{x}_{z}-{saveResolution}";
 
                     var tileGo = GenerateTileGo(tileMesh.name, tileMesh, parent, terrain);
                     list.Add(tileGo);

@@ -10,6 +10,7 @@ namespace PowerUtilities
     using UnityEngine;
     using UnityEngine.UIElements;
     using UnityEngine.Internal;
+    using Object = UnityEngine.Object;
 
     public static class EditorGUITools
     {
@@ -738,8 +739,48 @@ namespace PowerUtilities
             var viewWidth = EditorGUIUtility.currentViewWidth - 15 * EditorGUI.indentLevel;
             return viewWidth;
         }
+        
+        /// <summary>
+        /// Create a ReorderableList 
+        /// </summary>
+        /// <param name="so"></param>
+        /// <param name="prop"></param>
+        /// <returns></returns>
+        public static ReorderableList SetupReorderableList<T>(SerializedObject so,SerializedProperty prop)
+        {
+            var itemType = typeof(T);
+            var rList = new ReorderableList(so, prop);
+            
+            rList.drawHeaderCallback = (rect) =>
+            {
+                EditorGUI.LabelField(rect, itemType.Name);
+            };
 
+            rList.drawNoneElementCallback = (rect) =>
+            {
+                EditorGUI.LabelField(rect, "None");
+            };
 
+            rList.drawElementCallback = (Rect rect, int index, bool isActive, bool isFocused) =>
+            {
+                var itemProp = prop.GetArrayElementAtIndex(index);
+                EditorGUI.PropertyField(rect, itemProp,true);
+            };
+            
+            //rList.onAddCallback = (rList) =>
+            //{
+            //    //rList.list.Add(item);
+            //};
+
+            rList.elementHeightCallback = (index) =>
+            {
+                var itemProp = prop.GetArrayElementAtIndex(index);
+                var height = EditorGUI.GetPropertyHeight(itemProp, true);
+                return height;
+            };
+            
+            return rList;
+        }
     }
 }
 #endif
