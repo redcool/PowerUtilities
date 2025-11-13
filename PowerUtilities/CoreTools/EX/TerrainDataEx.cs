@@ -200,58 +200,21 @@ namespace PowerUtilities
             if (controlMaps == null || controlMaps.Length == 0)
                 return;
 
-            // check terrain layers, one controlmap control 4 splatmaps
-            var controlMapLayers = controlMaps.Length * td.alphamapLayers;
-            var alphamapLayers = td.alphamapLayers;
-            if (alphamapLayers < controlMapLayers)
-            {
-                throw new Exception(string.Format($"Warning ! terrainData's alphamapLayers < {controlMapLayers}, need add terrainLayers!"));
+            var q = controlMaps.Where(tex => tex);
+            var texId = 0;
+            foreach (var tex in q) {
+                ApplyAlphamap(td, texId, tex);
+                texId++;
             }
-
-            controlMaps = controlMaps.Where(c => c).ToArray();
-
-            var res = td.alphamapResolution;
-            float[,,] map = new float[res, res, td.alphamapLayers];
-
-            Vector2 uv = Vector2.one;
-
-            for (int id = 0; id < controlMaps.Length; id++)
-            {
-                var controlMap = controlMaps[id];
-#if UNITY_EDITOR
-                if (!controlMap.isReadable)
-                    controlMap = controlMap.Clone();
-#endif
-                var colors = controlMap.GetPixels();
-                var controlMapRes = controlMap.width;
-
-                for (int y = 0; y < res; y++)
-                {
-                    uv.y = (float)y / res;
-                    for (int x = 0; x < res; x++)
-                    {
-                        uv.x = (float)x / res;
-
-                        // set alpha[x,y,z,w]
-                        for (int layerId = 0; layerId < alphamapLayers; layerId++)
-                        {
-                            var pixelX = Mathf.FloorToInt(uv.x * controlMapRes);
-                            var pixelY = Mathf.FloorToInt(uv.y * controlMapRes);
-                            map[y, x, layerId] = colors[pixelX + pixelY * controlMapRes][layerId];
-                        }
-                    }
-                }
-            }
-            td.SetAlphamaps(0, 0, map);
         }
         /// <summary>
         /// Set alphamap from texture
         /// </summary>
-        /// <param name="td"></param>
-        /// <param name="layerId"></param>
-        /// <param name="tex"></param>
+        /// <param name="td">terrain data</param>
+        /// <param name="controlMapId">controlMap index of list</param>
+        /// <param name="tex">texture</param>
         /// <exception cref="Exception"></exception>
-        public static void ApplyAlphamap(this TerrainData td, int layerId, Texture2D tex)
+        public static void ApplyAlphamap(this TerrainData td, int controlMapId, Texture2D tex)
         {
 #if UNITY_EDITOR
             if (!tex.isReadable)
@@ -259,33 +222,39 @@ namespace PowerUtilities
 #endif
 
             // check terrain layers, one controlmap control 4 splatmaps
-            var controlMapLayers = td.alphamapLayers;
             var alphamapLayers = td.alphamapLayers;
-            if (layerId >= td.alphamapLayers)
+            if (controlMapId >= alphamapLayers)
             {
-                throw new Exception(string.Format($"layerId out of range ! terrainData's alphamapLayers: {alphamapLayers}"));
+                Debug.LogWarning($"layerId out of range ! terrainData's alphamapLayers: {alphamapLayers}");
+                return;
             }
 
-            var res = td.alphamapResolution;
-            float[,,] map = new float[res, res, td.alphamapLayers];
-
-            Vector2 uv = Vector2.one;
-
+            var alphamapRes = td.alphamapResolution;
+            var map = td.GetAlphamaps(0, 0, alphamapRes, alphamapRes);
             var colors = tex.GetPixels();
             var controlMapRes = tex.width;
 
-            for (int y = 0; y < res; y++)
-            {
-                uv.y = (float)y / res;
-                for (int x = 0; x < res; x++)
-                {
-                    uv.x = (float)x / res;
+            // alphamap 0 [0,1,2,3] , alphamap 1 [4,5,6,7]
+            var channelStartId = controlMapId * 4;
+            // mac channel(SplatAlpha layers),[1,4]
+            var channelCount = Mathf.Clamp(alphamapLayers - channelStartId,1,4);
+            //Debug.Log($"{channelStartId} , count:{channelCount}");
 
+            Vector2 uv = Vector2.one;
+            for (int y = 0; y < alphamapRes; y++)
+            {
+                uv.y = (float)y / alphamapRes;
+                for (int x = 0; x < alphamapRes; x++)
+                {
+                    uv.x = (float)x / alphamapRes;
+
+                    var pixelX = Mathf.FloorToInt(uv.x * controlMapRes);
+                    var pixelY = Mathf.FloorToInt(uv.y * controlMapRes);
+                    var texColor = colors[pixelX + pixelY * controlMapRes];
                     // set alpha[x,y,z,w]
+                    for (int i = 0; i < channelCount; i++)
                     {
-                        var pixelX = Mathf.FloorToInt(uv.x * controlMapRes);
-                        var pixelY = Mathf.FloorToInt(uv.y * controlMapRes);
-                        map[y, x, layerId] = colors[pixelX + pixelY * controlMapRes][layerId];
+                        map[y, x, channelStartId + i] = texColor[i];
                     }
                 }
             }
