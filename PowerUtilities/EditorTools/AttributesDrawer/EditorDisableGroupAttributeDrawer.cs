@@ -24,7 +24,17 @@ namespace PowerUtilities
             if (!isDisable)
             {
                 var prop = property.FindPropertyInObject(attr.targetPropName);
-                isDisable = prop != null ? prop.intValue == 0 : false;
+                if(prop == null)
+                    return false;
+
+                if(prop.propertyType == SerializedPropertyType.ObjectReference)
+                {
+                    isDisable = prop.objectReferenceValue;
+                }
+                else
+                {
+                    isDisable = prop.intValue == 0;
+                }
             }
 
             // check multi props

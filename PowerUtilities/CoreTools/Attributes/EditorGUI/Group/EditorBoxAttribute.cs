@@ -47,7 +47,7 @@
         [HideInInspector]
         public bool isFolded=true;
 
-
+        public string boxStyle = "Box";
 
         /// <summary>
         /// Show EditorGUI in Box(hbox,vbox)

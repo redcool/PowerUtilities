@@ -80,9 +80,9 @@ namespace PowerUtilities
         static void BeginBox(EditorBoxAttribute attr)
         {
             if (attr.boxType == EditorBoxAttribute.BoxType.VBox)
-                EditorGUILayout.BeginVertical("Box");
+                EditorGUILayout.BeginVertical(attr.boxStyle);
             else
-                EditorGUILayout.BeginHorizontal("Box");
+                EditorGUILayout.BeginHorizontal(attr.boxStyle);
         }
 
         static void EndBox(EditorBoxAttribute attr)

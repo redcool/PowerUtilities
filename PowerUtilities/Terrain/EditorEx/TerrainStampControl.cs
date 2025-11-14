@@ -33,7 +33,6 @@ namespace PowerUtilities
             if (points.Length < 2) return;
 
             var inst = (TerrainStampControl)target;
-            Handles.color = color;
             var heightOffset = Vector3.up * 2;
 
             for (var x = 0; x < points.Length - 1; x++)
@@ -44,6 +43,16 @@ namespace PowerUtilities
                 TerrainTools.GetHitInfo(p0, out var startHitInfo);
                 TerrainTools.GetHitInfo(p1, out var endHitInfo);
 
+                // draw sphere to hitPoint
+                DrawPoint(inst, p0, startHitInfo);
+                // draw last point
+                if (x == points.Length - 2)
+                {
+                    DrawPoint(inst, p1, endHitInfo);
+                }
+
+                // draw line
+                Handles.color = color;
                 var vector = endHitInfo.point - startHitInfo.point;
                 var segmentCount = (int)(vector.magnitude / 0.5f);
                 var linePoints = new List<Vector3>();
@@ -67,12 +76,19 @@ namespace PowerUtilities
             Handles.color = Color.white;
         }
 
+        private static void DrawPoint(TerrainStampControl inst, Vector3 pos, RaycastHit posHitInfo)
+        {
+            Handles.color = Color.white * 0.5f;
+            Handles.SphereHandleCap(0, pos, Quaternion.identity, inst.posSphereSize, EventType.Repaint);
+            Handles.color = Color.red * 0.5f;
+            Handles.SphereHandleCap(0, posHitInfo.point, Quaternion.identity, inst.posSphereSize, EventType.Repaint);
+            Handles.DrawLine(pos, posHitInfo.point);
+        }
+
         private void OnSceneGUI()
         {
             var inst = (TerrainStampControl)target;
-
             DrawHitPointLines(Color.white,inst.startPos, inst.endPos);
-
             DrawHitPointLines(Color.blue * 0.5f,inst.posList.ToArray());
         }
     }
@@ -90,7 +106,7 @@ namespace PowerUtilities
         [HelpBox]
         public string helpBox = "Stamp base terrain tools";
         //----------------
-        [EditorHeader("", "--- Brush Options")]
+        [EditorHeader("", "--- Brush Options",indentLevel =0)]
         [Tooltip("height map brush texture")]
         public Texture2D brushTexture;
         public Texture2D filterTexture;
@@ -106,33 +122,57 @@ namespace PowerUtilities
         [Tooltip("segment's distance")]
         [Min(0.01f)] public float distanceSegment = 0.1f;
 
-        //----------------
-        [EditorHeader("", "--- Stamp Tool")]
+        //---------------- stamp tool
+        [EditorHeader("", "--- Stamp Tool", indentLevel = 0)]
+        [HelpBox] public string stampToolDesc = "Stamp Terrain once at pos";
+        [EditorBox("", "posTr,pos",boxType = EditorBoxAttribute.BoxType.HBox,boxStyle = "HelpBox")]
+        [Tooltip("use this tr position")]
+        public Transform posTr;
+
         [Tooltip("ray trace origin")]
+        [HideInInspector]
+        [EditorDisableGroup(targetPropName = nameof(posTr))]
         public Vector3 pos = new Vector3(88, 10, -300);
 
         [EditorButton(onClickCall = nameof(StampHeight))]
         public bool isStampHeight;
 
-        //----------------
-        [EditorHeader("", "--- Bridge Tool")]
+        //---------------- bridge tool
+        [EditorHeader("", "--- Bridge Tool", indentLevel = 0)]
+        [HelpBox] public string bridgeToolDesc = "Bridge Terrain startPos to endPos";
+        [EditorBox("", "startPosTr,startPos", boxType = EditorBoxAttribute.BoxType.HBox, boxStyle = "HelpBox")]
+
+        [Tooltip("startPos use startPosTr.position")]
+        public Transform startPosTr;
+        [Tooltip("bridge start position")]
+        [HideInInspector]
+        [EditorDisableGroup(targetPropName = nameof(startPosTr))]
         public Vector3 startPos;
+
+        [EditorBox("", "endPosTr,endPos", boxType = EditorBoxAttribute.BoxType.HBox, boxStyle = "HelpBox")]
+        [Tooltip("endPos use endPosTr.position")]
+        public Transform endPosTr;
+
+        [Tooltip("bridge end position")]
+        [HideInInspector]
+        [EditorDisableGroup(targetPropName = nameof(endPosTr))]
         public Vector3 endPos;
+
         [EditorButton(onClickCall = nameof(BridgeHeights))]
         public bool isBridgeHeights;
 
         //----------------PathTool
-        [EditorHeader("", "--- Path Tools")]
+        [EditorHeader("", "--- Path Tools", indentLevel = 0)]
+        [HelpBox] public string pathToolDesc = "Set Terrain height flow with spline or posList";
         [Tooltip("PathTool Get pos from UnitySpline(need UnitySpline package) or posList")]
         public PathPosType pathPosType;
 #if UNITY_SPLINES
         public SplineContainer splineContainer;
 #endif
 
-        //[EditorSceneView()]
         public List<Vector3> posList = new List<Vector3>();
 
-        [EditorBoxAttribute("Path Tools Buttons", "isSetSpline,isReadSpline,isStampPaths", isShowFoldout = true, boxType = EditorBoxAttribute.BoxType.HBox)]
+        [EditorBox("Path Tools Buttons", "isSetSpline,isReadSpline,isStampPaths", isShowFoldout = true, boxType = EditorBoxAttribute.BoxType.HBox,boxStyle ="HelpBox")]
         [EditorButton(onClickCall = nameof(SetSpline))]
         [Tooltip("set poslist to mainSpline")]
         public bool isSetSpline;
@@ -143,8 +183,22 @@ namespace PowerUtilities
         [EditorButton(onClickCall = nameof(StampPaths))]
         [HideInInspector] public bool isStampPaths;
 
-        //============= debug
-        [Range(0, 1)] public float testValue;
+        [EditorHeader("", "--- DebugTools", indentLevel = 0)]
+        public float posSphereSize = 5;
+
+#if UNITY_EDITOR
+        private void Update()
+        {
+            if (posTr)
+                pos = posTr.position;
+
+            if (startPosTr)
+                startPos = startPosTr.position;
+
+            if (endPosTr)
+                endPos = endPosTr.position;
+        }
+#endif
 
         public void SetSpline()
         {
@@ -256,17 +310,6 @@ namespace PowerUtilities
             var hitInfoGroupList = WorldPosToTerrainHitInfo(worldPosList, "Terrain Bridges");
             hitInfoGroupList.Add((endHitInfo, endHitInfo.point));
 
-            // draw line gizmos
-#if UNITY_EDITOR
-            foreach (var hitInfoGroup in hitInfoGroupList)
-            {
-                var pos = hitInfoGroup.pos;
-                var hitInfo = hitInfoGroup.hitInfo;
-                Debug.DrawRay(pos, Vector3.up * 10, Color.red, 10);
-                Debug.DrawRay(hitInfo.point, hitInfo.normal * 8, Color.white, 10);
-            }
-#endif
-
             // brush terrain
             StampHeights(hitInfoGroupList);
 
@@ -313,54 +356,14 @@ namespace PowerUtilities
                 var targetHeight = startPos.y / t.terrainData.size.y * 0.5f;
                 TerrainTools.SetupTerrainPaintMat(ref paintMat, brushTexture, new Vector4(brushOpacity, targetHeight), filterTexture);
 
-                OnPaint(t, uv, brushSize, brushRotation, paintMat);
+                TerrainTools.PaintTerrainHeight(t, uv, brushSize, brushRotation, paintMat);
             }
         }
-
         public void StampHeight()
         {
-            if (!TerrainTools.GetHitInfo(pos, out var hitInfo))
-            {
-                Debug.Log("hit nothing");
-                return;
-            }
-
-            var t = hitInfo.collider.GetComponent<Terrain>();
-            if (!t)
-                return;
-            var uv = t.WorldPosToTerrainUV(pos);
-
-            var paintMat = TerrainTools.GetBuiltinPaintMaterial();
-            TerrainTools.SetupTerrainPaintMat(ref paintMat, brushTexture, new Vector4(brushOpacity, 0), filterTexture);
-
-            OnPaint(t,uv,brushSize, brushRotation, paintMat);
+            TerrainTools.StampTerrainHeight(pos, brushTexture, filterTexture, brushOpacity, brushSize, brushRotation);
         }
 
 
-        private void OnDrawGizmosSelected()
-        {
-            DrawHitInfo(pos, Color.blue);
-            DrawHitInfo(startPos, Color.red);
-            DrawHitInfo(endPos, Color.green);
-
-            void DrawHitInfo(Vector3 pos, Color color)
-            {
-                if (!TerrainTools.GetHitInfo(pos, out var hitInfo))
-                    return;
-
-                Debug.DrawRay(hitInfo.point, hitInfo.normal * 100, color);
-            }
-        }
-
-
-        public static bool OnPaint(Terrain terrain,Vector2 uvOnTerrain,float brushSize,float brushRotation,Material mat)
-        {
-            var brushTransform = TerrainPaintUtility.CalculateBrushTransform(terrain, uvOnTerrain, brushSize, brushRotation);
-            var paintContext = TerrainPaintUtility.BeginPaintHeightmap(terrain, brushTransform.GetBrushXYBounds());
-
-            TerrainTools.RenderIntoPaintContext(paintContext, brushTransform,mat);
-            TerrainPaintUtility.EndPaintHeightmap(paintContext, "Terrain Paint - Raise or Lower Height");
-            return true;
-        }
     }
 }

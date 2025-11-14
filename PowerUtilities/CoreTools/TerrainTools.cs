@@ -7,11 +7,9 @@
     using System.Linq;
     using System.Text;
     using System.Threading;
-    using UnityEditor.EditorTools;
     using UnityEngine;
     using UnityEngine.TerrainTools;
     using Object = UnityEngine.Object;
-    using Random = UnityEngine.Random;
 
     public static class TerrainTools
     {
@@ -355,8 +353,6 @@
             return terrainList;
         }
 
-
-
         public static void AutoSetNeighbours(Terrain[] terrains, int tilesX, int tilesZ)
         {
             if (terrains == null || terrains.Length == 0)
@@ -471,6 +467,52 @@
             paintMat.SetTexture("_BrushTex", brushTexture);
             paintMat.SetVector("_BrushParams", brushParams);
             paintMat.SetTexture("_FilterTex", filterTexture ?? Texture2D.whiteTexture);
+        }
+
+        /// <summary>
+        /// Stamp terrain height at pos
+        /// </summary>
+        /// <param name="pos"></param>
+        /// <param name="brushTexture"></param>
+        /// <param name="filterTexture"></param>
+        /// <param name="brushOpacity"></param>
+        /// <param name="brushSize"></param>
+        /// <param name="brushRotation"></param>
+        public static void StampTerrainHeight(Vector2 pos, Texture brushTexture, Texture filterTexture, float brushOpacity, float brushSize, float brushRotation)
+        {
+            if (!TerrainTools.GetHitInfo(pos, out var hitInfo))
+            {
+                Debug.Log("hit nothing");
+                return;
+            }
+
+            var t = hitInfo.collider.GetComponent<Terrain>();
+            if (!t)
+                return;
+            var uv = t.WorldPosToTerrainUV(pos);
+
+            var paintMat = TerrainTools.GetBuiltinPaintMaterial();
+            TerrainTools.SetupTerrainPaintMat(ref paintMat, brushTexture, new Vector4(brushOpacity, 0), filterTexture);
+
+            PaintTerrainHeight(t, uv, brushSize, brushRotation, paintMat);
+        }
+        /// <summary>
+        /// Paint Terrian Height use mat
+        /// </summary>
+        /// <param name="terrain"></param>
+        /// <param name="uvOnTerrain"></param>
+        /// <param name="brushSize"></param>
+        /// <param name="brushRotation"></param>
+        /// <param name="mat"></param>
+        /// <returns></returns>
+        public static bool PaintTerrainHeight(Terrain terrain, Vector2 uvOnTerrain, float brushSize, float brushRotation, Material mat)
+        {
+            var brushTransform = TerrainPaintUtility.CalculateBrushTransform(terrain, uvOnTerrain, brushSize, brushRotation);
+            var paintContext = TerrainPaintUtility.BeginPaintHeightmap(terrain, brushTransform.GetBrushXYBounds());
+
+            TerrainTools.RenderIntoPaintContext(paintContext, brushTransform, mat);
+            TerrainPaintUtility.EndPaintHeightmap(paintContext, "Terrain Paint - Raise or Lower Height");
+            return true;
         }
     }
 }
