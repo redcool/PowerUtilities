@@ -28,26 +28,26 @@ namespace PowerUtilities
             base.DrawInspectorUI(inst);
         }
 
-        void DrawHitPointLines(params Vector3[] points)
+        void DrawHitPointLines(Color color, params Vector3[] points)
         {
             if (points.Length < 2) return;
 
             var inst = (TerrainStampControl)target;
+            Handles.color = color;
+            var heightOffset = Vector3.up * 2;
 
             for (var x = 0; x < points.Length - 1; x++)
             {
-                var p0 = points[x];
-                var p1 = points[x + 1];
+                var p0 = points[x] + heightOffset;
+                var p1 = points[x + 1] + heightOffset;
 
                 TerrainTools.GetHitInfo(p0, out var startHitInfo);
                 TerrainTools.GetHitInfo(p1, out var endHitInfo);
-                var startGUIPos = HandleUtility.WorldToGUIPoint(startHitInfo.point);
-                var endGUIPos = HandleUtility.WorldToGUIPoint(endHitInfo.point);
 
                 var vector = endHitInfo.point - startHitInfo.point;
-                var segmentCount = (int)(vector.magnitude / inst.distanceSegment);
+                var segmentCount = (int)(vector.magnitude / 0.5f);
                 var linePoints = new List<Vector3>();
-                var ratePerSegment = 1 / (float)segmentCount;
+                var ratePerSegment = 1f / segmentCount;
                 for (var i = 0; i < segmentCount; i++)
                 {
                     linePoints.Add(startHitInfo.point + vector * ratePerSegment * i);
@@ -55,22 +55,25 @@ namespace PowerUtilities
                 }
 
                 // draw pos gui
+                var startGUIPos = HandleUtility.WorldToGUIPoint(startHitInfo.point);
+                var endGUIPos = HandleUtility.WorldToGUIPoint(endHitInfo.point);
                 Handles.BeginGUI();
                 GUI.Box(new Rect(startGUIPos, new Vector2(150, 30)), $"{startHitInfo.point}");
-                GUI.Box(new Rect(endGUIPos, new Vector2(150, 30)), $"{endHitInfo.point}");
                 Handles.EndGUI();
 
+                // lines
                 Handles.DrawAAPolyLine(linePoints.ToArray());
             }
+            Handles.color = Color.white;
         }
 
         private void OnSceneGUI()
         {
             var inst = (TerrainStampControl)target;
 
-            DrawHitPointLines(inst.startPos, inst.endPos);
+            DrawHitPointLines(Color.white,inst.startPos, inst.endPos);
 
-            DrawHitPointLines(inst.posList.ToArray());
+            DrawHitPointLines(Color.blue * 0.5f,inst.posList.ToArray());
         }
     }
 #endif
@@ -108,19 +111,19 @@ namespace PowerUtilities
         [Tooltip("ray trace origin")]
         public Vector3 pos = new Vector3(88, 10, -300);
 
-        [EditorButton(onClickCall = "StampHeight")]
+        [EditorButton(onClickCall = nameof(StampHeight))]
         public bool isStampHeight;
 
         //----------------
         [EditorHeader("", "--- Bridge Tool")]
         public Vector3 startPos;
         public Vector3 endPos;
-        [EditorButton(onClickCall = "BridgeHeights")]
+        [EditorButton(onClickCall = nameof(BridgeHeights))]
         public bool isBridgeHeights;
 
         //----------------PathTool
         [EditorHeader("", "--- Path Tools")]
-        [Tooltip("PathTool Get pos from UnitySpline or posList")]
+        [Tooltip("PathTool Get pos from UnitySpline(need UnitySpline package) or posList")]
         public PathPosType pathPosType;
 #if UNITY_SPLINES
         public SplineContainer splineContainer;
@@ -130,14 +133,14 @@ namespace PowerUtilities
         public List<Vector3> posList = new List<Vector3>();
 
         [EditorBoxAttribute("Path Tools Buttons", "isSetSpline,isReadSpline,isStampPaths", isShowFoldout = true, boxType = EditorBoxAttribute.BoxType.HBox)]
-        [EditorButton(onClickCall = "SetSpline")]
+        [EditorButton(onClickCall = nameof(SetSpline))]
         [Tooltip("set poslist to mainSpline")]
         public bool isSetSpline;
 
-        [EditorButton(onClickCall = "ReadSpline")]
+        [EditorButton(onClickCall = nameof(ReadSpline))]
         [HideInInspector] public bool isReadSpline;
 
-        [EditorButton(onClickCall = "StampPaths")]
+        [EditorButton(onClickCall = nameof(StampPaths))]
         [HideInInspector] public bool isStampPaths;
 
         //============= debug
@@ -163,7 +166,15 @@ namespace PowerUtilities
                 return;
             var spline = splineContainer.Spline;
             posList.Clear();
+            // knots position
             posList.AddRange(spline.Knots.Select(knot => splineContainer.transform.TransformPoint(knot.Position)));
+            // line sample position
+            //var count = Mathf.FloorToInt(spline.GetLength() / 10);
+            //for (int i = 0; i < count; i++)
+            //{
+            //    spline.Evaluate((float)i / (count - 1), out var pos, out var tangent, out var up);
+            //    posList.Add(pos);
+            //}
 #endif
         }
 
@@ -276,6 +287,11 @@ namespace PowerUtilities
 
             foreach (var hitInfoGroup in hitInfoGroupList)
             {
+                if (!hitInfoGroup.hitInfo.collider)
+                {
+
+                    return;
+                }
                 var startPos = hitInfoGroup.pos;
 
                 var t = hitInfoGroup.hitInfo.collider.GetComponent<Terrain>();

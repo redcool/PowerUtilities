@@ -26,6 +26,7 @@ namespace PowerUtilities
             isHolesMapFolded,
             isDetailMapFolded,
             isTileTerrainFolded,
+            isTerrainToolsFolded,
             isUpdateHeightmapResolution
             ;
 
@@ -66,9 +67,21 @@ namespace PowerUtilities
                 DrawHeightMap(td);
                 DrawHolesMap(td);
                 DrawDetailMap(td);
+                DrawTerrainControl(terrain);
 
             }, nameof(EditorStylesEx.HelpBox));
 
+        }
+
+        private void DrawTerrainControl(Terrain terrain)
+        {
+            isTerrainToolsFolded = EditorGUILayout.Foldout(isTerrainToolsFolded, GUIContentEx.TempContent("TerrainTools", "show Terrain tools"), true);
+            if (!isTerrainToolsFolded)
+                return;
+
+            if(GUILayout.Button(GUIContentEx.TempContent("StampControl","Add TerrainStampControl"))){
+                terrain.gameObject.GetOrAddComponent<TerrainStampControl>();
+            }
         }
 
         private void DrawTileTerrain()
