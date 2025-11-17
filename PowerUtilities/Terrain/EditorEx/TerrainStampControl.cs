@@ -24,11 +24,6 @@ namespace PowerUtilities
         public override string Version => "0.0.3";
         public Vector3 heightOffset = Vector3.up * 2;
 
-        public override void DrawInspectorUI(TerrainStampControl inst)
-        {
-            base.DrawInspectorUI(inst);
-        }
-
         void DrawHitPointLines(Color color, params Vector3[] points)
         {
             if (points.Length < 2) return;
@@ -64,15 +59,18 @@ namespace PowerUtilities
                 }
 
                 // draw pos gui
-                var startGUIPos = HandleUtility.WorldToGUIPoint(startHitInfo.point);
-                var endGUIPos = HandleUtility.WorldToGUIPoint(endHitInfo.point);
-                Handles.BeginGUI();
-                GUI.Box(new Rect(startGUIPos, new Vector2(150, 30)), $"{startHitInfo.point}");
-                if (x == points.Length - 2)
+                if (x % inst.posGUIIntervalCount == 0)
                 {
-                    GUI.Box(new Rect(endGUIPos, new Vector2(150, 30)), $"{endHitInfo.point}");
+                    var startGUIPos = HandleUtility.WorldToGUIPoint(startHitInfo.point);
+                    var endGUIPos = HandleUtility.WorldToGUIPoint(endHitInfo.point);
+                    Handles.BeginGUI();
+                    GUI.Box(new Rect(startGUIPos, new Vector2(150, 30)), $"{startHitInfo.point}");
+                    if (x == points.Length - 2)
+                    {
+                        GUI.Box(new Rect(endGUIPos, new Vector2(150, 30)), $"{endHitInfo.point}");
+                    }
+                    Handles.EndGUI();
                 }
-                Handles.EndGUI();
 
                 // lines
                 Handles.DrawAAPolyLine(linePoints.ToArray());
@@ -85,9 +83,17 @@ namespace PowerUtilities
             TerrainTools.GetHitInfo(pos, out var startHitInfo);
             DrawPoint(inst, pos, startHitInfo);
             DrawBrush(startHitInfo.point);
+
+            var startGUIPos = HandleUtility.WorldToGUIPoint(startHitInfo.point);
+            Handles.BeginGUI();
+            GUI.Box(new Rect(startGUIPos, new Vector2(150, 30)), $"{startHitInfo.point}");
+            Handles.EndGUI();
         }
         void DrawBrush(Vector3 hitPos)
         {
+            if (!inst)
+                return;
+
             var c = Color.Lerp(Color.black, Color.red, inst.brushOpacity * 0.5f + 0.5f);
             c.a = Mathf.Abs(inst.brushOpacity * 0.5f);
             c.a = Math.Max(0.2f, c.a);
@@ -132,10 +138,18 @@ namespace PowerUtilities
         private void OnSceneGUI()
         {
             var inst = (TerrainStampControl)target;
-            DrawHitPoint(inst.pos);
-            //Draw2HitPoint(inst.startPos, inst.endPos);
-            DrawHitPointLines(Color.blue * 0.5f, inst.startPos,inst.endPos);
-            DrawHitPointLines(Color.blue * 0.5f,inst.posList.ToArray());
+            if (!inst) return;
+
+            if (inst.isShowStampToolGizmos)
+                DrawHitPoint(inst.pos);
+
+            if (inst.isShowBridgeToolGizmos)
+            {
+                //Draw2HitPoint(inst.startPos, inst.endPos);
+                DrawHitPointLines(Color.blue * 0.5f, inst.startPos, inst.endPos);
+            }
+            if (inst.isShowPathToolGizmos)
+                DrawHitPointLines(Color.blue * 0.5f, inst.posList.ToArray());
         }
 
     }
@@ -166,7 +180,8 @@ namespace PowerUtilities
 
         [Tooltip("brush dir,negative minus height,positive add height")]
         [Range(-1, 1)] public float brushOpacity = 0.1f;
-        [Tooltip("segment's distance")]
+
+        [Tooltip("sample spline segment's distance,BridgeTool,PathTools use")]
         [Min(0.01f)] public float distanceSegment = 1f;
 
         //---------------- stamp tool
@@ -230,8 +245,18 @@ namespace PowerUtilities
         [EditorButton(onClickCall = nameof(StampPaths))]
         [HideInInspector] public bool isStampPaths;
 
-        [EditorHeader("", "--- DebugTools", indentLevel = 0)]
-        public float posSphereSize = 5;
+        //------------------------- Debug Options
+        [EditorGroup("Debug Options",true)]
+        [Range(1,10)]public float posSphereSize = 5;
+        [EditorGroup("Debug Options")]
+        [Min(4)]public int posGUIIntervalCount = 4;
+        [EditorGroup("Debug Options")]
+        [Tooltip("sample count from spline, need click ReadSpline button")]
+        [Min(10)]public int splineSampleCount = 100;
+
+        [EditorGroup("Debug Options")]
+        public bool isShowStampToolGizmos=true,isShowBridgeToolGizmos=true,isShowPathToolGizmos = true;
+
 
 #if UNITY_EDITOR
         private void Update()
@@ -268,14 +293,15 @@ namespace PowerUtilities
             var spline = splineContainer.Spline;
             posList.Clear();
             // knots position
-            posList.AddRange(spline.Knots.Select(knot => splineContainer.transform.TransformPoint(knot.Position)));
+            //posList.AddRange(spline.Knots.Select(knot => splineContainer.transform.TransformPoint(knot.Position)));
+
             // line sample position
-            //var count = Mathf.FloorToInt(spline.GetLength() / 10);
-            //for (int i = 0; i < count; i++)
-            //{
-            //    spline.Evaluate((float)i / (count - 1), out var pos, out var tangent, out var up);
-            //    posList.Add(pos);
-            //}
+            var count = splineSampleCount;
+            for (int i = 0; i < count; i++)
+            {
+                spline.Evaluate((float)i / (count - 1), out var pos, out var tangent, out var up);
+                posList.Add(splineContainer.transform.TransformPoint(pos));
+            }
 #endif
         }
 
@@ -379,7 +405,6 @@ namespace PowerUtilities
             {
                 if (!hitInfoGroup.hitInfo.collider)
                 {
-
                     return;
                 }
                 var startPos = hitInfoGroup.pos;
@@ -391,9 +416,8 @@ namespace PowerUtilities
                 // save currrent terrainData
                 if (isNeedUndo)
                 {
-                    if (lastTerrain != t)
+                    if (CompareTools.CompareAndSet(ref lastTerrain,t))
                     {
-                        lastTerrain = t;
                         Undo.RecordObject(t.terrainData, "Terrain Paint - Raise or Lower Height");
                     }
                 }
