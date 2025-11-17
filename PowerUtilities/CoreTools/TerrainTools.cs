@@ -478,7 +478,7 @@
         /// <param name="brushOpacity"></param>
         /// <param name="brushSize"></param>
         /// <param name="brushRotation"></param>
-        public static void StampTerrainHeight(Vector2 pos, Texture brushTexture, Texture filterTexture, float brushOpacity, float brushSize, float brushRotation)
+        public static void StampTerrainHeight(Vector3 pos, Texture brushTexture, Texture filterTexture, float brushOpacity, float brushSize, float brushRotation)
         {
             if (!TerrainTools.GetHitInfo(pos, out var hitInfo))
             {

@@ -22,6 +22,7 @@ namespace PowerUtilities
     {
         public override bool NeedDrawDefaultUI() => true;
         public override string Version => "0.0.3";
+        public Vector3 heightOffset = Vector3.up * 2;
 
         public override void DrawInspectorUI(TerrainStampControl inst)
         {
@@ -33,7 +34,6 @@ namespace PowerUtilities
             if (points.Length < 2) return;
 
             var inst = (TerrainStampControl)target;
-            var heightOffset = Vector3.up * 2;
 
             for (var x = 0; x < points.Length - 1; x++)
             {
@@ -68,6 +68,10 @@ namespace PowerUtilities
                 var endGUIPos = HandleUtility.WorldToGUIPoint(endHitInfo.point);
                 Handles.BeginGUI();
                 GUI.Box(new Rect(startGUIPos, new Vector2(150, 30)), $"{startHitInfo.point}");
+                if (x == points.Length - 2)
+                {
+                    GUI.Box(new Rect(endGUIPos, new Vector2(150, 30)), $"{endHitInfo.point}");
+                }
                 Handles.EndGUI();
 
                 // lines
@@ -76,21 +80,64 @@ namespace PowerUtilities
             Handles.color = Color.white;
         }
 
+        private void DrawHitPoint(Vector3 pos)
+        {
+            TerrainTools.GetHitInfo(pos, out var startHitInfo);
+            DrawPoint(inst, pos, startHitInfo);
+            DrawBrush(startHitInfo.point);
+        }
+        void DrawBrush(Vector3 hitPos)
+        {
+            var c = Color.Lerp(Color.black, Color.red, inst.brushOpacity * 0.5f + 0.5f);
+            c.a = Mathf.Abs(inst.brushOpacity * 0.5f);
+            c.a = Math.Max(0.2f, c.a);
+            Handles.color = c;
+            // brush size
+            Handles.CubeHandleCap(0, hitPos, Quaternion.Euler(0, inst.brushRotation, 0), inst.brushSize, EventType.Repaint);
+        }
+        void Draw2HitPoint(Vector3 startPos, Vector3 endPos)
+        {
+            var p0 = startPos + heightOffset;
+            var p1 = endPos + heightOffset;
+
+            TerrainTools.GetHitInfo(p0, out var startHitInfo);
+            TerrainTools.GetHitInfo(p1, out var endHitInfo);
+            DrawPoint(inst, p0, startHitInfo);
+            DrawPoint(inst, p1, endHitInfo);
+            // draw pos gui
+            var startGUIPos = HandleUtility.WorldToGUIPoint(startHitInfo.point);
+            var endGUIPos = HandleUtility.WorldToGUIPoint(endHitInfo.point);
+            Handles.BeginGUI();
+            GUI.Box(new Rect(startGUIPos, new Vector2(150, 30)), $"{startHitInfo.point}");
+            GUI.Box(new Rect(endGUIPos, new Vector2(150, 30)), $"{endHitInfo.point}");
+            Handles.EndGUI();
+
+            // lines
+            Handles.DrawLine(p0, p1);
+        }
         private static void DrawPoint(TerrainStampControl inst, Vector3 pos, RaycastHit posHitInfo)
         {
+            if (!inst)
+                return;
+
             Handles.color = Color.white * 0.5f;
             Handles.SphereHandleCap(0, pos, Quaternion.identity, inst.posSphereSize, EventType.Repaint);
+
             Handles.color = Color.red * 0.5f;
             Handles.SphereHandleCap(0, posHitInfo.point, Quaternion.identity, inst.posSphereSize, EventType.Repaint);
             Handles.DrawLine(pos, posHitInfo.point);
+
         }
 
         private void OnSceneGUI()
         {
             var inst = (TerrainStampControl)target;
-            DrawHitPointLines(Color.white,inst.startPos, inst.endPos);
+            DrawHitPoint(inst.pos);
+            //Draw2HitPoint(inst.startPos, inst.endPos);
+            DrawHitPointLines(Color.blue * 0.5f, inst.startPos,inst.endPos);
             DrawHitPointLines(Color.blue * 0.5f,inst.posList.ToArray());
         }
+
     }
 #endif
 
@@ -120,7 +167,7 @@ namespace PowerUtilities
         [Tooltip("brush dir,negative minus height,positive add height")]
         [Range(-1, 1)] public float brushOpacity = 0.1f;
         [Tooltip("segment's distance")]
-        [Min(0.01f)] public float distanceSegment = 0.1f;
+        [Min(0.01f)] public float distanceSegment = 1f;
 
         //---------------- stamp tool
         [EditorHeader("", "--- Stamp Tool", indentLevel = 0)]
@@ -320,7 +367,7 @@ namespace PowerUtilities
         /// <param name="hitInfoGroupList"></param>
         public void StampHeights(List<(RaycastHit hitInfo, Vector3 pos)> hitInfoGroupList)
         {
-            StampHeights(hitInfoGroupList, TerrainTools.Get_SetExactHeightMat(), brushTexture, brushSize, brushRotation, brushOpacity, filterTexture);
+            StampHeights(hitInfoGroupList, TerrainTools.Get_SetExactHeightMat(), brushTexture, brushSize, brushRotation, Mathf.Clamp01(brushOpacity), filterTexture);
         }
 
         public static void StampHeights(List<(RaycastHit hitInfo, Vector3 pos)> hitInfoGroupList, Material paintMat,
@@ -363,7 +410,6 @@ namespace PowerUtilities
         {
             TerrainTools.StampTerrainHeight(pos, brushTexture, filterTexture, brushOpacity, brushSize, brushRotation);
         }
-
 
     }
 }
