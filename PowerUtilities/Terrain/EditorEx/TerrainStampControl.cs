@@ -34,16 +34,19 @@ namespace PowerUtilities
             {
                 var p0 = points[x] + heightOffset;
                 var p1 = points[x + 1] + heightOffset;
+                var isIntervalValid = x % inst.posGUIIntervalCount == 0;
 
                 TerrainTools.GetHitInfo(p0, out var startHitInfo);
                 TerrainTools.GetHitInfo(p1, out var endHitInfo);
 
                 // draw sphere to hitPoint
                 DrawPoint(inst, p0, startHitInfo);
+                DrawBrush(startHitInfo.point);
                 // draw last point
                 if (x == points.Length - 2)
                 {
                     DrawPoint(inst, p1, endHitInfo);
+                    DrawBrush(endHitInfo.point);
                 }
 
                 // draw line
@@ -59,7 +62,7 @@ namespace PowerUtilities
                 }
 
                 // draw pos gui
-                if (x % inst.posGUIIntervalCount == 0)
+                if (isIntervalValid)
                 {
                     var startGUIPos = HandleUtility.WorldToGUIPoint(startHitInfo.point);
                     var endGUIPos = HandleUtility.WorldToGUIPoint(endHitInfo.point);
@@ -101,26 +104,7 @@ namespace PowerUtilities
             // brush size
             Handles.CubeHandleCap(0, hitPos, Quaternion.Euler(0, inst.brushRotation, 0), inst.brushSize, EventType.Repaint);
         }
-        void Draw2HitPoint(Vector3 startPos, Vector3 endPos)
-        {
-            var p0 = startPos + heightOffset;
-            var p1 = endPos + heightOffset;
 
-            TerrainTools.GetHitInfo(p0, out var startHitInfo);
-            TerrainTools.GetHitInfo(p1, out var endHitInfo);
-            DrawPoint(inst, p0, startHitInfo);
-            DrawPoint(inst, p1, endHitInfo);
-            // draw pos gui
-            var startGUIPos = HandleUtility.WorldToGUIPoint(startHitInfo.point);
-            var endGUIPos = HandleUtility.WorldToGUIPoint(endHitInfo.point);
-            Handles.BeginGUI();
-            GUI.Box(new Rect(startGUIPos, new Vector2(150, 30)), $"{startHitInfo.point}");
-            GUI.Box(new Rect(endGUIPos, new Vector2(150, 30)), $"{endHitInfo.point}");
-            Handles.EndGUI();
-
-            // lines
-            Handles.DrawLine(p0, p1);
-        }
         private static void DrawPoint(TerrainStampControl inst, Vector3 pos, RaycastHit posHitInfo)
         {
             if (!inst)
@@ -145,7 +129,6 @@ namespace PowerUtilities
 
             if (inst.isShowBridgeToolGizmos)
             {
-                //Draw2HitPoint(inst.startPos, inst.endPos);
                 DrawHitPointLines(Color.blue * 0.5f, inst.startPos, inst.endPos);
             }
             if (inst.isShowPathToolGizmos)
@@ -418,7 +401,7 @@ namespace PowerUtilities
                 {
                     if (CompareTools.CompareAndSet(ref lastTerrain,t))
                     {
-                        Undo.RecordObject(t.terrainData, "Terrain Paint - Raise or Lower Height");
+                        //Undo.RecordObject(t.terrainData, "Terrain Paint - Raise or Lower Height");
                     }
                 }
 #endif
