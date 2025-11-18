@@ -120,6 +120,25 @@
         }
 
         /// <summary>
+        /// Destroy components which has component T
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="go"></param>
+        /// <param name="isInChildrenOrParent">true: in children,false : in parent</param>
+        public static void DestroyComponents<T>(this GameObject go, bool isInChildrenOrParent,bool isInvisible=false) where T : Component
+        {
+            var cs = isInChildrenOrParent ? go.GetComponentsInChildren<T>(isInvisible) : go.GetComponentsInParent<T>(isInvisible);
+            foreach (var c in cs)
+            {
+#if UNITY_EDITOR
+                Object.DestroyImmediate(c);
+#else
+                Object.Destroy(c);
+#endif
+            }
+        }
+
+        /// <summary>
         /// Destroy children which has component T
         /// with undo in editor
         /// </summary>
