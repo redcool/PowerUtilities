@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace PowerUtilities
 {
-    public static class AnimationEx
+    public static class AnimationTools
     {
         public static AnimationState UseFirstState(this Animation anim)
         {
@@ -16,6 +16,16 @@ namespace PowerUtilities
                 return state;
             }
             return null;
+        }
+
+        public static AnimationClip[] GetAnimationClips(this Animation anim)
+        {
+            var list = new List<AnimationClip>();
+            foreach (AnimationState state in anim)
+            {
+                list.Add(state.clip);
+            }
+            return list.ToArray();
         }
     }
 }

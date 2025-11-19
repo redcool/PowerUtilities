@@ -47,7 +47,7 @@ namespace PowerUtilities
         };
 
         [Tooltip("install packages")]
-        [EditorButton(onClickCall = "AddPackages")]
+        [EditorButton(onClickCall = nameof(AddPackages))]
         public bool isAddPackages;
 
         static AddRequest[] requests;
@@ -117,6 +117,7 @@ namespace PowerUtilities
                 Debug.Log("All packages have been processed.");
             }
         }
+
     }
 }
 

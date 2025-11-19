@@ -37,7 +37,10 @@ namespace PowerUtilities
             PlayerSettings.SetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup, defineStr);
 #endif
         }
-
+        /// <summary>
+        /// Apply macro define to PlayerSettings
+        /// </summary>
+        /// <param name="macros"></param>
         public static void AddMacroDefines(params string[] macros)
         {
             var defineList = GetDefineMacroList();
