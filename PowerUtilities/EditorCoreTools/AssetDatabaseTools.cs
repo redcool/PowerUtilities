@@ -291,12 +291,17 @@ namespace PowerUtilities
         /// <returns></returns>
         public static string GetAssetFolder(Object obj)
         {
+            return GetAssetFolder(obj, "");
+        }
+
+        public static string GetAssetFolder(Object obj, string defaultPath)
+        {
             if (!obj)
-                return "";
+                return defaultPath;
 
             var path = AssetDatabase.GetAssetPath(obj);
             if (string.IsNullOrEmpty(path))
-                return "";
+                return defaultPath;
 
             var isFolder = AssetDatabase.IsValidFolder(path);
             if (!isFolder)
