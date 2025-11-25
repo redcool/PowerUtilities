@@ -14,12 +14,12 @@ namespace PowerUtilities
         /// </summary>
         /// <param name="sprite"></param>
         /// <returns></returns>
-        public static Vector4 GetSpriteUVScaleOffset(this Sprite sprite)
+        public static Vector4 GetSpriteUVScaleOffset(this Sprite sprite, bool isTextureRect)
         {
-            if(!sprite)
+            if (!sprite)
                 return default;
 
-            var rect = sprite.rect;
+            var rect = isTextureRect ? sprite.textureRect : sprite.rect;
             var texWidth = (float)sprite.texture.width;
             var texHeight = (float)sprite.texture.height;
 

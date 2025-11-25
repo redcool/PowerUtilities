@@ -73,6 +73,8 @@ namespace PowerUtilities
         [Tooltip("use powervfx minVersion")]
         public bool isUseMinVersion = true;
 
+        [Tooltip("sprite atlas v2 use")]
+        public bool isTextureRect; 
 
         Renderer render; // 3d renderer
         Image uiImage; // ui
@@ -153,7 +155,7 @@ namespace PowerUtilities
             // debug
             spriteRect = new Vector4(rect.x, rect.y, rect.width, rect.height);
             // xy : tiling, zw:offset
-            spriteUVST = sprite.GetSpriteUVScaleOffset();
+            spriteUVST = sprite.GetSpriteUVScaleOffset(isTextureRect);
             mat.SetVector($"{_MainTexName}_ST", spriteUVST, block);
 
             // xy : offset,powervfx use this ,do sprite uv move
@@ -181,8 +183,9 @@ namespace PowerUtilities
             if (!sprite)
                 return;
 
-            var w = sprite.rect.width;
-            var h = sprite.rect.height;
+            var rect = isTextureRect? sprite.textureRect : sprite.rect;
+            var w = rect.width;
+            var h = rect.height;
             var sx = w / sprite.pixelsPerUnit;
             var sy = h / sprite.pixelsPerUnit;
 
