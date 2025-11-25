@@ -84,10 +84,27 @@ namespace PowerUtilities {
 
         public override void DrawGroupUI(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
         {
+            var mat = editor.target as Material;
+            if (!mat)
+                return;
+            
             EditorGUI.BeginChangeCheck();
+            // current selected index
             var matPropValue = (int)prop.floatValue;
             var index = keywordValueDict.Values.FindIndex(val => val == matPropValue);
 
+            // sync current mat keyword opened
+            foreach (var item in mat.enabledKeywords)
+            {
+                if (keywordValueDict.ContainsKey(item.name))
+                {
+                    var matKeyIndex = keywordValueDict[item.name];
+                    if (matKeyIndex != index)
+                        index = matKeyIndex;
+                }
+            }
+
+            // show gui contents
             var displayOptions = keywordValueDict.Keys.Select(item=>new GUIContent(item)).ToArray();
             index = EditorGUI.Popup(position,label, index, displayOptions);
 
