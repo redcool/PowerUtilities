@@ -18,12 +18,12 @@ namespace PowerUtilities
     /// </summary>
     public static class PresetApplyContextMenu
     {
-        public const string ASSET_POWER_TOOLS_MENU = ContextMenuConsts.ASSETS + "PowerUtils";
+        
 
         /// <summary>
         /// Apply preset in selected folder(
         /// </summary>
-        [MenuItem(ASSET_POWER_TOOLS_MENU + "/Apply Preset In Folder Chain")]
+        [MenuItem(ContextMenuConsts.POWER_UTILS_MENU + "/Preset/Apply Preset In Folder Chain")]
         public static void ApplyPresetInFolderChain()
         {
             var selectedFolders = SelectionTools.GetSelectedFolders();
@@ -52,7 +52,7 @@ namespace PowerUtilities
         /// <summary>
         /// Apply default presets(Preset Manager config) to selected folder items
         /// </summary>
-        [MenuItem(ASSET_POWER_TOOLS_MENU + "/Apply Default Presets In Folder")]
+        [MenuItem(ContextMenuConsts.POWER_UTILS_MENU + "/Preset/Apply Default Presets In Folder")]
         public static void ApplyDefaultPresetInFolder()
         {
             var list = Selection.GetFiltered<Object>(SelectionMode.DeepAssets);

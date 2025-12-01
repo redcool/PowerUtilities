@@ -42,7 +42,10 @@ namespace PowerUtilities
             "OnValidate",
             "HasPreviewGUI",
             "CreateInspectorGUI",
+
+            "Awake"
         };
+        
         /// <summary>
         /// Set true will use CreateInspectorGUI ,false use OnInspectorGUI
         /// new UnityEditor use UIToolkit,like PresetEditor
@@ -53,11 +56,25 @@ namespace PowerUtilities
         /// className : like "UnityEditor.Texture2DArrayInspector"
         /// </summary>
         public abstract string GetDefaultInspectorTypeName();
+        /// <summary>
+        /// current draw script object
+        /// </summary>
         public Object scriptObj;
+
+        public virtual void Awake()
+        {
+            SetupDefaultEditorAndMethods();
+            defaultEditor.InvokeDelegate<Action>(ref methodInfoDict, nameof(Awake));
+        }
 
         public virtual void OnEnable()
         {
-            // get texture2d array inspector
+            defaultEditor.InvokeDelegate<Action>(ref methodInfoDict, nameof(OnEnable));
+        }
+
+        public void SetupDefaultEditorAndMethods()
+        {
+            // get default unity editor
             EditorTools.GetOrCreateUnityEditor(ref defaultEditor, targets, ref defaultEditorType, GetDefaultInspectorTypeName());
 
             // save unity editor methodinfo
@@ -65,11 +82,9 @@ namespace PowerUtilities
             {
                 methodInfoDict[name] = defaultEditorType.GetMethod(name, ReflectionTools.callBindings);
             });
-
-            defaultEditor.InvokeDelegate<Action>(ref methodInfoDict, nameof(OnEnable));
-
             scriptObj = AssetDatabaseTools.FindAssetPathAndLoad<Object>(out _, GetType().Name);
         }
+
         public virtual void OnDisable()
         {
             defaultEditor.InvokeDelegate<Action>(ref methodInfoDict, nameof(OnDisable));

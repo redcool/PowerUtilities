@@ -291,6 +291,43 @@ namespace PowerUtilities
             materialEditorI.EnableInstancingField();
             materialEditorI.DoubleSidedGIField();
         }
+        /// <summary>
+        /// remove unused material properties
+        /// </summary>
+        /// <param name="mat"></param>
+        public static void RemoveUnusedMaterialProperties(Material mat)
+        {
+            var so = new SerializedObject(mat);
+            so.Update();
+            var savedProperties = so.FindProperty("m_SavedProperties");
+            var texEnvs = savedProperties.FindPropertyRelative("m_TexEnvs");
+            var floats = savedProperties.FindPropertyRelative("m_Floats");
+            var ints = savedProperties.FindPropertyRelative("m_Ints");
+            var colors = savedProperties.FindPropertyRelative("m_Colors");
+
+            RemoveUnusedMaterialProperty(mat, texEnvs);
+            RemoveUnusedMaterialProperty(mat, floats);
+            RemoveUnusedMaterialProperty(mat, ints);
+            RemoveUnusedMaterialProperty(mat, colors);
+
+            so.ApplyModifiedProperties();
+        }
+
+        public static void RemoveUnusedMaterialProperty(Material mat, SerializedProperty arrayProp)
+        {
+            if (!mat || arrayProp == null)
+                return;
+
+            for (int i = arrayProp.arraySize - 1; i >= 0; i--)
+            {
+                var prop = arrayProp.GetArrayElementAtIndex(i);
+                var propName = prop.FindPropertyRelative("first").stringValue;
+                if (!mat.HasProperty(propName))
+                {
+                    arrayProp.DeleteArrayElementAtIndex(i);
+                }
+            }
+        }
     }
 }
 #endif
