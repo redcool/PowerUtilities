@@ -89,6 +89,11 @@
         [Tooltip("Interrupt others pass when this pass done")]
         public bool interrupt;
 
+        [EditorGroup(PASS_OPTIONS_GROUP)]
+        [Tooltip("frames interval before pass execute,(0 NO Limit)")]
+        [Range(0,10)]
+        public int frameInterval = 0;
+
         [EditorHeader(PASS_OPTIONS_GROUP, "Pass Options / CameraType")]
         [EditorGroup("PassOptions")]
         [Tooltip("Which camera can run")]

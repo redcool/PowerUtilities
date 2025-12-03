@@ -143,13 +143,16 @@ namespace PowerUtilities.RenderFeatures
             var isMonoPass = true;
             if (OnCanExecute != null)
                 isMonoPass = OnCanExecute.Invoke(this);
+            var isTimeValid = true;
+            if(Feature.frameInterval>0)
+                isTimeValid = Time.frameCount % Feature.frameInterval == 0;
 
             //check gameCamera
             var isGameCamPass = true;
             if (camera && camera.IsGameCamera() && !string.IsNullOrEmpty(Feature.gameCameraTag))
                 isGameCamPass = IsGameCameraValid(camera);
 
-            return isGameCamPass && isMonoPass && isEditorValid;
+            return isGameCamPass && isMonoPass && isEditorValid && isTimeValid;
         }
 
         public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
