@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices.WindowsRuntime;
 using UnityEngine;
@@ -25,6 +25,8 @@ namespace PowerUtilities.RenderFeatures
         public bool disableURPOpaqueTexture = true;
         public Downsampling downSampling = Downsampling._2xBilinear;
 
+        public ClearFlag clearFlags;
+
         public override ScriptableRenderPass GetPass()
         {
             return new CopyColorPass(this);
@@ -33,6 +35,10 @@ namespace PowerUtilities.RenderFeatures
 
     public class CopyColorPass : SRPPass<CopyColor>
     {
+        /// <summary>
+        /// only 1 rt
+        /// </summary>
+        public static RTHandle opaqueTextureHandle;
         //CopyColorPass copyPass;
         public CopyColorPass(CopyColor feature) : base(feature)
         {
@@ -56,23 +62,25 @@ namespace PowerUtilities.RenderFeatures
         {
             // like CopyColorPass.OnCameraSetup, canot call it directly.
             ref var cameraData = ref renderingData.cameraData;
+            var renderer = cameraData.renderer as UniversalRenderer;
+
             var desc = cameraData.cameraTargetDescriptor;
             desc.msaaSamples = 1;
             desc.depthBufferBits = 0;
             desc.colorFormat = RenderTextureFormat.Default;
             if (Feature.downSampling == Downsampling._2xBilinear)
             {
-                desc.width >>=1;
-                desc.height >>=1;
+                desc.width >>= 1;
+                desc.height >>= 1;
             }
             else if (Feature.downSampling == Downsampling._4xBox || Feature.downSampling == Downsampling._4xBilinear)
             {
                 desc.width >>= 2;
                 desc.height >>= 2;
             }
-
-            cmd.GetTemporaryRT(ShaderPropertyIds._CameraOpaqueTexture, desc, Feature.downSampling == Downsampling.None ? FilterMode.Point : FilterMode.Bilinear);
-
+            var filterMode = Feature.downSampling == Downsampling.None ? FilterMode.Point : FilterMode.Bilinear;
+            //cmd.GetTemporaryRT(ShaderPropertyIds._CameraOpaqueTexture, desc, Feature.downSampling == Downsampling.None ? FilterMode.Point : FilterMode.Bilinear);
+            RenderingUtils.ReAllocateIfNeeded(ref opaqueTextureHandle, desc, name: nameof(ShaderPropertyIds._CameraOpaqueTexture), filterMode: filterMode);
         }
 
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
@@ -81,8 +89,14 @@ namespace PowerUtilities.RenderFeatures
 
             var srcHandle = renderer.GetCameraColorAttachmentA();
 
-            cmd.BlitTriangle(srcHandle, ShaderPropertyIds._CameraOpaqueTexture, Feature.blitMat, 0, isTryReplaceUrpTarget: false);
-            cmd.SetGlobalTexture(ShaderPropertyIds._CameraOpaqueTexture, ShaderPropertyIds._CameraOpaqueTexture);
+            cmd.BlitTriangle(srcHandle, 
+                opaqueTextureHandle, 
+                Feature.blitMat, 
+                0,
+                isTryReplaceUrpTarget: false,
+                clearFlags: Feature.clearFlags
+                );
+            cmd.SetGlobalTexture(ShaderPropertyIds._CameraOpaqueTexture, opaqueTextureHandle);
         }
 
         public override void OnCameraCleanup(CommandBuffer cmd)
