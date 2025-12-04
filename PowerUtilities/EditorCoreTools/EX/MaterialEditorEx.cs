@@ -295,25 +295,31 @@ namespace PowerUtilities
         /// remove unused material properties
         /// </summary>
         /// <param name="mat"></param>
-        public static void RemoveUnusedMaterialProperties(Material mat)
+        public static void ClearUnusedMaterialPropertiesKeywords(Material mat)
         {
             var so = new SerializedObject(mat);
             so.Update();
-            var savedProperties = so.FindProperty("m_SavedProperties");
+            ClearUnusedMaterialProperties(so);
+            ClearInvalidKeywords(so);
+            so.ApplyModifiedProperties();
+        }
+
+        public static void ClearUnusedMaterialProperties(SerializedObject matSO)
+        {
+            var savedProperties = matSO.FindProperty("m_SavedProperties");
             var texEnvs = savedProperties.FindPropertyRelative("m_TexEnvs");
             var floats = savedProperties.FindPropertyRelative("m_Floats");
             var ints = savedProperties.FindPropertyRelative("m_Ints");
             var colors = savedProperties.FindPropertyRelative("m_Colors");
 
-            RemoveUnusedMaterialProperty(mat, texEnvs);
-            RemoveUnusedMaterialProperty(mat, floats);
-            RemoveUnusedMaterialProperty(mat, ints);
-            RemoveUnusedMaterialProperty(mat, colors);
-
-            so.ApplyModifiedProperties();
+            var mat = (Material)matSO.targetObject;
+            ClearUnusedMaterialProperties(mat, texEnvs);
+            ClearUnusedMaterialProperties(mat, floats);
+            ClearUnusedMaterialProperties(mat, ints);
+            ClearUnusedMaterialProperties(mat, colors);
         }
 
-        public static void RemoveUnusedMaterialProperty(Material mat, SerializedProperty arrayProp)
+        public static void ClearUnusedMaterialProperties(Material mat, SerializedProperty arrayProp)
         {
             if (!mat || arrayProp == null)
                 return;
@@ -326,6 +332,18 @@ namespace PowerUtilities
                 {
                     arrayProp.DeleteArrayElementAtIndex(i);
                 }
+            }
+        }
+
+        public static void ClearInvalidKeywords(SerializedObject matSO)
+        {
+            var invalidKeywordsProp = matSO.FindProperty("m_InvalidKeywords");
+            if (invalidKeywordsProp == null)
+                return;
+
+            for (int i = invalidKeywordsProp.arraySize - 1; i >= 0; i--)
+            {
+                invalidKeywordsProp.DeleteArrayElementAtIndex(i);
             }
         }
     }

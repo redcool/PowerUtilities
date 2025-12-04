@@ -18,7 +18,7 @@ namespace PowerUtilities
             if (!mat || !mat.shader)
                 return;
 
-            MaterialEditorEx.RemoveUnusedMaterialProperties(mat);
+            MaterialEditorEx.ClearUnusedMaterialPropertiesKeywords(mat);
         }
 
         [MenuItem(ContextMenuConsts.POWER_UTILS_MENU + "Material/Clear Unused Properties In Folder")]
@@ -32,7 +32,7 @@ namespace PowerUtilities
                 {
                     if (!mat || !mat.shader)
                         continue;
-                    MaterialEditorEx.RemoveUnusedMaterialProperties(mat);
+                    MaterialEditorEx.ClearUnusedMaterialPropertiesKeywords(mat);
                 }
             }
 
