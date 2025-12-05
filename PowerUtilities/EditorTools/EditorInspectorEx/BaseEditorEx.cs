@@ -110,8 +110,8 @@ namespace PowerUtilities
 
         public override bool HasPreviewGUI()
         {
-            return (bool)defaultEditor.InvokeDelegate<Func<bool>>(ref methodInfoDict, nameof(HasPreviewGUI));
-            //return target;
+            var r = defaultEditor.InvokeDelegate<Func<bool>>(ref methodInfoDict, nameof(HasPreviewGUI));
+            return r != default ? (bool)r : false;
         }
 
         public override void DrawPreview(Rect previewArea)

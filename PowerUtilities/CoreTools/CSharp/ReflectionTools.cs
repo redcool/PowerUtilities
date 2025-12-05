@@ -83,19 +83,26 @@ namespace PowerUtilities
         }
 
         /// <summary>
-        /// Get types has attribute<T>
+        /// Get types has attribute<T> in T's assembly 
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static Type[] GetTypesHasAttribute<T>() where T : Attribute
+        public static Type[] GetTypesHasAttribute<T>(bool isInAppDomain = false) where T : Attribute
         {
             var attrType = typeof(T);
-            if(!attributeTypesDict.TryGetValue(attrType,out var types) || types.Length == 0)
+            Type[] typeArr = null;
+            if (!attributeTypesDict.TryGetValue(attrType, out var types) || types.Length == 0)
             {
-                types = typeof(T).Assembly.GetTypes();
+                if (isInAppDomain)
+                {
+                    typeArr = GetAppDomainTypesDerivedFrom<Type>(t => t.GetCustomAttribute<T>() != null)
+                        .ToArray();
+                }
+                else
+                    typeArr = typeof(T).Assembly.GetTypes()
+                        .Where(t => t.GetCustomAttribute<T>() != null)
+                        .ToArray();
             }
-            var typeArr = types.Where(t => t.GetCustomAttribute<T>() != null)
-                .ToArray();
 
             attributeTypesDict[attrType] = typeArr;
             return typeArr;
@@ -110,28 +117,19 @@ namespace PowerUtilities
         /// <returns></returns>
         public static MethodInfo[] GetMethodsHasAttribute<T>(params string[] dllStartWithNames) where T : Attribute
         {
-
-            var list = new List<MethodInfo>();
             var attrType = typeof(T);
             if (!typeHasAttributeMethodsDict.TryGetValue(attrType, out var methods))
             {
-                var dlls = AppDomain.CurrentDomain.GetAssemblies()
-                    .Where(dll => IsContains(dll.FullName))
-                    .ToArray();
-
-                foreach (var dll in dlls)
-                {
-                    var types = dll.GetTypes();
-                    //var types = typeof(T).Assembly.GetTypes();
-                    methods = types.SelectMany(t => GetMethodsHasCustomAttribute<T>(t))
-                        .Where(ms => ms != null)
-                        .ToArray();
-                    list.AddRange(methods);
-                }
+                methods = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(dll => IsContains(dll.FullName))
+                .SelectMany(dll => dll.GetTypes())
+                .SelectMany(t => GetMethodsHasCustomAttribute<T>(t))
+                .Where(ms => ms != null)
+                .ToArray()
+                ;
             }
 
-            return typeHasAttributeMethodsDict[attrType] = list.ToArray();
-
+            return typeHasAttributeMethodsDict[attrType] = methods;
             //==========
             bool IsContains(string fullname)
             {
@@ -140,8 +138,7 @@ namespace PowerUtilities
 
                 foreach (var name in dllStartWithNames)
                 {
-
-                    if(fullname.StartsWith(name))
+                    if (fullname.StartsWith(name))
                         return true;
                 }
                 return false;
@@ -193,6 +190,10 @@ namespace PowerUtilities
             ;
         }
 
+        public static Type GetTypeFromAppDomain(string typeName)
+        {
+            return GetAppDomainTypesDerivedFrom<Type>(type => type.FullName == typeName).FirstOrDefault();
+        }
         /// <summary>
         /// Is type implements interfaceType?
         /// </summary>
