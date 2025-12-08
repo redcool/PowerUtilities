@@ -17,11 +17,12 @@ namespace PowerUtilities
 
 
         /// <summary>
-        /// type's methods has attribute
+        /// type's fields has attribute
         /// 
         /// {type : [methodInfos]}
         /// </summary>
-        static Dictionary<Type, MethodInfo[]> typeHasAttributeMethodsDict = new Dictionary<Type, MethodInfo[]>();
+        static Dictionary<Type, MethodInfo[]> typeHasAttributeMethodsDict = new ();
+        static Dictionary<Type, FieldInfo[]> typeHasAttributeFieldsDict = new ();
 
         /// <summary>
         /// types has attributeType
@@ -45,6 +46,7 @@ namespace PowerUtilities
         {
             typeHasAttributeMethodsDict.Clear();
             attributeTypesDict.Clear();
+            typeHasAttributeFieldsDict.Clear();
         }
 
         /// <summary>
@@ -65,7 +67,7 @@ namespace PowerUtilities
                 methodInfo = type.GetMethod(methodName, flags, binder, argTypes, mods);
         }
         /// <summary>
-        /// Get type's methods have attribute<T> with cached
+        /// Get type's fields have attribute<T> 
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="type"></param>
@@ -81,7 +83,23 @@ namespace PowerUtilities
             typeHasAttributeMethodsDict[type] = methodArr;
             return methodArr;
         }
+        /// <summary>
+        /// Get type's fields have attribute<T>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static FieldInfo[] GetFieldsHasCustomAttribute<T>(Type type) where T : Attribute
+        {
+            if (!typeHasAttributeFieldsDict.TryGetValue(type, out var fields))
+            {
+                fields = type.GetFields(callBindings);
+            }
 
+            var fieldArr = fields.Where(m => m.GetCustomAttribute<T>() != null).ToArray();
+            typeHasAttributeFieldsDict[type] = fieldArr;
+            return fieldArr;
+        }
         /// <summary>
         /// Get types has attribute<T> in T's assembly 
         /// </summary>
@@ -95,7 +113,7 @@ namespace PowerUtilities
             {
                 if (isInAppDomain)
                 {
-                    typeArr = GetAppDomainTypesDerivedFrom<Type>(t => t.GetCustomAttribute<T>() != null)
+                    typeArr = GetAppDomainTypes<Type>(t => t.GetCustomAttribute<T>() != null)
                         .ToArray();
                 }
                 else
@@ -109,9 +127,9 @@ namespace PowerUtilities
         }
 
         /// <summary>
-        /// Get methodInfo[] from all types
+        /// Get methodInfo[] has attribute T from appDomain assemblies
         /// 
-        /// first time cost 11ms
+        /// first time Slow
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
@@ -121,7 +139,7 @@ namespace PowerUtilities
             if (!typeHasAttributeMethodsDict.TryGetValue(attrType, out var methods))
             {
                 methods = AppDomain.CurrentDomain.GetAssemblies()
-                .Where(dll => IsContains(dll.FullName))
+                .Where(dll => IsContains(dllStartWithNames,dll.FullName))
                 .SelectMany(dll => dll.GetTypes())
                 .SelectMany(t => GetMethodsHasCustomAttribute<T>(t))
                 .Where(ms => ms != null)
@@ -130,57 +148,50 @@ namespace PowerUtilities
             }
 
             return typeHasAttributeMethodsDict[attrType] = methods;
-            //==========
-            bool IsContains(string fullname)
-            {
-                if (dllStartWithNames.Length == 0)
-                    return true;
+        }
+        static bool IsContains(string[] dllStartWithNames,string dllFullname)
+        {
+            if (dllStartWithNames.Length == 0)
+                return true;
 
-                foreach (var name in dllStartWithNames)
-                {
-                    if (fullname.StartsWith(name))
-                        return true;
-                }
-                return false;
+            foreach (var name in dllStartWithNames)
+            {
+                if (dllFullname.StartsWith(name))
+                    return true;
             }
+            return false;
         }
         /// <summary>
-        /// Search Types from (T)'s assembly or all current domain assemblies
+        /// Get FieldInfos has attribute T from appDomain assemblies
+        /// First time Slow
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="predication"></param>
-        /// <param name="isIncludeDomain"></param>
+        /// <param name="dllStartWithNames"></param>
         /// <returns></returns>
-        public static IEnumerable<Type> GetTypesDerivedFrom<T>(Func<Type, bool> predication, bool isIncludeDomain = false)
+        public static FieldInfo[] GetFieldsHasAttribute<T>(params string[] dllStartWithNames) where T : Attribute
         {
-            if (predication == null)
-                return Enumerable.Empty<Type>();
+            var attrType = typeof(T);
+            if (!typeHasAttributeFieldsDict.TryGetValue(attrType, out var fields))
+            {
+                fields = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(dll => IsContains(dllStartWithNames, dll.FullName))
+                .SelectMany(dll => dll.GetTypes())
+                .SelectMany(t => GetFieldsHasCustomAttribute<T>(t))
+                .Where(ms => ms != null)
+                .ToArray()
+                ;
+            }
 
-            IEnumerable<Type> types = typeof(T).Assembly.GetTypes();
-            if (isIncludeDomain)
-                types = GetAppDomainTypesDerivedFrom<T>();
-
-            return types.Where(predication);
+            return typeHasAttributeFieldsDict[attrType] = fields;
         }
 
-        public static IEnumerable<Type> GetTypesDerivedFrom<T>(bool isIncludeDomain = false)
-        {
-            var tType = typeof(T);
-            return GetTypesDerivedFrom<T>(t => t.BaseType != null && t.BaseType == tType);
-        }
-
-        public static IEnumerable<Type> GetAppDomainTypesDerivedFrom<T>()
-        {
-            var tType = typeof(T);
-            return GetAppDomainTypesDerivedFrom<T>(t => t.BaseType != null && t.BaseType == tType);
-        }
         /// <summary>
         /// Search Types from currentDomain assemblies
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="predicate"></param>
         /// <returns></returns>
-        public static IEnumerable<Type> GetAppDomainTypesDerivedFrom<T>(Func<Type, bool> predicate)
+        public static IEnumerable<Type> GetAppDomainTypes<T>(Func<Type, bool> predicate)
         {
             if (predicate == null)
                 return Enumerable.Empty<Type>();
@@ -190,9 +201,38 @@ namespace PowerUtilities
             ;
         }
 
-        public static Type GetTypeFromAppDomain(string typeName)
+        public static Type GetAppDomainType(string typeFullName)
         {
-            return GetAppDomainTypesDerivedFrom<Type>(type => type.FullName == typeName).FirstOrDefault();
+            return GetAppDomainTypes<Type>(type => type.FullName == typeFullName).FirstOrDefault();
+        }
+
+        /// <summary>
+        /// Get all types passed by predication from current Assembly or currentDomain assemblies
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="predication"></param>
+        /// <param name="isIncludeDomain"></param>
+        /// <returns></returns>
+        public static IEnumerable<Type> GetTypes<T>(Func<Type, bool> predication, bool isIncludeDomain = false)
+        {
+            if (predication == null)
+                return Enumerable.Empty<Type>();
+
+            if (isIncludeDomain)
+                return GetAppDomainTypes<T>(predication);
+            else
+                return Assembly.GetCallingAssembly().GetTypes().Where(predication);
+        }
+        /// <summary>
+        /// Get all types derived from T from current Assembly or currentDomain assemblies
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="isIncludeDomain"> find in currentDomain assemblies</param>
+        /// <returns></returns>
+        public static IEnumerable<Type> GetTypesDerivedFrom<T>(bool isIncludeDomain = false)
+        {
+            var tType = typeof(T);
+            return GetTypes<T>(t => t.BaseType != null && t.BaseType == tType, isIncludeDomain);
         }
         /// <summary>
         /// Is type implements interfaceType?
