@@ -32,7 +32,7 @@ namespace PowerUtilities
 
             if (isAnimTextureSupported && GUILayout.Button("Add BakeAnimTexture"))
             {
-                var type = ReflectionTools.GetAppDomainTypesDerivedFrom<MonoBehaviour>(type => type.FullName == "AnimTexture.BakeAnimTexture")
+                var type = ReflectionTools.GetAppDomainTypes<MonoBehaviour>(type => type.FullName == "AnimTexture.BakeAnimTexture")
                     .FirstOrDefault();
                 if (type != null)
                     inst.gameObject.GetOrAddComponent(type);

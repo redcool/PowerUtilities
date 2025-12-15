@@ -169,7 +169,7 @@ namespace PowerUtilities
             if (type == null)
                 type = Assembly.GetAssembly(typeof(Editor)).GetType(typeName);
             if (type == null)
-                type = ReflectionTools.GetAppDomainTypesDerivedFrom<Type>(type => type.FullName == typeName).FirstOrDefault();
+                type = ReflectionTools.GetAppDomainTypes<Type>(type => type.FullName == typeName).FirstOrDefault();
 
             Debug.Assert(type != null);
         }

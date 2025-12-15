@@ -36,12 +36,6 @@ namespace PowerUtilities
         /// </summary>
         static Dictionary<string, string[]> fieldPathDict = new Dictionary<string, string[]>();
 
-        /// <summary>
-        /// Type's all FieldInfo
-        /// </summary>
-        static Dictionary<Type, FieldInfo[]> typeFieldInfosDict = new Dictionary<Type, FieldInfo[]>();
-        static Dictionary<Type, Dictionary<string, FieldInfo>> typeFieldNameDict = new();
-
         static ReflectionTools()
         {
             typeHasAttributeMethodsDict.Clear();
@@ -532,39 +526,26 @@ namespace PowerUtilities
         /// <param name="writeTarget">write field to this</param>
         /// <param name="bindingFlags">filed binding flags</param>
         /// <param name="onSetValue"> onSetValue: (readValue, writeValue), result default result is readValue </param>
-        public static void CopyFieldInfoValues(object readTarget,object writeTarget,BindingFlags bindingFlags = instanceBindings,Func<object, object,object> onSetValue = null)
+        public static void CopyFieldInfoValues(object readTarget, object writeTarget, BindingFlags bindingFlags = instanceBindings, Func<object, object, object> onSetValue = null)
         {
             var readType = readTarget.GetType();
             var writeType = writeTarget.GetType();
+            var writeTargetFields = writeType.GetFields(bindingFlags);
 
-            var readTargetFields = DictionaryTools.Get(typeFieldInfosDict, readType, (readType) => readType.GetFields(bindingFlags));
-            var writeTargetFields = DictionaryTools.Get(typeFieldInfosDict, writeType, (writeType) => writeType.GetFields(bindingFlags));
-
-            var writeTargetFieldDict = DictionaryTools.Get(typeFieldNameDict, writeType, (writeType) => new Dictionary<string, FieldInfo>());
-
-            for (int i = 0; i < readTargetFields.Length; i++)
+            for (int i = 0; i < writeTargetFields.Length; i++)
             {
-                var readField = readTargetFields[i];
-
-                //var writeField = Array.Find(writeTargetFields, fieldInfo => fieldInfo.Name == readField.Name);
-                //1 insert key
-                if(!writeTargetFieldDict.ContainsKey(readField.Name))
-                {
-                    writeTargetFieldDict.Add(readField.Name, writeType.GetField(readField.Name));
-                }
-
-                //2 get key
-                if(!writeTargetFieldDict.TryGetValue(readField.Name,out var writeField) || writeField == null)
+                var writeField = writeTargetFields[i];
+                var readField = readType.GetField(writeField.Name, bindingFlags);
+                if (readField == null)
                     continue;
 
-                //3 set value
+                var readValue = readField.GetValue(readTarget);
                 if (onSetValue == null)
                 {
-                    writeField.SetValue(writeTarget, readField.GetValue(readTarget));
+                    writeField.SetValue(writeTarget, readValue);
                 }
                 else
                 {
-                    var readValue = readField.GetValue(readTarget);
                     var writeValue = writeField.GetValue(writeTarget);
 
                     var result = onSetValue.Invoke(readValue, writeValue);
