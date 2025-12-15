@@ -90,15 +90,36 @@ namespace PowerUtilities
             }
         }
 
+        public static void DrawLineCube(Bounds bounds, Color color = default, float duration = 0)
+        {
+            var min = bounds.min;
+            var max = bounds.max;
+
+            var vertices = new[]
+            {
+                min,
+                new Vector3(min.x,min.y,max.z),
+                new Vector3(max.x,min.y,max.z),
+                new Vector3(max.x,min.y,min.z),
+
+                new Vector3(min.x,max.y,min.z),
+                new Vector3(min.x,max.y,max.z),
+                max,
+                new Vector3(max.x,max.y,min.z),
+            };
+
+            DrawLineCube(vertices, color,duration);
+        }
+
         /// <summary>
         /// 
-        /// p4          p5 
+        /// p5          p6 
         ///     p1 p2
         ///     p0 p3
-        /// p6          p7
+        /// p4          p7
         /// </summary>
         /// <param name="vertices"></param>
-        public static void DrawLineCube(Vector3[] vertices, Color color = default)
+        public static void DrawLineCube(Vector3[] vertices, Color color = default, float duration = 0)
         {
             if (vertices.Length < 8)
                 return;
@@ -117,10 +138,10 @@ namespace PowerUtilities
                 (p4,p5),(p5,p6),(p6,p7),(p7,p4), // far
                 (p0,p4),(p3,p7),
                 (p1,p5),(p2,p6),
-            }, color);
+            }, color,duration);
         }
 
-        public static void DrawLineArrow(Vector3 start,Vector3 dir,Color color = default)
+        public static void DrawLineArrow(Vector3 start,Vector3 dir,Color color = default,float duration=0)
         {
             var perpendicular = Vector3.Cross(Vector3.right, dir).normalized;
             //perpendicular = Quaternion.Euler(45, 0, 0) * perpendicular;
@@ -131,7 +152,7 @@ namespace PowerUtilities
             var e1 = end7 + perpendicular;
             var e2 = end7 - perpendicular;
 
-            DrawLines(new[] {(start,end),(end,e1),(end,e2)},color);
+            DrawLines(new[] {(start,end),(end,e1),(end,e2)},color, duration);
         }
 
         public static void DrawAxis(Vector3 pos, Vector3 right, Vector3 up, Vector3 forward, float length = 1)

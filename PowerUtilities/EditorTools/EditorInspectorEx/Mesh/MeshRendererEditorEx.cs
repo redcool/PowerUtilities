@@ -34,6 +34,7 @@ namespace PowerUtilities
 
         // lightmap
         public bool isShowLightmapSetting;
+        public bool isShowBounds;
 
         public override string GetDefaultInspectorTypeName() => "UnityEditor.MeshRendererEditor";
 
@@ -49,15 +50,30 @@ namespace PowerUtilities
         {
             base.OnInspectorGUI();
 
+            var mr = (MeshRenderer)target;
+
             serializedObject.Update();
             RendererEditorTools.DrawRenderSortingLayerFields(serializedObject, renderSortingLayerFields, ref isShowSortingLayerSetting, sortingLayerSettingGUI);
             DrawLightmapSetting();
+            DrawBounds(mr);
             serializedObject.ApplyModifiedProperties();
+        }
+
+        private void DrawBounds(MeshRenderer mr)
+        {
+            //var boundsProp = serializedObject.FindProperty("m_Bounds");
+            var bounds = mr.bounds;
+            EditorGUITools.BeginFoldoutHeaderGroupBox(ref isShowBounds, new GUIContent("Bounds"), () =>
+            {
+                //EditorGUILayout.PropertyField(boundsProp);
+                bounds.center = EditorGUILayout.Vector3Field("Center", bounds.center);
+                bounds.size = EditorGUILayout.Vector3Field("Size", bounds.size);
+                DebugTools.DrawLineCube(bounds, Color.green,5);
+            });
         }
 
         public void DrawLightmapSetting()
         {
-            var mr = (MeshRenderer)target;
             var lightmapIndexProp = serializedObject.FindProperty("m_LightmapIndex");
             var lightmapScaleOffsetProp = serializedObject.FindProperty("m_LightmapTilingOffset");
             EditorGUITools.BeginFoldoutHeaderGroupBox(ref isShowLightmapSetting, showLightmapSettingGUI, () =>
