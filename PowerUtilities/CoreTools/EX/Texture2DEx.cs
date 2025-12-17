@@ -178,6 +178,7 @@ namespace PowerUtilities
 
         /// <summary>
         /// blit from src , write to (destX,destY),(blockWidth,blockHeight)
+        /// not need set Readable
         /// </summary>
         /// <param name="tex"></param>
         /// <param name="src"></param>

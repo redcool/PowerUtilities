@@ -387,7 +387,7 @@ namespace PowerUtilities
                         OnValueChanged(prop, id);
                     });
                 }
-            }, "");
+            }, "Box");
 
             //------- inner methods
             static void DefulatValueChanged(SerializedProperty prop, int id)

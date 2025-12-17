@@ -54,7 +54,7 @@ namespace PowerUtilities
 
             SetupSlicesFromFolder();
 
-            SetupSlicesRList();
+            slicesRList = SetupSlicesRList(slices);
             lastFormatId = formatProp.intValue;
         }
         public override void OnDisable()
@@ -62,29 +62,30 @@ namespace PowerUtilities
             slices.Clear();
         }
 
-        private void SetupSlicesRList()
+        public static ReorderableList SetupSlicesRList<TexType>(List<TexType> texList) where TexType : Texture
         {
-            slicesRList = new ReorderableList(slices, typeof(Texture2D));
-            slicesRList.drawHeaderCallback = (rect) =>
+            var rList = new ReorderableList(texList, typeof(TexType));
+            rList.drawHeaderCallback = (rect) =>
             {
                 EditorGUI.LabelField(rect, "Slices");
             };
-            slicesRList.drawNoneElementCallback = (rect) =>
+            rList.drawNoneElementCallback = (rect) =>
             {
                 EditorGUI.LabelField(rect, "none");
             };
-            slicesRList.drawElementCallback = (Rect rect, int index, bool isActive, bool isFocused) =>
+            rList.drawElementCallback = (Rect rect, int index, bool isActive, bool isFocused) =>
             {
-                var tex = (Texture2D)slicesRList.list[index];
+                var tex = (TexType)rList.list[index];
                 var texName = tex ? tex.name : "none";
 
                 var pos = new Rect(rect.x, rect.y, rect.width, 18);
-                slicesRList.list[index] = EditorGUI.ObjectField(pos, (Object)slicesRList.list[index], typeof(Texture2D), false);
+                rList.list[index] = EditorGUI.ObjectField(pos, (Object)rList.list[index], typeof(TexType), false);
             };
-            slicesRList.onAddCallback = (ReorderableList rlist) =>
+            rList.onAddCallback = (ReorderableList rlist) =>
             {
                 rlist.list.Add(null);
             };
+            return rList;
         }
 
         public override void OnInspectorGUI()
@@ -172,7 +173,7 @@ namespace PowerUtilities
             var folderPath = GetTextureArraySlicesFolder();
             PathTools.CreateAbsFolderPath(folderPath);
             
-            var tex = new Texture2D(inst.width, inst.height, TextureFormat.ARGB32, true);
+            var tex = new Texture2D(inst.width, inst.height, TextureFormat.ARGB32, true,false);
             var resultRT = RenderTextureTools.GetTemporaryUAV(inst.width, inst.height, RenderTextureFormat.Default);
             for (int i = 0; i < inst.depth; i++)
             {

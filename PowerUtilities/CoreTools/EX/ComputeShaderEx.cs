@@ -71,7 +71,7 @@ namespace PowerUtilities
         /// </summary>
         /// <param name="sourceTex"></param>
         /// <param name="resultRT"></param>
-        public static void DispatchKernel_CopyTexture(Texture sourceTex, Texture resultRT, int sourceTexId = 0, int sourceTexLod = 0,float gammaValue=1)
+        public static void DispatchKernel_CopyTexture(Texture sourceTex, Texture resultRT, int sourceTexId = 0, int sourceTexLod = 0,float gammaValue=1,int resultTexId=0)
         {
             var texCS = GetCS("TextureTools");
             var kernel = texCS.FindKernel("CopyTexture");
@@ -83,22 +83,32 @@ namespace PowerUtilities
 
             texCS.SetTexture(kernel, "_SourceTex", sourceTex);
 
-            texCS.SetFloat("_SourceTexId", sourceTexId);
+            texCS.SetFloat("_SourceTexId", sourceTexId); // source texture array id
             texCS.SetVector("_SourceTex_TexelSize", new Vector4(sourceTex.width, sourceTex.height, 1f / sourceTex.width, 1f / sourceTex.height));
             texCS.SetFloat("_SourceTexLod", sourceTexLod);
             texCS.SetFloat("_GammaValue", gammaValue);
 
             texCS.SetTexture(kernel, "_ResultTex", resultRT);
             texCS.SetVector("_ResultTex_TexelSize", new Vector4(resultRT.width, resultRT.height, 1f / resultRT.width, 1f / resultRT.height));
+            texCS.SetFloat("_ResultTexId", resultTexId); // result tex array id
 
             texCS.DispatchKernel(kernel, resultRT.width, resultRT.height, 1);
         }
-
-        public static void DispatchKernel_CopyTexture(Texture sourceTex, Texture2D resultTex, int sourceTexId = 0, int sourceTexLod = 0)
+        /// <summary>
+        /// Copy sourceTex to resultRT, no worry about different texture size
+        /// sourceTex: 2d,2dArray,3d
+        /// </summary>
+        /// <param name="resultTex">The Texture2D that receives the copied texture data. like new Texture2D()</param>
+        /// <param name="sourceTex">The source Texture from which to copy data.</param>
+        /// <param name="sourceTexId">The texture array slice or ID in the source texture to copy from. The default is 0.</param>
+        /// <param name="sourceTexLod">The mipmap level of the source texture to copy. The default is 0.</param>
+        /// <param name="gammaValue">The gamma correction value to apply during the copy operation. A value of 1 means no correction. The default
+        /// is 1.</param>
+        public static void DispatchKernel_CopyTexture(this Texture2D resultTex, Texture sourceTex, int sourceTexId = 0, int sourceTexLod = 0, float gammaValue = 1)
         {
             var resultRT = RenderTextureTools.GetTemporaryUAV(sourceTex.width, sourceTex.height, RenderTextureFormat.Default);
 
-            DispatchKernel_CopyTexture(sourceTex, resultRT, sourceTexId, sourceTexLod);
+            DispatchKernel_CopyTexture(sourceTex, resultRT, sourceTexId, sourceTexLod,gammaValue);
             resultRT.ReadRenderTexture(ref resultTex);
             resultRT.ReleaseSafe();
         }
