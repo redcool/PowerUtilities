@@ -1,4 +1,4 @@
-using PowerUtilities.RenderFeatures;
+﻿using PowerUtilities.RenderFeatures;
 using System.Linq;
 using Unity.Mathematics;
 using UnityEngine;

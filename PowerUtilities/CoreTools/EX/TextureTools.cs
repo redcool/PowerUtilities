@@ -11,6 +11,7 @@ using Unity.Mathematics;
 using UnityEditor;
 #endif
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace PowerUtilities
 {
@@ -79,6 +80,21 @@ namespace PowerUtilities
             return Create2DArray(q, sample.width, sample.height, sample.format, sample.mipmapCount, linear);
         }
 
+        public static Texture3D Create3D(List<Texture2D> textures, bool linear)
+        {
+            var q = textures.Where(t => t).ToList();
+            if (q.Count == 0)
+                return null;
+
+            var sample = q[0];
+            var tex3D = new Texture3D(sample.width, sample.height, q.Count, sample.format, sample.mipmapCount);
+            q.ForEach((tex, index) =>
+            {
+                Graphics.CopyTexture(tex, 0, 0, tex3D, index, 0);
+            });
+            return tex3D;
+        }
+
         public static byte[] GetEncodeBytes(this Texture2D tex, TextureEncodeType texType,Texture2D.EXRFlags exrFlags = (Texture2D.EXRFlags)(3)) => texType switch
         {
             TextureEncodeType.TGA => tex.EncodeToTGA(),
@@ -112,8 +128,25 @@ namespace PowerUtilities
             tex.SetPixels(pixels);
         }
 
-        public static void ConvertColorSpace(this Texture2D tex, ComputeShader cs, string kernelName, float coefficient = 1 / 2.2f, bool isApplyGT6Tone = true)
+        /// <summary>
+        /// Call compute shader to convert color space(srgb<->linear) ,and apply GT6 tone mapping
+        /// 
+        /// when cs is null, find Resources/Shaders/ColorConvert.compute 
+        /// final cs is null,use cpu convert
+        /// </summary>
+        /// <param name="tex"></param>
+        /// <param name="cs"></param>
+        /// <param name="kernelName"></param>
+        /// <param name="coefficient"></param>
+        /// <param name="isApplyGT6Tone"></param>
+        public static void ConvertColorSpace(this Texture2D tex, ComputeShader cs, string kernelName= "ConvertColorSpace", float coefficient = 1 / 2.2f, bool isApplyGT6Tone = true)
         {
+            //1  find ConvertColorSpace kernel
+            if (!cs) 
+            {
+                cs = ComputeShaderEx.GetCS(ComputeShaderEx.CS_COLOR_CONVERT);
+            }
+            //2  cs not found, use cpu convert
             if (!cs)
             {
                 ConvertColorSpace(tex, coefficient);
@@ -137,6 +170,20 @@ namespace PowerUtilities
             colorBuffer.TryRelease();
 
             tex.SetPixels(pixels);
+        }
+
+        public static int GetDepth(this Texture tex)
+        {
+            if (tex == null)
+                return 0;
+            if (tex is Texture2DArray texArr)
+                return texArr.depth;
+            else if (tex is Texture3D tex3D)
+                return tex3D.depth;
+            else if (tex is RenderTexture rt)
+                return rt.volumeDepth;
+
+            return 1;
         }
     }
 }

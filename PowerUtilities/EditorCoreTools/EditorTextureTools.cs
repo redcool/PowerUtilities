@@ -61,7 +61,14 @@ namespace PowerUtilities
             AssetDatabase.CreateAsset(arr, assetPath);
         }
 
+        public static void Create3D(List<Texture2D> textures, string assetPath, bool isLinear = true)
+        {
+            if (textures == null || textures.Count == 0)
+                return;
 
+            var tex = TextureTools.Create3D(textures, isLinear);
+            AssetDatabase.CreateAsset(tex, assetPath);
+        }
     }
 }
 #endif

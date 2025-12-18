@@ -11,6 +11,16 @@ namespace PowerUtilities
 {
     public static class ComputeShaderEx
     {
+        /// <summary>
+        /// Compute Names
+        /// </summary>
+        public const string 
+                //Copy Texture
+            CS_TEXTURE_TOOLS = "TextureTools",
+            // color convert
+            CS_COLOR_CONVERT = "ColorConvert"
+            ;
+
         public static Dictionary<string, ComputeShader> csDict = new();
         /// <summary>
         /// Send var : _DispatchGroupSize
@@ -48,7 +58,7 @@ namespace PowerUtilities
         /// <param name="cs"></param>
         public static void DispatchKernel_CSClear(Texture resultRT, Color clearColor = default)
         {
-            var texCS = GetCS("TextureTools");
+            var texCS = GetCS(CS_TEXTURE_TOOLS);
             var kernel = texCS.FindKernel("CSClear");
             texCS.SetVector("_ClearColor", clearColor);
             texCS.SetTexture(kernel, "_ResultTex", resultRT);
@@ -73,7 +83,7 @@ namespace PowerUtilities
         /// <param name="resultRT"></param>
         public static void DispatchKernel_CopyTexture(Texture sourceTex, Texture resultRT, int sourceTexId = 0, int sourceTexLod = 0,float gammaValue=1,int resultTexId=0)
         {
-            var texCS = GetCS("TextureTools");
+            var texCS = GetCS(CS_TEXTURE_TOOLS);
             var kernel = texCS.FindKernel("CopyTexture");
 
             // clear keywords
@@ -104,7 +114,7 @@ namespace PowerUtilities
         /// <param name="sourceTexLod">The mipmap level of the source texture to copy. The default is 0.</param>
         /// <param name="gammaValue">The gamma correction value to apply during the copy operation. A value of 1 means no correction. The default
         /// is 1.</param>
-        public static void DispatchKernel_CopyTexture(this Texture2D resultTex, Texture sourceTex, int sourceTexId = 0, int sourceTexLod = 0, float gammaValue = 1)
+        public static void CopyFrom(this Texture2D resultTex, Texture sourceTex, int sourceTexId = 0, int sourceTexLod = 0, float gammaValue = 1)
         {
             var resultRT = RenderTextureTools.GetTemporaryUAV(sourceTex.width, sourceTex.height, RenderTextureFormat.Default);
 

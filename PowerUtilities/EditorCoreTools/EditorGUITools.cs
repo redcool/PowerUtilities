@@ -753,7 +753,7 @@ namespace PowerUtilities
             
             rList.drawHeaderCallback = (rect) =>
             {
-                EditorGUI.LabelField(rect, itemType.Name);
+                EditorGUI.LabelField(rect, $"{itemType.Name} count:{rList.count}");
             };
 
             rList.drawNoneElementCallback = (rect) =>
@@ -779,6 +779,40 @@ namespace PowerUtilities
                 return height;
             };
             
+            return rList;
+        }
+
+        /// <summary>
+        /// Setup ReorderableList for slices list
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="itemList"></param>
+        /// <returns></returns>
+        public static ReorderableList SetupSlicesRList<T>(List<T> itemList) where T : Object
+        {
+            var itemType = typeof(T);
+            var rList = new ReorderableList(itemList, itemType);
+
+            rList.drawHeaderCallback = (rect) =>
+            {
+                EditorGUI.LabelField(rect, $"{itemType.Name} count:{rList.count}");
+            };
+            rList.drawNoneElementCallback = (rect) =>
+            {
+                EditorGUI.LabelField(rect, "none");
+            };
+            rList.drawElementCallback = (Rect rect, int index, bool isActive, bool isFocused) =>
+            {
+                var obj = (T)rList.list[index];
+                var texName = obj ? obj.name : "none";
+
+                var pos = new Rect(rect.x, rect.y, rect.width, 18);
+                rList.list[index] = EditorGUI.ObjectField(pos, (Object)rList.list[index], itemType, false);
+            };
+            rList.onAddCallback = (ReorderableList rlist) =>
+            {
+                rlist.list.Add(null);
+            };
             return rList;
         }
     }
