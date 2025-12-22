@@ -1,21 +1,15 @@
 ﻿#if UNITY_EDITOR
-using Microsoft.CodeAnalysis.Text;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEditor;
 using UnityEditor.EditorTools;
 using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
 using UnityEngine.Rendering;
-using UnityEngine.UIElements;
-using static UnityEngine.Networking.UnityWebRequest;
-using Object = UnityEngine.Object;
 
 namespace PowerUtilities
 {
