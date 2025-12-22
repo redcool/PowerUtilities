@@ -63,12 +63,17 @@ namespace PowerUtilities
 
         public virtual void Awake()
         {
-            SetupDefaultEditorAndMethods();
+            if (defaultEditor == null)
+                SetupDefaultEditorAndMethods();
+
             defaultEditor.InvokeDelegate<Action>(ref methodInfoDict, nameof(Awake));
         }
 
         public virtual void OnEnable()
         {
+            if(defaultEditor == null)
+                SetupDefaultEditorAndMethods();
+
             defaultEditor.InvokeDelegate<Action>(ref methodInfoDict, nameof(OnEnable));
         }
 

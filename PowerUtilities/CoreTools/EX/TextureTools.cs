@@ -112,7 +112,7 @@ namespace PowerUtilities
 #endif
         }
         /// <summary>
-        /// Convert to srgb or linear
+        /// Convert to srgb or linear ( cpu code)
         /// </summary>
         /// <param name="tex"></param>
         /// <param name="coefficient">to srgb: 2 , to linear : 1/2</param>
@@ -135,14 +135,15 @@ namespace PowerUtilities
         /// final cs is null,use cpu convert
         /// </summary>
         /// <param name="tex"></param>
-        /// <param name="cs"></param>
+        /// <param name="cs">is null, use ColorConvert.compute</param>
         /// <param name="kernelName"></param>
         /// <param name="coefficient"></param>
         /// <param name="isApplyGT6Tone"></param>
-        public static void ConvertColorSpace(this Texture2D tex, ComputeShader cs, string kernelName= "ConvertColorSpace", float coefficient = 1 / 2.2f, bool isApplyGT6Tone = true)
+        /// <returns>pixels change color space</returns>
+        public static Color[] ConvertColorSpace(this Texture2D tex, ComputeShader cs, string kernelName = "ConvertColorSpace", float coefficient = 1 / 2.2f, bool isApplyGT6Tone = true)
         {
             //1  find ConvertColorSpace kernel
-            if (!cs) 
+            if (!cs)
             {
                 cs = ComputeShaderEx.GetCS(ComputeShaderEx.CS_COLOR_CONVERT);
             }
@@ -150,26 +151,30 @@ namespace PowerUtilities
             if (!cs)
             {
                 ConvertColorSpace(tex, coefficient);
-                return;
+                return null;
             }
 
-            var pixels = tex.GetPixels();
+            var texSize = tex.width * tex.height;
+            Color[] pixels = new Color[texSize];
 
             GraphicsBuffer colorBuffer = null;
-            GraphicsBufferTools.TryCreateBuffer(ref colorBuffer, GraphicsBuffer.Target.Structured, pixels.Length, Marshal.SizeOf<Vector4>());
-            colorBuffer.SetData(pixels);
+            GraphicsBufferTools.TryCreateBuffer(ref colorBuffer, GraphicsBuffer.Target.Structured, texSize, Marshal.SizeOf<Vector4>());
 
             var kernel = cs.FindKernel(kernelName);
             cs.SetFloat("_Coefficient", coefficient);
             cs.SetBuffer(kernel, "_ColorBuffer", colorBuffer);
             cs.SetBool("_ApplyGT6Tone", isApplyGT6Tone);
+            cs.SetTextureWithSize(kernel, "_SourceTex", tex);
 
             cs.DispatchKernel(kernel, tex.width, tex.height, 1);
-
             colorBuffer.GetData(pixels);
             colorBuffer.TryRelease();
 
-            tex.SetPixels(pixels);
+            if (tex.isReadable)
+            {
+                tex.SetPixels(pixels);
+            }
+            return pixels;
         }
 
         public static int GetDepth(this Texture tex)

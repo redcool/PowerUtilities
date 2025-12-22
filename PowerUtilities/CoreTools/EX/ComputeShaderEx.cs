@@ -52,6 +52,19 @@ namespace PowerUtilities
         }
 
         /// <summary>
+        /// SetTexture and set texel size vector4(width,height,1/width,1/height) 
+        /// </summary>
+        /// <param name="cs"></param>
+        /// <param name="kernelId"></param>
+        /// <param name="texName"></param>
+        /// <param name="tex"></param>
+        public static void SetTextureWithSize(this ComputeShader cs, int kernelId, string texName,Texture tex)
+        {
+            cs.SetTexture(kernelId, texName, tex);
+            cs.SetVector($"{texName}_TexelSize", new Vector4(tex.width, tex.height, 1f / tex.width, 1f / tex.height));
+        }
+
+        /// <summary>
         /// Dispatch TextureTools.CSClear
         /// </summary>
         /// <param name="desc"></param>
@@ -91,15 +104,17 @@ namespace PowerUtilities
             var keyword = GetKeyWordTextureTools(sourceTex.dimension);
             texCS.EnableKeyword(keyword);
 
-            texCS.SetTexture(kernel, "_SourceTex", sourceTex);
+            texCS.SetTextureWithSize(kernel, "_SourceTex", sourceTex);
+            //texCS.SetTexture(kernel, "_SourceTex", sourceTex);
+            //texCS.SetVector("_SourceTex_TexelSize", new Vector4(sourceTex.width, sourceTex.height, 1f / sourceTex.width, 1f / sourceTex.height));
 
             texCS.SetFloat("_SourceTexId", sourceTexId); // source texture array id
-            texCS.SetVector("_SourceTex_TexelSize", new Vector4(sourceTex.width, sourceTex.height, 1f / sourceTex.width, 1f / sourceTex.height));
             texCS.SetFloat("_SourceTexLod", sourceTexLod);
             texCS.SetFloat("_GammaValue", gammaValue);
 
-            texCS.SetTexture(kernel, "_ResultTex", resultRT);
-            texCS.SetVector("_ResultTex_TexelSize", new Vector4(resultRT.width, resultRT.height, 1f / resultRT.width, 1f / resultRT.height));
+            texCS.SetTextureWithSize(kernel, "_ResultTex", resultRT);
+            //texCS.SetTexture(kernel, "_ResultTex", resultRT);
+            //texCS.SetVector("_ResultTex_TexelSize", new Vector4(resultRT.width, resultRT.height, 1f / resultRT.width, 1f / resultRT.height));
             texCS.SetFloat("_ResultTexId", resultTexId); // result tex array id
 
             texCS.DispatchKernel(kernel, resultRT.width, resultRT.height, 1);
