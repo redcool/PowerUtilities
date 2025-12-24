@@ -46,11 +46,15 @@ using UnityEngine;
             //================ inner methods
             static void CallTargetMethold(SerializedProperty property, EditorButtonAttribute attr)
             {
+                Debug.Log("call "+attr.onClickCall);
                 if (!string.IsNullOrEmpty(attr.onClickCall))
                 {
+                    property.serializedObject.Update();
                     var inst = property.serializedObject.targetObject;
                     var instType = inst.GetType();
                     ReflectionTools.InvokeMember(instType, attr.onClickCall, inst, null);
+
+                    property.serializedObject.ApplyModifiedProperties();
                 }
             }
         }
