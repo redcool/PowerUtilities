@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 namespace PowerUtilities
 {
     using System.Collections;
@@ -32,7 +32,7 @@ namespace PowerUtilities
 
         public override void DrawGroupUI(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
         {
-            if (prop.type != MaterialProperty.PropType.Range)
+            if (prop.GetPropertyType() != (int)UnityEngine.Rendering.ShaderPropertyType.Range)
             {
                 EditorGUI.LabelField(position, $"{label} not range");
                 return;

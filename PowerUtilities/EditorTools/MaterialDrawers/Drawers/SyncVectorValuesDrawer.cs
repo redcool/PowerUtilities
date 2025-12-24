@@ -28,7 +28,7 @@ namespace PowerUtilities
         }
         public override void OnGUI(Rect position, MaterialProperty prop, string label, MaterialEditor editor)
         {
-            if (props == null || prop.type != MaterialProperty.PropType.Vector)
+            if (props == null || prop.GetPropertyType() != (int)UnityEngine.Rendering.ShaderPropertyType.Vector)
                 return;
             var mat = (Material)editor.target;
 

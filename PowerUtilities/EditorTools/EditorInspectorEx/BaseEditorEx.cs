@@ -83,10 +83,13 @@ namespace PowerUtilities
             EditorTools.GetOrCreateUnityEditor(ref defaultEditor, targets, ref defaultEditorType, GetDefaultInspectorTypeName());
 
             // save unity editor methodinfo
-            methodNames.ForEach(name =>
+            if (defaultEditorType != null)
             {
-                methodInfoDict[name] = defaultEditorType.GetMethod(name, ReflectionTools.callBindings);
-            });
+                methodNames.ForEach(name =>
+                {
+                    methodInfoDict[name] = defaultEditorType.GetMethod(name, ReflectionTools.callBindings);
+                });
+            }
             scriptObj = AssetDatabaseTools.FindAssetPathAndLoad<Object>(out _, GetType().Name);
         }
 

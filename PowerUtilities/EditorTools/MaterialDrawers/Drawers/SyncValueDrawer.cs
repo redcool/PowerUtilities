@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace PowerUtilities
 {
@@ -38,15 +39,15 @@ namespace PowerUtilities
 
             var mat = (Material)editor.target;
 
-            switch (prop.type)
+            switch (prop.GetPropertyType())
             {
-                case MaterialProperty.PropType.Vector:
+                case (int)ShaderPropertyType.Vector:
                     prop.vectorValue = mat.GetVector(propName);
                     break;
-                case MaterialProperty.PropType.Color:
+                case (int)ShaderPropertyType.Color:
                     prop.colorValue = mat.GetColor(propName);
                     break;
-                case MaterialProperty.PropType.Texture:
+                case (int)ShaderPropertyType.Texture:
                     prop.textureValue = mat.GetTexture(propName);
                     var targetTexST = (propName + "_ST");
                     if (mat.HasProperty(targetTexST))

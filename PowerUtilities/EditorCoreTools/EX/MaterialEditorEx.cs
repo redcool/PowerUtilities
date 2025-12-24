@@ -145,13 +145,13 @@ namespace PowerUtilities
                         return;
                 }
 
-                switch (prop.type)
+                switch (prop.GetPropertyType())
                 {
-                    case MaterialProperty.PropType.Vector:
+                    case (int)ShaderPropertyType.Vector:
                         VectorProperty(editor, position, prop, label);
                         break;
 
-                    case MaterialProperty.PropType.Texture:
+                    case (int)ShaderPropertyType.Texture:
                         TextureProperty(editor, position, prop, label);
                         break;
 
@@ -188,13 +188,13 @@ namespace PowerUtilities
         public static Texture TextureProperty(this MaterialEditor editor, MaterialProperty prop, GUIContent label)
         {
             var position = GetPropertyRect(editor, prop, label, true);
-            bool scaleOffset = (prop.flags & MaterialProperty.PropFlags.NoScaleOffset) == 0;
+            bool scaleOffset = (prop.GetPropertyFlags() & (int)ShaderPropertyFlags.NoScaleOffset) == 0;
             return TextureProperty(editor, position, prop, label);
         }
 
         public static Texture TextureProperty(this MaterialEditor editor, Rect position, MaterialProperty prop, GUIContent label)
         {
-            bool scaleOffset = (prop.flags & MaterialProperty.PropFlags.NoScaleOffset) == 0;
+            bool scaleOffset = (prop.GetPropertyFlags() & (int)ShaderPropertyFlags.NoScaleOffset) == 0;
             return editor.TextureProperty(position, prop, label.text, label.tooltip, scaleOffset);
         }
 
@@ -273,7 +273,7 @@ namespace PowerUtilities
         {
             for (int i = 0; i < props.Length; i++)
             {
-                if ((props[i].flags & MaterialProperty.PropFlags.HideInInspector) == 0)
+                if ((props[i].GetPropertyFlags() & (int)ShaderPropertyFlags.HideInInspector) == 0)
                 {
                     float propertyHeight = materialEditorI.GetPropertyHeight(props[i], props[i].displayName);
                     Rect controlRect = EditorGUILayout.GetControlRect(true, propertyHeight, EditorStyles.layerMaskField);

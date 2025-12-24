@@ -117,7 +117,7 @@ namespace PowerUtilities
 
         public override void DrawGroupUI(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
         {
-            if (prop.type != MaterialProperty.PropType.Vector || headers == null)
+            if (prop.GetPropertyType() != (int)UnityEngine.Rendering.ShaderPropertyType.Vector || headers == null)
             {
                 editor.DrawDefaultInspector();
                 return;
