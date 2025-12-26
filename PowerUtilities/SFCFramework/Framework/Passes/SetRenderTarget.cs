@@ -1,4 +1,4 @@
-namespace PowerUtilities.RenderFeatures
+﻿namespace PowerUtilities.RenderFeatures
 {
     using System.Collections;
     using System.Collections.Generic;

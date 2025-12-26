@@ -73,8 +73,8 @@ namespace PowerUtilities
         {
             if(defaultEditor == null)
                 SetupDefaultEditorAndMethods();
-
-            defaultEditor.InvokeDelegate<Action>(ref methodInfoDict, nameof(OnEnable));
+             
+            defaultEditor?.InvokeDelegate<Action>(ref methodInfoDict, nameof(OnEnable));
         }
 
         public void SetupDefaultEditorAndMethods()

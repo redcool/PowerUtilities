@@ -1,142 +1,156 @@
 ﻿namespace PowerUtilities
 {
+    using System;
     using System.Collections;
     using System.Collections.Generic;
     using UnityEngine;
-    using System;
     using UnityEngine.Profiling;
-    using System.Text;
     using UnityEngine.Rendering;
-    /// <summary>
-    /// 解决,gpu instancing对光照图的处理
-    /// 
-    /// 调用Graphics.DrawMeshInstanced来绘制物体.
-    /// 烘焙+gpu instancing,使用此代码来绘制.
-    /// 
-    /// groups:[
-    ///     mesh:[
-    ///         transformsGroup:[
-    ///             transforms:[]
-    ///         ]
-    ///     ]
-    /// ]
-    /// 
-    /// </summary>
+
     [ExecuteInEditMode]
     public class DrawChildrenInstanced : MonoBehaviour
     {
+        [Tooltip("Bake children from ")]
+        public GameObject rootGO;
+
+        [EditorSettingSO]
         public DrawChildrenInstancedSO drawInfoSO;
+        DrawChildrenInstancedSO lastDrawInfoSo; 
 
-        private void AddEvents()
+        public CullingGroup cullingGroup;
+        static MaterialPropertyBlock block;
+
+        public void Start()
         {
-            DrawChildrenInstancedCullingGroupControl.OnVisibleChanged -= CullingGroupControl_OnVisibleChanged;
-            DrawChildrenInstancedCullingGroupControl.OnVisibleChanged += CullingGroupControl_OnVisibleChanged;
-
-            DrawChildrenInstancedCullingGroupControl.OnInitSceneProfileVisibles -= CullingGroupControl_OnInitAllVisibles;
-            DrawChildrenInstancedCullingGroupControl.OnInitSceneProfileVisibles += CullingGroupControl_OnInitAllVisibles;
-
-        }
-        private void RemoveEvents()
-        {
-            DrawChildrenInstancedCullingGroupControl.OnVisibleChanged -= CullingGroupControl_OnVisibleChanged;
-            DrawChildrenInstancedCullingGroupControl.OnInitSceneProfileVisibles -= CullingGroupControl_OnInitAllVisibles;
-        }
-
-        public void Awake()
-        {
-            CheckSupports();
-
-            //AddEvents,must first register, DrawChildrenInstancedCullingGroupControl onEnable will call
-            if (enabled)
-                AddEvents();
+            enabled = GraphicsDeviceTools.IsDeviceSupportInstancing();
         }
 
         private void OnEnable()
         {
-            AddEvents();
-        }
-        private void OnDestroy()
-        {
-            RemoveEvents();
+            TryInitCullingGroup();
         }
 
-        private void CheckSupports()
+        void Update()
         {
-            if (!GraphicsDeviceTools.IsDeviceSupportInstancing()) //设备不支持instance 或者 等级为 0
+            if (CompareTools.CompareAndSet(ref lastDrawInfoSo, drawInfoSO))
             {
-                enabled = false;
-                
-                if (drawInfoSO == null)
-                    return;
-
-                // show original objects
-                drawInfoSO.SetupRenderers(gameObject, true);
-                drawInfoSO.SetRendersActive(true);
+                if (drawInfoSO)
+                    SetupBoundingSpheres(cullingGroup, drawInfoSO.allInstanceCount, drawInfoSO.groupList);
             }
+
+            drawInfoSO?.Update();
+
         }
-
-        public void Start()
-        {
-            //not run in editor
-            if (Application.isPlaying)
-            {
-                if (!drawInfoSO)
-                {
-                    drawInfoSO = CreateNewProfile(gameObject.name);
-                }
-            }
-        }
-
-        private void CullingGroupControl_OnInitAllVisibles()
-        {
-            DrawChildrenInstancedCullingGroupControl.SceneProfile.cullingInfos.ForEach((cullingInfo ,infoId)=>
-            {
-                if (drawInfoSO.drawChildrenId != cullingInfo.drawChildrenId)
-                    return;
-
-                drawInfoSO.groupList[cullingInfo.groupId]
-                    .originalTransformsGroupList[cullingInfo.transformGroupId]
-                    .transformVisibleList[cullingInfo.transformId] = cullingInfo.isVisible;
-            });
-            //Debug.Log(drawInfoSO.ToString());
-        }
-
-        private void CullingGroupControl_OnVisibleChanged(CullingGroupEvent e)
-        {
-            if (DrawChildrenInstancedCullingGroupControl.SceneProfile.cullingInfos[e.index] is InstancedGroupCullingInfo cullingInfo)
-            {
-                //Debug.Log(e.index+":"+e.isVisible+":"+cullingInfo.ToString());
-
-                if (drawInfoSO.drawChildrenId != cullingInfo.drawChildrenId)
-                    return;
-
-                drawInfoSO.groupList[cullingInfo.groupId]
-                    .originalTransformsGroupList[cullingInfo.transformGroupId]
-                    .transformVisibleList[cullingInfo.transformId] = cullingInfo.isVisible;
-            }
-            //Debug.Log(drawInfoSO.ToString());
-        }
-
-        DrawChildrenInstancedSO CreateNewProfile(string name)
-        {
-            var drawInfoSO = ScriptableObject.CreateInstance<DrawChildrenInstancedSO>();
-            drawInfoSO.name = gameObject.name;
-
-            drawInfoSO.SetupChildren(gameObject);
-            drawInfoSO.DestroyOrHiddenChildren(false);
-            return drawInfoSO;
-        }
-
         void LateUpdate()
         {
             Profiler.BeginSample("Draw Children Instanced");
-            if (drawInfoSO)
+            if (drawInfoSO && cullingGroup != null)
             {
-                drawInfoSO.Update();
-                drawInfoSO.DrawGroupList();
+                DrawGroupList(null);
             }
             Profiler.EndSample();
         }
 
+        private void OnDisable()
+        {
+            CullingGroupEx.DestroySafe(ref cullingGroup);
+        }
+
+        public void SetupDrawInfo()
+        {
+            drawInfoSO.Clear();
+            drawInfoSO.SetupChildren(rootGO ? rootGO : gameObject);
+        }
+
+        public void TryInitCullingGroup()
+        {
+            if (cullingGroup != null)
+                return;
+
+            cullingGroup = new CullingGroup();
+            cullingGroup.targetCamera = Camera.main;
+
+            if (drawInfoSO)
+                SetupBoundingSpheres(cullingGroup, drawInfoSO.allInstanceCount, drawInfoSO.groupList);
+        }
+
+        public void SetupBoundingSpheres(CullingGroup cullingGroup,int allInstanceCount,List<InstancedGroupInfo> groupList)
+        {
+            var spheres = new BoundingSphere[allInstanceCount];
+            var count = 0;
+            foreach (var group in groupList)
+            {
+                if (group.boundingSpheres == null)
+                    continue;
+
+                for (int i = 0; i < group.boundingSpheres.Length; i++)
+                {
+                    var bs = group.boundingSpheres[i];
+                    spheres[count++] = new BoundingSphere(new Vector3(bs.x, bs.y, bs.z), bs.w);
+                }
+            }
+            // setup bounding spheres
+            cullingGroup.SetBoundingSpheres(spheres);
+            cullingGroup.SetBoundingSphereCount(count);
+        }
+
+        // objs can visible
+        Matrix4x4[] visibleTransforms = new Matrix4x4[1023];
+        Vector4[] visibleLightmapSTs = new Vector4[1023];
+        int[] visibleIndices = new int[1023];
+
+
+        public void DrawGroupList(CommandBuffer cmd)
+        {
+            if (block == null)
+                block = new MaterialPropertyBlock();
+
+            //foreach (var group in groupList)
+            for (int groupId = 0; groupId < drawInfoSO.groupList.Count; groupId++)
+            {
+                block.Clear();
+
+                var group = drawInfoSO.groupList[groupId];
+                var lightmapEnable = drawInfoSO.IsLightMapEnabled(group.lightmapId);
+
+                var lightmapCoords = lightmapEnable ? null : visibleLightmapSTs;
+                var visibleCount = group.instanceCount;
+                visibleCount = group.UpdateVisibles(cullingGroup, visibleTransforms, visibleLightmapSTs, visibleIndices);
+                if (visibleCount == 0)
+                    continue;
+
+                //update material LIGHTMAP_ON
+                DrawChildrenInstancedTools.LightmapSwitch(group.mat, lightmapEnable);
+                DrawChildrenInstancedTools.UpdateLightmap(group.mat, block, group.lightmapId, drawInfoSO.lightmaps, drawInfoSO.shadowMasks, visibleLightmapSTs, drawInfoSO.isSubstractiveMode);
+
+                DrawInstanced(cmd, group.mesh, group.mat, ref visibleTransforms, visibleCount);
+            }
+
+        }
+
+        void DrawInstanced(CommandBuffer cmd, Mesh mesh, Material mat, ref Matrix4x4[] visibleTransforms, int visibleCount)
+        {
+            if (cmd != null)
+            {
+                cmd.DrawMeshInstanced(mesh, 0, mat, 0, visibleTransforms, visibleCount, block);
+            }
+            else
+            {
+                var renderParams = new RenderParams(mat)
+                {
+                    layer = drawInfoSO.layer,
+#if !UNITY_EDITOR
+                    camera = drawInfoSO.GetCamera() ?? Camera.main,
+#endif
+                    receiveShadows = drawInfoSO.receiveShadow,
+                    lightProbeUsage = drawInfoSO.lightProbeUsage,
+                    shadowCastingMode = DrawChildrenInstancedTools.GetShadowCastingMode(drawInfoSO.shadowCasterMode),
+                    worldBounds = drawInfoSO.worldBounds,
+                    matProps = block,
+                };
+
+                Graphics.RenderMeshInstanced(renderParams, mesh, 0, visibleTransforms, visibleCount, 0);
+            }
+        }
     }
 }

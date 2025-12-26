@@ -8,62 +8,35 @@ using Object = UnityEngine.Object;
 
 namespace PowerUtilities
 {
-    [Serializable]
-    public class InstancedTransformGroup
-    {
-        public List<Matrix4x4> transforms = new List<Matrix4x4>();
-        /// <summary>
-        /// camera see transform ? 
-        /// DrawChildrenInstancedCullingGroupControl will update this array
-        /// </summary>
-        public List<bool> transformVisibleList = new List<bool>();
 
-        /// <summary>
-        /// shuffle culling will update this array
-        /// </summary>
-        public List<bool> transformShuffleCullingList = new List<bool>();
-
-        /// <summary>
-        /// boundSphere radius
-        /// </summary>
-        public List<float> boundsSphereRadiusList = new List<float>();
-
-        public void Add(Matrix4x4 transform,float boundsSphereRadius) {
-            transformVisibleList.Add(true);
-            transformShuffleCullingList.Add(false);
-
-            transforms.Add(transform);
-            boundsSphereRadiusList.Add(boundsSphereRadius);
-        }
-
-#if _DEBUG
-        public override string ToString()
-        {
-            var sb = new StringBuilder();
-            //sb.AppendLine("trs: " + StringEx.ToString(transforms));
-            sb.AppendLine("cullingGroup : " + StringEx.ToString(transformVisibleList));
-            sb.AppendLine("shuffleCull:" + StringEx.ToString(transformShuffleCullingList));
-            return sb.ToString();
-        }
-#endif
-    }
-    [Serializable]
-    public class InstancedLightmapCoordGroup
-    {
-        public List<Vector4> lightmapCoords = new List<Vector4>();
-    }
-
-    /// <summary>
-    /// 对instancing的物体,按1023个进行分组.
-    /// groupId是originalTransformsGroup的索引,同时表示绘制中的相同的批次
-    /// </summary>
     [Serializable]
     public class InstancedGroupInfo
     {
+        public int lightmapId;
         public Mesh mesh;
+        public Material originalMat;
+
+        public int instanceCount;
+
+        public int globalOffset; // cullingGroup index offset,start index in boundingSpheres
+        /// <summary>
+        /// localToWorld per object
+        /// </summary>
+        public Matrix4x4[] transforms;
+        /// <summary>
+        /// Lightmapcoord scale and offset per object
+        /// </summary>
+        public Vector4[] lightmapCoords;
+        /// <summary>
+        /// lightamapId per object, lightmapArray use this list
+        /// </summary>
+        //public float[] lightmapIds;
+
+        public Vector4[] boundingSpheres;
 
         // material instance
         Material matInstance;
+
         public Material mat
         {
             get
@@ -77,72 +50,44 @@ namespace PowerUtilities
                 return matInstance;
             }
         }
-
-        public Material originalMat;
-        /// <summary>
-        /// 要绘制的物体,untiy限制最多1023,这里用list来分组.
-        /// 存放所有的 变换信息
-        /// </summary>
-        public List<InstancedTransformGroup> originalTransformsGroupList = new List<InstancedTransformGroup>();
-
-        /// <summary>
-        /// 绘制物体的光照图uv分组
-        /// </summary>
-        public List<InstancedLightmapCoordGroup> lightmapCoordsList = new List<InstancedLightmapCoordGroup>();
-
-        public int lightmapId;
-        /// <summary>
-        /// 每个组,一个lightamapId
-        /// </summary>
-        public List<float> lightmapIdList = new List<float>();
-        
-        /// <summary>
-        /// max count per transformGroup
-        /// </summary>
-        public int maxCountPerGroup = 1023;
-        
-        /// <summary>
-        /// instance group id
-        /// </summary>
-        //public int instanceGroupId;
-
-        /// <summary>
-        /// instanceGroup's segment(contains transforms count < 1023)
-        /// </summary>
-        int groupId = 0;
-        public void AddRender(float boundSphereRadius,Mesh mesh,Material mat,Matrix4x4 transform, Vector4 lightmapST,int lightmapId)
+        public InstancedGroupInfo(int instanceCount)
         {
-            this.mesh = mesh;
-            originalMat = mat;
-
-            this.lightmapId = lightmapId;
-            // new group
-            if (originalTransformsGroupList.Count <= groupId)
-            {
-                originalTransformsGroupList.Add(new InstancedTransformGroup());
-                lightmapCoordsList.Add(new InstancedLightmapCoordGroup());
-            }
-
-            // get current group and save all
-            var transformGroup = originalTransformsGroupList[groupId];
-            transformGroup.Add(transform, boundSphereRadius);
-            
-
-            var lightmapSTGroup = lightmapCoordsList[groupId];
-            lightmapSTGroup.lightmapCoords.Add(lightmapST);
-            //
-            lightmapIdList.Add(lightmapId);
-
-            // check need increment groupId.
-            if (transformGroup.transforms.Count >= maxCountPerGroup)
-            {
-                groupId++;
-            }
+            this.instanceCount = instanceCount;
+            transforms = new Matrix4x4[instanceCount];
+            lightmapCoords = new Vector4[instanceCount];
+            //lightmapIds = new float[instanceCount];
+            boundingSpheres = new Vector4[instanceCount];
         }
 
         public void Reset()
         {
             matInstance = null;
+        }
+        public void Clear()
+        {
+            matInstance = null;
+            transforms = null;
+            lightmapCoords = null;
+            //lightmapIds = null;
+            boundingSpheres = null;
+        }
+
+        public int UpdateVisibles(CullingGroup cullingGroup,Matrix4x4[] visibleTransforms,Vector4[] visibleLightmapCoords, int[] visibleIndices)
+        {
+            if (visibleTransforms == null)
+                return 0;
+
+            var visibleCount = cullingGroup.QueryIndices(true,visibleIndices,globalOffset,instanceCount);
+            
+            for (int i = 0; i < visibleCount; i++)
+            {
+                visibleTransforms[i] = transforms[visibleIndices[i]];
+
+                if(visibleLightmapCoords != null)
+                    visibleLightmapCoords[i] = lightmapCoords[visibleIndices[i]];
+            }
+
+            return visibleCount;
         }
 
     }

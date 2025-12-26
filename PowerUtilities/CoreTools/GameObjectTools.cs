@@ -11,6 +11,7 @@
     using UnityEditor;
 #endif
     using UnityEngine;
+    using UnityEngine.Rendering;
     using Object = UnityEngine.Object;
 
     public static class GameObjectTools
@@ -279,6 +280,53 @@
             }
 #endif
             return count;
+        }
+        /// <summary>
+        /// Get children MeshRenderer groups by (lightmapIndex,mesh,material)
+        /// 
+        /// foreach (var group in groups)
+        ///     var subGroups = group.Chunk(1000);
+        ///     foreach (var subGroup in subGroups)
+        /// </summary>
+        /// <param name="go"></param>
+        /// <param name="isIncludeInvisible"></param>
+        /// <param name="excludeTag"></param>
+        /// <returns></returns>
+        public static IEnumerable<IGrouping<(int lightmapIndex, Mesh mesh, Material mat), MeshRenderer>> GetChildrenGroups(this GameObject go, bool isIncludeInvisible,string excludeTag="EditorOnly")
+        {
+            var mrs = go.GetComponentsInChildren<MeshRenderer>(isIncludeInvisible);
+            return GetChildrenGroups(mrs, excludeTag);
+        }
+
+        /// <summary>
+        /// Group MeshRenderers by (lightmapIndex,mesh,material)
+        /// 
+        /// foreach (var group in groups)
+        ///     var subGroups = group.Chunk(1000);
+        ///     foreach (var subGroup in subGroups)
+        /// </summary>
+        /// <param name="renderers"></param>
+        /// <param name="excludeTag"></param>
+        /// <returns></returns>
+        public static IEnumerable<IGrouping<(int lightmapIndex, Mesh mesh, Material mat), T>> GetChildrenGroups<T>(T[] renderers, string excludeTag = "EditorOnly") where T : Renderer
+        {
+            var groupInfos = from mr in renderers
+                             where !mr.gameObject.CompareTag(excludeTag)
+
+                             let mf = mr.GetComponent<MeshFilter>()
+                             where mf is not null
+
+                             let sharedMesh = mf.sharedMesh
+                             where sharedMesh is not null
+
+                             group mr by (
+                             mr.lightmapIndex,
+                             mf.sharedMesh,
+                             mr.sharedMaterial
+                             ) into g
+                             select g
+                        ;
+            return groupInfos;
         }
     }
 }

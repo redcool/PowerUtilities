@@ -6,6 +6,10 @@ namespace PowerUtilities
     {
         /// <summary>
         /// this tags will auto add to UntiyEditor
+        /// 
+        /// editor code use this attribute
+        ///     [StringListSearchable(type = typeof(TagManager), staticMemberName = nameof(TagManager.GetTags))]
+        ///     public string tag;
         /// </summary>
         public const string
             Player = nameof(Player)

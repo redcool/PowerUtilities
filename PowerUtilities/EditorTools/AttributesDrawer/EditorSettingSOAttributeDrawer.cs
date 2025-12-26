@@ -26,7 +26,7 @@ namespace PowerUtilities
 
             var serializedObject = property.serializedObject;
 
-            serializedObject.UpdateIfRequiredOrScript();
+            //serializedObject.UpdateIfRequiredOrScript();
             // draw property
             EditorGUITools.DrawSettingSO(property, ref targetEditor, ref isTargetEditorFolded, settingSOType);
 
@@ -36,7 +36,7 @@ namespace PowerUtilities
                 DrawCreateListItem(property, attr.listPropName,ref subSO);
             }
 
-            serializedObject.ApplyModifiedProperties();
+            //serializedObject.ApplyModifiedProperties();
         }
 
         /// <summary>

@@ -4,11 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEditor;
+using UnityEngine;
 
 namespace PowerUtilities
 {
-    using UnityEditor;
-    using UnityEngine;
 
     [CustomEditor(typeof(DrawChildrenInstanced))]
     public class DrawChildrenInstancedEditor : PowerEditor<DrawChildrenInstanced>
@@ -20,30 +20,18 @@ namespace PowerUtilities
             ,guiSelectAll = new GUIContent("SelectAll","select children gameobjects")
             ;
 
-        Editor drawInfoEditor;
         bool isActive;
 
-        public override string Version => "v0.0.2";
+        public override string Version => "v0.0.3";
 
         public override bool NeedDrawDefaultUI() => true;
 
         public override void DrawInspectorUI(DrawChildrenInstanced inst)
         {
-            DrawExistNew(inst);
-
             if (!inst.drawInfoSO)
                 return;
 
-            EditorGUITools.DrawBoxColors(EditorGUILayout.GetControlRect(), bottomColor: Color.cyan);
-            EditorGUI.indentLevel++;
-            DrawInstancedInfoGroup(inst);
-            EditorGUI.indentLevel--;
-
-            // buttons
-            EditorGUITools.DrawBoxColors(EditorGUILayout.GetControlRect(),bottomColor:Color.cyan);
             DrawButtons(inst);
-            DrawButtons2(inst);
-
         }
 
         private void DrawButtons(DrawChildrenInstanced inst )
@@ -68,10 +56,6 @@ namespace PowerUtilities
                 //inst.drawInfoSO.SetupRenderers(inst.gameObject);
                 inst.drawInfoSO.SetRendersActive(isActive);
             }
-            if (GUILayout.Button(guiDeleteChildren))
-            {
-                inst.gameObject.DestroyChildren<MeshRenderer>(true);
-            }
 
             if (GUILayout.Button(guiSelectAll))
             {
@@ -83,86 +67,13 @@ namespace PowerUtilities
             EditorGUILayout.EndHorizontal();
         }
 
-        void DrawButtons2(DrawChildrenInstanced inst)
-        {
-            EditorGUILayout.BeginHorizontal();
-            if(GUILayout.Button("Lightmaps 2DArray"))
-            {
-                var sceneFolder = AssetDatabaseTools.CreateGetSceneFolder();
-                EditorTextureTools.Create2DArray(inst.drawInfoSO.lightmaps.ToList(), $"{sceneFolder}/LightmapArray.asset");
-            }
-            EditorGUILayout.EndHorizontal();
-        }
-
-        private void DrawInstancedInfoGroup(DrawChildrenInstanced inst)
-        {
-            if (drawInfoEditor == null || drawInfoEditor.target != inst.drawInfoSO)
-            {
-                drawInfoEditor = CreateEditor(inst.drawInfoSO);
-            }
-
-            drawInfoEditor.serializedObject.Update();
-
-            // show default gui
-            drawInfoEditor.OnInspectorGUI();
-
-            drawInfoEditor.serializedObject.ApplyModifiedProperties();
-        }
-
-        private static void DrawExistNew(DrawChildrenInstanced inst)
-        {
-            if (inst.drawInfoSO)
-                return;
-
-            var sceneFolder = AssetDatabaseTools.CreateGetSceneFolder();
-            var soName = inst.transform.GetHierarchyPath((Transform)null, "_");
-            var soPath = $"{sceneFolder}/{soName}.asset";
-            // 1 find exist profile
-            var existProfile = AssetDatabase.LoadAssetAtPath<DrawChildrenInstancedSO>(soPath);
-            if (existProfile && GUILayout.Button($"Found Exist Profile,use it ?"))
-            {
-                inst.drawInfoSO = AssetDatabase.LoadAssetAtPath<DrawChildrenInstancedSO>(soPath);
-            }
-
-            //2 create a new profile
-            if (GUILayout.Button("Create New Profile"))
-            {
-                inst.drawInfoSO = CreateNewProfile(inst, soName, soPath, existProfile);
-            }
-
-        }
-
         private static void BakeChildren(DrawChildrenInstanced inst)
         {
-            inst.drawInfoSO.Clear();
-            inst.drawInfoSO.SetupChildren(inst.gameObject);
+            inst.SetupDrawInfo();
 
             EditorUtility.SetDirty(inst.drawInfoSO);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
-        }
-
-        static DrawChildrenInstancedSO CreateNewProfile(DrawChildrenInstanced inst,string soName, string soPath,bool isExist)
-        {
-            if(isExist && !EditorUtility.DisplayDialog("Waring","found exist profile ,create new of use exist profile?","new","use exist"))
-            {
-                inst.drawInfoSO = AssetDatabase.LoadAssetAtPath<DrawChildrenInstancedSO>(soPath);
-                return inst.drawInfoSO;
-            }
-
-            var profile = CreateInstance<DrawChildrenInstancedSO>();
-            profile.name = soName;
-            return SaveAndGetSO(profile, soPath,isExist);
-        }
-
-        // save to xx.unity's folder,name is inst's name
-        private static DrawChildrenInstancedSO SaveAndGetSO(DrawChildrenInstancedSO drawInfoSO,string soPath,bool isExist)
-        {
-            if(isExist)
-                AssetDatabase.DeleteAsset(soPath);
-
-            AssetDatabase.CreateAsset(drawInfoSO, soPath);
-            return AssetDatabase.LoadAssetAtPath<DrawChildrenInstancedSO>(soPath);
         }
 
         public void CreateInstancedMaterials(List<InstancedGroupInfo> groupList)
@@ -186,8 +97,7 @@ namespace PowerUtilities
                 // use material reference
                 g.originalMat = targetMat;
             });
-            AssetDatabase.SaveAssets();
-            AssetDatabase.Refresh();
+            AssetDatabaseTools.SaveRefresh();
         }
 
     }

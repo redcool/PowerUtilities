@@ -1,5 +1,6 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using UnityEngine;
 using UnityEngine.UI;
 namespace PowerUtilities.Test
@@ -10,6 +11,7 @@ namespace PowerUtilities.Test
         //public TMPro.TextMeshProUGUI textMeshProUGUI;
 
         [Range(30,2000)]public int maxFps=2000;
+        public bool isUseSmoothTime;
 
         [Header("ShaderLod")]
         public int shaderLod = 600;
@@ -34,6 +36,14 @@ namespace PowerUtilities.Test
         void Update()
         {
             Application.targetFrameRate = maxFps;
+
+            if (isUseSmoothTime)
+            {
+                var testFPS = 1f / Time.smoothDeltaTime;
+                fpsText.text = testFPS.ToString("F1");
+                return;
+            }
+
             if (Time.unscaledTime - startTime > 1)
             {
 

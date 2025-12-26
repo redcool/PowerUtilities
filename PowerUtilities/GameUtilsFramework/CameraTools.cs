@@ -49,5 +49,7 @@ namespace GameUtilsFramework
 
             return null;
         }
+
+        public static Camera GetCamera(string camTag) => Camera.allCameras.FirstOrDefault(c => c.CompareTag(camTag));
     }
 }

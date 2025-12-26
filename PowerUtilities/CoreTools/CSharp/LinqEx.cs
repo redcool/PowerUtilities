@@ -129,5 +129,19 @@
             }
             return maxItem;
         }
+        /// <summary>
+        /// Split source into chunks
+        /// </summary>
+        /// <typeparam name="TSource"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="size"></param>
+        /// <returns></returns>
+        public static IEnumerable<TSource[]> Chunk<TSource>(this IEnumerable<TSource> source, int size)
+        {
+            return source.Select((item, index) => new { item, index })
+                .GroupBy(x => x.index / size)
+                .Select(g => g.Select(x => x.item).ToArray());
+        }
+
     }
 }

@@ -327,7 +327,7 @@
             for (int i = 0; i < drawChildren.Length; i++)
             {
                 var dc = drawChildren[i];
-                dc.drawInfoSO.DrawGroupList(cmd);
+                dc.DrawGroupList(cmd);
                 cmd.Execute(ref context);
             }
         }
