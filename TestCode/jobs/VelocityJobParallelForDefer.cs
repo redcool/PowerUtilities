@@ -1,4 +1,5 @@
-﻿using Unity.Collections;
+﻿#if UNITY_COLLECTIONS
+using Unity.Collections;
 using Unity.Jobs;
 using UnityEngine;
 
@@ -40,3 +41,4 @@ public struct VelocityJobParallelForDefer : IJobParallelForDefer
         velocity.Dispose();
     }
 }
+#endif

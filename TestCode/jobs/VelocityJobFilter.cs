@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿#if UNITY_COLLECTIONS
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Unity.Collections;
@@ -49,3 +50,4 @@ public struct VelocityJobFilter : IJobFilter
         velocity.Dispose();
     }
 }
+#endif

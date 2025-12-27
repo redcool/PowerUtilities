@@ -10,11 +10,11 @@ public class TestJobs : MonoBehaviour
 
     void OnClick()
     {
-        //VelocityJob.TestJobs();
-        //VelocityJobFor.TestJobs();
-        //VelocityJobParallelFor.TestJobs();
+        VelocityJob.Test();
+        VelocityJobFor.Test();
+        VelocityJobParallelFor.Test();
         //VelocityJobParallelForBatch.TestJobs();
         //VelocityJobParallelForDefer.TestJobs();
-        VelocityJobFilter.Test();
+        //VelocityJobFilter.Test();
     }
 }
