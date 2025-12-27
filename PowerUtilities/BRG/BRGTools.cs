@@ -95,16 +95,23 @@ namespace PowerUtilities
             for (int i = 0; i < allVisibleInstanceCount; ++i)
                 drawCmdPt->visibleInstances[i] = i;
 
-            drawCmdPt->drawCommandPickingInstanceIDs = null;
 
             drawCmdPt->instanceSortingPositions = null;
             drawCmdPt->instanceSortingPositionFloatCount = 0;
 
             // 
-            drawCmdPt->drawRangeCount = 1;
+#if UNITY_6000_2_OR_NEWER
+            drawCmdPt->drawRanges[0].drawCommandsType = BatchDrawCommandType.Direct;
+            drawCmdPt->drawCommandPickingEntityIds = null;
+#else
+            drawCmdPt->drawCommandPickingInstanceIDs = null;
+#endif
+
             drawCmdPt->drawRanges[0].drawCommandsBegin = 0;
             drawCmdPt->drawRanges[0].drawCommandsCount = (uint)drawCmdPt->drawCommandCount;
             drawCmdPt->drawRanges[0].filterSettings = new BatchFilterSettings { renderingLayerMask = 0xffffffff, };
+
+            drawCmdPt->drawRangeCount = 1;
         }
 
 

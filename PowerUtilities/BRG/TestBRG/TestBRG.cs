@@ -1,4 +1,4 @@
-#if UNITY_2022_2_OR_NEWER
+﻿#if UNITY_2022_2_OR_NEWER
 using PowerUtilities;
 using System;
 using System.Collections;
@@ -10,7 +10,6 @@ using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
 using Unity.Mathematics;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
 using UnityEngine.Rendering;
