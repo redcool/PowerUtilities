@@ -70,9 +70,9 @@ public partial class TestBRG : MonoBehaviour
         var color = colorOffsets[id];
 
 
-        instanceBuffer.FillData(objectToWorld.ToColumnArray(), id * 12, GetDataStartId("unity_ObjectToWorld"));
-        instanceBuffer.FillData(worldToObject.ToColumnArray(), id * 12, GetDataStartId("unity_WorldToObject"));
-        instanceBuffer.FillData(color.ToArray(), id * 4, GetDataStartId("_Color"));
+        instanceBuffer.FillInstanceData(objectToWorld.ToColumnArray(), id, GetDataStartId("unity_ObjectToWorld"));
+        instanceBuffer.FillInstanceData(worldToObject.ToColumnArray(), id, GetDataStartId("unity_WorldToObject"));
+        instanceBuffer.FillInstanceData(color.ToArray(), id, GetDataStartId("_Color"));
     }
 
     private void UpdateAll()
@@ -129,14 +129,6 @@ public partial class TestBRG : MonoBehaviour
             ("_Color",4),
         };
 
-        //var dataStartIdOffsets = new[]
-        //{
-        //    0,
-        //    numInstances * 12,// objectToWorld 
-        //    numInstances* 12, //worldToObject
-        //    numInstances * 4 // colors
-        //};
-
         var metadataList = new NativeArray<MetadataValue>(matPropInfos.Length, Allocator.Temp);
         BRGTools.FillMetadatas(numInstances, matPropInfos,ref metadataList,startIdDict);
 
@@ -145,9 +137,9 @@ public partial class TestBRG : MonoBehaviour
 
         for (int i = 0; i < numInstances; i++)
         {
-            instanceBuffer.FillData(objectToWorlds[i].ToColumnArray(), i * 12, GetDataStartId("unity_ObjectToWorld"));
-            instanceBuffer.FillData(worldToObjects[i].ToColumnArray(), i * 12, GetDataStartId("unity_WorldToObject"));
-            instanceBuffer.FillData(colors[i].ToArray(), i * 4, GetDataStartId("_Color"));
+            instanceBuffer.FillInstanceData(colors[i].ToArray(), i, GetDataStartId("_Color"));
+            instanceBuffer.FillInstanceData(objectToWorlds[i].ToColumnArray(), i, GetDataStartId("unity_ObjectToWorld"));
+            instanceBuffer.FillInstanceData(worldToObjects[i].ToColumnArray(), i, GetDataStartId("unity_WorldToObject"));
         }
 
 

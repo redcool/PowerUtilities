@@ -96,7 +96,7 @@ namespace PowerUtilities
         /// <param name="matPropId"></param>
         public void FillData(float[] datas,int instanceId,string matPropName)
         {
-            instanceBuffer.FillData(datas, instanceId* datas.Length, GetDataStartId(matPropName));
+            instanceBuffer.FillInstanceData(datas, instanceId, GetDataStartId(matPropName));
         }
         /// <summary>
         /// Add renderers material data to instanceBuffer
