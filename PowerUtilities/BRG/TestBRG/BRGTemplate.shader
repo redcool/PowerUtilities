@@ -42,7 +42,7 @@ Shader "Unlit/BRG/Template"
             {
                 UNITY_SETUP_INSTANCE_ID(i);
                 half4 mainTex = tex2D(_MainTex,i.uv);
-                half4 col = mainTex * _Color * i.color;
+                half4 col = mainTex * _Color;
                 return col;
             }
             ENDHLSL

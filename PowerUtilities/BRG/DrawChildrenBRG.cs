@@ -1,4 +1,4 @@
-#if UNITY_2022_2_OR_NEWER
+﻿#if UNITY_2022_2_OR_NEWER
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -122,19 +122,18 @@ namespace PowerUtilities
                 var instCount = groupInfo.Count();
 
                 // find material props
-                var matPropNameList = new List<string>();
+                var matPropInfoList = new List<(string name,int floatCount)>();
                 var floatsCount = 0;
 
-                var floatsCountList = new List<int>();
                 var mat = brg.GetRegisteredMaterial(groupInfo.Key.matId);
-                mat.shader.FindShaderPropNames_BRG(ref matPropNameList, ref floatsCount, floatsCountList);
+                mat.shader.FindShaderPropNames_BRG(ref matPropInfoList, ref floatsCount);
                 
                 var brgBatch = new BRGBatch(brg, instCount, groupInfo.Key.meshId, groupInfo.Key.matId, groupId);
                 //setup shaderCBufferVar
                 var brgMaterialInfo = brgMaterialInfoListSO.brgMaterialInfoList.Find(bufferVar => bufferVar.shader == mat.shader);
                 brgBatch.brgMaterialInfo = brgMaterialInfo;
 
-                brgBatch.Setup(floatsCount, matPropNameList.ToArray(), floatsCountList);
+                brgBatch.Setup(floatsCount, matPropInfoList.ToArray());
                 brgBatch.FillMaterialDataAndSetupBatchBlock(groupInfo, brgMaterialInfo.FillMaterialDatas);
 
 
@@ -160,8 +159,7 @@ namespace PowerUtilities
                     brgBatch.brgMaterialInfo = brgGroupInfo.brgMaterialInfo;
 
                     brgBatch.Setup(brgGroupInfo.floatsCount,
-                        brgGroupInfo.matGroupList.Select(matInfo => matInfo.propName).ToArray(),
-                        brgGroupInfo.matGroupList.Select(matInfo => matInfo.floatsCount).ToList()
+                        brgGroupInfo.matGroupList.Select(matInfo => (matInfo.propName,matInfo.floatsCount)).ToArray()
                         );
 
                     brgBatch.FillMaterialDataAndSetupBatchBlock(brgGroupInfo.rendererList, brgGroupInfo.brgMaterialInfo.FillMaterialDatas);

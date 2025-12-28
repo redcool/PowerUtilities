@@ -1,4 +1,4 @@
-#if UNITY_2022_2_OR_NEWER
+﻿#if UNITY_2022_2_OR_NEWER
 using PowerUtilities;
 using System;
 using System.Collections;
@@ -67,9 +67,11 @@ public class TestBRGBatch : MonoBehaviour
             var brgBatch = new BRGBatch(brg, numInstancesPerGroup, meshId, matId,j);
 
             brgBatch.Setup(12 + 12 + 4,
-                new[] {"unity_ObjectToWorld","unity_WorldToObject","_Color" } ,
-                new List<int>{ 12,12,4}
-                );
+                new[] {
+                    (BRGTools.unity_ObjectToWorld,12),
+                    (BRGTools.unity_WorldToObject,12),
+                    (BRGTools._Color,4),
+                });
 
             for (int i = 0; i < numInstancesPerGroup; i++)
             {
@@ -77,9 +79,9 @@ public class TestBRGBatch : MonoBehaviour
                 var worldToObject = worldToObjects[i + j * numInstancesPerGroup];
                 var color = colors[i + j * numInstancesPerGroup];
 
-                brgBatch.FillData(objectToWorld.ToColumnArray(), i, 0);
-                brgBatch.FillData(worldToObject.ToColumnArray(), i, 1);
-                brgBatch.FillData(color.ToArray(), i, 2);
+                brgBatch.FillData(objectToWorld.ToColumnArray(), i, BRGTools.unity_ObjectToWorld);
+                brgBatch.FillData(worldToObject.ToColumnArray(), i, BRGTools.unity_WorldToObject);
+                brgBatch.FillData(color.ToArray(), i, BRGTools._Color);
             }
             brgBatches.Add(brgBatch);
 
@@ -102,9 +104,9 @@ public class TestBRGBatch : MonoBehaviour
 
         var brgBatch = brgBatches[batchId];
         {
-            brgBatch.FillData(objectToWorld.ToColumnArray(), instId, 0);
-            brgBatch.FillData(worldToObject.ToColumnArray(), instId, 1);
-            brgBatch.FillData(color.ToArray(), instId, 2);
+            brgBatch.FillData(objectToWorld.ToColumnArray(), instId, BRGTools.unity_ObjectToWorld);
+            brgBatch.FillData(worldToObject.ToColumnArray(), instId, BRGTools.unity_WorldToObject);
+            brgBatch.FillData(color.ToArray(), instId, BRGTools._Color);
         }
     }
 
@@ -129,9 +131,9 @@ public class TestBRGBatch : MonoBehaviour
         {
             var brgBatch = brgBatches[i];
             
-            brgBatch.FillData(objectToWorlds.Skip(i * numInstancesPerGroup).Take(numInstancesPerGroup).SelectMany(m => m.ToColumnArray()).ToArray(), 0, 0);
-            brgBatch.FillData(worldToObjects.Skip(i * numInstancesPerGroup).Take(numInstancesPerGroup).SelectMany(m => m.ToColumnArray()).ToArray(), 0, 1);
-            brgBatch.FillData(colors.Skip(i * numInstancesPerGroup).Take(numInstancesPerGroup).SelectMany(v => v.ToArray()).ToArray(), 0, 2);
+            brgBatch.FillData(objectToWorlds.Skip(i * numInstancesPerGroup).Take(numInstancesPerGroup).SelectMany(m => m.ToColumnArray()).ToArray(), 0, BRGTools.unity_ObjectToWorld);
+            brgBatch.FillData(worldToObjects.Skip(i * numInstancesPerGroup).Take(numInstancesPerGroup).SelectMany(m => m.ToColumnArray()).ToArray(), 0, BRGTools.unity_WorldToObject);
+            brgBatch.FillData(colors.Skip(i * numInstancesPerGroup).Take(numInstancesPerGroup).SelectMany(v => v.ToArray()).ToArray(), 0, BRGTools._Color);
         }
     }
 

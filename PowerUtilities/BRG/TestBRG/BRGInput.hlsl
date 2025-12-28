@@ -29,8 +29,8 @@ CBUFFER_END
 
 #if defined(UNITY_DOTS_INSTANCING_ENABLED)
     DOTS_CBUFFER_START(MaterialPropertyMetadata)
-        DEF_VAR(float4,_Color)
         DEF_VAR(float4,_MainTex_ST)
+        DEF_VAR(float4,_Color)
     DOTS_CBUFFER_END
 
     #define _Color GET_VAR(float4,_Color)

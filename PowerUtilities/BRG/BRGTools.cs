@@ -17,6 +17,9 @@ namespace PowerUtilities
 {
     public static class BRGTools
     {
+        public const string unity_ObjectToWorld = nameof(unity_ObjectToWorld);
+        public const string unity_WorldToObject = nameof(unity_WorldToObject);
+        public const string _Color = nameof(_Color);
 
         public static readonly Matrix4x4[] ZERO_MATRICES = new []{Matrix4x4.zero};
         private static readonly int FLOAT_BYTES = 4;
@@ -42,42 +45,35 @@ namespace PowerUtilities
             return matTypes.Select(type => Marshal.SizeOf(type)).Sum() * numInstance;
         }
 
-        public static BatchID AddBatch(this BatchRendererGroup brg,NativeArray<MetadataValue> metadatas,GraphicsBuffer graphBuffer)
-        {
-            if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLES3)
-                return brg.AddBatch(metadatas, graphBuffer.bufferHandle, 0, (uint)BatchRendererGroup.GetConstantBufferMaxWindowSize());
-            else
-                return brg.AddBatch(metadatas, graphBuffer.bufferHandle);
-        }
 
         /// <summary>
-        /// Fill metadata (metadataList,startByteAddressDict,dataStartIds)
+        /// Fill metadata (metadataList,startIdDict,dataStartIds)
         /// </summary>
         /// <param name="dataStartIdOffsets"></param>
         /// <param name="matPropNames"></param>
         /// <param name="metadataList"></param>
-        /// <param name="startByteAddressDict"></param>
+        /// <param name="startIdDict"></param>
         /// <param name="dataStartIds"></param>
-        public static void FillMetadatas(int[] dataStartIdOffsets, string[] matPropNames,
-            ref NativeArray<MetadataValue> metadataList, ref Dictionary<string, int> startByteAddressDict, ref int[] dataStartIds)
+        public static void FillMetadatas(int instanceCount, (string matPropName, int matPropFloatCount)[] matPropInfos,
+            ref NativeArray<MetadataValue> metadataList, Dictionary<string, int> startIdDict)
         {
-            for (int i = 0; i < matPropNames.Length; i++)
+            var floatCountStartId = 0; // float count offset
+            for (int i = 0; i < matPropInfos.Length; i++)
             {
-                var startId = dataStartIdOffsets.Take(i + 1).Sum();
-                //Debug.Log("FillMetadatas,startId : " + startId);
+                var matPropInfo = matPropInfos[i];
 
-                var matPropName = matPropNames[i];
-
-                var startByteAddr = startId * FLOAT_BYTES;
+                var startByteAddr = floatCountStartId * FLOAT_BYTES;
                 // metadatas
                 metadataList[i] = new MetadataValue
                 {
-                    NameID = Shader.PropertyToID(matPropName),
-                    Value = (uint)(0x80000000 | startByteAddr)
+                    NameID = Shader.PropertyToID(matPropInfo.matPropName),
+                    Value = (uint)(0x80000000 | startByteAddr) // 0x80000000 is a flag for BRG, 位 31 设置为 1 通常表示这是一个从 Buffer 读取的属性
                 };
 
-                startByteAddressDict.Add(matPropName, startByteAddr);
-                dataStartIds[i] = startId;
+                startIdDict.Add(matPropInfo.matPropName, floatCountStartId);
+
+                //next property float count stride
+                floatCountStartId += matPropInfo.matPropFloatCount * instanceCount;
             }
         }
 
@@ -159,24 +155,18 @@ namespace PowerUtilities
         /// <param name="propFloatCountList">floats count per prop</param>
         /// <param name="isFindShaderProp">if not,only include {unity_ObjectToWorld,unity_WorldToObject}</param>
         /// <returns></returns>
-        public static void FindShaderPropNames_BRG(this Shader shader, ref List<string> propNameList, ref int floatsCount, List<int> propFloatCountList, bool isFindShaderProp = true)
+        public static void FindShaderPropNames_BRG(this Shader shader, ref List<(string name,int floatCount)> propNameList, ref int floatsCount, bool isFindShaderProp = true)
         {
             //1 add 2 matrix floatCount
             floatsCount = 12 + 12;
             // add 2 matrix
             propNameList.Clear();
-            propNameList.Add("unity_ObjectToWorld");
-            propNameList.Add("unity_WorldToObject");
-            // add per prop floats
-            if (propFloatCountList != null)
-            {
-                propFloatCountList.Add(12);
-                propFloatCountList.Add(12);
-            }
+            propNameList.Add((unity_ObjectToWorld,12));
+            propNameList.Add((unity_WorldToObject,12));
 
             //2 add material properties continue
             if (isFindShaderProp)
-                shader.FindShaderPropNames(ref propNameList, ref floatsCount, propFloatCountList);
+                shader.FindShaderPropNames(ref propNameList, ref floatsCount);
         }
 
 

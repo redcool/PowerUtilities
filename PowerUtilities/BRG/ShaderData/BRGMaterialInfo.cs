@@ -85,13 +85,13 @@ namespace PowerUtilities
             Vector4 mainTex_ST = new float4(mat.mainTextureScale, mat.mainTextureOffset);
             var color = mat.color;
 
-            brgBatch.FillData(objectToWorld.ToColumnArray(), instId, 0);
-            brgBatch.FillData(worldToObject.ToColumnArray(), instId, 1);
+            brgBatch.FillData(objectToWorld.ToColumnArray(), instId, BRGTools.unity_ObjectToWorld);
+            brgBatch.FillData(worldToObject.ToColumnArray(), instId, BRGTools.unity_WorldToObject);
             var matPropId = 2;
             foreach (var propInfo in bufferPropList)
             {
                 float[] floatArr = mat.GetFloats(propInfo.propName);
-                brgBatch.FillData(floatArr, instId, matPropId);
+                brgBatch.FillData(floatArr, instId, propInfo.propName);
                 //Debug.Log($"{propInfo.propName} -> {floatArr.ToString(",")}");
                 matPropId++;
             }
@@ -105,8 +105,7 @@ namespace PowerUtilities
             {
                 throw new Exception($"{propName} not found!");
             }
-            propId += 2; // add objectToWorld,worldToObject
-            brgBatch.FillData(floats,instId, propId);
+            brgBatch.FillData(floats,instId, propName);
         }
 
     }

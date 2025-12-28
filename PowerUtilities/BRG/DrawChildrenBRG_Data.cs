@@ -31,7 +31,6 @@ namespace PowerUtilities
         {
             brgGroupInfoList.Clear();
 
-            var instanceIdStart = 0;
             foreach (IGrouping<(int lightmapId, BatchMeshID meshId, BatchMaterialID matId), MeshRenderer> groupInfo in groupInfos)
             {
                 var instCount = groupInfo.Count();
@@ -40,10 +39,9 @@ namespace PowerUtilities
 
                 // find material props
                 var floatsCount = 0;
-                var matPropNameList = new List<string>();
-                var propFloatCountList = new List<int>();
+                var matPropInfoList = new List<(string name,int floatCount)>();
 
-                mat.shader.FindShaderPropNames_BRG(ref matPropNameList, ref floatsCount, propFloatCountList,false);
+                mat.shader.FindShaderPropNames_BRG(ref matPropInfoList,ref floatsCount, false);
 
                 var mesh = brg.GetRegisteredMesh(groupInfo.Key.meshId);
 
@@ -55,20 +53,15 @@ namespace PowerUtilities
                     lightmapId = groupInfo.Key.lightmapId,
                 };
                 
-                // sum instanceIdStart
-                instanceIdStart += instCount;
-
                 //----- get mat prop infos
                 brgGroupInfo.matGroupList.AddRange(
-                    matPropNameList.Select((propName, id) =>
-                    {
-                        var propFloutCount = propFloatCountList[id];
-                        return new CBufferPropInfo()
+                    matPropInfoList.Select(propInfo =>
+                        new CBufferPropInfo()
                         {
-                            floatsCount = propFloutCount,
-                            propName = propName,
-                        };
-                    })
+                            floatsCount = propInfo.floatCount,
+                            propName = propInfo.name
+                        }
+                    )
                 );
 
                 // iterate renderers

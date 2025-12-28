@@ -46,8 +46,8 @@ namespace PowerUtilities
             {
                 var objectToWorld = transform.localToWorldMatrix.ToFloat3x4();
                 var worldToObject = transform.worldToLocalMatrix.ToFloat3x4();
-                brgBatch.FillData(objectToWorld.ToColumnArray(), instId, 0);
-                brgBatch.FillData(worldToObject.ToColumnArray(), instId, 1);
+                brgBatch.FillData(objectToWorld.ToColumnArray(), instId, BRGTools.unity_ObjectToWorld);
+                brgBatch.FillData(worldToObject.ToColumnArray(), instId, BRGTools.unity_WorldToObject);
             }
         }
 

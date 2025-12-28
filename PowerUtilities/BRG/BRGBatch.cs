@@ -24,7 +24,7 @@ namespace PowerUtilities
         public Material mat;
         public Mesh mesh;
         /// <summary>
-        /// {prop name , start float address}
+        /// {prop name , startByte = startId * sizeof(float)}
         /// </summary>
         public Dictionary<string, int> startByteAddressDict = new();
 
@@ -36,7 +36,6 @@ namespace PowerUtilities
 
         // need fill
         int[] dataStartIdStrides;
-        int[] dataStartIds;
 
         // visible id list
         public List<int> visibleIdList = new();
@@ -46,11 +45,9 @@ namespace PowerUtilities
         /// </summary>
         public BRGMaterialInfo brgMaterialInfo;
 
-        public int GetDataStartId(int matPropId)
+        public int GetDataStartId(string matPropName)
         {
-            if (matPropId >= dataStartIds.Length)
-                throw new Exception($"matPropId({matPropId}) > dataStartIds length ({dataStartIds.Length})");
-            return dataStartIds[matPropId];
+            return startByteAddressDict[matPropName];
         }
 
 
@@ -72,29 +69,20 @@ namespace PowerUtilities
             instanceBuffer = null;
         }
         /// <summary>
-        /// Setup this batch info 
-        /// (dataStartIdStrides,instanceBuffer,dataStartIds,batchId)
+        /// Setup this batch info
+        /// 
         /// </summary>
         /// <param name="matPropfloatCount"></param>
-        /// <param name="matPropNames"></param>
-        /// <param name="dataStartIdStrideList"></param>
-        public void Setup(int matPropfloatCount,string[] matPropNames,List<int> dataStartIdStrideList)
+        /// <param name="matPropInfos"></param>
+        public void Setup(int matPropfloatCount,(string name,int floatCount)[] matPropInfos)
         {
-            //--
-            if (dataStartIdStrideList.Count == matPropNames.Length)
-                dataStartIdStrideList.Insert(0, 0);
-
-            dataStartIdStrides = dataStartIdStrideList.Select(x => x * numInstances).ToArray();
-
             //
             var count = matPropfloatCount * numInstances;
             Debug.Log($"all floats count :{count}");
             instanceBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Raw,count, 4);
 
-            dataStartIds = new int[matPropNames.Length];
-
-            var metadataList = new NativeArray<MetadataValue>(matPropNames.Length, Allocator.Temp);
-            BRGTools.FillMetadatas(dataStartIdStrides, matPropNames, ref metadataList, ref startByteAddressDict, ref dataStartIds);
+            var metadataList = new NativeArray<MetadataValue>(matPropInfos.Length, Allocator.Temp);
+            BRGTools.FillMetadatas(numInstances, matPropInfos, ref metadataList, startByteAddressDict);
 
             batchId = brg.AddBatch(metadataList, instanceBuffer);
             metadataList.Dispose();
@@ -106,9 +94,9 @@ namespace PowerUtilities
         /// <param name="datas"></param>
         /// <param name="instanceId"></param>
         /// <param name="matPropId"></param>
-        public void FillData(float[] datas,int instanceId,int matPropId)
+        public void FillData(float[] datas,int instanceId,string matPropName)
         {
-            instanceBuffer.FillData(datas, instanceId* datas.Length, GetDataStartId(matPropId));
+            instanceBuffer.FillData(datas, instanceId* datas.Length, GetDataStartId(matPropName));
         }
         /// <summary>
         /// Add renderers material data to instanceBuffer
