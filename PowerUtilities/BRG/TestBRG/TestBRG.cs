@@ -1,4 +1,5 @@
 ﻿#if UNITY_2022_2_OR_NEWER
+using NUnit.Framework;
 using PowerUtilities;
 using System;
 using System.Collections;
@@ -58,7 +59,7 @@ public partial class TestBRG : MonoBehaviour
     }
     private void Update()
     {
-        //UpdateInst(updateId);
+        UpdateInst(updateId);
         //UpdateAll();
     }
 
@@ -69,10 +70,17 @@ public partial class TestBRG : MonoBehaviour
         var worldToObject = mat.inverse.ToFloat3x4();
         var color = colorOffsets[id];
 
+        objectToWorlds[0] = objectToWorld;
+        worldToObjects[0] = worldToObject;
+        colors[0] = color;
 
-        instanceBuffer.FillInstanceData(objectToWorld.ToColumnArray(), id, GetDataStartId("unity_ObjectToWorld"));
-        instanceBuffer.FillInstanceData(worldToObject.ToColumnArray(), id, GetDataStartId("unity_WorldToObject"));
-        instanceBuffer.FillInstanceData(color.ToArray(), id, GetDataStartId("_Color"));
+        instanceBuffer.SetData(objectToWorlds, 0, GetDataStartId("unity_ObjectToWorld", 12, id,1), 1);
+        instanceBuffer.SetData(worldToObjects, 0, GetDataStartId("unity_WorldToObject", 12, id,1), 1);
+        instanceBuffer.SetData(colors, 0, GetDataStartId("_Color", 4, id,1), 1);
+
+        //instanceBuffer.SetData(objectToWorld.ToColumnArray(), 0, GetDataStartId("unity_ObjectToWorld", 1, id,12), 12);
+        //instanceBuffer.SetData(worldToObject.ToColumnArray(), 0, GetDataStartId("unity_WorldToObject", 1, id,12), 12);
+        //instanceBuffer.SetData(color.ToArray(), 0, GetDataStartId("_Color", 1, id,4), 4);
     }
 
     private void UpdateAll()
@@ -86,9 +94,9 @@ public partial class TestBRG : MonoBehaviour
             colors[i] = colorOffsets[i];
         }
 
-        instanceBuffer.FillData(objectToWorlds.SelectMany(m => m.ToColumnArray()).ToArray(), GetDataStartId("unity_ObjectToWorld"), 0);
-        instanceBuffer.FillData(worldToObjects.SelectMany(m => m.ToColumnArray()).ToArray(), GetDataStartId("unity_WorldToObject"), 0);
-        instanceBuffer.FillData(colors.SelectMany(v => v.ToArray()).ToArray(), GetDataStartId("_Color"), 0);
+        instanceBuffer.SetData(objectToWorlds, 0, GetDataStartId("unity_ObjectToWorld", 12), objectToWorlds.Count);
+        instanceBuffer.SetData(worldToObjects, 0, GetDataStartId("unity_WorldToObject", 12), numInstances);
+        instanceBuffer.SetData(colors, 0, GetDataStartId("_Color", 4), numInstances);
     }
 
     private void GenInstanceDateBuffer()
@@ -105,7 +113,9 @@ public partial class TestBRG : MonoBehaviour
         //    (typeof(float4), numInstances) //16*3
         //    ) / sizeof(int);
 
-        Debug.Log($"per instance mat float count :{count}");
+        Assert.AreEqual(count, (12+12+4) * numInstances);
+
+        Debug.Log($"all instance mat float count :{count} floats");
         instanceBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Raw, count, sizeof(int));
     }
     List<float3x4> objectToWorlds;
@@ -115,9 +125,9 @@ public partial class TestBRG : MonoBehaviour
     // {propName, startid = float count offset index}
     Dictionary<string, int> startIdDict = new();
 
-    public int GetDataStartId(string matPropName)
+    public int GetDataStartId(string matPropName,int elementFloatCount=1,int instanceId=0,int elementCount=1)
     {
-        return startIdDict[matPropName];
+        return startIdDict[matPropName] / elementFloatCount + instanceId* elementCount;
     }
 
     private void FillInstanceDataBuffer()
@@ -130,18 +140,13 @@ public partial class TestBRG : MonoBehaviour
         };
 
         var metadataList = new NativeArray<MetadataValue>(matPropInfos.Length, Allocator.Temp);
-        BRGTools.FillMetadatas(numInstances, matPropInfos,ref metadataList,startIdDict);
+        BRGTools.SetupMetadatas(numInstances, matPropInfos,ref metadataList,startIdDict);
 
-        Debug.Log("startIdDict : " + string.Join(',', startIdDict.Values));
+        Debug.Log("startIdDict : " + string.Join(',', startIdDict.Values));//0,12*instCount,24*instCount
 
-
-        for (int i = 0; i < numInstances; i++)
-        {
-            instanceBuffer.FillInstanceData(colors[i].ToArray(), i, GetDataStartId("_Color"));
-            instanceBuffer.FillInstanceData(objectToWorlds[i].ToColumnArray(), i, GetDataStartId("unity_ObjectToWorld"));
-            instanceBuffer.FillInstanceData(worldToObjects[i].ToColumnArray(), i, GetDataStartId("unity_WorldToObject"));
-        }
-
+        instanceBuffer.SetData(objectToWorlds, 0, GetDataStartId("unity_ObjectToWorld",12), objectToWorlds.Count);
+        instanceBuffer.SetData(worldToObjects, 0, GetDataStartId("unity_WorldToObject",12), numInstances);
+        instanceBuffer.SetData(colors, 0, GetDataStartId("_Color",4), numInstances);
 
         m_BatchID = m_BRG.AddBatch(metadataList, instanceBuffer);
         metadataList.Dispose();
