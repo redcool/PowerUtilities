@@ -82,7 +82,7 @@ namespace PowerUtilities
             instanceBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Raw,count, 4);
 
             var metadataList = new NativeArray<MetadataValue>(matPropInfos.Length, Allocator.Temp);
-            BRGTools.FillMetadatas(numInstances, matPropInfos, ref metadataList, startByteAddressDict);
+            BRGTools.SetupMetadatas(numInstances, matPropInfos, ref metadataList, startByteAddressDict);
 
             batchId = brg.AddBatch(metadataList, instanceBuffer);
             metadataList.Dispose();

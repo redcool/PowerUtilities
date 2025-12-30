@@ -47,14 +47,25 @@ namespace PowerUtilities
 
 
         /// <summary>
-        /// Fill metadata (metadataList,startIdDict,dataStartIds)
+        /// Fill metadata (metadataList)<br/>
+        /// startIdDict {propName,floatCount StartId}<br/>
+        /// 
+        /// 2 instance data layout,like:<br/>
+        /// <br/>
+        /// ------------ startByteAddrz objectToWorld = 0 <br/>
+        /// inst 0 objectToWorld<br/>
+        /// inst 1 objectToWorld<br/>
+        /// ------------ startByteAddr worldToObject = 0+48*2<br/>
+        /// inst 0 worldToObject<br/>
+        /// inst 1 worldToObject<br/>
+        /// ------------ startByteAddr color = 96 + 48*2<br/>
+        /// inst 0 color<br/>
+        /// inst 1 color<br/>
+        /// 
         /// </summary>
-        /// <param name="dataStartIdOffsets"></param>
-        /// <param name="matPropNames"></param>
         /// <param name="metadataList"></param>
         /// <param name="startIdDict"></param>
-        /// <param name="dataStartIds"></param>
-        public static void FillMetadatas(int instanceCount, (string matPropName, int matPropFloatCount)[] matPropInfos,
+        public static int SetupMetadatas(int instanceCount, (string matPropName, int matPropFloatCount)[] matPropInfos,
             ref NativeArray<MetadataValue> metadataList, Dictionary<string, int> startIdDict)
         {
             var floatCountStartId = 0; // float count offset
@@ -67,7 +78,7 @@ namespace PowerUtilities
                 metadataList[i] = new MetadataValue
                 {
                     NameID = Shader.PropertyToID(matPropInfo.matPropName),
-                    Value = (uint)(0x80000000 | startByteAddr) // 0x80000000 is a flag for BRG, 位 31 设置为 1 通常表示这是一个从 Buffer 读取的属性
+                    Value = 0x80000000 | (uint)startByteAddr // 0x80000000 is a flag for BRG, 0x1 : instance prop, 0: shared prop
                 };
 
                 startIdDict.Add(matPropInfo.matPropName, floatCountStartId);
@@ -75,6 +86,7 @@ namespace PowerUtilities
                 //next property float count stride
                 floatCountStartId += matPropInfo.matPropFloatCount * instanceCount;
             }
+            return floatCountStartId;
         }
 
         public static unsafe void SetupBatchDrawCommands(BatchCullingOutputDrawCommands* drawCmdPt, int batchCount,int allVisibleInstanceCount)
@@ -169,6 +181,28 @@ namespace PowerUtilities
                 shader.FindShaderPropNames(ref propNameList, ref floatsCount);
         }
 
+        public static BatchID AddBatch(
+            BatchRendererGroup brg,
+            ref GraphicsBuffer instanceBuffer,
+            int numInstances,
+            (string propName, int propFloatCount)[] matPropInfos,
+            Dictionary<string, int> startIdDict
+        )
+        {
+            var metadataList = new NativeArray<MetadataValue>(matPropInfos.Length, Allocator.Temp);
+            var allFloatCount = BRGTools.SetupMetadatas(numInstances, matPropInfos, ref metadataList, startIdDict);
 
+            Debug.Log($"all instance mat float count :{allFloatCount} floats");
+            instanceBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Raw, allFloatCount, sizeof(float));
+            Debug.Log("startIdDict : " + string.Join(',', startIdDict.Values));//0,12*instCount,24*instCount
+
+            var batchId = brg.AddBatch(metadataList, instanceBuffer);
+            metadataList.Dispose();
+            return batchId;
+
+            //instanceBuffer.SetData(objectToWorlds, 0, GetDataStartId("unity_ObjectToWorld", 12), objectToWorlds.Count);
+            //instanceBuffer.SetData(worldToObjects, 0, GetDataStartId("unity_WorldToObject", 12), numInstances);
+            //instanceBuffer.SetData(colors, 0, GetDataStartId("_Color", 4), numInstances);
+        }
     }
 }

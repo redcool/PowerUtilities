@@ -99,6 +99,21 @@ public partial class TestBRG : MonoBehaviour
         instanceBuffer.SetData(colors, 0, GetDataStartId("_Color", 4), numInstances);
     }
 
+
+
+    List<float3x4> objectToWorlds;
+    List<float3x4> worldToObjects;
+    List<Color> colors;
+
+    // {propName, startid = float count offset index}
+    Dictionary<string, int> startIdDict = new();
+
+
+    public int GetDataStartId(string matPropName, int elementFloatCount = 1, int instanceId = 0, int elementCount = 1)
+    {
+        return startIdDict[matPropName] / elementFloatCount + instanceId * elementCount;
+    }
+
     private void GenInstanceDateBuffer()
     {
         var count = BRGTools.GetByteCount(numInstances,
@@ -107,7 +122,6 @@ public partial class TestBRG : MonoBehaviour
             typeof(float4));
         count /= 4;
         //var count = BRGTools.GetByteCount(
-        //    //(typeof(Matrix4x4), 1), // 16 * 4 =64
         //    (typeof(float3x4), numInstances), //12*4*3 =144
         //    (typeof(float3x4), numInstances), // 12*4*3
         //    (typeof(float4), numInstances) //16*3
@@ -117,17 +131,6 @@ public partial class TestBRG : MonoBehaviour
 
         Debug.Log($"all instance mat float count :{count} floats");
         instanceBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Raw, count, sizeof(int));
-    }
-    List<float3x4> objectToWorlds;
-    List<float3x4> worldToObjects;
-    List<Color> colors;
-
-    // {propName, startid = float count offset index}
-    Dictionary<string, int> startIdDict = new();
-
-    public int GetDataStartId(string matPropName,int elementFloatCount=1,int instanceId=0,int elementCount=1)
-    {
-        return startIdDict[matPropName] / elementFloatCount + instanceId* elementCount;
     }
 
     private void FillInstanceDataBuffer()
@@ -144,12 +147,14 @@ public partial class TestBRG : MonoBehaviour
 
         Debug.Log("startIdDict : " + string.Join(',', startIdDict.Values));//0,12*instCount,24*instCount
 
+        m_BatchID = m_BRG.AddBatch(metadataList, instanceBuffer);
+        metadataList.Dispose();
+
+        // fill buffer
         instanceBuffer.SetData(objectToWorlds, 0, GetDataStartId("unity_ObjectToWorld",12), objectToWorlds.Count);
         instanceBuffer.SetData(worldToObjects, 0, GetDataStartId("unity_WorldToObject",12), numInstances);
         instanceBuffer.SetData(colors, 0, GetDataStartId("_Color",4), numInstances);
 
-        m_BatchID = m_BRG.AddBatch(metadataList, instanceBuffer);
-        metadataList.Dispose();
     }
 
     private void GenMaterialProperties()
