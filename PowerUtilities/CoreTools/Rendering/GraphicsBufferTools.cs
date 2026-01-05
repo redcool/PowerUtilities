@@ -24,43 +24,39 @@ namespace PowerUtilities
         /// </summary>
         public static Dictionary<string,GraphicsBuffer> bufferDict = new ();
 
+        static float[] tempFloats = new float[1];
+        static Vector4[] tempVectors = new Vector4[1];
+        static float3x4[] tempFloat3x4s = new float3x4[1];
         /// <summary>
-        /// FloatStartId -> T startId
+        /// Set a item into Graphics buffer
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="floatStartId"></param>
-        /// <returns></returns>
-        public static int GetStartId<T>(int floatStartId) where T : struct
-        {
-            return floatStartId / Marshal.SizeOf<T>();
-        }
-
-        public static void FillData(this GraphicsBuffer buffer, float[] floatDatas, int graphBufferStartId,int graphBufferStartIdOffset)
-        {
-            if (!buffer.IsValidSafe())
-                return;
-
-            //Debug.Log($"FillData startId : {graphBufferStartId} + {graphBufferStartIdOffset} ="+ (graphBufferStartId + graphBufferStartIdOffset));
-            buffer.SetData(floatDatas, 0, graphBufferStartId + graphBufferStartIdOffset, floatDatas.Length);
-        }
-        
-        /// <summary>
-        /// Fill data to buffer
-        /// </summary>
         /// <param name="buffer"></param>
-        /// <param name="floatDatas"></param>
-        /// <param name="graphBufferStartId">instance start float id</param>
-        /// <param name="graphBufferStartIdOffset">instance start float id offset</param>
-        public static void FillInstanceData(this GraphicsBuffer buffer, float[] floatDatas, int instanceId, int graphBufferStartIdOffset)
+        /// <param name="data"></param>
+        /// <param name="managedBufferStartIndex"></param>
+        /// <param name="graphicsBufferStartIndex"></param>
+        /// <param name="count"></param>
+        //public static void SetData<T>(this GraphicsBuffer buffer,T data,int managedBufferStartIndex,int graphicsBufferStartIndex)
+        //    where T : struct
+        //{
+        //    var tempArray = new[] { data };
+        //    buffer.SetData(tempArray, managedBufferStartIndex, graphicsBufferStartIndex, 1);
+        //}
+        public static void SetData(this GraphicsBuffer buffer,float data, int managedBufferStartIndex, int graphicsBufferStartIndex)
         {
-            if (!buffer.IsValidSafe())
-                return;
-
-            var graphBufferStartId = instanceId * floatDatas.Length;
-            //Debug.Log($"FillData startId : {graphBufferStartId} + {graphBufferStartIdOffset} ="+ (graphBufferStartId + graphBufferStartIdOffset));
-            buffer.SetData(floatDatas, 0, graphBufferStartId + graphBufferStartIdOffset, floatDatas.Length);
+            tempFloats[0] = data;
+            buffer.SetData(tempFloats, managedBufferStartIndex, graphicsBufferStartIndex, 1);
         }
-        
+        public static void SetData(this GraphicsBuffer buffer, Vector4 data, int managedBufferStartIndex, int graphicsBufferStartIndex)
+        {
+            tempVectors[0] = data;
+            buffer.SetData(tempVectors, managedBufferStartIndex, graphicsBufferStartIndex, 1);
+        }
+        public static void SetData(this GraphicsBuffer buffer, float3x4 data, int managedBufferStartIndex, int graphicsBufferStartIndex)
+        {
+            tempFloat3x4s[0] = data;
+            buffer.SetData(tempFloat3x4s, managedBufferStartIndex, graphicsBufferStartIndex, 1);
+        }
 
         public static bool IsValidSafe(this GraphicsBuffer buffer)
         {

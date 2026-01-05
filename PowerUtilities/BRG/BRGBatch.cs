@@ -26,16 +26,13 @@ namespace PowerUtilities
         /// <summary>
         /// {prop name , startByte = startId * sizeof(float)}
         /// </summary>
-        public Dictionary<string, int> startByteAddressDict = new();
+        public Dictionary<string, int> propNameStartFloatIdDict = new();
 
         // from outside
         BatchRendererGroup brg;
         public int numInstances;
 
         public int brgBatchId;
-
-        // need fill
-        int[] dataStartIdStrides;
 
         // visible id list
         public List<int> visibleIdList = new();
@@ -44,11 +41,6 @@ namespace PowerUtilities
         /// tools
         /// </summary>
         public BRGMaterialInfo brgMaterialInfo;
-
-        public int GetDataStartId(string matPropName)
-        {
-            return startByteAddressDict[matPropName];
-        }
 
 
         public BRGBatch(BatchRendererGroup brg, int numInstances, BatchMeshID meshId,BatchMaterialID matId,int brgBatchId)
@@ -82,22 +74,12 @@ namespace PowerUtilities
             instanceBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Raw,count, 4);
 
             var metadataList = new NativeArray<MetadataValue>(matPropInfos.Length, Allocator.Temp);
-            BRGTools.SetupMetadatas(numInstances, matPropInfos, ref metadataList, startByteAddressDict);
+            BRGTools.SetupMetadatas(numInstances, matPropInfos, ref metadataList, propNameStartFloatIdDict);
 
             batchId = brg.AddBatch(metadataList, instanceBuffer);
             metadataList.Dispose();
         }
 
-        /// <summary>
-        /// Fill dato into instanceBuffer(RawByteBuffer)
-        /// </summary>
-        /// <param name="datas"></param>
-        /// <param name="instanceId"></param>
-        /// <param name="matPropId"></param>
-        public void FillData(float[] datas,int instanceId,string matPropName)
-        {
-            instanceBuffer.FillInstanceData(datas, instanceId, GetDataStartId(matPropName));
-        }
         /// <summary>
         /// Add renderers material data to instanceBuffer
         /// 1 Fill material data

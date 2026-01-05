@@ -25,6 +25,7 @@ namespace PowerUtilities
         private static readonly int FLOAT_BYTES = 4;
 
 
+
         /// <summary>
         /// Get material variable's byte count
         /// </summary>
@@ -45,7 +46,22 @@ namespace PowerUtilities
             return matTypes.Select(type => Marshal.SizeOf(type)).Sum() * numInstance;
         }
 
-
+        /// <summary>
+        /// Calculates the starting index of graphics bufffer for a material property based on the provided property name, element
+        /// size, instance, and element count.
+        /// </summary>
+        /// <param name="propNameStartIdDict">A dictionary that maps material property names to their corresponding starting identifiers.</param>
+        /// <param name="matPropName">The name of the material property for which to retrieve the starting identifier. Must exist as a key in the
+        /// dictionary.</param>
+        /// <param name="elementFloatCount">The number of float values that make up a single element of the property. Must be greater than zero. The
+        /// default is 1.</param>
+        /// <param name="instanceId">The zero-based index of the instance for which to calculate the starting identifier. The default is 0.</param>
+        /// <param name="elementCount">The number of elements per instance. Must be greater than zero. The default is 1.</param>
+        /// <returns>The calculated starting identifier for the specified material property and instance.</returns>
+        public static int GetDataStartId(Dictionary<string, int> propNameStartIdDict, string matPropName, int elementFloatCount = 1, int instanceId = 0, int elementCount = 1)
+        {
+            return propNameStartIdDict[matPropName] / elementFloatCount + instanceId * elementCount;
+        }
         /// <summary>
         /// Fill metadata (metadataList)<br/>
         /// startIdDict {propName,floatCount StartId}<br/>
@@ -107,35 +123,48 @@ namespace PowerUtilities
             drawCmdPt->instanceSortingPositions = null;
             drawCmdPt->instanceSortingPositionFloatCount = 0;
 
+            drawCmdPt->drawCommandPickingInstanceIDs = null;
+
             // 
-#if UNITY_6000_2_OR_NEWER
-            drawCmdPt->drawRanges[0].drawCommandsType = BatchDrawCommandType.Direct;
+#if UNITY_6000_3_OR_NEWER
             drawCmdPt->drawCommandPickingEntityIds = null;
 #else
             drawCmdPt->drawCommandPickingInstanceIDs = null;
 #endif
 
-            drawCmdPt->drawRanges[0].drawCommandsBegin = 0;
-            drawCmdPt->drawRanges[0].drawCommandsCount = (uint)drawCmdPt->drawCommandCount;
-            drawCmdPt->drawRanges[0].filterSettings = new BatchFilterSettings { renderingLayerMask = 0xffffffff, };
-
+            var drawRange0 = new BatchDrawRange
+            {
+#if UNITY_6000_3_OR_NEWER
+                drawCommandsType = BatchDrawCommandType.Direct,
+#endif
+                drawCommandsBegin = 0,
+                drawCommandsCount = (uint)batchCount,
+                filterSettings = new BatchFilterSettings
+                {
+                    allDepthSorted = true,
+                    renderingLayerMask = 0xffffffff,
+                },
+            };
+            drawCmdPt->drawRanges[0] = drawRange0;
             drawCmdPt->drawRangeCount = 1;
         }
 
 
         public static unsafe BatchDrawCommand FillBatchDrawCommand(BatchCullingOutputDrawCommands* drawCmdPt, int cmdId, BatchID batchId, BatchMaterialID materialId, BatchMeshID meshId, int visibleCount,int visibleOffset=0)
         {
-            drawCmdPt->drawCommands[cmdId].batchID = batchId;
-            drawCmdPt->drawCommands[cmdId].flags = 0;
-            drawCmdPt->drawCommands[cmdId].materialID = materialId;
-            drawCmdPt->drawCommands[cmdId].meshID = meshId;
-            drawCmdPt->drawCommands[cmdId].sortingPosition = 0;
-            drawCmdPt->drawCommands[cmdId].splitVisibilityMask = 0;
-            drawCmdPt->drawCommands[cmdId].submeshIndex = 0;
-            drawCmdPt->drawCommands[cmdId].visibleCount = (uint)visibleCount;
-            drawCmdPt->drawCommands[cmdId].visibleOffset = (uint)visibleOffset;
-
-            return drawCmdPt->drawCommands[cmdId];
+            var cmd = new BatchDrawCommand
+            {
+                batchID = batchId,
+                flags = 0,
+                materialID = materialId,
+                meshID = meshId,
+                sortingPosition = 0,
+                splitVisibilityMask = 0,
+                submeshIndex = 0,
+                visibleCount = (uint)visibleCount,
+                visibleOffset = (uint)visibleOffset
+            };
+            return drawCmdPt->drawCommands[cmdId] = cmd;
         }
 
         /// <summary>
@@ -199,10 +228,6 @@ namespace PowerUtilities
             var batchId = brg.AddBatch(metadataList, instanceBuffer);
             metadataList.Dispose();
             return batchId;
-
-            //instanceBuffer.SetData(objectToWorlds, 0, GetDataStartId("unity_ObjectToWorld", 12), objectToWorlds.Count);
-            //instanceBuffer.SetData(worldToObjects, 0, GetDataStartId("unity_WorldToObject", 12), numInstances);
-            //instanceBuffer.SetData(colors, 0, GetDataStartId("_Color", 4), numInstances);
         }
     }
 }

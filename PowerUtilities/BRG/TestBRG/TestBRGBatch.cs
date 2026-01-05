@@ -1,20 +1,14 @@
 ﻿#if UNITY_2022_2_OR_NEWER
 using PowerUtilities;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Runtime.InteropServices;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
 using Unity.Mathematics;
-using UnityEditor;
 using UnityEngine;
-using UnityEngine.Experimental.Rendering;
 using UnityEngine.Rendering;
-using Debug = UnityEngine.Debug;
 using Random = UnityEngine.Random;
 
 
@@ -79,9 +73,14 @@ public class TestBRGBatch : MonoBehaviour
                 var worldToObject = worldToObjects[i + j * numInstancesPerGroup];
                 var color = colors[i + j * numInstancesPerGroup];
 
-                brgBatch.FillData(objectToWorld.ToColumnArray(), i, BRGTools.unity_ObjectToWorld);
-                brgBatch.FillData(worldToObject.ToColumnArray(), i, BRGTools.unity_WorldToObject);
-                brgBatch.FillData(color.ToArray(), i, BRGTools._Color);
+                var startId = BRGTools.GetDataStartId(brgBatch.propNameStartFloatIdDict, BRGTools.unity_ObjectToWorld, 12, i, 1);
+                brgBatch.instanceBuffer.SetData(objectToWorld, 0, startId);
+
+                startId = BRGTools.GetDataStartId(brgBatch.propNameStartFloatIdDict, BRGTools.unity_WorldToObject, 12, i, 1);
+                brgBatch.instanceBuffer.SetData(worldToObject, 0, startId);
+
+                startId = BRGTools.GetDataStartId(brgBatch.propNameStartFloatIdDict, BRGTools._Color, 4, i, 1);
+                brgBatch.instanceBuffer.SetData(color, 0, startId);
             }
             brgBatches.Add(brgBatch);
 
@@ -94,7 +93,7 @@ public class TestBRGBatch : MonoBehaviour
         //UpdateAll();
     }
 
-    void UpdateInst(int instId,int batchId)
+    void UpdateInst(int instId, int batchId)
     {
         var instIdGlobal = instId + batchId * numInstancesPerGroup;
         var mat = Matrix4x4.Translate(offsets[instIdGlobal]);
@@ -103,11 +102,15 @@ public class TestBRGBatch : MonoBehaviour
         var color = colorOffsets[instIdGlobal];
 
         var brgBatch = brgBatches[batchId];
-        {
-            brgBatch.FillData(objectToWorld.ToColumnArray(), instId, BRGTools.unity_ObjectToWorld);
-            brgBatch.FillData(worldToObject.ToColumnArray(), instId, BRGTools.unity_WorldToObject);
-            brgBatch.FillData(color.ToArray(), instId, BRGTools._Color);
-        }
+
+        var startId = BRGTools.GetDataStartId(brgBatch.propNameStartFloatIdDict, BRGTools.unity_ObjectToWorld, 12, instId, 1);
+        brgBatch.instanceBuffer.SetData(objectToWorld, 0, startId);
+
+        startId = BRGTools.GetDataStartId(brgBatch.propNameStartFloatIdDict, BRGTools.unity_WorldToObject, 12, instId, 1);
+        brgBatch.instanceBuffer.SetData(worldToObject, 0, startId);
+
+        startId = BRGTools.GetDataStartId(brgBatch.propNameStartFloatIdDict, BRGTools._Color, 4, instId, 1);
+        brgBatch.instanceBuffer.SetData(color, 0, startId);
     }
 
     private void UpdateAll()
@@ -130,10 +133,16 @@ public class TestBRGBatch : MonoBehaviour
         for (int i = 0; i < brgBatches.Count; i++)
         {
             var brgBatch = brgBatches[i];
-            
-            brgBatch.FillData(objectToWorlds.Skip(i * numInstancesPerGroup).Take(numInstancesPerGroup).SelectMany(m => m.ToColumnArray()).ToArray(), 0, BRGTools.unity_ObjectToWorld);
-            brgBatch.FillData(worldToObjects.Skip(i * numInstancesPerGroup).Take(numInstancesPerGroup).SelectMany(m => m.ToColumnArray()).ToArray(), 0, BRGTools.unity_WorldToObject);
-            brgBatch.FillData(colors.Skip(i * numInstancesPerGroup).Take(numInstancesPerGroup).SelectMany(v => v.ToArray()).ToArray(), 0, BRGTools._Color);
+
+            var startId = BRGTools.GetDataStartId(brgBatch.propNameStartFloatIdDict, BRGTools.unity_ObjectToWorld, 12);
+            brgBatch.instanceBuffer.SetData(objectToWorlds, 0, startId,objectToWorlds.Count);
+
+            startId = BRGTools.GetDataStartId(brgBatch.propNameStartFloatIdDict, BRGTools.unity_WorldToObject, 12);
+            brgBatch.instanceBuffer.SetData(worldToObjects, 0, startId,worldToObjects.Count);
+
+            startId = BRGTools.GetDataStartId(brgBatch.propNameStartFloatIdDict, BRGTools._Color, 4);
+            brgBatch.instanceBuffer.SetData(colors, 0, startId,colors.Count);
+
         }
     }
 

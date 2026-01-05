@@ -3,6 +3,7 @@ namespace PowerUtilities
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Text;
     using Unity.Mathematics;
     using UnityEngine;
@@ -85,13 +86,21 @@ namespace PowerUtilities
             Vector4 mainTex_ST = new float4(mat.mainTextureScale, mat.mainTextureOffset);
             var color = mat.color;
 
-            brgBatch.FillData(objectToWorld.ToColumnArray(), instId, BRGTools.unity_ObjectToWorld);
-            brgBatch.FillData(worldToObject.ToColumnArray(), instId, BRGTools.unity_WorldToObject);
+            var startId = BRGTools.GetDataStartId(brgBatch.propNameStartFloatIdDict, BRGTools.unity_ObjectToWorld, 12, instId, 1);
+            brgBatch.instanceBuffer.SetData(objectToWorld, 0, startId);
+
+            startId = BRGTools.GetDataStartId(brgBatch.propNameStartFloatIdDict, BRGTools.unity_WorldToObject, 12, instId, 1);
+            brgBatch.instanceBuffer.SetData(worldToObject, 0, startId);
+
             var matPropId = 2;
             foreach (var propInfo in bufferPropList)
             {
                 float[] floatArr = mat.GetFloats(propInfo.propName);
-                brgBatch.FillData(floatArr, instId, propInfo.propName);
+                
+                brgBatch.instanceBuffer.SetData(floatArr, 0,
+                    BRGTools.GetDataStartId(brgBatch.propNameStartFloatIdDict, propInfo.propName, floatArr.Length, instId, 1),
+                    floatArr.Length
+                    );
                 //Debug.Log($"{propInfo.propName} -> {floatArr.ToString(",")}");
                 matPropId++;
             }
@@ -100,12 +109,16 @@ namespace PowerUtilities
 
         public void FillMaterialData(BRGBatch brgBatch,int instId,string propName, float[] floats)
         {
-            var propId = bufferPropList.FindIndex(info => info.propName == propName);
-            if(propId < 0)
+            var prop = bufferPropList.Find(info => info.propName == propName);
+            if(prop == null)
             {
                 throw new Exception($"{propName} not found!");
             }
-            brgBatch.FillData(floats,instId, propName);
+
+            brgBatch.instanceBuffer.SetData(floats, 0, 
+                BRGTools.GetDataStartId(brgBatch.propNameStartFloatIdDict,propName,prop.floatsCount,instId,1),
+                floats.Length);
+
         }
 
     }
