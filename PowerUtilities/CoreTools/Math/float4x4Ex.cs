@@ -40,13 +40,21 @@ namespace PowerUtilities
         }
 
         public static float[] ToColumnArray(this float3x4 m)
-        {
-            var nums = new float[12];
-            for (int i = 0; i < 3; i++)
-                for (int j = 0; j < 4; j++)
-                    nums[i + j * 3] = m[j][i];
-            return nums;
-        }
+        => new float[12]
+            {
+                m.c0.x,m.c0.y,m.c0.z,
+                m.c1.x,m.c1.y,m.c1.z,
+                m.c2.x,m.c2.y,m.c2.z,
+                m.c3.x,m.c3.y,m.c3.z,
+            };
+        
+        public static float[] ToRowArray(this float3x4 m)
+        => new float[12]
+            {
+                m.c0.x,m.c1.x,m.c2.x,m.c3.x,
+                m.c0.y,m.c1.y,m.c2.y,m.c3.y,
+                m.c0.z,m.c1.z,m.c2.z,m.c3.z,
+            };
 
         public static Vector4[] ToRowVectors(this float3x4 m)
         => new Vector4[]{

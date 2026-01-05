@@ -182,8 +182,9 @@ public class SimpleBRGExample : MonoBehaviour
         drawCommands->drawCommands = (BatchDrawCommand*)UnsafeUtility.Malloc(UnsafeUtility.SizeOf<BatchDrawCommand>(), alignment, Allocator.TempJob);
         drawCommands->drawRanges = (BatchDrawRange*)UnsafeUtility.Malloc(UnsafeUtility.SizeOf<BatchDrawRange>(), alignment, Allocator.TempJob);
         drawCommands->visibleInstances = (int*)UnsafeUtility.Malloc(kNumInstances * sizeof(int), alignment, Allocator.TempJob);
+#if UNITY_6000_3_OR_NEWER
         drawCommands->drawCommandPickingEntityIds = null;
-
+#endif
         drawCommands->drawCommandCount = 1;
         drawCommands->drawRangeCount = 1;
         drawCommands->visibleInstanceCount = kNumInstances;
@@ -207,7 +208,9 @@ public class SimpleBRGExample : MonoBehaviour
 
         // Configure the single draw range to cover the single draw command which
         // is at offset 0.
+#if UNITY_6000_3_OR_NEWER
         drawCommands->drawRanges[0].drawCommandsType = BatchDrawCommandType.Direct;
+#endif
         drawCommands->drawRanges[0].drawCommandsBegin = 0;
         drawCommands->drawRanges[0].drawCommandsCount = 1;
 

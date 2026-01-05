@@ -162,10 +162,10 @@ namespace PowerUtilities
         //var floatsCount = 12 + 12 + 4;
         /// </summary>
         /// <param name="shader"></param>
-        /// <param name="propNameList">property name list</param>
+        /// <param name="propInfoList">property name list</param>
         /// <param name="floatsCount">all properties float count</param>
         /// <param name="propFloatCountList">property float count</param>
-        public static void FindShaderPropNames(this Shader shader, ref List<string> propNameList, ref int floatsCount, List<int> propFloatCountList)
+        public static void FindShaderPropNames(this Shader shader, ref List<(string name, int floatCount)> propInfoList, ref int floatsCount)
         {
             var propCount = shader.GetPropertyCount();
             for (int i = 0; i < propCount; i++)
@@ -183,10 +183,7 @@ namespace PowerUtilities
                 var propFloatCount = GetFloatCount(propType);
                 floatsCount += propFloatCount;
 
-                propNameList.Add(propName);
-
-                if (propFloatCountList != null)
-                    propFloatCountList.Add(propFloatCount);
+                propInfoList.Add((propName,propFloatCount));
             }
 
         }
@@ -231,7 +228,8 @@ namespace PowerUtilities
                         {
                             propType = varType,
                             propName = varName,
-                            floatsCount = floats
+                            floatsCount = floats,
+                            propNameId = Shader.PropertyToID(varName),
                         });
                     }
                 }

@@ -18,6 +18,8 @@ namespace PowerUtilities
         /// </summary>
         public string propType;
 
+
+        public int propNameId;
         /// <summary>
         /// floatN
         /// </summary>

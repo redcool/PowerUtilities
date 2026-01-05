@@ -1,5 +1,4 @@
 ﻿#if UNITY_2022_2_OR_NEWER
-using NUnit.Framework;
 using PowerUtilities;
 using System;
 using System.Collections;
@@ -11,6 +10,7 @@ using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.Assertions;
 using UnityEngine.Experimental.Rendering;
 using UnityEngine.Rendering;
 using Debug = UnityEngine.Debug;
@@ -212,7 +212,9 @@ public partial class TestBRG : MonoBehaviour
         };
         drawCommands.drawRanges[0] = new BatchDrawRange
         {
+#if UNITY_6000_3_OR_NEWER
             drawCommandsType = BatchDrawCommandType.Direct,
+#endif
             filterSettings = new BatchFilterSettings
             {
                 allDepthSorted = true,

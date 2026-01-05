@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using Unity.Collections;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Rendering;
 using Object = UnityEngine.Object;
@@ -15,8 +16,8 @@ namespace PowerUtilities
     {
         public static int FLOAT_BYTES = 4;
         public static int FLOAT4_BYTES = 16;
-        public static int MATRIX_BYTES = 64;
-        public static int FLOAT3X4_BYTES = 12;
+        public static int MATRIX_BYTES = 16*4;
+        public static int FLOAT3X4_BYTES = 12*4;
 
         /// <summary>
         /// {bufferName , GraphicsBuffer}
@@ -24,26 +25,42 @@ namespace PowerUtilities
         public static Dictionary<string,GraphicsBuffer> bufferDict = new ();
 
         /// <summary>
-        /// Set continuous Data block and update graphBufferStartId
-        /// 
+        /// FloatStartId -> T startId
         /// </summary>
-        /// <param name="buffer"></param>
-        /// <param name="datas"></param>
-        /// <param name="graphBufferStartId"></param>
-        public static void FillDataBlock(this GraphicsBuffer buffer, float[] datas, ref int graphBufferStartId)
+        /// <typeparam name="T"></typeparam>
+        /// <param name="floatStartId"></param>
+        /// <returns></returns>
+        public static int GetStartId<T>(int floatStartId) where T : struct
         {
-            buffer.SetData(datas, 0, graphBufferStartId, datas.Length);
-            graphBufferStartId += datas.Length;
+            return floatStartId / Marshal.SizeOf<T>();
         }
 
-        public static void FillData(this GraphicsBuffer buffer, float[] datas, int graphBufferStartId,int graphBufferStartIdOffset)
+        public static void FillData(this GraphicsBuffer buffer, float[] floatDatas, int graphBufferStartId,int graphBufferStartIdOffset)
         {
             if (!buffer.IsValidSafe())
                 return;
 
             //Debug.Log($"FillData startId : {graphBufferStartId} + {graphBufferStartIdOffset} ="+ (graphBufferStartId + graphBufferStartIdOffset));
-            buffer.SetData(datas, 0, graphBufferStartId + graphBufferStartIdOffset, datas.Length);
+            buffer.SetData(floatDatas, 0, graphBufferStartId + graphBufferStartIdOffset, floatDatas.Length);
         }
+        
+        /// <summary>
+        /// Fill data to buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="floatDatas"></param>
+        /// <param name="graphBufferStartId">instance start float id</param>
+        /// <param name="graphBufferStartIdOffset">instance start float id offset</param>
+        public static void FillInstanceData(this GraphicsBuffer buffer, float[] floatDatas, int instanceId, int graphBufferStartIdOffset)
+        {
+            if (!buffer.IsValidSafe())
+                return;
+
+            var graphBufferStartId = instanceId * floatDatas.Length;
+            //Debug.Log($"FillData startId : {graphBufferStartId} + {graphBufferStartIdOffset} ="+ (graphBufferStartId + graphBufferStartIdOffset));
+            buffer.SetData(floatDatas, 0, graphBufferStartId + graphBufferStartIdOffset, floatDatas.Length);
+        }
+        
 
         public static bool IsValidSafe(this GraphicsBuffer buffer)
         {
