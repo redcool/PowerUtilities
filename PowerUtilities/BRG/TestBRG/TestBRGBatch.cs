@@ -95,6 +95,9 @@ public class TestBRGBatch : MonoBehaviour
 
     void UpdateInst(int instId, int batchId)
     {
+        instId = Mathf.Clamp(instId, 0, numInstancesPerGroup-1);
+        batchId = Mathf.Clamp(batchId, 0, meshes.Length-1);
+
         var instIdGlobal = instId + batchId * numInstancesPerGroup;
         var mat = Matrix4x4.Translate(offsets[instIdGlobal]);
         var objectToWorld = mat.ToFloat3x4();
@@ -149,7 +152,7 @@ public class TestBRGBatch : MonoBehaviour
 
     List<float3x4> objectToWorlds;
     List<float3x4> worldToObjects;
-    List<Color> colors;
+    public List<Color> colors;
 
     List<Matrix4x4> matrices;
 
@@ -160,7 +163,7 @@ public class TestBRGBatch : MonoBehaviour
 
         for (int i = 0; i < numInstances; i++)
         {
-            matrices.Add(Matrix4x4.Translate(Vector3.Scale(Random.insideUnitSphere, Vector3.right) * 2));
+            matrices.Add(Matrix4x4.Translate(Random.insideUnitSphere * 10));
         }
 
         // Convert the transform matrices into the packed format that the shader expects.
@@ -170,7 +173,7 @@ public class TestBRGBatch : MonoBehaviour
         worldToObjects = matrices.Select(m => m.inverse.ToFloat3x4()).ToList();
 
         // Make all instances have unique colors.
-        colors = Enumerable.Range(0, numInstances).Select(id => Color.white * ((float)id / numInstances)).ToList();
+        colors = Enumerable.Range(0, numInstances).Select(id => Random.ColorHSV()).ToList();
     }
 
     private void OnDisable()
