@@ -16,8 +16,10 @@ namespace PowerUtilities
         [FieldOffset(0)] public uint uintValue;
 
         public static implicit operator NumberType(int v)
-        {
-            return new NumberType { intValue = v };
-        }
+            => new NumberType { intValue = v };
+        public static implicit operator NumberType(uint v)
+            => new NumberType { uintValue = v };
+        public static implicit operator NumberType(float v)
+            => new NumberType { floatValue = v };
     }
 }

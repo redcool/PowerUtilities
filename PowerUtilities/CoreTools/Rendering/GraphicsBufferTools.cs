@@ -27,22 +27,8 @@ namespace PowerUtilities
         static float[] tempFloats = new float[1];
         static Vector4[] tempVectors = new Vector4[1];
         static float3x4[] tempFloat3x4s = new float3x4[1];
-        /// <summary>
-        /// Set a item into Graphics buffer
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="buffer"></param>
-        /// <param name="data"></param>
-        /// <param name="managedBufferStartIndex"></param>
-        /// <param name="graphicsBufferStartIndex"></param>
-        /// <param name="count"></param>
-        //public static void SetData<T>(this GraphicsBuffer buffer,T data,int managedBufferStartIndex,int graphicsBufferStartIndex)
-        //    where T : struct
-        //{
-        //    var tempArray = new[] { data };
-        //    buffer.SetData(tempArray, managedBufferStartIndex, graphicsBufferStartIndex, 1);
-        //}
-        public static void SetData(this GraphicsBuffer buffer,float data, int managedBufferStartIndex, int graphicsBufferStartIndex)
+
+        public static void SetData(this GraphicsBuffer buffer, float data, int managedBufferStartIndex, int graphicsBufferStartIndex)
         {
             tempFloats[0] = data;
             buffer.SetData(tempFloats, managedBufferStartIndex, graphicsBufferStartIndex, 1);
