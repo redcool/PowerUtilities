@@ -16,6 +16,8 @@ namespace PowerUtilities
     {
         [Tooltip("cbuffer target shader")]
         public Shader shader;
+
+        [Tooltip("Remove Props not included in shader property block")]
         [Multiline(10)]
         public string shaderCBufferLayoutText;
 
@@ -26,7 +28,7 @@ namespace PowerUtilities
         public List<CBufferPropInfo> bufferPropList = new();
 
         [EditorButton(onClickCall = "LogDotsMacros",tooltip = "output dots instancing macros for shader")]
-        public bool isLogDotsMacros;
+        public bool isOutputDotsMacrosCode;
 
         public void StartAnalysis()
         {
@@ -92,17 +94,16 @@ namespace PowerUtilities
             startId = BRGTools.GetDataStartId(brgBatch.propNameStartFloatIdDict, BRGTools.unity_WorldToObject, 12, instId, 1);
             brgBatch.instanceBuffer.SetData(worldToObject, 0, startId);
 
-            var matPropId = 2;
+            // per float fill instanceBuffer
             foreach (var propInfo in bufferPropList)
             {
                 float[] floatArr = mat.GetFloats(propInfo.propName);
                 
                 brgBatch.instanceBuffer.SetData(floatArr, 0,
-                    BRGTools.GetDataStartId(brgBatch.propNameStartFloatIdDict, propInfo.propName, floatArr.Length, instId, 1),
+                    BRGTools.GetDataStartId(brgBatch.propNameStartFloatIdDict, propInfo.propName, 1, instId, floatArr.Length),
                     floatArr.Length
                     );
                 //Debug.Log($"{propInfo.propName} -> {floatArr.ToString(",")}");
-                matPropId++;
             }
 
         }

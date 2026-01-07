@@ -37,19 +37,18 @@ namespace PowerUtilities
         [EditorButton(onClickCall = nameof(UpdateBlock))]
         public bool isUpdateBlock;
 
-        public void Update()
+        public void Update_()
         {
-            if (brgBatch == null)
+            if (brgBatch == null || !brgBatch.instanceBuffer.IsValidSafe())
                 return;
 
             if (transform.hasChanged)
             {
                 var objectToWorld = transform.localToWorldMatrix.ToFloat3x4();
                 var worldToObject = transform.worldToLocalMatrix.ToFloat3x4();
-                //brgBatch.FillData(objectToWorld.ToColumnArray(), instId, BRGTools.unity_ObjectToWorld);
-                //brgBatch.FillData(worldToObject.ToColumnArray(), instId, BRGTools.unity_WorldToObject);
 
-                
+                brgBatch.instanceBuffer.SetData(objectToWorld, 0, BRGTools.GetDataStartId(brgBatch.propNameStartFloatIdDict, BRGTools.unity_WorldToObject, 12, instId, 1));
+                brgBatch.instanceBuffer.SetData(objectToWorld, 0, BRGTools.GetDataStartId(brgBatch.propNameStartFloatIdDict, BRGTools.unity_ObjectToWorld, 12, instId, 1));
             }
         }
 

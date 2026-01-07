@@ -1,4 +1,4 @@
-
+﻿
 #if !defined(BRG_INPUT_HLSL)
 #define BRG_INPUT_HLSL
 
@@ -29,12 +29,11 @@ CBUFFER_END
 
 #if defined(UNITY_DOTS_INSTANCING_ENABLED)
     DOTS_CBUFFER_START(MaterialPropertyMetadata)
-        DEF_VAR(float4,_MainTex_ST)
+        // DEF_VAR(float4,_MainTex_ST)
         DEF_VAR(float4,_Color)
     DOTS_CBUFFER_END
 
     #define _Color GET_VAR(float4,_Color)
-    #define _MainTex_ST GET_VAR(float4,_MainTex_ST)
-
+    // #define _MainTex_ST GET_VAR(float4,_MainTex_ST)
 #endif
 #endif //BRG_INPUT_HLSL

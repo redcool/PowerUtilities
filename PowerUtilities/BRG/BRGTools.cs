@@ -63,6 +63,22 @@ namespace PowerUtilities
             return propNameStartIdDict[matPropName] / elementFloatCount + instanceId * elementCount;
         }
         /// <summary>
+        /// gles3 cbuffer 16k, 16k/matBytes = instanceCount
+        /// otherwise return defaultInstanceCount
+        /// </summary>
+        /// <param name="defaultInstanceCount"></param>
+        /// <param name="matBytes"></param>
+        /// <returns></returns>
+        public static int GetMaxInstanceCount(int defaultInstanceCount, int matBytes)
+        {
+            var windowSize = 0;
+            if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLES3)
+                windowSize = BatchRendererGroup.GetConstantBufferMaxWindowSize(); // gles3 16k
+            var count = windowSize / matBytes;
+            return count == 0 ? defaultInstanceCount : count;
+        }
+
+        /// <summary>
         /// Fill metadata (metadataList)<br/>
         /// startIdDict {propName,floatCount StartId}<br/>
         /// 
@@ -122,8 +138,6 @@ namespace PowerUtilities
 
             drawCmdPt->instanceSortingPositions = null;
             drawCmdPt->instanceSortingPositionFloatCount = 0;
-
-            drawCmdPt->drawCommandPickingInstanceIDs = null;
 
             // 
 #if UNITY_6000_3_OR_NEWER
@@ -196,7 +210,7 @@ namespace PowerUtilities
         /// <param name="propFloatCountList">floats count per prop</param>
         /// <param name="isFindShaderProp">if not,only include {unity_ObjectToWorld,unity_WorldToObject}</param>
         /// <returns></returns>
-        public static void FindShaderPropNames_BRG(this Shader shader, ref List<(string name,int floatCount)> propNameList, ref int floatsCount, bool isFindShaderProp = true)
+        public static void FindShaderPropNames_BRG(this Shader shader, ref List<(string name,int floatCount)> propNameList, ref int floatsCount, bool isFindShaderProp = true,bool isSkipTexST=true)
         {
             //1 add 2 matrix floatCount
             floatsCount = 12 + 12;
@@ -207,7 +221,7 @@ namespace PowerUtilities
 
             //2 add material properties continue
             if (isFindShaderProp)
-                shader.FindShaderPropNames(ref propNameList, ref floatsCount);
+                shader.FindShaderPropNames(ref propNameList, ref floatsCount,isSkipTexST);
         }
 
         public static BatchID AddBatch(

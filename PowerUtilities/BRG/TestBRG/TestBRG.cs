@@ -102,8 +102,7 @@ public partial class TestBRG : MonoBehaviour
 
     // {propName, startid = float count offset index}
     Dictionary<string, int> startIdDict = new();
-
-
+    public float  modelScale = 1;
 
     private void GenInstanceDateBuffer()
     {
@@ -155,7 +154,7 @@ public partial class TestBRG : MonoBehaviour
         colors = new List<Color>();
         for (int i = 0; i < numInstances; i++)
         {
-            matrices.Add(Matrix4x4.Translate(offsets[i]));
+            matrices.Add(Matrix4x4.TRS(transform.position + offsets[i],Quaternion.identity,Vector3.one * modelScale));
             colors.Add(colorOffsets[i]);
         }
 

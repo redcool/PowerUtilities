@@ -21,8 +21,8 @@ namespace PowerUtilities
         public BatchMeshID meshId;
         public BatchMaterialID matId;
 
-        public Material mat;
-        public Mesh mesh;
+        //public Material mat;
+        //public Mesh mesh;
         /// <summary>
         /// {prop name , startByte = startId * sizeof(float)}
         /// </summary>
@@ -51,8 +51,8 @@ namespace PowerUtilities
             this.matId = matId;
             this.brgBatchId = brgBatchId;
 
-            mat = brg.GetRegisteredMaterial(matId);
-            mesh = brg.GetRegisteredMesh(meshId);
+            //mat = brg.GetRegisteredMaterial(matId);
+            //mesh = brg.GetRegisteredMesh(meshId);
         }
 
         public void Dispose()
@@ -64,12 +64,13 @@ namespace PowerUtilities
         /// Setup this batch info
         /// 
         /// </summary>
-        /// <param name="matPropfloatCount"></param>
+        /// <param name="matPropfloatsCount"></param>
         /// <param name="matPropInfos"></param>
-        public void Setup(int matPropfloatCount,(string name,int floatCount)[] matPropInfos)
+        public void Setup(int matPropfloatsCount,(string name,int floatCount)[] matPropInfos)
         {
+            //var floatsCount = matPropInfos.Sum(info => info.floatCount);
             //
-            var count = matPropfloatCount * numInstances;
+            var count = matPropfloatsCount * numInstances;
             Debug.Log($"all floats count :{count}");
             instanceBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Raw,count, 4);
 
@@ -91,8 +92,6 @@ namespace PowerUtilities
             var instId = 0;
             foreach (var mr in renderers)
             {
-                mr.enabled = false;
-
                 //FillMaterialDatas(this,instId, mr);
                 onFillMaterailData?.Invoke(this, instId, mr);
 
@@ -105,31 +104,6 @@ namespace PowerUtilities
                 instId++;
             }
         }
-
-
-        /// <summary>
-        /// Fill this datas into graphBuffer
-        /// {
-        ///     objectToWorld,
-        ///     worldToObject,
-        ///     mainTex_ST,
-        ///     color
-        /// }
-        /// </summary>
-        /// <param name="instId"></param>
-        /// <param name="mr"></param>
-        //public static void DefaultFillMaterialDatas(BRGBatch brgBatch, int instId, Renderer mr)
-        //{
-        //    var objectToWorld = mr.transform.localToWorldMatrix.ToFloat3x4();
-        //    var worldToObject = mr.transform.worldToLocalMatrix.ToFloat3x4();
-        //    Vector4 mainTex_ST = new float4(mr.sharedMaterial.mainTextureScale, mr.sharedMaterial.mainTextureOffset);
-        //    var color = mr.sharedMaterial.color;
-
-        //    brgBatch.FillData(objectToWorld.ToColumnArray(), instId, 0);
-        //    brgBatch.FillData(worldToObject.ToColumnArray(), instId, 1);
-        //    brgBatch.FillData(mainTex_ST.ToArray(), instId, 2);
-        //    brgBatch.FillData(color.ToArray(), instId, 3);
-        //}
 
         /// <summary>
         /// setup drawCmdPt prepare batch draw

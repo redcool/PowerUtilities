@@ -14,34 +14,42 @@ using Random = UnityEngine.Random;
 
 public class TestBRGBatch : MonoBehaviour
 {
-    [EditorButton(onClickCall = "OnTest")]
-    public bool isTest;
-
-    void OnTest()
-    {
-
-    }
-
     //public Mesh mesh;
     public Material material;
     public Mesh[] meshes;
 
-    private BatchRendererGroup brg;
 
+    [Header("Count")]
+    public int groupCount = 1;
     public int numInstancesPerGroup = 3;
-    int numInstances;
 
+    [Header("Update inst")]
+    public bool isUpdateInstance;
     public int updateId = 2;
     public int updateMeshId = 0;
     //update
     public Vector3[] offsets = new Vector3[3];
     public Color[] colorOffsets = new Color[3];
 
+    private BatchRendererGroup brg;
     List<BRGBatch> brgBatches = new();
+    int numInstances;
+
+    private void Awake()
+    {
+        
+        if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLES3)
+        {
+            var bytes = BatchRendererGroup.GetConstantBufferMaxWindowSize();
+            numInstancesPerGroup = bytes / (32*4);
+            Debug.Log($"-------- device :{bytes}, insts : {numInstancesPerGroup}");
+        }
+
+    }
 
     private void Start()
     {
-        numInstances = numInstancesPerGroup * meshes.Length;
+        numInstances = groupCount * numInstancesPerGroup * meshes.Length;
 
         offsets = new Vector3[numInstances];
         colorOffsets = new Color[numInstances];
@@ -53,25 +61,36 @@ public class TestBRGBatch : MonoBehaviour
 
         var matId = brg.RegisterMaterial(material);
 
-        for (int j = 0; j < meshes.Length; j++)
+        // find material props
+        var matPropInfoList = new List<(string name, int floatCount)>();
+        var floatsCount = 0;
+        material.shader.FindShaderPropNames_BRG(ref matPropInfoList, ref floatsCount, isSkipTexST: true);
+
+
+        for (int j = 0; j < groupCount; j++)
         {
-            var mesh = meshes[j];
+            var mesh = meshes[0];
             var meshId = brg.RegisterMesh(mesh);
 
-            var brgBatch = new BRGBatch(brg, numInstancesPerGroup, meshId, matId,j);
+            var brgBatch = new BRGBatch(brg, numInstancesPerGroup, meshId, matId, j);
+            brgBatches.Add(brgBatch);
 
-            brgBatch.Setup(12 + 12 + 4,
-                new[] {
-                    (BRGTools.unity_ObjectToWorld,12),
-                    (BRGTools.unity_WorldToObject,12),
-                    (BRGTools._Color,4),
-                });
+            brgBatch.Setup(floatsCount, matPropInfoList.ToArray());
+            //brgBatch.Setup(12 + 12 + 4 + 4,
+            //    new[] {
+            //        (BRGTools.unity_ObjectToWorld,12),
+            //        (BRGTools.unity_WorldToObject,12),
+            //        //("_MainTex_ST",4),
+            //        (BRGTools._Color,4),
+            //    });
 
             for (int i = 0; i < numInstancesPerGroup; i++)
             {
                 var objectToWorld = objectToWorlds[i + j * numInstancesPerGroup];
                 var worldToObject = worldToObjects[i + j * numInstancesPerGroup];
                 var color = colors[i + j * numInstancesPerGroup];
+                color = Color.red;
+                var mainTexST = new Vector4(1, 1, 0, 0);
 
                 var startId = BRGTools.GetDataStartId(brgBatch.propNameStartFloatIdDict, BRGTools.unity_ObjectToWorld, 12, i, 1);
                 brgBatch.instanceBuffer.SetData(objectToWorld, 0, startId);
@@ -82,14 +101,20 @@ public class TestBRGBatch : MonoBehaviour
                 startId = BRGTools.GetDataStartId(brgBatch.propNameStartFloatIdDict, BRGTools._Color, 4, i, 1);
                 brgBatch.instanceBuffer.SetData(color, 0, startId);
             }
-            brgBatches.Add(brgBatch);
-
+            //var instId = numInstancesPerGroup * j;
+            //brgBatch.instanceBuffer.SetData(objectToWorlds, instId, BRGTools.GetDataStartId(brgBatch.propNameStartFloatIdDict, BRGTools.unity_ObjectToWorld, 12, instId, numInstancesPerGroup), numInstancesPerGroup);
+            //brgBatch.instanceBuffer.SetData(worldToObjects, instId, BRGTools.GetDataStartId(brgBatch.propNameStartFloatIdDict, BRGTools.unity_WorldToObject, 12, instId, numInstancesPerGroup), numInstancesPerGroup);
+            //brgBatch.instanceBuffer.SetData(colors, instId, BRGTools.GetDataStartId(brgBatch.propNameStartFloatIdDict, BRGTools._Color, 4, instId, numInstancesPerGroup), numInstancesPerGroup);
         }
+
     }
 
     private void Update()
     {
-        UpdateInst(updateId, updateMeshId);
+        if (isUpdateInstance)
+        {
+            UpdateInst(updateId, updateMeshId);
+        }
         //UpdateAll();
     }
 
@@ -155,6 +180,8 @@ public class TestBRGBatch : MonoBehaviour
     public List<Color> colors;
 
     List<Matrix4x4> matrices;
+    public float modelScale = 1;
+    public Vector3 itemOffset;
 
     private void GenMaterialProperties()
     {
@@ -163,7 +190,11 @@ public class TestBRGBatch : MonoBehaviour
 
         for (int i = 0; i < numInstances; i++)
         {
-            matrices.Add(Matrix4x4.Translate(Random.insideUnitSphere * 10));
+            //matrices.Add(Matrix4x4.TRS(Random.insideUnitSphere * 10,Quaternion.identity,Vector3.one * modelScale));
+            var y = i / 100;
+            var x = i % 100;
+            var offset = new Vector3(x*itemOffset.x, 0, y*itemOffset.z) + transform.position;
+            matrices.Add(Matrix4x4.TRS(offset, Quaternion.identity, Vector3.one * modelScale));
         }
 
         // Convert the transform matrices into the packed format that the shader expects.

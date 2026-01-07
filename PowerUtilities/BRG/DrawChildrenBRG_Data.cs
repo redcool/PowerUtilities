@@ -33,57 +33,59 @@ namespace PowerUtilities
 
             foreach (IGrouping<(int lightmapId, BatchMeshID meshId, BatchMaterialID matId), MeshRenderer> groupInfo in groupInfos)
             {
-                var instCount = groupInfo.Count();
-
                 var mat = brg.GetRegisteredMaterial(groupInfo.Key.matId);
 
                 // find material props
                 var floatsCount = 0;
-                var matPropInfoList = new List<(string name,int floatCount)>();
-
-                mat.shader.FindShaderPropNames_BRG(ref matPropInfoList,ref floatsCount, false);
+                var matPropInfoList = new List<(string name, int floatCount)>();
+                // only 2 matrices
+                mat.shader.FindShaderPropNames_BRG(ref matPropInfoList, ref floatsCount, false);
 
                 var mesh = brg.GetRegisteredMesh(groupInfo.Key.meshId);
 
-                var brgGroupInfo = new BrgGroupInfo
+                var subGroupInfos = groupInfo.Chunk(maxCountPerGroup);
+                foreach (var subGroupInfo in subGroupInfos)
                 {
-                    mesh = mesh,
-                    mat = mat,
-                    instanceCount = instCount,
-                    lightmapId = groupInfo.Key.lightmapId,
-                };
-                
-                //----- get mat prop infos
-                brgGroupInfo.matGroupList.AddRange(
-                    matPropInfoList.Select(propInfo =>
-                        new CBufferPropInfo()
-                        {
-                            floatsCount = propInfo.floatCount,
-                            propName = propInfo.name
-                        }
-                    )
-                );
+                    var instCount = subGroupInfo.Count();
 
-                // iterate renderers
-                brgGroupInfo.rendererList = groupInfo.Select(r => (Renderer)r).ToList();
-                // visibleIdList set empty default
-                //brgGroupInfo.visibleIdList = Enumerable.Range(0, brgGroupInfo.rendererList.Count).ToList();
-                // analysis shader 's cuffer
-                AddShaderCBuffer(brgGroupInfo, brgMaterialInfoListSO?.brgMaterialInfoList);
+                    var brgGroupInfo = new BrgGroupInfo
+                    {
+                        mesh = mesh,
+                        mat = mat,
+                        instanceCount = instCount,
+                        lightmapId = groupInfo.Key.lightmapId,
+                    };
 
-                //final calc total buffer floats
-                brgGroupInfo.floatsCount = brgGroupInfo.matGroupList.Sum(item => item.floatsCount);
-                brgGroupInfo.groupName = $"{mesh.name}_{mat.name}_{instCount}";
-                brgGroupInfoList.Add(brgGroupInfo);
+                    //----- get mat prop infos
+                    brgGroupInfo.matGroupList.AddRange(
+                        matPropInfoList.Select(propInfo =>
+                            new CBufferPropInfo()
+                            {
+                                floatsCount = propInfo.floatCount,
+                                propName = propInfo.name
+                            }
+                        )
+                    );
+                    // iterate renderers
+                    brgGroupInfo.rendererList = subGroupInfo.Select(r => (Renderer)r).ToList();
+
+                    // analysis shader others material props
+                    AddShaderCBuffer(brgGroupInfo, brgMaterialInfoListSO?.brgMaterialInfoList);
+
+                    //final calc total buffer floats
+                    brgGroupInfo.floatsCount = brgGroupInfo.matGroupList.Sum(item => item.floatsCount);
+                    brgGroupInfo.groupName = $"{mesh.name}_{mat.name}_{instCount}";
+                    brgGroupInfoList.Add(brgGroupInfo);
+                }
             }
         }
 
-        public static void AddShaderCBuffer(BrgGroupInfo info, List<BRGMaterialInfo> cbufferVarList)
+        public static void AddShaderCBuffer(BrgGroupInfo info, List<BRGMaterialInfo> matInfoList)
         {
-            if (cbufferVarList == null)
+            if (matInfoList == null)
                 return;
 
-            var cbufferVar = cbufferVarList.Find(cbufferInfo => cbufferInfo.shader == info.mat.shader);
+            var cbufferVar = matInfoList.Find(matInfo => matInfo.shader == info.mat.shader);
             if (cbufferVar == null)
             {
                 throw new Exception($"{info.mat.shader} cbuffer info not found,check {nameof(DrawChildrenBRG)}.;shaderCBufferVarListSO");
