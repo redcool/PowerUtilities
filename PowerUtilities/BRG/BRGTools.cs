@@ -80,7 +80,7 @@ namespace PowerUtilities
 
         /// <summary>
         /// Fill metadata (metadataList)<br/>
-        /// startIdDict {propName,floatCount StartId}<br/>
+        /// propNameStartFloatIdDict {propName,floatCount StartId}<br/>
         /// 
         /// 2 instance data layout,like:<br/>
         /// <br/>
@@ -95,10 +95,15 @@ namespace PowerUtilities
         /// inst 1 color<br/>
         /// 
         /// </summary>
+        /// <param name="instanceCount"></param>
+        /// <param name="matPropInfos"></param>
         /// <param name="metadataList"></param>
-        /// <param name="startIdDict"></param>
-        public static int SetupMetadatas(int instanceCount, (string matPropName, int matPropFloatCount)[] matPropInfos,
-            ref NativeArray<MetadataValue> metadataList, Dictionary<string, int> startIdDict)
+        /// <param name="startIdDict">dict save mat property float index</param>
+        /// <returns>floats count</returns>
+        public static int SetupMetadatas(int instanceCount,
+            (string matPropName, int matPropFloatCount)[] matPropInfos,
+            ref NativeArray<MetadataValue> metadataList,
+            Dictionary<string, int> startIdDict)
         {
             var floatCountStartId = 0; // float count offset
             for (int i = 0; i < matPropInfos.Length; i++)
@@ -224,20 +229,30 @@ namespace PowerUtilities
                 shader.FindShaderPropNames(ref propNameList, ref floatsCount,isSkipTexST);
         }
 
+        /// <summary>
+        /// Create instanceBuffer,MetadataValues, then addBatchto brg
+        /// when done ,propNameStartFloatIdDict can use get property start index(BRGTools.GetDataStartId
+        /// </summary>
+        /// <param name="brg"></param>
+        /// <param name="instanceBuffer"></param>
+        /// <param name="numInstances"></param>
+        /// <param name="matPropInfos"></param>
+        /// <param name="propNameStartFloatIdDict"></param>
+        /// <returns></returns>
         public static BatchID AddBatch(
             BatchRendererGroup brg,
-            ref GraphicsBuffer instanceBuffer,
+            out GraphicsBuffer instanceBuffer,
             int numInstances,
             (string propName, int propFloatCount)[] matPropInfos,
-            Dictionary<string, int> startIdDict
+            Dictionary<string, int> propNameStartFloatIdDict
         )
         {
             var metadataList = new NativeArray<MetadataValue>(matPropInfos.Length, Allocator.Temp);
-            var allFloatCount = BRGTools.SetupMetadatas(numInstances, matPropInfos, ref metadataList, startIdDict);
+            var allFloatCount = BRGTools.SetupMetadatas(numInstances, matPropInfos, ref metadataList, propNameStartFloatIdDict);
 
-            Debug.Log($"all instance mat float count :{allFloatCount} floats");
+            //Debug.Log($"all instance mat float count :{allFloatCount} floats");
             instanceBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Raw, allFloatCount, sizeof(float));
-            Debug.Log("startIdDict : " + string.Join(',', startIdDict.Values));//0,12*instCount,24*instCount
+            //Debug.Log("startIdDict : " + string.Join(',', propNameStartFloatIdDict.Values));//0,12*instCount,24*instCount
 
             var batchId = brg.AddBatch(metadataList, instanceBuffer);
             metadataList.Dispose();

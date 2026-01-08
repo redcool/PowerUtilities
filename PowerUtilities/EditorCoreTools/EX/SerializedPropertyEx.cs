@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using PowerUtilities;
 using System;
 using System.Collections;
@@ -264,6 +264,19 @@ public static class SerializedPropertyEx
         if (path.Contains("."))
             return path.Substring(0,path.LastIndexOf("."));
         return path;
+    }
+    /// <summary>
+    /// Find property parent property<br/>
+    /// 
+    /// propertyPath = colorTargetInfos.Array.data[0].rtSizeMode
+    /// return colorTargetInfos.Array.data[0]
+    /// </summary>
+    /// <param name="prop"></param>
+    /// <returns></returns>
+    public static SerializedProperty FindPropertyParent(this SerializedProperty prop)
+    {
+        var objPath = prop.GetPropertyObjectPath();
+        return prop.serializedObject.FindProperty(objPath);
     }
     /// <summary>
     /// 1 Find property in serializedObject

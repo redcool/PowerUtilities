@@ -311,40 +311,15 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 129385877}
-  - component: {fileID: 129385876}
   - component: {fileID: 129385878}
+  - component: {fileID: 129385879}
   m_Layer: 0
   m_Name: GameObject
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!114 &129385876
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 129385875}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9ae63613d22782940bb9525bff83887f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
-  material: {fileID: 2100000, guid: e7bc7e750d99c384f834df109ffde849, type: 2}
-  numInstances: 4
-  visibleCount: 1
-  updateId: 2
-  offsets:
-  - {x: 1, y: 0, z: 0}
-  - {x: 0, y: 1, z: 0}
-  - {x: 0, y: 0, z: 1}
-  colorOffsets:
-  - {r: 1, g: 0, b: 0, a: 0}
-  - {r: 0.32980537, g: 1, b: 0, a: 0}
-  - {r: 0, g: 0.14611483, b: 1, a: 1}
+  m_IsActive: 1
 --- !u!4 &129385877
 Transform:
   m_ObjectHideFlags: 0
@@ -369,6 +344,31 @@ MonoBehaviour:
   m_GameObject: {fileID: 129385875}
   m_Enabled: 0
   m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ae63613d22782940bb9525bff83887f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+  material: {fileID: 2100000, guid: e7bc7e750d99c384f834df109ffde849, type: 2}
+  numInstances: 3
+  visibleCount: 4
+  updateId: 2
+  offsets:
+  - {x: 0, y: 0, z: 0}
+  - {x: 0, y: 0, z: 0}
+  - {x: 0, y: 0, z: 0}
+  colorOffsets:
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0, g: 0, b: 0, a: 0}
+--- !u!114 &129385879
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 129385875}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 700827e99f4e40743a1c0432375560e9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
@@ -376,7 +376,6 @@ MonoBehaviour:
   material: {fileID: 2100000, guid: e7bc7e750d99c384f834df109ffde849, type: 2}
   meshes:
   - {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
-  - {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
   numInstancesPerGroup: 3
   updateId: 2
   updateMeshId: 0
@@ -1545,17 +1544,17 @@ MonoBehaviour:
   defaultReflectionResolution: 0
   isUpdateAmbientProbe: 0
   lastAmbientProbe:
-    sh[ 0]: 0
-    sh[ 1]: 0
-    sh[ 2]: 0
-    sh[ 3]: 0
-    sh[ 4]: 0
-    sh[ 5]: 0
-    sh[ 6]: 0
-    sh[ 7]: 0
-    sh[ 8]: 0
-    sh[ 9]: 0
-    sh[10]: 0
+    sh[ 0]: 0.227
+    sh[ 1]: 0.259
+    sh[ 2]: 1
+    sh[ 3]: 0.114
+    sh[ 4]: 0.125
+    sh[ 5]: 0.133
+    sh[ 6]: 1
+    sh[ 7]: 0.047
+    sh[ 8]: 0.043
+    sh[ 9]: 0.035
+    sh[10]: 1
     sh[11]: 0
     sh[12]: 0
     sh[13]: 0
@@ -1601,17 +1600,17 @@ MonoBehaviour:
     defaultReflectionResolution: 128
     isUpdateAmbientProbe: 0
     lastAmbientProbe:
-      sh[ 0]: 0
-      sh[ 1]: 0
-      sh[ 2]: 0
-      sh[ 3]: 0
-      sh[ 4]: 0
-      sh[ 5]: 0
-      sh[ 6]: 0
-      sh[ 7]: 0
-      sh[ 8]: 0
-      sh[ 9]: 0
-      sh[10]: 0
+      sh[ 0]: 0.227
+      sh[ 1]: 0.259
+      sh[ 2]: 1
+      sh[ 3]: 0.114
+      sh[ 4]: 0.125
+      sh[ 5]: 0.133
+      sh[ 6]: 1
+      sh[ 7]: 0.047
+      sh[ 8]: 0.043
+      sh[ 9]: 0.035
+      sh[10]: 1
       sh[11]: 0
       sh[12]: 0
       sh[13]: 0
@@ -1905,7 +1904,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1417585620
 Transform:
   m_ObjectHideFlags: 0

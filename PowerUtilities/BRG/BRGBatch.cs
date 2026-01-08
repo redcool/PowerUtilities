@@ -21,17 +21,12 @@ namespace PowerUtilities
         public BatchMeshID meshId;
         public BatchMaterialID matId;
 
-        //public Material mat;
-        //public Mesh mesh;
         /// <summary>
         /// {prop name , startByte = startId * sizeof(float)}
         /// </summary>
         public Dictionary<string, int> propNameStartFloatIdDict = new();
 
-        // from outside
-        BatchRendererGroup brg;
         public int numInstances;
-
         public int brgBatchId;
 
         // visible id list
@@ -42,6 +37,12 @@ namespace PowerUtilities
         /// </summary>
         public BRGMaterialInfo brgMaterialInfo;
 
+        // from outside
+        BatchRendererGroup brg;
+        /// <summary>
+        /// all instances start index,cullingGroup use
+        /// </summary>
+        public int GlobalInstanceOffset => brgBatchId * numInstances;
 
         public BRGBatch(BatchRendererGroup brg, int numInstances, BatchMeshID meshId,BatchMaterialID matId,int brgBatchId)
         {
@@ -51,8 +52,8 @@ namespace PowerUtilities
             this.matId = matId;
             this.brgBatchId = brgBatchId;
 
-            //mat = brg.GetRegisteredMaterial(matId);
-            //mesh = brg.GetRegisteredMesh(meshId);
+            // default no culling
+            visibleIdList.AddRange(Enumerable.Range(0, numInstances));
         }
 
         public void Dispose()
@@ -69,17 +70,7 @@ namespace PowerUtilities
         /// <param name="matPropInfos"></param>
         public void Setup(int matPropfloatsCount,(string name,int floatCount)[] matPropInfos)
         {
-            //var floatsCount = matPropInfos.Sum(info => info.floatCount);
-            //
-            var count = matPropfloatsCount * numInstances;
-            Debug.Log($"all floats count :{count}");
-            instanceBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Raw,count, 4);
-
-            var metadataList = new NativeArray<MetadataValue>(matPropInfos.Length, Allocator.Temp);
-            BRGTools.SetupMetadatas(numInstances, matPropInfos, ref metadataList, propNameStartFloatIdDict);
-
-            batchId = brg.AddBatch(metadataList, instanceBuffer);
-            metadataList.Dispose();
+            batchId = BRGTools.AddBatch(brg, out instanceBuffer, numInstances, matPropInfos, propNameStartFloatIdDict);
         }
 
         /// <summary>

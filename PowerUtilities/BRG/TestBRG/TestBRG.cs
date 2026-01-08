@@ -177,47 +177,6 @@ public partial class TestBRG : MonoBehaviour
         BatchCullingOutput cullingOutput,
         IntPtr userContext)
     {
-//        var drawCommands = new BatchCullingOutputDrawCommands();
-//        drawCommands.drawCommands = (BatchDrawCommand*)UnsafeUtility.Malloc(sizeof(BatchDrawCommand), 16, Allocator.TempJob);
-//        drawCommands.drawRanges = (BatchDrawRange*)UnsafeUtility.Malloc(sizeof(BatchDrawRange), 16, Allocator.TempJob);
-//        drawCommands.visibleInstances = (int*)UnsafeUtility.Malloc(sizeof(int) * numInstances, 16, Allocator.TempJob);
-
-//        drawCommands.drawCommandCount = 1;
-//        drawCommands.drawRangeCount = 1;
-
-//        drawCommands.visibleInstanceCount = numInstances;
-//        for (int i = 0;i<numInstances;i++)
-//            drawCommands.visibleInstances[i] = i;
-
-//        drawCommands.drawCommands[0] = new BatchDrawCommand()
-//        {
-//            visibleCount = (uint)numInstances,
-//            visibleOffset = 0,
-//            batchID = m_BatchID,
-//            meshID = m_MeshID,
-//            materialID = m_MaterialID,
-//            submeshIndex = 0,
-//            splitVisibilityMask = 0xff,
-//            flags = BatchDrawCommandFlags.None
-//        };
-//        drawCommands.drawRanges[0] = new BatchDrawRange
-//        {
-//#if UNITY_6000_3_OR_NEWER
-//            drawCommandsType = BatchDrawCommandType.Direct,
-//#endif
-//            filterSettings = new BatchFilterSettings
-//            {
-//                allDepthSorted = true,
-//                renderingLayerMask = 1,
-//                layer = 0,
-                
-//            },
-//            drawCommandsCount = 1,
-//            drawCommandsBegin = 0
-//        };
-//        cullingOutput.drawCommands[0] = drawCommands;
-
-
         var drawCmdPt = (BatchCullingOutputDrawCommands*)cullingOutput.drawCommands.GetUnsafePtr();
         BRGTools.SetupBatchDrawCommands(drawCmdPt, 1, numInstances);
         BRGTools.FillBatchDrawCommand(drawCmdPt, 0, m_BatchID, m_MaterialID, m_MeshID, visibleCount);

@@ -115,32 +115,34 @@ namespace PowerUtilities
         /// <param name="groupInfos"></param>
         public void FillBatchListWithGroupInfos(IEnumerable<IGrouping<(int lightmapIndex, BatchMeshID, BatchMaterialID), MeshRenderer>> groupInfos)
         {
-            var subGroupInfos = groupInfos.Chunk(maxCountPerGroup);
-            foreach (var subGroupInfo in subGroupInfos)
+            batchList.Clear();
+
+            foreach (IGrouping<(int lightmapId, BatchMeshID meshId, BatchMaterialID matId), MeshRenderer> groupInfo in groupInfos)
             {
-                var groupCount = subGroupInfo.Count();
-                batchList.Clear();
+                // find material props
+                var matPropInfoList = new List<(string name, int floatCount)>();
+                var floatsCount = 0;
+                var mat = brg.GetRegisteredMaterial(groupInfo.Key.matId);
+                mat.shader.FindShaderPropNames_BRG(ref matPropInfoList, ref floatsCount);
+                var matPropInfoArr = matPropInfoList.ToArray();
+
+                // gles3,need 
+                maxCountPerGroup = BRGTools.GetMaxInstanceCount(maxCountPerGroup, floatsCount * 4);
+
+                var renderersGroups = groupInfo.Chunk(maxCountPerGroup).ToArray();
 
                 var groupId = 0;
-                foreach (IGrouping<(int lightmapId, BatchMeshID meshId, BatchMaterialID matId), MeshRenderer> groupInfo in subGroupInfo)
+                foreach (var renderers in renderersGroups)
                 {
-                    var instCount = groupInfo.Count();
-
-                    // find material props
-                    var matPropInfoList = new List<(string name, int floatCount)>();
-                    var floatsCount = 0;
-
-                    var mat = brg.GetRegisteredMaterial(groupInfo.Key.matId);
-                    mat.shader.FindShaderPropNames_BRG(ref matPropInfoList, ref floatsCount);
+                    var instCount = renderers.Length;
 
                     var brgBatch = new BRGBatch(brg, instCount, groupInfo.Key.meshId, groupInfo.Key.matId, groupId);
                     //setup shaderCBufferVar
                     var brgMaterialInfo = brgMaterialInfoListSO.brgMaterialInfoList.Find(bufferVar => bufferVar.shader == mat.shader);
                     brgBatch.brgMaterialInfo = brgMaterialInfo;
 
-                    brgBatch.Setup(floatsCount, matPropInfoList.ToArray());
-                    brgBatch.FillMaterialDataAndSetupBatchBlock(groupInfo, brgMaterialInfo.FillMaterialDatas);
-
+                    brgBatch.Setup(floatsCount, matPropInfoArr);
+                    brgBatch.FillMaterialDataAndSetupBatchBlock(renderers, brgMaterialInfo.FillMaterialDatas);
 
                     batchList.Add(brgBatch);
                     groupId++;

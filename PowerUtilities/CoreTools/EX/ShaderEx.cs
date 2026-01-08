@@ -223,17 +223,15 @@ namespace PowerUtilities
 
                 foreach (Match valueMatch in ms?.Skip(1))
                 {
+                    var varName = valueMatch.Value;
+                    var floats = CalcFloatsCount(varType);
+                    list.Add(new CBufferPropInfo
                     {
-                        var varName = valueMatch.Value;
-                        var floats = CalcFloatsCount(varType);
-                        list.Add(new CBufferPropInfo
-                        {
-                            propType = varType,
-                            propName = varName,
-                            floatsCount = floats,
-                            propNameId = Shader.PropertyToID(varName),
-                        });
-                    }
+                        propType = varType,
+                        propName = varName,
+                        floatsCount = floats,
+                        propNameId = Shader.PropertyToID(varName),
+                    });
                 }
             }
             return list;
