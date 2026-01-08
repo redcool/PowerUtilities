@@ -165,7 +165,7 @@ namespace PowerUtilities
         /// <param name="propInfoList">property name list</param>
         /// <param name="floatsCount">all properties float count</param>
         /// <param name="propFloatCountList">property float count</param>
-        public static void FindShaderPropNames(this Shader shader, ref List<(string name, int floatCount)> propInfoList, ref int floatsCount)
+        public static void FindShaderPropNames(this Shader shader, ref List<(string name, int floatCount)> propInfoList, ref int floatsCount,bool isSkipTexST)
         {
             var propCount = shader.GetPropertyCount();
             for (int i = 0; i < propCount; i++)
@@ -175,6 +175,8 @@ namespace PowerUtilities
                 var propType = shader.GetPropertyType(i);
                 if (propType == ShaderPropertyType.Texture)
                 {
+                    if (isSkipTexST)
+                        continue;
                     // texture,find tex_ST
                     propName += "_ST";
                     propType = ShaderPropertyType.Vector;

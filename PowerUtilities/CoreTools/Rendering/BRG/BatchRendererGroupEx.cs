@@ -23,7 +23,8 @@ namespace PowerUtilities
             if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLES3)
             {
                 windowSize = (uint)BatchRendererGroup.GetConstantBufferMaxWindowSize();
-                Debug.Log("gles3 windowSize bytes: "+ windowSize);
+                //Debug.Log("gles3 windowSize bytes: "+ windowSize);
+                // gles : 16384 bytes
             }
 
             return brg.AddBatch(metadatas, graphBuffer.bufferHandle, bufferOffset, windowSize);

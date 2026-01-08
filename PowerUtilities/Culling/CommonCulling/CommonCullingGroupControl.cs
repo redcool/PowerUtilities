@@ -52,7 +52,7 @@ namespace PowerUtilities
         public bool isSetupCullingInfos;
 
         [Tooltip("distance lods")]
-        public float[] boundingDistances = new float[] { 5f, 10f, 20f, 50f };
+        public float[] boundingDistances = new float[] { 100,float.MaxValue};
 
         [EditorHeader("","--- Shared boundingSpheres")]
         [Tooltip("share other control's boundingSpheres")]

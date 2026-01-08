@@ -61,8 +61,9 @@ namespace PowerUtilities
             instanceBuffer = null;
         }
         /// <summary>
-        /// Setup this batch info
+        /// Create instanceBuffer,MetadataValues, then addBatchto brg
         /// 
+        /// when done ,propNameStartFloatIdDict can use get property start index(BRGTools.GetDataStartId
         /// </summary>
         /// <param name="matPropfloatsCount"></param>
         /// <param name="matPropInfos"></param>
