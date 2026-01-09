@@ -1,14 +1,29 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
-    <Style src="project://database/Assets/PowerXXX/PowerUtilities/PowerUtilities/UIElements/USS/DefaultStyles.uss?fileID=7433441132597879392&amp;guid=d5ba540bd33919345963867ff5ab0ffd&amp;type=3#DefaultStyles" />
+    <Style src="project://database/Assets/PowerXXX/PowerUtilities/PowerUtilities/UIElements/USS/DefaultStyles.uss?fileID=7433441132597879392&amp;guid=d5ba540bd33919345963867ff5ab0ffd&amp;type=3#DefaultStyles"/>
     <ui:VisualElement name="Root" style="flex-grow: 1;">
         <ui:VisualElement name="LayerRegion" class="detail-content" style="flex-direction: column;">
-            <ui:Label text="ObjectFinder" display-tooltip-when-elided="true" tooltip="can select a gameobject as parent" class="detail-header" />
-            <uie:LayerField label="Layer" name="LayerFind" tooltip="ojbect&apos;s layer" />
-            <uie:TagField label="Tag" name="TagFind" value="Untagged" tooltip="object &apos;s tag" />
-            <ui:Toggle label="IncludeInactive" name="IncludeInactive" value="false" tooltip="Include Inactive objects" />
-            <ui:TextField picking-mode="Ignore" label="ComponentTypeNames" tooltip="has components,split by ," multiline="true" name="ComponentTypeNames" />
-            <ui:TextField picking-mode="Ignore" label="ObjectNames" name="ObjectNames" tooltip="object&apos;s name filter,split ," multiline="true" />
-            <ui:Button text="Find" display-tooltip-when-elided="true" name="bt_find" tooltip="select all " />
+            <ui:Label text="ObjectFinder" display-tooltip-when-elided="true" tooltip="can select a gameobject as parent" class="detail-header"/>
+            <ui:VisualElement name="LayerGroup" style="flex-direction: row;">
+                <ui:Toggle label="" name="IsLayerFind"/>
+                <uie:LayerField label="Layer" name="LayerFind" tooltip="ojbect&apos;s layer" style="flex-grow: 1;"/>
+            </ui:VisualElement>
+            <ui:VisualElement name="TagGroup" style="flex-direction: row; flex-shrink: 1;">
+                <ui:Toggle label="" name="IsTagFind"/>
+                <uie:TagField label="Tag" name="TagFind" value="Untagged" tooltip="object &apos;s tag" style="flex-grow: 1;"/>
+            </ui:VisualElement>
+            <ui:Toggle label="IncludeInactive" name="IncludeInactive" value="false" tooltip="Include Inactive objects" style="flex-grow: 1; flex-direction: row-reverse;"/>
+            <ui:VisualElement name="ComponentTypeNamesGroup" style="flex-direction: row; flex-grow: 1;">
+                <ui:Toggle label="" name="IsComponentTypeNames"/>
+                <ui:TextField picking-mode="Ignore" label="CompTypeNames" tooltip="component type name,split by ," multiline="true" name="ComponentTypeNames" style="flex-shrink: 1; flex-grow: 1;"/>
+            </ui:VisualElement>
+            <ui:VisualElement name="ObjectNamesGroup" style="flex-direction: row; flex-grow: 1;">
+                <ui:Toggle label="" name="IsObjectNames"/>
+                <ui:TextField picking-mode="Ignore" label="ObjectNames" name="ObjectNames" tooltip="object&apos;s name filter,split ," multiline="true" style="flex-grow: 1; flex-shrink: 1;"/>
+            </ui:VisualElement>
+            <ui:VisualElement style="flex-grow: 1; flex-direction: row; justify-content: flex-start; align-items: stretch; align-content: flex-start; align-self: auto;">
+                <ui:Button text="Find" display-tooltip-when-elided="true" name="bt_find" tooltip="select all " style="flex-grow: 1; flex-shrink: 1;"/>
+                <ui:Button text="Clear" display-tooltip-when-elided="true" name="bt_clear" tooltip="Clear selection" style="flex-grow: 1; flex-shrink: 1;"/>
+            </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>
