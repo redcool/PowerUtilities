@@ -17,12 +17,18 @@ namespace PowerUtilities
         [Tooltip("cbuffer target shader")]
         public Shader shader;
 
+
         [Tooltip("Remove Props not included in shader property block")]
         [Multiline(10)]
         public string shaderCBufferLayoutText;
 
-        [EditorButton(onClickCall ="StartAnalysis",tooltip = "Analysis shaderCBufferLayoutText,fill bufferPropList")]
+        [EditorBox("Buttons", "isAnalysis,isAnalysisShader",boxType = EditorBoxAttribute.BoxType.HBox)]
+        [EditorButton(onClickCall =nameof(StartAnalysisCBufferLayoutText),tooltip = "Analysis shaderCBufferLayoutText,fill bufferPropList")]
         public bool isAnalysis;
+
+        [EditorButton(onClickCall = nameof(StartAnalysisShader), tooltip = "Analysis shader,fill bufferPropList")]
+        [HideInInspector]
+        public bool isAnalysisShader;
 
         [Header("CBuffer info")]
         public List<CBufferPropInfo> bufferPropList = new();
@@ -30,13 +36,24 @@ namespace PowerUtilities
         [EditorButton(onClickCall = "LogDotsMacros",tooltip = "output dots instancing macros for shader")]
         public bool isOutputDotsMacrosCode;
 
-        public void StartAnalysis()
+        public void StartAnalysisCBufferLayoutText()
         {
             if (!shader || string.IsNullOrWhiteSpace(shaderCBufferLayoutText))
                 return;
 
-            bufferPropList = shaderCBufferLayoutText.GetShaderCBufferInfo();
-
+            bufferPropList = shaderCBufferLayoutText.GetShaderCBufferInfo(true);
+        }
+        public void StartAnalysisShader()
+        {
+            var list = new List<(string name, int count)>();
+            var floatsCount = 0;
+            shader.FindShaderPropNames(ref list, ref floatsCount, true);
+            bufferPropList = list.Select(x => new CBufferPropInfo
+            {
+                propName = x.name,
+                floatsCount = floatsCount,
+                propType = "float"+x.count
+            }).ToList();
         }
 
         public void LogDotsMacros()

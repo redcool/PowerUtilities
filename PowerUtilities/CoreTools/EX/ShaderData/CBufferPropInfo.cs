@@ -17,9 +17,6 @@ namespace PowerUtilities
         /// half,halfN,float,floatN,
         /// </summary>
         public string propType;
-
-
-        public int propNameId;
         /// <summary>
         /// floatN
         /// </summary>

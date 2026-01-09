@@ -207,7 +207,7 @@ namespace PowerUtilities
         /// </summary>
         /// <param name="cbufferVariableString"> float4 _Color; float4 _Color1, _Color2;</param>
         /// <returns></returns>
-        public static List<CBufferPropInfo> GetShaderCBufferInfo(this string cbufferVariableString)
+        public static List<CBufferPropInfo> GetShaderCBufferInfo(this string cbufferVariableString,bool isSkipTexST)
         {
             /*
             float4 _Color;
@@ -224,13 +224,15 @@ namespace PowerUtilities
                 foreach (Match valueMatch in ms?.Skip(1))
                 {
                     var varName = valueMatch.Value;
+                    if (isSkipTexST && varName.EndsWith("_ST"))
+                        continue;
+
                     var floats = CalcFloatsCount(varType);
                     list.Add(new CBufferPropInfo
                     {
                         propType = varType,
                         propName = varName,
                         floatsCount = floats,
-                        propNameId = Shader.PropertyToID(varName),
                     });
                 }
             }
