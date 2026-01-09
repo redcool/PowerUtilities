@@ -4,20 +4,20 @@
         <ui:VisualElement name="LayerRegion" class="detail-content" style="flex-direction: column;">
             <ui:Label text="ObjectFinder" display-tooltip-when-elided="true" tooltip="can select a gameobject as parent" class="detail-header"/>
             <ui:VisualElement name="LayerGroup" style="flex-direction: row;">
-                <ui:Toggle label="" name="IsLayerFind"/>
+                <ui:Toggle label="" name="IsLayerFind" tooltip="Use Layer"/>
                 <uie:LayerField label="Layer" name="LayerFind" tooltip="ojbect&apos;s layer" style="flex-grow: 1;"/>
             </ui:VisualElement>
             <ui:VisualElement name="TagGroup" style="flex-direction: row; flex-shrink: 1;">
-                <ui:Toggle label="" name="IsTagFind"/>
+                <ui:Toggle label="" name="IsTagFind" tooltip="Use Tag"/>
                 <uie:TagField label="Tag" name="TagFind" value="Untagged" tooltip="object &apos;s tag" style="flex-grow: 1;"/>
             </ui:VisualElement>
             <ui:Toggle label="IncludeInactive" name="IncludeInactive" value="false" tooltip="Include Inactive objects" style="flex-grow: 1; flex-direction: row-reverse;"/>
             <ui:VisualElement name="ComponentTypeNamesGroup" style="flex-direction: row; flex-grow: 1;">
-                <ui:Toggle label="" name="IsComponentTypeNames"/>
+                <ui:Toggle label="" name="IsComponentTypeNames" tooltip="Use ComponentTypeNames"/>
                 <ui:TextField picking-mode="Ignore" label="CompTypeNames" tooltip="component type name,split by ," multiline="true" name="ComponentTypeNames" style="flex-shrink: 1; flex-grow: 1;"/>
             </ui:VisualElement>
             <ui:VisualElement name="ObjectNamesGroup" style="flex-direction: row; flex-grow: 1;">
-                <ui:Toggle label="" name="IsObjectNames"/>
+                <ui:Toggle label="" name="IsObjectNames" tooltip="Use ObjectNames"/>
                 <ui:TextField picking-mode="Ignore" label="ObjectNames" name="ObjectNames" tooltip="object&apos;s name filter,split ," multiline="true" style="flex-grow: 1; flex-shrink: 1;"/>
             </ui:VisualElement>
             <ui:VisualElement style="flex-grow: 1; flex-direction: row; justify-content: flex-start; align-items: stretch; align-content: flex-start; align-self: auto;">

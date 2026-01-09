@@ -35,20 +35,13 @@ public class TestBRGBatch : MonoBehaviour
     List<BRGBatch> brgBatches = new();
     int numInstances;
 
-    private void Awake()
-    {
-
-        if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLES3)
-        {
-            var bytes = BatchRendererGroup.GetConstantBufferMaxWindowSize();
-            numInstancesPerGroup = bytes / (32 * 4);
-            Debug.Log($"-------- device :{bytes}, insts : {numInstancesPerGroup}");
-        }
-
-    }
-
     private void Start()
     {
+        if (GraphicsDeviceTools.IsGLES3())
+        {
+            numInstances = BRGTools.GetMaxInstanceCount(numInstances, 32 * 4);
+        }
+
         numInstances = groupCount * numInstancesPerGroup;
 
         offsets = new Vector3[numInstances];
@@ -73,7 +66,7 @@ public class TestBRGBatch : MonoBehaviour
             var brgBatch = new BRGBatch(brg, numInstancesPerGroup, meshId, matId, j);
             brgBatches.Add(brgBatch);
 
-            brgBatch.Setup(floatsCount, matPropInfoArr);
+            brgBatch.Setup(matPropInfoArr);
             //brgBatch.Setup(12 + 12 + 4 + 4,
             //    new[] {
             //        (BRGTools.unity_ObjectToWorld,12),

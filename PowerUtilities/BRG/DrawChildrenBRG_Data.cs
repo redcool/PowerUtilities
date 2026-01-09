@@ -39,7 +39,7 @@ namespace PowerUtilities
                 var floatsCount = 0;
                 var matPropInfoList = new List<(string name, int floatCount)>();
                 // only 2 matrices
-                mat.shader.FindShaderPropNames_BRG(ref matPropInfoList, ref floatsCount, false);
+                mat.shader.FindShaderPropNames_BRG(ref matPropInfoList, ref floatsCount, false,hasNormalMap:isRenderNormalMap);
 
                 var mesh = brg.GetRegisteredMesh(groupInfo.Key.meshId);
 

@@ -30,16 +30,25 @@ namespace PowerUtilities
 
         public static void SetData(this GraphicsBuffer buffer, float data, int managedBufferStartIndex, int graphicsBufferStartIndex)
         {
+            if (graphicsBufferStartIndex <= 0)
+                return;
+
             tempFloats[0] = data;
             buffer.SetData(tempFloats, managedBufferStartIndex, graphicsBufferStartIndex, 1);
         }
         public static void SetData(this GraphicsBuffer buffer, Vector4 data, int managedBufferStartIndex, int graphicsBufferStartIndex)
         {
+            if (graphicsBufferStartIndex <= 0)
+                return;
+
             tempVectors[0] = data;
             buffer.SetData(tempVectors, managedBufferStartIndex, graphicsBufferStartIndex, 1);
         }
         public static void SetData(this GraphicsBuffer buffer, float3x4 data, int managedBufferStartIndex, int graphicsBufferStartIndex)
         {
+            if (graphicsBufferStartIndex <= 0)
+                return;
+
             tempFloat3x4s[0] = data;
             buffer.SetData(tempFloat3x4s, managedBufferStartIndex, graphicsBufferStartIndex, 1);
         }

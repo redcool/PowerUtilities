@@ -113,12 +113,17 @@ namespace PowerUtilities
             var renders = rootGo.GetComponentsInChildren<Renderer>();
             SetupCullingInfos(renders,true,true,0);
         }
+        public void ClearCullingInfos()
+        {
+            cullingInfos.Clear();
+        }
+
         /// <summary>
         /// Setup cullingInfos from renders
         /// </summary>
         /// <param name="renders"></param>
-        /// <param name="isClearLastInfos">Clear list</param>
-        /// <param name="isSetBoundingSpheres">set cullingGroup boundingSphere and set cullingInfo item's isVisible</param>
+        /// <param name="isClearLastInfos">Clear list,first group set true</param>
+        /// <param name="isSetBoundingSpheres">set cullingGroup boundingSphere and set cullingInfo item's isVisible,last group set true</param>
         public void SetupCullingInfos(IList<Renderer> renders, bool isClearLastInfos, bool isSetBoundingSpheres,int batchGroupId)
         {
             if (isClearLastInfos)
@@ -167,7 +172,6 @@ namespace PowerUtilities
             {
                 cullingSpheres = cullingInfos.Select(item => new BoundingSphere(item.pos, item.size)).ToArray();
             }
-
             group.SetBoundingSpheres(cullingSpheres);
             group.SetBoundingDistances(boundingDistances);
         }

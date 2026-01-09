@@ -68,7 +68,7 @@ namespace PowerUtilities
         /// </summary>
         /// <param name="matPropfloatsCount"></param>
         /// <param name="matPropInfos"></param>
-        public void Setup(int matPropfloatsCount,(string name,int floatCount)[] matPropInfos)
+        public void Setup((string name,int floatCount)[] matPropInfos)
         {
             batchId = BRGTools.AddBatch(brg, out instanceBuffer, numInstances, matPropInfos, propNameStartFloatIdDict);
         }

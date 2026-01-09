@@ -57,9 +57,11 @@ namespace PowerUtilities
         /// default is 1.</param>
         /// <param name="instanceId">The zero-based index of the instance for which to calculate the starting identifier. The default is 0.</param>
         /// <param name="elementCount">The number of elements per instance. Must be greater than zero. The default is 1.</param>
-        /// <returns>The calculated starting identifier for the specified material property and instance.</returns>
+        /// <returns>The calculated starting identifier for the specified material property and instance. -1 : no this prop</returns>
         public static int GetDataStartId(Dictionary<string, int> propNameStartIdDict, string matPropName, int elementFloatCount = 1, int instanceId = 0, int elementCount = 1)
         {
+            if (!propNameStartIdDict.ContainsKey(matPropName))
+                return -1;
             return propNameStartIdDict[matPropName] / elementFloatCount + instanceId * elementCount;
         }
         /// <summary>
@@ -200,29 +202,33 @@ namespace PowerUtilities
         }
 
         /// <summary>
-        /// Find shader propNames,and need how many floats
-        /// first add localToWorld,worldToLocal
-        ///liek:
-        //{
-        //    "unity_ObjectToWorld", //12 floats
-        //    "unity_WorldToObject", //12
-        //    "_Color", //4
-        //};
-        //var floatsCount = 12 + 12 + 4;
+        /// Find shader propNames,floats <br/>
+        /// first add localToWorld,worldToLocal,like<br/>
+        ///{<br/>
+        ///    "unity_ObjectToWorld", //12 floats<br/>
+        ///    "unity_WorldToObject", //12<br/>
+        ///    "_Color", //4<br/>
+        ///};<br/>
+        ///var floatsCount = 12 + 12 + 4;<br/>
         /// </summary>
         /// <param name="shader"></param>
         /// <param name="floatsCount">total floats count</param>
         /// <param name="propFloatCountList">floats count per prop</param>
         /// <param name="isFindShaderProp">if not,only include {unity_ObjectToWorld,unity_WorldToObject}</param>
         /// <returns></returns>
-        public static void FindShaderPropNames_BRG(this Shader shader, ref List<(string name,int floatCount)> propNameList, ref int floatsCount, bool isFindShaderProp = true,bool isSkipTexST=true)
+        public static void FindShaderPropNames_BRG(this Shader shader, ref List<(string name,int floatCount)> propNameList, ref int floatsCount, bool isFindShaderProp = true,bool isSkipTexST=true,bool hasNormalMap=true)
         {
             //1 add 2 matrix floatCount
-            floatsCount = 12 + 12;
+            floatsCount = 12;
             // add 2 matrix
             propNameList.Clear();
             propNameList.Add((unity_ObjectToWorld,12));
-            propNameList.Add((unity_WorldToObject,12));
+
+            if (hasNormalMap)
+            {
+                floatsCount += 12;
+                propNameList.Add((unity_WorldToObject,12));
+            }
 
             //2 add material properties continue
             if (isFindShaderProp)
@@ -230,7 +236,7 @@ namespace PowerUtilities
         }
 
         /// <summary>
-        /// Create instanceBuffer,MetadataValues, then addBatchto brg
+        /// Create instanceBuffer,setup MetadataValues, then addBatch to brg <br/>
         /// when done ,propNameStartFloatIdDict can use get property start index(BRGTools.GetDataStartId
         /// </summary>
         /// <param name="brg"></param>

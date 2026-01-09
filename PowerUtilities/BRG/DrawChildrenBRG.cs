@@ -16,7 +16,11 @@ namespace PowerUtilities
         [Tooltip("Find meshRenderer from children include invisible")]
         public bool isIncludeInvisible = false;
 
-        public int maxCountPerGroup = 583; // gles3
+        [Tooltip("max instance count in a group")]
+        public int maxCountPerGroup = 9999; // gles3 will auto set
+
+        [Tooltip("normalMap need float3x4 : unity_WorldToObject ")]
+        public bool isRenderNormalMap = true;
 
         [EditorButton(onClickCall = nameof(RecordChildren))]
         public bool isRecord;
@@ -40,13 +44,14 @@ namespace PowerUtilities
             if (brgGroupInfoList.Count == 0)
             {
                 var groupInfos = GetChildrenGroups(rootGo);
-                FillBatchListWithGroupInfos(groupInfos);
+                FillBatchList(groupInfos);
             }
             else
             {
-                FillBatchListWithBrgGroupInfoList();
+                FillBatchList(brgGroupInfoList);
             }
-            SetupCommonCullingGroup();
+
+            SetupCommonCullingGroupEvents();
         }
 
         private void OnDisable()
@@ -72,9 +77,9 @@ namespace PowerUtilities
 
             var groupInfos = GetChildrenGroups(rootGo);
             SetupBRGGroupInfoList(groupInfos);
-            FillBatchListWithBrgGroupInfoList();
+            FillBatchList(brgGroupInfoList);
 
-            SetupCommonCullingGroup();
+            SetupCommonCullingGroupEvents();
         }
 
         private void CheckBRGMaterialInfoListSO()
@@ -110,12 +115,16 @@ namespace PowerUtilities
 
         }
         /// <summary>
-        /// Fill batchList from groupInfo grouped by { (lightmapIndex,batchMeshId,batchMaterialId), renderers}
+        /// Fill batchList from groupInfo, grouped by { (lightmapIndex,batchMeshId,batchMaterialId), renderers}
         /// </summary>
         /// <param name="groupInfos"></param>
-        public void FillBatchListWithGroupInfos(IEnumerable<IGrouping<(int lightmapIndex, BatchMeshID, BatchMaterialID), MeshRenderer>> groupInfos)
+        public void FillBatchList(IEnumerable<IGrouping<(int lightmapIndex, BatchMeshID, BatchMaterialID), MeshRenderer>> groupInfos)
         {
             batchList.Clear();
+            if (cullingGroupControl)
+            {
+                cullingGroupControl.TryInitGroup();
+            }
 
             foreach (IGrouping<(int lightmapId, BatchMeshID meshId, BatchMaterialID matId), MeshRenderer> groupInfo in groupInfos)
             {
@@ -123,7 +132,7 @@ namespace PowerUtilities
                 var matPropInfoList = new List<(string name, int floatCount)>();
                 var floatsCount = 0;
                 var mat = brg.GetRegisteredMaterial(groupInfo.Key.matId);
-                mat.shader.FindShaderPropNames_BRG(ref matPropInfoList, ref floatsCount);
+                mat.shader.FindShaderPropNames_BRG(ref matPropInfoList, ref floatsCount,hasNormalMap : isRenderNormalMap);
                 var matPropInfoArr = matPropInfoList.ToArray();
 
                 // gles3,need 
@@ -141,18 +150,26 @@ namespace PowerUtilities
                     var brgMaterialInfo = brgMaterialInfoListSO.brgMaterialInfoList.Find(bufferVar => bufferVar.shader == mat.shader);
                     brgBatch.brgMaterialInfo = brgMaterialInfo;
 
-                    brgBatch.Setup(floatsCount, matPropInfoArr);
+                    brgBatch.Setup(matPropInfoArr);
                     brgBatch.FillMaterialDataAndSetupBatchBlock(renderers, brgMaterialInfo.FillMaterialDatas);
 
                     batchList.Add(brgBatch);
+                    // setup cullingGroup
+                    cullingGroupControl?.SetupCullingInfos(renderers, groupId == 0, false, groupId);
+
+                    // next groupd
                     groupId++;
                 }
             }
+            Debug.Log("SetupCullingInfosVisible " + Time.realtimeSinceStartup);
+            // setup cullingGroup
+            cullingGroupControl?.SetBoundingSphere();
+            cullingGroupControl?.SetupCullingInfosVisible();
         }
         /// <summary>
-        /// Fill batchList from brgGroupInfo(saved)
+        /// Fill batchList from brgGroupInfo(RecordChildren first)
         /// </summary>
-        private void FillBatchListWithBrgGroupInfoList()
+        public void FillBatchList(List<BrgGroupInfo> brgGroupInfoList)
         {
             batchList.Clear();
             batchList.AddRange(
@@ -164,12 +181,12 @@ namespace PowerUtilities
                     var brgBatch = new BRGBatch(brg, brgGroupInfo.instanceCount, meshId, matId, groupId);
                     brgBatch.brgMaterialInfo = brgGroupInfo.brgMaterialInfo;
 
-                    brgBatch.Setup(brgGroupInfo.floatsCount,
+                    brgBatch.Setup(
                         brgGroupInfo.matGroupList.Select(matInfo => (matInfo.propName,matInfo.floatsCount)).ToArray()
                         );
 
                     brgBatch.FillMaterialDataAndSetupBatchBlock(brgGroupInfo.rendererList, brgGroupInfo.brgMaterialInfo.FillMaterialDatas);
-                    brgBatch.visibleIdList = brgGroupInfo.visibleIdList; // same ref
+                    //brgBatch.visibleIdList = brgGroupInfo.visibleIdList; // same ref
 
                     return brgBatch;
                 })
@@ -177,40 +194,26 @@ namespace PowerUtilities
 
         }
 
-        public void SetupCommonCullingGroup()
+        public void SetupCommonCullingGroupEvents()
         {
-            for (int i = 0; i < brgGroupInfoList.Count; i++)
-            {
-                var isClear = i == 0;
-                var isSetBoundingSpheres = i == brgGroupInfoList.Count - 1;
-                var brgGroupInfo = brgGroupInfoList[i];
-                //add all  visible ids
-                brgGroupInfo.visibleIdList.Clear();
-                for (int j = 0; j < brgGroupInfo.rendererList.Count; j++)
-                    brgGroupInfo.visibleIdList.Add(j);
-                // culling ids
-                cullingGroupControl?.SetupCullingInfos(brgGroupInfo.rendererList, isClear, isSetBoundingSpheres,i);
-            }
             if (!cullingGroupControl)
                 return;
 
             cullingGroupControl.OnStateChanged -= CullingGroupControl_OnStateChanged;
             cullingGroupControl.OnStateChanged += CullingGroupControl_OnStateChanged;
-
-            cullingGroupControl.SetupCullingInfosVisible();
         }
 
         private void CullingGroupControl_OnStateChanged(CommomCullingInfo info)
         {
-            if (brgGroupInfoList.Count <= info.batchGroupId)
+            if (batchList.Count <= info.batchGroupId)
                 return;
 
-            var groupInfo = brgGroupInfoList[info.batchGroupId];
+            var brgBatch = batchList[info.batchGroupId];
             // remove target id first
-            groupInfo.visibleIdList.Remove(info.visibleId);
+            brgBatch.visibleIdList.Remove(info.visibleId);
 
             if (info.IsVisible)
-                groupInfo.visibleIdList.Add(info.visibleId);
+                brgBatch.visibleIdList.Add(info.visibleId);
 
             //Debug.Log($"visible changed: groupid: {info.batchGroupId}, visibleId:{info.visibleId}");
         }
@@ -222,8 +225,6 @@ namespace PowerUtilities
             IntPtr userContext)
         {
             var drawCmdPt = (BatchCullingOutputDrawCommands*)cullingOutput.drawCommands.GetUnsafePtr();
-
-            //Test1Batch(drawCmdPt);
 
             DrawBatchList(drawCmdPt);
 
@@ -247,14 +248,6 @@ namespace PowerUtilities
 
                 visibleOffset += brgBatch.visibleIdList.Count;
             }
-        }
-
-        private unsafe void Test1Batch(BatchCullingOutputDrawCommands* drawCmdPt)
-        {
-            // test 1 batch
-
-            BRGTools.SetupBatchDrawCommands(drawCmdPt, 1, batchList[0].numInstances);
-            batchList[0].DrawBatch(drawCmdPt, batchList[0].visibleIdList.Count);
         }
     }
 }

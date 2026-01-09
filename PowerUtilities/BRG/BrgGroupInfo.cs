@@ -11,9 +11,6 @@ namespace PowerUtilities
     {
         [Tooltip("{mesh}_{material}_{instanceCount}")]
         public string groupName;
-        [Header("brg")]
-        //public BatchMeshID meshId;
-        //public BatchMaterialID matId;
         public int lightmapId;
         public int floatsCount;
 
@@ -29,11 +26,6 @@ namespace PowerUtilities
         [Header("Instance Info")]
         public int instanceCount;
         public List<Renderer> rendererList = new();
-
-        /// <summary>
-        /// Which instance id will draw
-        /// </summary>
-        public List<int> visibleIdList = new();
 
         [Tooltip("shader for batch renderers, RecordChildren auto set")]
         public BRGMaterialInfo brgMaterialInfo;
