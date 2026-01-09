@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+Ôªø#if UNITY_EDITOR
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -10,12 +10,9 @@ namespace PowerUtilities
 {
     public class TestAttributes : MonoBehaviour
     {
-        [Searchable]
-        public PropEnum propEnum1;
         /**
          EditorGroup and EditorGroup(Item)
          */
-        [EditorHeader("Group1", "GroupDemo")]
         [EditorGroup("Group1", true)]
         public bool group1On;
         [EditorGroup("Group1")]
@@ -45,7 +42,7 @@ namespace PowerUtilities
         /**
          DisplayName
          */
-        [DisplayName("“ª∏ˆª¨øÈ", "slider helps", "Assets/Gizmos/img1.png")]
+        [DisplayName("‰∏Ä‰∏™ÊªëÂùó", "slider helps", "Assets/Gizmos/img1.png")]
         [Range(0, 1)]
         [EditorHeader("", "DisplayName")]
         public float propA;
@@ -90,10 +87,10 @@ namespace PowerUtilities
             public bool isValid;
         }
         [EditorHeader("", "ListItemDraw")]
-        [ListItemDraw("√˚,name,ƒÍ¡‰,age,∑®Õ‚øÒÕΩ,isValid", "20,50,30,50,100,20")]
+        [ListItemDraw("Âêç,name,Âπ¥ÈæÑ,age,Ê≥ïÂ§ñÁãÇÂæí,isValid", "20,50,30,50,100,20")]
         public PersonInfo[] testListItemDraw = new[]{
-            new PersonInfo{name="’≈»˝1",age=123,isValid = false },
-            new PersonInfo{name="’≈»˝",age=123,isValid = true },
+            new PersonInfo{name="Âº†‰∏â1",age=123,isValid = false },
+            new PersonInfo{name="Âº†‰∏â",age=123,isValid = true },
         };
 
         /**
@@ -140,7 +137,14 @@ namespace PowerUtilities
         [EditorHeader("", "EnumSearchable")]
         [EnumSearchable(typeof(GraphicsFormat))]
         public GraphicsFormat gFormat;
-
+        
+        [EditorHeader("", "StringListSearchable")]
+        [StringListSearchable(names = "none,tag/tag1,tag/tag2,name/n1,name/n2")]
+        public string tagOrName;
+#if UNITY_EDITOR
+        [StringListSearchable(type = typeof(TagManager), staticMemberName = nameof(TagManager.GetTags))]
+        public string tags;
+#endif
         [EditorHeader("", "EditorSceneView")]
         [ShowInSceneView(containerType = typeof(Vector3[]))]
         public Vector3[] posArray = new[] { Vector3.zero,Vector3.one};

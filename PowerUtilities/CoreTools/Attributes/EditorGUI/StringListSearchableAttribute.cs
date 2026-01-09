@@ -9,15 +9,15 @@ namespace PowerUtilities
 {
 
     /// <summary>
-    /// Show string list in Searchable Window
+    /// Show string list in Searchable Window <br/>
+    /// like EnumSearchableAttribute but use StringListSearchProvider <br/>
     /// 
-    /// like EnumSearchableAttribute but use StringListSearchProvider
+    /// * must on top of EditorDisableGroupAttribute <br/>
     /// 
-    /// * must on top of EditorDisableGroupAttribute
-    /// 
-    // #if UNITY_EDITOR
-    // [StringListSearchable(type = typeof(TagManager), staticMemberName = nameof(TagManager.GetTags))]
-    // #endif
+    /// #if UNITY_EDITOR <br/>
+    /// [StringListSearchable(type = typeof(TagManager), staticMemberName = nameof(TagManager.GetTags))] <br/>
+    /// public string tag; <br/>
+    /// #endif <br/>
     /// </summary>
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
     public class StringListSearchableAttribute : PropertyAttribute

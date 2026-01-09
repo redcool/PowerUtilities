@@ -187,6 +187,15 @@ public static class SerializedPropertyEx
     => p.type.Contains("Matrix4x4f");
 
     /// <summary>
+    /// Current property is object, like xxx.yyy, xx.Array.data[0]
+    /// </summary>
+    /// <param name="property"></param>
+    /// <returns></returns>
+    public static bool IsObject(this SerializedProperty property)
+        // xxx.yyy, Array.data[0]
+    => property.propertyPath.Contains(".");
+
+    /// <summary>
     /// Update property then apply
     /// </summary>
     /// <param name="p"></param>
@@ -200,17 +209,9 @@ public static class SerializedPropertyEx
         onUpdate();
         p.serializedObject.ApplyModifiedProperties();
     }
-    /// <summary>
-    /// Is property is object, like xxx.yyy, xx.Array.data[0]
-    /// </summary>
-    /// <param name="property"></param>
-    /// <returns></returns>
-    public static bool IsObject(this SerializedProperty property)
-        // xxx.yyy, Array.data[0]
-    => property.propertyPath.Contains(".");
 
     /// <summary>
-    /// Update property's boxed value, 
+    /// Update property's boxed value, then save
     /// </summary>
     /// <param name="property"></param>
     /// <param name="onUpdate">object</param>
@@ -219,8 +220,7 @@ public static class SerializedPropertyEx
         /**
           property.propertyPath (array like):
               colorTargetInfos.Array.data[0].isFastSetFormat1
-
-          get current item
+          return
               colorTargetInfos.Array.data[0]
        */
         if (property.IsObject())
@@ -232,29 +232,36 @@ public static class SerializedPropertyEx
             UpdateObject(property, onUpdate);
         }
 
-        // object, can update 
+        /// <summary>
+        /// When property is object(propertyPath like object.yyy, Array.data[0].yyy <br/>
+        /// update property.boxedValue then reset property.boxedValue
+        /// </summary>
+        /// <param name="property"></param>
+        /// <param name="onUpdate"></param>
         static void UpdateArrayItemOrObject(SerializedProperty property, Action<object> onUpdate)
         {
-            var arrItemPropPath = property.propertyPath.Substring(0, property.propertyPath.LastIndexOf('.'));
-            var arrItemProp = property.serializedObject.FindProperty(arrItemPropPath);
-
+            var arrItemProp = property.FindPropertyParent();
             var instObj = arrItemProp.boxedValue;
             onUpdate?.Invoke(instObj);
-            // reset again
+            // reset again,othwerwise not save to disk
             arrItemProp.boxedValue = instObj;
         }
-
-        // property.serializedObject,but cannot update serializedObject
+        /// <summary>
+        /// property.serializedObject,but cannot update serializedObject
+        /// </summary>
+        /// <param name="property"></param>
+        /// <param name="onUpdate"></param>
         static void UpdateObject(SerializedProperty property, Action<object> onUpdate)
         {
             var instObj = property.serializedObject.targetObject;
             onUpdate?.Invoke(instObj);
         }
     }
+
     /// <summary>
-    /// Demo:
-    /// propertyPath : colorTargetInfos.Array.data[0].rtSizeMode
-    /// return object ,path is : colorTargetInfos.Array.data[0]
+    /// Demo: <br/>
+    /// propertyPath : colorTargetInfos.Array.data[0].rtSizeMode<br/>
+    /// return string: colorTargetInfos.Array.data[0]<br/>
     /// </summary>
     /// <param name="prop"></param>
     /// <returns></returns>
@@ -268,8 +275,8 @@ public static class SerializedPropertyEx
     /// <summary>
     /// Find property parent property<br/>
     /// 
-    /// propertyPath = colorTargetInfos.Array.data[0].rtSizeMode
-    /// return colorTargetInfos.Array.data[0]
+    /// propertyPath : colorTargetInfos.Array.data[0].rtSizeMode <br/>
+    /// return object : colorTargetInfos.Array.data[0] <br/>
     /// </summary>
     /// <param name="prop"></param>
     /// <returns></returns>
@@ -279,8 +286,8 @@ public static class SerializedPropertyEx
         return prop.serializedObject.FindProperty(objPath);
     }
     /// <summary>
-    /// 1 Find property in serializedObject
-    /// 2 Find property in current object when 1 not found
+    /// 1 Find property in serializedObject <br/>
+    /// 2 Find property in current object when 1 not found <br/>
     /// </summary>
     /// <param name="prop"></param>
     /// <param name="propName"></param>
