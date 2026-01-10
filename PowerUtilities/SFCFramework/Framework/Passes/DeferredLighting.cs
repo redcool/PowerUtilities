@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -58,10 +58,16 @@ namespace PowerUtilities.RenderFeatures
         public int objectShaderPass;
 
         [Header("Lights")]
+        [LoadAsset("pbr1_DeferedLighting.mat")]
         public Material lightMat;
 
+        [Tooltip("Unity Cube or Quad")]
         public Mesh dirLightMesh;
+
+        [Tooltip("Unity Sphere or hemiSphere")]
         public Mesh pointLightMesh;
+
+        [Tooltip("Unity Sphere or hemiSphere")]
         public Mesh spotLightMesh;
 
         public float falloff=1;
