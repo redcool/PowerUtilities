@@ -32,7 +32,7 @@
         {
             // setup create sfc pass menu items
             var inst = serializedObject.targetObject as SRPFeatureListSO;
-            srpFeatureTypes = ReflectionTools.GetTypesDerivedFrom<SRPFeature>();
+            srpFeatureTypes = ReflectionTools.GetTypesDerivedFrom<SRPFeature>(true);
 
             //createPassMenu = CreateAddSFCPassMenu(srpFeatureTypes, inst);
             SetupFreatureNameList();
