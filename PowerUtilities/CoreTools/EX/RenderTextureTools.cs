@@ -18,9 +18,10 @@ namespace PowerUtilities
         private static readonly RenderTextureFormat m_ShadowmapFormat;
 
         /// <summary>
+        /// {rtName,rt}
         /// CreateRenderTarget's renderTexture
         /// </summary>
-        public static readonly Dictionary<string, RenderTexture> createdRenderTextureDict = new();
+        public static readonly Dictionary<string, RenderTexture> nameRTDict = new();
 
         static RenderTextureTools()
         {
@@ -71,8 +72,9 @@ namespace PowerUtilities
         /// <param name="name"></param>
         public static void CreateRT(ref RenderTexture rt,RenderTextureDescriptor desc,string name,FilterMode filterMode)
         {
-            // clone rt info,recreate it
-            if(rt && rt.name != name)
+            // rt is changed,recreate it
+            //if(rt && rt.name != name) // * rt.name will cause gc
+            if (rt && nameRTDict.TryGetValue(name, out var existRT) && rt != existRT)
             {
                 rt = null;
             }
@@ -122,7 +124,7 @@ namespace PowerUtilities
         {
             if (string.IsNullOrEmpty(name) || !rt)
                 return;
-            createdRenderTextureDict[name] = rt;
+            nameRTDict[name] = rt;
             // set global texture
             Shader.SetGlobalTexture(name, rt);
         }
@@ -134,7 +136,7 @@ namespace PowerUtilities
         /// <param name="rt"></param>
         /// <returns></returns>
         public static bool TryGetRT(string name, out RenderTexture rt)
-        => createdRenderTextureDict.TryGetValue(name, out rt);
+        => nameRTDict.TryGetValue(name, out rt);
         
         /// <summary>
         /// remove CreateRenderTarget's rt
@@ -145,17 +147,17 @@ namespace PowerUtilities
             if (!rt)
                 return;
 
-            createdRenderTextureDict.Remove(rt.name);
+            nameRTDict.Remove(rt.name);
             rt.Destroy();
         }
 
         public static void DestroyRT(string name)
         {
-            if (string.IsNullOrEmpty(name) || !createdRenderTextureDict.ContainsKey(name))
+            if (string.IsNullOrEmpty(name) || !nameRTDict.ContainsKey(name))
                 return;
 
-            createdRenderTextureDict[name].Destroy();
-            createdRenderTextureDict.Remove(name);
+            nameRTDict[name].Destroy();
+            nameRTDict.Remove(name);
         }
 
         public static void AsyncGPUReadRenderTexture(this RenderTexture rt, int pixelByteCount = 4, Action<byte[]> onDone = null)

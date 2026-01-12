@@ -1,4 +1,4 @@
-namespace PowerUtilities
+﻿namespace PowerUtilities
 {
     using System;
     using System.Collections;

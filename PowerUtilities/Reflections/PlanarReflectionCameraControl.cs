@@ -143,7 +143,7 @@
         void CheckTargetInfo()
         {
             log = "";
-            if(RenderTextureTools.createdRenderTextureDict.TryGetValue(reflectionTextureName,out var reflectRT))
+            if(RenderTextureTools.nameRTDict.TryGetValue(reflectionTextureName,out var reflectRT))
             {
                 log = $"{reflectionTextureName} is created by SFC/CreateRenderTarget";
             }

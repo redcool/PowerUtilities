@@ -1,4 +1,4 @@
-namespace PowerUtilities.RenderFeatures
+﻿namespace PowerUtilities.RenderFeatures
 {
 #if UNITY_EDITOR
     using UnityEditor;
