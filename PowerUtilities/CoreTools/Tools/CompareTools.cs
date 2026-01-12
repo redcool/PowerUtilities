@@ -25,7 +25,8 @@ namespace PowerUtilities
         /// <returns>is changed triggered</returns>
         public static bool CompareAndSet<T>(ref T lastValue,ref T currentValue) 
         {
-            if(lastValue== null || !lastValue.Equals(currentValue))
+            //if (lastValue == null || !lastValue.Equals(currentValue))
+            if (!EqualityComparer<T>.Default.Equals(lastValue, currentValue))
             {
                 lastValue = currentValue;
                 return true;
