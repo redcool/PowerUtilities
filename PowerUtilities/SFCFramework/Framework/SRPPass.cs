@@ -18,10 +18,7 @@ namespace PowerUtilities.RenderFeatures
         /// is pass run first, can do init once
         /// </summary>
         public bool isFirstPass;
-        /// <summary>
-        /// SRPFeature's name
-        /// </summary>
-        public string featureName;
+
         /// <summary>
         /// called when unity recompile
         /// </summary>
@@ -81,7 +78,6 @@ namespace PowerUtilities.RenderFeatures
         public SRPPass(T feature)
         {
             Feature = feature;
-            featureName = feature.name;
         }
 
         /// <summary>
@@ -174,7 +170,7 @@ namespace PowerUtilities.RenderFeatures
                 return;
 
             var cmd = CommandBufferEx.defaultCmd;
-            cmd.name = featureName;
+            cmd.name = Feature.GetName();
             cmd.Execute(ref context);
 
             if(IsTryRestoreLastTargets(camera))
