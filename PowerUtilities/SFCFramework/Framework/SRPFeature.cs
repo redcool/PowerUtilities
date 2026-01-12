@@ -154,7 +154,11 @@
         ScriptableRenderPass passInstance;
         TooltipAttribute featureTooltipAttr;
 
+        /**
+         lastScene.handle for compare ,lastScene has typeBoxing
+         */
         Scene lastScene;
+        int lastSceneHandle = -1;
         /// <summary>
         /// get a new pass instance
         /// </summary>
@@ -203,9 +207,11 @@
 
         public void UpdateSceneState()
         {
-            var scene = SceneManager.GetActiveScene();
+            lastSceneHandle = lastScene.handle;
 
-            if (CompareTools.CompareAndSet(ref lastScene, ref scene))
+            var scene = SceneManager.GetActiveScene();
+            var sceneHandle = scene.handle;
+            if (CompareTools.CompareAndSet(ref lastSceneHandle, ref sceneHandle))
             {
                 if (passInstance is SRPPass srpPass)
                     srpPass.OnSceneChanged();
