@@ -17,7 +17,7 @@ namespace PowerUtilities
         /// <param name="so"></param>
         /// <returns></returns>
         public static string GetName(this ScriptableObject so)
-        => DictionaryTools.Get(soNameDict, so, so => so.name);
+        => DictionaryTools.Get(soNameDict, so, so => so?.name);
 
     }
 }

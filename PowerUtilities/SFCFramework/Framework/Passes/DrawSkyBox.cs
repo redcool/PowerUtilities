@@ -37,13 +37,13 @@ namespace PowerUtilities.RenderFeatures
             RenderTargetHolder.GetLastTargets(renderer, out var colorTargets, out var depthTarget);
 
             //--------------- draw skybox
-            cmd.BeginSampleExecute(Feature.name, ref context);
+            cmd.BeginSampleExecute(Feature.GetName(), ref context);
 
             cmd.SetRenderTarget(colorTargets[0], depthTarget);
             cmd.Execute(ref context);
 
             context.DrawSkybox(cam);
-            cmd.EndSampleExecute(Feature.name, ref context);
+            cmd.EndSampleExecute(Feature.GetName(), ref context);
 
             //--------------- update urp skybox target
             if (Feature.isResetURPSkyBoxTarget)

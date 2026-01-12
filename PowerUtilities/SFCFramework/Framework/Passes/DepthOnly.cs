@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
@@ -39,7 +39,7 @@ namespace PowerUtilities.RenderFeatures
         {
             var depthTexId = Shader.PropertyToID(Feature.depthTextureName);
 
-            cmd.BeginSampleExecute(Feature.name, ref context);
+            cmd.BeginSampleExecute(Feature.GetName(), ref context);
             var filterSettings = new FilteringSettings(RenderQueueRange.opaque, Feature.layerMask);
 
             var sortingSettings = new SortingSettings(camera)
@@ -65,7 +65,7 @@ namespace PowerUtilities.RenderFeatures
 
             context.DrawRenderers(cmd,renderingData.cullResults, ref drawingSettings, ref filterSettings);
 
-            cmd.EndSampleExecute(Feature.name, ref context);
+            cmd.EndSampleExecute(Feature.GetName(), ref context);
         }
 
         private void SetupDeptexTarget(ref RenderingData renderingData, CommandBuffer cmd,int depthTexId)

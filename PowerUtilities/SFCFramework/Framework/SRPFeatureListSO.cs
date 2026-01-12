@@ -117,7 +117,7 @@
                     //var featureEditor = feature.GetEditor();
 
                     var color = feature.enabled ? (feature.interrupt ? Color.red : GUI.color) : Color.gray;
-                    var title = feature.name;
+                    var title = feature.GetName();
                     var foldoutProp = featureSO.FindProperty(nameof(SRPFeature.isFoldout));
                     // draw pass details
                     EditorGUI.BeginChangeCheck();

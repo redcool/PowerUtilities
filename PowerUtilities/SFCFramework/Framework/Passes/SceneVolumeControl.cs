@@ -98,7 +98,7 @@ namespace PowerUtilities.RenderFeatures
         /// </summary>
         Volume CreateVolumeGo(LayerMask layer)
         {
-            var volumeGo = new GameObject($"{featureName}_{LayerMask.LayerToName(layer)}");
+            var volumeGo = new GameObject($"{Feature.GetName()}_{LayerMask.LayerToName(layer)}");
             volumeGo.transform.SetParent(Feature.sceneVolumeControlRootGo.transform);
             volumeGo.hideFlags = HideFlags.DontSave;
             volumeGo.layer = layer;
