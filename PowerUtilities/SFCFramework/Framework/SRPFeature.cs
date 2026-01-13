@@ -155,9 +155,8 @@
         TooltipAttribute featureTooltipAttr;
 
         /**
-         lastScene.handle for compare ,lastScene has typeBoxing
+         lastScenePath for compare ,lastScene has typeBoxing
          */
-        Scene lastScene;
         string lastScenePath;
         /// <summary>
         /// get a new pass instance
