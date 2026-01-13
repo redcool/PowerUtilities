@@ -158,7 +158,7 @@
          lastScene.handle for compare ,lastScene has typeBoxing
          */
         Scene lastScene;
-        int lastSceneHandle = -1;
+        string lastScenePath;
         /// <summary>
         /// get a new pass instance
         /// </summary>
@@ -207,11 +207,9 @@
 
         public void UpdateSceneState()
         {
-            lastSceneHandle = lastScene.handle;
-
             var scene = SceneManager.GetActiveScene();
-            var sceneHandle = scene.handle;
-            if (CompareTools.CompareAndSet(ref lastSceneHandle, ref sceneHandle))
+            var scenePath = scene.path;
+            if (CompareTools.CompareAndSet(ref lastScenePath, ref scenePath))
             {
                 if (passInstance is SRPPass srpPass)
                     srpPass.OnSceneChanged();
