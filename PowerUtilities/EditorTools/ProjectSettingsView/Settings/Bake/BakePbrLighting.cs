@@ -545,7 +545,11 @@
             if (isHDR && texEncodeType != TextureEncodeType.EXR)
             {
                 if (IsColorTexture(suffixName))
-                    tex.ConvertColorSpace(colorConvertCS, "ConvertColorSpace");
+                {
+                    var colors = tex.ConvertColorSpace(colorConvertCS);
+                    tex.SetPixels(colors);
+                    tex.Apply();
+                }
             }
             //tex.Compress(true, TextureFormat.ASTC_HDR_6x6);
 

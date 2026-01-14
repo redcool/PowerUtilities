@@ -170,10 +170,6 @@ namespace PowerUtilities
             colorBuffer.GetData(pixels);
             colorBuffer.TryRelease();
 
-            if (tex.isReadable)
-            {
-                tex.SetPixels(pixels);
-            }
             return pixels;
         }
 
