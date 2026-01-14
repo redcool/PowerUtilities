@@ -52,6 +52,14 @@ namespace PowerUtilities.RenderFeatures
             return new SceneVolumeControlPass(this);
         }
 
+        public override void OnDisable()
+        {
+            base.OnDisable();
+            
+            if (sceneVolumeControlRootGo)
+                sceneVolumeControlRootGo.Destroy();
+        }
+
         /// <summary>
         /// Shortcut for current instance's sceneVolumeControlRootGo
         /// </summary>
@@ -119,6 +127,7 @@ namespace PowerUtilities.RenderFeatures
 
         public override void OnDisable()
         {
+            Debug.Log("on disable");
             DestroyGlobalVolumes();
         }
 
@@ -149,7 +158,10 @@ namespace PowerUtilities.RenderFeatures
         {
             if (!Feature.sceneVolumeControlRootGo)
             {
-                Feature.sceneVolumeControlRootGo = new GameObject("sceneVolumeControlRootGo");
+                var goName = nameof(Feature.sceneVolumeControlRootGo);
+                Feature.sceneVolumeControlRootGo = GameObject.Find(goName) ?? new GameObject(goName);
+                Feature.sceneVolumeControlRootGo.DestroyChildren();
+
                 SceneVolumeControl.SceneVolumeControlRootGo = Feature.sceneVolumeControlRootGo;
 
                 volumes.Clear();
