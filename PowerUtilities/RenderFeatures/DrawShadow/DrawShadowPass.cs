@@ -155,14 +155,14 @@
             float4x4 view, proj;
             SetupVp(cmd, out view, out proj, out var lightForward);
 
-
+            SendShadowCasterBias(cmd,proj);
             DrawShadowRenderers(ref renderingData);
 
             /**
              transform (proj,view) to shadowMapTexture' space[0,tileRes]
              */
             var atlasMat = TransformVPToShadowTextureSpace(ref view, ref proj, rowCount, rowId, colId);
-            SendBigShadowVariables(cmd, atlasMat, proj, lightForward);
+            SendBigShadowVariables(cmd, atlasMat, lightForward);
 
             //====================== inner methods
 
@@ -281,16 +281,20 @@
         /// <param name="view"></param>
         /// <param name="proj"></param>
         /// <param name="forward"></param>
-        private void SendBigShadowVariables(CommandBuffer cmd, float4x4 atlasVPMat, float4x4 proj, float3 forward)
+        private void SendBigShadowVariables(CommandBuffer cmd, float4x4 atlasVPMat, float3 forward)
         {
             cmd.SetGlobalMatrix(_BigShadowVP, atlasVPMat);
 
-            var shadowBias = CalcShadowBias(proj);
-            cmd.SetGlobalVector(ShaderPropertyIds._ShadowBias, shadowBias);
             cmd.SetGlobalVector(ShaderPropertyIds._LightDirection, new float4(-forward, 0));
             cmd.SetGlobalTexture(_BigShadowMap, bigShadowMap);
             cmd.SetGlobalInt(_BigShadowOn, 1);
-            cmd.SetShaderKeywords(false,ShaderKeywordStrings.CastingPunctualLightShadow);
+            cmd.SetShaderKeywords(false, ShaderKeywordStrings.CastingPunctualLightShadow);
+        }
+
+        private void SendShadowCasterBias(CommandBuffer cmd, float4x4 proj)
+        {
+            var shadowBias = CalcShadowBias(proj);
+            cmd.SetGlobalVector(ShaderPropertyIds._ShadowBias, shadowBias);
         }
 
         /// <summary>
