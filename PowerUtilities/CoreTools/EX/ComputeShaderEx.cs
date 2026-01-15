@@ -131,7 +131,7 @@ namespace PowerUtilities
         /// is 1.</param>
         public static void CopyFrom(this Texture2D resultTex, Texture sourceTex, int sourceTexId = 0, int sourceTexLod = 0, float gammaValue = 1)
         {
-            var resultRT = RenderTextureTools.GetTemporaryUAV(sourceTex.width, sourceTex.height, RenderTextureFormat.Default);
+            var resultRT = RenderTextureTools.GetTemporaryUAV(resultTex.width, resultTex.height, RenderTextureFormat.Default);
 
             DispatchKernel_CopyTexture(sourceTex, resultRT, sourceTexId, sourceTexLod,gammaValue);
             resultRT.ReadRenderTexture(ref resultTex);
