@@ -314,7 +314,7 @@
         /// </summary>
         /// <param name="root"></param>
         /// <param name="isIncludeInactive"></param>
-        public static List<Mesh> CombineMeshesGroupByMaterial(GameObject root, bool isDisableRenderer, bool isIncludeInactive = false,bool isRandomMeshColor=false)
+        public static List<Mesh> CombineMeshesGroupByMaterial(GameObject root, bool isDisableRenderer, bool isIncludeInactive = false,bool isRandomMeshColor=false,string excludeTag="")
         {
             //clear last Groups
             const string GROUP_NAME = "MeshGroups";
@@ -339,7 +339,7 @@
                 .Where(mr =>
                 {
                     var mf = mr.GetComponent<MeshFilter>();
-                    return mf && mf.sharedMesh;
+                    return mf && mf.sharedMesh && !mf.CompareTag(excludeTag);
                 })
                 .GroupBy(mr => mr.sharedMaterial)
                 .ToDictionary(g => g.Key, g => g.ToList())

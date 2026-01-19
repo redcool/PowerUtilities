@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +10,9 @@ namespace PowerUtilities
 
     public class CombineChildrenMeshGroupByMaterial : MonoBehaviour
     {
+        [Tooltip("Use current gameObject when null")]
+        public GameObject rootGo;
+
         [Tooltip("Include inactive children mesh renderer ")]
         public bool isIncludeInactive;
 
@@ -25,6 +28,12 @@ namespace PowerUtilities
         [Tooltip("Per mesh per color")]
         public bool isRandomMeshColor;
 
+        [Tooltip("exclude this tag")]
+#if UNITY_EDITOR
+        [StringListSearchable(type = typeof(TagManager), staticMemberName = nameof(TagManager.GetTags))]
+#endif
+        public string excludeTag = "";
+
         [EditorButton(onClickCall = "Start",tooltip ="combine children meshes now")]
         public bool isCombine;
 
@@ -33,7 +42,8 @@ namespace PowerUtilities
         {
             if (isCombineOnStart)
             {
-                var meshList = MeshTools.CombineMeshesGroupByMaterial(gameObject, isDisableOriginalRenderers, isIncludeInactive);
+                rootGo = rootGo ? rootGo : gameObject;
+                var meshList = MeshTools.CombineMeshesGroupByMaterial(rootGo, isDisableOriginalRenderers, isIncludeInactive, isRandomMeshColor, excludeTag);
 
 #if UNITY_EDITOR
                 if (isSaveMeshes)
@@ -41,7 +51,7 @@ namespace PowerUtilities
                     var sceneAssetFolder = AssetDatabaseTools.CreateGetSceneFolder();
                     foreach (var mesh in meshList)
                     {
-                        AssetDatabaseTools.CreateAssetAtSceneFolder(mesh, mesh.name + ".asset");
+                        AssetDatabaseTools.CreateAssetAtSceneFolder(mesh, $"{gameObject.name}_{mesh.name }.asset");
                     }
                     AssetDatabaseTools.SaveRefresh();
                 }
