@@ -22,6 +22,9 @@ namespace PowerUtilities
         [Multiline(10)]
         public string shaderCBufferLayoutText;
 
+        [Tooltip("Skip like _MainTex_ST,brg rendering use default(1,1,0,0)")]
+        public bool isSkipTexST = true; 
+
         [EditorBox("Buttons", "isAnalysis,isAnalysisShader",boxType = EditorBoxAttribute.BoxType.HBox)]
         [EditorButton(onClickCall =nameof(StartAnalysisCBufferLayoutText),tooltip = "Analysis shaderCBufferLayoutText,fill bufferPropList")]
         public bool isAnalysis;
@@ -41,13 +44,13 @@ namespace PowerUtilities
             if (!shader || string.IsNullOrWhiteSpace(shaderCBufferLayoutText))
                 return;
 
-            bufferPropList = shaderCBufferLayoutText.GetShaderCBufferInfo(true);
+            bufferPropList = shaderCBufferLayoutText.GetShaderCBufferInfo(isSkipTexST);
         }
         public void StartAnalysisShader()
         {
             var list = new List<(string name, int count)>();
             var floatsCount = 0;
-            shader.FindShaderPropNames(ref list, ref floatsCount, true);
+            shader.FindShaderPropNames(ref list, ref floatsCount, isSkipTexST);
             bufferPropList = list.Select(x => new CBufferPropInfo
             {
                 propName = x.name,
@@ -115,10 +118,12 @@ namespace PowerUtilities
             foreach (var propInfo in bufferPropList)
             {
                 float[] floatArr = mat.GetFloats(propInfo.propName);
-                
-                brgBatch.instanceBuffer.SetData(floatArr, 0,
-                    BRGTools.GetDataStartId(brgBatch.propNameStartFloatIdDict, propInfo.propName, 1, instId, floatArr.Length),
-                    floatArr.Length
+
+                startId = BRGTools.GetDataStartId(brgBatch.propNameStartFloatIdDict, propInfo.propName, 1, instId, floatArr.Length);
+                if(startId == -1)
+                    throw new Exception($"{propInfo.propName} not found in shader cbuffer layout");
+
+                brgBatch.instanceBuffer.SetData(floatArr, 0, startId,floatArr.Length
                     );
                 //Debug.Log($"{propInfo.propName} -> {floatArr.ToString(",")}");
             }

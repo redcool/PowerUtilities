@@ -215,7 +215,7 @@ namespace PowerUtilities
             if (isIncludeDomain)
                 return GetAppDomainTypes<T>(predication);
             else
-                return Assembly.GetCallingAssembly().GetTypes().Where(predication);
+                return typeof(T).Assembly.GetTypes().Where(predication);
         }
         /// <summary>
         /// Get all types derived from T from current Assembly or currentDomain assemblies
@@ -223,7 +223,7 @@ namespace PowerUtilities
         /// <typeparam name="T"></typeparam>
         /// <param name="isIncludeDomain"> find in currentDomain assemblies</param>
         /// <returns></returns>
-        public static IEnumerable<Type> GetTypesDerivedFrom<T>(bool isIncludeDomain = false)
+        public static IEnumerable<Type> GetTypesDerivedFrom<T>(bool isIncludeDomain = true)
         {
             var tType = typeof(T);
             return GetTypes<T>(t => t.BaseType != null && t.BaseType == tType, isIncludeDomain);
