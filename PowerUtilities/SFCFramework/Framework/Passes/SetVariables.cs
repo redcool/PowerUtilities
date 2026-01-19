@@ -1,4 +1,4 @@
-namespace PowerUtilities.RenderFeatures
+﻿namespace PowerUtilities.RenderFeatures
 {
     using System;
     using System.Collections;
@@ -111,7 +111,7 @@ namespace PowerUtilities.RenderFeatures
 
             //if(Feature.isOverrideSetMainCameraInfo)
             {
-                SetupCameraLightRotateMatrix(cmd, Camera.main, LightTools.FindMainLight(false,Tags.BigShadowLight));
+                SetupCameraLightRotateMatrix(cmd, Camera.main, LightTools.FindMainLight(Tags.BigShadowLight));
             }
 
             if (Feature.isOverrideGlobalMaxLod)

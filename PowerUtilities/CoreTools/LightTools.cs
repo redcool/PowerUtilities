@@ -25,27 +25,20 @@ namespace PowerUtilities
         /// <param name="isForceFind"></param>
         /// <param name="tags"></param>
         /// <returns></returns>
-        public static Light FindMainLight(bool isForceFind=false,params string[] tags)
+        public static Light FindMainLight(string lightTag, bool isForceFind = false)
         {
             if (mainLight && !isForceFind)
                 return mainLight;
-
+            //try RenderSettings.sun
             mainLight = RenderSettings.sun;
             if (mainLight)
                 return mainLight;
-
-            foreach (var tag in tags)
-            {
-                var tagGo = GameObject.FindGameObjectWithTag(tag);
-                if(! tagGo)
-                    continue;
-
-                mainLight = tagGo.GetComponent<Light>();
-                if (tagGo && mainLight)
-                    return mainLight;
-            }
-
-            mainLight= FindSceneMainLight();
+            //try tag
+            var tagGo = GameObject.FindGameObjectWithTag(lightTag);
+            if (tagGo && (mainLight = tagGo.GetComponent<Light>()))
+                return mainLight;
+            //find from scene lights (max intensity)
+            mainLight = FindSceneMainLight();
             return mainLight;
         }
 

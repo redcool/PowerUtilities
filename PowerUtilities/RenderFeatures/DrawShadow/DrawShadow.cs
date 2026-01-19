@@ -1,4 +1,4 @@
-namespace PowerUtilities
+﻿namespace PowerUtilities
 {
     using System;
     using System.Collections;
@@ -62,6 +62,7 @@ namespace PowerUtilities
         [EditorDisableGroup]
         public GameObject lightObj;
         public BigShadowLightControl bigShadowLightControl;
+        BigShadowLightControl lastBigShadowLightControl; // cache last bigShadowLightControl
 
         [EditorDisableGroup]
         public float currentDistance;
@@ -373,13 +374,23 @@ namespace PowerUtilities
                 return;
 
             bigShadowLightControl = lightObj.GetComponent<BigShadowLightControl>();
-            if (bigShadowLightControl)
+            if (CompareTools.CompareAndSet(ref lastBigShadowLightControl, ref bigShadowLightControl))
             {
-                bigShadowLightControl.OnShadowEnableChanged -= BigShadowLightControl_OnShadowEnableChanged;
-                bigShadowLightControl.OnShadowEnableChanged += BigShadowLightControl_OnShadowEnableChanged;
+                // unbind last
+                if (lastBigShadowLightControl)
+                {
+                    lastBigShadowLightControl.OnShadowEnableChanged -= BigShadowLightControl_OnShadowEnableChanged;
+                    lastBigShadowLightControl.OnOverrideSettingSO -= BigShadowLightControl_OnOverrideSettingSO;
+                }
+                // bind new
+                if (bigShadowLightControl)
+                {
+                    bigShadowLightControl.OnShadowEnableChanged -= BigShadowLightControl_OnShadowEnableChanged;
+                    bigShadowLightControl.OnShadowEnableChanged += BigShadowLightControl_OnShadowEnableChanged;
 
-                bigShadowLightControl.OnOverrideSettingSO -= BigShadowLightControl_OnOverrideSettingSO;
-                bigShadowLightControl.OnOverrideSettingSO += BigShadowLightControl_OnOverrideSettingSO;
+                    bigShadowLightControl.OnOverrideSettingSO -= BigShadowLightControl_OnOverrideSettingSO;
+                    bigShadowLightControl.OnOverrideSettingSO += BigShadowLightControl_OnOverrideSettingSO;
+                }
             }
         }
 
