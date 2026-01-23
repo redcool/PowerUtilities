@@ -118,6 +118,9 @@ namespace PowerUtilities
         /// <param name="coefficient">to srgb: 2 , to linear : 1/2</param>
         public static void ConvertColorSpace(this Texture2D tex,float coefficient = 1/2.2f)
         {
+            if (!tex)
+                return;
+
             var pixels = tex.GetPixels();
             for (int i = 0; i < pixels.Length; i++)
             {
@@ -140,7 +143,7 @@ namespace PowerUtilities
         /// <param name="coefficient"></param>
         /// <param name="isApplyGT6Tone"></param>
         /// <returns>pixels change color space</returns>
-        public static Color[] ConvertColorSpace(this Texture2D tex, ComputeShader cs, string kernelName = "ConvertColorSpace", float coefficient = 1 / 2.2f, bool isApplyGT6Tone = true)
+        public static Color[] ConvertColorSpace(this Texture tex, ComputeShader cs, string kernelName = "ConvertColorSpace", float coefficient = 1 / 2.2f, bool isApplyGT6Tone = true)
         {
             //1  find ConvertColorSpace kernel
             if (!cs)
@@ -150,7 +153,7 @@ namespace PowerUtilities
             //2  cs not found, use cpu convert
             if (!cs)
             {
-                ConvertColorSpace(tex, coefficient);
+                ConvertColorSpace(tex as Texture2D, coefficient);
                 return null;
             }
 
@@ -158,7 +161,7 @@ namespace PowerUtilities
             Color[] pixels = new Color[texSize];
 
             GraphicsBuffer colorBuffer = null;
-            GraphicsBufferTools.TryCreateBuffer(ref colorBuffer, GraphicsBuffer.Target.Structured, texSize, Marshal.SizeOf<Vector4>());
+            GraphicsBufferTools.TryCreateBuffer(ref colorBuffer, GraphicsBuffer.Target.Structured, texSize, Marshal.SizeOf<Color>());
 
             var kernel = cs.FindKernel(kernelName);
             cs.SetFloat("_Coefficient", coefficient);

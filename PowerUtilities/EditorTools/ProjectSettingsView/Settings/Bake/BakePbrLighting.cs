@@ -546,7 +546,7 @@
             {
                 if (IsColorTexture(suffixName))
                 {
-                    var colors = tex.ConvertColorSpace(colorConvertCS);
+                    var colors = rt.ConvertColorSpace(colorConvertCS);
                     tex.SetPixels(colors);
                     tex.Apply();
                 }
@@ -886,6 +886,9 @@
         }
         void RestoreFeatures((SRPFeature feature, bool enabled)[] setRenderTargetInfos)
         {
+            srpControl?.featureListSO?.featureList.Remove(cameraRender1Frame);
+            cameraRender1Frame?.Destroy();
+
             if (setRenderTargetInfos == null)
                 return;
 
