@@ -14,6 +14,7 @@
 #endif
 
     using UnityEngine;
+    using UnityEngine.Rendering;
     using UnityEngine.Rendering.Universal;
     using UnityEngine.UIElements;
     using Object = UnityEngine.Object;
@@ -96,7 +97,7 @@
         public bool isIncludeInvisible;
 
         [Tooltip("set object material CullOff")]
-        public bool isSetCullOff;
+        public CullMode cullMode;
 
         [Tooltip("cameraTarget & outputTex is hdr")]
         public bool isHDR;
@@ -161,6 +162,9 @@
         public Color backgroundColor = Color.clear;
         public CameraClearFlags cameraClearFlags = CameraClearFlags.SolidColor;
 
+        [Header("BakeDoneActions")]
+        public bool isRemoveTmpFeatures;
+
         //======================  bake
         [EditorButton(onClickCall = nameof(BakeLighting))]
         public bool isBake;
@@ -173,6 +177,7 @@
         /**object uv1 scale offset to scene lightmap*/
         [Tooltip("bake object to sceneLightmapUV,for uvMode.uv1,TexBatchType.AllInOneLightmapUV")]
         public bool isUV1TransformToLightmapUV;
+
 
         [EditorBox("", "isShowTargetOnly,isShowScene,isSelectOutputFolder", boxType = EditorBoxAttribute.BoxType.HBox)]
         [EditorButton(onClickCall = nameof(ShowTargetOnly))]
@@ -205,7 +210,7 @@
         Camera sceneCam;
         Camera bakeCam;
         Renderer[] lastShowRenderers;
-        List<(Renderer,float)> lastRendererCullModeList = new();
+        List<(Renderer, float[])> lastRendererCullModeList = new();
         List<Vector4> lastRenderersUVList = new();
 
         Renderer[] targetRenderers;
@@ -253,6 +258,7 @@
 
             StartBaking();
         }
+
         private void StartBaking()
         {
             Debug.Log("StartBaking");
@@ -359,8 +365,7 @@
             foreach (Renderer render in renderers)
             {
                 list.Add(render.sharedMaterial.GetFloat(_CullMode));
-                if (isSetCullOff)
-                    render.sharedMaterial.SetFloat(_CullMode, 0);
+                render.sharedMaterial.SetFloat(_CullMode, (float)cullMode);
 
                 render.enabled = true;
             }
@@ -382,11 +387,11 @@
         {
             for (int i = 0; i < renders.Length; i++)
             {
-                ShowProgressBar(i, renders.Length);
+                ShowProgressBar(i+1, renders.Length);
 
                 var render = renders[i];
 
-                StartRenderObject(ref render);
+                StartRenderObject(render);
 
                 SaveOutputTex(render.name);
             }
@@ -453,8 +458,11 @@
                 Debug.Log($"id:{x},{y},count: {tileCount},suv :{tileUV}");
                 Shader.SetGlobalVector(_FullScreenUVRange, tileUV);
 
-                StartRenderObject(ref render);
-                
+                //cameraRender1Frame.isClearTarget = i == 0;
+                //cameraRender1Frame.viewportRect = tileUV;
+
+                StartRenderObject(render);
+
                 //no need clear, is ok, 
                 bakeCam.clearFlags = CameraClearFlags.Nothing;
             }
@@ -471,21 +479,26 @@
         /// </summary>
         /// <param name="render"></param>
         /// <param name="tex"></param>
-        void StartRenderObject(ref Renderer render)
+        void StartRenderObject(Renderer render)
         {
             render.enabled = true;
-            var lastCullMode = render.sharedMaterial.GetFloat(_CullMode);
-            var mat = render.sharedMaterial;
-            if (isSetCullOff)
-            {
-                mat.SetFloat(_CullMode, 0);
-            }
+            // keep last cull mode
+            List<float> cullModeList = new();
+            render.GetSharedMatsFloat(_CullMode, ref cullModeList);
+            // set cull mode
+            render.SetSharedMatsFloat(_CullMode, (float)cullMode);
 
+            // update cam position
+            CalcBakeCamPos(out var camPos, out var camForward, render.transform);
+            bakeCam.transform.position = camPos;
+            bakeCam.transform.forward = camForward;
+
+            cameraRender1Frame.enabled = true;
             bakeCam.Render();
 
             render.enabled = false;
-            mat.SetFloat(_CullMode, lastCullMode);
-
+            // restore cull mode
+            render.SetSharedMatsFloat(_CullMode, cullModeList);
         }
         /// <summary>
         /// render objects into texture2d array
@@ -499,7 +512,7 @@
 
                 Texture2D sliceTex = new Texture2D(targetRT.width,targetRT.height,TextureFormat.RGB24,true,true);
                 var render = renders[i];
-                StartRenderObject(ref render);
+                StartRenderObject(render);
 
                 targetRT.ReadRenderTexture(ref sliceTex);
                 sliceTex.Compress(true);
@@ -650,7 +663,7 @@
 
             sceneCam = sceneView.camera;
 
-            CalcBakeCamPos(out var camPos, out var camForward);
+            CalcBakeCamPos(out var camPos, out var camForward,target.transform);
             camPos = sceneCam.transform.position + sceneCam.transform.forward;
 
             Handles.color = Color.magenta;
@@ -677,9 +690,9 @@
             var renders = target.GetComponentsInChildren<Renderer>(isIncludeInvisible);
             foreach (var render in renders)
             {
-                lastRendererCullModeList.Add((render,render.sharedMaterial.GetFloat(_CullMode)));
+                lastRendererCullModeList.Add((render,render.GetSharedMatsFloat(_CullMode)));
                 render.enabled = true;
-                render.sharedMaterial.SetFloat(_CullMode, isSetCullOff ? 0 : 2);
+                render.SetSharedMatsFloat(_CullMode, (float)cullMode);
             }
 
             Shader.SetGlobalFloat(_FullScreenOn, isShowFullscreen?1:0);
@@ -693,9 +706,9 @@
             if (lastShowRenderers == null || !target)
                 return;
 
-            foreach ((Renderer r,float cullMode) info in lastRendererCullModeList)
+            foreach ((Renderer r,float[] cullModes) info in lastRendererCullModeList)
             {
-                info.r.sharedMaterial.SetFloat(_CullMode, info.cullMode);
+                info.r.SetSharedMatsFloat(_CullMode, info.cullModes);
             }
 
             foreach (var obj in lastShowRenderers)
@@ -777,9 +790,9 @@
 #endif
         }
 
-        void CalcBakeCamPos(out Vector3 camPos, out Vector3 camForward)
+        void CalcBakeCamPos(out Vector3 camPos, out Vector3 camForward,Transform renderTargetTr)
         {
-            var targetPos = targetPosPivot ? targetPosPivot.transform.position : target.transform.position;
+            var targetPos = targetPosPivot ? targetPosPivot.transform.position : renderTargetTr.position;
             camPos = targetPos - bakeCam.transform.forward * camOffsetDistance;
             camForward = bakeCam.transform.forward;
 
@@ -801,7 +814,7 @@
             }
             SetEnableFeatures(setTargetFeatureInfos, false);
 
-            cameraRender1Frame = (CameraRender1Frame)(srpControl.featureListSO.featureList.Where(feature => feature.GetType() == typeof(CameraRender1Frame)).FirstOrDefault());
+            cameraRender1Frame = (CameraRender1Frame)(srpControl.featureListSO.featureList.Where(feature => feature && feature.GetType() == typeof(CameraRender1Frame)).FirstOrDefault());
             if (!cameraRender1Frame)
             {
                 cameraRender1Frame = ScriptableObject.CreateInstance<CameraRender1Frame>();
@@ -841,7 +854,7 @@
             bakeCam.clearFlags = cameraClearFlags;
             bakeCam.backgroundColor = backgroundColor;
 
-            CalcBakeCamPos(out var bakePos, out var bakeForward);
+            CalcBakeCamPos(out var bakePos, out var bakeForward,target.transform);
             bakeCam.transform.position = bakePos;
             bakeCam.transform.forward = bakeForward;
         }
@@ -862,6 +875,9 @@
                     r.enabled = true;
             }
             RestoreFeatures(setTargetFeatureInfos);
+
+            if(isRemoveTmpFeatures)
+                RemoveTmpFeatures();
         }
 
         (SRPFeature, bool)[] GetSetRenderTargetFeatures(ref SRPRenderFeatureControl srpControl)
@@ -886,9 +902,6 @@
         }
         void RestoreFeatures((SRPFeature feature, bool enabled)[] setRenderTargetInfos)
         {
-            srpControl?.featureListSO?.featureList.Remove(cameraRender1Frame);
-            cameraRender1Frame?.Destroy();
-
             if (setRenderTargetInfos == null)
                 return;
 
@@ -899,7 +912,12 @@
 
                 info.feature.enabled = info.enabled;
             }
+        }
 
+        void RemoveTmpFeatures()
+        {
+            srpControl?.featureListSO?.featureList.Remove(cameraRender1Frame);
+            cameraRender1Frame?.Destroy();
         }
 
     }
