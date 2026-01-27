@@ -35,6 +35,9 @@ namespace PowerUtilities.RenderFeatures
             "SRPDefaultUnlit"
             ,"UniversalForward"
         };
+        [Tooltip("viewport uv rect")]
+        public Vector4 viewportUVRect = new Vector4(0,0,1,1);
+
         public override ScriptableRenderPass GetPass()
         {
             return new CameraRender1FramePass(this);
@@ -53,6 +56,7 @@ namespace PowerUtilities.RenderFeatures
             var renderer = (UniversalRenderer)renderingData.cameraData.renderer;
             ref var cameraData = ref renderingData.cameraData;
             var desc = cameraData.cameraTargetDescriptor;
+            var cam = cameraData.camera;
 
             var colorIds = Feature.colorTargets
                 .Where( target => target)
@@ -61,10 +65,23 @@ namespace PowerUtilities.RenderFeatures
 
             if (colorIds.Length <= 0 || Feature.depthTarget == default)
                 return;
+            var colorRT0 = Feature.colorTargets[0];
 
             cmd.SetRenderTarget(colorIds, Feature.depthTarget);
-            cmd.ClearRenderTarget(true, true, Color.clear, 1);
+            // set clear
+            var isClearColor = (cam.clearFlags & CameraClearFlags.Color) > 0;
+            var isClearDepth = (cam.clearFlags & CameraClearFlags.Depth) > 0;
+            cmd.ClearRenderTarget(isClearDepth, isClearColor, cam.backgroundColor);
+            // Set viewport
+            cmd.SetViewport(new Rect(
+                Mathf.Clamp01(Feature.viewportUVRect.x) * colorRT0.width,
+                Mathf.Clamp01(Feature.viewportUVRect.y) * colorRT0.height,
+                Mathf.Clamp01(Feature.viewportUVRect.z) * colorRT0.width,
+                Mathf.Clamp01(Feature.viewportUVRect.w) * colorRT0.height
+                ));
+
             cmd.Execute(ref context);
+
 
             var shaderTags = Feature.shaderTags
                 .Where(tag => !string.IsNullOrEmpty(tag))
