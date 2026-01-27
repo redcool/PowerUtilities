@@ -458,8 +458,7 @@
                 Debug.Log($"id:{x},{y},count: {tileCount},suv :{tileUV}");
                 Shader.SetGlobalVector(_FullScreenUVRange, tileUV);
 
-                //cameraRender1Frame.isClearTarget = i == 0;
-                //cameraRender1Frame.viewportRect = tileUV;
+                cameraRender1Frame.viewportUVRect = new Vector4(0,0,1,1);
 
                 StartRenderObject(render);
 
