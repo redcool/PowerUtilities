@@ -8,6 +8,7 @@
     using System.Linq;
     using PowerUtilities;
     using System;
+    using System.IO;
 
     public class MeshCombineContextMenu : MonoBehaviour
     {
@@ -17,36 +18,55 @@
         static void CombineSelected()
         {
             var gos = Selection.gameObjects;
-            gos.Select(go => go.GetComponentsInChildren<MeshRenderer>())
-                .SelectMany(rs => rs)
-                .Where(r => r.GetComponent<MeshFilter>())
-                .GroupBy(r => r.sharedMaterial)
-                .ForEach(group =>
-                {
-                //按顶点数量来分段.
-                var meshFilters = group.Select(mr => mr.GetComponent<MeshFilter>())
-                    .OrderByDescending(mf => mf.sharedMesh.vertexCount).ToList();
+            var renderers = gos.SelectMany(go => go.GetComponentsInChildren<MeshRenderer>()).ToArray();
 
-                    var combinedGoList = MeshTools.CombineGroupMeshes(meshFilters, group.Key);
-                    var vertexCount = combinedGoList.Aggregate(0, (c, go) => c += go.GetComponent<MeshFilter>().sharedMesh.vertexCount);
+            if (renderers.Length == 0)
+            {
+                EditorTools.DisplayDialog_Ok_Cancel("MeshRenderer not found");
+                return;
+            }
+            var goName = $"MeshGroup {renderers.Length}";
+            var parentGo = GameObject.Find(goName) ?? new GameObject(goName);
 
-                    var rootGo = new GameObject(string.Format("{0},vertex_{1}", group.Key.name, vertexCount));
-                    combinedGoList.ForEach(cgo =>
-                    {
-                        cgo.transform.SetParent(rootGo.transform);
-                    });
+            var meshFilterList = MeshTools.CombineMeshesGroupByMaterial(renderers, parentGo.transform, false, false, false, "EditorOnly");
 
-                });
+            // save meshes
+            CombineChildrenMeshGroupByMaterial.SaveMeshFilters(meshFilterList);
         }
 
         [MenuItem(ROOT_PATH + "/分离多材质网格")]
         static void SplitSelected()
         {
             var gos = Selection.gameObjects;
-            gos.Select(go => go.GetComponentsInChildren<MeshFilter>())
-                .SelectMany(rs => rs)
+            var mfs = gos.SelectMany(go => go.GetComponentsInChildren<MeshFilter>())
                 .Where(mf => mf.sharedMesh && mf.sharedMesh.subMeshCount > 1)
-                .ForEach(mf => MeshTools.SplitMesh(mf.gameObject));
+                .ToArray();
+
+            if (mfs.Length == 0)
+            {
+                EditorTools.DisplayDialog_Ok_Cancel("Multi material mesh not found");
+                return;
+            }
+
+            foreach (var mf in mfs)
+            {
+                var folder = Path.GetDirectoryName(AssetDatabase.GetAssetPath(mf.sharedMesh));
+                MeshTools.SplitMesh(mf.gameObject, (list =>
+                    {
+                        if (string.IsNullOrEmpty(folder))
+                            return;
+
+                        foreach (var childGo in list)
+                        {
+                            var childMesh = childGo.GetComponent<MeshFilter>().sharedMesh;
+                            AssetDatabase.CreateAsset(childMesh, $"{folder}/{childGo.name}.asset");
+
+                            //var prefabPath = $"{folder}/{childGo.name}.prefab";
+                            //PrefabTools.CreatePrefab(childGo, prefabPath);
+                        }
+                    }));
+            }
+            AssetDatabaseTools.SaveRefresh();
         }
 
         [MenuItem(ROOT_PATH + "/统计顶点数")]

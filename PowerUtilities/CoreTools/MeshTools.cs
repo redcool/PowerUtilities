@@ -176,7 +176,7 @@
             {
                 var newMesh = SplitMesh(mesh, i);
 
-                var newGo = new GameObject(string.Format("subMesh {0}",i));
+                var newGo = new GameObject($"{go.name}-mesh {i}");
                 list.Add(newGo);
                 newGo.AddComponent<MeshFilter>().sharedMesh = newMesh;
                 newGo.AddComponent<MeshRenderer>().sharedMaterial = mats[i];
@@ -213,21 +213,21 @@
         /// <summary>
         /// 独立出originalMesh的submesh
         /// </summary>
-        /// <param name="originalMesh"></param>
+        /// <param name="mesh"></param>
         /// <param name="subMeshId"></param>
         /// <param name="verts"></param>
         /// <param name="triangles"></param>
         /// <param name="uv"></param>
         /// <param name="uv2"></param>
         /// <param name="colors"></param>
-        public static void SplitMesh(Mesh originalMesh, int subMeshId,
+        public static void SplitMesh(Mesh mesh, int subMeshId,
             out Vector3[] verts, out int[] triangles, out Vector2[] uv, out Vector2[] uv2, out Color[] colors)
         {
-            var refTriangles = originalMesh.GetTriangles(subMeshId);
+            var refTriangles = mesh.GetTriangles(subMeshId);
             verts = new Vector3[refTriangles.Length];
             uv = new Vector2[refTriangles.Length];
-            uv2 = new Vector2[refTriangles.Length];
-            colors = new Color[refTriangles.Length];
+            uv2 = new Vector2[mesh.uv2.Length > 0 ? refTriangles.Length : 0];
+            colors = new Color[mesh.colors.Length > 0 ? refTriangles.Length : 0];
             triangles = new int[refTriangles.Length];
 
             for (int i = 0; i < refTriangles.Length; i++)
@@ -235,10 +235,14 @@
                 var refTriangle = refTriangles[i];
 
                 triangles[i] = i;
-                verts[i] = originalMesh.vertices[refTriangle];
-                uv[i] = originalMesh.uv[refTriangle];
-                uv2[i] = originalMesh.uv2[refTriangle];
-                colors[i] = originalMesh.colors[refTriangle];
+                verts[i] = mesh.vertices[refTriangle];
+                uv[i] = mesh.uv[refTriangle];
+
+                if (mesh.uv2.Length > 0)
+                    uv2[i] = mesh.uv2[refTriangle];
+
+                if (mesh.colors.Length > 0)
+                    colors[i] = mesh.colors[refTriangle];
             }
         }
 
@@ -308,30 +312,19 @@
             return boneInfoPerVertices;
         }
 
-
-        /// <summary>
-        /// Combine meshes for same material 
-        /// </summary>
-        /// <param name="root"></param>
-        /// <param name="isIncludeInactive"></param>
-        public static List<Mesh> CombineMeshesGroupByMaterial(GameObject root, bool isDisableRenderer, bool isIncludeInactive = false,bool isRandomMeshColor=false,string excludeTag="")
+        public static List<MeshFilter> CombineMeshesGroupByMaterial(MeshRenderer[] mrs,Transform parentTr, bool isDisableRenderer, bool isIncludeInactive = false, bool isRandomMeshColor = false, string excludeTag = "")
         {
-            //clear last Groups
-            const string GROUP_NAME = "MeshGroups";
-            var parentTr = root.transform.FindGet(GROUP_NAME);
-            parentTr.gameObject.DestroyChildren();
-
             //get children meshes
-            var meshList = new List<Mesh>();
-            var mrs = root.GetComponentsInChildren<MeshRenderer>(isIncludeInactive);
-            if (mrs.Length == 0)
-                return meshList;
+            var meshFilerList = new List<MeshFilter>();
+            if (mrs == null || mrs.Length == 0)
+                return meshFilerList;
 
             // setup lists
             List<Vector3> vertices = new();
             List<int> triangles = new();
             List<Vector3> normals = new();
-            List<Vector2> uvs0 = new();
+            List<Vector2> uvs = new();
+            List<Vector2> uvs2 = new();
             List<Color> colors = new();
 
             // group children 
@@ -339,7 +332,10 @@
                 .Where(mr =>
                 {
                     var mf = mr.GetComponent<MeshFilter>();
-                    return mf && mf.sharedMesh && !mf.CompareTag(excludeTag);
+                    var isValid = mf && mf.sharedMesh;
+                    if (!string.IsNullOrEmpty(excludeTag))
+                        isValid = isValid && !mf.CompareTag(excludeTag);
+                    return isValid;
                 })
                 .GroupBy(mr => mr.sharedMaterial)
                 .ToDictionary(g => g.Key, g => g.ToList())
@@ -352,17 +348,18 @@
                 vertices.Clear();
                 triangles.Clear();
                 normals.Clear();
-                uvs0.Clear();
+                uvs.Clear();
+                uvs2.Clear();
                 colors.Clear();
 
                 var vertexOffset = 0;
                 var mat = group.Key;
                 var renderers = group.Value;
-                
-                for (int i = 0;i< renderers.Count;i++) 
+
+                for (int i = 0; i < renderers.Count; i++)
                 {
                     var renderer = renderers[i];
-                    var colorId = (i % 255f)/255f;
+                    var colorId = (i % 255f) / 255f;
                     var meshColor = new Color(colorId, colorId, colorId);
                     if (isRandomMeshColor)
                         meshColor = Random.ColorHSV();
@@ -373,7 +370,8 @@
                     vertices.AddRange(childMesh.vertices.Select(v => mf.transform.TransformPoint(v)));
 
                     normals.AddRange(childMesh.normals.Select(n => mf.transform.TransformDirection(n)));
-                    uvs0.AddRange(childMesh.uv);
+                    uvs.AddRange(childMesh.uv);
+                    uvs2.AddRange(childMesh.uv2);
 
                     colors.AddRange(Enumerable.Repeat(meshColor, childMesh.vertexCount));
                     triangles.AddRange(childMesh.triangles.Select(id => id + vertexOffset));
@@ -389,24 +387,48 @@
                 groupMesh.SetNormals(normals);
                 groupMesh.SetColors(colors);
                 groupMesh.SetTriangles(triangles, 0);
-                groupMesh.SetUVs(0, uvs0);
+                groupMesh.SetUVs(0, uvs);
+                groupMesh.SetUVs(1, uvs2);
                 groupMesh.name = "Group " + groupId;
 
                 groupMesh.RecalculateBounds();
                 groupMesh.RecalculateNormals();
                 groupMesh.Optimize();
-                meshList.Add(groupMesh);
 
                 // create gameObject
                 var go = new GameObject(groupMesh.name);
-                go.AddComponent<MeshFilter>().sharedMesh = groupMesh;
+                var newFilter = go.AddComponent<MeshFilter>();
+                newFilter.sharedMesh = groupMesh;
+                meshFilerList.Add(newFilter);
+
                 go.AddComponent<MeshRenderer>().sharedMaterial = mat;
                 go.transform.parent = parentTr;
                 go.transform.position = Vector3.zero;
 
                 groupId++;
             }
-            return meshList;
+            return meshFilerList;
+        }
+        /// <summary>
+        /// Combine meshes for same material 
+        /// </summary>
+        /// <param name="root"></param>
+        /// <param name="isIncludeInactive"></param>
+        public static List<MeshFilter> CombineMeshesGroupByMaterial(GameObject root, bool isDisableRenderer, bool isIncludeInactive = false, bool isRandomMeshColor = false, string excludeTag = "")
+        {
+            //clear last Groups
+            const string GROUP_NAME = "MeshGroups";
+            var parentTr = root.transform.FindGet(GROUP_NAME);
+            parentTr.gameObject.DestroyChildren();
+
+            return CombineMeshesGroupByMaterial(
+                root.GetComponentsInChildren<MeshRenderer>(isIncludeInactive),
+                parentTr,
+                isDisableRenderer,
+                isIncludeInactive,
+                isRandomMeshColor,
+                excludeTag
+                );
         }
     }
 }

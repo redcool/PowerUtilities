@@ -43,22 +43,29 @@ namespace PowerUtilities
             if (isCombineOnStart)
             {
                 rootGo = rootGo ? rootGo : gameObject;
-                var meshList = MeshTools.CombineMeshesGroupByMaterial(rootGo, isDisableOriginalRenderers, isIncludeInactive, isRandomMeshColor, excludeTag);
+                var meshFilterList = MeshTools.CombineMeshesGroupByMaterial(rootGo, isDisableOriginalRenderers, isIncludeInactive, isRandomMeshColor, excludeTag);
 
-#if UNITY_EDITOR
                 if (isSaveMeshes)
                 {
-                    var sceneAssetFolder = AssetDatabaseTools.CreateGetSceneFolder();
-                    foreach (var mesh in meshList)
-                    {
-                        AssetDatabaseTools.CreateAssetAtSceneFolder(mesh, $"{gameObject.name}_{mesh.name }.asset");
-                    }
-                    AssetDatabaseTools.SaveRefresh();
+                    SaveMeshFilters(meshFilterList);
                 }
-#endif
             }
         }
 
-
+        /// <summary>
+        /// Save mesh filters to scene asset folder [Editor method]
+        /// </summary>
+        /// <param name="meshFilterList"></param>
+        public static void SaveMeshFilters(List<MeshFilter> meshFilterList)
+        {
+#if UNITY_EDITOR
+            var sceneAssetFolder = AssetDatabaseTools.CreateGetSceneFolder();
+            foreach (var mf in meshFilterList)
+            {
+                AssetDatabaseTools.CreateAssetAtSceneFolder(mf.sharedMesh, $"{mf.gameObject.name}_{mf.sharedMesh.name}.asset");
+            }
+            AssetDatabaseTools.SaveRefresh();
+#endif
+        }
     }
 }

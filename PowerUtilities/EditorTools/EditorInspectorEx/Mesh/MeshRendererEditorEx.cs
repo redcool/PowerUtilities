@@ -78,8 +78,17 @@ namespace PowerUtilities
             var lightmapScaleOffsetProp = serializedObject.FindProperty("m_LightmapTilingOffset");
             EditorGUITools.BeginFoldoutHeaderGroupBox(ref isShowLightmapSetting, showLightmapSettingGUI, () =>
             {
+                EditorGUILayout.HelpBox("This setting is temporary,unity will reset when load scene", MessageType.Info);
                 EditorGUILayout.PropertyField(lightmapIndexProp);
                 EditorGUILayout.PropertyField(lightmapScaleOffsetProp);
+
+                if(GUILayout.Button(EditorGUITools.TempContent($"Add {nameof(LightmapInfoRecorder)}", "use mono save or load lightmap info")))
+                {
+                    if(target is MeshRenderer mr)
+                    {
+                        mr.gameObject.GetOrAddComponent<LightmapInfoRecorder>();
+                    }
+                }
             });
         }
 
