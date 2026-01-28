@@ -18,18 +18,21 @@ namespace PowerUtilities
         [InitializeOnLoadMethod]
         public static void Init()
         {
-            AddPowerUtilsSymbol();
+            AddProjectSymbols();
 
             AddTags();
-            AddLayers();
+            AddLayers(); 
             //AddSortingLayers();
         }
-
-        public static void AddPowerUtilsSymbol()
+        /// <summary>
+        /// Read AsmNames.txt and add define symbols
+        /// </summary>
+        public static void AddProjectSymbols()
         {
-            var asmNames = AssemblyNames.GetAssemblyNames();
-            asmNames.ForEach(asmName => 
-                PlayerSettingTools.AddMacroDefines(asmName)
+            var asmNamesFilePath = AssetDatabaseTools.FindAssetPath("AsmNames", "txt");
+            var nameDict = ConfigTool.ReadKeyValueConfig(asmNamesFilePath);
+            nameDict.ForEach(kv => 
+                PlayerSettingTools.AddMacroDefines(kv.Value)
             );
         }
 

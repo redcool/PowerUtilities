@@ -1,0 +1,2 @@
+// define project symbols
+PowerUtilities=POWER_UTILS
