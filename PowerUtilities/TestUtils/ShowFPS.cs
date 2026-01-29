@@ -1,13 +1,15 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 namespace PowerUtilities.Test
 {
     public class ShowFPS : MonoBehaviour
     {
-        public Text fpsText;
+        public Text overviewText;
         //public TMPro.TextMeshProUGUI textMeshProUGUI;
 
         [Range(30,2000)]public int maxFps=2000;
@@ -21,14 +23,16 @@ namespace PowerUtilities.Test
         [Range(0,3)]public int textureLod = 0;
         [EditorButton(onClickCall = "OnSetTextureLod")] public bool isSetTextureLod;
 
-        int fps;
+        int fpsCounter;
         float startTime;
+        StringBuilder overviewSB = new StringBuilder();
+        string fpsStr;
         // Start is called before the first frame update
         void Start()
         {
             Application.targetFrameRate = maxFps;
 
-            if (!fpsText)
+            if (!overviewText)
                 enabled = false;
         }
 
@@ -37,28 +41,43 @@ namespace PowerUtilities.Test
         {
             Application.targetFrameRate = maxFps;
 
+            UpdateFps();
+        }
+
+        private void UpdateOverviewInfo()
+        {
+            if (!overviewText)
+                return;
+
+            overviewSB.Clear();
+            overviewSB.AppendLine($"FPS: {fpsStr}");
+            overviewSB.AppendLine($"frameRate: {Application.targetFrameRate}");
+            overviewSB.AppendLine($"Screen: {Screen.width}x{Screen.height}");
+            overviewSB.AppendLine($"ShaderLod: {Shader.globalMaximumLOD}");
+            overviewSB.AppendLine($"TextureLod: {QualitySettings.globalTextureMipmapLimit}");
+            overviewText.text = overviewSB.ToString();
+        }
+
+        private void UpdateFps()
+        {
             if (isUseSmoothTime)
             {
                 var testFPS = 1f / Time.smoothDeltaTime;
-                fpsText.text = testFPS.ToString("F1");
+                fpsStr = testFPS.ToString("F1");
+                UpdateOverviewInfo();
                 return;
             }
 
             if (Time.unscaledTime - startTime > 1)
             {
-
-                if(fpsText)
-                    fpsText.text = fps.ToString();
-
-                //if(textMeshProUGUI)
-                //    textMeshProUGUI.text = fps.ToString();
-
+                fpsStr = fpsCounter.ToString();
+                UpdateOverviewInfo();
 
                 startTime = Time.unscaledTime;
-                fps = 0;
+                fpsCounter = 0;
             }
 
-            fps++;
+            fpsCounter++;
         }
 
         public void OnSetShaderLod(int lod)
