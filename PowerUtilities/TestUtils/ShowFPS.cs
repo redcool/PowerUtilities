@@ -50,16 +50,15 @@ namespace PowerUtilities.Test
                 return;
 
             overviewSB.Clear();
-            overviewSB.AppendLine($"FPS: {fpsStr}");
-            overviewSB.AppendLine($"frameRate: {Application.targetFrameRate}");
-            overviewSB.AppendLine($"Screen: {Screen.width}x{Screen.height}");
-            overviewSB.AppendLine($"ShaderLod: {Shader.globalMaximumLOD}");
-            overviewSB.AppendLine($"TextureLod: {QualitySettings.globalTextureMipmapLimit}");
+            overviewSB.AppendLine($"<b>FPS</b>: {fpsStr}");
+            overviewSB.AppendLine($"<b>frameRate</b>: {Application.targetFrameRate}");
+            overviewSB.AppendLine($"<b>Screen</b>: {Screen.width}x{Screen.height}");
+            overviewSB.AppendLine($"<b>ShaderLod</b>: {Shader.globalMaximumLOD}");
+            overviewSB.AppendLine($"<b>TextureLod</b>: {QualitySettings.globalTextureMipmapLimit}");
 #if UNITY_EDITOR
             var inputMode = (ProjectSettingManagers.InputMode)ProjectSettingManagers.GetAsset(ProjectSettingManagers.ProjectSettingTypes.ProjectSettings).FindProperty("activeInputHandler").intValue;
-            overviewSB.AppendLine($"InputMode: {inputMode}");
+            overviewSB.AppendLine($"<b>InputMode</b>: {inputMode}");
 #endif
-
             overviewText.text = overviewSB.ToString();
         }
 
