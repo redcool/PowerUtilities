@@ -55,6 +55,11 @@ namespace PowerUtilities.Test
             overviewSB.AppendLine($"Screen: {Screen.width}x{Screen.height}");
             overviewSB.AppendLine($"ShaderLod: {Shader.globalMaximumLOD}");
             overviewSB.AppendLine($"TextureLod: {QualitySettings.globalTextureMipmapLimit}");
+#if UNITY_EDITOR
+            var inputMode = (ProjectSettingManagers.InputMode)ProjectSettingManagers.GetAsset(ProjectSettingManagers.ProjectSettingTypes.ProjectSettings).FindProperty("activeInputHandler").intValue;
+            overviewSB.AppendLine($"InputMode: {inputMode}");
+#endif
+
             overviewText.text = overviewSB.ToString();
         }
 

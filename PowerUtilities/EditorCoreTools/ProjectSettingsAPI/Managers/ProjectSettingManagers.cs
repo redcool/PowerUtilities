@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -40,6 +40,12 @@ namespace PowerUtilities
             NavMeshAreas,
             DynamicsManager,
             TimeManager,
+        }
+        public enum InputMode
+        {
+            OldInputManager = 0,
+            NewInputSystem = 1,
+            Both = 2,
         }
         /// <summary>
         /// Get file path that in folder ProjectSettings.
