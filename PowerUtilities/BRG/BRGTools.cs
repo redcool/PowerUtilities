@@ -163,7 +163,11 @@ namespace PowerUtilities
                 filterSettings = new BatchFilterSettings
                 {
                     allDepthSorted = true,
-                    renderingLayerMask = 0xffffffff,
+                    layer = 0, // default layer 0
+                    renderingLayerMask = 0xffffffff, // default all layer
+                    receiveShadows = true,
+                    shadowCastingMode = ShadowCastingMode.On,
+                    staticShadowCaster = false,
                 },
             };
             drawCmdPt->drawRanges[0] = drawRange0;

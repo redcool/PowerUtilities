@@ -1,7 +1,8 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Splines;
 
 namespace PowerUtilities
 {
@@ -12,7 +13,7 @@ namespace PowerUtilities
     [Serializable]
     public class LockTargetInfo
     {
-        public bool isLockPosition;
+        public bool isEnable;
         public Transform target;
         public Vector3 offset;
         public TargetOffetMode offsetMode;
@@ -29,14 +30,53 @@ namespace PowerUtilities
         }
     }
 
+    [Serializable]
+    public class LockSpineInfo
+    {
+        public bool isEnable;
+
+        [Header("spline")]
+        public SplineContainer spline;
+        public int splineIndex = 0;
+        public float time=0.2f;// how long time from [0,1]
+        [Header("Rate")]
+        public bool isAutoRate = true;
+        public PlayMode playMode;
+
+        [Range(0,1)] public float curRate = 0f;
+
+        [Header("pos")]
+        public Vector3 offset;
+        public TargetOffetMode offsetMode;
+        public float smoothTime = 0.2f;
+
+        float endRate = 1f;
+
+        public Vector3 GetSplinePos()
+        {
+            if (!spline)
+                return Vector3.zero;
+
+            if (isAutoRate)
+                MathTools.MoveTowards(ref curRate, ref endRate, playMode, time);
+
+            return spline.EvaluatePosition(splineIndex, curRate);
+        }
+
+
+
+        public bool IsValid() => isEnable && spline && time > 0;
+    }
+
     [ExecuteAlways]
     public class TransformConstraint : MonoBehaviour
     {
 
-        public LockTargetInfo positionLock = new LockTargetInfo();
+        public LockTargetInfo positionLock = new ();
 
-        public LockTargetInfo rotateLock = new LockTargetInfo();
+        public LockTargetInfo rotateLock = new ();
 
+        public LockSpineInfo splineLock = new();
         // Start is called before the first frame update
         void Start()
         {
@@ -46,14 +86,14 @@ namespace PowerUtilities
         // Update is called once per frame
         void Update()
         {
-            LockPosition();
-
-            LockRotation();
+            TryLockPosition();
+            TryLockRotation();
+            TryLockSpline();
         }
 
-        private void LockRotation()
+        private void TryLockRotation()
         {
-            if (!rotateLock.isLockPosition || !rotateLock.target)
+            if (!rotateLock.isEnable || !rotateLock.target)
                 return;
 
             var targetForward = rotateLock.target.forward;
@@ -62,9 +102,9 @@ namespace PowerUtilities
             transform.forward = Vector3.RotateTowards(transform.forward, targetForward, rotateLock.smoothTime * Time.deltaTime, 0);
         }
 
-        private void LockPosition()
+        private void TryLockPosition()
         {
-            if (!positionLock.isLockPosition || !positionLock.target)
+            if (!positionLock.isEnable || !positionLock.target)
                 return;
 
             var targetPos = positionLock.target.position;
@@ -74,6 +114,16 @@ namespace PowerUtilities
             transform.position = Vector3.SmoothDamp(transform.position, targetPos, ref velocity, positionLock.smoothTime);
         }
 
+        void TryLockSpline()
+        {
+            if (!splineLock.IsValid())
+                return;
+            var spline = splineLock.spline;
+            var splinePos = splineLock.GetSplinePos();
+            LockTargetInfo.SetupOffset(ref splinePos, splineLock.offset, splineLock.offsetMode);
 
+            Vector3 velocity = default;
+            transform.position = Vector3.SmoothDamp(transform.position, splinePos, ref velocity, splineLock.smoothTime);
+        }
     }
 }

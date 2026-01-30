@@ -56,7 +56,7 @@ namespace PowerUtilities
 
         private void LockPosition()
         {
-            if (!positionLock.isLockPosition || !positionLock.target)
+            if (!positionLock.isEnable || !positionLock.target)
                 return;
 
             rectTr.anchorMin = Vector2.zero;
