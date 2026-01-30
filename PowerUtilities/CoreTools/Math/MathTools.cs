@@ -1,5 +1,6 @@
 ﻿namespace PowerUtilities
 {
+    using System;
     using UnityEngine;
 
     public enum PlayMode
@@ -34,28 +35,36 @@
         /// <param name="endRate">end of rate,[0,1]</param>
         /// <param name="playMode">play mode</param>
         /// <param name="time">time of run start to end</param>
-        public static void MoveTowards(ref float curRate, ref float endRate, PlayMode playMode, float time)
+        /// <param name="maxRate">max of the rate,default is 1</param>
+        public static void MoveTowards(ref float curRate, ref float endRate, PlayMode playMode, float time,float maxRate=1)
         {
-            //1 : is max rate
-            var speed = 1 / time;
+            var speed = maxRate / time;
 
             if (playMode == PlayMode.Loop)
             {
-                //curRate = Mathf.Repeat(curRate, 1f);
-                if (curRate >= 1)
-                {
-                    curRate = 0;
-                }
+                curRate %= maxRate;
             }
             else if (playMode == PlayMode.PingPong)
             {
-                endRate = curRate <= 0 ? 1 : curRate >= 1 ? 0f : endRate;
-                //endRate = Mathf.PingPong(curRate, length);
+                endRate = curRate <= 0 ? maxRate : curRate >= maxRate ? 0f : endRate;
             }
             else
-                endRate = 1;
+                endRate = maxRate;
 
             curRate = Mathf.MoveTowards(curRate, endRate, speed * Time.deltaTime);
+        }
+        /// <summary>
+        /// PingPong function
+        /// demo:
+        ///     value2 = MathTools.PingPong(Time.time, 1);
+        /// </summary>
+        /// <param name="t"></param>
+        /// <param name="length"></param>
+        /// <returns></returns>
+        public static float PingPong(float t, float length)
+        {
+            float value = t % (length * 2);
+            return length - Math.Abs(value - length);
         }
     }
 }
