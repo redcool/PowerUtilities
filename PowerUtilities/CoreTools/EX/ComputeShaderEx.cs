@@ -129,11 +129,12 @@ namespace PowerUtilities
         /// <param name="sourceTexLod">The mipmap level of the source texture to copy. The default is 0.</param>
         /// <param name="gammaValue">The gamma correction value to apply during the copy operation. A value of 1 means no correction. The default
         /// is 1.</param>
-        public static void CopyFrom(this Texture2D resultTex, Texture sourceTex, int sourceTexId = 0, int sourceTexLod = 0, float gammaValue = 1)
+        /// <param name="resultTexId">The texture array slice or ID in the result texture to copy to. The default is 0.</param>
+        public static void CopyFrom(this Texture2D resultTex, Texture sourceTex, int sourceTexId = 0, int sourceTexLod = 0, float gammaValue = 1,int resultTexId=0)
         {
             var resultRT = RenderTextureTools.GetTemporaryUAV(resultTex.width, resultTex.height, RenderTextureFormat.Default);
 
-            DispatchKernel_CopyTexture(sourceTex, resultRT, sourceTexId, sourceTexLod,gammaValue);
+            DispatchKernel_CopyTexture(sourceTex, resultRT, sourceTexId, sourceTexLod,gammaValue,resultTexId);
             resultRT.ReadRenderTexture(ref resultTex);
             resultRT.ReleaseSafe();
         }
