@@ -1,13 +1,20 @@
 Shader "Hidden/kMotion/CameraMotionVectors"
 {
+    Properties
+    {
+    [GroupPresetBlendMode(,,_SrcMode,_DstMode)]_PresetBlendMode("_PresetBlendMode",int)=0
+    // [GroupEnum(Alpha,UnityEngine.Rendering.BlendMode)]
+    [HideInInspector]_SrcMode("_SrcMode",int) = 1
+    [HideInInspector]_DstMode("_DstMode",int) = 0
+    }
     SubShader
     {
         Pass
         {
-            // blend [_SrcMode][_DstMode]
+            blend [_SrcMode][_DstMode]
             // blendOp [_BlendOp]
             Cull Off
-            ZWrite On
+            ZWrite Off
             ZTest Always
 
             HLSLPROGRAM
@@ -16,12 +23,12 @@ Shader "Hidden/kMotion/CameraMotionVectors"
 
             #pragma vertex vert
             #pragma fragment frag
-            #pragma multi_compile _ USE_WORLD_POS_TEXTURE
 
             // -------------------------------------
             // Includes
-            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
-            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareDepthTexture.hlsl"
+            #include "../../../../../PowerShaderLib/Lib/UnityLib.hlsl"
+            #include "../../../../../PowerShaderLib/Lib/BlitLib.hlsl"
+            #include "../../../../../PowerShaderLib/Lib/ScreenTextures.hlsl"
 
         #if defined(USING_STEREO_MATRICES)
             float4x4 _PrevViewProjMStereo[2];
@@ -29,48 +36,41 @@ Shader "Hidden/kMotion/CameraMotionVectors"
         #else
             #define  _PrevViewProjM _PrevViewProjMatrix
         #endif
-
+            float4x4 _PrevIVP;
             // -------------------------------------
             // Structs
-            struct Attributes
+            struct appdata
             {
-                uint vertexID   : SV_VertexID;
+                float4 vertex : POSITION;
+                float2 uv : TEXCOORD0;
+                uint vertexId:SV_VERTEXID;
             };
 
-            struct Varyings
+            struct v2f
             {
-                float4 position : SV_POSITION;
+                float2 uv : TEXCOORD0;
+                float4 vertex : SV_POSITION;
             };
 
             // -------------------------------------
             // Vertex
-            Varyings vert(Attributes input)
+            v2f vert (appdata i)
             {
-                Varyings output;
-                output.position = GetFullScreenTriangleVertexPosition(input.vertexID);
-                return output;
+                v2f o = (v2f)0;
+                FullScreenTriangleVert(i.vertexId,o.vertex/**/,o.uv/**/);
+    
+                return o;
             }
             
-            TEXTURE2D(_WorldPosTexture);
+            TEXTURE2D_FLOAT(_CameraDepthAttachment);
+            TEXTURE2D_FLOAT(_CameraDepthTexture2);
+            
+            // SAMPLER(sampler_CameraDepthAttachment);
+            SAMPLER(sampler_point_clamp);
 
-            // -------------------------------------
-            // Fragment
-            half4 frag(Varyings input
-            // , out float outDepth : SV_Depth
-            ) : SV_Target
-            {
-                // Calculate PositionInputs
-            #if defined(USE_WORLD_POS_TEXTURE)
-                float3 worldPos = LOAD_TEXTURE2D(_WorldPosTexture,input.position.xy).xyz;
-            #else
-                half depth = LoadSceneDepth(input.position.xy).x;
-                // outDepth = depth;
-
-                half2 screenSize = _ScreenSize.zw;
-                PositionInputs positionInputs = GetPositionInput(input.position.xy, screenSize, depth, UNITY_MATRIX_I_VP, UNITY_MATRIX_V);
-                float3 worldPos = positionInputs.positionWS;
-            #endif
-
+            float2 GetMV(float2 suv){
+                float rawDepth = SAMPLE_TEXTURE2D(_CameraDepthTexture,sampler_point_clamp,suv);
+                float3 worldPos = ScreenToWorldPos(suv,rawDepth,UNITY_MATRIX_I_VP); //
                 // Calculate positions
                 float4 previousPositionVP = mul(_PrevViewProjM, float4(worldPos, 1.0));
                 float4 positionVP = mul(UNITY_MATRIX_VP, float4(worldPos, 1.0));
@@ -86,7 +86,37 @@ Shader "Hidden/kMotion/CameraMotionVectors"
                 // Convert velocity from Clip space (-1..1) to NDC 0..1 space
                 // Note it doesn't mean we don't have negative value, we store negative or positive offset in NDC space.
                 // Note: ((positionVP * 0.5 + 0.5) - (previousPositionVP * 0.5 + 0.5)) = (velocity * 0.5)
-                return half4(velocity.xy * 0.5, 0, 0);
+                return velocity.xy * 0.5;
+            }
+            /** render pass order:
+                1 render scene pass
+                2 MotionVector pass
+                3 copy depth pass
+            */
+            float2 GetMV2(float2 suv){
+                float rawDepth = SAMPLE_TEXTURE2D(_CameraDepthTexture,sampler_point_clamp,suv);
+                float3 worldPos = ScreenToWorldPos(suv,rawDepth,_PrevIVP); //
+
+                float4 prevPosNDC = mul(_PrevViewProjM,float4(worldPos,0));
+                prevPosNDC /= prevPosNDC.w;
+                half isFar = IsTooFar(rawDepth.x);
+
+                float curDepth = SAMPLE_TEXTURE2D(_CameraDepthAttachment,sampler_point_clamp,suv);
+                float3 curWorldPos = ScreenToWorldPos(suv,curDepth,UNITY_MATRIX_I_VP);
+                float4 curPosNDC = mul(UNITY_MATRIX_VP,float4(curWorldPos,0));
+                curPosNDC /= curPosNDC.w;
+
+                float2 mv = curPosNDC.xy - prevPosNDC.xy;
+                return mv;
+            }
+            // -------------------------------------
+            // Fragment
+            half4 frag(v2f i
+            // , out float outDepth : SV_Depth
+            ) : SV_Target
+            {
+                float2 suv = i.uv;
+                return half4(GetMV(suv),0,0);
             }
 
             ENDHLSL

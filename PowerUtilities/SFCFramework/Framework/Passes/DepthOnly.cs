@@ -79,10 +79,9 @@ namespace PowerUtilities.RenderFeatures
             desc.msaaSamples = 1;
             //cmd.GetTemporaryRT(depthTexId, desc);
 
-            if(!depthTex || depthTex.width != desc.width || depthTex.height != desc.height)
+            if(depthTex.IsNeedAlloc(desc))
             {
-                if(depthTex)
-                    depthTex.Release();
+                depthTex?.Release();
 
                 depthTex = new RenderTexture(desc) { name = Feature.depthTextureName };
             }
@@ -91,8 +90,7 @@ namespace PowerUtilities.RenderFeatures
 
         public override void OnFinishCameraStackRendering(CommandBuffer cmd)
         {
-            if (depthTex)
-                depthTex.Release();
+            depthTex?.Release();
         }
 
     }

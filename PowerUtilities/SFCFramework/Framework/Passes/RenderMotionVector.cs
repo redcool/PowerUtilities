@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Reflection;
 using UnityEngine;
@@ -17,6 +17,10 @@ namespace PowerUtilities.RenderFeatures
         [Header("Texture")]
         [Tooltip("create temporary rt : _MotionVectorTexture")]
         public bool isCreateMotionVectorTexture;
+        public string motionVectorTextureName = "_MotionVectorTexture";
+
+        //[Header("RenderTarget")]
+        //public bool isSetRenderTargetTo_MotionVectorTexture;
 
         [Header("Camera Motion Vectors")]
         [Tooltip("draw fullscreen triangle, fill _MotionVectorTexture")]
@@ -24,14 +28,11 @@ namespace PowerUtilities.RenderFeatures
 
         [LoadAsset("CameraMotionVector.mat")]
         public Material cameraMotionMat;
-        [Tooltip("get worldPos from _WorldPosTexture or depthTexture reconstruct")]
-        public bool isUseWorldPosTexture;
-        [Tooltip("graphics device is gles3 ,use _WorldPosTexture")]
-        public bool isUseWorldPosTextureWhenGLES3;
 
         //public BlendMode srcMode = BlendMode.One, dstMode = BlendMode.Zero;
         //[EnumSearchable(enumType = typeof(BlendOp))]
         //public BlendOp blendOp = BlendOp.Max;
+
 
         [Header("Object Motion Vectors")]
         [Tooltip("draw scene once, get object motions,fill _MotionVectorTexture,need objectMotionMaterial")]
@@ -50,13 +51,13 @@ namespace PowerUtilities.RenderFeatures
     public class RenderMotionVectorPass : SRPPass<RenderMotionVector>
     {
         const GraphicsFormat motionFormat = GraphicsFormat.R16G16_SFloat;
-
+        RenderTexture motionTexture;
+        Matrix4x4 _PrevVP,_PrevIVP;
         
         public override bool CanExecute()
         {
             var isRenderValid = (Feature.isRenderCameraMotionVectors && Feature.cameraMotionMat) || (Feature.isDrawObjectMotionVectors && Feature.objectMotionMaterial);
-
-            return isRenderValid && base.CanExecute();
+            return isRenderValid && !camera.IsPreviewCamera() && base.CanExecute();
         }
         public RenderMotionVectorPass(RenderMotionVector feature) : base(feature)
         {
@@ -67,25 +68,22 @@ namespace PowerUtilities.RenderFeatures
             ref var cameraData = ref renderingData.cameraData;
             var camera = cameraData.camera;
 
-            if (camera.cameraType == CameraType.Preview)
-                return;
+            //try create rt
+            if(Feature.isCreateMotionVectorTexture)
+                CreateMotionTexture(cmd, cameraData.cameraTargetDescriptor);
 
-            if (Feature.isDrawObjectMotionVectors || Feature.isRenderCameraMotionVectors)
-            {
-                cmd.SetRenderTarget(ShaderPropertyIdentifier._MotionVectorTexture);
-                cmd.Execute(ref context);
-            }
+            //get rt
+            RenderTextureTools.TryGetRT(Feature.motionVectorTextureName,out motionTexture);
+            //set target and clearTarget
+            cmd.SetRenderTarget(motionTexture);
+            cmd.ClearRenderTarget(false, true, Color.clear);
+            cmd.Execute(ref context);
+            
 
-            Matrix4x4 viewProjMatrix = default;
-            var prevViewProjMatrix = MotionVectorData.Instance().GetViewProjMatrix(camera, ref viewProjMatrix);
 
-            Shader.SetGlobalMatrix(ShaderPropertyIds._PrevViewProjMatrix, prevViewProjMatrix);
-            Shader.SetGlobalMatrix(ShaderPropertyIds._ViewProjMatrix, viewProjMatrix);
 
             //camera.depthTextureMode |= DepthTextureMode.MotionVectors | DepthTextureMode.Depth; // great importance
             
-            UpdateMotionMaterial(cmd);
-
             if (Feature.isRenderCameraMotionVectors)
                 DrawCameraMotionVectors(cmd);
 
@@ -114,29 +112,25 @@ namespace PowerUtilities.RenderFeatures
 
         private void DrawCameraMotionVectors(CommandBuffer cmd)
         {
+            var viewProjMatrix = GL.GetGPUProjectionMatrix(camera.projectionMatrix, true) * camera.worldToCameraMatrix;
+            //Debug.Log(viewProjMatrix != _PrevVP);
+
+            Shader.SetGlobalMatrix(ShaderPropertyIds._PrevViewProjMatrix, _PrevVP);
+            Shader.SetGlobalMatrix(ShaderPropertyIds._ViewProjMatrix, viewProjMatrix);
+            Shader.SetGlobalMatrix(nameof(_PrevIVP), _PrevVP.inverse);
+
             cmd.DrawProcedural(Matrix4x4.identity, Feature.cameraMotionMat, 0, MeshTopology.Triangles, 3);
+            //cmd.Execute(ref context);
+
+            // keep previous view-projection matrix
+            _PrevVP = viewProjMatrix;
         }
 
-        private void UpdateMotionMaterial(CommandBuffer cmd)
+        public void CreateMotionTexture(CommandBuffer cmd, RenderTextureDescriptor desc)
         {
-            var useWorldPosTex = Feature.isUseWorldPosTexture
-                || (Feature.isUseWorldPosTextureWhenGLES3 && SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLES3);
-            cmd.EnableShaderKeyword("USE_WORLD_POS_TEXTURE");
-
-
-            //Feature.cameraMotionMat.SetFloat("_SrcMode", (int)Feature.srcMode);
-            //Feature.cameraMotionMat.SetFloat("_DstMode", (int)Feature.dstMode);
-            //Feature.cameraMotionMat.SetFloat("_BlendOp", (int)Feature.blendOp);
-        }
-
-        public override void Configure(CommandBuffer cmd, RenderTextureDescriptor cameraTextureDescriptor)
-        {
-            if (Feature.isCreateMotionVectorTexture)
-            {
-                var desc = cameraTextureDescriptor;
-                desc.graphicsFormat = motionFormat;
-                cmd.GetTemporaryRT(ShaderPropertyIds._MotionVectorTexture, desc);
-            }
+            desc.graphicsFormat = motionFormat;
+            desc.depthBufferBits = 0;
+            RenderTextureTools.CreateRT(ref motionTexture, desc, Feature.motionVectorTextureName, FilterMode.Bilinear);
         }
 
     }
