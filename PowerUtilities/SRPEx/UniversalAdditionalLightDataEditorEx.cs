@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -6,6 +6,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+using Object = UnityEngine.Object;
 
 namespace PowerUtilities
 {
@@ -21,8 +22,18 @@ namespace PowerUtilities
         GUIContent showDefaultSettings = new GUIContent("ShowDefaultSettings","Show all AdditionalLightData paramerters");
         bool isFoldShowDefaultSettings;
 
+        Object scriptObj;
+        private void OnEnable()
+        {
+            scriptObj = AssetDatabaseTools.FindAssetPathAndLoad<Object>(out _, GetType().Name);
+        }
         public override void OnInspectorGUI()
         {
+            using (new EditorGUI.DisabledGroupScope(true))
+            {
+                EditorGUILayout.ObjectField(GUIContentEx.TempContent("Script : ", "Script draw gui "), scriptObj, typeof(Object), false);
+            }
+
             EditorGUI.indentLevel++;
             serializedObject.UpdateIfRequiredOrScript();
 

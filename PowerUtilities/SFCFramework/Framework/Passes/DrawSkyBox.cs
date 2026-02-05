@@ -13,7 +13,7 @@ namespace PowerUtilities.RenderFeatures
     public class DrawSkyBox : SRPFeature
     {
         [Header("URP Skybox")]
-        [Tooltip("reset urp SkyBox's target to current renderTarget")]
+        [Tooltip("Reset urp SkyBox's target to current renderTarget[0]")]
         public bool isResetURPSkyBoxTarget;
 
         public override ScriptableRenderPass GetPass()
@@ -62,8 +62,7 @@ namespace PowerUtilities.RenderFeatures
             RenderTargetHolder.GetLastTargets(renderer, out var colorTargets, out var depthTarget);
 
             var urpSkyPass = renderer.GetRenderPass<DrawSkyboxPass>(ScriptableRendererEx.PassFieldNames.m_DrawSkyboxPass);
-            if (urpSkyPass != null)
-                urpSkyPass.ConfigureTarget(colorTargets, depthTarget);
+            urpSkyPass?.ConfigureTarget(colorTargets[0], depthTarget);
         }
     }
 }

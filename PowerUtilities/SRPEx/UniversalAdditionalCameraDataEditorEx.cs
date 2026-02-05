@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -21,14 +21,25 @@ namespace PowerUtilities
             transparentSortAxis = new GUIContent("transparentSortAxis", "transparentSort Axis"),
             opaqueSortModeContent = new GUIContent("opaqueSortMode", "opaque items sorting mode"),
             cameraDepthContent = new GUIContent("Depth", "camera 's rendering order"),
+            cameraDepthTextureGUI = new GUIContent("Depth Texture", "camera 's depth texture mode"),
             camerasContent = new GUIContent("Cameras", "setup overlay cameras,will sync CameraEditor"),
             opaqueTextureContent = new GUIContent("Opaque Texture", "setup opaque Texture override"),
             showDefaultSettings = new GUIContent("Default Camera Settings", "show all AdditionalCameraData properties");
 
         bool isFoldDefaultSettings;
+        Object scriptObj;
+        private void OnEnable()
+        {
+            scriptObj = AssetDatabaseTools.FindAssetPathAndLoad<Object>(out _, GetType().Name);
+        }
 
         public override void OnInspectorGUI()
         {
+            using (new EditorGUI.DisabledGroupScope(true))
+            {
+                EditorGUILayout.ObjectField(GUIContentEx.TempContent("Script : ", "Script draw gui "), scriptObj, typeof(Object), false);
+            }
+
             var data = target as UniversalAdditionalCameraData;
             var cam = data.GetComponent<Camera>();
 
@@ -49,6 +60,7 @@ namespace PowerUtilities
 
             // draw depth
             cam.depth = EditorGUILayout.FloatField(cameraDepthContent, cam.depth);
+            cam.depthTextureMode = (DepthTextureMode)EditorGUILayout.EnumFlagsField(cameraDepthTextureGUI, cam.depthTextureMode);
 
             // show opaque texture
             EditorGUILayout.PropertyField(serializedObject.FindProperty("m_RequiresOpaqueTextureOption"), opaqueTextureContent);
