@@ -78,12 +78,9 @@ namespace PowerUtilities.RenderFeatures
             cmd.SetRenderTarget(motionTexture);
             cmd.ClearRenderTarget(false, true, Color.clear);
             cmd.Execute(ref context);
-            
 
+            camera.depthTextureMode |= DepthTextureMode.MotionVectors | DepthTextureMode.Depth; // great importance
 
-
-            //camera.depthTextureMode |= DepthTextureMode.MotionVectors | DepthTextureMode.Depth; // great importance
-            
             if (Feature.isRenderCameraMotionVectors)
                 DrawCameraMotionVectors(cmd);
 

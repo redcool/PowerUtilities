@@ -124,6 +124,8 @@
         [EditorDisableGroup(targetPropName = "overridePerObjectData")]
         public PerObjectData perObjectData;
 
+        [Tooltip("MotionVector need DepthTextureMode.MotionVectors")]
+        public DepthTextureMode cameraDepthTextureMode = DepthTextureMode.MotionVectors;
         //-------------------------------------- override light
         [Header("--- override mainLight")]
         [EditorBorder(5)]
@@ -176,6 +178,7 @@
         public float cameraFOV = 60;
         [EditorDisableGroup(targetPropName = "overrideCamera")]
         public Vector4 cameraOffset;
+
         //-------------------------------------- override skybox
         [Header("SkyBox Pass")]
         [EditorBorder(1)]
@@ -292,8 +295,6 @@
             if (Feature.isUseReflectionCamera)
                 RenderingUtils.SetViewAndProjectionMatrices(cmd, viewMat, projMat, false);
         }
-
-
 
         private void SetupRenderReflectionCamera(ref CameraData cameraData, CommandBuffer cmd, Matrix4x4 viewMat, Matrix4x4 projMat)
         {
@@ -528,10 +529,12 @@
 
             RestoreDrawSettings(ref renderingData, cmd);
         }
-        
+
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
         {
-            DrawScene(context,ref renderingData, cmd);
+            if(camera.IsGameCamera())
+                camera.depthTextureMode = Feature.cameraDepthTextureMode;
+            DrawScene(context, ref renderingData, cmd);
         }
 
         public override void OnCameraCleanup(CommandBuffer cmd)
