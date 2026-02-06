@@ -1,4 +1,4 @@
-Shader "Hidden/kMotion/CameraMotionVectors"
+Shader "Hidden/kMotion/RenderCameraMotionVectors"
 {
     Properties
     {
@@ -30,12 +30,6 @@ Shader "Hidden/kMotion/CameraMotionVectors"
             #include "../../../../../PowerShaderLib/Lib/BlitLib.hlsl"
             #include "../../../../../PowerShaderLib/Lib/ScreenTextures.hlsl"
 
-        #if defined(USING_STEREO_MATRICES)
-            float4x4 _PrevViewProjMStereo[2];
-            #define _PrevViewProjM _PrevViewProjMStereo[unity_StereoEyeIndex]
-        #else
-            #define  _PrevViewProjM _PrevViewProjMatrix
-        #endif
             float4x4 _PrevIVP;
             // -------------------------------------
             // Structs
@@ -63,16 +57,16 @@ Shader "Hidden/kMotion/CameraMotionVectors"
             }
             
             TEXTURE2D_FLOAT(_CameraDepthAttachment);
-            TEXTURE2D_FLOAT(_CameraDepthTexture2);
             
             // SAMPLER(sampler_CameraDepthAttachment);
             SAMPLER(sampler_point_clamp);
 
             float2 GetMV(float2 suv){
-                float rawDepth = SAMPLE_TEXTURE2D(_CameraDepthTexture,sampler_point_clamp,suv);
+                float rawDepth = SAMPLE_TEXTURE2D(_CameraDepthAttachment,sampler_point_clamp,suv);
                 float3 worldPos = ScreenToWorldPos(suv,rawDepth,UNITY_MATRIX_I_VP); //
+                
                 // Calculate positions
-                float4 previousPositionVP = mul(_PrevViewProjM, float4(worldPos, 1.0));
+                float4 previousPositionVP = mul(_PrevViewProjMatrix, float4(worldPos, 1.0));
                 float4 positionVP = mul(UNITY_MATRIX_VP, float4(worldPos, 1.0));
 
                 previousPositionVP.xy *= rcp(previousPositionVP.w);
@@ -95,19 +89,21 @@ Shader "Hidden/kMotion/CameraMotionVectors"
             */
             float2 GetMV2(float2 suv){
                 float rawDepth = SAMPLE_TEXTURE2D(_CameraDepthTexture,sampler_point_clamp,suv);
-                float3 worldPos = ScreenToWorldPos(suv,rawDepth,_PrevIVP); //
+                float3 worldPos = ScreenToWorldPos(suv,rawDepth,UNITY_MATRIX_I_VP); //
 
-                float4 prevPosNDC = mul(_PrevViewProjM,float4(worldPos,0));
+                float4 prevPosNDC = mul(_PrevViewProjMatrix,float4(worldPos,1));
                 prevPosNDC /= prevPosNDC.w;
                 half isFar = IsTooFar(rawDepth.x);
 
                 float curDepth = SAMPLE_TEXTURE2D(_CameraDepthAttachment,sampler_point_clamp,suv);
                 float3 curWorldPos = ScreenToWorldPos(suv,curDepth,UNITY_MATRIX_I_VP);
-                float4 curPosNDC = mul(UNITY_MATRIX_VP,float4(curWorldPos,0));
+                float4 curPosNDC = mul(_NonJitteredViewProjMatrix,float4(curWorldPos,1));
                 curPosNDC /= curPosNDC.w;
 
+                half isDiff = rawDepth != curDepth;
+                // return isDiff;
                 float2 mv = curPosNDC.xy - prevPosNDC.xy;
-                return mv;
+                return mv*0.5 * isDiff;
             }
             // -------------------------------------
             // Fragment
@@ -116,7 +112,8 @@ Shader "Hidden/kMotion/CameraMotionVectors"
             ) : SV_Target
             {
                 float2 suv = i.uv;
-                return half4(GetMV(suv),0,0);
+
+                return half4(GetMV2(suv),0,0);
             }
 
             ENDHLSL

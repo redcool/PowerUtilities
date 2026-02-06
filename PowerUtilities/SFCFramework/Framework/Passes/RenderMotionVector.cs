@@ -41,6 +41,8 @@ namespace PowerUtilities.RenderFeatures
         public bool isOverrideObjectMotionMat;
         [LoadAsset("ObjectMotionVector.mat")]
         public Material objectMotionMaterial;
+        [Tooltip("clear mv target")]
+        public bool isClearTarget;
 
         public override ScriptableRenderPass GetPass()
         {
@@ -74,9 +76,11 @@ namespace PowerUtilities.RenderFeatures
 
             //get rt
             RenderTextureTools.TryGetRT(Feature.motionVectorTextureName,out motionTexture);
+            cmd.BeginSampleExecute(Feature.GetName(),ref context);
             //set target and clearTarget
             cmd.SetRenderTarget(motionTexture);
-            cmd.ClearRenderTarget(false, true, Color.clear);
+            if(Feature.isClearTarget)
+                cmd.ClearRenderTarget(false, true, Color.clear);
             cmd.Execute(ref context);
 
             camera.depthTextureMode |= DepthTextureMode.MotionVectors | DepthTextureMode.Depth; // great importance
@@ -86,6 +90,8 @@ namespace PowerUtilities.RenderFeatures
 
             if (Feature.isDrawObjectMotionVectors)
                 DrawObjectMotionVectors(ref context, ref renderingData, camera);
+
+            cmd.EndSampleExecute(Feature.GetName(), ref context);
         }
 
         private void DrawObjectMotionVectors(ref ScriptableRenderContext context, ref RenderingData renderingData, Camera camera)
