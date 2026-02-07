@@ -59,10 +59,13 @@ Shader "Hidden/kMotion/RenderCameraMotionVectors"
             TEXTURE2D_FLOAT(_CameraDepthAttachment);
             
             // SAMPLER(sampler_CameraDepthAttachment);
-            SAMPLER(sampler_point_clamp);
+            SAMPLER(sampler_linear_clamp);
 
+            /**
+                Not work when camera not move
+            */
             float2 GetMV(float2 suv){
-                float rawDepth = SAMPLE_TEXTURE2D(_CameraDepthAttachment,sampler_point_clamp,suv);
+                float rawDepth = SAMPLE_TEXTURE2D(_CameraDepthAttachment,sampler_linear_clamp,suv);
                 float3 worldPos = ScreenToWorldPos(suv,rawDepth,UNITY_MATRIX_I_VP); //
                 
                 // Calculate positions
@@ -82,26 +85,29 @@ Shader "Hidden/kMotion/RenderCameraMotionVectors"
                 // Note: ((positionVP * 0.5 + 0.5) - (previousPositionVP * 0.5 + 0.5)) = (velocity * 0.5)
                 return velocity.xy * 0.5;
             }
-            /** render pass order:
+            /** 
+                check 2 depthBuffer, work when camera not move
+
+                render pass order:
                 1 render scene pass
                 2 MotionVector pass
                 3 copy depth pass
             */
             float2 GetMV2(float2 suv){
-                float rawDepth = SAMPLE_TEXTURE2D(_CameraDepthTexture,sampler_point_clamp,suv);
+                float rawDepth = SAMPLE_TEXTURE2D(_CameraDepthTexture,sampler_linear_clamp,suv);
                 float3 worldPos = ScreenToWorldPos(suv,rawDepth,UNITY_MATRIX_I_VP); //
 
                 float4 prevPosNDC = mul(_PrevViewProjMatrix,float4(worldPos,1));
                 prevPosNDC /= prevPosNDC.w;
                 half isFar = IsTooFar(rawDepth.x);
 
-                float curDepth = SAMPLE_TEXTURE2D(_CameraDepthAttachment,sampler_point_clamp,suv);
+                float curDepth = SAMPLE_TEXTURE2D(_CameraDepthAttachment,sampler_linear_clamp,suv);
                 float3 curWorldPos = ScreenToWorldPos(suv,curDepth,UNITY_MATRIX_I_VP);
                 float4 curPosNDC = mul(_NonJitteredViewProjMatrix,float4(curWorldPos,1));
                 curPosNDC /= curPosNDC.w;
 
                 half isDiff = rawDepth != curDepth;
-                // return isDiff;
+                // return curDepth-rawDepth;
                 float2 mv = curPosNDC.xy - prevPosNDC.xy;
                 return mv*0.5 * isDiff;
             }
