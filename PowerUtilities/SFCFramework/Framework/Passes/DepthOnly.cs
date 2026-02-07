@@ -81,7 +81,8 @@ namespace PowerUtilities.RenderFeatures
 
             if(depthTex.IsNeedAlloc(desc))
             {
-                depthTex?.Release();
+                if(depthTex)
+                    depthTex.Release();
 
                 depthTex = new RenderTexture(desc) { name = Feature.depthTextureName };
             }
@@ -90,7 +91,8 @@ namespace PowerUtilities.RenderFeatures
 
         public override void OnFinishCameraStackRendering(CommandBuffer cmd)
         {
-            depthTex?.Release();
+            if(depthTex)
+                depthTex.Release();
         }
 
     }
