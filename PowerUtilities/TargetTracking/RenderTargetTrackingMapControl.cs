@@ -57,6 +57,8 @@ namespace PowerUtilities
         public RenderTexture trackRT;
         [Tooltip("shader set global texture")]
         public string trackTextureName = "_TrackTexture";
+        public string trackMinWorldPos = "_TrackMinWorldPos";
+        public string trackMaxWorldPos = "_TrackMaxWorldPos";
         [Tooltip("texture channel mask(1:on,0:off)")]
         public Vector4 trackTextureChannelMask = new Vector4(1, 0, 0, 0);
         public Color clearColor;
@@ -128,6 +130,8 @@ namespace PowerUtilities
 
             UpdateBoxSceneFogMaterial(boxSceneFogRender, ref boxSceneFogMat, minPos, maxPos, trackRT);
             Shader.SetGlobalTexture(trackTextureName, trackRT);
+            Shader.SetGlobalVector(trackMinWorldPos, minPos);
+            Shader.SetGlobalVector(trackMaxWorldPos, maxPos);
         }
 
         private void FindTrackTargets(ref GameObject[] trackTargets)

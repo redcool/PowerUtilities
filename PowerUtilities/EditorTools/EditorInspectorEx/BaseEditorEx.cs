@@ -100,6 +100,8 @@ namespace PowerUtilities
         public virtual void OnDestroy()
         {
             defaultEditor.InvokeDelegate<Action>(ref methodInfoDict, nameof(OnDestroy));
+            defaultEditor.Destroy();
+            defaultEditor = null;
         }
         public virtual void OnSceneGUI()
         {
