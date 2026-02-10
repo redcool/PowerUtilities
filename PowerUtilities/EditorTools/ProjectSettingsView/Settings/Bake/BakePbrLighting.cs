@@ -549,27 +549,13 @@
 
         private void SaveOutputTex(RenderTexture rt,string targetName,TextureSuffix suffixName)
         {
-            PathTools.CreateAbsFolderPath(outputPath);
+            var fileName = $"{targetName}_{suffixName}";
+            var isSRGB = isHDR && texEncodeType != TextureEncodeType.EXR && IsColorTexture(suffixName);
 
-            Texture2D tex = null;
-            rt.ReadRenderTexture(ref tex, true);
-
-            if (isHDR && texEncodeType != TextureEncodeType.EXR)
-            {
-                if (IsColorTexture(suffixName))
-                {
-                    var colors = rt.ConvertColorSpace(colorConvertCS);
-                    tex.SetPixels(colors);
-                    tex.Apply();
-                }
-            }
-            //tex.Compress(true, TextureFormat.ASTC_HDR_6x6);
+            rt.SaveRenderTexture(texEncodeType, outputPath, fileName, isSRGB);
 
             var extName = texEncodeType.ToString();
             var filePath = $"{outputPath}/{targetName}_{suffixName}.{extName}";
-            File.WriteAllBytes(filePath, tex.GetEncodeBytes(texEncodeType));
-            tex.Destroy();
-
             if (isOutputTexAsset)
                 SaveTexAsset(rt, targetName, suffixName);
 

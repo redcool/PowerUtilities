@@ -8,6 +8,7 @@ using UnityEngine.Rendering;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
 using Unity.Collections;
+using System.IO;
 
 namespace PowerUtilities
 {
@@ -214,6 +215,32 @@ namespace PowerUtilities
             if (rt)
                 RenderTexture.ReleaseTemporary(rt);
             rt?.Release();
+        }
+
+
+        public static void SaveRenderTexture(this RenderTexture rt, TextureEncodeType texEncodeType, string assetFolder, string fileNameNoExtName, bool isSRGB)
+        {
+            PathTools.CreateAbsFolderPath(assetFolder);
+
+            Texture2D tex = null;
+            rt.ReadRenderTexture(ref tex, true);
+
+            //var isHDR = GraphicsFormatUtility.IsHDRFormat(rt.graphicsFormat);
+            //if (isHDR && texEncodeType != TextureEncodeType.EXR)
+
+            if (isSRGB)
+            {
+                var colors = rt.ConvertColorSpace(null);
+                tex.SetPixels(colors);
+                tex.Apply();
+            }
+
+            //tex.Compress(true, TextureFormat.ASTC_HDR_6x6);
+
+            var extName = texEncodeType.ToString();
+            var filePath = $"{assetFolder}/{fileNameNoExtName}.{extName}";
+            File.WriteAllBytes(filePath, tex.GetEncodeBytes(texEncodeType));
+            tex.Destroy();
         }
     }
 }
