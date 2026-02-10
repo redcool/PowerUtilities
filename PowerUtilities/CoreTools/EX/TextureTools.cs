@@ -176,6 +176,11 @@ namespace PowerUtilities
             return pixels;
         }
 
+        /// <summary>
+        /// Get texture depth
+        /// </summary>
+        /// <param name="tex"></param>
+        /// <returns></returns>
         public static int GetDepth(this Texture tex)
         {
             if (tex == null)
@@ -189,5 +194,13 @@ namespace PowerUtilities
 
             return 1;
         }
+
+        /// <summary>
+        /// Get texture size(width,height,depth)
+        /// </summary>
+        /// <param name="tex"></param>
+        /// <returns></returns>
+        public static Vector3Int GetSize(this Texture tex)
+            => new Vector3Int(tex.width, tex.height, tex.GetDepth());
     }
 }

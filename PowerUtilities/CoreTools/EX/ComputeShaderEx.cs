@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Rendering;
-using static UnityEngine.Networking.UnityWebRequest;
 
 namespace PowerUtilities
 {
@@ -23,6 +23,25 @@ namespace PowerUtilities
 
         public static Dictionary<string, ComputeShader> csDict = new();
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cs"></param>
+        /// <param name="resultTexWidth"></param>
+        /// <param name="resultTexHeight"></param>
+        /// <param name="resultTexDepth"></param>
+        /// <param name="updateRect">{startX,startY,sizeX,sizeY)</param>
+        public static void SetUpdateBlock(this ComputeShader cs, ref int resultTexWidth, ref int resultTexHeight, ref int resultTexDepth, float4 updateRect = default)
+        {
+            var rect = math.ceil(updateRect * new float4(resultTexWidth, resultTexHeight, resultTexWidth, resultTexHeight));
+
+            resultTexWidth = Mathf.CeilToInt(rect.z);
+            resultTexHeight = Mathf.CeilToInt(rect.w);
+
+            //
+            Debug.Log(rect);
+            cs.SetVector("_UpdateRect", rect);
+        }
+        /// <summary>
         /// Send var : _DispatchGroupSize
         /// </summary>
         /// <param name="cs"></param>
@@ -30,8 +49,14 @@ namespace PowerUtilities
         /// <param name="resultTexWidth"></param>
         /// <param name="resultTexHeight"></param>
         /// <param name="resultTexDepth"></param>
-        public static void DispatchKernel(this ComputeShader cs,int kernelId,int resultTexWidth,int resultTexHeight,int resultTexDepth)
+        /// <param name="updateRect">{startX,startY,sizeX,sizeY)</param>
+        public static void DispatchKernel(this ComputeShader cs,int kernelId,int resultTexWidth,int resultTexHeight,int resultTexDepth, Vector4 updateRect = default)
         {
+            // setup block
+            if(updateRect != default)
+                SetUpdateBlock(cs,ref resultTexWidth,ref resultTexHeight,ref resultTexDepth,updateRect);
+
+            // setup groups
             cs.GetKernelThreadGroupSizes(kernelId, out var xSize, out var ySize, out var zSize);
 
             var xGroups = Mathf.CeilToInt(resultTexWidth / (float)xSize);
