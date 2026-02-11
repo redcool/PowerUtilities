@@ -139,26 +139,19 @@ namespace PowerUtilities
         /// </summary>
         /// <param name="tex"></param>
         /// <param name="cs">is null, use ColorConvert.compute</param>
-        /// <param name="kernelName"></param>
-        /// <param name="coefficient"></param>
-        /// <param name="isApplyGT6Tone"></param>
+        /// <param name="kernelName">default use ConvertColorSpace</param>
+        /// <param name="coefficient">apply gamme : 2.2, reverse gamma : 1/2.2</param>
+        /// <param name="isApplyGT6Tone">use gt6 tone mapping</param>
         /// <returns>pixels change color space</returns>
-        public static Color[] ConvertColorSpace(this Texture tex, ComputeShader cs, string kernelName = "ConvertColorSpace", float coefficient = 1 / 2.2f, bool isApplyGT6Tone = true)
+        public static Color[] GetPixelsConvertColorSpace(this Texture tex, ComputeShader cs=null, string kernelName = "ConvertColorSpace", float coefficient = 1 / 2.2f, bool isApplyGT6Tone = true)
         {
-            //1  find ConvertColorSpace kernel
+            //1  find GetPixelsConvertColorSpace kernel
             if (!cs)
             {
                 cs = ComputeShaderEx.GetCS(ComputeShaderEx.CS_COLOR_CONVERT);
             }
-            //2  cs not found, use cpu convert
-            if (!cs)
-            {
-                ConvertColorSpace(tex as Texture2D, coefficient);
-                return null;
-            }
 
             var texSize = tex.width * tex.height;
-            Color[] pixels = new Color[texSize];
 
             GraphicsBuffer colorBuffer = null;
             GraphicsBufferTools.TryCreateBuffer(ref colorBuffer, GraphicsBuffer.Target.Structured, texSize, Marshal.SizeOf<Color>());
@@ -170,6 +163,8 @@ namespace PowerUtilities
             cs.SetTextureWithSize(kernel, "_SourceTex", tex);
 
             cs.DispatchKernel(kernel, tex.width, tex.height, 1);
+            //readback
+            Color[] pixels = new Color[texSize];
             colorBuffer.GetData(pixels);
             colorBuffer.TryRelease();
 

@@ -83,12 +83,13 @@ namespace PowerUtilities
 
             var clearId = cs.FindKernel("CSClear");
             cs.SetTexture(clearId, "_ResultTex", rt0);
+            
             if (isDoubleRT)
             {
                 cs.EnableKeyword("DOUBLE_RT");
                 cs.SetTexture(clearId, "_ResultTex1", rt1);
             }
-            cs.DispatchKernel(clearId, rt0.width, rt0.height, rt0.depth);
+            cs.DispatchKernel(clearId, rt0.width, rt0.height, rt0.GetDepth());
         }
 
         public void StartDispatch()

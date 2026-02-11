@@ -30,6 +30,7 @@ namespace PowerUtilities
         }
     }
 
+#if UNITY_SPLINES
     [Serializable]
     public class LockSpineInfo
     {
@@ -63,10 +64,9 @@ namespace PowerUtilities
             return spline.EvaluatePosition(splineIndex, curRate);
         }
 
-
-
         public bool IsValid() => isEnable && spline && time > 0;
     }
+#endif
 
     [ExecuteAlways]
     public class TransformConstraint : MonoBehaviour
@@ -75,8 +75,9 @@ namespace PowerUtilities
         public LockTargetInfo positionLock = new ();
 
         public LockTargetInfo rotateLock = new ();
-
+#if UNITY_SPLINES
         public LockSpineInfo splineLock = new();
+#endif
         // Start is called before the first frame update
         void Start()
         {
@@ -88,7 +89,9 @@ namespace PowerUtilities
         {
             TryLockPosition();
             TryLockRotation();
+#if UNITY_SPLINES
             TryLockSpline();
+#endif
         }
 
         private void TryLockRotation()
@@ -113,7 +116,7 @@ namespace PowerUtilities
             Vector3 velocity = default;
             transform.position = Vector3.SmoothDamp(transform.position, targetPos, ref velocity, positionLock.smoothTime);
         }
-
+#if UNITY_SPLINES
         void TryLockSpline()
         {
             if (!splineLock.IsValid())
@@ -125,5 +128,6 @@ namespace PowerUtilities
             Vector3 velocity = default;
             transform.position = Vector3.SmoothDamp(transform.position, splinePos, ref velocity, splineLock.smoothTime);
         }
+#endif
     }
 }

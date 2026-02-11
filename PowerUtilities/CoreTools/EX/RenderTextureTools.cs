@@ -230,7 +230,7 @@ namespace PowerUtilities
 
             if (isSRGB)
             {
-                var colors = rt.ConvertColorSpace(null);
+                var colors = rt.GetPixelsConvertColorSpace();
                 tex.SetPixels(colors);
                 tex.Apply();
             }
