@@ -66,8 +66,16 @@ namespace PowerUtilities
                     defineList.Remove(macro);
                 }
             }
-            
+
             ApplyDefineMacroList(defineList);
+        }
+
+        public static bool IsInputSystemEnabled()
+        {
+            var playerSettingObject = ProjectSettingManagers.GetAsset<PlayerSettings>();
+            var activeInputHandlerSP = playerSettingObject.FindProperty("activeInputHandler");
+            var inputSystemEnabled = activeInputHandlerSP.intValue > 0;
+            return inputSystemEnabled;
         }
     }
 }

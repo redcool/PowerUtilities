@@ -18,23 +18,18 @@ namespace GameUtilsFramework
         public const string UNITY_INPUT_SYSTEM = nameof(UNITY_INPUT_SYSTEM);
 
         /// <summary>
-        /// enabled script macros(inputSystem
+        /// enabled script macros(inputSystem,auto run
         /// </summary>
-        [MenuItem(ROOT_PATH + "/InputSystem/SyncInputSystemMacro")]
+        //[MenuItem(ROOT_PATH + "/InputSystem/SyncInputSystemMacro")]
+        [InitializeOnLoadMethod]
         public static void SyncInputSystemMacro()
         {
-            var playerSettings = Resources.FindObjectsOfTypeAll<PlayerSettings>().First();
-            var playerSettingObject = new SerializedObject(playerSettings);
-
-            var activeInputHandlerSP = playerSettingObject.FindProperty("activeInputHandler");
-            var inputSystemEnabled = activeInputHandlerSP.intValue > 0;
-
-            if (inputSystemEnabled)
+            if (PlayerSettingTools.IsInputSystemEnabled())
                 PlayerSettingTools.AddMacroDefines(UNITY_INPUT_SYSTEM);
             else
                 PlayerSettingTools.RemoveMacroDefines(UNITY_INPUT_SYSTEM);
-
         }
+
     }
 }
 #endif

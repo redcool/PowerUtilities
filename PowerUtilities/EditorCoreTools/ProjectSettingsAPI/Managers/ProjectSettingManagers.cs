@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -55,8 +56,7 @@ namespace PowerUtilities
         public static string GetSettingPath(ProjectSettingTypes type)
             => $"ProjectSettings/{type}.asset";
 
-        static CacheTool<string, SerializedObject> settingAssetCache = new CacheTool<string, SerializedObject>();
-
+        public static Dictionary<string, SerializedObject> settingAssetDict = new();
         /// <summary>
         /// Get SerializedObject reference to ProjectSettings file
         /// </summary>
@@ -65,8 +65,29 @@ namespace PowerUtilities
         public static SerializedObject GetAsset(ProjectSettingTypes type)
         {
             var path = GetSettingPath(type);
-            return settingAssetCache.Get(path, () => new SerializedObject(AssetDatabase.LoadAssetAtPath<Object>(path)));
+            if (!settingAssetDict.TryGetValue(path, out var so) || (so != null && !so.targetObject))
+            {
+                settingAssetDict[path] = so = new SerializedObject(AssetDatabase.LoadAssetAtPath<Object>(path));
+            }
+            return so;
         }
+        /// <summary>
+        /// Get SerializedObject reference to ProjectSettings file by type T, like PlayerSettings, TagManager, GraphicsSettings etc.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static SerializedObject GetAsset<T>() where T : Object
+        {
+            var path = $"ProjectSettings/{typeof(T).Name}.asset";
+            if (!settingAssetDict.TryGetValue(path, out var so) || (so != null && !so.targetObject))
+            {
+                var setting = Resources.FindObjectsOfTypeAll<T>().FirstOrDefault();
+                settingAssetDict[path] = so = new SerializedObject(setting);
+            }
+
+            return so;
+        }
+
     }
 }
 #endif
