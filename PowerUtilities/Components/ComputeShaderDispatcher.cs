@@ -20,46 +20,61 @@ namespace PowerUtilities
 
         [HelpBox]
         public string helpBox = "Dispath compute shader with partial rect update";
-
+        //================================= cs
         [LoadAsset("CS_RectUpdate.compute")]
         public ComputeShader cs;
 
         [Tooltip("Kernel name,StartDispatch run it")]
         [EditorNotNull]
         public string kernelName;
-
+        [Tooltip("Kernal name for clear rt0,rt1")]
+        public string csClearKernalName = "CSClear";
+        //================================= result texture
         [Header("Result Mode")]
         public ResultMode resultMode = ResultMode.Texture;
 
-        [Header("Result Texutre")]
+        [Header("Result Texture")]
         [Tooltip("Size for create rt or buffer")]
         public Vector3Int textureSize = new Vector3Int(512, 512, 1);
 
         [Tooltip("Update rect {xy:start,zw:size}")]
-        public Vector4 updateRect = new Vector4(0,0,1,1);
+        public Vector4 updateRect = new Vector4(0, 0, 1, 1);
         [Tooltip("Use double rt ,swap them per call")]
         public bool isDoubleRT;
-
-        [Tooltip("buffers")]
+        [Tooltip("keyword When use doubleRT, No keyword open when Empty ")]
+        public string doubleRTKeyword = "DOUBLE_RT";
+        [Tooltip("render texture write result")]
         public RenderTexture rt0, rt1;
         [Tooltip("texture name in shader")]
-        public string resultTextureName = "_ResultTex";
+        public string resultTextureName = "_ResultTex", resultTexture1Name = "_ResultTex1";
 
+        //================================= result buffer
         [Header("Result Buffer")]
         public int bufferSize = 10;
         GraphicsBuffer buffer = null;
         [Tooltip("buffer name in shader")]
         public string resultBufferName = "_ResultBuffer";
+        [Tooltip("Keyword result use buffer enable, No keyword open when Empty")]
+        public string resultUseBufferKeyword = "RESULT_BUFFER";
 
+        //================================= resource and shader values
         [Header("Shader values")]
         public List<ShaderValue<float>> floatValues = new();
         public List<ShaderValue<float4>> float4Values = new();
         public List<ShaderValue<float4x4>> float4x4Values = new();
         public List<ShaderValue<Texture>> textureValues = new();
 
-        [EditorBox("Buttons", "lisClear,isStartDispatch,isShowBuffer",isShowFoldout = true)]
+        //================================= runtime control
+        [Header("Runtime")]
+        [Tooltip("Dispatch CSClear in Enable")]
+        public bool isAutoClear;
+        [Tooltip("Dispatch kernelName in Update")]
+        public bool isAutoDispatch;
+
+        //================================= buttons
+        [EditorBox("Buttons", "lisClear,isStartDispatch,isShowBuffer", isShowFoldout = true)]
         [EditorButton(onClickCall = nameof(StartClear))]
-        public bool lisClear;
+        public bool isClear;
 
         [EditorButton(onClickCall = nameof(StartDispatch))]
         [HideInInspector]
@@ -69,23 +84,25 @@ namespace PowerUtilities
         [HideInInspector]
         public bool isShowBuffer;
 
-
+        //================================= current states
         [EditorDisableGroup]
         public RenderTexture curRT;
         [EditorDisableGroup]
         public int frameCount;
         private void OnEnable()
         {
-            StartClear();
+            if (isAutoClear)
+                StartClear();
         }
         private void OnDisable()
         {
-            
+
         }
 
         private void Update()
         {
-            StartDispatch();
+            if (isAutoDispatch)
+                StartDispatch();
         }
         public void TryCreateRTs()
         {
@@ -114,13 +131,14 @@ namespace PowerUtilities
                 return;
             TryCreateRTs();
 
-            var clearId = cs.FindKernel("CSClear");
-            cs.SetTexture(clearId, "_ResultTex", rt0);
-            
+            var clearId = cs.FindKernel(csClearKernalName);
+            cs.SetTexture(clearId, resultTextureName, rt0);
+
             if (isDoubleRT)
             {
-                cs.EnableKeyword("DOUBLE_RT");
-                cs.SetTexture(clearId, "_ResultTex1", rt1);
+                if (!string.IsNullOrEmpty(doubleRTKeyword))
+                    cs.EnableKeyword(doubleRTKeyword);
+                cs.SetTexture(clearId, resultTexture1Name, rt1);
             }
             cs.DispatchKernel(clearId, rt0.width, rt0.height, rt0.GetDepth());
         }
@@ -161,10 +179,10 @@ namespace PowerUtilities
 
         private void DispatchKernelBufferResult(int kernelId)
         {
-            cs.EnableKeyword("RESULT_BUFFER");
+            cs.EnableKeyword(resultUseBufferKeyword);
             // create buffer when result mode is buffer, and set buffer
             GraphicsBufferTools.TryCreateBuffer(ref buffer, GraphicsBuffer.Target.Structured, bufferSize, Marshal.SizeOf<float4>());
-            cs.SetBuffer(kernelId, "_ResultBuffer", buffer);
+            cs.SetBuffer(kernelId, resultBufferName, buffer);
             cs.DispatchKernel(kernelId, bufferSize, 1, 1);
 
             Shader.SetGlobalBuffer(resultBufferName, buffer);
@@ -176,11 +194,11 @@ namespace PowerUtilities
 
             var resultRT = GetSwappedResultRT(rt0, rt1);
             var texSize = resultRT ? resultRT.GetSize() : new Vector3Int(textureSize.x, textureSize.y, textureSize.z);
-            cs.SetTextureWithSize(kernelId, "_ResultTex", resultRT);
+            cs.SetTextureWithSize(kernelId, resultTextureName, resultRT);
 
             curRT = resultRT;
 
-            cs.DisableKeyword("RESULT_BUFFER");
+            cs.DisableKeyword(resultUseBufferKeyword);
             updateRect = math.clamp(updateRect, 0.0f, 1.0f);
             cs.DispatchKernel(kernelId, textureSize.x, textureSize.y, textureSize.z, updateRect);
 
