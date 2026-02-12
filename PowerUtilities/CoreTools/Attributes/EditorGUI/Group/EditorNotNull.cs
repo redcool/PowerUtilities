@@ -14,9 +14,19 @@
     [CustomPropertyDrawer(typeof(EditorNotNull))]
     public class EditorNotNullDrawer : PropertyDrawer
     {
+        public bool IsPropertyTypeValid(SerializedProperty property)
+        {
+            var isValid = true;
+            if (property.propertyType == SerializedPropertyType.ObjectReference || property.propertyType == SerializedPropertyType.Generic)
+                isValid = property.objectReferenceValue != null;
+            else if (property.propertyType == SerializedPropertyType.String)
+                isValid = !string.IsNullOrEmpty(property.stringValue);
+
+            return isValid;
+        }
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            var isValid = property.objectReferenceValue != null;
+            var isValid = IsPropertyTypeValid(property);
 
             GUI.contentColor = !isValid ? Color.red : Color.white;
 
@@ -24,7 +34,9 @@
         }
     }
 #endif
-
+    /// <summary>
+    /// Field can't be null in editor, show red if it is null
+    /// </summary>
     public class EditorNotNull : PropertyAttribute
     {
 
