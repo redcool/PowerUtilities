@@ -33,11 +33,11 @@ namespace PowerUtilities
         [Header("Result Mode")]
         public ResultMode resultMode = ResultMode.Texture;
 
-        [Header("Result Texture")]
+        [Header("ResultMode - Texture")]
         [Tooltip("Size for create rt or buffer")]
         public Vector3Int textureSize = new Vector3Int(512, 512, 1);
 
-        [Tooltip("Update rect {xy:start,zw:size}")]
+        [Tooltip("Update rect in uv space, {xy:start,zw:size}")]
         public Vector4 updateRect = new Vector4(0, 0, 1, 1);
         [Tooltip("Use double rt ,swap them per call")]
         public bool isDoubleRT;
@@ -49,7 +49,7 @@ namespace PowerUtilities
         public string resultTextureName = "_ResultTex", resultTexture1Name = "_ResultTex1";
 
         //================================= result buffer
-        [Header("Result Buffer")]
+        [Header("ResultMode - Buffer")]
         public int bufferSize = 10;
         GraphicsBuffer buffer = null;
         [Tooltip("buffer name in shader")]
@@ -72,7 +72,7 @@ namespace PowerUtilities
         public bool isAutoDispatch;
 
         //================================= buttons
-        [EditorBox("Buttons", "lisClear,isStartDispatch,isShowBuffer", isShowFoldout = true)]
+        [EditorBox("Buttons", "isClear,isStartDispatch,isShowBuffer", isShowFoldout = true)]
         [EditorButton(onClickCall = nameof(StartClear))]
         public bool isClear;
 
@@ -85,10 +85,15 @@ namespace PowerUtilities
         public bool isShowBuffer;
 
         //================================= current states
-        [EditorDisableGroup]
+        [EditorDisableGroup(lineCount = 1)]
+        [TexturePreview(isShowFloatPreviewOnly = true)]
         public RenderTexture curRT;
         [EditorDisableGroup]
         public int frameCount;
+
+        //================================= get results
+        public GraphicsBuffer CurrentBuffer => buffer;
+        public RenderTexture CurrentRT => curRT;
         private void OnEnable()
         {
             if (isAutoClear)
@@ -196,12 +201,11 @@ namespace PowerUtilities
             var texSize = resultRT ? resultRT.GetSize() : new Vector3Int(textureSize.x, textureSize.y, textureSize.z);
             cs.SetTextureWithSize(kernelId, resultTextureName, resultRT);
 
-            curRT = resultRT;
-
             cs.DisableKeyword(resultUseBufferKeyword);
             updateRect = math.clamp(updateRect, 0.0f, 1.0f);
             cs.DispatchKernel(kernelId, textureSize.x, textureSize.y, textureSize.z, updateRect);
 
+            curRT = resultRT;
             Shader.SetGlobalTexture(resultTextureName, resultRT);
         }
 

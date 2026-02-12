@@ -91,15 +91,15 @@
         public bool isUseUp = true;
 
         [EditorGroup("Light Camera")]
-        [EditorDisableGroup(targetPropNamesStr = "isUseLightTransform,isUsePos", isRevertMode = true, heightScale = 2)]
+        [EditorDisableGroup(targetPropNamesStr = "isUseLightTransform,isUsePos", isRevertMode = true, lineCount = 2)]
         public Vector3 pos;
 
         [EditorGroup("Light Camera")]
-        [EditorDisableGroup(targetPropNamesStr = "isUseLightTransform,isUseRot", isRevertMode = true, heightScale = 2)]
+        [EditorDisableGroup(targetPropNamesStr = "isUseLightTransform,isUseRot", isRevertMode = true, lineCount = 2)]
         public Vector3 rot;
 
         [EditorGroup("Light Camera")]
-        [EditorDisableGroup(targetPropNamesStr = "isUseLightTransform,isUseUp", isRevertMode = true, heightScale = 2)]
+        [EditorDisableGroup(targetPropNamesStr = "isUseLightTransform,isUseUp", isRevertMode = true, lineCount = 2)]
         public Vector3 up = Vector3.up;
 
         [EditorGroup("Light Camera")]

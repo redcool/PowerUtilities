@@ -26,19 +26,27 @@ using UnityEngine;
             
             var attr = attribute as TexturePreviewAttribute;
 
-            // show property
-            var propPos = position;
-            propPos.width = position.width - attr.textureSize-2;
-            propPos.height = 18;
-            //EditorGUI.PropertyField(propPos, property, label);
-            EditorGUI.LabelField(propPos, label);
+            if (attr.isShowFloatPreviewOnly)
+            {
+                EditorGUI.PropertyField(position, property, label,true);
+                attr.showFloatPreview = true;
+            }
+            else
+            {
+                // show property
+                var propPos = position;
+                propPos.width = position.width - attr.textureSize - 2;
+                propPos.height = 18;
+                //EditorGUI.PropertyField(propPos, property, label);
+                EditorGUI.LabelField(propPos, label);
 
-            // show preview static
-            var texPos = new Rect();
-            texPos.position = new Vector2(position.xMax - attr.textureSize, position.y);
-            texPos.size = new Vector2(attr.textureSize, attr.textureSize);
-            property.objectReferenceValue= EditorGUI.ObjectField(texPos, property.objectReferenceValue, typeof(Texture), false);
-            //EditorGUI.DrawPreviewTexture(texPos, property.objectReferenceValue as Texture);
+                // show preview static
+                var texPos = new Rect();
+                texPos.position = new Vector2(position.xMax - attr.textureSize, position.y);
+                texPos.size = new Vector2(attr.textureSize, attr.textureSize);
+                property.objectReferenceValue = EditorGUI.ObjectField(texPos, property.objectReferenceValue, typeof(Texture), false);
+                //EditorGUI.DrawPreviewTexture(texPos, property.objectReferenceValue as Texture);
+            }
 
             // show preview float
             if (attr.showFloatPreview && position.Contains(Event.current.mousePosition))
@@ -46,9 +54,9 @@ using UnityEngine;
                 var startPos = Event.current.mousePosition;
                 var texturePos = position;
                 texturePos.position = startPos;
-                texturePos.size = new Vector2(attr.textureSize,attr.textureSize);
-                
-                EditorGUI.DrawPreviewTexture(texturePos, property.objectReferenceValue as Texture,null,ScaleMode.StretchToFill);
+                texturePos.size = new Vector2(attr.textureSize, attr.textureSize);
+
+                EditorGUI.DrawPreviewTexture(texturePos, property.objectReferenceValue as Texture, null, ScaleMode.StretchToFill);
             }
         }
         
@@ -63,6 +71,7 @@ using UnityEngine;
     {
         public int textureSize = 64;
         public bool showFloatPreview;
+        public bool isShowFloatPreviewOnly;
 
         public TexturePreviewAttribute(int textureSize=64)
         {

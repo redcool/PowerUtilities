@@ -12,7 +12,7 @@ namespace PowerUtilities
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
             var attr = attribute as EditorDisableGroupAttribute;
-            var lines = Mathf.Max(attr.heightScale, property.CountInProperty());
+            var lines = Mathf.Max(attr.lineCount, property.CountInProperty());
 
             return base.GetPropertyHeight(property, label) * lines + 2;
         }
