@@ -1,4 +1,4 @@
-#if UNITY_INPUT_SYSTEM && CINEMACHINE_ENABLED
+﻿#if UNITY_INPUT_SYSTEM && UNITY_CINEMACHINE
 namespace GameUtilsFramework
 {
     using Cinemachine;

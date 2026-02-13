@@ -4,7 +4,6 @@
     "references": [
         "GUID:5a5cc6c9cee917248a0beb2ae4b4170f",
         "GUID:4ccd971c6cf07f04ea3f16f8ae112570",
-        "GUID:fa4b8ca72f33fc44eb52c1a91b2db75d",
         "GUID:15fc0a57446b3144c949da3e2b9737a9",
         "GUID:df380645f10b7bc4b97d4f5eb6303d95",
         "GUID:c579267770062bf448e75eb160330b7f",
@@ -15,7 +14,8 @@
         "GUID:d8b63aba1907145bea998dd612889d6b",
         "GUID:21d1eb854b91ade49bc69a263d12bee2",
         "GUID:e0cd26848372d4e5c891c569017e11f1",
-        "GUID:75469ad4d38634e559750d17036d5f7c"
+        "GUID:75469ad4d38634e559750d17036d5f7c",
+        "GUID:4307f53044263cf4b835bd812fc161a4"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
@@ -44,6 +44,16 @@
             "name": "com.unity.inputsystem",
             "expression": "1.x",
             "define": "UNITY_INPUT_SYSTEM"
+        },
+        {
+            "name": "com.unity.cinemachine",
+            "expression": "1.x",
+            "define": "UNITY_CINEMACHINE"
+        },
+        {
+            "name": "com.unity.timeline",
+            "expression": "1.x",
+            "define": "UNITY_TIMELINE"
         }
     ],
     "noEngineReferences": false
