@@ -121,10 +121,9 @@ namespace PowerUtilities
 
                 startId = BRGTools.GetDataStartId(brgBatch.propNameStartFloatIdDict, propInfo.propName, 1, instId, floatArr.Length);
                 if(startId == -1)
-                    throw new Exception($"{propInfo.propName} not found in shader cbuffer layout");
+                    throw new Exception($"{propInfo.propName} not found in {mat.shader} propNameStartFloatIdDict");
 
-                brgBatch.instanceBuffer.SetData(floatArr, 0, startId,floatArr.Length
-                    );
+                brgBatch.instanceBuffer.SetData(floatArr, 0, startId,floatArr.Length);
                 //Debug.Log($"{propInfo.propName} -> {floatArr.ToString(",")}");
             }
 
