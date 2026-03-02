@@ -15,9 +15,13 @@ public class ThirdPlayerControl : MonoBehaviour
     public float jumpHeight = 3f;
     public float rotationSpeed = 10;
 
-    [Header("Cine")]
+    [Header("CinemachineFreeLook")]
     public CinemachineFreeLook cinemachineFreeLook;
+    public float freeLookYSpeed = 10;
+    public float freeLookXSpeed = 300;
+
     [Header("Camera")]
+    [Tooltip("Control camera orbit around player")]
     public bool isUseCameraOrbit = true;
     public Transform cameraTransform;
     public float lookSensitivity = .2f;
@@ -70,6 +74,11 @@ public class ThirdPlayerControl : MonoBehaviour
     {
         if (isUseCameraOrbit)
             OrbitCamera(ref cameraPitch, ref cameraYaw);
+
+        if (cinemachineFreeLook)
+        {
+            UpdateCineFreeLook();
+        }
     }
 
     private void UpdateMovement()
@@ -109,5 +118,12 @@ public class ThirdPlayerControl : MonoBehaviour
 
         cameraTransform.position = transform.position + targetOffsetDir;
         cameraTransform.forward = math.normalize(-targetOffsetDir);
+    }
+    void UpdateCineFreeLook()
+    {
+        cinemachineFreeLook.Follow = transform;
+        cinemachineFreeLook.LookAt = transform;
+        cinemachineFreeLook.m_XAxis.m_MaxSpeed = freeLookXSpeed;
+        cinemachineFreeLook.m_YAxis.m_MaxSpeed = freeLookYSpeed;
     }
 }

@@ -174,7 +174,9 @@ MonoBehaviour:
   gravity: -9.81
   jumpHeight: 3
   rotationSpeed: 10
-  cinemachineFreeLook: {fileID: 0}
+  cinemachineFreeLook: {fileID: 1799198223}
+  freeLookYSpeed: 10
+  freeLookXSpeed: 300
   isUseCameraOrbit: 0
   cameraTransform: {fileID: 1348738130}
   lookSensitivity: 0.2
