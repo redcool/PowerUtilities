@@ -13,8 +13,8 @@ using UnityEngine.Rendering;
 using Debug = UnityEngine.Debug;
 using Random = UnityEngine.Random;
 
-
-public partial class TestBRG : MonoBehaviour
+[ExecuteInEditMode]
+public class TestBRG : MonoBehaviour
 {
 
     public Mesh mesh;
@@ -28,15 +28,30 @@ public partial class TestBRG : MonoBehaviour
     private BatchMaterialID m_MaterialID;
 
     public int numInstances = 3;
-    public int visibleCount = 1;
-    public int updateId = 2;
+    
+    public List<int> visibleIdList = new();
 
     //update
+    public int updateId = 2;
     public Vector3[] offsets = new Vector3[3];
     public Color[] colorOffsets = new Color[3];
 
+    [EditorButton(onClickCall = nameof(Start))]
+    public bool isStart;
+
+    // instance info
+    List<float3x4> objectToWorlds;
+    List<float3x4> worldToObjects;
+    List<Color> colors;
+
+    // {propName, startid = float count offset index}
+    Dictionary<string, int> startIdDict = new();
+    public float modelScale = 1;
+
     private void Start()
     {
+        startIdDict.Clear();
+
         offsets = new Vector3[numInstances];
         colorOffsets = new Color[numInstances];
         for (int i = 0; i < numInstances; i++)
@@ -45,22 +60,34 @@ public partial class TestBRG : MonoBehaviour
             colorOffsets[i] = Random.ColorHSV();
         }
 
+
+        if (m_BRG != null)
+        {
+            m_BRG.Dispose();
+        }
+        // register 
         m_BRG = new BatchRendererGroup(this.OnPerformCulling, IntPtr.Zero);
         m_MeshID = m_BRG.RegisterMesh(mesh);
         m_MaterialID = m_BRG.RegisterMaterial(material);
 
-        GenMaterialProperties();
+        //setup draw info
+        NativeArray<MetadataValue> metadataArray = default;
+        SetupMetaValues(ref metadataArray);
 
-        GenInstanceDateBuffer();
-        FillInstanceDataBuffer();
+        GenMaterialProperties();
+        SetupInstanceBuffer();
+
+
+        m_BatchID = m_BRG.AddBatch(metadataArray, instanceBuffer);
+        metadataArray.Dispose();
     }
     private void Update()
     {
-        UpdateInst(updateId);
-        //UpdateAll();
+        UpdateOneInstance(updateId);
+        //UpdateOneInstance();
     }
 
-    void UpdateInst(int id)
+    void UpdateOneInstance(int id)
     {
         var mat = Matrix4x4.Translate(offsets[id]);
         var objectToWorld = mat.ToFloat3x4();
@@ -74,13 +101,9 @@ public partial class TestBRG : MonoBehaviour
         instanceBuffer.SetData(objectToWorlds, 0, BRGTools.GetDataStartId(startIdDict,"unity_ObjectToWorld", 12, id,1), 1);
         instanceBuffer.SetData(worldToObjects, 0, BRGTools.GetDataStartId(startIdDict, "unity_WorldToObject", 12, id,1), 1);
         instanceBuffer.SetData(colors, 0, BRGTools.GetDataStartId(startIdDict, "_Color", 4, id,1), 1);
-
-        //instanceBuffer.SetData(objectToWorld.ToColumnArray(), 0, GetDataStartId("unity_ObjectToWorld", 1, id,12), 12);
-        //instanceBuffer.SetData(worldToObject.ToColumnArray(), 0, GetDataStartId("unity_WorldToObject", 1, id,12), 12);
-        //instanceBuffer.SetData(color.ToArray(), 0, GetDataStartId("_Color", 1, id,4), 4);
     }
 
-    private void UpdateAll()
+    private void UpdateAllInstances()
     {
         var mats = new Matrix4x4[numInstances];
         for (int i = 0; i < numInstances; i++)
@@ -96,34 +119,31 @@ public partial class TestBRG : MonoBehaviour
         instanceBuffer.SetData(colors, 0, BRGTools.GetDataStartId(startIdDict, "_Color", 4), numInstances);
     }
 
-    List<float3x4> objectToWorlds;
-    List<float3x4> worldToObjects;
-    List<Color> colors;
 
-    // {propName, startid = float count offset index}
-    Dictionary<string, int> startIdDict = new();
-    public float  modelScale = 1;
 
-    private void GenInstanceDateBuffer()
+    private void SetupInstanceBuffer()
     {
         var count = BRGTools.GetByteCount(numInstances,
             typeof(float3x4),
             typeof(float3x4),
             typeof(float4));
         count /= 4;
-        //var count = BRGTools.GetByteCount(
-        //    (typeof(float3x4), numInstances), //12*4*3 =144
-        //    (typeof(float3x4), numInstances), // 12*4*3
-        //    (typeof(float4), numInstances) //16*3
-        //    ) / sizeof(int);
 
-        Assert.AreEqual(count, (12+12+4) * numInstances);
+        Assert.AreEqual(count, (12 + 12 + 4) * numInstances);
 
         Debug.Log($"all instance mat float count :{count} floats");
-        instanceBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Raw, count, sizeof(int));
+        if (!GraphicsBufferTools.IsValidSafe(instanceBuffer, GraphicsBuffer.Target.Raw, count, sizeof(int)))
+        {
+            instanceBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Raw, count, sizeof(int));
+        }
+
+        // fill buffer all instance data with zeros to avoid rendering garbage data before the first update
+        instanceBuffer.SetData(objectToWorlds, 0, BRGTools.GetDataStartId(startIdDict, "unity_ObjectToWorld", 12), objectToWorlds.Count);
+        instanceBuffer.SetData(worldToObjects, 0, BRGTools.GetDataStartId(startIdDict, "unity_WorldToObject", 12), numInstances);
+        instanceBuffer.SetData(colors, 0, BRGTools.GetDataStartId(startIdDict, "_Color", 4), numInstances);
     }
 
-    private void FillInstanceDataBuffer()
+    public void SetupMetaValues(ref NativeArray<MetadataValue> metadataArray)
     {
         var matPropInfos = new[]
         {
@@ -132,19 +152,10 @@ public partial class TestBRG : MonoBehaviour
             ("_Color",4),
         };
 
-        var metadataList = new NativeArray<MetadataValue>(matPropInfos.Length, Allocator.Temp);
-        BRGTools.SetupMetadatas(numInstances, matPropInfos,ref metadataList,startIdDict);
+        metadataArray = new NativeArray<MetadataValue>(matPropInfos.Length, Allocator.Temp);
+        BRGTools.SetupMetadatas(numInstances, matPropInfos, ref metadataArray, startIdDict);
 
         Debug.Log("startIdDict : " + string.Join(',', startIdDict.Values));//0,12*instCount,24*instCount
-
-        m_BatchID = m_BRG.AddBatch(metadataList, instanceBuffer);
-        metadataList.Dispose();
-
-        // fill buffer
-        instanceBuffer.SetData(objectToWorlds, 0, BRGTools.GetDataStartId(startIdDict, "unity_ObjectToWorld",12), objectToWorlds.Count);
-        instanceBuffer.SetData(worldToObjects, 0, BRGTools.GetDataStartId(startIdDict, "unity_WorldToObject",12), numInstances);
-        instanceBuffer.SetData(colors, 0, BRGTools.GetDataStartId(startIdDict, "_Color",4), numInstances);
-
     }
 
     private void GenMaterialProperties()
@@ -177,11 +188,15 @@ public partial class TestBRG : MonoBehaviour
         BatchCullingOutput cullingOutput,
         IntPtr userContext)
     {
+        // draw 
         var drawCmdPt = (BatchCullingOutputDrawCommands*)cullingOutput.drawCommands.GetUnsafePtr();
         BRGTools.SetupBatchDrawCommands(drawCmdPt, 1, numInstances);
-        BRGTools.FillBatchDrawCommand(drawCmdPt, 0, m_BatchID, m_MaterialID, m_MeshID, visibleCount);
-        return new JobHandle();
+        BRGTools.SetupBatchAllVisible(drawCmdPt, visibleIdList);
 
+        BRGTools.SetupBatchDrawCommand(drawCmdPt, 0, m_BatchID, m_MaterialID, m_MeshID, visibleIdList.Count);
+
+
+        return new JobHandle();
     }
 }
 #endif

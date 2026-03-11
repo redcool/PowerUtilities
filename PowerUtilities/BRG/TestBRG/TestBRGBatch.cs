@@ -35,6 +35,19 @@ public class TestBRGBatch : MonoBehaviour
     List<BRGBatch> brgBatches = new();
     int numInstances;
 
+    // instance info
+    List<float3x4> objectToWorlds;
+    List<float3x4> worldToObjects;
+    public List<Color> colors;
+
+    List<Matrix4x4> matrices;
+    public float modelScale = 1;
+    public Vector3 itemOffset;
+
+    // visiable info
+    public List<int> allVisibleIdList = new();
+
+
     private void Start()
     {
         if (GraphicsDeviceTools.IsGLES3())
@@ -108,7 +121,7 @@ public class TestBRGBatch : MonoBehaviour
         {
             UpdateInst(updateId, updateMeshId);
         }
-        //UpdateAll();
+        //UpdateOneInstance();
     }
 
     void UpdateInst(int instId, int batchId)
@@ -163,13 +176,6 @@ public class TestBRGBatch : MonoBehaviour
     }
 
 
-    List<float3x4> objectToWorlds;
-    List<float3x4> worldToObjects;
-    public List<Color> colors;
-
-    List<Matrix4x4> matrices;
-    public float modelScale = 1;
-    public Vector3 itemOffset;
 
     private void GenMaterialProperties()
     {
@@ -210,13 +216,23 @@ public class TestBRGBatch : MonoBehaviour
         BatchCullingOutput cullingOutput,
         IntPtr userContext)
     {
-        var drawCmdPt = (BatchCullingOutputDrawCommands*)cullingOutput.drawCommands.GetUnsafePtr();
-
-        var numInstances = brgBatches.Sum(b => b.numInstances);
-        BRGTools.SetupBatchDrawCommands(drawCmdPt, brgBatches.Count, numInstances);
+        allVisibleIdList.Clear();
         foreach (var batch in brgBatches)
         {
-            batch.DrawBatch(drawCmdPt);
+            allVisibleIdList.AddRange(batch.visibleIdList);
+        }
+        var numInstances = allVisibleIdList.Count;
+
+        var drawCmdPt = (BatchCullingOutputDrawCommands*)cullingOutput.drawCommands.GetUnsafePtr();
+        BRGTools.SetupBatchDrawCommands(drawCmdPt, brgBatches.Count, numInstances);
+        BRGTools.SetupBatchAllVisible(drawCmdPt, allVisibleIdList);
+
+        var visibleIdOffset = 0;
+        for (var i = 0; i < brgBatches.Count; i++)
+        {
+            var batch = brgBatches[i];
+            batch.DrawBatch(drawCmdPt, batch.visibleIdList.Count, visibleIdOffset);
+            visibleIdOffset += batch.visibleIdList.Count;
         }
 
         return new JobHandle();
