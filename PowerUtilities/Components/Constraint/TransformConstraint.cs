@@ -62,7 +62,7 @@ namespace PowerUtilities
         }
         public bool isEnable;
 #if UNITY_SPLINES
-        [Header("spline")]
+        [Header("Spline")]
         public SplineContainer spline;
         public int splineIndex = 0;
 
@@ -74,14 +74,14 @@ namespace PowerUtilities
         [Header("Rate")]
         [Range(0,1)] public float curRate = 0f;
 
-        [Header("pos")]
+        [Header("Position")]
         public Vector3 offset;
         public LockTargetInfo.TargetOffetMode offsetMode;
-        public float smoothTime = 0.2f;
+        [Range(0,1)]public float smoothTime = 0.2f;
 
         [Header("Rotation")]
         public bool isEnableRotation;
-        public RotationMode rotationmode;
+        public RotationMode rotationMode;
         public float rotateSpeed = 1f; //
         public Transform target;
 
@@ -128,7 +128,7 @@ namespace PowerUtilities
 
         public Vector3 GetRotationDir(Vector3 curPos, Vector3 nextPos)
         {
-            if (rotationmode == RotationMode.LookAtTarget && target)
+            if (rotationMode == RotationMode.LookAtTarget && target)
                 return target.position - curPos;
 
             return nextPos -curPos;
