@@ -1,6 +1,7 @@
 ﻿namespace PowerUtilities
 {
     using System;
+    using Unity.Mathematics;
     using UnityEngine;
 
     public enum PlayMode
@@ -65,6 +66,29 @@
         {
             float value = t % (length * 2);
             return length - Math.Abs(value - length);
+        }
+        /// <summary>
+        /// Get values max probability by softmax function
+        /// </summary>
+        /// <param name="values"></param>
+        /// <param name="results"></param>
+        public static void SoftMax(float[] values, ref float[] results)
+        {
+            if(results == null || results.Length != values.Length)
+                results = new float[values.Length];
+
+            var max = Mathf.Max(values);
+            var sum = 0f;
+            for (int i = 0; i < values.Length; i++)
+            {
+                results[i] = Mathf.Exp(values[i] - max);
+                sum += results[i];
+            }
+
+            for (int i = 0; i < results.Length; i++)
+            {
+                results[i] /= sum;
+            }
         }
     }
 }

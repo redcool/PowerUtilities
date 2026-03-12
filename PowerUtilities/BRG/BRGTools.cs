@@ -175,7 +175,7 @@ namespace PowerUtilities
         }
 
 
-        public static unsafe BatchDrawCommand FillBatchDrawCommand(BatchCullingOutputDrawCommands* drawCmdPt, int cmdId, BatchID batchId, BatchMaterialID materialId, BatchMeshID meshId, int visibleCount,int visibleOffset=0)
+        public static unsafe BatchDrawCommand SetupBatchDrawCommand(BatchCullingOutputDrawCommands* drawCmdPt, int cmdId, BatchID batchId, BatchMaterialID materialId, BatchMeshID meshId, int visibleCount,int visibleOffset=0)
         {
             var cmd = new BatchDrawCommand
             {

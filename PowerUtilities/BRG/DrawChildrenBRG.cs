@@ -45,6 +45,7 @@ namespace PowerUtilities
 
         // for rendering
         List<BRGBatch> batchList = new();
+        List<int> allVisibleList = new();
 
         void OnEnable()
         {
@@ -202,8 +203,13 @@ namespace PowerUtilities
 
         private unsafe void DrawBatchList(BatchCullingOutputDrawCommands* drawCmdPt)
         {
-            var allVisibleList = batchList.SelectMany(b => b.visibleIdList).ToList();
-            var allVisibleCount = allVisibleList.Count();
+            //var allVisibleList = batchList.SelectMany(b => b.visibleIdList).ToList();
+            allVisibleList.Clear();
+            foreach (var brgBatch in batchList)
+            {
+                allVisibleList.AddRange(brgBatch.visibleIdList);
+            }
+            var allVisibleCount = allVisibleList.Count;
 
             BRGTools.SetupBatchDrawCommands(drawCmdPt, batchList.Count, allVisibleCount);
             BRGTools.SetupBatchAllVisible(drawCmdPt, allVisibleList);

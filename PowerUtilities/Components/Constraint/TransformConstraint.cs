@@ -19,7 +19,7 @@ namespace PowerUtilities
         public Transform target;
         public Vector3 offset;
         public TargetOffetMode offsetMode;
-        public float smoothTime = 0.2f;
+        [Range(0,1)]public float smoothTime = 0.2f;
 
         public static void SetupOffset(ref Vector3 vec, Vector3 offset, TargetOffetMode mode)
         {

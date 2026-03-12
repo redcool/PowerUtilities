@@ -29,7 +29,7 @@ namespace PowerUtilities
         public int numInstances;
         public int brgBatchId;
 
-        // visible id list
+        // visible id list, default all visible, can be set by culling result, then use in DrawBatch
         public List<int> visibleIdList = new();
 
         /// <summary>
@@ -106,7 +106,7 @@ namespace PowerUtilities
         public unsafe void DrawBatch(BatchCullingOutputDrawCommands* drawCmdPt,int visibleNumInstances=-1,int visibleOffset=0)
         {
             var visibleCount = visibleNumInstances < 0 ? numInstances : visibleNumInstances;
-            BRGTools.FillBatchDrawCommand(drawCmdPt, brgBatchId, batchId, matId, meshId, visibleCount, visibleOffset);
+            BRGTools.SetupBatchDrawCommand(drawCmdPt, brgBatchId, batchId, matId, meshId, visibleCount, visibleOffset);
         }
     }
 }
