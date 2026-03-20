@@ -134,6 +134,10 @@ GameObject:
   - component: {fileID: 126383876}
   - component: {fileID: 126383877}
   - component: {fileID: 126383878}
+  - component: {fileID: 126383880}
+  - component: {fileID: 126383879}
+  - component: {fileID: 126383882}
+  - component: {fileID: 126383881}
   m_Layer: 0
   m_Name: GameObject
   m_TagString: Untagged
@@ -168,11 +172,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6698ea4365c46694e943daa197f981c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  chatText: "\u4F60\u662F\r\n\u60A8\u597D\uFF01\u6211\u662F\u4EBA\u5DE5\u667A\u80FD\u52A9\u624B\u3002\u5F88\u9AD8\u5174\u80FD\u4E3A\u60A8\u670D\u52A1\uFF01\u6211\u53EF\u4EE5\u5E2E\u52A9\u60A8\u56DE\u7B54\u95EE\u9898\u3001\u521B\u4F5C\u5185\u5BB9\u3001\u7F16\u5199\u4EE3\u7801\u6216\u63D0\u4F9B\u5176\u4ED6\u652F\u6301\u3002\u8BF7\u95EE\u6709\u4EC0\u4E48\u6211\u53EF\u4EE5\u5E2E\u60A8\u7684\u5417\uFF1F"
+  chatText: 
   isClear: 1
   askMode: 0
   ollamaUrl: http://localhost:11434
-  promptText: "\u4F60\u662F"
+  promptText: "\u4ECB\u7ECD\u4E00\u4E0B\u81EA\u5DF1"
   modelName: qwen3.5
   isStream: 1
   isStartAsk: 1
@@ -189,13 +193,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 089472262c667a44e9e80dd616de88cc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  modelAsset: {fileID: 5022602860645237092, guid: 7339680836b272c40a91594d46c52609,
+  modelAsset: {fileID: 5022602860645237092, guid: fa9be1d97948e3e48bfe831817e9eab3,
     type: 3}
   inputTexture: {fileID: 2800000, guid: 451bed1c05ce83248802b11a42b03559, type: 3}
-  isLoadModel: 1
   isWork: 1
   results:
-  - 0.03571429
+  - 0.035714287
   - 0.035714287
   - 0.035714287
   - 0.035714287
@@ -977,9 +980,59 @@ MonoBehaviour:
   - 0.035714287
   - 0.035714287
   - 0.035714287
-  - 0.03571429
-  - 0.03571429
+  - 0.035714287
+  - 0.035714287
 --- !u!114 &126383878
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 126383874}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff0ad459910c6644ab0b1732b77f6733, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  modelAsset: {fileID: 5022602860645237092, guid: dbe51541587474544a1d7230b37a63ee,
+    type: 3}
+  inputTex: {fileID: 2800000, guid: 256246730102ff7458f4e0acc5a99c02, type: 3}
+  outputTex: {fileID: 536092679}
+  size: 256
+  modelLayerCount: 0
+  isStart: 1
+--- !u!114 &126383879
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 126383874}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 757a0329ff1a162479469fba6c221a60, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inputTex: {fileID: 2800000, guid: 256246730102ff7458f4e0acc5a99c02, type: 3}
+  outputTex: {fileID: 1940959351}
+  modelAsset: {fileID: 5022602860645237092, guid: a91519cd84e452844a14d8c165fbf0c8,
+    type: 3}
+  isStart: 1
+--- !u!114 &126383880
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 126383874}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4333426fbeb8b9642915e179d64a8732, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  asset: {fileID: 5022602860645237092, guid: e0e209e5fe166944a9627a09ae68192e, type: 3}
+  isTest: 1
+--- !u!114 &126383881
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -988,15 +1041,36 @@ MonoBehaviour:
   m_GameObject: {fileID: 126383874}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ff0ad459910c6644ab0b1732b77f6733, type: 3}
+  m_Script: {fileID: 11500000, guid: 99d3e817c4334204caf1712359502aa2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  modelAsset: {fileID: 5022602860645237092, guid: dbe51541587474544a1d7230b37a63ee,
-    type: 3}
-  inputTex: {fileID: 2800000, guid: 256246730102ff7458f4e0acc5a99c02, type: 3}
-  outputTex: {fileID: 0}
-  size: 256
-  isStart: 0
+  chatText: 
+  isClear: 0
+  askMode: 0
+  ollamaUrl: http://127.0.0.1:11434
+  promptText: "\u4F60\u597D"
+  modelName: qwen3.5
+  isStream: 1
+  isStartAsk: 1
+--- !u!114 &126383882
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 126383874}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8e2f514170b4e643aa9b50cf434e6ae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  url: http://127.0.0.1:11434
+  modelId: qwen3.5
+  apiKey: ollama
+  chat: "\u4F60\u597D\uFF01\U0001F60A \u5F88\u9AD8\u5174\u89C1\u5230\u4F60\u3002\u6709\u4EC0\u4E48\u6211\u53EF\u4EE5\u5E2E\u4F60\u7684\u5417\uFF1F"
+  isClearChat: 1
+  userInput: "\u4F60\u597D"
+  isStart: 1
 --- !u!1 &436392631
 GameObject:
   m_ObjectHideFlags: 0
@@ -1063,7 +1137,7 @@ Camera:
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 47
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
@@ -1134,6 +1208,44 @@ MonoBehaviour:
     m_MipBias: 0
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
+--- !u!84 &536092679
+RenderTexture:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  m_ImageContentsHash:
+    serializedVersion: 2
+    Hash: 00000000000000000000000000000000
+  m_ForcedFallbackFormat: 4
+  m_DownscaleFallback: 0
+  m_IsAlphaChannelOptional: 0
+  serializedVersion: 5
+  m_Width: 256
+  m_Height: 256
+  m_AntiAliasing: 1
+  m_MipCount: -1
+  m_DepthStencilFormat: 0
+  m_ColorFormat: 52
+  m_MipMap: 0
+  m_GenerateMips: 1
+  m_SRGB: 0
+  m_UseDynamicScale: 0
+  m_BindMS: 0
+  m_EnableCompatibleFormat: 1
+  m_EnableRandomWrite: 1
+  m_TextureSettings:
+    serializedVersion: 2
+    m_FilterMode: 1
+    m_Aniso: 1
+    m_MipBias: 0
+    m_WrapU: 1
+    m_WrapV: 1
+    m_WrapW: 1
+  m_Dimension: 2
+  m_VolumeDepth: 1
+  m_ShadowSamplingMode: 2
 --- !u!1 &795579634
 GameObject:
   m_ObjectHideFlags: 0
@@ -1343,6 +1455,44 @@ MonoBehaviour:
   m_LightCookieSize: {x: 1, y: 1}
   m_LightCookieOffset: {x: 0, y: 0}
   m_SoftShadowQuality: 0
+--- !u!84 &1940959351
+RenderTexture:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  m_ImageContentsHash:
+    serializedVersion: 2
+    Hash: 00000000000000000000000000000000
+  m_ForcedFallbackFormat: 4
+  m_DownscaleFallback: 0
+  m_IsAlphaChannelOptional: 0
+  serializedVersion: 5
+  m_Width: 256
+  m_Height: 256
+  m_AntiAliasing: 1
+  m_MipCount: -1
+  m_DepthStencilFormat: 0
+  m_ColorFormat: 52
+  m_MipMap: 0
+  m_GenerateMips: 1
+  m_SRGB: 0
+  m_UseDynamicScale: 0
+  m_BindMS: 0
+  m_EnableCompatibleFormat: 1
+  m_EnableRandomWrite: 1
+  m_TextureSettings:
+    serializedVersion: 2
+    m_FilterMode: 1
+    m_Aniso: 1
+    m_MipBias: 0
+    m_WrapU: 1
+    m_WrapV: 1
+    m_WrapW: 1
+  m_Dimension: 2
+  m_VolumeDepth: 1
+  m_ShadowSamplingMode: 2
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
