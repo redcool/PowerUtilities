@@ -42,7 +42,7 @@
         public string model;
         public string created_at;
         public OllamaMessage message;
-        public string done;
+        public bool done;
         public string done_reason;
         public int total_duration;
         public int load_duration;
@@ -50,22 +50,18 @@
         public int prompt_eval_duration;
         public int eval_count;
         public int eval_duration;
-    }
-    [Serializable]
-    public class OllamaResponseChunk
-    {
-        public bool done;
-        public OllamaMessage message;
+        // custom
+        public bool isThinkingDone;
     }
 
 
     public class OllamaStreamHandler : DownloadHandlerScript
     {
-        public Action<string> onChunkReceived;
-
-        public OllamaStreamHandler(Action<string> callback)
+        public Action<OllamaResponse> onContentReceived;
+        public bool isThinkingDone;
+        public OllamaStreamHandler(Action<OllamaResponse> callback)
         {
-            onChunkReceived = callback;
+            onContentReceived = callback;
         }
         protected override bool ReceiveData(byte[] data, int dataLength)
         {
@@ -80,10 +76,18 @@
             {
                 try
                 {
-                    var responseJson = JsonUtility.FromJson<OllamaResponseChunk>(line);
+                    var responseJson = JsonUtility.FromJson<OllamaResponse>(line);
                     if (responseJson != null && responseJson.message != null)
                     {
-                        onChunkReceived?.Invoke(responseJson.message.content);
+                        if(!isThinkingDone)
+                        {
+                            Debug.Log("thinking done");
+                            // first get content,no thinking
+                            isThinkingDone = string.IsNullOrEmpty(responseJson.message.thinking) && !string.IsNullOrEmpty(responseJson.message.content);
+                            responseJson.isThinkingDone = isThinkingDone;
+                        }
+
+                        onContentReceived?.Invoke(responseJson);
                     }
                 }
                 catch (Exception e)

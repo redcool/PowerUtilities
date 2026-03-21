@@ -42,11 +42,23 @@ namespace PowerUtilities.Test
         ChatHistory chatHistory = new ChatHistory();
         StringBuilder chatSB = new StringBuilder();
 
+        public MeshRenderer targetRenderer;
+
         void ClearChat()
         {
             chatSB.Clear();
             chat = "";
             chatHistory.Clear();
+        }
+
+
+
+        void AddPlugins(IKernelBuilder builder)
+        {
+            //var timePlugin = KernelFunctionFactory.CreateFromMethod(new Func<string, string>(GetCurrentTime));
+            //builder.Plugins.AddFromFunctions("Time", "Get current time for a city", new[] { timePlugin });
+
+            builder.Plugins.AddFromType<TimePlugin>("GetCurrentTime");
         }
 
         public async void Start()
@@ -56,19 +68,14 @@ namespace PowerUtilities.Test
 
             if (kernel == null)
             {
-                var handler = new HttpClientHandler();
-                
-                var httpClient = new HttpClient(handler)
-                {
-                    BaseAddress = new Uri(url),
-                };
-
                 var builder = Kernel.CreateBuilder();
-                builder.Services.AddScoped<IOllamaApiClient>(_ => new OllamaApiClient(httpClient, modelId));
+                builder.Services.AddScoped<IOllamaApiClient>(_ => new OllamaApiClient(url, modelId));
                 builder.Services.AddScoped<IChatCompletionService, OllamaChatCompletionService>();
+                AddPlugins(builder);
+
 
                 kernel = builder.Build();
-                //kernel.Plugins.AddFromType<GameControlPlugin>();
+                
             }
 
             if (chatCompletionService == null)
@@ -77,8 +84,8 @@ namespace PowerUtilities.Test
             }
             //chatHistory.AddSystemMessage("");
             chatHistory.AddUserMessage(userInput);
-
             await WaitStreamingResp();
+
             //await WaitResp();
         }
 
@@ -95,7 +102,13 @@ namespace PowerUtilities.Test
         async Task WaitStreamingResp()
         {
             Debug.Log("WaitStreamingResp");
-            var contentList = chatCompletionService.GetStreamingChatMessageContentsAsync(chatHistory);
+
+            PromptExecutionSettings settings = new()
+            {
+                FunctionChoiceBehavior = FunctionChoiceBehavior.Auto()
+            };
+
+            var contentList = chatCompletionService.GetStreamingChatMessageContentsAsync(chatHistory,settings);
 
             var sb = new StringBuilder();
             chatSB.AppendLine("assistant:");
@@ -126,18 +139,23 @@ namespace PowerUtilities.Test
                 chat = chatSB.ToString();
             }
             chatSB.AppendLine();
-            
-            chatHistory.AddMessage(AuthorRole.Assistant, sb.ToString()?? "");
+
+            chatHistory.AddMessage(AuthorRole.Assistant, sb.ToString() ?? "");
         }
     }
 
-    public class GameControlPlugin
+    public class TimePlugin
     {
-        [KernelFunction,Description("change color")]
-        public string ChangeColor(string colorName)
+        public TimePlugin()
         {
-            Debug.Log("ai change color "+colorName);
-            return colorName;
+            
         }
+        [KernelFunction]
+        [Description("Get the current time for a city")]
+        public string GetCurrentTime()
+        {
+            return $"It is {DateTime.Now.Hour}:{DateTime.Now.Minute} in city.";
+        }
+
     }
 }

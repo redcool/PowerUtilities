@@ -1,10 +1,13 @@
 ﻿namespace PowerUtilities.Test
 {
+    using Cysharp.Threading.Tasks;
     using PowerUtilities;
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Text;
+    using System.Threading.Tasks;
     using UnityEngine;
     using UnityEngine.Networking;
 
@@ -16,7 +19,6 @@
             Chat = 0,
             Generate = 1
         }
-
 
         [Header("Chat")]
         [TextArea(10, 20)]
@@ -34,39 +36,42 @@
         public string promptText;
         public string modelName = "qwen3.5";
         public bool isStream = true;
+        public bool isShowThinking;
 
         [EditorButton(onClickCall = nameof(StartAsk))]
         public bool isStartAsk;
 
         StringBuilder chatTextSB = new StringBuilder();
-
-
-        public bool isFinishAsk;
+        StringBuilder historySB = new StringBuilder();
 
         readonly string[] modeStrings = { "/api/chat", "/api/generate" };
-        public void StartAsk()
+        public async void StartAsk()
         {
             var url = ollamaUrl + modeStrings[(int)askMode];
-            StartCoroutine(WaitForAsk(url, modelName, promptText));
+            await WaitForAsk(url, modelName, promptText);
         }
         void ClearResponseText()
         {
             chatText = "";
             chatTextSB.Clear();
+            historySB.Clear();
         }
-        IEnumerator WaitForAsk(string ollamaUrl, string modelName, string prompt)
+        async Task WaitForAsk(string ollamaUrl, string modelName, string prompt)
         {
             if (string.IsNullOrEmpty(prompt))
             {
                 chatText = "prompt is empty";
-                yield break;
+                return;
             }
 
-            chatTextSB.AppendLine(prompt);
+            chatTextSB.AppendLine($"user : {prompt}");
+            historySB.AppendLine($"user : {prompt}");
 
-            var json = GetOllamaReqJson(modelName, prompt, isStream);
+            var json = GetOllamaReqJson(modelName, historySB.ToString(), isStream);
 
-            StartCoroutine(WaitForResponseStream(ollamaUrl, json));
+            chatTextSB.AppendLine("assistant:");
+            await WaitForResponseStream(ollamaUrl, json);
+            chatTextSB.AppendLine();
         }
 
         private static string GetOllamaReqJson(string modelName, string prompt, bool isStream)
@@ -91,27 +96,49 @@
             return json;
         }
 
-        IEnumerator WaitForResponseStream(string ollamaUrl, string json)
+        async Task WaitForResponseStream(string ollamaUrl, string json)
         {
             using (var request = new UnityWebRequest(ollamaUrl, "POST"))
             {
                 var bytes = Encoding.UTF8.GetBytes(json);
                 request.uploadHandler = new UploadHandlerRaw(bytes);
-                request.downloadHandler = new OllamaStreamHandler((chunkStr) =>
+                request.downloadHandler = new OllamaStreamHandler((respChunk) =>
                 {
-                    chatTextSB.Append(chunkStr);
-                    chatText = chatTextSB.ToString();
-                });
+                    if (respChunk.isThinkingDone)
+                    {
+                        chatTextSB.AppendLine();
+                    }
+                    // check content
+                    if (!string.IsNullOrEmpty(respChunk.message.content))
+                    {
+                        chatTextSB.Append(respChunk.message.content);
+                        chatText = chatTextSB.ToString();
+                        historySB.Append(chatText);
+                    }
+
+                    //check thinking
+                    else if (!string.IsNullOrEmpty(respChunk.message.thinking))
+                    {
+                        chatTextSB.Append(respChunk.message.thinking);
+                        chatText = chatTextSB.ToString();
+                    }
+                }
+                );
+
                 request.SetRequestHeader("Content-Type", "application/json");
 
-                isFinishAsk = false;
-                yield return request.SendWebRequest();
-                isFinishAsk = true;
+                var asyncOp = await request.SendWebRequest();
+                while (!asyncOp.isDone)
+                {
+                    await UniTask.Yield();
+                }
 
                 if (request.result != UnityWebRequest.Result.Success)
                 {
                     Debug.LogError(request.error);
                 }
+
+                chatTextSB.AppendLine();
             }
         }
 
@@ -124,11 +151,9 @@
                 request.downloadHandler = new DownloadHandlerBuffer();
                 request.SetRequestHeader("Content-Type", "application/json");
 
-                isFinishAsk = false;
                 chatText = "*";
 
                 yield return request.SendWebRequest();
-                isFinishAsk = true;
 
                 if (request.result == UnityWebRequest.Result.Success)
                 {

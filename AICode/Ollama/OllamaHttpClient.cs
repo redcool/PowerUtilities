@@ -119,7 +119,7 @@
                 //{ "model":"qwen3.5","created_at":"2026-03-20T05:15:23.9522131Z","message":{ "role":"assistant","content":"","thinking":" chat"},"done":false}
                 // { "model":"qwen3.5","created_at":"2026-03-18T06:32:32.8335017Z","message":{ "role":"assistant","content":"处理"},"done":false}
                 //Debug.Log(jsonLine);
-                var respChunk = JsonUtility.FromJson<OllamaResponseChunk>(jsonLine);
+                var respChunk = JsonUtility.FromJson<OllamaResponse>(jsonLine);
 
                 chatTextSB.Append(respChunk.message.thinking);
                 chatTextSB.Append($"{respChunk.message.content}");
