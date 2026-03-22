@@ -1,4 +1,5 @@
-﻿using PowerUtilities;
+﻿#if UNITY_SENTIS
+using PowerUtilities;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Sentis;
@@ -32,3 +33,4 @@ public class Test_Edge_Detection : MonoBehaviour
     }
 
 }
+#endif

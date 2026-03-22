@@ -1,4 +1,6 @@
-﻿using Microsoft.SemanticKernel;
+﻿#if SEMANTIC_KERNEL
+
+using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using OllamaSharp;
 using OllamaSharp.Models.Chat;
@@ -96,3 +98,5 @@ namespace PowerUtilities.Test
 
     }
 }
+
+#endif

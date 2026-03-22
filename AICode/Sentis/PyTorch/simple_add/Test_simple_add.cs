@@ -1,4 +1,5 @@
-﻿using PowerUtilities;
+﻿#if UNITY_SENTIS
+using PowerUtilities;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Sentis;
@@ -26,3 +27,4 @@ public class Test_simple_add : MonoBehaviour
         Debug.Log(string.Join(" , ", results));
     }
 }
+#endif

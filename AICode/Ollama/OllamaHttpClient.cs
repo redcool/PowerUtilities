@@ -1,4 +1,5 @@
-﻿namespace PowerUtilities.Test
+﻿#if UNITASK
+namespace PowerUtilities.Test
 {
     using Cysharp.Threading.Tasks;
     using PowerUtilities;
@@ -135,3 +136,4 @@
     }
 
 }
+#endif

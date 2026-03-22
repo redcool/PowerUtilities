@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿#if UNITY_SENTIS
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Sentis;
@@ -41,3 +42,4 @@ public class Test_TextureClassification : MonoBehaviour
         worker.Dispose();
     }
 }
+#endif

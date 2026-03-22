@@ -1,4 +1,5 @@
-﻿using Azure;
+﻿#if SEMANTIC_KERNEL
+using Azure;
 using Cysharp.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.SemanticKernel;
@@ -159,3 +160,4 @@ namespace PowerUtilities.Test
 
     }
 }
+#endif
