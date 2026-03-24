@@ -21,8 +21,12 @@ namespace PowerUtilities
                 graph = PlayableGraph.Create("play clip graph");
 
             var cp = AnimationClipPlayable.Create(graph, clip);
-            
-            if(!output.IsOutputValid())
+
+            // set duration when no loop otherwise duration is double.Max
+            if (!clip.isLooping)
+                cp.SetDuration(clip.length);
+
+            if (!output.IsOutputValid())
                 output = AnimationPlayableOutput.Create(graph, "clip output", anim);
 
             output.SetSourcePlayable(cp);
@@ -73,8 +77,19 @@ namespace PowerUtilities
             return mixer;
         }
 
-        public static double GetNormalizedTime<T>(this T a) where T : struct, IPlayable
-        => a.GetTime() / a.GetDuration();
-        
+        /// <summary>
+        /// Get playing progress [0,1] , playable need SetDuration
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="a"></param>
+        /// <returns></returns>
+        public static double GetProgress<T>(this T a,float totalTime) where T : struct, IPlayable
+        => a.GetTime() / totalTime;
+
+        public static void SetProgress<T>(this T a,float progress,float totalTime) where T : struct, IPlayable
+        {
+            var time = totalTime * progress;
+            a.SetTime(time);
+        }
     }
 }

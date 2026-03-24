@@ -1,5 +1,7 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Animations;
@@ -7,30 +9,29 @@ using UnityEngine.Playables;
 
 namespace PowerUtilities.Test
 {
-    public class TestPlayClip : MonoBehaviour
+    public class TestPlayClip : MonoBehaviour,IMono
     {
         public AnimationClip clip;
 
-        public bool isManualTime;
-        [EditorIntent(1)] public float time;
+        public bool isManual;
+        [EditorIntent(2)] public float progress;
 
         public bool isSetDuration;
         public float duration;
 
-        [EditorIntent(-1)]
+        [EditorIntent(-2)]
         public float speed=1;
 
         public bool isPause;
         bool isPauseLast;
-
-        [EditorButton(onClickCall = "Start")]
-        public bool isStart;
 
         [Header("Debug")]
         public float clipTime;
 
         PlayableGraph graph;
         AnimationClipPlayable clipPlay;
+
+        //[EditorButton(onClickCall = "Test")]public bool isTest;
 
         async void Test()
         {
@@ -42,16 +43,29 @@ namespace PowerUtilities.Test
             }
         }
 
+
+        public class AnimationEndHandler : PlayableBehaviour
+        {
+            public Action OnDone;
+            public override void OnBehaviourPause(Playable playable, FrameData info)
+            {
+                if (playable.GetGraph().IsPlaying() && playable.IsDone())
+                    OnDone?.Invoke();
+            }
+        }
         // Start is called before the first frame update
         void Start()
         {
             if (!clip)
                 return;
-
+            
             var anim = GetComponent<Animator>();
             AnimationPlayableOutput output = default;
             clipPlay = PlayableTools.PlayClip(anim, clip, ref graph, ref output);
-            //graph.Play();
+
+            var handlerPlay = ScriptPlayable<AnimationEndHandler>.Create(graph);
+            var handler = handlerPlay.GetBehaviour();
+            handler.OnDone = () => Debug.Log("play done");
 
             clipTime = clip.length;
         }
@@ -67,10 +81,14 @@ namespace PowerUtilities.Test
         {
             if (!clipPlay.IsValid())
                 return;
-
-            if (isManualTime)
+            Debug.Log(clipPlay.IsDone());
+            if (isManual)
             {
-                clipPlay.SetTime(time);
+                clipPlay.SetProgress(progress,clip.length);
+            }
+            else
+            {
+                progress = (float)clipPlay.GetProgress(clip.length);
             }
             if(isSetDuration)
                 clipPlay.SetDuration(duration);
