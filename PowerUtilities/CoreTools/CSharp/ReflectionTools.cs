@@ -9,6 +9,7 @@ namespace PowerUtilities
 {
     public static class ReflectionTools
     {
+        public static object[] EMPTY_ARGS = new object[0];
         /// <summary>
         /// flags : private instance
         /// </summary>
@@ -446,7 +447,7 @@ namespace PowerUtilities
         public static object InvokeMethod(this Type type, string name, Type[] argTypes, object caller, object[] args)
         {
             argTypes = argTypes ?? Type.EmptyTypes;
-            args = args ?? new object[] { };
+            args = args ?? EMPTY_ARGS;
             if (argTypes == Type.EmptyTypes)
             {
                 return type.GetMethod(name).Invoke(caller, args);
