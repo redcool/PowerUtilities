@@ -9,7 +9,7 @@ using UnityEngine.Playables;
 
 namespace PowerUtilities.Test
 {
-    public class TestPlayClip : MonoBehaviour,IMono
+    public class TestPlayClip : MonoBehaviour
     {
         public AnimationClip clip;
 
