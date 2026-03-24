@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Animations;
@@ -12,6 +12,22 @@ namespace PowerUtilities
         {
             var cp = AnimationClipPlayable.Create(graph, clip);
             cp.SetInputCount(inputCount);
+            return cp;
+        }
+
+        public static AnimationClipPlayable PlayClip(Animator anim,AnimationClip clip,ref PlayableGraph graph,ref AnimationPlayableOutput output)
+        {
+            if (!graph.IsValid())
+                graph = PlayableGraph.Create("play clip graph");
+
+            var cp = AnimationClipPlayable.Create(graph, clip);
+            
+            if(!output.IsOutputValid())
+                output = AnimationPlayableOutput.Create(graph, "clip output", anim);
+
+            output.SetSourcePlayable(cp);
+
+            graph.Play();
             return cp;
         }
         public static AnimatorControllerPlayable CreateAnimator(PlayableGraph graph, RuntimeAnimatorController controller)
