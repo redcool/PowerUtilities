@@ -1,4 +1,4 @@
-namespace TopdownShooter
+﻿namespace TopdownShooter
 {
     using GameUtilsFramework;
     using PowerUtilities;
@@ -54,13 +54,19 @@ namespace TopdownShooter
             //hv.x = AnimatorTools.QuantifyInputValue(hv.x);
             //hv.y = AnimatorTools.QuantifyInputValue(hv.y);
 
-            var moveDir = new Vector3(hv.x, 0, hv.y);
+            var inputDir = new Vector3(hv.x, 0, hv.y);
             float leftTurnRate = 0;
             if (hv.sqrMagnitude > 0)
             {
                 if (!useRootMotion)
                 {
-                    moveDir.Normalize();
+                    var camForward = cam.transform.forward;
+                    var camRight = cam.transform.right;
+                    camForward.y = 0;
+                    camRight.y = 0;
+                    camForward.Normalize();
+                    camRight.Normalize();
+                    var moveDir = camForward * hv.y +camRight * hv.x;
                     transform.Translate(moveDir * speed * Time.deltaTime, Space.World);
                 }
             }
@@ -70,7 +76,7 @@ namespace TopdownShooter
             }
 
 
-            UpdateMoveAnim(moveDir, leftTurnRate);
+            UpdateMoveAnim(inputDir, leftTurnRate);
 
             UpdateFire();
         }
