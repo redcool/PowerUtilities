@@ -7,8 +7,11 @@ using UnityEngine;
 namespace PowerUtilities.Test
 {
 
-    public class ExecuteMonoManual : MonoBehaviour
+    public class MonoExecuter : MonoBehaviour
     {
+        [HelpBox]
+        public string helpBox = "Execute mono manual";
+
         public MonoBehaviour mono;
 
 
@@ -16,7 +19,7 @@ namespace PowerUtilities.Test
         public bool isStart;
 
         public bool isStop;
-        public int id;
+        public int count;
 
         CancellationTokenSource cts;
 
@@ -42,7 +45,7 @@ namespace PowerUtilities.Test
                 updateFunc?.Invoke(mono, ReflectionTools.EMPTY_ARGS);
                 await Task.Delay(16);
             }
-            id++;
+            count++;
             Debug.Log("ExecuteMonoManual finish");
         }
 
