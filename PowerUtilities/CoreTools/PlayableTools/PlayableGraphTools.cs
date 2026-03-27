@@ -139,7 +139,7 @@ namespace PowerUtilities
         }
 
 
-        public static AnimationLayerMixerPlayable CreateLayerMixer(this PlayableGraph graph, params (Playable play, float weight,AvatarMask avatarMask)[] layerInfos)
+        public static AnimationLayerMixerPlayable CreateLayerMixer(this PlayableGraph graph, params (Playable play, float weight,AvatarMask avatarMask,bool isAdditiveLayer)[] layerInfos)
         {
             AnimationLayerMixerPlayable mixer = AnimationLayerMixerPlayable.Create(graph, layerInfos.Length);
             for (int i = 0; i < layerInfos.Length; i++)
@@ -149,6 +149,8 @@ namespace PowerUtilities
                 mixer.ConnectInput(i, item.play, 0,item.weight);
                 if (item.avatarMask)
                     mixer.SetLayerMaskFromAvatarMask((uint)i, item.avatarMask);
+
+                mixer.SetLayerAdditive((uint)i, item.isAdditiveLayer);
             }
             return mixer;
         }
