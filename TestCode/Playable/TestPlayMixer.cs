@@ -1,4 +1,4 @@
-using PowerUtilities;
+﻿using PowerUtilities;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,29 +11,32 @@ public class TestPlayMixer : MonoBehaviour
 
     public AnimationClip[] clips;
     public float[] weights;
-    public AnimationPlayableOutput output;
+
+    AnimationMixerPlayable mixerPlay;
     // Start is called before the first frame update
     void Start()
     {
-        graph = PlayableGraph.Create("Blend clips");
+        var anim = GetComponent<Animator>();
 
-        var clipInfos = new(AnimationClip clip, float weight)[clips.Length];
-        for (int i = 0; i < clipInfos.Length; i++)
-        {
-            clipInfos[i].clip = clips[i];
-            clipInfos[i].weight = weights[i];
-        }
+        AnimationPlayableOutput animOutput = default;
+        PlayableGraphTools.CreateGraph(anim, ref graph, ref animOutput);
 
-        var mixer = PlayableTools.CreateMixer(graph, clipInfos);
+        mixerPlay = graph.CreateMixer(clips);
+        animOutput.SetSourcePlayable(mixerPlay);
 
-        output = AnimationPlayableOutput.Create(graph, "anim output", GetComponent<Animator>());
-        output.SetSourcePlayable(mixer);
         graph.Play();
     }
 
-    // Update is called once per frame
     void Update()
     {
-        
+        for (int i = 0; i < mixerPlay.GetInputCount(); i++)
+        {
+            mixerPlay.SetInputWeight(i, weights[i]);
+        }
+    }
+
+    public void OnDisable()
+    {
+        graph.TryDestory();
     }
 }

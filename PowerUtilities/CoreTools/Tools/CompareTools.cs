@@ -23,21 +23,21 @@ namespace PowerUtilities
         /// <param name="lastValue"></param>
         /// <param name="currentValue"></param>
         /// <returns>is changed triggered</returns>
-        public static bool CompareAndSet<T>(ref T lastValue,ref T currentValue) 
+        public static bool CompareAndSet<T>(ref T lastValue,ref T currentValue,Action whenChangeBefore=null) 
         {
-            //if (lastValue == null || !lastValue.Equals(currentValue))
             if (!EqualityComparer<T>.Default.Equals(lastValue, currentValue))
             {
+                whenChangeBefore?.Invoke();
                 lastValue = currentValue;
                 return true;
             }
             return false;
         }
 
-        public static bool CompareAndSet<T>(ref T lastValue, T currentValue)
+        public static bool CompareAndSet<T>(ref T lastValue, T currentValue,Action whenChangeBefore = null)
         {
             T tmpCurValue = currentValue;
-            return CompareAndSet(ref lastValue, ref tmpCurValue);
+            return CompareAndSet(ref lastValue, ref tmpCurValue,whenChangeBefore);
         }
 
         public static bool CompareAndSet<T>(ref T lastValue, T currentValue,Func<T,T,bool> predicate)

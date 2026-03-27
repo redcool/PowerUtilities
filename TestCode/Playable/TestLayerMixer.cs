@@ -1,4 +1,4 @@
-using PowerUtilities;
+﻿using PowerUtilities;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -27,11 +27,11 @@ public class TestLayerMixer : MonoBehaviour
         graph = PlayableGraph.Create("test p");
         output = AnimationPlayableOutput.Create(graph,"graph_output", anim);
 
-        clipPlay1 = PlayableTools.CreateClip(graph, clip1, 2);
+        clipPlay1 = graph.CreateClip(clip1);
 
         //var mixer = PlayableUtils.CreateMixer(graph, new[] { (clip1,0.5f), (clip2 ,0.5f)});
-        AnimatorControllerPlayable animPlay = PlayableTools.CreateAnimator(graph, controller);
-        mixer = PlayableTools.CreateLayerMixer(graph, new[] {
+        AnimatorControllerPlayable animPlay = graph.CreateAnimator(controller);
+        mixer = graph.CreateLayerMixer(new[] {
             (clipPlay1, .01f, clip1Mask),
             ((Playable)animPlay, 0.1f, controllerMask)
         });
