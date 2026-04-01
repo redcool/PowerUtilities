@@ -138,6 +138,17 @@ namespace PowerUtilities
             return mixer;
         }
 
+        public static AnimationLayerMixerPlayable CreateLayerMixer(this PlayableGraph graph, params Playable[] plays)
+        {
+            var mixer = AnimationLayerMixerPlayable.Create(graph, plays.Length);
+            for (int i = 0;i < plays.Length; i++)
+            {
+                var play = plays[i];
+                var weight = i == 0 ? 1 : 0;
+                mixer.ConnectInput(i, play, 0, weight);
+            }
+            return mixer;
+        }
 
         public static AnimationLayerMixerPlayable CreateLayerMixer(this PlayableGraph graph, params (Playable play, float weight,AvatarMask avatarMask,bool isAdditiveLayer)[] layerInfos)
         {

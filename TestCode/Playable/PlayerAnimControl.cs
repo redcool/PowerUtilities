@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.Animations;
 using UnityEngine.Playables;
 
@@ -23,12 +24,12 @@ public class PlayerAnimControl : MonoBehaviour
     AnimationLayerMixerPlayable layerMixer;
     AnimationMixerPlayable locomotionMixer;
 
-
-    Dictionary<AnimationClip, AnimationClipPlayable> playDict = new();
+    NavMeshAgent agent;
 
     // Start is called before the first frame update
     void Start()
     {
+        agent = GetComponent<NavMeshAgent>();
 
         anim = GetComponent<Animator>();
         AnimationPlayableOutput animOutput = default;
@@ -45,26 +46,10 @@ public class PlayerAnimControl : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        UpdateLocomotion();
+        var speed = agent.velocity.magnitude;
+        locomotionMixer.UpdateAllInputWeight(maxSpeeds, speed);
+
+
     }
 
-    private void UpdateLocomotion()
-    {
-        var weight = PlayableEx.CalcWeight(maxSpeeds, speed, out var portId);
-        Debug.Log(portId + ":" + weight);
-
-        for (int i = 0; i < locomotionMixer.GetInputCount(); i++)
-        {
-            locomotionMixer.SetInputWeight(i, 0);
-            locomotionMixer.GetInput(i).Pause();
-        }
-
-        if (portId != 0)
-        {
-            locomotionMixer.GetInput(portId-1).Play();
-            locomotionMixer.SetInputWeight(portId - 1, 1 - weight);
-        }
-        locomotionMixer.GetInput(portId).Play();
-        locomotionMixer.SetInputWeight(portId, weight);
-    }
 }
