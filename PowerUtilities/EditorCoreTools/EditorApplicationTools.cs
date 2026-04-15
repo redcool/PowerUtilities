@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 namespace PowerUtilities
 {
     using System;
@@ -47,11 +47,6 @@ namespace PowerUtilities
         };
         static bool isInited;
 
-        public static void AddInspectorContextMenu<T>()
-        {
-
-        }
-
         static void AddCompileEvents()
         {
             CompilationPipeline.compilationStarted -= CompilationPipeline_compilationStarted;
@@ -99,8 +94,7 @@ namespace PowerUtilities
         {
             AddCompileEvents();
 
-            EditorApplication.update -= AddGlobalKeyEventUpdate;
-            EditorApplication.update += AddGlobalKeyEventUpdate;
+            AddEditorUpdate(AddGlobalKeyEventUpdate);
 
             EditorApplication.playModeStateChanged -= EditorApplication_playModeStateChanged;
             EditorApplication.playModeStateChanged += EditorApplication_playModeStateChanged;
@@ -111,6 +105,7 @@ namespace PowerUtilities
             if (OnEditorReload != null)
                 OnEditorReload();
         }
+
 
         private static void EditorApplication_playModeStateChanged(PlayModeStateChange state)
         {
