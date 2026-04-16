@@ -5,21 +5,20 @@ using UnityEngine;
 
 namespace PowerUtilities
 {
-    [ProjectSettingGroup(ProjectSettingGroupAttribute.POWER_UTILS + "/Gameplay/GameplayAbilityTag", isUseUIElment = false)]
+    /// <summary>
+    /// Use ScriptableObject to edit preset tag info, such as tag name, description, and cooldown duration, so can be used in GameplayAbilitySystem, and can be easily extended by add new tag info in SO without change code.
+    /// call Resources.Load("Gameplay/GameplayAbilityTag") to load the asset.
+    /// </summary>
+    [ProjectSettingGroup(PROJECT_SETTING_GROUP_PATH, isUseUIElment = false)]
     [SOAssetPath("Assets/PowerUtilities/Resources/Gameplay/GameplayAbilityTag.asset")]
     public class GameplayAbilityTagSO : ScriptableObject
     {
-        [Serializable]
-        public class TagInfo
-        {
-            public string tagName;
-            public string desc;
-        }
+        public const string PROJECT_SETTING_GROUP_PATH = ProjectSettingGroupAttribute.POWER_UTILS + "/Gameplay/GameplayAbilityTag";
 
-        [ListItemDraw("tagName:,tagName,desc:,desc", "50,200,50,")]
-        public List<TagInfo> tagInfos = new List<TagInfo>()
+        [ListItemDraw("tagName:,tagName,desc:,desc,life:,life", "50,200,50,400,50,")]
+        public List<GameplayTagInfo> tagInfos = new List<GameplayTagInfo>()
         {
-            new TagInfo(){ tagName = "Health", desc = "nothing"},
+            new GameplayTagInfo(){ tagName = "Health", desc = "nothing"},
         };
 
         [Header("text ")]
@@ -36,19 +35,27 @@ namespace PowerUtilities
         [EditorButton(onClickCall = nameof(ReadTagFromText))]
         public bool isReadTagFromText = false;
 
-        HashSet<string> tagNameSet = new();
-        public HashSet<string> GetTagSet()
+        Dictionary<string,GameplayTagInfo> tagNameDict = new();
+        /// <summary>
+        /// Get tag info dict, key is tag name, value is tag info
+        /// </summary>
+        /// <returns></returns>
+        public Dictionary<string, GameplayTagInfo> GetPresetTagDict()
         {
-            if (tagNameSet.Count != tagInfos.Count)
-                tagNameSet.Clear();
+            if (tagNameDict.Count == tagInfos.Count)
+                return tagNameDict;
+
+            // if count not match, clear and rebuild dict, so can make sure dict is always up to date with list.
+            tagNameDict.Clear();
 
             for (int i = 0; i < tagInfos.Count; i++)
             {
-                tagNameSet.Add(tagInfos[i].tagName);
+                tagNameDict.Add(tagInfos[i].tagName, tagInfos[i]);
             }
 
-            return tagNameSet;
+            return tagNameDict;
         }
+
 
         public void ReadTagFromText() => ReadTagFromText(abilityTagText,",");
 
@@ -62,9 +69,15 @@ namespace PowerUtilities
             foreach (var line in lines)
             {
                 var kv = line.Split(splitChar);
-                if (kv.Length != 2)
+                if (kv.Length < 1)
                     continue;
-                tagInfos.Add(new TagInfo() { tagName = kv[0].Trim(), desc = kv[1].Trim() });
+
+                var tag = new GameplayTagInfo() { tagName = kv[0].Trim() };
+                if (kv.Length >= 2)
+                    tag.desc = kv[1].Trim();
+                if (kv.Length >= 3)
+                    tag.life = float.TryParse(kv[2].Trim(), out var life) ? life : -1;
+                tagInfos.Add(tag);
             }
         }
     }
