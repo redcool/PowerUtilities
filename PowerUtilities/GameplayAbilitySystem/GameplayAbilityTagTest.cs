@@ -54,9 +54,9 @@ namespace PowerUtilities
 
         void RemoveTag()
         {
-            if (string.IsNullOrEmpty(addTag))
+            if (string.IsNullOrEmpty(removeTag))
             {
-                Debug.LogError("addTag is null or empty");
+                Debug.LogError("removeTag is null or empty");
                 return;
             }
             abilityTag.RemoveTag(removeTag);

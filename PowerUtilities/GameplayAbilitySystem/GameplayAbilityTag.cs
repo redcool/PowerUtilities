@@ -70,7 +70,9 @@ namespace PowerUtilities
         public void AddTag(string tag)
         {
             CheckTagValid(tag);
-            curTagDict.Add(tag, PresetTagDict[tag].Clone());
+            // use new tag replace current tag
+            curTagDict[tag] = PresetTagDict[tag].Clone();
+
             onAddTag?.Invoke(curTagDict[tag]);
         }
 
