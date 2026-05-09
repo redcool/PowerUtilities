@@ -1,4 +1,8 @@
-﻿using Cinemachine;
+﻿#if UNITY_6000_3_OR_NEWER
+using Unity.Cinemachine;
+#else
+using Cinemachine;
+#endif
 using System;
 using System.Collections;
 using System.Collections.Generic;
