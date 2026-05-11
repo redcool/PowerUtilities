@@ -5,6 +5,7 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.Rendering;
+using UnityEngine.Rendering.RenderGraphModule;
 using UnityEngine.Rendering.Universal;
 
 namespace PowerUtilities.RenderFeatures
