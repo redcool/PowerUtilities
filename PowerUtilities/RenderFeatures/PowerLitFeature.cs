@@ -1,5 +1,6 @@
-namespace PowerUtilities
+﻿namespace PowerUtilities
 {
+    using PowerUtilities.RenderFeatures;
     using System;
     using Unity.Collections;
     using UnityEngine;
@@ -127,7 +128,7 @@ namespace PowerUtilities
 
         }
 
-        class PowerLitUpdateParamsPass : ScriptableRenderPass
+        class PowerLitUpdateParamsPass : SRPPass
         {
             public Settings settings;
 

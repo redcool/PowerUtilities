@@ -108,6 +108,9 @@
                 if(!feature.IsCameraValid(camera))
                     continue;
 
+                // inject 
+                feature.renderingData = renderingData;
+
                 var pass = feature.PassInstance;
                 if (pass == null)
                     continue;
@@ -118,6 +121,7 @@
                 }
 
                 pass.renderPassEvent = feature.renderPassEvent + feature.renderPassEventOffset;
+                
                 renderer.EnqueuePass(pass);
 
                 if (feature.interrupt)

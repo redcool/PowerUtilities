@@ -89,7 +89,7 @@ namespace PowerUtilities.RenderFeatures
             cmd.SetGlobalTexture(depthTexId, depthTex);
         }
 
-        public override void OnFinishCameraStackRendering(CommandBuffer cmd)
+        public override void OnDisable()
         {
             if(depthTex)
                 depthTex.Release();

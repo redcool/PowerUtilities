@@ -12,7 +12,7 @@ namespace PowerUtilities
     /// <summary>
     /// handle ScriptableRenderer(UniversalRenderer) passes by reflections
     /// </summary>
-    public static class ScriptableRendererEx
+    public static partial class ScriptableRendererEx
     {
         /// <summary>
         /// UniversalRenderer pass's private pass names
@@ -144,7 +144,7 @@ namespace PowerUtilities
         /// <param name="renderer"></param>
         private static void CheckRendererInstance(ScriptableRenderer renderer)
         {
-            if (IsNewRendererInstance(renderer,ref lastRendererInstance))
+            if (IsNewRendererInstance(renderer, ref lastRendererInstance))
             {
                 passDict.Clear();
             }
@@ -187,10 +187,10 @@ namespace PowerUtilities
         /// </summary>
         /// <param name="renderer"></param>
         /// <param name="onPredicate"></param>
-        public static void RemoveRenderPass(this ScriptableRenderer renderer,Func<ScriptableRenderPass,bool> onPredicate)
+        public static void RemoveRenderPass(this ScriptableRenderer renderer, Func<ScriptableRenderPass, bool> onPredicate)
         {
             var list = renderer.GetActiveRenderPassQueue();
-            if (list  == null || onPredicate == null)
+            if (list == null || onPredicate == null)
                 return;
 
             for (int i = 0; i < list.Count; i++)
@@ -213,7 +213,7 @@ namespace PowerUtilities
             for (int i = 0; i < list.Count; i++)
             {
                 var item = list[i];
-                if (item == null || item.GetType() !=passType)
+                if (item == null || item.GetType() != passType)
                     continue;
 
                 list.Remove(item);
@@ -221,16 +221,16 @@ namespace PowerUtilities
             }
         }
 
-        public static void RemoveRenderPasses(this ScriptableRenderer renderer,List<Type> passTypeList)
+        public static void RemoveRenderPasses(this ScriptableRenderer renderer, List<Type> passTypeList)
         {
             var list = renderer.GetActiveRenderPassQueue();
-            if (list == null || passTypeList==null || passTypeList.Count == 0)
+            if (list == null || passTypeList == null || passTypeList.Count == 0)
                 return;
 
             for (int i = 0; i < list.Count; i++)
             {
                 var item = list[i];
-                if(item == null || !passTypeList.Contains(item.GetType()))
+                if (item == null || !passTypeList.Contains(item.GetType()))
                     continue;
 
                 list.Remove(item);
@@ -248,11 +248,12 @@ namespace PowerUtilities
         /// </summary>
         /// <param name="r"></param>
         /// <returns></returns>
+#if !UNITY_6000_4_OR_NEWER
         public static RTHandle CameraColorTargetHandle(this ScriptableRenderer r)
 #if UNITY_2022_1_OR_NEWER
-        => r.cameraColorTargetHandle;
+            => r.cameraColorTargetHandle;
 #else
-        => r.cameraColorTarget.Convert();
+            => r.cameraColorTarget.Convert();
 #endif
 
         /// <summary>
@@ -262,10 +263,11 @@ namespace PowerUtilities
         /// <returns></returns>
         public static RTHandle CameraDepthTargetHandle(this ScriptableRenderer r)
 #if UNITY_2022_1_OR_NEWER
-        => r.cameraDepthTargetHandle;
+            => r.cameraDepthTargetHandle;
 #else
-        => r.cameraDepthTarget.Convert();
+            => r.cameraDepthTarget.Convert();
 #endif
+#endif // #if !UNITY_6000_4_OR_NEWER
 
     }
 }

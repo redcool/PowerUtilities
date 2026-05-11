@@ -1,13 +1,16 @@
 ﻿#if UNITY_INPUT_SYSTEM && UNITY_CINEMACHINE
+#if UNITY_6000_3_OR_NEWER
+using Unity.Cinemachine;
+#else
+using Cinemachine;
+#endif
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.InputSystem;
+
 namespace GameUtilsFramework
 {
-    using Cinemachine;
-
-    using System.Collections;
-    using System.Collections.Generic;
-    using UnityEngine;
-
-    using UnityEngine.InputSystem;
 
     public static class CinemachineTools
     {

@@ -1,4 +1,5 @@
 ﻿using PowerUtilities;
+using PowerUtilities.RenderFeatures;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +16,7 @@ using UniversalRenderer = UnityEngine.Rendering.Universal.ForwardRenderer;
 namespace PowerUtilities.Features
 {
 
-    public class RenderUIPass : ScriptableRenderPass
+    public class RenderUIPass : SRPPass
     {
         static readonly int _GammaTex = Shader.PropertyToID(nameof(_GammaTex));
         static readonly RTHandle _GammaTexHandle = RTHandles.Alloc(_GammaTex);
@@ -166,7 +167,7 @@ namespace PowerUtilities.Features
             if (settings.isBlitActiveColorTarget)
             {
 #if UNITY_2022_1_OR_NEWER
-                var curActive = renderer.cameraColorTargetHandle;
+                var curActive = renderer.CameraColorTargetHandle();
 #else
                 var curActive = renderer.cameraColorTarget;
 #endif

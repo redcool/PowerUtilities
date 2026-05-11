@@ -201,7 +201,7 @@ namespace PowerUtilities.RenderFeatures
             cmd.SetGlobalTexture(_TemporalAATexture, readTarget);
             //mat.SetTexture(_TemporalAATexture, readTarget);
             cmd.BlitTriangle(BuiltinRenderTextureType.CurrentActive, writeTarget, mat, 0);
-            cmd.BlitTriangle(writeTarget, renderingData.cameraData.renderer.cameraColorTargetHandle, cmd.GetDefaultBlitTriangleMat(), 0);
+            cmd.BlitTriangle(writeTarget, renderingData.cameraData.renderer.CameraColorTargetHandle(), cmd.GetDefaultBlitTriangleMat(), 0);
 
             cmd.Execute(ref context);
 

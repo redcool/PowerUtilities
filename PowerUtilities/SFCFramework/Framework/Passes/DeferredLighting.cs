@@ -294,7 +294,7 @@ namespace PowerUtilities.RenderFeatures
             }
 
             //var depthId = ShaderPropertyIdentifier._CameraDepthAttachment;
-            var depthId = renderingData.cameraData.renderer.cameraDepthTargetHandle;
+            var depthId = renderingData.cameraData.renderer.CameraDepthTargetHandle();
 
             if (Feature.IsCreateAndSetRTs)
                 cmd.SetRenderTarget(colorTargets, depthId);

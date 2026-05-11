@@ -50,19 +50,23 @@ namespace PowerUtilities.RenderFeatures
                 SetupURPSkyboxTargets(renderer, cam, colorTargets[0], depthTarget);
         }
 
-        public static void SetupURPSkyboxTargets(UniversalRenderer renderer, Camera cam,RTHandle colorTarget, RTHandle depthTarget)
+        public static void SetupURPSkyboxTargets(UniversalRenderer renderer, Camera cam, RTHandle colorTarget, RTHandle depthTarget)
         {
+#if !UNITY_6000_4_OR_NEWER
             var urpSkyPass = renderer.GetRenderPass<DrawSkyboxPass>(ScriptableRendererEx.PassFieldNames.m_DrawSkyboxPass);
             if(urpSkyPass != null)
                 urpSkyPass.ConfigureTarget(colorTarget, depthTarget);
+#endif
         }
 
         public static void SetupURPSkyboxTargets(UniversalRenderer renderer, Camera cam)
         {
+#if !UNITY_6000_4_OR_NEWER
             RenderTargetHolder.GetLastTargets(renderer, out var colorTargets, out var depthTarget);
 
             var urpSkyPass = renderer.GetRenderPass<DrawSkyboxPass>(ScriptableRendererEx.PassFieldNames.m_DrawSkyboxPass);
             urpSkyPass?.ConfigureTarget(colorTargets[0], depthTarget);
+#endif
         }
     }
 }

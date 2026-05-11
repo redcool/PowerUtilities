@@ -1,5 +1,6 @@
-namespace PowerUtilities
+﻿namespace PowerUtilities
 {
+    using PowerUtilities.RenderFeatures;
     using System;
     using UnityEngine;
     using UnityEngine.Rendering;
@@ -11,7 +12,7 @@ namespace PowerUtilities
     /// </summary>
     public class RenderTransparentObjectDepth : ScriptableRendererFeature
     {
-        class CustomRenderPass : ScriptableRenderPass
+        class CustomRenderPass : SRPPass
         {
             public Settings settings;
 
@@ -32,7 +33,7 @@ namespace PowerUtilities
 
                 context.DrawRenderers(renderingData.cullResults, ref drawSettings, ref filterSettings);
 
-                cmd.SetRenderTarget(renderer.cameraColorTargetHandle);
+                cmd.SetRenderTarget(renderer.CameraColorTargetHandle());
                 cmd.EndSample(nameof(RenderTransparentObjectDepth));
                 cmd.Execute(ref context);
 

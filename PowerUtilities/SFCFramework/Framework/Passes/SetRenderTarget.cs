@@ -96,6 +96,9 @@
 
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
         {
+        }
+        public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
+        {
             ref var cameraData = ref renderingData.cameraData;
 
             //if (cameraData.isPreviewCamera)
@@ -212,7 +215,7 @@
         {
             // set depth target id
 #if UNITY_2022_1_OR_NEWER
-            RenderTargetIdentifier depthId = UniversalRenderPipeline.asset.supportsCameraDepthTexture ? renderer.cameraDepthTargetHandle : BuiltinRenderTextureType.CameraTarget;
+            RenderTargetIdentifier depthId = UniversalRenderPipeline.asset.supportsCameraDepthTexture ? renderer.CameraDepthTargetHandle() : BuiltinRenderTextureType.CameraTarget;
 #else
             RenderTargetIdentifier depthId = UniversalRenderPipeline.asset.supportsCameraDepthTexture ? (RenderTargetIdentifier)ShaderPropertyIds._CameraDepthAttachment : BuiltinRenderTextureType.CameraTarget;
 #endif

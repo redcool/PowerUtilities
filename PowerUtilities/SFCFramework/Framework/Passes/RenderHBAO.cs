@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -54,7 +54,7 @@ namespace PowerUtilities.RenderFeatures
                 Feature.hbaoMat.SetKeyword("_NORMAL_FROM_DEPTH", Feature.isNormalFromDepth);
             }
 
-            cmd.BlitTriangle(BuiltinRenderTextureType.None, renderer.cameraColorTargetHandle, Feature.hbaoMat, 0);
+            cmd.BlitTriangle(BuiltinRenderTextureType.None, renderer.CameraColorTargetHandle(), Feature.hbaoMat, 0);
             cmd.Execute(ref context);
         }
     }

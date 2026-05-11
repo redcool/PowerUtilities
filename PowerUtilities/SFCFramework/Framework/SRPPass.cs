@@ -12,7 +12,7 @@ namespace PowerUtilities.RenderFeatures
     /// <summary>
     /// SRPPass's subClass's constructor for initial
     /// </summary>
-    public abstract class SRPPass : ScriptableRenderPass
+    public abstract partial class SRPPass : ScriptableRenderPass
     {
         /// <summary>
         /// is pass run first, can do init once
@@ -35,7 +35,7 @@ namespace PowerUtilities.RenderFeatures
     /// urp renderPass controlled by SRPFeatureControl
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public abstract class SRPPass<T> : SRPPass
+    public abstract partial class SRPPass<T> : SRPPass
         where T : SRPFeature
     {
         public T Feature { get; private set; }
@@ -201,6 +201,7 @@ namespace PowerUtilities.RenderFeatures
         {
             OnCameraRenderFinish?.Invoke(this);
         }
+
 
         public override void OnFinishCameraStackRendering(CommandBuffer cmd)
         {

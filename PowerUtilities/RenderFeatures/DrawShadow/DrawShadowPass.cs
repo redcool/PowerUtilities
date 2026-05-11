@@ -1,5 +1,6 @@
 ﻿namespace PowerUtilities
 {
+    using PowerUtilities.RenderFeatures;
     using System;
     using System.Collections;
     using Unity.Mathematics;
@@ -15,7 +16,7 @@
     /// <summary>
     /// DrawShadow pass
     /// </summary>
-    public class DrawShadowPass : ScriptableRenderPass
+    public class DrawShadowPass : SRPPass
     {
         public DrawShadowSettingSO settingSO;
 
