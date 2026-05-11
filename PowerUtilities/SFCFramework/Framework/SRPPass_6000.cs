@@ -1,16 +1,14 @@
-﻿using System;
+﻿#if UNITY_6000_4_OR_NEWER
+using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
-using UnityEngine.AdaptivePerformance.Provider;
 using UnityEngine.Playables;
 using UnityEngine.Rendering;
-using UnityEngine.Rendering.RenderGraphModule;
 using UnityEngine.Rendering.Universal;
 
 namespace PowerUtilities.RenderFeatures
 {
-#if UNITY_6000_4_OR_NEWER
 
     /// <summary>
     /// for compatible 6000
@@ -234,5 +232,6 @@ namespace PowerUtilities.RenderFeatures
 
     }
 
-#endif
 }
+
+#endif

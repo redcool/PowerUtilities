@@ -107,10 +107,10 @@
                 feature.UpdateSceneState();
                 if(!feature.IsCameraValid(camera))
                     continue;
-
+#if UNITY_6000_4_OR_NEWER
                 // inject 
                 feature.renderingData = renderingData;
-
+#endif
                 var pass = feature.PassInstance;
                 if (pass == null)
                     continue;
