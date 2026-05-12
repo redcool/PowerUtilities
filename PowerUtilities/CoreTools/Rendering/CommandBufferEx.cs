@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
@@ -68,26 +68,22 @@ namespace PowerUtilities
 
         public static void ClearRenderTarget(this CommandBuffer cmd, Camera camera, float depth = 1, uint stencil = 0)
         {
+            var flags = GetRTClearFlags(camera, out var backColor);
+            cmd.ClearRenderTarget(flags, backColor, depth, stencil);
+        }
+
+        public static RTClearFlags GetRTClearFlags(Camera camera, out Color backColor)
+        {
             var isClearDepth = camera.clearFlags <= CameraClearFlags.Depth;
             var isClearColor = camera.clearFlags <= CameraClearFlags.Color;// ** if condition set equals , mrt color will not clear
 
-            var backColor = camera.clearFlags == CameraClearFlags.Color || camera.cameraType == CameraType.SceneView?
-                camera.backgroundColor.linear : Color.clear;
-
-            var flags = RTClearFlags.None;
-            if (isClearColor)
-                flags |= RTClearFlags.Color;
-            if (isClearDepth)
-                flags |= RTClearFlags.DepthStencil;
-            cmd.ClearRenderTarget(flags, backColor, depth, stencil);
-
-            //cmd.ClearRenderTarget(camera.clearFlags <= CameraClearFlags.Depth,
-            //camera.clearFlags == CameraClearFlags.color,
-            //camera.clearFlags == CameraClearFlags.color ? camera.backgroundColor : color.clear
-            //);
+            backColor = camera.clearFlags == CameraClearFlags.Color || camera.cameraType == CameraType.SceneView ?
+                camera.backgroundColor.linear : camera.backgroundColor;
+            var flags = GetRTClearFlags(isClearColor, isClearDepth, true);
+            return flags;
         }
 
-        public static void ClearRenderTarget(this CommandBuffer cmd,bool isClearColor,Color backColor, bool isClearDepth,float depth,bool isClearStencil, uint stencil)
+        public static RTClearFlags GetRTClearFlags(bool isClearColor, bool isClearDepth,  bool isClearStencil)
         {
             var flags = RTClearFlags.None;
             if (isClearColor)
@@ -96,6 +92,12 @@ namespace PowerUtilities
                 flags |= RTClearFlags.Depth;
             if (isClearStencil)
                 flags |= RTClearFlags.Stencil;
+            return flags;
+        }
+
+        public static void ClearRenderTarget(this CommandBuffer cmd,bool isClearColor,Color backColor, bool isClearDepth,float depth,bool isClearStencil, uint stencil)
+        {
+            var flags = GetRTClearFlags(isClearColor, isClearDepth, isClearStencil);
 
             cmd.ClearRenderTarget(flags, backColor, depth, stencil);
         }

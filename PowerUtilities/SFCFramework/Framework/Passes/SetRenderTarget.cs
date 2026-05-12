@@ -71,6 +71,7 @@
         public override ScriptableRenderPass GetPass() => new SetRenderTargetPass(this);
     }
 
+#if !UNITY_6000_4_OR_NEWER
     public class SetRenderTargetPass : SRPPass<SetRenderTarget>
     {
         RenderTargetIdentifier[] colorIds;
@@ -251,4 +252,5 @@
             lastColorNames = Feature.colorTargetNames;
         }
     }
+#endif // !UNITY_6000_3_OR_NEWER
 }

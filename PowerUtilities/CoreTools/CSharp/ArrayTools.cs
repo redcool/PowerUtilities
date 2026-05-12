@@ -31,6 +31,19 @@ namespace PowerUtilities
             return arr;
         }
 
+        public static bool IsChanged(string[] lastColorNames, string[] colorTargetNames)
+        {
+            if (lastColorNames == null || lastColorNames.Length != colorTargetNames.Length)
+                return true;
+
+            for (int i = 0; i < lastColorNames.Length; i++)
+            {
+                if (lastColorNames[i] != colorTargetNames[i])
+                    return true;
+            }
+            return false;
+        }
+
         public static bool IsValid<T>(this T[] array)
         => array != null && array.Length > 0;
         

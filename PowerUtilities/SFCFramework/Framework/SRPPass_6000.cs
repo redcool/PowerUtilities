@@ -35,6 +35,8 @@ namespace PowerUtilities.RenderFeatures
         };
         public RTClearFlags clearFlags;
         public Color clearColor;
+        public float clearDepth = 1;
+        public uint clearStencil = 0;
         //================ compatible 2022 fields
         /// <summary>
         /// Configures the camera for rendering, allowing customization of the rendering process before execution.
@@ -70,6 +72,11 @@ namespace PowerUtilities.RenderFeatures
             colorTargetDict[1][0] = colorTarget;
             depthTarget = null;
         }
+        /// <summary>
+        /// Save targets to dict, and set target count, then will set targets in render callback
+        /// </summary>
+        /// <param name="colorTargets"></param>
+        /// <param name="depthTarget"></param>
         public void ConfigureTargets(RTHandle[] colorTargets, RTHandle depthTarget)
         {
             var len = colorTargets.Length;
@@ -83,10 +90,12 @@ namespace PowerUtilities.RenderFeatures
             this.clearColor = clearColor;
             this.clearFlags = (RTClearFlags)flag;
         }
-        public void ConfigureClear(RTClearFlags flag, Color clearColor)
+        public void ConfigureClear(RTClearFlags flag, Color clearColor,float depth=1,uint stencil=0)
         {
             this.clearColor = clearColor;
             this.clearFlags = flag;
+            this.clearDepth = depth;
+            this.clearStencil = stencil;
         }
     }
 
@@ -192,9 +201,6 @@ namespace PowerUtilities.RenderFeatures
                 // set pass's targets
                 SetRenderTargets(builder, passData);
 
-                //builder.SetRenderAttachment(passData.resourceData.activeColorTexture, 0);
-                //builder.SetRenderAttachmentDepth(passData.resourceData.activeDepthTexture);
-
                 // register render callback
                 builder.SetRenderFunc((PassData data, RasterGraphContext rasterContext) =>
                 {
@@ -204,7 +210,7 @@ namespace PowerUtilities.RenderFeatures
 
                     context.SetRasterContext(rasterContext);
 
-                    rasterContext.cmd.ClearRenderTarget(clearFlags, clearColor, 1.0f, 0);
+                    rasterContext.cmd.ClearRenderTarget(clearFlags, clearColor, clearDepth, clearStencil);
                     Execute(context, ref Feature.renderingData);
                 });
             }
