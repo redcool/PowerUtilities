@@ -137,7 +137,7 @@ namespace PowerUtilities.RenderFeatures
         {
             // local fields save in global
             ScriptableRendererEx.renderGraph = renderGraph;
-            ScriptableRendererEx.frameContextContainer = contextContainer;
+            ScriptableRendererEx.contextContainer = contextContainer;
 
             // save current pass
             this.renderGraph = renderGraph;
@@ -203,13 +203,13 @@ namespace PowerUtilities.RenderFeatures
                 builder.SetRenderFunc((PassData data, RasterGraphContext rasterContext) =>
                 {
                     // context is invalid ,skip ,when compile
-                    if (rendererContext == default)
+                    if (context == default)
                         return;
 
-                    rendererContext.SetRasterContext(rasterContext);
+                    context.SetRasterContext(rasterContext);
 
                     rasterContext.cmd.ClearRenderTarget(clearFlags, clearColor, 1.0f, 0);
-                    Execute(rendererContext, ref Feature.renderingData);
+                    Execute(context, ref Feature.renderingData);
                 });
             }
         }
@@ -237,7 +237,6 @@ namespace PowerUtilities.RenderFeatures
 
         private void SetTargets(IRasterRenderGraphBuilder builder, UniversalResourceData resourceData, RTHandle[] colorRTHArr, RTHandle depthRTH)
         {
-            Debug.Log(depthRTH);
             var depthTexture = depthRTH != null ? renderGraph.ImportTexture(depthRTH) : resourceData.activeDepthTexture;
             builder.SetRenderAttachmentDepth(depthTexture);
 
@@ -263,7 +262,7 @@ namespace PowerUtilities.RenderFeatures
 
         private void OnBeginCameraRendering(ScriptableRenderContext context, Camera camera)
         {
-            this.rendererContext = context;
+            this.context = context;
             this.camera = camera;
         }
 
