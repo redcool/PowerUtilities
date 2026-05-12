@@ -16,10 +16,6 @@ namespace PowerUtilities.RenderFeatures
     /// </summary>
     public partial class SRPPass
     {
-        /// <summary>
-        /// current ScriptableRenderContext,can access from OnExecute
-        /// </summary>
-        protected ScriptableRenderContext context;
 
         //------------
         public int targetCount;
