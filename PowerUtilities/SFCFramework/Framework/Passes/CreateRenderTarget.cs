@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -74,9 +74,14 @@ namespace PowerUtilities.RenderFeatures
             cmd.CreateTargets(camera, Feature.colorTargetInfos, renderScale, samples);
         }
 
+        public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
+        {
+            base.OnCameraSetup(cmd, ref renderingData);
+            CreateTargets(cmd);
+        }
+
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
         {
-            CreateTargets(cmd);
         }
 
     }

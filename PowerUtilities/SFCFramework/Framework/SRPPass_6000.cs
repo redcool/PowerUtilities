@@ -120,6 +120,8 @@ namespace PowerUtilities.RenderFeatures
         /// </summary>
         public PassData defaultPassData;
 
+        IRasterRenderGraphBuilder rasterRenderGraphBuilder;
+
         public void SetupPassData(ref PassData passData, ContextContainer frameData)
         {
             // setup pass data
@@ -135,7 +137,7 @@ namespace PowerUtilities.RenderFeatures
         {
             // local fields save in global
             ScriptableRendererEx.renderGraph = renderGraph;
-            ScriptableRendererEx.contextContainer = contextContainer;
+            ScriptableRendererEx.frameContextContainer = contextContainer;
 
             // save current pass
             this.renderGraph = renderGraph;
@@ -179,8 +181,10 @@ namespace PowerUtilities.RenderFeatures
         {
             using (var builder = renderGraph.AddRasterRenderPass<PassData>(Feature.GetName(), out var passData))
             {
+                rasterRenderGraphBuilder = builder;
                 // setup and save
                 SetupPassData(ref passData, frameData);
+
                 defaultPassData = passData;
                 // setup
                 OnCameraSetup(CommandBufferEx.defaultCmd, ref Feature.renderingData);
@@ -189,34 +193,66 @@ namespace PowerUtilities.RenderFeatures
                 // builder setup
                 builder.AllowPassCulling(false);
 
-                // 
-                SetTargets(builder, passData.resourceData);
+                // set pass's targets
+                SetRenderTargets(builder, passData);
+
+                //builder.SetRenderAttachment(passData.resourceData.activeColorTexture, 0);
+                //builder.SetRenderAttachmentDepth(passData.resourceData.activeDepthTexture);
+
                 // register render callback
                 builder.SetRenderFunc((PassData data, RasterGraphContext rasterContext) =>
                 {
                     // context is invalid ,skip ,when compile
-                    if (context == default)
+                    if (rendererContext == default)
                         return;
 
-                    context.SetRasterContext(rasterContext);
+                    rendererContext.SetRasterContext(rasterContext);
 
                     rasterContext.cmd.ClearRenderTarget(clearFlags, clearColor, 1.0f, 0);
-                    Execute(context, ref Feature.renderingData);
+                    Execute(rendererContext, ref Feature.renderingData);
                 });
             }
         }
 
-        private void SetTargets(IRasterRenderGraphBuilder builder, UniversalResourceData resourceData)
+        private void SetRenderTargets(IRasterRenderGraphBuilder builder, PassData passData)
         {
-            var depthTexture = depthTarget != null ? renderGraph.ImportTexture(depthTarget) : resourceData.activeDepthTexture;
+
+            // check RenderTargetHolder
+            if (RenderTargetHolder.IsLastTargetValid())
+            {
+                //RenderTargetHolder.GetLastTargets((UniversalRenderer)passData.cameraData.renderer, out RTHandle[] colorRTHArr, out RTHandle depthRTH);
+                var colorRTHArr = RenderTargetHolder.LastColorTargetHandles;
+                var depthRTH = RenderTargetHolder.LastDepthTargetHandle;
+                SetTargets(builder, passData.resourceData, colorRTHArr, depthRTH);
+            }
+            else
+            {
+                targetCount = Mathf.Clamp(targetCount, 1, 8);
+                var rthArr = colorTargetDict[targetCount];
+
+                SetTargets(builder, passData.resourceData, rthArr, depthTarget);
+
+            }
+        }
+
+        private void SetTargets(IRasterRenderGraphBuilder builder, UniversalResourceData resourceData, RTHandle[] colorRTHArr, RTHandle depthRTH)
+        {
+            Debug.Log(depthRTH);
+            var depthTexture = depthRTH != null ? renderGraph.ImportTexture(depthRTH) : resourceData.activeDepthTexture;
             builder.SetRenderAttachmentDepth(depthTexture);
 
-            targetCount = Mathf.Clamp(targetCount, 1, 8);
-            var rthArr = colorTargetDict[targetCount];
-            for (int i = 0; i < targetCount; i++)
+            // use default when null
+            if (colorRTHArr[0] == null)
             {
-                if (rthArr[i] != null)
-                    builder.SetRenderAttachment(renderGraph.ImportTexture(rthArr[i]), i);
+                builder.SetRenderAttachment(resourceData.activeColorTexture, 0);
+            }
+            
+            for (int i = 0; i < colorRTHArr.Length; i++)
+            {
+                if (colorRTHArr[i] != null)
+                {
+                    builder.SetRenderAttachment(renderGraph.ImportTexture(colorRTHArr[i]), i);
+                }
             }
         }
 
@@ -227,7 +263,7 @@ namespace PowerUtilities.RenderFeatures
 
         private void OnBeginCameraRendering(ScriptableRenderContext context, Camera camera)
         {
-            this.context = context;
+            this.rendererContext = context;
             this.camera = camera;
         }
 

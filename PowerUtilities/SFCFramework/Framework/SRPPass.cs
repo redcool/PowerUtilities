@@ -173,9 +173,10 @@ namespace PowerUtilities.RenderFeatures
             cmd.name = Feature.GetName();
             cmd.Execute(ref context);
 
+#if !UNITY_6000_4_OR_NEWER
             if(IsTryRestoreLastTargets(camera))
                 TryRestoreCameraTargets(cmd);
-
+#endif
             //cmd.BeginSampleExecute(featureName, ref context);
 
             // ========== trigger before execute
