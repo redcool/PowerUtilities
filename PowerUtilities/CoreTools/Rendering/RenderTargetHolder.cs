@@ -16,20 +16,6 @@ namespace PowerUtilities
     public static class RenderTargetHolder
     {
 
-
-        /// <summary>
-        /// {rtid , rtHandle}
-        /// </summary>
-        static Dictionary<RenderTargetIdentifier, RTHandle> rtIdHandleDict = new Dictionary<RenderTargetIdentifier, RTHandle>();
-
-        /// <summary>
-        /// { {length , array}}
-        /// </summary>
-        static Dictionary<int, RTHandle[]> placeHolderHandleDict = new Dictionary<int, RTHandle[]>();
-        static Dictionary<int, RenderTargetIdentifier[]> placeHolderRtIDDict = new Dictionary<int, RenderTargetIdentifier[]>();
-
-
-
         /// <summary>
         /// keep these colorRTs(8),depthRT
         /// </summary>
@@ -38,15 +24,10 @@ namespace PowerUtilities
         public static RTHandle[] LastColorTargetHandles;// = new RTHandle[8];
         public static RenderTargetIdentifier[] LastColorTargetIds;//= new RenderTargetIdentifier[8];
 
-        static int lastColorIdsLength = 0;
-
         /// <summary>
-        /// cached funcs
+        /// same as LastColorTargetHandles.length
         /// </summary>
-        static Func<int, RenderTargetIdentifier[]> GetIDArray = (lengthAsKey) => new RenderTargetIdentifier[lengthAsKey];
-        static Func<int, RTHandle[]> GetRTHandleArray = (lengthAsKey) => new RTHandle[lengthAsKey];
-
-
+        static int lastColorIdsLength = 0;
 
         /// <summary>
         /// Save current targets, sfcpass can reuse these
@@ -55,28 +36,44 @@ namespace PowerUtilities
         /// <param name="depthId"></param>
         public static void SaveTargets(RenderTargetIdentifier[] colorIds, RenderTargetIdentifier depthId)
         {
-            LastDepthTargetHandle = DictionaryTools.Get(rtIdHandleDict, depthId, RTHandleTools.GetRTHandleByID);
+            LastDepthTargetHandle = GetRTHandleByID(depthId);
             lastColorIdsLength = colorIds.Length;
 
             // 1 get target array
-            LastColorTargetIds = DictionaryTools.Get(placeHolderRtIDDict, lastColorIdsLength, GetIDArray);
-            LastColorTargetHandles = DictionaryTools.Get(placeHolderHandleDict, lastColorIdsLength, GetRTHandleArray);
+            LastColorTargetIds = GetRenderTargetIdentifiers(lastColorIdsLength);
+            LastColorTargetHandles = GetRTHandles(lastColorIdsLength);
 
             // 2 fill target array
             for (int i = 0; i < lastColorIdsLength; i++)
             {
                 var rtId = colorIds[i];
                 LastColorTargetIds[i] = rtId;
-                LastColorTargetHandles[i] = DictionaryTools.Get(rtIdHandleDict, rtId, RTHandleTools.GetRTHandleByID);
+                LastColorTargetHandles[i] = GetRTHandleByID(rtId);
             }
 
+        }
+
+        public static void SaveTargets(RTHandle[] colorHandles, RTHandle depthHandle)
+        {
+            LastDepthTargetHandle = depthHandle;
+            lastColorIdsLength = colorHandles.Length;
+            // 1 get target array
+            LastColorTargetHandles = GetRTHandles(lastColorIdsLength);
+            LastColorTargetIds = GetRenderTargetIdentifiers(lastColorIdsLength);
+            // 2 fill target array
+            for (int i = 0; i < lastColorIdsLength; i++)
+            {
+                var rtHandle = colorHandles[i];
+                LastColorTargetHandles[i] = rtHandle;
+                LastColorTargetIds[i] = rtHandle != null ? rtHandle.nameID : default;
+            }
         }
 
         /// <summary>
         /// Exists target?
         /// </summary>
         /// <returns></returns>
-        public static bool IsLastTargetValid() => lastColorIdsLength > 0 && LastDepthTargetHandle != null;
+        public static bool IsLastTargetValid() => lastColorIdsLength > 0 ;
 
         /// <summary>
         /// clear last targets
@@ -108,9 +105,10 @@ namespace PowerUtilities
             }
             else
             {
-                RTHandleArray_1[0] = colorTarget;
+                // use rthandle array ,1 item
+                colorIds = GetRTHandles(1);
+                colorIds[0] = colorTarget;
 
-                colorIds = RTHandleArray_1;
                 depthId = depthTarget;
             }
         }

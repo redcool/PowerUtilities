@@ -14,38 +14,26 @@ namespace PowerUtilities
     /// </summary>
     public static partial class ScriptableRendererEx
     {
-        /// <summary>
-        /// (ContextContainer) m_frameData is private field in ScriptableRenderer
-        /// </summary>
-        public static ContextContainer contextContainer;
-        /// <summary>
-        /// (RenderGraph) s_RenderGraph is internal static field in UniversalRenderPipeline
-        /// </summary>
-        public static RenderGraph renderGraph;
 
         /// <summary>
-        /// Get current m_frameData,(ScriptableRenderer private field)
+        /// 6000 cannot get activeColorTexture and activeDepthTexture from m_frameData,
+        /// set null will use frameData's activeColorTexture and activeDepthTexture, so return default here.
         /// </summary>
         /// <param name="r"></param>
         /// <returns></returns>
-        public static ContextContainer GetCurrentPassContextContainer(this ScriptableRenderer r) => contextContainer;
-
-        /// <summary>
-        /// Get current renderGraph (UniversalRenderPipeline static field)
-        /// </summary>
-        /// <param name="r"></param>
-        /// <returns></returns>
-        public static RenderGraph GetCurrentPassRenderGraph(this ScriptableRenderer r) => renderGraph;
-
-
         public static RTHandle CameraColorTargetHandle(this ScriptableRenderer r)
         {
-            return contextContainer.Get<UniversalResourceData>().activeColorTexture;
+            return default;
         }
-
+        /// <summary>
+        /// 6000 cannot get activeColorTexture and activeDepthTexture from m_frameData,
+        /// set null will use frameData's activeColorTexture and activeDepthTexture, so return default here.
+        /// </summary>
+        /// <param name="r"></param>
+        /// <returns></returns>
         public static RTHandle CameraDepthTargetHandle(this ScriptableRenderer r)
         {
-            return contextContainer.Get<UniversalResourceData>().activeDepthTexture;
+            return default;
         }
 
     }

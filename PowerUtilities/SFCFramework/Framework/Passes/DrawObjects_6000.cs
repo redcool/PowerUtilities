@@ -1,4 +1,5 @@
-﻿namespace PowerUtilities.RenderFeatures
+﻿#if UNITY_6000_3_OR_NEWER
+namespace PowerUtilities.RenderFeatures
 {
 #if UNITY_EDITOR
     using UnityEditor.SceneManagement;
@@ -19,255 +20,26 @@
     using Object = UnityEngine.Object;
     using Unity.Mathematics;
     using RenderQueueType = PowerUtilities.RenderQueueType;
-#if UNITY_2020
-    using UniversalRenderer = UnityEngine.Rendering.Universal.ForwardRenderer;
-    using Tooltip = PowerUtilities.TooltipAttribute;
-#endif
+    using UnityEngine.Rendering.RenderGraphModule;
 
-    [Serializable]
-    public class StencilStateData
-    {
-        /// <summary>
-        /// Used to mark whether the stencil values should be overridden or not.
-        /// </summary>
-        public bool overrideStencilState = false;
-
-        /// <summary>
-        /// The stencil reference value.
-        /// </summary>
-        public int stencilReference = 0;
-
-        /// <summary>
-        /// The comparison function to use.
-        /// </summary>
-        public CompareFunction stencilCompareFunction = CompareFunction.Always;
-
-        /// <summary>
-        /// The stencil operation to use when the stencil test passes.
-        /// </summary>
-        public StencilOp passOperation = StencilOp.Keep;
-
-        /// <summary>
-        /// The stencil operation to use when the stencil test fails.
-        /// </summary>
-        public StencilOp failOperation = StencilOp.Keep;
-
-        /// <summary>
-        /// The stencil operation to use when the stencil test fails because of depth.
-        /// </summary>
-        public StencilOp zFailOperation = StencilOp.Keep;
-    }
-
-
-    [Tooltip("Draw Objects with full urp powers, use SRPBatch or Instanced need multi cameras")]
-    [CreateAssetMenu(menuName = SRP_FEATURE_PASSES_MENU+ "/DrawObjects")]
-    public class DrawObjects : SRPFeature
-    {
-        const string FILTERS_GROUP = "Filters",
-            DEBUG_TOOLS_GROUP = "DebugTools",
-            REFLECTION_CAMERA_GROUP = "SetupReflectionCameraView",
-            CREATE_REFLECTION_CAMERA_GROUP = "CreateReflectionCameraControl"
-            ;
-
-
-        [Header("Draw Objects Options")]
-        [EditorBorder]
-        [Tooltip("Assign shader tags ,correspond Tags{\"LightMode\"=\"UniversalForward\"}")]
-        public string[] shaderTags = new[] {
-            "UniversalForwardOnly",
-            "UniversalForward",
-            "SRPDefaultUnlit"
-        };
-        
-        //-------------------------------------- FILTERS_GROUP
-        [Header("BaseFilters")]
-        [EditorBorder(6)]
-        [Tooltip("render opaque, opque:[0,2500],transparent:[2501,5000],all:[0,5000]")]
-        public RenderQueueType renderQueueType = RenderQueueType.opaque;
-        public LayerMask layers = -1;
-
-        [Header("---Override FilterSetting")]
-        [Tooltip("use full filterSetting")]
-        public bool isOverrideFilterSetting;
-
-        [EditorDisableGroup(targetPropName = "isOverrideFilterSetting")]
-        public SimpleFilterSetting filterSetting = new();
-
-        //-------------------------------------- override stencil depth
-        [Header("--- Override depth")]
-        [EditorBorder()]
-        [Tooltip("depth state control")]
-        public DepthStateInfo depthState;
-
-        [Header("--- Override stencil")]
-        [EditorBorder()]
-        [Tooltip("stencil state control")]
-        public StencilStateData stencilData;
-        //-------------------------------------- override material
-        [Header("--- override material")]
-        [EditorBorder(3)]
-        [Tooltip("use this material render objects when not empty")]
-        public Material overrideMaterial;
-
-        [Tooltip("overrideMaterial use pass index")]
-        public int overrideMaterialPassIndex;
-
-        [Tooltip("lightMode canot match, use this material")]
-        public Material fallbackMaterial;
-
-        //-------------------------------------- per object data
-        [Header("--- Per Object Data")]
-        [EditorBorder(2)]
-        [Tooltip("overridePerObjectData,Lightmap : (Lightmaps,LightProbe,LightProbeProxyVolume),ShadowMask:(ShadowMask,OcclusionProbe,OcclusionProbeProxyVolume)")]
-        public bool overridePerObjectData;
-        
-        [EditorDisableGroup(targetPropName = "overridePerObjectData")]
-        public PerObjectData perObjectData;
-
-        [Tooltip("MotionVector need DepthTextureMode.MotionVectors")]
-        public DepthTextureMode cameraDepthTextureMode = DepthTextureMode.MotionVectors;
-        //-------------------------------------- override light
-        [Header("--- override mainLight")]
-        [EditorBorder(5)]
-        public bool overrideMainLightIndex;
-
-        [Tooltip("restore mainLightIndex when draw finish")]
-        [EditorDisableGroup(targetPropName = "overrideMainLightIndex")]
-        public bool isRestoreMainLightIndexFinish = true;
-
-        [EditorDisableGroup(targetPropName = "overrideMainLightIndex")]
-        public int mainLightIndex;
-
-        [Tooltip("use this light as mainLight")]
-        [EditorDisableGroup(targetPropName = "overrideMainLightIndex")]
-        public string lightName;
-        [EditorDisableGroup(targetPropName = "overrideMainLightIndex")]
-        public List<string> visibleLightNames = new List<string>();
-
-        //-------------------------------------- dynamic batch
-        [Header("--- override dynamic batch")]
-        [EditorBorder(2)]
-        [Tooltip("override urp Pipeline Asset")]
-        public bool overrideDynamicBatching;
-
-        [EditorDisableGroup(targetPropName = "overrideDynamicBatching")]
-        public bool enableDynamicBatching;
-
-        //-------------------------------------- override instancing
-        [Header("--- override instancing")]
-        [EditorBorder(2)]
-        [Tooltip("override instancing")]
-        public bool overrideGPUInstancing;
-
-        [EditorDisableGroup(targetPropName = "overrideGPUInstancing")]
-        public bool enableGPUInstancing;
-
-        //-------------------------------------- override srp batch
-        [Header("--- override srp batch")]
-        [EditorBorder(2)]
-        public bool overrideSRPBatch;
-        [EditorDisableGroup(targetPropName = "overrideSRPBatch")]
-        public bool enableSRPBatch;
-
-        //-------------------------------------- override camera
-        [Header("--- override camera")]
-        [EditorBorder(3)]
-        public bool overrideCamera;
-
-        [EditorDisableGroup(targetPropName = "overrideCamera")]
-        public float cameraFOV = 60;
-        [EditorDisableGroup(targetPropName = "overrideCamera")]
-        public Vector4 cameraOffset;
-
-        //-------------------------------------- override skybox
-        [Header("SkyBox Pass")]
-        [EditorBorder(1)]
-        [Tooltip("skyboxPass use last target,passEvent <= BeforeRenderingSkybox")]
-        public bool IsUpdateSkyboxTarget;
-        //---------------------DrawChildrenInstanced
-        [Header("DrawChildrenInstanced")]
-        [EditorBorder(2)]
-        public bool isDrawChildrenInstancedOn;
-
-        [EditorDisableGroup(targetPropName = "isDrawChildrenInstancedOn")]
-        public bool forceFindDrawChildrenInstanced;
-
-        //---------------------ColorSpace
-        [Header("Color Space")]
-        [EditorBorder(1)]
-        public ColorSpaceTransform.ColorSpaceMode colorSpaceMode;
-
-        //---------------------PlanarReflectionCamera
-        [EditorBorder(2,groupName = CREATE_REFLECTION_CAMERA_GROUP)]
-        [EditorGroup(CREATE_REFLECTION_CAMERA_GROUP, true)]
-        [Tooltip("create planar reflection camera")]
-        [EditorButton(onClickCall = "OnCreatePlanarReflectionCamera")]
-        public bool isCreatePlanarReflectionCamera;
-
-        //---------------------ReflectionCamera
-        [EditorBorder(4,groupName = REFLECTION_CAMERA_GROUP)]
-        [EditorGroup(REFLECTION_CAMERA_GROUP, true)]
-        [Tooltip("render scene use camera's reflection view matrix")]
-        public bool isUseReflectionCamera;
-
-        [EditorGroup(REFLECTION_CAMERA_GROUP)]
-        [Tooltip("water plane's height, when reflectionPlaneTr is empty ")]
-        public float planeYOffset;
-
-        [EditorGroup(REFLECTION_CAMERA_GROUP)]
-        [Tooltip("mirror plane,result mirror effects")]
-        public Transform reflectionPlaneTr;
-
-        //---------------------DebugTools
-        [EditorBorder(3,groupName = DEBUG_TOOLS_GROUP)]
-        [EditorGroup(DEBUG_TOOLS_GROUP, true)]
-        [EditorButton()]
-        [Tooltip("show additive overdraw mode")]
-        public bool isSwitchOverdrawMode;
-
-        [EditorGroup(DEBUG_TOOLS_GROUP)]
-        [LoadAsset("SFC_ShowOverdrawAdd.mat")]
-        public Material overdrawMat;
-        // keep for restore
-        [HideInInspector]
-        public bool isEnterCheckOverdraw;
-
-        public override ScriptableRenderPass GetPass() => new DrawObjectsPassControl(this);
-
-        void OnCreatePlanarReflectionCamera()
-        {
-            var planarReflectionGo = Object.FindObjectOfType(typeof(PlanarReflectionCameraControl));
-            if (planarReflectionGo == null)
-            {
-                planarReflectionGo = new GameObject("PlanarReflectionCamera").AddComponent<PlanarReflectionCameraControl>();
-            }
-#if UNITY_EDITOR
-            UnityEditor.EditorGUIUtility.PingObject(planarReflectionGo);
-#endif
-        }
-    }
-#if !UNITY_6000_3_OR_NEWER
     public class DrawObjectsPassControl : SRPPass<DrawObjects>
     {
         
         FullDrawObjectsPass drawObjectsPass;
-
-        DrawChildrenInstancedPass drawChildrenInstancedPass;
-
+        
         public DrawObjectsPassControl(DrawObjects feature) : base(feature)
         {
             drawObjectsPass = new FullDrawObjectsPass(feature);
-            drawChildrenInstancedPass = new DrawChildrenInstancedPass(feature);
         }
 
-        public override bool IsTryRestoreLastTargets(Camera c) => c.IsGameCamera();
+        public override bool IsTryRestoreLastTargets(Camera c) => c?.IsGameCamera() ?? false;
 
         public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
         {
-            drawObjectsPass.OnCameraSetup(cmd, ref renderingData);
+            // sync data
+            drawObjectsPass.defaultPassData = defaultPassData;
 
-            if (Feature.isDrawChildrenInstancedOn)
-                drawChildrenInstancedPass.OnCameraSetup(cmd, ref renderingData);
+            drawObjectsPass.OnCameraSetup(cmd, ref renderingData);
         }
 
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
@@ -277,8 +49,12 @@
             var renderer = (UniversalRenderer)renderingData.cameraData.renderer;
 
             // reset skybox 's target in gameview
-            if(Feature.IsUpdateSkyboxTarget)
-                DrawSkyBoxPass.SetupURPSkyboxTargets(renderer,camera);
+            //if(Feature.IsUpdateSkyboxTarget)
+            //    DrawSkyBoxPass.SetupURPSkyboxTargets(renderer,camera);
+
+            // setup depthTextureMode
+            if (camera.IsGameCamera())
+                camera.depthTextureMode = Feature.cameraDepthTextureMode;
 
             // draw scene use reflection camera(view,proj)
             var viewMat = cameraData.GetViewMatrix();
@@ -288,10 +64,11 @@
             // draw scene
             drawObjectsPass.OnExecute(context, ref renderingData, cmd);
 
-            if (Feature.isDrawChildrenInstancedOn)
-                drawChildrenInstancedPass.OnExecute(context, ref renderingData, cmd);
-
             // restore camera (view,proj)
+            if (Feature.overrideCamera)
+            {
+                RenderingUtils.SetViewAndProjectionMatrices(cmd, viewMat, projMat, false);
+            }
             if (Feature.isUseReflectionCamera)
                 RenderingUtils.SetViewAndProjectionMatrices(cmd, viewMat, projMat, false);
         }
@@ -308,48 +85,6 @@
         }
     }
 
-    public class DrawChildrenInstancedPass : SRPPass<DrawObjects>
-    {
-        DrawChildrenInstanced[] drawChildren;
-        public int findCount;
-
-        public DrawChildrenInstancedPass(DrawObjects feature) : base(feature)
-        {
-        }
-
-        public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
-        {
-            if (Feature.forceFindDrawChildrenInstanced)
-            {
-                Feature.forceFindDrawChildrenInstanced = false;
-                findCount = 0;
-            }
-            //drawChildren.ForEach(dc =>
-            for (int i = 0; i < drawChildren.Length; i++)
-            {
-                var dc = drawChildren[i];
-                dc.DrawGroupList(cmd);
-                cmd.Execute(ref context);
-            }
-        }
-
-        public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
-        {
-            base.OnCameraSetup(cmd, ref renderingData);
-
-            if (findCount <1)
-            {
-                findCount ++;
-#if UNITY_2022_1_OR_NEWER
-                drawChildren = Object.FindObjectsByType<DrawChildrenInstanced>(FindObjectsSortMode.None);
-#else
-                drawChildren = Object.FindObjectsOfType<DrawChildrenInstanced>();
-#endif
-            }
-
-
-        }
-    }
 
     public class FullDrawObjectsPass : SRPPass<DrawObjects>
     {
@@ -363,6 +98,10 @@
 
         Light sun;
         bool lastSRPBatchEnabled;
+
+
+        RendererListHandle rendererListHandle;
+        RendererListHandle errorRendererListHandle;
 
         public FullDrawObjectsPass(DrawObjects feature) : base(feature)
         {
@@ -471,6 +210,15 @@
 
             lastSRPBatchEnabled = UniversalRenderPipeline.asset.useSRPBatcher;
 
+            var rendererListParams = SetupRendererListParams(ref context, ref renderingData, cmd);
+            var errorRendererListParams = RenderingTools.GetErrorRendererListParams(ref context, ref renderingData.cullResults, renderingData.cameraData.camera, filteringSettings, SortingCriteria.None);
+
+            rendererListHandle = defaultPassData.renderGraph.CreateRendererList(rendererListParams);
+            errorRendererListHandle = defaultPassData.renderGraph.CreateRendererList(errorRendererListParams);
+
+            defaultPassData.rasterBuilder.UseRendererList(rendererListHandle);
+            defaultPassData.rasterBuilder.UseRendererList(errorRendererListHandle);
+
             SwitchCheckOverdraw();
         }
 
@@ -498,12 +246,28 @@
             // scaleBias.y = scale
             // scaleBias.z = bias
             // scaleBias.w = unused
+
             var flipSign = renderingData.cameraData.IsCameraProjectionMatrixFlipped() ? -1f : 1f;
             var scaleBias = flipSign < 0 ? new Vector4(flipSign, 1, -1, 1) : new Vector4(flipSign, 0, 1, 1);
             cmd.SetGlobalVector(ShaderPropertyIds.scaleBias, scaleBias);
-            ColorSpaceTransform.SetColorSpace(cmd,Feature.colorSpaceMode);
+            ColorSpaceTransform.SetColorSpace(cmd, Feature.colorSpaceMode);
             cmd.Execute(ref context);
 
+            //------
+            //context.DrawRenderers(cmd, renderingData.cullResults, ref drawSettings, ref filterSetting, null, renderStateBlockArr);
+            //RenderingTools.DrawErrorObjects(cmd, ref context, ref renderingData.cullResults, camera, filterSetting, SortingCriteria.None);
+
+            // 6000 draw renderer 
+            if(rendererListHandle.IsValid())
+                context.GetRasterContext().cmd.DrawRendererList(rendererListHandle);
+            if(errorRendererListHandle.IsValid())
+                context.GetRasterContext().cmd.DrawRendererList(errorRendererListHandle);
+
+            RestoreDrawSettings(ref renderingData, cmd);
+        }
+
+        public RendererListParams SetupRendererListParams(ref ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
+        {
             ref var cameraData = ref renderingData.cameraData;
             var camera = cameraData.camera;
 
@@ -513,7 +277,7 @@
             var stage = StageUtility.GetCurrentStage();
 
             var isPrefabStage = !string.IsNullOrEmpty(stage.assetPath);
-            if (camera.cameraType == CameraType.Preview || (isPrefabStage&&Feature.isShowAllInPrefabStage))
+            if (camera.cameraType == CameraType.Preview || (isPrefabStage && Feature.isShowAllInPrefabStage))
                 filterSetting.layerMask = -1;
 
 #endif
@@ -522,18 +286,18 @@
 
             NativeArrayTools.CreateIfNull(ref renderStateBlockArr, 1);
             renderStateBlockArr[0] = renderStateBlock;
+            //-----
+            var rendererListParams = new RendererListParams(renderingData.cullResults, drawSettings, filterSetting)
+            {
+                stateBlocks = renderStateBlockArr,
+            };
+            rendererListParams.tagValues = rendererListParams.GetDefaultTagArr();
 
-            context.DrawRenderers(cmd, renderingData.cullResults, ref drawSettings, ref filterSetting, null, renderStateBlockArr);
-
-            RenderingTools.DrawErrorObjects(cmd,ref context, ref renderingData.cullResults, camera, filterSetting, SortingCriteria.None);
-
-            RestoreDrawSettings(ref renderingData, cmd);
+            return rendererListParams;
         }
 
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
         {
-            if(camera.IsGameCamera())
-                camera.depthTextureMode = Feature.cameraDepthTextureMode;
             DrawScene(context, ref renderingData, cmd);
         }
 
@@ -552,12 +316,6 @@
             if (Feature.overrideMainLightIndex && Feature.isRestoreMainLightIndexFinish)
             {
                 OverrideMainLight(context, ref renderingData, sun);
-            }
-
-
-            if (Feature.overrideCamera)
-            {
-                RenderingUtils.SetViewAndProjectionMatrices(cmd, cameraData.GetViewMatrix(), cameraData.GetProjectionMatrix(), false);
             }
         }
 
@@ -660,5 +418,5 @@
         }
     }
 
-#endif // UNITY_6000_3_OR_NEWER
 }
+#endif // #if UNITY_6000_3_OR_NEWER

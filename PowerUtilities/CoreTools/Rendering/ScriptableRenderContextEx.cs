@@ -20,6 +20,28 @@ namespace PowerUtilities
         static NativeArray<ShaderTagId> defaultTagArr;
         static NativeArray<RenderStateBlock> defaultBlockArr;
 
+        /// <summary>
+        /// Get NativeArray<ShaderTagId> only 1 item
+        /// </summary>
+        public static NativeArray<ShaderTagId> DefaultTagArr
+        {
+            get
+            {
+                NativeArrayTools.CreateIfNull(ref defaultTagArr, 1);
+                return defaultTagArr;
+            }
+        }
+        /// <summary>
+        /// Get NativeArray<RenderStateBlock> only 1 item
+        /// </summary>
+        public static NativeArray<RenderStateBlock> DefaultBlockArr
+        {
+            get
+            {
+                NativeArrayTools.CreateIfNull(ref defaultBlockArr, 1);
+                return defaultBlockArr;
+            }
+        }
 
         //[ApplicationExit]
         //[CompileStarted]

@@ -14,9 +14,19 @@ namespace PowerUtilities
     /// <summary>
     /// srp render path tools
     /// </summary>
-    public static class RenderingTools
+    public static partial class RenderingTools
     {
-        public static Material ErrorMaterial = new Material(Shader.Find("Hidden/InternalErrorShader"));
+        static Material errorMat;
+        public static Material ErrorMaterial
+        {
+            get
+            {
+                if (errorMat == null) 
+                    errorMat = new Material(Shader.Find("Hidden/InternalErrorShader"));
+                return errorMat;
+            }
+        }
+        
 
         public static void ConvertStringArray<T>(ref T[] results, Func<string, T> onConvert, params string[] names)
         {
@@ -75,6 +85,23 @@ namespace PowerUtilities
         static RenderingTools()
         {
             ApplicationTools.OnDomainUnload += DisposeNative;
+        }
+
+        public static RendererListParams GetErrorRendererListParams(ref ScriptableRenderContext context, ref CullingResults cullingResults, Camera cam, FilteringSettings filterSettings, SortingCriteria sortFlags)
+        {
+            var sortingSettings = new SortingSettings(cam) { criteria = sortFlags };
+            var drawSettings = new DrawingSettings(ShaderTagIdEx.legacyShaderPassNames[0], sortingSettings)
+            {
+                perObjectData = PerObjectData.None,
+                overrideMaterial = ErrorMaterial,
+                overrideMaterialPassIndex = 0
+            };
+            for (int i = 1; i < ShaderTagIdEx.legacyShaderPassNames.Count; i++)
+            {
+                drawSettings.SetShaderPassName(i, ShaderTagIdEx.legacyShaderPassNames[i]);
+            }
+
+            return new RendererListParams(cullingResults, drawSettings, filterSettings);
         }
 
         public static void DrawErrorObjects(CommandBuffer cmd,ref ScriptableRenderContext context,ref CullingResults cullingResults,Camera cam,FilteringSettings filterSettings,SortingCriteria sortFlags)

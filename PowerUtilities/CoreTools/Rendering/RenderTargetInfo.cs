@@ -60,7 +60,7 @@
         public RTSampleMode sampleMode = RTSampleMode.x1;
 
         [Header("RenderTexture")]
-        [Tooltip("create renderTexture when check,otherwist GetTemporaryRT")]
+        [Tooltip("create RenderTexture or GetTemporaryRT, dont check when same as urp's targetTexture name")]
         public bool isCreateRenderTexture;
         public RenderTexture rt;
 

@@ -18,21 +18,17 @@ namespace PowerUtilities.RenderFeatures
     {
 
         //------------
-        public int targetCount;
         public RTHandle depthTarget;
         /// <summary>
-        /// {count : RTHandle[]}
+        /// max 8 target
         /// </summary>
-        public Dictionary<int, RTHandle[]> colorTargetDict = new(){
-            {1, new RTHandle[1] },
-            {2, new RTHandle[2] },
-            {3, new RTHandle[3] },
-            {4, new RTHandle[4] },
-            {5, new RTHandle[5] },
-            {6, new RTHandle[6] },
-            {7, new RTHandle[7] },
-            {8, new RTHandle[8] },
-        };
+        public RTHandle[] colorTargets = new RTHandle[8];
+        /// <summary>
+        /// [1-8]
+        /// </summary>
+        public int targetCount;
+
+        // clear options
         public RTClearFlags clearFlags;
         public Color clearColor;
         public float clearDepth = 1;
@@ -63,13 +59,13 @@ namespace PowerUtilities.RenderFeatures
         public void ConfigureTarget(RTHandle colorTarget, RTHandle depthTarget)
         {
             targetCount = 1;
-            colorTargetDict[1][0] = colorTarget;
+            colorTargets[0] = colorTarget;
             this.depthTarget = depthTarget;
         }
         public void ConfigureTarget(RTHandle colorTarget)
         {
             targetCount = 1;
-            colorTargetDict[1][0] = colorTarget;
+            colorTargets[0] = colorTarget;
             depthTarget = null;
         }
         /// <summary>
@@ -81,8 +77,12 @@ namespace PowerUtilities.RenderFeatures
         {
             var len = colorTargets.Length;
             if (len <= 0) return;
-            Array.Copy(colorTargets, colorTargetDict[len], len);
-            targetCount = len;
+            targetCount = Mathf.Clamp(len, 1, 8);
+
+            for (int i = 0; i < len; i++)
+            {
+                this.colorTargets[i] = colorTargets[i];
+            }
         }
 
         public void ConfigureClear(ClearFlag flag, Color clearColor)
@@ -107,6 +107,24 @@ namespace PowerUtilities.RenderFeatures
         public UniversalShadowData shadowData;
         public UniversalRenderingData renderingData;
         public UniversalPostProcessingData postData;
+        public UniversalLightData lightData;
+
+        public RenderGraph renderGraph;
+        public ContextContainer contextContainer;
+        //public IBaseRenderGraphBuilder baseBuilder;
+
+        /// <summary>
+        /// rasterBuilder in RecordRenderGraph, only valid in render callback, will be set in RecordRenderGraph
+        /// </summary>
+        public IRasterRenderGraphBuilder rasterBuilder;
+        /// <summary>
+        /// computeBuilder in RecordRenderGraph, only valid in render callback, will be set in RecordRenderGraph
+        /// </summary>
+        public IComputeRenderGraphBuilder computeBuilder;
+        /// <summary>
+        /// unsafeBuilder in RecordRenderGraph, only valid in render callback, will be set in RecordRenderGraph
+        /// </summary>
+        public IUnsafeRenderGraphBuilder unsafeBuilder;
     }
 
     public partial class SRPPass<T>
@@ -117,15 +135,11 @@ namespace PowerUtilities.RenderFeatures
         }
         public PassType passType = PassType.Raster;
 
-        public RenderGraph renderGraph;
-        public ContextContainer contextContainer;
-
         /// <summary>
         /// current pass's data
         /// </summary>
         public PassData defaultPassData;
 
-        IRasterRenderGraphBuilder rasterRenderGraphBuilder;
 
         public void SetupPassData(ref PassData passData, ContextContainer frameData)
         {
@@ -136,18 +150,11 @@ namespace PowerUtilities.RenderFeatures
             passData.shadowData = frameData.Get<UniversalShadowData>();
             passData.renderingData = frameData.Get<UniversalRenderingData>();
             passData.postData = frameData.Get<UniversalPostProcessingData>();
+            passData.lightData = frameData.Get<UniversalLightData>();
         }
 
         public override void RecordRenderGraph(RenderGraph renderGraph, ContextContainer frameData)
         {
-            // local fields save in global
-            ScriptableRendererEx.renderGraph = renderGraph;
-            ScriptableRendererEx.contextContainer = contextContainer;
-
-            // save current pass
-            this.renderGraph = renderGraph;
-            this.contextContainer = frameData;
-
             // events
             RenderPipelineManager.beginCameraRendering -= OnBeginCameraRendering;
             RenderPipelineManager.beginCameraRendering += OnBeginCameraRendering;
@@ -186,9 +193,10 @@ namespace PowerUtilities.RenderFeatures
         {
             using (var builder = renderGraph.AddRasterRenderPass<PassData>(Feature.GetName(), out var passData))
             {
-                rasterRenderGraphBuilder = builder;
                 // setup and save
                 SetupPassData(ref passData, frameData);
+                passData.rasterBuilder = builder;
+                passData.renderGraph = renderGraph;
 
                 defaultPassData = passData;
                 // setup
@@ -199,7 +207,8 @@ namespace PowerUtilities.RenderFeatures
                 builder.AllowPassCulling(false);
 
                 // set pass's targets
-                SetRenderTargets(builder, passData);
+                SetRenderTargets();
+                var colorHandle = passData.resourceData.activeColorTexture;
 
                 // register render callback
                 builder.SetRenderFunc((PassData data, RasterGraphContext rasterContext) =>
@@ -208,51 +217,56 @@ namespace PowerUtilities.RenderFeatures
                     if (context == default)
                         return;
 
+                    //=========== before Execute
+                    
+                    defaultPassData = data; // set again
+
+                    // keep compatible with 2022, get flip info from CameraData_6000,
+                    CameraData_6000.textureUVOrigin = rasterContext.GetTextureUVOrigin(colorHandle);
+                    // save rasterContext to contextContainer, for user to get in Execute
                     context.SetRasterContext(rasterContext);
 
                     rasterContext.cmd.ClearRenderTarget(clearFlags, clearColor, clearDepth, clearStencil);
+                    
+                    //=========== call Execute
                     Execute(context, ref Feature.renderingData);
                 });
             }
         }
 
-        private void SetRenderTargets(IRasterRenderGraphBuilder builder, PassData passData)
+        private void SetRenderTargets()
         {
-
             // check RenderTargetHolder
-            if (RenderTargetHolder.IsLastTargetValid())
+            if (IsTryRestoreLastTargets(camera) && RenderTargetHolder.IsLastTargetValid())
             {
-                //RenderTargetHolder.GetLastTargets((UniversalRenderer)passData.cameraData.renderer, out RTHandle[] colorRTHArr, out RTHandle depthRTH);
                 var colorRTHArr = RenderTargetHolder.LastColorTargetHandles;
                 var depthRTH = RenderTargetHolder.LastDepthTargetHandle;
-                SetTargets(builder, passData.resourceData, colorRTHArr, depthRTH);
+                SetTargets( colorRTHArr,-1, depthRTH);
             }
             else
             {
-                targetCount = Mathf.Clamp(targetCount, 1, 8);
-                var rthArr = colorTargetDict[targetCount];
-
-                SetTargets(builder, passData.resourceData, rthArr, depthTarget);
-
+                SetTargets(colorTargets,targetCount, depthTarget);
             }
         }
 
-        private void SetTargets(IRasterRenderGraphBuilder builder, UniversalResourceData resourceData, RTHandle[] colorRTHArr, RTHandle depthRTH)
+        private void SetTargets(RTHandle[] colorRTHArr,int colorTargetCount, RTHandle depthRTH)
         {
-            var depthTexture = depthRTH != null ? renderGraph.ImportTexture(depthRTH) : resourceData.activeDepthTexture;
-            builder.SetRenderAttachmentDepth(depthTexture);
+            var depthTexture = depthRTH != null ? defaultPassData.renderGraph.ImportTexture(depthRTH) : defaultPassData.resourceData.activeDepthTexture;
+            defaultPassData.rasterBuilder.SetRenderAttachmentDepth(depthTexture);
 
             // use default when null
             if (colorRTHArr[0] == null)
             {
-                builder.SetRenderAttachment(resourceData.activeColorTexture, 0);
+                defaultPassData.rasterBuilder.SetRenderAttachment(defaultPassData.resourceData.activeColorTexture, 0);
             }
+
+            var count = colorTargetCount < 1 ? colorRTHArr.Length : colorTargetCount;
             
-            for (int i = 0; i < colorRTHArr.Length; i++)
+            for (int i = 0; i < count; i++)
             {
                 if (colorRTHArr[i] != null)
                 {
-                    builder.SetRenderAttachment(renderGraph.ImportTexture(colorRTHArr[i]), i);
+                    defaultPassData.rasterBuilder.SetRenderAttachment(defaultPassData.renderGraph.ImportTexture(colorRTHArr[i]), i);
                 }
             }
         }

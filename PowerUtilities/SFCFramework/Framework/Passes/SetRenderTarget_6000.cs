@@ -64,12 +64,12 @@ namespace PowerUtilities.RenderFeatures
         private void SetTargets()
         {
             if(colorHandles == null || colorHandles.Length != Feature.colorTargetNames.Length)
-                colorHandles = new RTHandle[Feature.colorTargetNames.Length];
+                colorHandles = RTHandleTools.GetRTHandles(Feature.colorTargetNames.Length);
 
             for (int i = 0; i < Feature.colorTargetNames.Length; i++)
             {
                 var colorName = Feature.colorTargetNames[i];
-                if (string.IsNullOrEmpty(colorName))
+                if (string.IsNullOrEmpty(colorName) || colorName.StartsWith("_CameraColor"))
                 {
                     colorHandles[i] = null;
                 }
@@ -91,7 +91,8 @@ namespace PowerUtilities.RenderFeatures
                 }
             }
 
-            ConfigureTargets(colorHandles, depthHandle);
+            //ConfigureTargets(colorHandles, depthHandle);
+            RenderTargetHolder.SaveTargets(colorHandles, depthHandle);
         }
     }
 }

@@ -48,40 +48,6 @@ namespace PowerUtilities
     public static class RTHandleTools
     {
         /// <summary>
-        /// RTHandle array count 1
-        /// </summary>
-        public static readonly RTHandle[] RTHandleArray_1 = new RTHandle[1];
-
-        /// <summary>
-        /// RTHandle array count 2
-        /// </summary>
-        public static readonly RTHandle[] RTHandleArray_2 = new RTHandle[2];
-        /// <summary>
-        /// RTHandle array count 3
-        /// </summary>
-        public static readonly RTHandle[] RTHandleArray_3 = new RTHandle[3];
-        /// <summary>
-        /// RTHandle array count 4
-        /// </summary>
-        public static readonly RTHandle[] RTHandleArray_4 = new RTHandle[4];
-        /// <summary>
-        /// RTHandle array count 5
-        /// </summary>
-        public static readonly RTHandle[] RTHandleArray_5 = new RTHandle[5];
-        /// <summary>
-        /// RTHandle array count 6
-        /// </summary>
-        public static readonly RTHandle[] RTHandleArray_6 = new RTHandle[6];
-        /// <summary>
-        /// RTHandle array count 7
-        /// </summary>
-        public static readonly RTHandle[] RTHandleArray_7 = new RTHandle[7];
-        /// <summary>
-        /// RTHandle array count 8
-        /// </summary>
-        public static readonly RTHandle[] RTHandleArray_8 = new RTHandle[8];
-
-        /// <summary>
         /// URPRTHandleNames -> UniversalRenderer's rtHandle path
         /// </summary>
         static Dictionary<URPRTHandleNames, string> urpRTHandleFieldPathDict = new Dictionary<URPRTHandleNames, string>
@@ -196,9 +162,61 @@ namespace PowerUtilities
         /// <summary>
         /// RenderTargetIdentifier to RTHandle
         /// </summary>
-        public static Func<RenderTargetIdentifier, RTHandle> GetRTHandleByID = (rtId) => RTHandles.Alloc(rtId);
+        public static Func<RenderTargetIdentifier, RTHandle> AllocRTHandle = (rtId) => RTHandles.Alloc(rtId);
 
         public readonly static RTHandle ZeroHandle = RTHandles.Alloc(0);
         public readonly static RTHandle CameraTargetHandle = RTHandles.Alloc(BuiltinRenderTextureType.CameraTarget);
+
+
+
+        //===============================      RTHandle,  RenderTargetIdentifier
+        /// <summary>
+        /// {rtid , rtHandle}
+        /// </summary>
+        static Dictionary<RenderTargetIdentifier, RTHandle> rtIdHandleDict = new();
+
+        /// <summary>
+        /// { {length , array}}
+        /// </summary>
+        static Dictionary<int, RTHandle[]> rtHandleDict = new();
+        static Dictionary<int, RenderTargetIdentifier[]> rtidDict = new();
+        /// <summary>
+        /// cached funcs
+        /// </summary>
+        static Func<int, RenderTargetIdentifier[]> GetIDArray = (lengthAsKey) => new RenderTargetIdentifier[lengthAsKey];
+        static Func<int, RTHandle[]> GetRTHandleArray = (lengthAsKey) => new RTHandle[lengthAsKey];
+
+        /// <summary>
+        /// Retrieves the render target handle associated with the specified render target identifier.
+        /// </summary>
+        /// <remarks>If the render target identifier does not exist in the dictionary, a new RTHandle is
+        /// allocated.</remarks>
+        /// <param name="rtid">The identifier of the render target for which to retrieve the handle. This must be a valid render target
+        /// identifier.</param>
+        /// <returns>An instance of RTHandle that corresponds to the specified render target identifier.</returns>
+        public static RTHandle GetRTHandleByID(RenderTargetIdentifier rtid)
+        {
+            return DictionaryTools.Get(rtIdHandleDict, rtid, RTHandleTools.AllocRTHandle);
+        }
+        /// <summary>
+        /// {length , RTHandle array}
+        /// </summary>
+        /// <param name="len"></param>
+        /// <returns></returns>
+        public static RTHandle[] GetRTHandles(int len)
+        {
+            return DictionaryTools.Get(rtHandleDict, len, GetRTHandleArray);
+        }
+        /// <summary>
+        /// {length, RenderTargetIdentifier[]}
+        /// </summary>
+        /// <param name="len"></param>
+        /// <returns></returns>
+        public static RenderTargetIdentifier[] GetRenderTargetIdentifiers(int len)
+        {
+            return DictionaryTools.Get(rtidDict, len, GetIDArray);
+        }
+
+
     }
 }
