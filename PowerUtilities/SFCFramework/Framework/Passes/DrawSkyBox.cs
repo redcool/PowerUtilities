@@ -21,7 +21,7 @@ namespace PowerUtilities.RenderFeatures
             return new DrawSkyBoxPass(this);
         }
     }
-
+#if !UNITY_6000_4_OR_NEWER
     public class DrawSkyBoxPass : SRPPass<DrawSkyBox>
     {
         public DrawSkyBoxPass(DrawSkyBox feature) : base(feature)
@@ -69,4 +69,5 @@ namespace PowerUtilities.RenderFeatures
 #endif
         }
     }
+#endif //UNITY_6000_4_OR_NEWER
 }

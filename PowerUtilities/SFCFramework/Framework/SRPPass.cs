@@ -29,6 +29,14 @@ namespace PowerUtilities.RenderFeatures
         public virtual void OnDisable() { }
         public virtual void OnDestroy() { }
         public virtual void OnSceneChanged() { }
+        /// <summary>
+        /// current camera, can access from OnExecute
+        /// </summary>
+        public Camera camera;
+        /// <summary>
+        /// current ScriptableRenderContext,can access from OnExecute
+        /// </summary>
+        public ScriptableRenderContext context;
     }
 
     /// <summary>
@@ -40,14 +48,6 @@ namespace PowerUtilities.RenderFeatures
     {
         public T Feature { get; private set; }
 
-        /// <summary>
-        /// current camera, can access from OnExecute
-        /// </summary>
-        public Camera camera;
-        /// <summary>
-        /// current ScriptableRenderContext,can access from OnExecute
-        /// </summary>
-        protected ScriptableRenderContext context;
 
         /// <summary>
         /// Is SRPPass can execute,
@@ -190,12 +190,6 @@ namespace PowerUtilities.RenderFeatures
             // ========== trigger end execute
             OnEndExecute?.Invoke(this);
 
-        }
-
-        private void CheckRTHandles(ref CameraData cameraData)
-        {
-            var rh = cameraData.renderer.CameraColorTargetHandle();
-            Debug.Log (rh.rt);
         }
 
         public override void OnCameraCleanup(CommandBuffer cmd)

@@ -11,13 +11,8 @@ namespace PowerUtilities.RenderFeatures
 
     public class SetRenderTargetPass : SRPPass<SetRenderTarget>
     {
-
-        RTHandle[] colorHandles;
+        RTHandle[] colorHandles = new RTHandle[8];
         RTHandle depthHandle;
-
-        //---------- cache info
-        string[] lastColorNames;
-        string lastDepthName;
 
         public SetRenderTargetPass(SetRenderTarget feature) : base(feature)
         {
@@ -27,10 +22,10 @@ namespace PowerUtilities.RenderFeatures
         {
             return base.CanExecute() && camera.IsGameCamera();
         }
+        public override bool IsTryRestoreLastTargets(Camera c) => c.IsGameCamera();
 
         public override void OnExecute(ScriptableRenderContext context, ref RenderingData renderingData, CommandBuffer cmd)
         {
-            
         }
 
         public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
@@ -60,12 +55,8 @@ namespace PowerUtilities.RenderFeatures
                 ConfigureClear(flags, backColor);
             }
         }
-
         private void SetTargets()
-        {
-            if(colorHandles == null || colorHandles.Length != Feature.colorTargetNames.Length)
-                colorHandles = RTHandleTools.GetRTHandles(Feature.colorTargetNames.Length);
-
+        { 
             for (int i = 0; i < Feature.colorTargetNames.Length; i++)
             {
                 var colorName = Feature.colorTargetNames[i];
@@ -75,24 +66,31 @@ namespace PowerUtilities.RenderFeatures
                 }
                 else
                 {
-                    if (!string.IsNullOrEmpty(colorName) && RenderTextureTools.TryGetRT(colorName, out var rt))
+                    if (!string.IsNullOrEmpty(colorName) && RenderTextureTools.TryGetRT(colorName, out var colorRT))
                     {
-                        if(colorHandles[i] == null || (colorHandles[i].rt != rt))  
-                        colorHandles[i] = RTHandles.Alloc(rt);
+                        if (colorHandles[i] == null || (colorHandles[i].rt != colorRT))
+                        {
+                            colorHandles[i]?.Release();
+                            colorHandles[i] = RTHandles.Alloc(colorRT);
+                            //Debug.Log($"{Feature.GetName()} alloc color handle for {colorRT}");
+                        }
                     }
                 }
             }
-            //if (CompareTools.CompareAndSet(ref lastDepthName,Feature.depthTargetName))
+
+            if (RenderTextureTools.TryGetRT(Feature.depthTargetName, out var depthRT))
             {
-                if (RenderTextureTools.TryGetRT(Feature.depthTargetName, out var rt))
+                if (depthHandle == null || depthHandle.rt != depthRT)
                 {
-                    if (depthHandle == null || depthHandle.rt != rt)
-                        depthHandle = RTHandles.Alloc(rt);
+                    depthHandle?.Release();
+                    depthHandle = RTHandles.Alloc(depthRT);
                 }
             }
 
-            //ConfigureTargets(colorHandles, depthHandle);
             RenderTargetHolder.SaveTargets(colorHandles, depthHandle);
+
+            RenderTargetHolder.colorTargetNames = Feature.colorTargetNames;
+            RenderTargetHolder.depthTargetName = Feature.depthTargetName;
         }
     }
 }

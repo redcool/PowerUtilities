@@ -125,6 +125,12 @@
         public GraphicsFormat GetFinalDepthFormat()
             => depthStencilFormat;
 
+#if UNITY_6000_4_OR_NEWER
+        public bool IsCreateRenderTexture => true;
+#else
+        public bool IsCreateRenderTexture => isCreateRenderTexture;
+#endif // UNITY_6000_4_OR_NEWER
+
         public void CreateRT(CommandBuffer cmd, RenderTextureDescriptor desc, Camera cam)
         {
             UpdateTitle();
@@ -141,7 +147,7 @@
             desc.msaaSamples = (int)sampleMode;
             desc.bindMS = sampleMode > RTSampleMode.x1;
 
-            if (isCreateRenderTexture)
+            if (IsCreateRenderTexture)
             {
                 RenderTextureTools.CreateRT(ref rt, desc, name, filterMode);
             }

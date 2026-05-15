@@ -29,6 +29,7 @@ namespace PowerUtilities.RenderFeatures
             if (!instanceList.Contains(this))
                 instanceList.Add(this);
         }
+
         /// <summary>
         /// colorTarget name list,contains:
         /// 1 CreateRenderTargetPass's name
@@ -76,13 +77,6 @@ namespace PowerUtilities.RenderFeatures
 
         public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
         {
-#if UNITY_6000_3_OR_NEWER
-            foreach (var targetInfo in Feature.colorTargetInfos)
-            {
-                if (targetInfo != null)
-                    targetInfo.isCreateRenderTexture = true;
-            }
-#endif
             base.OnCameraSetup(cmd, ref renderingData);
             CreateTargets(cmd);
         }

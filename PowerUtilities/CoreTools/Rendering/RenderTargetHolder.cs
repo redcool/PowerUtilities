@@ -16,6 +16,8 @@ namespace PowerUtilities
     public static class RenderTargetHolder
     {
 
+        public static string[] colorTargetNames;
+        public static string depthTargetName;
         /// <summary>
         /// keep these colorRTs(8),depthRT
         /// </summary>
@@ -57,16 +59,7 @@ namespace PowerUtilities
         {
             LastDepthTargetHandle = depthHandle;
             lastColorIdsLength = colorHandles.Length;
-            // 1 get target array
-            LastColorTargetHandles = GetRTHandles(lastColorIdsLength);
-            LastColorTargetIds = GetRenderTargetIdentifiers(lastColorIdsLength);
-            // 2 fill target array
-            for (int i = 0; i < lastColorIdsLength; i++)
-            {
-                var rtHandle = colorHandles[i];
-                LastColorTargetHandles[i] = rtHandle;
-                LastColorTargetIds[i] = rtHandle != null ? rtHandle.nameID : default;
-            }
+            LastColorTargetHandles = colorHandles;
         }
 
         /// <summary>

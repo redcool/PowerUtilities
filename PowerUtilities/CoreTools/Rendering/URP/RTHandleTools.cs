@@ -45,7 +45,7 @@ namespace PowerUtilities
         _MotionVectorTexture,
     }
 
-    public static class RTHandleTools
+    public static partial class RTHandleTools
     {
         /// <summary>
         /// URPRTHandleNames -> UniversalRenderer's rtHandle path

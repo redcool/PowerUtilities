@@ -17,16 +17,10 @@ namespace PowerUtilities
     public static partial class RenderingTools
     {
         static Material errorMat;
-        public static Material ErrorMaterial
-        {
-            get
-            {
-                if (errorMat == null) 
-                    errorMat = new Material(Shader.Find("Hidden/InternalErrorShader"));
-                return errorMat;
-            }
-        }
-        
+        /// <summary>
+        /// Mat use Hidden/InternalErrorShader
+        /// </summary>
+        public static Material ErrorMaterial => SingletonTools.Get(ref errorMat, () => new Material(Shader.Find("Hidden/InternalErrorShader")));
 
         public static void ConvertStringArray<T>(ref T[] results, Func<string, T> onConvert, params string[] names)
         {
@@ -57,10 +51,8 @@ namespace PowerUtilities
         public static void RenderTargetNameToIdentifier(string[] names, ref RenderTargetIdentifier[] ids, BuiltinRenderTextureType defaultId = BuiltinRenderTextureType.CurrentActive)
         => ConvertStringArray(ref ids,(n) => NameToId(n),names);
 
-
         public static void RenderTargetNameToInt(string[] names, ref int[] ids)
         => ConvertStringArray(ref ids, (n) => Shader.PropertyToID(n), names);
-
 
         public static void ShaderTagNameToId(string[] tagNames, ref ShaderTagId[] ids)
         => ConvertStringArray(ref ids, (n) => new ShaderTagId(n), tagNames);
@@ -70,7 +62,6 @@ namespace PowerUtilities
 
         public static bool IsGLES3()
         => SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLES3;
-
 
         static NativeArray<RenderStateBlock> errorRenderStateBlockArr;
 
@@ -150,12 +141,12 @@ namespace PowerUtilities
         /// not clear, _BigShadowParams.x is shadowIntensity,
         /// first time need render bigShadow once, otherwist _BigShadowMap is black
         /// </summary>
-        public static RenderTexture GetEmptyShadowMap(ref RTHandle emptyShadowMapHandle)
+        public static RenderTexture GetEmptyShadowMap()
         {
             if (emptyShadowMap == null)
             {
 #if UNITY_2022_1_OR_NEWER
-                emptyShadowMapHandle = ShadowUtils.AllocShadowRT(1, 1, 16, 1, 0, "");
+                var emptyShadowMapHandle = ShadowUtils.AllocShadowRT(1, 1, 16, 1, 0, "");
                 emptyShadowMap = emptyShadowMapHandle.rt;
 #else
                 emptyShadowMap = RenderTextureTools.GetTemporaryShadowTexture(1, 1, 16);
@@ -164,13 +155,6 @@ namespace PowerUtilities
             return emptyShadowMap;
         }
 
-        public static RenderTexture EmptyShadowMap
-        {
-            get
-            {
-                RTHandle emptyShadowMapHandle = null;
-                return GetEmptyShadowMap(ref emptyShadowMapHandle);
-            }
-        }
+        public static RenderTexture EmptyShadowMap => GetEmptyShadowMap();
     }
 }
