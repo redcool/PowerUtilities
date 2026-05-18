@@ -33,6 +33,12 @@ namespace PowerUtilities.RenderFeatures
         public Color clearColor;
         public float clearDepth = 1;
         public uint clearStencil = 0;
+
+        /// <summary>
+        /// current pass's data
+        /// </summary>
+        public SFCPassData defaultPassData;
+
         //================ compatible 2022 fields
         /// <summary>
         /// Configures the camera for rendering, allowing customization of the rendering process before execution.
@@ -99,7 +105,7 @@ namespace PowerUtilities.RenderFeatures
         }
     }
 
-    public class PassData
+    public class SFCPassData
     {
         public RenderingData legacyRenderingData;
         public UniversalResourceData resourceData;
@@ -125,6 +131,16 @@ namespace PowerUtilities.RenderFeatures
         /// unsafeBuilder in RecordRenderGraph, only valid in render callback, will be set in RecordRenderGraph
         /// </summary>
         public IUnsafeRenderGraphBuilder unsafeBuilder;
+
+        public RasterGraphContext RasterContext => ScriptableRenderContextEx_6000.GetRasterContext(default);
+        public ComputeGraphContext computeContext => ScriptableRenderContextEx_6000.GetComputeContext(default);
+        public UnsafeGraphContext unsafeContext => ScriptableRenderContextEx_6000.GetUnsaftContext(default);
+
+        // current color target for inside RenderFunc
+        public TextureHandle colorTargetHandle;
+
+        public SRPPass srpPass;
+        public SRPFeature srpFeature;
     }
 
     public partial class SRPPass<T>
@@ -135,13 +151,8 @@ namespace PowerUtilities.RenderFeatures
         }
         public PassType passType = PassType.Raster;
 
-        /// <summary>
-        /// current pass's data
-        /// </summary>
-        public PassData defaultPassData;
 
-
-        public void SetupPassData(ref PassData passData, ContextContainer frameData)
+        public void SetupPassData(ref SFCPassData passData, ContextContainer frameData, RenderGraph rg)
         {
             // setup pass data
             passData.legacyRenderingData = Feature.renderingData;
@@ -151,6 +162,10 @@ namespace PowerUtilities.RenderFeatures
             passData.renderingData = frameData.Get<UniversalRenderingData>();
             passData.postData = frameData.Get<UniversalPostProcessingData>();
             passData.lightData = frameData.Get<UniversalLightData>();
+            passData.renderGraph = rg;
+
+            passData.srpFeature = Feature;
+            passData.srpPass = this;
         }
 
         public override void RecordRenderGraph(RenderGraph renderGraph, ContextContainer frameData)
@@ -171,32 +186,37 @@ namespace PowerUtilities.RenderFeatures
 
         private void RecordUnsafePass(RenderGraph renderGraph, ContextContainer frameData)
         {
-            using (var builder = renderGraph.AddUnsafePass<PassData>(Feature.GetName(), out var passData))
+            using (var builder = renderGraph.AddUnsafePass<SFCPassData>(Feature.GetName(), out var passData))
             {
                 // setup and save
-                SetupPassData(ref passData, frameData);
+                SetupPassData(ref passData, frameData, renderGraph);
+                passData.unsafeBuilder = builder;
                 defaultPassData = passData;
             }
         }
 
         private void RecordComputePass(RenderGraph renderGraph, ContextContainer frameData)
         {
-            using (var builder = renderGraph.AddComputePass<PassData>(Feature.GetName(), out var passData))
+            using (var builder = renderGraph.AddComputePass<SFCPassData>(Feature.GetName(), out var passData))
             {
                 // setup and save
-                SetupPassData(ref passData, frameData);
+                SetupPassData(ref passData, frameData, renderGraph);
+                passData.computeBuilder = builder;
                 defaultPassData = passData;
+                builder.SetRenderFunc((SFCPassData data, ComputeGraphContext computeContext) =>
+                {
+
+                });
             }
         }
 
         private void RecordRasterPass(RenderGraph renderGraph, ContextContainer frameData)
         {
-            using (var builder = renderGraph.AddRasterRenderPass<PassData>(Feature.GetName(), out var passData))
+            using (var builder = renderGraph.AddRasterRenderPass<SFCPassData>(Feature.GetName(), out var passData))
             {
                 // setup and save
-                SetupPassData(ref passData, frameData);
+                SetupPassData(ref passData, frameData, renderGraph);
                 passData.rasterBuilder = builder;
-                passData.renderGraph = renderGraph;
 
                 defaultPassData = passData;
                 // setup
@@ -208,28 +228,29 @@ namespace PowerUtilities.RenderFeatures
 
                 // set pass's targets
                 SetRenderTargets();
-                var colorHandle = passData.resourceData.activeColorTexture;
+                passData.colorTargetHandle = passData.resourceData.activeColorTexture;
 
                 // register render callback
-                builder.SetRenderFunc((PassData data, RasterGraphContext rasterContext) =>
+                builder.SetRenderFunc(static (SFCPassData data, RasterGraphContext rasterContext) =>
                 {
+                    // keep compatible with 2022, get flip info from CameraData_6000,
+                    CameraData_6000.textureUVOrigin = rasterContext.GetTextureUVOrigin(data.colorTargetHandle);
+
+
                     // context is invalid ,skip ,when compile
-                    if (context == default)
+                    if (data.srpPass.context == default)
                         return;
 
                     //=========== before Execute
-                    
-                    defaultPassData = data; // set again
 
-                    // keep compatible with 2022, get flip info from CameraData_6000,
-                    CameraData_6000.textureUVOrigin = rasterContext.GetTextureUVOrigin(colorHandle);
                     // save rasterContext to contextContainer, for user to get in Execute
-                    context.SetRasterContext(rasterContext);
+                    data.srpPass.context.SetRasterContext(rasterContext);
 
-                    rasterContext.cmd.ClearRenderTarget(clearFlags, clearColor, clearDepth, clearStencil);
-                    
+                    if (data.srpPass.clearFlags != RTClearFlags.None)
+                        rasterContext.cmd.ClearRenderTarget(data.srpPass.clearFlags, data.srpPass.clearColor, data.srpPass.clearDepth, data.srpPass.clearStencil);
+
                     //=========== call Execute
-                    Execute(context, ref Feature.renderingData);
+                    data.srpPass.Execute(data.srpPass.context, ref data.srpFeature.renderingData);
                 });
             }
         }
@@ -237,38 +258,49 @@ namespace PowerUtilities.RenderFeatures
         private void SetRenderTargets()
         {
             // check RenderTargetHolder
-            if (IsTryRestoreLastTargets(camera) && RenderTargetHolder.IsLastTargetValid())
+            if (camera && IsTryRestoreLastTargets(camera)
+                && RenderTargetHolder.IsLastTargetValid())
             {
                 var colorRTHArr = RenderTargetHolder.LastColorTargetHandles;
                 var depthRTH = RenderTargetHolder.LastDepthTargetHandle;
-                SetTargets( colorRTHArr,-1, depthRTH);
+                var targetCount = RenderTargetHolder.colorTargetNames.Length;
+
+                SetDepthTarget(depthRTH);
+                SetColorTargets(colorRTHArr, targetCount);
             }
             else
             {
-                SetTargets(colorTargets,targetCount, depthTarget);
+                SetDepthTarget(depthTarget);
+                SetColorTargets(colorTargets, targetCount);
             }
         }
 
-        private void SetTargets(RTHandle[] colorRTHArr,int colorTargetCount, RTHandle depthRTH)
+        public TextureHandle GetTextureHandle(RTHandle rth)
         {
-            var depthTexture = depthRTH != null ? defaultPassData.renderGraph.ImportTexture(depthRTH) : defaultPassData.resourceData.activeDepthTexture;
-            defaultPassData.rasterBuilder.SetRenderAttachmentDepth(depthTexture);
+            return defaultPassData.renderGraph.ImportTexture(rth);
+        }
+        
+        private void SetColorTargets(RTHandle[] rtHandles, int colorTargetCount)
+        {
+            for (int i = 0; i < colorTargetCount; i++)
+            {
+                if (rtHandles[i] != null && rtHandles[i].rt)
+                {
+                    defaultPassData.rasterBuilder.SetRenderAttachment(GetTextureHandle(rtHandles[i]), i);
+                }
+            }
 
             // use default when null
-            if (colorRTHArr[0] == null)
+            if (rtHandles[0] == null)
             {
                 defaultPassData.rasterBuilder.SetRenderAttachment(defaultPassData.resourceData.activeColorTexture, 0);
             }
+        }
 
-            var count = colorTargetCount < 1 ? colorRTHArr.Length : colorTargetCount;
-            
-            for (int i = 0; i < count; i++)
-            {
-                if (colorRTHArr[i] != null)
-                {
-                    defaultPassData.rasterBuilder.SetRenderAttachment(defaultPassData.renderGraph.ImportTexture(colorRTHArr[i]), i);
-                }
-            }
+        public void SetDepthTarget(RTHandle depthRTH)
+        {
+            var depthTexture = depthRTH != null ? GetTextureHandle(depthRTH) : defaultPassData.resourceData.activeDepthTexture;
+            defaultPassData.rasterBuilder.SetRenderAttachmentDepth(depthTexture);
         }
 
         private void OnEndContextRendering(ScriptableRenderContext context, List<Camera> list)

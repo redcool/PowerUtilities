@@ -16,16 +16,20 @@ namespace PowerUtilities.RenderFeatures
     public class TestSRPFeature : SRPFeature
     {
         public LayerMask layers;
+        [RenderingLayerMask]
+        public uint renderingLayers;
 
         [LoadAsset("SFC_ShowOverdrawAdd.mat")]
         public Material overrideMat;
+        public bool isOverrideMode;
+
         public override ScriptableRenderPass GetPass()
         {
             return new TestSRPPass(this);
         }
     }
 
-
+#if !UNITY_6000_4_OR_NEWER
     public class TestSRPPass : SRPPass<TestSRPFeature>
     {
         public TestSRPPass(TestSRPFeature feature) : base(feature) { }
@@ -85,4 +89,5 @@ namespace PowerUtilities.RenderFeatures
             context.DrawRenderers(renderingData.cullResults, ref drawSettings, ref filterSettings);
         }
     }
+#endif
 }

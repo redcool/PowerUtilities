@@ -22,9 +22,11 @@ namespace PowerUtilities.RenderFeatures
     using RenderQueueType = PowerUtilities.RenderQueueType;
     using UnityEngine.Rendering.RenderGraphModule;
 
+    /// <summary>
+    /// mrt 6000.4 + renderPassEvent need >= After Skybox, otherwise may cause issue
+    /// </summary>
     public class DrawObjectsPassControl : SRPPass<DrawObjects>
     {
-        
         FullDrawObjectsPass drawObjectsPass;
         
         public DrawObjectsPassControl(DrawObjects feature) : base(feature)
@@ -32,10 +34,15 @@ namespace PowerUtilities.RenderFeatures
             drawObjectsPass = new FullDrawObjectsPass(feature);
         }
 
-        public override bool IsTryRestoreLastTargets(Camera c) => c?.IsGameCamera() ?? false;
+        public override bool IsTryRestoreLastTargets(Camera c) => c.IsGameCamera();
 
         public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
         {
+            base.OnCameraSetup(cmd, ref renderingData);
+
+            //if (renderPassEvent <= RenderPassEvent.BeforeRenderingOpaques)
+            //    renderPassEvent = RenderPassEvent.AfterRenderingSkybox;
+
             // sync data
             drawObjectsPass.defaultPassData = defaultPassData;
 
@@ -47,10 +54,6 @@ namespace PowerUtilities.RenderFeatures
             ref CameraData cameraData = ref renderingData.cameraData;
 
             var renderer = (UniversalRenderer)renderingData.cameraData.renderer;
-
-            // reset skybox 's target in gameview
-            //if(Feature.IsUpdateSkyboxTarget)
-            //    DrawSkyBoxPass.SetupURPSkyboxTargets(renderer,camera);
 
             // setup depthTextureMode
             if (camera.IsGameCamera())
