@@ -30,7 +30,7 @@ namespace PowerUtilities.RenderFeatures
         public List<ScriptableRendererEx.UrpPassType> removedPass = new List<ScriptableRendererEx.UrpPassType>();
         public override ScriptableRenderPass GetPass() => new ControlURPPassesPass(this);      
     }
-
+#if !UNITY_6000_4_OR_NEWER
     public class ControlURPPassesPass : SRPPass<ControlURPPasses>
     {
         /// <summary>
@@ -84,4 +84,5 @@ namespace PowerUtilities.RenderFeatures
             }
         }
     }
+#endif
 }

@@ -19,7 +19,7 @@ namespace PowerUtilities.RenderFeatures
         {
         }
 
-        public override bool IsTryRestoreLastTargets(Camera c) => c.IsGameCamera();
+        //public override bool IsTryRestoreLastTargets(Camera c) => c.IsGameCamera();
 
         public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
         {

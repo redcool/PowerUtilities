@@ -1,4 +1,5 @@
-﻿using PowerUtilities.RenderFeatures;
+﻿#if UNITY_6000_4_OR_NEWER
+using PowerUtilities.RenderFeatures;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +17,6 @@ using UniversalRenderer = UnityEngine.Rendering.Universal.ForwardRenderer;
 namespace PowerUtilities.RenderFeatures
 {
 
-#if UNITY_6000_4_OR_NEWER
     public class TestSRPPass : SRPPass<TestSRPFeature>
     {
         RendererListHandle opaqueList;
@@ -133,5 +133,5 @@ namespace PowerUtilities.RenderFeatures
             defaultPassData.RasterContext.cmd.DrawRendererList(transparentList);
         }
     }
-#endif // 
 }
+#endif // 
