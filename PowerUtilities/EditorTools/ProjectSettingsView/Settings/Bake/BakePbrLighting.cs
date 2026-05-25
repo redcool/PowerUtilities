@@ -76,7 +76,7 @@
             ;
 
         [HelpBox]
-        public string helpBox = "Bake pbr lighting to texture";
+        public string helpBox = "Bake pbr lighting to texture, need FastLit.shader render target";
 
         //====================== baked target
         [Header("Baked Target")]
@@ -480,6 +480,14 @@
         /// <param name="tex"></param>
         void StartRenderObject(Renderer render)
         {
+            if(!cameraRender1Frame)
+            {
+                var camData = Camera.main?.GetUniversalAdditionalCameraData();
+                var srpRenderer = camData?.scriptableRenderer;
+                Debug.Log($"SRP Render Feature Control not set in UniversalRendererData {srpRenderer}");
+                return;
+            }
+
             render.enabled = true;
             // keep last cull mode
             List<float> cullModeList = new();
