@@ -45,5 +45,10 @@ namespace PowerUtilities
             }
 
         }
+
+        public static Vector2 ScreenSize
+        {
+            get { return new Vector2(Screen.width, Screen.height); }
+        }
     }
 }
