@@ -24,7 +24,7 @@ namespace PowerUtilities
         {
             if (isTestMouseRightButton && Mouse.current.rightButton.wasPressedThisFrame)
             {
-                MouseDeviceTools.Click(new Vector2(0.5f, 0.5f), 0);
+                MouseDeviceTools.ClickMouse(new Vector2(0.5f, 0.5f), 0);
             }
         }
 

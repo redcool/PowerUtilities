@@ -8,6 +8,7 @@ namespace PowerUtilities
 {
     public class TestEventSystemTools : MonoBehaviour
     {
+        public bool isMouseRightEnable;
         // Start is called before the first frame update
         void Start()
         {
@@ -17,9 +18,8 @@ namespace PowerUtilities
         // Update is called once per frame
         void Update()
         {
-            if (Mouse.current.rightButton.wasPressedThisFrame)
+            if (isMouseRightEnable && Mouse.current.rightButton.wasPressedThisFrame)
             {
-                Debug.Log("right click");
                 EventSystemTools.ClickScreen(new Vector2(0.5f, 0.5f),0);
             }
         }
