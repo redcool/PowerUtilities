@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 namespace PowerUtilities
 {
     using System;
@@ -10,10 +10,26 @@ namespace PowerUtilities
 
     public static class EditorWindowTools
     {
-
+        /// <summary>
+        /// Get all opened windows
+        /// </summary>
+        /// <returns></returns>
         public static EditorWindow[] GetWindows()
         {
             return Resources.FindObjectsOfTypeAll<EditorWindow>();
+        }
+        /// <summary>
+        /// Get all window types derived from EditorWindow, optionally filtered by a namespace prefix.
+        /// 
+        /// like "UnityEditor.GameView"
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <returns></returns>
+        public static Type[] GetAllWindowTypes(string filter= "UnityEditor.")
+        {
+            return TypeCache.GetTypesDerivedFrom<EditorWindow>()
+                .Where(t => t.FullName.StartsWith(filter))
+                .ToArray();
         }
 
         /// <summary>
