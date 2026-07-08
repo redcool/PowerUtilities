@@ -8,52 +8,46 @@ namespace PowerUtilities
 {
     public static class StringBuilderTools
     {
-        static StringBuilder sb;
+        static StringBuilder inst;
+        /// <summary>
+        /// Gets the singleton instance of StringBuilder. If it doesn't exist, it creates a new instance.
+        /// </summary>
         public static StringBuilder Instance
         {
             get
             {
-                if (sb == null)
-                    sb = new StringBuilder();
-                return sb;
+                if (inst == null)
+                    inst = new StringBuilder();
+                return inst;
             }
         }
-        public static StringBuilder Append(string separator = "\n", bool isClearSB = false, params object[] objs)
+        public static StringBuilder Append(this StringBuilder sb, string separator = "\n", params object[] objs)
         {
-            if (sb == null)
-                sb = new StringBuilder();
-            if (isClearSB)
-                sb.Clear();
             foreach (var obj in objs)
             {
                 sb.Append(obj).Append(separator);
             }
             return sb;
         }
-        public static string ToString(bool isClearSB=true)
+
+        public static StringBuilder Append(string separator = "\n", params object[] objs)
         {
-            if (sb == null)
-                return string.Empty;
-            var result = sb.ToString();
-            if (isClearSB)
-                sb.Clear();
-            return result;
+            return Append(Instance, separator, objs);
         }
-        /// <summary>
-        /// Appends multiple objects to the (Singleton StringBuilder )with a newline after each.
-        /// </summary>
-        /// <param name="objs"></param>
-        /// <returns></returns>
-        public static StringBuilder AppendLine(params object[] objs)
+
+        public static StringBuilder InsertStart(this StringBuilder sb,string separator = "\n", params object[] objs)
         {
-            if (sb == null)
-                sb = new StringBuilder();
             foreach (var obj in objs)
             {
-                sb.AppendLine(obj.ToString());
+                sb.Insert(0, separator).Insert(0, obj);
             }
             return sb;
         }
+        public static StringBuilder InsertStart(string separator = "\n", params object[] objs)
+        {
+            return InsertStart(Instance, separator, objs);
+        }
+
         /// <summary>
         /// Extension method for StringBuilder to append multiple objects with a newline after each.
         /// </summary>
@@ -62,15 +56,35 @@ namespace PowerUtilities
         /// <returns></returns>
         public static StringBuilder AppendLine(this StringBuilder sb, params object[] objs)
         {
-            if (sb == null)
-                sb = new StringBuilder();
             foreach (var obj in objs)
             {
-                sb.Append(obj).Append("\n");
+                sb.AppendLine(obj.ToString());
             }
             return sb;
         }
 
-
+        public static StringBuilder AppendLine(params object[] objs)
+        {
+            return Instance.AppendLine(objs);
+        }
+        /// <summary>
+        /// Get string from StringBuilder and clear it if isClearSB is true.
+        /// </summary>
+        /// <param name="sb"></param>
+        /// <param name="isClearSB"></param>
+        /// <returns></returns>
+        public static string ToString(this StringBuilder sb, bool isClearSB)
+        {
+            if (sb == null)
+                return string.Empty;
+            var result = sb.ToString();
+            if (isClearSB)
+                sb.Clear();
+            return result;
+        }
+        public static string ToString(bool isClearSB=true)
+        {
+            return ToString(Instance, isClearSB);
+        }
     }
 }
