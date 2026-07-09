@@ -33,24 +33,33 @@ namespace PowerUtilities
                 graph.Destroy();
         }
 
+        public static string GetName(this PlayableGraph graph)
+        {
+#if UNITY_EDITOR
+            return graph.GetEditorName();
+#else
+            return "Runtime Graph";
+#endif
+        }
+
         public static AnimationPlayableOutput CreateAnimOutput(this PlayableGraph graph,Animator anim)
         {
-            return AnimationPlayableOutput.Create(graph, $"{graph.GetEditorName()} anim output", anim);
+            return AnimationPlayableOutput.Create(graph, $"{graph.GetName()} anim output", anim);
         }
 
         public static ScriptPlayableOutput CreateScriptOutput(this PlayableGraph graph)
         {
-            return ScriptPlayableOutput.Create(graph, $"{graph.GetEditorName()} script output {graph.GetOutputCount()}");
+            return ScriptPlayableOutput.Create(graph, $"{graph.GetName()} script output {graph.GetOutputCount()}");
         }
 
         public static AudioPlayableOutput CreateAudioOutput(this PlayableGraph graph,AudioSource target)
         {
-            return AudioPlayableOutput.Create(graph, $"{graph.GetEditorName()} audio output {graph.GetOutputCount()}",target);
+            return AudioPlayableOutput.Create(graph, $"{graph.GetName()} audio output {graph.GetOutputCount()}",target);
         }
 
         public static TexturePlayableOutput CreateTextureOutput(this PlayableGraph graph,RenderTexture rt)
         {
-            return TexturePlayableOutput.Create(graph, $"{graph.GetEditorName()} rt output {graph.GetOutputCount()}", rt);
+            return TexturePlayableOutput.Create(graph, $"{graph.GetName()} rt output {graph.GetOutputCount()}", rt);
         }
 
         /// <summary>
